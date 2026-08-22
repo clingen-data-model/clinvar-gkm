@@ -49,9 +49,12 @@ PROJECT = os.environ.get("CLOUDSDK_CORE_PROJECT", "clingen-dev")
 
 
 def bq_json(sql):
+    # --max_rows: `bq query` defaults to returning only 100 rows, which silently
+    # truncates the change-log scan (undercounting A/U and dropping most D pks from
+    # the manifest). Set a ceiling far above any realistic per-release delta size.
     out = subprocess.run(
         ["bq", "query", f"--project_id={PROJECT}", "--use_legacy_sql=false",
-         "--format=json", "--quiet", "--nouse_cache", sql],
+         "--format=json", "--quiet", "--nouse_cache", "--max_rows=100000000", sql],
         capture_output=True, text=True, check=True,
     )
     return json.loads(out.stdout or "[]")
