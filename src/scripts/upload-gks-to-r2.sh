@@ -98,15 +98,32 @@ r2_upload() {
 }
 
 r2_copy() {
+  # Server-side (no-egress) copy that works across object sizes despite two R2 gaps:
+  #   * multipart copy with default props calls GetObjectTagging (R2: NotImplemented)
+  #   * single-part copy with --copy-props none/metadata-directive sends header
+  #     x-amz-tagging-directive:REPLACE (R2: NotImplemented)
+  # No single `aws s3 cp` mode covers both. So: large objects (>=2GB — i.e. the JSON
+  # bundles) go via `aws s3 cp --copy-props none` (multipart, issues no tag calls);
+  # everything smaller via `aws s3api copy-object` (a single CopyObject that sends
+  # neither tag header — verified on small + ~1GB parquet; it is slow/capped near 5GB,
+  # which is why bundles use the cp path instead).
   local src="$1" dest="$2"
   if $DRY_RUN; then
     echo "  [dry-run] copy: ${src} -> ${dest}"
     return
   fi
-  aws s3 cp "s3://${R2_BUCKET}/${src}" "s3://${R2_BUCKET}/${dest}" \
-    --endpoint-url "${R2_ENDPOINT}" \
-    --profile "${R2_PROFILE}" \
-    --quiet
+  local size
+  size=$(aws s3api head-object --bucket "${R2_BUCKET}" --key "${src}" \
+    --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" \
+    --query ContentLength --output text 2>/dev/null || echo 0)
+  if [[ "${size}" -ge 2147483648 ]]; then
+    aws s3 cp "s3://${R2_BUCKET}/${src}" "s3://${R2_BUCKET}/${dest}" \
+      --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" --copy-props none --quiet
+  else
+    aws s3api copy-object --bucket "${R2_BUCKET}" --key "${dest}" \
+      --copy-source "${R2_BUCKET}/${src}" \
+      --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" >/dev/null
+  fi
 }
 
 r2_ls() {
@@ -202,14 +219,14 @@ archive_parquet_yearly() {
 
   for md in "${month_dirs[@]}"; do
     echo "  Moving datasets/parquet/${md}/ -> archives/${PREV_YEAR}/parquet/${md}/"
-    if $DRY_RUN; then
-      echo "  [dry-run] mv (recursive): datasets/parquet/${md}/ -> archives/${PREV_YEAR}/parquet/${md}/"
-    else
-      # Server-side recursive move (copy + delete), no egress.
-      aws s3 mv "s3://${R2_BUCKET}/datasets/parquet/${md}/" \
-                "s3://${R2_BUCKET}/archives/${PREV_YEAR}/parquet/${md}/" \
-        --recursive --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" --quiet
-    fi
+    # Per-file server-side copy+delete (a "move"); r2_copy picks the size-appropriate
+    # method. A recursive `aws s3 mv` can't (no single --copy-props mode works for R2's
+    # mixed object sizes). r2_copy/r2_rm both honor DRY_RUN.
+    while IFS= read -r fn; do
+      [[ -z "$fn" ]] && continue
+      r2_copy "datasets/parquet/${md}/${fn}" "archives/${PREV_YEAR}/parquet/${md}/${fn}"
+      r2_rm "datasets/parquet/${md}/${fn}"
+    done < <(r2_ls "datasets/parquet/${md}/")
   done
 }
 
@@ -244,23 +261,31 @@ upload_parquet() {
   # 00-latest/ and misrepresent the newest full. Same idiom as the delta uploader.
   echo "--- Refreshing ${latest_prefix}/ ---"
   if $DRY_RUN; then
-    echo "  [dry-run] clear ${latest_prefix}/ then copy ${month_prefix}/ -> ${latest_prefix}/"
+    echo "  [dry-run] clear ${latest_prefix}/ then copy each ${month_prefix}/<section> -> ${latest_prefix}/"
   else
     aws s3 rm "s3://${R2_BUCKET}/${latest_prefix}/" --recursive \
       --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" --quiet 2>/dev/null || true
-    aws s3 cp "s3://${R2_BUCKET}/${month_prefix}/" "s3://${R2_BUCKET}/${latest_prefix}/" \
-      --recursive --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" --quiet
+    # Per-file server-side copy (r2_copy picks the size-appropriate method); a recursive
+    # `aws s3 cp` can't: it needs one --copy-props mode that R2 lacks for mixed sizes.
+    for parquet_file in "${parquet_dir}"/*.parquet; do
+      [[ -f "$parquet_file" ]] || continue
+      local sect
+      sect="$(basename "${parquet_file}" .parquet)"
+      r2_copy "${month_prefix}/${sect}.parquet" "${latest_prefix}/${sect}.parquet"
+    done
   fi
   echo "  ${latest_prefix}/ refreshed."
 }
 
 publish_monthly() {
-  # Publish the passed bundle directly to the monthly slot + latest.
+  # Upload the bundle ONCE to the monthly slot, then server-side copy it to the
+  # 00-latest pointer (no second multi-GB local upload). r2_copy uses --copy-props
+  # none so R2's missing GetObjectTagging doesn't fail the copy.
   echo "--- Publishing monthly FULL ---"
   echo "  Monthly:  datasets/${MONTHLY_FILE}"
   r2_upload "${BUNDLE_FILE}" "datasets/${MONTHLY_FILE}"
-  echo "  Latest:   datasets/${LATEST_MONTHLY}"
-  r2_upload "${BUNDLE_FILE}" "datasets/${LATEST_MONTHLY}"
+  echo "  Latest:   datasets/${LATEST_MONTHLY} (server-side copy from monthly)"
+  r2_copy "datasets/${MONTHLY_FILE}" "datasets/${LATEST_MONTHLY}"
 }
 
 # =====================================================================

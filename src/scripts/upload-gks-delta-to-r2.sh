@@ -92,15 +92,31 @@ r2_upload() {
 }
 
 r2_copy() {
+  # Server-side (no-egress) copy that works across object sizes despite two R2 gaps:
+  #   * multipart copy with default props calls GetObjectTagging (R2: NotImplemented)
+  #   * single-part copy with --copy-props none sends x-amz-tagging-directive:REPLACE
+  #     (R2: NotImplemented)
+  # So: large objects (>=2GB) via `aws s3 cp --copy-props none` (multipart, no tag calls);
+  # everything smaller via `aws s3api copy-object` (single CopyObject, no tag calls).
+  # Delta artifacts are usually small (this hits the s3api path), but a large delta bundle
+  # is handled correctly too.
   local src="$1" dest="$2"
   if $DRY_RUN; then
     echo "  [dry-run] copy: ${src} -> ${dest}"
     return
   fi
-  aws s3 cp "s3://${R2_BUCKET}/${src}" "s3://${R2_BUCKET}/${dest}" \
-    --endpoint-url "${R2_ENDPOINT}" \
-    --profile "${R2_PROFILE}" \
-    --quiet
+  local size
+  size=$(aws s3api head-object --bucket "${R2_BUCKET}" --key "${src}" \
+    --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" \
+    --query ContentLength --output text 2>/dev/null || echo 0)
+  if [[ "${size}" -ge 2147483648 ]]; then
+    aws s3 cp "s3://${R2_BUCKET}/${src}" "s3://${R2_BUCKET}/${dest}" \
+      --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" --copy-props none --quiet
+  else
+    aws s3api copy-object --bucket "${R2_BUCKET}" --key "${dest}" \
+      --copy-source "${R2_BUCKET}/${src}" \
+      --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" >/dev/null
+  fi
 }
 
 r2_ls() {
