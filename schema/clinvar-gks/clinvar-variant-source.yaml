@@ -1,5 +1,5 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
-$id: "https://w3id.org/ga4gh/schema/clinvar-gks/1.x/clinvar-gks/clinvar-variant-source.yaml"
+$id: "https://w3id.org/ga4gh/schema/clinvar-gks/1.0-rc3/clinvar-gks/clinvar-variant-source.yaml"
 title: ClinGen's Clinvar variant profile
 description: >-
   Profiles defined to support the clinvar GKS datasets.

@@ -1,13 +1,13 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/ga4gh/schema/clinvar-gks/1.x/clinvar-gks/json/ClinvarNotProvidedProposition",
+   "$id": "https://w3id.org/ga4gh/schema/clinvar-gks/1.0-rc3/clinvar-gks/json/ClinvarNotProvidedProposition",
    "title": "ClinvarNotProvidedProposition",
    "description": "A proposition for ClinVar submissions where the submitter did not provide a clinical classification. These submissions still carry variant-condition associations but lack a formal pathogenicity or clinical significance assessment.",
    "type": "object",
    "maturity": "draft",
    "allOf": [
       {
-         "$ref": "/ga4gh/schema/clinvar-gks/1.x/clinvar-gks/json/ClinvarGermlineCustomProposition"
+         "$ref": "/ga4gh/schema/clinvar-gks/1.0-rc3/clinvar-gks/json/ClinvarGermlineCustomProposition"
       }
    ],
    "properties": {

@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/ga4gh/schema/clinvar-gks/1.x/clinvar-gks/json/HgvsListItem",
+   "$id": "https://w3id.org/ga4gh/schema/clinvar-gks/1.0-rc3/clinvar-gks/json/HgvsListItem",
    "title": "HgvsListItem",
    "description": "A complex structure for sharing individual HGVS entries associated with Clinvar Variations including nucleotide expressions, protein expressions, molecular consequence and mane select/plus settings for the specific aligned and projected forms of the clinvar variant.",
    "type": "object",

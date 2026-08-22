@@ -1,13 +1,13 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/ga4gh/schema/clinvar-gks/1.x/clinvar-gks/json/ClinvarDrugResponseProposition",
+   "$id": "https://w3id.org/ga4gh/schema/clinvar-gks/1.0-rc3/clinvar-gks/json/ClinvarDrugResponseProposition",
    "title": "ClinvarDrugResponseProposition",
    "description": "A proposition describing the role of a variant in modulating drug response. Used for ClinVar submissions classified as \"drug response\". Distinct from the GA4GH VariantTherapeuticResponseProposition which is used for somatic clinical impact therapeutic response assertions.",
    "type": "object",
    "maturity": "draft",
    "allOf": [
       {
-         "$ref": "/ga4gh/schema/clinvar-gks/1.x/clinvar-gks/json/ClinvarGermlineCustomProposition"
+         "$ref": "/ga4gh/schema/clinvar-gks/1.0-rc3/clinvar-gks/json/ClinvarGermlineCustomProposition"
       }
    ],
    "properties": {
