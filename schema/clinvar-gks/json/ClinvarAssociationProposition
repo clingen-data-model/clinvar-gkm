@@ -1,13 +1,13 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/ga4gh/schema/clinvar-gks/1.x/clinvar-gks/json/ClinvarAssociationProposition",
+   "$id": "https://w3id.org/ga4gh/schema/clinvar-gks/1.0-rc3/clinvar-gks/json/ClinvarAssociationProposition",
    "title": "ClinvarAssociationProposition",
    "description": "A proposition describing a statistical or observational association between a variant and a condition. Used for ClinVar submissions classified as \"association\". Does not imply a causal relationship.",
    "type": "object",
    "maturity": "draft",
    "allOf": [
       {
-         "$ref": "/ga4gh/schema/clinvar-gks/1.x/clinvar-gks/json/ClinvarGermlineCustomProposition"
+         "$ref": "/ga4gh/schema/clinvar-gks/1.0-rc3/clinvar-gks/json/ClinvarGermlineCustomProposition"
       }
    ],
    "properties": {

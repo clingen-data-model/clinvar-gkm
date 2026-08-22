@@ -1,5 +1,5 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
-$id: "https://w3id.org/ga4gh/schema/clinvar-gks/1.x/clinvar-gks/clinvar-statement-source.yaml"
+$id: "https://w3id.org/ga4gh/schema/clinvar-gks/1.0-rc3/clinvar-gks/clinvar-statement-source.yaml"
 title: ClinVar-GKS statement profiles
 description: >-
   Profiles of the VA-Spec Statement type for ClinVar SCV (submission-level),
@@ -22,7 +22,7 @@ namespaces:
   vrs: /ga4gh/schema/vrs/2.1.0-ballot.2026-07.1/json/
   cat-vrs: /ga4gh/schema/cat-vrs/1.1.0-ballot.2026-07.1/json/
   va-spec: /ga4gh/schema/va-spec/1.1.0-ballot.2026-07.2/base/json/
-  clinvar-gks: /ga4gh/schema/clinvar-gks/1.x/clinvar-gks/json/
+  clinvar-gks: /ga4gh/schema/clinvar-gks/1.0-rc3/clinvar-gks/json/
 
 $defs:
   # ─── SCV Extension Types ───
