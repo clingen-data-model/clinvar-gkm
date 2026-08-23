@@ -9,4 +9,4 @@ SELECT * EXCEPT(constraints, members),
     FROM UNNEST(constraints) AS c
   ) AS constraints,
   TO_JSON_STRING((SELECT AS STRUCT t.*)) AS data
-FROM {DATASET}.gks_dict_variation t
+FROM {DATASET}.gkm_dict_variation t

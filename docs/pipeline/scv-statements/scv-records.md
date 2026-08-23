@@ -2,7 +2,7 @@
 
 ## Overview
 
-Step 1 of `gks_scv_statement_proc` builds the foundational SCV record table `temp_gks_scv` by extracting and transforming data from `scv_summary` and `clinical_assertion`. This table provides the core classification, submitter, and metadata fields consumed by all subsequent steps (2--7).
+Step 1 of `gkm_scv_statement_proc` builds the foundational SCV record table `temp_gkm_scv` by extracting and transforming data from `scv_summary` and `clinical_assertion`. This table provides the core classification, submitter, and metadata fields consumed by all subsequent steps (2--7).
 
 ---
 
@@ -69,7 +69,7 @@ A submitter struct is constructed with the format `clinvar.submitter:{id}`, prov
 
 ## Output
 
-**`temp_gks_scv`** -- one row per SCV with core classification and submitter metadata. <span class="role-badge badge-internal">Internal</span>
+**`temp_gkm_scv`** -- one row per SCV with core classification and submitter metadata. <span class="role-badge badge-internal">Internal</span>
 
 Consumed by Steps 2--7 for qualifier assembly, proposition construction, and final statement assembly.
 

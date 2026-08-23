@@ -1,8 +1,8 @@
 -- ============================================================================
--- gks_rcvvcv_changed — shared per-release impacted-RCV / impacted-VCV parent sets
+-- gkm_rcvvcv_changed — shared per-release impacted-RCV / impacted-VCV parent sets
 -- ============================================================================
 -- Computes, ONCE per release, the two impacted-parent sets that every incremental
--- RCV/VCV proc (gks_rcv, gks_rcv_statement, gks_vcv, gks_vcv_statement) consumes to
+-- RCV/VCV proc (gkm_rcv, gkm_rcv_statement, gkm_vcv, gkm_vcv_statement) consumes to
 -- restrict its recompute + drive its carry-forward merge. Writes two persistent
 -- {S} tables:
 --
@@ -14,7 +14,7 @@
 -- case is a changed SCV forcing recompute of its parent even though the parent's
 -- own row is byte-identical (the statement re-aggregates across members).
 --
--- Member-SCV driver = scv_changed_ids ∪ scv_removed_ids (from gks_scv_changed).
+-- Member-SCV driver = scv_changed_ids ∪ scv_removed_ids (from gkm_scv_changed).
 -- BOTH are needed: a REMOVED SCV's old parent must recompute (it lost a member),
 -- and scv_changed_ids already folds in every content/trait/version driver Plan 2
 -- hardened. Using the full scv_changed_ids (not the narrower version/review-status
@@ -37,8 +37,8 @@
 --       diff_rcv_accession is keyed [id,version], so a version bump emits a spurious
 --       'removed' row for the OLD version while the RCV is still live and MUST
 --       recompute (its version is embedded in full_rcv_id → the output id). Removal
---       = absence from current only (same [id,version] trap gks_scv_changed handles).
---   (No own-agg-row-diff arm: this proc runs BEFORE gks_rcv_proc, so there is no
+--       = absence from current only (same [id,version] trap gkm_scv_changed handles).
+--   (No own-agg-row-diff arm: this proc runs BEFORE gkm_rcv_proc, so there is no
 --    current agg table to diff; arms 1-3 subsume spec §3.2's own-record diffs.)
 --
 -- vcv_impacted_ids arms (uncorrelated UNION DISTINCT; anti-join out removed):
@@ -55,11 +55,11 @@
 --       the VCV is live and must recompute — its version is in full_vcv_id → id).
 --   (No own-agg-row-diff arm — same reason as RCV.)
 --
--- All-or-nothing driver gate (mirrors gks_scv_changed): dataset_diff_all wraps each
+-- All-or-nothing driver gate (mirrors gkm_scv_changed): dataset_diff_all wraps each
 -- table diff in an EXCEPTION handler and continues, so a required diff_* can be
 -- silently absent. Required drivers = diff_rcv_mapping, diff_rcv_accession,
 -- diff_variation_archive (current) + scv_changed_ids, scv_removed_ids (from
--- gks_scv_changed) + baseline resolvable with rcv_mapping / scv_summary /
+-- gkm_scv_changed) + baseline resolvable with rcv_mapping / scv_summary /
 -- variation_archive. If ANY is missing → EVERYTHING-IMPACTED fallback
 -- (rcv_impacted_ids = all {S}.rcv_accession.id; vcv_impacted_ids = all
 -- {S}.variation_archive.id) and RETURN; incremental safely degrades to full.
@@ -67,7 +67,7 @@
 -- Baseline = nearest existing prior release (schema_on(prev_release_date)).
 -- ============================================================================
 
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_rcvvcv_changed`(on_date DATE)
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_rcvvcv_changed`(on_date DATE)
 BEGIN
   DECLARE base_schema STRING;
   DECLARE base_has_rcv_mapping BOOL DEFAULT FALSE;

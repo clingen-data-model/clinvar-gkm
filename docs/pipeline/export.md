@@ -1,78 +1,78 @@
 # Export & Distribute
 
-The final pipeline step exports the `gks_dict_*` tables from BigQuery, assembles them into a single keyed JSON bundle, exports Parquet files directly from BigQuery, and uploads to Cloudflare R2 for public distribution.
+The final pipeline step exports the `gkm_dict_*` tables from BigQuery, assembles them into a single keyed JSON bundle, exports Parquet files directly from BigQuery, and uploads to Cloudflare R2 for public distribution.
 
-The `gks_dict_*` tables **are** the published product — they are built directly by the statement procedures (steps 5–7) and the change-log step (step 8). The retired `gks_json_proc` is not part of this path; its inlined JSON-render tables were never published. See [Retired: gks_json_proc](#retired-gks_json_proc).
+The `gkm_dict_*` tables **are** the published product — they are built directly by the statement procedures (steps 5–7) and the change-log step (step 8). The retired `gkm_json_proc` is not part of this path; its inlined JSON-render tables were never published. See [Retired: gkm_json_proc](#retired-gkm_json_proc).
 
 Distribution follows a **full + delta** model:
 
-- The complete **monthly full bundle** (JSON + Parquet) is published once a month via `release-gks.sh` / `upload-gks-to-r2.sh`.
-- A **weekly delta** — added and updated records plus a change manifest — is published for every release via `release-gks-delta.sh` / `upload-gks-delta-to-r2.sh`.
+- The complete **monthly full bundle** (JSON + Parquet) is published once a month via `release-gkm.sh` / `upload-gkm-to-r2.sh`.
+- A **weekly delta** — added and updated records plus a change manifest — is published for every release via `release-gkm-delta.sh` / `upload-gkm-delta-to-r2.sh`.
 
 ---
 
 ## Workflow
 
-The export and distribution process uses four steps, executed in sequence. The `release-gks.sh` wrapper runs all four automatically, or each step can be run individually.
+The export and distribution process uses four steps, executed in sequence. The `release-gkm.sh` wrapper runs all four automatically, or each step can be run individually.
 
 ### Step 1: Export Dictionaries to GCS
 
-`export-gks-dicts.sh` exports all dictionary and statement tables from BigQuery to Google Cloud Storage in two formats:
+`export-gkm-dicts.sh` exports all dictionary and statement tables from BigQuery to Google Cloud Storage in two formats:
 
-- **NDJSON** — sharded, gzip-compressed files for JSON bundle assembly (`gks-dicts/`)
-- **Parquet** — Snappy-compressed files exported natively via `bq extract` (`gks-dicts-parquet/`)
+- **NDJSON** — sharded, gzip-compressed files for JSON bundle assembly (`gkm-dicts/`)
+- **Parquet** — Snappy-compressed files exported natively via `bq extract` (`gkm-dicts-parquet/`)
 
 ```bash
-./src/scripts/export-gks-dicts.sh <dataset> <gcs_bucket> [prefix] [--parquet-only]
+./src/scripts/export-gkm-dicts.sh <dataset> <gcs_bucket> [prefix] [--parquet-only]
 ```
 
 ```bash
 # Export both NDJSON and Parquet
-./src/scripts/export-gks-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gkm gks-dicts
+./src/scripts/export-gkm-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gkm gkm-dicts
 
 # Export Parquet only (skip NDJSON)
-./src/scripts/export-gks-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gkm gks-dicts --parquet-only
+./src/scripts/export-gkm-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gkm gkm-dicts --parquet-only
 ```
 
 The script exports the following 19 tables:
 
 | Table | NDJSON Output | Parquet Output |
 | --- | --- | --- |
-| `gks_dict_sequence_reference` | `sequenceReference-*.ndjson.gz` | `sequenceReference.parquet` |
-| `gks_dict_location` | `location-*.ndjson.gz` | `location.parquet` |
-| `gks_dict_allele` | `allele-*.ndjson.gz` | `allele.parquet` |
-| `gks_dict_copy_number_count` | `copyNumberCount-*.ndjson.gz` | `copyNumberCount.parquet` |
-| `gks_dict_copy_number_change` | `copyNumberChange-*.ndjson.gz` | `copyNumberChange.parquet` |
-| `gks_dict_gene` | `gene-*.ndjson.gz` | `gene.parquet` |
-| `gks_dict_variation` | `variation-*.ndjson.gz` | `variation.parquet` |
-| `gks_dict_condition` | `condition-*.ndjson.gz` | `condition.parquet` |
-| `gks_dict_condition_set` | `conditionSet-*.ndjson.gz` | `conditionSet.parquet` |
-| `gks_dict_submitter` | `submitter-*.ndjson.gz` | `submitter.parquet` |
-| `gks_dict_proposition` | `proposition-*.ndjson.gz` | `proposition.parquet` |
-| `gks_dict_evidence_line` | `evidenceLine-*.ndjson.gz` | `evidenceLine.parquet` |
-| `gks_dict_vcv_proposition` | `vcv_proposition-*.ndjson.gz` | `vcv_proposition.parquet` |
-| `gks_dict_vcv_evidence_line` | `vcv_evidenceLine-*.ndjson.gz` | `vcv_evidenceLine.parquet` |
-| `gks_dict_rcv_proposition` | `rcv_proposition-*.ndjson.gz` | `rcv_proposition.parquet` |
-| `gks_dict_rcv_evidence_line` | `rcv_evidenceLine-*.ndjson.gz` | `rcv_evidenceLine.parquet` |
-| `gks_dict_scv` | `scv-*.ndjson.gz` | `scv.parquet` |
-| `gks_dict_vcv` | `vcv-*.ndjson.gz` | `vcv.parquet` |
-| `gks_dict_rcv` | `rcv-*.ndjson.gz` | `rcv.parquet` |
+| `gkm_dict_sequence_reference` | `sequenceReference-*.ndjson.gz` | `sequenceReference.parquet` |
+| `gkm_dict_location` | `location-*.ndjson.gz` | `location.parquet` |
+| `gkm_dict_allele` | `allele-*.ndjson.gz` | `allele.parquet` |
+| `gkm_dict_copy_number_count` | `copyNumberCount-*.ndjson.gz` | `copyNumberCount.parquet` |
+| `gkm_dict_copy_number_change` | `copyNumberChange-*.ndjson.gz` | `copyNumberChange.parquet` |
+| `gkm_dict_gene` | `gene-*.ndjson.gz` | `gene.parquet` |
+| `gkm_dict_variation` | `variation-*.ndjson.gz` | `variation.parquet` |
+| `gkm_dict_condition` | `condition-*.ndjson.gz` | `condition.parquet` |
+| `gkm_dict_condition_set` | `conditionSet-*.ndjson.gz` | `conditionSet.parquet` |
+| `gkm_dict_submitter` | `submitter-*.ndjson.gz` | `submitter.parquet` |
+| `gkm_dict_proposition` | `proposition-*.ndjson.gz` | `proposition.parquet` |
+| `gkm_dict_evidence_line` | `evidenceLine-*.ndjson.gz` | `evidenceLine.parquet` |
+| `gkm_dict_vcv_proposition` | `vcv_proposition-*.ndjson.gz` | `vcv_proposition.parquet` |
+| `gkm_dict_vcv_evidence_line` | `vcv_evidenceLine-*.ndjson.gz` | `vcv_evidenceLine.parquet` |
+| `gkm_dict_rcv_proposition` | `rcv_proposition-*.ndjson.gz` | `rcv_proposition.parquet` |
+| `gkm_dict_rcv_evidence_line` | `rcv_evidenceLine-*.ndjson.gz` | `rcv_evidenceLine.parquet` |
+| `gkm_dict_scv` | `scv-*.ndjson.gz` | `scv.parquet` |
+| `gkm_dict_vcv` | `vcv-*.ndjson.gz` | `vcv.parquet` |
+| `gkm_dict_rcv` | `rcv-*.ndjson.gz` | `rcv.parquet` |
 
 BigQuery `EXTRACT` shards large NDJSON tables across multiple files automatically. Parquet files are exported as single files per table; BigQuery may auto-shard very large tables with numeric suffixes.
 
 ### Step 2: Assemble Bundle
 
-`assemble-gks-dicts.py` reads all NDJSON shard files and assembles them into a single keyed JSON bundle file.
+`assemble-gkm-dicts.py` reads all NDJSON shard files and assembles them into a single keyed JSON bundle file.
 
 ```bash
-python3 ./src/scripts/assemble-gks-dicts.py <source> <date> [--keep-source] [--copy-to-gcs]
+python3 ./src/scripts/assemble-gkm-dicts.py <source> <date> [--keep-source] [--copy-to-gcs]
 ```
 
 `<source>` is a local path or `gs://` URI containing the NDJSON shards. `<date>` is the ClinVar release date (`YYYY-MM-DD`); the output path is derived as `/tmp/clinvar-gkm-{date}.json.gz`. By default, source files are deleted after assembly; use `--keep-source` to retain them.
 
 ```bash
-python3 ./src/scripts/assemble-gks-dicts.py \
-  gs://clinvar-gkm/gks-dicts/ \
+python3 ./src/scripts/assemble-gkm-dicts.py \
+  gs://clinvar-gkm/gkm-dicts/ \
   2026-06-14
 ```
 
@@ -86,9 +86,9 @@ pip install orjson
 
 ### Step 3: Download and Merge Parquet from GCS
 
-`release-gks.sh` downloads Parquet shards from GCS, merges them into one file per section using DuckDB, and stages the merged files for upload. BigQuery exports may produce multiple shards per table (e.g., `allele-000000000000.parquet`, `allele-000000000001.parquet`); this step consolidates them into a single `allele.parquet`.
+`release-gkm.sh` downloads Parquet shards from GCS, merges them into one file per section using DuckDB, and stages the merged files for upload. BigQuery exports may produce multiple shards per table (e.g., `allele-000000000000.parquet`, `allele-000000000001.parquet`); this step consolidates them into a single `allele.parquet`.
 
-This step is handled automatically by `release-gks.sh` and cannot be run as a standalone script.
+This step is handled automatically by `release-gkm.sh` and cannot be run as a standalone script.
 
 #### Parquet Output
 
@@ -120,19 +120,19 @@ See [Parquet Files](../data-access/download.md#parquet-files) for download URLs 
 
 ### Step 4: Upload the Monthly Full to R2
 
-`upload-gks-to-r2.sh` uploads the assembled full bundle and Parquet files to Cloudflare R2. As of the delta distribution model, the full bundle is published **month-end only** — it corresponds to the last release of a month and is uploaded retroactively when the first release of the next month runs.
+`upload-gkm-to-r2.sh` uploads the assembled full bundle and Parquet files to Cloudflare R2. As of the delta distribution model, the full bundle is published **month-end only** — it corresponds to the last release of a month and is uploaded retroactively when the first release of the next month runs.
 
 ```bash
-./src/scripts/upload-gks-to-r2.sh <export_date> <dataset_version> <bundle_file> [--parquet-dir=DIR] [--dry-run]
+./src/scripts/upload-gkm-to-r2.sh <export_date> <dataset_version> <bundle_file> [--parquet-dir=DIR] [--dry-run]
 ```
 
 ```bash
 # Upload full bundle + Parquet files
-./src/scripts/upload-gks-to-r2.sh 2026-06-14 v2_5_0 /tmp/clinvar-gkm-2026-06-14.json.gz \
+./src/scripts/upload-gkm-to-r2.sh 2026-06-14 v2_5_0 /tmp/clinvar-gkm-2026-06-14.json.gz \
   --parquet-dir=/tmp/clinvar-gkm-2026-06-14-parquet
 
 # Preview without uploading
-./src/scripts/upload-gks-to-r2.sh 2026-06-14 v2_5_0 /tmp/clinvar-gkm-2026-06-14.json.gz --dry-run
+./src/scripts/upload-gkm-to-r2.sh 2026-06-14 v2_5_0 /tmp/clinvar-gkm-2026-06-14.json.gz --dry-run
 ```
 
 The script manages the monthly full slots:
@@ -145,29 +145,29 @@ There is **no weekly full bundle** — weekly changes are published as deltas (s
 
 ### Step 5: Publish the Weekly Delta
 
-`release-gks-delta.sh` publishes the per-release delta for every ClinVar release. It exports the `delta_<dict>` change tables produced by step 8 of the pipeline, assembles a delta bundle (added + updated records, same section structure as the full), merges per-section delta Parquet, builds `manifest.json`, and uploads the delta tree to R2.
+`release-gkm-delta.sh` publishes the per-release delta for every ClinVar release. It exports the `delta_<dict>` change tables produced by step 8 of the pipeline, assembles a delta bundle (added + updated records, same section structure as the full), merges per-section delta Parquet, builds `manifest.json`, and uploads the delta tree to R2.
 
 ```bash
-./src/scripts/release-gks-delta.sh <export_date> <dataset_version> [--start-step=N] [--dry-run]
+./src/scripts/release-gkm-delta.sh <export_date> <dataset_version> [--start-step=N] [--dry-run]
 ```
 
 ```bash
 # Publish the weekly delta for a release
-./src/scripts/release-gks-delta.sh 2026-07-06 v2_5_0
+./src/scripts/release-gkm-delta.sh 2026-07-06 v2_5_0
 ```
 
-The four internal steps are: export delta tables to GCS, assemble the delta bundle, merge delta Parquet, then build the manifest (`build-delta-manifest.py`) and upload (`upload-gks-delta-to-r2.sh`). The uploader writes:
+The four internal steps are: export delta tables to GCS, assemble the delta bundle, merge delta Parquet, then build the manifest (`build-delta-manifest.py`) and upload (`upload-gkm-delta-to-r2.sh`). The uploader writes:
 
 - **`deltas/<yyyy-mmdd>/`** — the delta bundle (`clinvar-gkm-delta_<yyyy-mmdd>.json.gz`), `manifest.json`, and `parquet/<section>.parquet`
 - **`deltas/00-latest/`** — a server-side mirror of the most recent delta under stable filenames
 
-`build-delta-manifest.py` derives each section's `added` / `updated` counts and `deleted` primary-key list from the dataset's `gks_change_log`, and records `baseline_release`, `compare_release`, `pipeline_version`, and `counts`. The uploader then resolves `checkpoint_full` — the newest monthly full currently in `datasets/` — so a consumer knows which full bundle the delta chain replays onto. See [Downloads](../data-access/download.md#weekly-deltas) for the manifest shape and the consumer replay model.
+`build-delta-manifest.py` derives each section's `added` / `updated` counts and `deleted` primary-key list from the dataset's `gkm_change_log`, and records `baseline_release`, `compare_release`, `pipeline_version`, and `counts`. The uploader then resolves `checkpoint_full` — the newest monthly full currently in `datasets/` — so a consumer knows which full bundle the delta chain replays onto. See [Downloads](../data-access/download.md#weekly-deltas) for the manifest shape and the consumer replay model.
 
 ---
 
-## Retired: gks_json_proc
+## Retired: gkm_json_proc
 
-`gks_json_proc` previously rendered the statement and dictionary tables into inlined JSON columns. Those render tables were **never published** — the export assembles the bundle directly from the `gks_dict_*` tables — so the procedure has been retired from the hot path. The null/empty stripping it used to perform is now applied during assembly (`assemble-gks-dicts.py`), matching the old `remove_empty` cleanup. `gks_json_proc` is not a live pipeline step and not a downstream consumer of the dictionary tables.
+`gkm_json_proc` previously rendered the statement and dictionary tables into inlined JSON columns. Those render tables were **never published** — the export assembles the bundle directly from the `gkm_dict_*` tables — so the procedure has been retired from the hot path. The null/empty stripping it used to perform is now applied during assembly (`assemble-gkm-dicts.py`), matching the old `remove_empty` cleanup. `gkm_json_proc` is not a live pipeline step and not a downstream consumer of the dictionary tables.
 
 ---
 
@@ -186,7 +186,7 @@ The four internal steps are: export delta tables to GCS, assemble the delta bund
 Publish the monthly full bundle for June 14, 2026:
 
 ```bash
-./src/scripts/release-gks.sh 2026-06-14 v2_5_0
+./src/scripts/release-gkm.sh 2026-06-14 v2_5_0
 ```
 
 This runs Steps 1–4: export to GCS, assemble JSON bundle, download and merge Parquet, upload the monthly full to R2.
@@ -194,20 +194,20 @@ This runs Steps 1–4: export to GCS, assemble JSON bundle, download and merge P
 Publish the weekly delta for the same release:
 
 ```bash
-./src/scripts/release-gks-delta.sh 2026-06-14 v2_5_0
+./src/scripts/release-gkm-delta.sh 2026-06-14 v2_5_0
 ```
 
-Steps 1 and 2 of the full can also be run individually. Steps 3–4 (Parquet download, shard merging, and upload) are handled internally by `release-gks.sh` — use `--start-step` to resume from a specific step.
+Steps 1 and 2 of the full can also be run individually. Steps 3–4 (Parquet download, shard merging, and upload) are handled internally by `release-gkm.sh` — use `--start-step` to resume from a specific step.
 
 ```bash
 # 1. Export dictionary tables to GCS (NDJSON + Parquet)
-./src/scripts/export-gks-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gkm gks-dicts
+./src/scripts/export-gkm-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gkm gkm-dicts
 
 # 2. Assemble NDJSON into a single JSON bundle
-python3 ./src/scripts/assemble-gks-dicts.py \
-  gs://clinvar-gkm/gks-dicts/ \
+python3 ./src/scripts/assemble-gkm-dicts.py \
+  gs://clinvar-gkm/gkm-dicts/ \
   2026-06-14
 
 # 3-4. Download Parquet, merge shards, upload to R2
-./src/scripts/release-gks.sh 2026-06-14 v2_5_0 --start-step=3
+./src/scripts/release-gkm.sh 2026-06-14 v2_5_0 --start-step=3
 ```

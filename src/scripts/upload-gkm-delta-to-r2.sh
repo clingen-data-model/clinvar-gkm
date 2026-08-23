@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Upload a ClinVar-GKM DELTA tree (bundle + manifest + Parquet) to Cloudflare R2.
-# Runs after release-gks-delta.sh has produced the delta bundle, manifest.json,
+# Runs after release-gkm-delta.sh has produced the delta bundle, manifest.json,
 # and merged per-section delta Parquet.
 #
 # R2 layout written:
@@ -15,7 +15,7 @@
 # full bundle this delta chain replays onto. Then regenerates index.json.
 #
 # Usage:
-#   ./upload-gks-delta-to-r2.sh <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run]
+#   ./upload-gkm-delta-to-r2.sh <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run]
 
 set -e
 
@@ -75,7 +75,7 @@ LATEST_DELTA_NAME="clinvar-gkm-delta_00-latest.json.gz"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # =====================================================================
-# Helper functions (shared with upload-gks-to-r2.sh)
+# Helper functions (shared with upload-gkm-to-r2.sh)
 # =====================================================================
 
 r2_upload() {

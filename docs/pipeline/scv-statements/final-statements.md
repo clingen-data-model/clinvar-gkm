@@ -2,7 +2,7 @@
 
 ## Overview
 
-Step 7 of `gks_scv_statement_proc` performs the final assembly of complete VA-Spec Statement records into `gks_dict_scv`. This step joins all previously built components -- SCV records, propositions, conditions, citations, and assertion methods -- into the output structure consumed by VCV procedures and the JSON export pipeline.
+Step 7 of `gkm_scv_statement_proc` performs the final assembly of complete VA-Spec Statement records into `gkm_dict_scv`. This step joins all previously built components -- SCV records, propositions, conditions, citations, and assertion methods -- into the output structure consumed by VCV procedures and the JSON export pipeline.
 
 ---
 
@@ -12,7 +12,7 @@ The step uses several CTEs to prepare intermediate data before the final SELECT.
 
 ### scv_condition_name
 
-Derives a single human-readable condition name string from `gks_scv_condition_sets` for use in the classification description extension:
+Derives a single human-readable condition name string from `gkm_scv_condition_sets` for use in the classification description extension:
 
 - **Single condition** -- uses the condition's `name` field directly
 - **ConditionSet with 2+ conditions** -- produces `"N conditions"` (e.g., `"3 conditions"`)
@@ -89,14 +89,14 @@ For somatic clinical impact assertions, the `hasEvidenceLines` field contains ev
 
 ## Output
 
-**`gks_dict_scv`** -- one row per SCV with the complete VA-Spec Statement record. <span class="role-badge badge-pipeline">Pipeline table</span>
+**`gkm_dict_scv`** -- one row per SCV with the complete VA-Spec Statement record. <span class="role-badge badge-pipeline">Pipeline table</span>
 
-Consumed by `gks_vcv_proc` and `gks_vcv_statement_proc` for VCV aggregation, and assembled directly into the published bundle by the export pipeline.
+Consumed by `gkm_vcv_proc` and `gkm_vcv_statement_proc` for VCV aggregation, and assembled directly into the published bundle by the export pipeline.
 
 ---
 
 ## Dependencies
 
-- **Upstream Steps**: Step 1 (`temp_gks_scv`), Step 5 (`temp_gks_scv_proposition`), Step 6 (`temp_gks_scv_target_proposition`)
-- **Upstream Procedures**: `gks_scv_condition_proc` (provides `gks_scv_condition_sets`)
-- **Downstream Consumers**: `gks_vcv_proc`, `gks_vcv_statement_proc`, change-log / delta build (`gks_change_log`), export pipeline
+- **Upstream Steps**: Step 1 (`temp_gkm_scv`), Step 5 (`temp_gkm_scv_proposition`), Step 6 (`temp_gkm_scv_target_proposition`)
+- **Upstream Procedures**: `gkm_scv_condition_proc` (provides `gkm_scv_condition_sets`)
+- **Downstream Consumers**: `gkm_vcv_proc`, `gkm_vcv_statement_proc`, change-log / delta build (`gkm_change_log`), export pipeline

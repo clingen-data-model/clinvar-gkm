@@ -4,8 +4,8 @@
 
 RCV statement generation is split across two stored procedures that run sequentially:
 
-1. **`gks_rcv_proc`** -- builds aggregation tables through a two-layer aggregation hierarchy, progressively combining SCV-level data into condition-specific RCV-level summaries
-2. **`gks_rcv_statement_proc`** -- transforms those aggregation tables into GKS-formatted RCV statements with nested evidence lines and condition data
+1. **`gkm_rcv_proc`** -- builds aggregation tables through a two-layer aggregation hierarchy, progressively combining SCV-level data into condition-specific RCV-level summaries
+2. **`gkm_rcv_statement_proc`** -- transforms those aggregation tables into GKS-formatted RCV statements with nested evidence lines and condition data
 
 Both procedures accept the same parameters:
 
@@ -16,7 +16,7 @@ Both procedures accept the same parameters:
 
 ---
 
-## gks_rcv_proc (Aggregation)
+## gkm_rcv_proc (Aggregation)
 
 This procedure materializes base data from SCV-level sources and builds two layers of progressively broader aggregation. Each layer groups records at a coarser level, applying submission-level-specific classification and review status logic. The aggregation logic mirrors VCV but operates per (variation, condition) pair rather than per variation.
 
@@ -38,7 +38,7 @@ Key derivations:
 
 ---
 
-### Step 2: Build gks_rcv_grouping_base_agg
+### Step 2: Build gkm_rcv_grouping_base_agg
 
 Core aggregation step that groups SCVs by `(rcv_accession, trait_set_id, statement_group, prop_type, submission_level, tier_grouping)`. Tier grouping is only populated for somatic clinical impact (sci) propositions; it is NULL for all other proposition types.
 
@@ -49,7 +49,7 @@ The step uses four CTEs:
 | `core_agg` | GROUP BY with `ARRAY_AGG` of SCV IDs, contributing submission levels, and unique submitter count |
 | `label_counts` | Per-classification-label SCV counts with significance values |
 | `conflict_strings` | Aggregated classification labels, significance counts, and formatted conflict explanation strings |
-| `somatic_conditions` | Condition names for somatic sci propositions, joined from `gks_scv_condition_mapping` |
+| `somatic_conditions` | Condition names for somatic sci propositions, joined from `gkm_scv_condition_mapping` |
 
 The `final_prep` CTE applies submission-level-specific logic:
 
@@ -62,11 +62,11 @@ The `final_prep` CTE applies submission-level-specific logic:
 
 ID format: `{RCV}.{ver}-{group}-{prop}-{level}[-{tier}]`
 
-**Output:** `gks_rcv_grouping_base_agg` -- one row per aggregation group. <span class="role-badge badge-pipeline">Pipeline table</span>
+**Output:** `gkm_rcv_grouping_base_agg` -- one row per aggregation group. <span class="role-badge badge-pipeline">Pipeline table</span>
 
 ---
 
-### Step 3: Build gks_rcv_grouping_tier_agg
+### Step 3: Build gkm_rcv_grouping_tier_agg
 
 Aggregates Base Grouping records by tier within each submission level. This layer applies only to somatic clinical impact (sci) propositions where `tier_grouping IS NOT NULL`.
 
@@ -80,11 +80,11 @@ The aggregate label appends secondary trait information when applicable.
 
 ID format: `{RCV}.{ver}-{group}-{prop}-{level}`
 
-**Output:** `gks_rcv_grouping_tier_agg` -- one row per submission level within a proposition type. <span class="role-badge badge-pipeline">Pipeline table</span>
+**Output:** `gkm_rcv_grouping_tier_agg` -- one row per submission level within a proposition type. <span class="role-badge badge-pipeline">Pipeline table</span>
 
 ---
 
-### Step 4: Build gks_rcv_aggregate_contribution
+### Step 4: Build gkm_rcv_aggregate_contribution
 
 Submission-level aggregator using winner-takes-all ranking. Takes a unified input of Tier Grouping output (tiered records) combined with non-tiered Base Grouping records (`tier_grouping IS NULL`).
 
@@ -96,13 +96,13 @@ Non-contributing details are preserved as an array of structs containing the lay
 
 ID format: `{RCV}.{ver}-{group}-{prop}`
 
-**Output:** `gks_rcv_aggregate_contribution` -- one row per proposition type within a statement group. <span class="role-badge badge-pipeline">Pipeline table</span>
+**Output:** `gkm_rcv_aggregate_contribution` -- one row per proposition type within a statement group. <span class="role-badge badge-pipeline">Pipeline table</span>
 
 ---
 
-## gks_rcv_statement_proc (Statement Generation)
+## gkm_rcv_statement_proc (Statement Generation)
 
-This procedure transforms the aggregation tables produced by `gks_rcv_proc` into GKS-formatted RCV statements. It resolves condition data, generates statement structures at each layer (BASE), inlines evidence items into nested structures (PRE), then combines the results into a final output table.
+This procedure transforms the aggregation tables produced by `gkm_rcv_proc` into GKS-formatted RCV statements. It resolves condition data, generates statement structures at each layer (BASE), inlines evidence items into nested structures (PRE), then combines the results into a final output table.
 
 PG and EP are independent submission levels. Each produces a single aggregate label and a single `objectCondition` value at every layer, using the same structure as every other submission level.
 
@@ -112,7 +112,7 @@ The procedure executes 8 sections: condition data resolution, three BASE steps, 
 
 ### Condition Data Resolution
 
-Before building statement structures, the procedure materializes `temp_rcv_condition_data` by joining `rcv_mapping` (unnesting `scv_accessions`) with `gks_scv_condition_sets` and selecting one representative SCV per RCV. This table provides the full condition concept (a `Condition` MappableConcept or a `ConditionSet` ConceptSet, with extensions excluded) needed to populate `objectCondition` in the proposition.
+Before building statement structures, the procedure materializes `temp_rcv_condition_data` by joining `rcv_mapping` (unnesting `scv_accessions`) with `gkm_scv_condition_sets` and selecting one representative SCV per RCV. This table provides the full condition concept (a `Condition` MappableConcept or a `ConditionSet` ConceptSet, with extensions excluded) needed to populate `objectCondition` in the proposition.
 
 **Output:** `temp_rcv_condition_data` -- condition concept per RCV accession. <span class="role-badge badge-internal">Internal</span>
 
@@ -128,7 +128,7 @@ Each BASE section reads from the corresponding aggregation table and produces a 
 | `confidence` | The submission level label (e.g., `"expert panel"`, `"assertion criteria provided"`) |
 | `direction` | Derived from the classification label; passed through from the contributing SCV for single-SCV aggregations |
 | `strength` | Derived from the classification label; passed through from the contributing SCV for single-SCV aggregations |
-| `proposition` | Contains `objectCondition` (the condition from `temp_rcv_condition_data` -- either a `Condition` MappableConcept or a `ConditionSet` ConceptSet, extensions excluded), the SCV-matching proposition type from `clinvar_proposition_types.gks_type`, the SCV-matching predicate from `clinvar_proposition_types.gks_predicate`, and `subjectVariant` reference |
+| `proposition` | Contains `objectCondition` (the condition from `temp_rcv_condition_data` -- either a `Condition` MappableConcept or a `ConditionSet` ConceptSet, extensions excluded), the SCV-matching proposition type from `clinvar_proposition_types.gkm_type`, the SCV-matching predicate from `clinvar_proposition_types.gkm_predicate`, and `subjectVariant` reference |
 | `extensions` | Array with `clinvarReviewStatus` value |
 | `evidenceLines` | References to child IDs (SCV IDs for Base Grouping, contributing/non-contributing statement IDs for Tier Grouping and Aggregate Contribution) |
 
@@ -146,7 +146,7 @@ Step-specific differences:
 
 ### Base Grouping PRE
 
-Inlines SCV evidence items from `gks_dict_scv`. Evidence lines are rewritten to reference SCV IDs in `clinvar.submission:{scv_id}` format. The `classification`, `confidence`, `direction`, `strength`, and `proposition` fields are carried forward unchanged from the BASE.
+Inlines SCV evidence items from `gkm_dict_scv`. Evidence lines are rewritten to reference SCV IDs in `clinvar.submission:{scv_id}` format. The `classification`, `confidence`, `direction`, `strength`, and `proposition` fields are carried forward unchanged from the BASE.
 
 **Output:** `temp_rcv_grouping_base_pre` <span class="role-badge badge-internal">Internal</span>
 
@@ -172,7 +172,7 @@ Inlines evidence items from either Tier Grouping PRE or Base Grouping PRE (using
 
 Selects all Aggregate Contribution PRE statements into the final output table.
 
-**Output:** `gks_dict_rcv` -- the complete set of RCV statements. This is the published product for RCV statements; the export pipeline assembles it directly into the bundle. <span class="role-badge badge-pipeline">Pipeline table</span>
+**Output:** `gkm_dict_rcv` -- the complete set of RCV statements. This is the published product for RCV statements; the export pipeline assembles it directly into the bundle. <span class="role-badge badge-pipeline">Pipeline table</span>
 
 ---
 
@@ -180,37 +180,37 @@ Selects all Aggregate Contribution PRE statements into the final output table.
 
 | Table | Procedure | Description | Role |
 |---|---|---|---|
-| `temp_rcv_base_data` | `gks_rcv_proc` | Materialized SCV base data with condition and submission level mappings | <span class="role-badge badge-internal">Internal</span> |
-| `gks_rcv_grouping_base_agg` | `gks_rcv_proc` | Base grouping aggregation by rcv_accession + group + prop + level (+ tier) | <span class="role-badge badge-pipeline">Pipeline table</span> |
-| `gks_rcv_grouping_tier_agg` | `gks_rcv_proc` | Tier grouping aggregation within submission level (somatic only) | <span class="role-badge badge-pipeline">Pipeline table</span> |
-| `gks_rcv_aggregate_contribution` | `gks_rcv_proc` | Submission level aggregation with winner-takes-all (partitioned by rcv_accession) | <span class="role-badge badge-pipeline">Pipeline table</span> |
-| `temp_rcv_condition_data` | `gks_rcv_statement_proc` | Condition data resolved from rcv_mapping + gks_scv_condition_sets | <span class="role-badge badge-internal">Internal</span> |
-| `temp_rcv_grouping_base_statements` | `gks_rcv_statement_proc` | BASE statement structures for Base Grouping step | <span class="role-badge badge-internal">Internal</span> |
-| `temp_rcv_grouping_tier_statements` | `gks_rcv_statement_proc` | BASE statement structures for Tier Grouping step (somatic only) | <span class="role-badge badge-internal">Internal</span> |
-| `temp_rcv_agg_contribution_statements` | `gks_rcv_statement_proc` | BASE statement structures for Aggregate Contribution step | <span class="role-badge badge-internal">Internal</span> |
-| `temp_rcv_grouping_base_pre` | `gks_rcv_statement_proc` | PRE statement structures with inlined SCV evidence | <span class="role-badge badge-internal">Internal</span> |
-| `temp_rcv_grouping_tier_pre` | `gks_rcv_statement_proc` | PRE statement structures with inlined Base Grouping evidence (somatic only) | <span class="role-badge badge-internal">Internal</span> |
-| `temp_rcv_agg_contribution_pre` | `gks_rcv_statement_proc` | PRE statement structures with inlined evidence for Aggregate Contribution | <span class="role-badge badge-internal">Internal</span> |
-| `gks_dict_rcv` | `gks_rcv_statement_proc` | Final RCV statements from Aggregate Contribution PRE | <span class="role-badge badge-pipeline">Pipeline table</span> |
+| `temp_rcv_base_data` | `gkm_rcv_proc` | Materialized SCV base data with condition and submission level mappings | <span class="role-badge badge-internal">Internal</span> |
+| `gkm_rcv_grouping_base_agg` | `gkm_rcv_proc` | Base grouping aggregation by rcv_accession + group + prop + level (+ tier) | <span class="role-badge badge-pipeline">Pipeline table</span> |
+| `gkm_rcv_grouping_tier_agg` | `gkm_rcv_proc` | Tier grouping aggregation within submission level (somatic only) | <span class="role-badge badge-pipeline">Pipeline table</span> |
+| `gkm_rcv_aggregate_contribution` | `gkm_rcv_proc` | Submission level aggregation with winner-takes-all (partitioned by rcv_accession) | <span class="role-badge badge-pipeline">Pipeline table</span> |
+| `temp_rcv_condition_data` | `gkm_rcv_statement_proc` | Condition data resolved from rcv_mapping + gkm_scv_condition_sets | <span class="role-badge badge-internal">Internal</span> |
+| `temp_rcv_grouping_base_statements` | `gkm_rcv_statement_proc` | BASE statement structures for Base Grouping step | <span class="role-badge badge-internal">Internal</span> |
+| `temp_rcv_grouping_tier_statements` | `gkm_rcv_statement_proc` | BASE statement structures for Tier Grouping step (somatic only) | <span class="role-badge badge-internal">Internal</span> |
+| `temp_rcv_agg_contribution_statements` | `gkm_rcv_statement_proc` | BASE statement structures for Aggregate Contribution step | <span class="role-badge badge-internal">Internal</span> |
+| `temp_rcv_grouping_base_pre` | `gkm_rcv_statement_proc` | PRE statement structures with inlined SCV evidence | <span class="role-badge badge-internal">Internal</span> |
+| `temp_rcv_grouping_tier_pre` | `gkm_rcv_statement_proc` | PRE statement structures with inlined Base Grouping evidence (somatic only) | <span class="role-badge badge-internal">Internal</span> |
+| `temp_rcv_agg_contribution_pre` | `gkm_rcv_statement_proc` | PRE statement structures with inlined evidence for Aggregate Contribution | <span class="role-badge badge-internal">Internal</span> |
+| `gkm_dict_rcv` | `gkm_rcv_statement_proc` | Final RCV statements from Aggregate Contribution PRE | <span class="role-badge badge-pipeline">Pipeline table</span> |
 
 ---
 
 ## Dependencies
 
-### gks_rcv_proc
+### gkm_rcv_proc
 
-- **Source Tables**: `scv_summary`, `rcv_mapping`, `rcv_accession`, `gks_scv_condition_mapping`
+- **Source Tables**: `scv_summary`, `rcv_mapping`, `rcv_accession`, `gkm_scv_condition_mapping`
 - **Lookup Tables**: `clinvar_statement_types`, `clinvar_clinsig_types`, `clinvar_proposition_types`, `submission_level`
 - **UDFs**: `clinvar_ingest.schema_on`, `clinvar_ingest.cleanup_temp_tables`
-- **Upstream Procedures**: `gks_scv_statement_proc` (for `gks_scv_condition_mapping`)
+- **Upstream Procedures**: `gkm_scv_statement_proc` (for `gkm_scv_condition_mapping`)
 
-### gks_rcv_statement_proc
+### gkm_rcv_statement_proc
 
-- **Aggregation Tables**: `gks_rcv_grouping_base_agg`, `gks_rcv_grouping_tier_agg`, `gks_rcv_aggregate_contribution`
-- **Condition Tables**: `rcv_mapping`, `gks_scv_condition_sets`
-- **Statement Tables**: `gks_dict_scv`
+- **Aggregation Tables**: `gkm_rcv_grouping_base_agg`, `gkm_rcv_grouping_tier_agg`, `gkm_rcv_aggregate_contribution`
+- **Condition Tables**: `rcv_mapping`, `gkm_scv_condition_sets`
+- **Statement Tables**: `gkm_dict_scv`
 - **Source Tables**: `scv_summary`
 - **Lookup Tables**: `clinvar_statement_categories`, `clinvar_proposition_types`, `submission_level`, `clinvar_clinsig_types`
 - **UDFs**: `clinvar_ingest.schema_on`, `clinvar_ingest.cleanup_temp_tables`
-- **Upstream Procedures**: `gks_rcv_proc`, `gks_scv_statement_proc`
-- **Downstream Consumers**: change-log / delta build (`gks_change_log`), export pipeline (`gks_dict_rcv` assembled directly into the bundle)
+- **Upstream Procedures**: `gkm_rcv_proc`, `gkm_scv_statement_proc`
+- **Downstream Consumers**: change-log / delta build (`gkm_change_log`), export pipeline (`gkm_dict_rcv` assembled directly into the bundle)

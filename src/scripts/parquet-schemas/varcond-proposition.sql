@@ -13,9 +13,9 @@ SELECT
   JSON_VALUE(value, '$.penetranceQualifier.name') AS penetrance,
   collapse_ext_values(TO_JSON_STRING(value)) AS data
 FROM (
-  SELECT key, value FROM `{DATASET}.gks_dict_proposition`
-  UNION ALL SELECT key, value FROM `{DATASET}.gks_dict_rcv_proposition`
-  UNION ALL SELECT key, value FROM `{DATASET}.gks_dict_vcv_proposition`
+  SELECT key, value FROM `{DATASET}.gkm_dict_proposition`
+  UNION ALL SELECT key, value FROM `{DATASET}.gkm_dict_rcv_proposition`
+  UNION ALL SELECT key, value FROM `{DATASET}.gkm_dict_vcv_proposition`
 )
 WHERE COALESCE(JSON_VALUE(value, '$.customPropositionType'), JSON_VALUE(value, '$.type')) IN (
   'VariantPathogenicityProposition', 'VariantClinicalSignificanceProposition',

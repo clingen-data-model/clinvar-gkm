@@ -6,4 +6,4 @@ SELECT
   JSON_VALUE(value, '$.moleculeType') AS molecule_type,
   JSON_VALUE(value, '$.residueAlphabet') AS residue_alphabet,
   TO_JSON_STRING(value) AS data
-FROM {DATASET}.gks_dict_sequence_reference
+FROM {DATASET}.gkm_dict_sequence_reference

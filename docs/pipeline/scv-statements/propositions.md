@@ -2,7 +2,7 @@
 
 ## Overview
 
-Steps 2--6 of `gks_scv_statement_proc` build the qualifier tables and assemble the primary and target propositions for each SCV. Qualifiers capture gene context, mode of inheritance, and penetrance; propositions combine the variant, condition, and qualifiers into the structured assertion that forms the core of each VA-Spec Statement.
+Steps 2--6 of `gkm_scv_statement_proc` build the qualifier tables and assemble the primary and target propositions for each SCV. Qualifiers capture gene context, mode of inheritance, and penetrance; propositions combine the variant, condition, and qualifiers into the structured assertion that forms the core of each VA-Spec Statement.
 
 ---
 
@@ -48,7 +48,7 @@ Each penetrance qualifier includes a `submittedClassification` extension preserv
 
 ## Step 5: Primary Proposition
 
-Assembles the SCV proposition by joining `temp_gks_scv` with all qualifier tables and condition sets from `gks_scv_condition_sets`. The resulting proposition contains:
+Assembles the SCV proposition by joining `temp_gkm_scv` with all qualifier tables and condition sets from `gkm_scv_condition_sets`. The resulting proposition contains:
 
 | Field | Description |
 |---|---|
@@ -61,7 +61,7 @@ Assembles the SCV proposition by joining `temp_gks_scv` with all qualifier table
 | `modeOfInheritanceQualifier` | Mode of inheritance from Step 3 |
 | `penetranceQualifier` | Penetrance from Step 4 |
 
-**Output:** `temp_gks_scv_proposition` -- one row per SCV with fully assembled proposition. <span class="role-badge badge-internal">Internal</span>
+**Output:** `temp_gkm_scv_proposition` -- one row per SCV with fully assembled proposition. <span class="role-badge badge-internal">Internal</span>
 
 ---
 
@@ -82,7 +82,7 @@ Builds the evidence line target proposition for somatic clinical impact assertio
 
 The JSON pointer `4/proposition/subjectVariant` is used instead of duplicating the variant reference, linking the target proposition back to the same variant defined in the parent (Step 5) proposition.
 
-**Output:** `temp_gks_scv_target_proposition` -- one row per somatic SCV with target proposition. <span class="role-badge badge-internal">Internal</span>
+**Output:** `temp_gkm_scv_target_proposition` -- one row per somatic SCV with target proposition. <span class="role-badge badge-internal">Internal</span>
 
 ---
 
@@ -90,4 +90,4 @@ The JSON pointer `4/proposition/subjectVariant` is used instead of duplicating t
 
 - **Source Tables**: `single_gene_variation`, `clinical_assertion`, `clinical_assertion_variation`, `gene`
 - **Lookup Tables**: `hpo_terms`
-- **Upstream Steps**: Step 1 (`temp_gks_scv`), condition pipeline (`gks_scv_condition_sets`)
+- **Upstream Steps**: Step 1 (`temp_gkm_scv`), condition pipeline (`gkm_scv_condition_sets`)

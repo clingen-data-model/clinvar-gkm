@@ -1,56 +1,56 @@
 -------------------------------------------------------------------------------
--- gks_scv_statement — build the SCV statement dictionaries (submitter, proposition,
+-- gkm_scv_statement — build the SCV statement dictionaries (submitter, proposition,
 -- evidence line, statement) from a release.
 --
 -- Three entry points:
---   gks_scv_statement_proc(on_date, debug)              -> full rebuild (unchanged behavior)
---   gks_scv_statement_proc_incremental(on_date, debug)  -> incremental (carry-forward + merge)
---   gks_scv_statement_build(on_date, debug, incremental) -> internal implementation
+--   gkm_scv_statement_proc(on_date, debug)              -> full rebuild (unchanged behavior)
+--   gkm_scv_statement_proc_incremental(on_date, debug)  -> incremental (carry-forward + merge)
+--   gkm_scv_statement_build(on_date, debug, incremental) -> internal implementation
 --
 -- Incremental strategy (see docs/superpowers/plans/2026-08-07-incremental-gks-
 -- downstream-plan-2-scv.md, Chunk 3):
 --   TWO outputs are recomputed GLOBALLY every release (never carried forward):
---     * gks_dict_submitter — a GLOBAL dedup dictionary (GROUP BY submitter over the
---       shared source temp temp_gks_scv). temp_gks_scv MUST therefore stay GLOBAL
+--     * gkm_dict_submitter — a GLOBAL dedup dictionary (GROUP BY submitter over the
+--       shared source temp temp_gkm_scv). temp_gkm_scv MUST therefore stay GLOBAL
 --       (unfiltered); filtering it would starve the submitter dict of submitters that
 --       only appear on unchanged SCVs.
---     * gks_dict_proposition — although keyed per-SCV, its value embeds
+--     * gkm_dict_proposition — although keyed per-SCV, its value embeds
 --       geneContextQualifier, a variation/gene-derived struct (single_gene_variation +
 --       gene) that changes independently of the SCV's own clinical_assertion or trait.
 --       That driver is NOT modeled by scv_changed_ids (which covers only the
 --       clinical_assertion + trait cascades), so per-SCV carry-forward would leave
 --       stale gene context on unmodified SCVs whose variation changed. It is therefore
---       recomputed globally, like gks_dict_submitter. Its feeding temps
---       (temp_gks_scv_proposition, temp_gks_scv_target_proposition) stay GLOBAL.
+--       recomputed globally, like gkm_dict_submitter. Its feeding temps
+--       (temp_gkm_scv_proposition, temp_gkm_scv_target_proposition) stay GLOBAL.
 --   TWO outputs are per-SCV carry-forward (they use #/proposition pointers and do NOT
 --   embed gene context — only the SCV's own record + the trait-covered submitted-
 --   condition struct):
---     * gks_dict_evidence_line, gks_dict_scv — in incremental mode the final writes
---       (and temp_scv_condition_names, which feeds ONLY gks_dict_scv) are filtered to
+--     * gkm_dict_evidence_line, gkm_dict_scv — in incremental mode the final writes
+--       (and temp_scv_condition_names, which feeds ONLY gkm_dict_scv) are filtered to
 --       the changed set, staged, and merged with the carried-forward baseline rows via
---       UNION-CTAS. temp_scv_citations / temp_scv_method feed ONLY gks_dict_scv and are
+--       UNION-CTAS. temp_scv_citations / temp_scv_method feed ONLY gkm_dict_scv and are
 --       LEFT-JOINed by scv id into that already-filtered final, so they are safely
 --       over-computed globally. (The gene-context / MOI / penetrance qualifier temps,
---       Steps 2-4, feed ONLY the global temp_gks_scv_proposition / _target_proposition
---       — i.e. gks_dict_proposition — never the per-SCV finals.)
+--       Steps 2-4, feed ONLY the global temp_gkm_scv_proposition / _target_proposition
+--       — i.e. gkm_dict_proposition — never the per-SCV finals.)
 --   A built-in coverage validation runs unconditionally (both modes) after the writes:
---   gks_dict_scv must be exactly 1:1 with scv_summary(id, version) and every
---   gks_dict_evidence_line scv-id must exist in scv_summary — RAISE otherwise (catches
+--   gkm_dict_scv must be exactly 1:1 with scv_summary(id, version) and every
+--   gkm_dict_evidence_line scv-id must exist in scv_summary — RAISE otherwise (catches
 --   a silent drop/dup/orphan the single-window oracle cannot prove).
 --   The changed / removed SCV sets are the persistent {S} tables scv_changed_ids /
---   scv_removed_ids produced by gks_scv_changed (driver-complete for the
+--   scv_removed_ids produced by gkm_scv_changed (driver-complete for the
 --   clinical_assertion + trait cascades; a trait/traitset edit re-derives the affected
---   SCV statement rows — gks_dict_scv / gks_dict_evidence_line embed the trait-derived
---   submitted-condition struct from gks_scv_condition_sets).
+--   SCV statement rows — gkm_dict_scv / gkm_dict_evidence_line embed the trait-derived
+--   submitted-condition struct from gkm_scv_condition_sets).
 --   The merge recovers the scv id from each per-SCV output's pk BY PARSING (the stored
 --   value dropped scv_id):
---     gks_dict_scv / gks_dict_evidence_line: id = clinvar.submission:{scv}.{ver}
+--     gkm_dict_scv / gkm_dict_evidence_line: id = clinvar.submission:{scv}.{ver}
 --       -> SPLIT(SPLIT(id, ':')[OFFSET(1)], '.')[OFFSET(0)]
 --   Version-invalidation: the guard falls back to a full rebuild when the baseline is
 --   missing/incomplete, the diff drivers / changed sets are absent, or the pipeline
 --   gate_key mismatches. Call the *_incremental wrapper only when carry-forward is safe.
 -------------------------------------------------------------------------------
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_scv_statement_build`(on_date DATE, debug BOOL, incremental BOOL)
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_scv_statement_build`(on_date DATE, debug BOOL, incremental BOOL)
 BEGIN
 
   DECLARE query_scv_records STRING;
@@ -81,13 +81,13 @@ BEGIN
   DECLARE stamps_exist BOOL DEFAULT FALSE;
 
   -- per-query changed-set filter fragments ('' in full mode). scv_changed_ids is a
-  -- PERSISTENT {S} table (written by gks_scv_changed); the fragments are resolved with
+  -- PERSISTENT {S} table (written by gkm_scv_changed); the fragments are resolved with
   -- rec.schema_name so they can be REPLACE-inserted after the body's {S} is resolved.
-  -- Only gks_dict_evidence_line + gks_dict_scv are per-SCV carry-forward, so only the
-  -- alias `scv.id` filter (evidence_line, gks_dict_scv) and the condition_names filter
-  -- are used. gks_dict_proposition is globally recomputed (see header), so its temps
-  -- (temp_gks_scv_proposition / temp_gks_scv_target_proposition) stay unfiltered.
-  DECLARE vf_scv_where STRING;   -- WHERE on alias `scv.id` (evidence_line, gks_dict_scv)
+  -- Only gkm_dict_evidence_line + gkm_dict_scv are per-SCV carry-forward, so only the
+  -- alias `scv.id` filter (evidence_line, gkm_dict_scv) and the condition_names filter
+  -- are used. gkm_dict_proposition is globally recomputed (see header), so its temps
+  -- (temp_gkm_scv_proposition / temp_gkm_scv_target_proposition) stay unfiltered.
+  DECLARE vf_scv_where STRING;   -- WHERE on alias `scv.id` (evidence_line, gkm_dict_scv)
   DECLARE vf_cn_where STRING;    -- WHERE on bare `scv_id` (temp_scv_condition_names)
   -- per-output head fragments (real table in full; stg temp for the merge in incremental)
   DECLARE del_head STRING;
@@ -109,9 +109,9 @@ BEGIN
     -- driver tables + the precomputed changed/removed SCV sets, AND the pipeline
     -- gate_key matches the baseline. Otherwise fall back to full.
     -- diff_trait / diff_trait_set are required here (not just diff_clinical_assertion):
-    -- gks_dict_scv / gks_dict_evidence_line embed the trait-derived submitted-condition
+    -- gkm_dict_scv / gkm_dict_evidence_line embed the trait-derived submitted-condition
     -- struct, so statement correctness depends on scv_changed_ids being trait-complete,
-    -- which required those drivers when gks_scv_changed ran.
+    -- which required those drivers when gkm_scv_changed ran.
     -----------------------------------------------------------------------
     SET eff_incremental = FALSE;
     SET baseline_schema = NULL;
@@ -130,12 +130,12 @@ BEGIN
       -- baseline must have all 4 statement outputs
       EXECUTE IMMEDIATE FORMAT("""
         SELECT (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES`
-                WHERE table_name IN ('gks_dict_submitter','gks_dict_proposition',
-                  'gks_dict_evidence_line','gks_dict_scv')) = 4
+                WHERE table_name IN ('gkm_dict_submitter','gkm_dict_proposition',
+                  'gkm_dict_evidence_line','gkm_dict_scv')) = 4
       """, baseline_schema) INTO base_ok;
 
       -- current release must have the diff drivers (SCV diff + the trait cascade)
-      -- AND the precomputed changed / removed SCV sets from gks_scv_changed.
+      -- AND the precomputed changed / removed SCV sets from gkm_scv_changed.
       EXECUTE IMMEDIATE FORMAT("""
         SELECT (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES`
                 WHERE table_name IN ('diff_clinical_assertion','diff_trait','diff_trait_set',
@@ -147,14 +147,14 @@ BEGIN
       -- pre-feature baseline lacks the stamp). Confirm both stamps exist, then compare.
       EXECUTE IMMEDIATE FORMAT("""
         SELECT
-          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gks_pipeline_version')=1
+          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gkm_pipeline_version')=1
           AND
-          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gks_pipeline_version')=1
+          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gkm_pipeline_version')=1
       """, baseline_schema, rec.schema_name) INTO stamps_exist;
       IF stamps_exist THEN
         EXECUTE IMMEDIATE FORMAT("""
-          SELECT (SELECT gate_key FROM `%s.gks_pipeline_version`)
-               = (SELECT gate_key FROM `%s.gks_pipeline_version`)
+          SELECT (SELECT gate_key FROM `%s.gkm_pipeline_version`)
+               = (SELECT gate_key FROM `%s.gkm_pipeline_version`)
         """, baseline_schema, rec.schema_name) INTO gate_ok;
         SET gate_ok = IFNULL(gate_ok, FALSE);
       END IF;
@@ -166,49 +166,49 @@ BEGIN
     -- Mode-dependent fragments. In full mode all filters are empty and the three
     -- per-SCV finals write straight to their {S} tables. In incremental mode the
     -- exclusive per-SCV temps + finals are filtered to scv_changed_ids and the finals
-    -- are staged for the merge. gks_dict_submitter and the shared temp_gks_scv are
+    -- are staged for the merge. gkm_dict_submitter and the shared temp_gkm_scv are
     -- NEVER filtered.
     -----------------------------------------------------------------------
     IF eff_incremental THEN
       SET vf_scv_where = 'WHERE scv.id IN (SELECT scv_id FROM `' || rec.schema_name || '.scv_changed_ids`)';
       SET vf_cn_where  = 'WHERE scv_id IN (SELECT scv_id FROM `' || rec.schema_name || '.scv_changed_ids`)';
-      SET del_head  = '{CT} {P}.stg_gks_dict_evidence_line';
-      SET dscv_head = '{CT} {P}.stg_gks_dict_scv';
+      SET del_head  = '{CT} {P}.stg_gkm_dict_evidence_line';
+      SET dscv_head = '{CT} {P}.stg_gkm_dict_scv';
     ELSE
       SET vf_scv_where = '';
       SET vf_cn_where  = '';
-      SET del_head  = 'CREATE OR REPLACE TABLE `' || rec.schema_name || '.gks_dict_evidence_line`';
-      SET dscv_head = 'CREATE OR REPLACE TABLE `' || rec.schema_name || '.gks_dict_scv`';
+      SET del_head  = 'CREATE OR REPLACE TABLE `' || rec.schema_name || '.gkm_dict_evidence_line`';
+      SET dscv_head = 'CREATE OR REPLACE TABLE `' || rec.schema_name || '.gkm_dict_scv`';
     END IF;
 
     -- Clean up any persistent temp tables from a prior debug run
     IF NOT debug THEN
       CALL `clinvar_ingest.cleanup_temp_tables`(rec.schema_name, [
-        'temp_gks_scv', 'temp_gene_context_qualifiers', 'temp_moi_qualifiers',
-        'temp_penetrance_qualifiers', 'temp_gks_scv_proposition', 'temp_gks_scv_target_proposition',
+        'temp_gkm_scv', 'temp_gene_context_qualifiers', 'temp_moi_qualifiers',
+        'temp_penetrance_qualifiers', 'temp_gkm_scv_proposition', 'temp_gkm_scv_target_proposition',
         'temp_scv_condition_names', 'temp_scv_citations', 'temp_scv_method',
-        'stg_gks_dict_evidence_line', 'stg_gks_dict_scv'
+        'stg_gkm_dict_evidence_line', 'stg_gkm_dict_scv'
       ]);
     END IF;
 
     ---------------------------------------------------------------------------
     -- Step 1: Create GKS SCV table (temp) — GLOBAL (shared source; feeds the global
-    -- gks_dict_submitter, so it must NOT be filtered)
+    -- gkm_dict_submitter, so it must NOT be filtered)
     ---------------------------------------------------------------------------
     SET query_scv_records = REPLACE("""
-      {CT} {P}.temp_gks_scv
+      {CT} {P}.temp_gkm_scv
       AS
         SELECT
           scv.id,
           scv.version,
           IF(
-            cpt.gks_type IS NOT NULL,
+            cpt.gkm_type IS NOT NULL,
             -- VariantClinicalSignificance predicate is always 'hasClinicalSignificanceFor' (va-spec const);
             -- override the upstream clinvar_clinsig_types.final_predicate for that type to stay conformant
             -- and consistent with the RCV/VCV statement procs.
             STRUCT(
-              cpt.gks_type as type,
-              IF(cpt.gks_type = 'VariantClinicalSignificanceProposition',
+              cpt.gkm_type as type,
+              IF(cpt.gkm_type = 'VariantClinicalSignificanceProposition',
                  'hasClinicalSignificanceFor', cct.final_predicate) as pred),
             STRUCT('ClinvarUndefinedProposition' as type, 'isClinvarUndefinedAssociationFor' as pred)
           ) as proposition,
@@ -321,8 +321,8 @@ BEGIN
 
     ---------------------------------------------------------------------------
     -- Step 2: Create temp gene context qualifiers — GLOBAL (over-computed). Feeds ONLY
-    -- the global temp_gks_scv_proposition / temp_gks_scv_target_proposition (Steps 5-6
-    -- -> gks_dict_proposition), never the per-SCV finals, so it stays unfiltered.
+    -- the global temp_gkm_scv_proposition / temp_gkm_scv_target_proposition (Steps 5-6
+    -- -> gkm_dict_proposition), never the per-SCV finals, so it stays unfiltered.
     ---------------------------------------------------------------------------
     SET query_gene_context_qualifiers = REPLACE("""
       {CT} {P}.temp_gene_context_qualifiers
@@ -390,7 +390,7 @@ BEGIN
               )
             ]
           ) as extensions
-        from {P}.temp_gks_scv scv
+        from {P}.temp_gkm_scv scv
         join `{S}.single_gene_variation` sgv
         on
           sgv.variation_id = scv.variation_id
@@ -414,7 +414,7 @@ BEGIN
               null as value_object
             )
           ]  as extensions
-        from {P}.temp_gks_scv scv
+        from {P}.temp_gkm_scv scv
         join scv_submitted_genes ssg
         on
           ssg.clinical_assertion_id = scv.id
@@ -461,7 +461,7 @@ BEGIN
               null as value_object
             )
           ] as extensions
-        from {P}.temp_gks_scv scv
+        from {P}.temp_gkm_scv scv
         CROSS JOIN UNNEST(scv.attribs) as a
         LEFT JOIN `clinvar_ingest.hpo_terms` hpo
         ON
@@ -490,7 +490,7 @@ BEGIN
               null as value_object
             )
           ] as extensions
-        FROM {P}.temp_gks_scv scv
+        FROM {P}.temp_gkm_scv scv
         WHERE
           scv.classif_type in ('p-lp', 'lp-lp', 'era', 'lra','ura')
     """, '{S}', rec.schema_name);
@@ -500,12 +500,12 @@ BEGIN
 
     ---------------------------------------------------------------------------
     -- Step 5: Create SCV proposition table (temp) — GLOBAL. Feeds the globally
-    -- recomputed gks_dict_proposition (embeds geneContextQualifier, a variation/gene-
-    -- driven struct outside the SCV changed-set contract) AND the per-SCV gks_dict_scv
+    -- recomputed gkm_dict_proposition (embeds geneContextQualifier, a variation/gene-
+    -- driven struct outside the SCV changed-set contract) AND the per-SCV gkm_dict_scv
     -- (which filters on scv.id itself), so this temp stays UNFILTERED.
     ---------------------------------------------------------------------------
     SET query_scv_proposition = REPLACE("""
-      {CT} {P}.temp_gks_scv_proposition
+      {CT} {P}.temp_gkm_scv_proposition
       AS
         WITH base AS (
           SELECT
@@ -529,7 +529,7 @@ BEGIN
             (sgq.scv_id IS NOT NULL) as has_gene,
             (smq.scv_id IS NOT NULL) as has_moi,
             (spq.scv_id IS NOT NULL) as has_penetrance
-          FROM {P}.temp_gks_scv scv
+          FROM {P}.temp_gkm_scv scv
           LEFT JOIN {P}.temp_gene_context_qualifiers sgq
           ON
             sgq.scv_id = scv.id
@@ -539,7 +539,7 @@ BEGIN
           LEFT JOIN {P}.temp_penetrance_qualifiers spq
           ON
             spq.scv_id = scv.id
-          LEFT JOIN `{S}.gks_scv_condition_sets` scs
+          LEFT JOIN `{S}.gkm_scv_condition_sets` scs
           ON
             scs.scv_id = scv.id
         )
@@ -577,12 +577,12 @@ BEGIN
 
     ---------------------------------------------------------------------------
     -- Step 6: Create SCV target proposition table (temp) — GLOBAL. Feeds the globally
-    -- recomputed gks_dict_proposition (embeds geneContextQualifier) plus the per-SCV
-    -- gks_dict_evidence_line / gks_dict_scv (which filter on scv.id themselves), so
+    -- recomputed gkm_dict_proposition (embeds geneContextQualifier) plus the per-SCV
+    -- gkm_dict_evidence_line / gkm_dict_scv (which filter on scv.id themselves), so
     -- this temp stays UNFILTERED.
     ---------------------------------------------------------------------------
     SET query_scv_target_proposition = REPLACE("""
-      {CT} {P}.temp_gks_scv_target_proposition
+      {CT} {P}.temp_gkm_scv_target_proposition
       AS
         WITH scv_drugs AS (
           SELECT
@@ -593,7 +593,7 @@ BEGIN
             SELECT
               scv.id as scv_id,
               drug as name
-            FROM {P}.temp_gks_scv scv
+            FROM {P}.temp_gkm_scv scv
             CROSS JOIN UNNEST(scv.drugTherapy) as drug
           ) drug
           GROUP BY
@@ -607,7 +607,7 @@ BEGIN
               ARRAY_AGG(drug)[SAFE_OFFSET(0)] as name,
               'MappableConcept' AS type, 'Drug' as conceptType
             ) as therapy
-          FROM {P}.temp_gks_scv scv
+          FROM {P}.temp_gkm_scv scv
           CROSS JOIN UNNEST(scv.drugTherapy) as drug
           GROUP BY
             scv.id
@@ -649,7 +649,7 @@ BEGIN
           (SELECT AS STRUCT sgq.* EXCEPT(scv_id)) as geneContextQualifier,
           (SELECT AS STRUCT smq.* EXCEPT(scv_id)) as modeOfInheritanceQualifier,
           (SELECT AS STRUCT spq.* EXCEPT(scv_id)) as penetranceQualifier
-        FROM {P}.temp_gks_scv scv
+        FROM {P}.temp_gkm_scv scv
         LEFT JOIN {P}.temp_gene_context_qualifiers sgq
         ON
           sgq.scv_id = scv.id
@@ -659,7 +659,7 @@ BEGIN
         LEFT JOIN {P}.temp_penetrance_qualifiers spq
         ON
           spq.scv_id = scv.id
-        LEFT JOIN `{S}.gks_scv_condition_sets` scs
+        LEFT JOIN `{S}.gkm_scv_condition_sets` scs
         ON
           scs.scv_id = scv.id
         LEFT JOIN scv_drugs sd
@@ -667,7 +667,7 @@ BEGIN
           sd.scv_id = scv.id
         LEFT JOIN `clinvar_ingest.clinvar_proposition_types` tp
         ON
-          tp.gks_type = scv.evidence_line_target_proposition.type
+          tp.gkm_type = scv.evidence_line_target_proposition.type
         WHERE
           scv.evidence_line_target_proposition IS NOT NULL
     """, '{S}', rec.schema_name);
@@ -677,7 +677,7 @@ BEGIN
 
     ---------------------------------------------------------------------------
     -- Step 7a: Materialize condition names (lightweight lookup) — per-SCV ({VF_CN};
-    -- feeds ONLY gks_dict_scv)
+    -- feeds ONLY gkm_dict_scv)
     ---------------------------------------------------------------------------
     SET query_scv_condition_names = REPLACE("""
       {CT} {P}.temp_scv_condition_names AS
@@ -690,7 +690,7 @@ BEGIN
             THEN FORMAT('%d conditions', ARRAY_LENGTH(extensions.value_submitted_condition_set.concepts))
           ELSE 'unspecified condition'
         END AS condition_name
-      FROM `{S}.gks_scv_condition_sets`
+      FROM `{S}.gkm_scv_condition_sets`
       {VF_CN}
     """, '{S}', rec.schema_name);
     SET query_scv_condition_names = REPLACE(query_scv_condition_names, '{VF_CN}', vf_cn_where);
@@ -700,7 +700,7 @@ BEGIN
 
     ---------------------------------------------------------------------------
     -- Step 7b: Materialize citations — GLOBAL (over-computed; LEFT-JOINed by scv id
-    -- into the already-filtered gks_dict_scv)
+    -- into the already-filtered gkm_dict_scv)
     ---------------------------------------------------------------------------
     SET query_scv_citations = REPLACE("""
       {CT} {P}.temp_scv_citations AS
@@ -726,7 +726,7 @@ BEGIN
               cid.curie
             END] as urls
           ) as doc
-        FROM {P}.temp_gks_scv scv
+        FROM {P}.temp_gkm_scv scv
         CROSS JOIN UNNEST(scv.scvCitations) as c
         CROSS JOIN UNNEST(c.id) as cid
         WHERE
@@ -745,7 +745,7 @@ BEGIN
 
     ---------------------------------------------------------------------------
     -- Step 7c: Materialize assertion method — GLOBAL (over-computed; LEFT-JOINed by
-    -- scv id into the already-filtered gks_dict_scv)
+    -- scv id into the already-filtered gkm_dict_scv)
     ---------------------------------------------------------------------------
     SET query_scv_method = REPLACE("""
       {CT} {P}.temp_scv_method AS
@@ -787,7 +787,7 @@ BEGIN
             null
           ) as reportedIn
         ) as specifiedBy
-      FROM {P}.temp_gks_scv scv
+      FROM {P}.temp_gkm_scv scv
       CROSS JOIN UNNEST(scv.attribs) as a
       LEFT JOIN UNNEST(a.citation) as c
       LEFT JOIN UNNEST(c.id) as cid
@@ -807,15 +807,15 @@ BEGIN
     ---------------------------------------------------------------------------
     -- Step 7d: Dictionary table - submitters — GLOBAL dedup (keyed by
     -- clinvar.submitter:{id}). ALWAYS globally recomputed from the unfiltered
-    -- temp_gks_scv so no submitter is lost when only unchanged SCVs reference it.
+    -- temp_gkm_scv so no submitter is lost when only unchanged SCVs reference it.
     ---------------------------------------------------------------------------
     SET dict_submitter_query = REPLACE("""
-      CREATE OR REPLACE TABLE `{S}.gks_dict_submitter`
+      CREATE OR REPLACE TABLE `{S}.gkm_dict_submitter`
       AS
       SELECT
         scv.submitter.id as key,
         ANY_VALUE(JSON_STRIP_NULLS(TO_JSON(scv.submitter), remove_empty => TRUE)) as value
-      FROM {P}.temp_gks_scv scv
+      FROM {P}.temp_gkm_scv scv
       WHERE scv.submitter.id IS NOT NULL
       GROUP BY scv.submitter.id
     """, '{S}', rec.schema_name);
@@ -824,7 +824,7 @@ BEGIN
 
     ---------------------------------------------------------------------------
     -- Step 7e: Dictionary table - propositions — GLOBAL recompute (like
-    -- gks_dict_submitter). Although keyed per-SCV, the proposition value embeds
+    -- gkm_dict_submitter). Although keyed per-SCV, the proposition value embeds
     -- geneContextQualifier, a variation/gene-derived struct (single_gene_variation +
     -- gene) that changes independently of the SCV's own clinical_assertion or trait —
     -- a driver NOT modeled by scv_changed_ids. Carrying it forward per-SCV would
@@ -833,32 +833,32 @@ BEGIN
     -- 'modified' gaining a single_gene_variation mapping). Recomputing globally is the
     -- safe fix (a partial variation-only cascade would still miss diff_gene attribute
     -- edits). See header + the report for the recommended systemic fix in
-    -- gks_scv_changed (a variation/gene cascade) that would let this go per-SCV.
+    -- gkm_scv_changed (a variation/gene cascade) that would let this go per-SCV.
     ---------------------------------------------------------------------------
     SET dict_proposition_query = REPLACE("""
-      CREATE OR REPLACE TABLE `{S}.gks_dict_proposition`
+      CREATE OR REPLACE TABLE `{S}.gkm_dict_proposition`
       AS
       SELECT
         sp.id as key,
         JSON_STRIP_NULLS(TO_JSON(
           (SELECT AS STRUCT sp.* EXCEPT(scv_id))
         ), remove_empty => TRUE) as value
-      FROM {P}.temp_gks_scv_proposition sp
+      FROM {P}.temp_gkm_scv_proposition sp
       UNION ALL
       SELECT
         stp.id as key,
         JSON_STRIP_NULLS(TO_JSON(
           (SELECT AS STRUCT stp.* EXCEPT(scv_id))
         ), remove_empty => TRUE) as value
-      FROM {P}.temp_gks_scv_target_proposition stp
+      FROM {P}.temp_gkm_scv_target_proposition stp
     """, '{S}', rec.schema_name);
     SET dict_proposition_query = REPLACE(dict_proposition_query, '{P}', IF(debug, rec.schema_name, '_SESSION'));
     EXECUTE IMMEDIATE dict_proposition_query;
 
     ---------------------------------------------------------------------------
     -- Step 7f: Dictionary table - evidence lines — per-SCV ({DEL_HEAD} target;
-    -- {VF_SCV} on the temp_gks_scv alias). Trait-dependent (embeds the submitted-
-    -- condition struct from gks_scv_condition_sets); the trait cascade in
+    -- {VF_SCV} on the temp_gkm_scv alias). Trait-dependent (embeds the submitted-
+    -- condition struct from gkm_scv_condition_sets); the trait cascade in
     -- scv_changed_ids re-derives affected SCVs.
     ---------------------------------------------------------------------------
     SET dict_evidence_line_query = REPLACE("""
@@ -927,11 +927,11 @@ BEGIN
             []
           )
         ) as extensions
-      FROM {P}.temp_gks_scv scv
+      FROM {P}.temp_gkm_scv scv
       CROSS JOIN null_templates nt
-      JOIN `{S}.gks_scv_condition_sets` spc
+      JOIN `{S}.gkm_scv_condition_sets` spc
       ON spc.scv_id = scv.id
-      JOIN {P}.temp_gks_scv_target_proposition stp
+      JOIN {P}.temp_gkm_scv_target_proposition stp
       ON stp.scv_id = scv.id
       {VF_SCV}
     """, '{S}', rec.schema_name);
@@ -943,8 +943,8 @@ BEGIN
 
     ---------------------------------------------------------------------------
     -- Step 8: Create statement SCV table — per-SCV ({DSCV_HEAD} target; {VF_SCV} on
-    -- the temp_gks_scv alias). Trait-dependent (embeds the submitted-condition struct
-    -- from gks_scv_condition_sets).
+    -- the temp_gkm_scv alias). Trait-dependent (embeds the submitted-condition struct
+    -- from gkm_scv_condition_sets).
     ---------------------------------------------------------------------------
     SET query_statement_scv_pre = REPLACE("""
       {DSCV_HEAD}
@@ -1087,15 +1087,15 @@ BEGIN
           [FORMAT('#/evidenceLine/clinvar.submission:%s.%i', scv.id, scv.version)],
           []
         ) as hasEvidenceLines
-      FROM {P}.temp_gks_scv scv
+      FROM {P}.temp_gkm_scv scv
       CROSS JOIN null_templates nt
-      JOIN {P}.temp_gks_scv_proposition sp
+      JOIN {P}.temp_gkm_scv_proposition sp
       ON
         sp.scv_id = scv.id
-      JOIN `{S}.gks_scv_condition_sets` spc
+      JOIN `{S}.gkm_scv_condition_sets` spc
       ON
         spc.scv_id = scv.id
-      LEFT JOIN {P}.temp_gks_scv_target_proposition stp
+      LEFT JOIN {P}.temp_gkm_scv_target_proposition stp
       ON
         stp.scv_id = scv.id
       LEFT JOIN {P}.temp_scv_method sm
@@ -1122,19 +1122,19 @@ BEGIN
     -- by PARSING (the stored value dropped scv_id). Explicit column lists so any
     -- schema/column-order drift errors (the version-invalidation signal) instead of
     -- silently corrupting. NULL-safe anti-join (LEFT JOIN … IS NULL) rather than
-    -- NOT IN so a NULL scv_id cannot empty the carry-forward. gks_dict_proposition is
+    -- NOT IN so a NULL scv_id cannot empty the carry-forward. gkm_dict_proposition is
     -- NOT merged here — it is globally recomputed (Step 7e).
     -----------------------------------------------------------------------
     IF eff_incremental THEN
 
-      -- gks_dict_evidence_line: id = clinvar.submission:{scv}.{ver};
+      -- gkm_dict_evidence_line: id = clinvar.submission:{scv}.{ver};
       --   scv = SPLIT(SPLIT(id,':')[1], '.')[0]
       SET query_merge = REPLACE("""
-        CREATE OR REPLACE TABLE `{S}.gks_dict_evidence_line` AS
+        CREATE OR REPLACE TABLE `{S}.gkm_dict_evidence_line` AS
         SELECT
           b.id, b.type, b.proposition, b.directionOfEvidenceProvided,
           b.evidenceOutcome, b.extensions
-        FROM `{BASE}.gks_dict_evidence_line` b
+        FROM `{BASE}.gkm_dict_evidence_line` b
         LEFT JOIN (
           SELECT scv_id FROM `{S}.scv_changed_ids`
           UNION DISTINCT
@@ -1145,21 +1145,21 @@ BEGIN
         SELECT
           id, type, proposition, directionOfEvidenceProvided,
           evidenceOutcome, extensions
-        FROM {P}.stg_gks_dict_evidence_line
+        FROM {P}.stg_gkm_dict_evidence_line
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));
       SET query_merge = REPLACE(query_merge, '{S}', rec.schema_name);
       EXECUTE IMMEDIATE query_merge;
 
-      -- gks_dict_scv: id = clinvar.submission:{scv}.{ver};
+      -- gkm_dict_scv: id = clinvar.submission:{scv}.{ver};
       --   scv = SPLIT(SPLIT(id,':')[1], '.')[0]
       SET query_merge = REPLACE("""
-        CREATE OR REPLACE TABLE `{S}.gks_dict_scv` AS
+        CREATE OR REPLACE TABLE `{S}.gkm_dict_scv` AS
         SELECT
           b.id, b.type, b.proposition, b.classification, b.strength, b.direction,
           b.confidence, b.description, b.contributions, b.specifiedBy, b.methodType,
           b.methodName, b.reportedIn, b.extensions, b.hasEvidenceLines
-        FROM `{BASE}.gks_dict_scv` b
+        FROM `{BASE}.gkm_dict_scv` b
         LEFT JOIN (
           SELECT scv_id FROM `{S}.scv_changed_ids`
           UNION DISTINCT
@@ -1171,7 +1171,7 @@ BEGIN
           id, type, proposition, classification, strength, direction,
           confidence, description, contributions, specifiedBy, methodType,
           methodName, reportedIn, extensions, hasEvidenceLines
-        FROM {P}.stg_gks_dict_scv
+        FROM {P}.stg_gkm_dict_scv
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));
       SET query_merge = REPLACE(query_merge, '{S}', rec.schema_name);
@@ -1182,7 +1182,7 @@ BEGIN
     -------------------------------------------------------------------------
     -- Coverage validation (BOTH modes; in incremental mode it also proves the merge
     -- is complete — no carry-forward gap, no double-count).
-    -- gks_dict_scv is strictly 1:1 with scv_summary(id, version): its id is
+    -- gkm_dict_scv is strictly 1:1 with scv_summary(id, version): its id is
     -- 'clinvar.submission:{scv}.{ver}', so SPLIT(id,':')[OFFSET(1)] = '{scv}.{ver}',
     -- which must equal CONCAT(scv_summary.id, '.', version). A nonzero delta =
     -- missing / extra / duplicate statement record. The count-equality term catches a
@@ -1191,13 +1191,13 @@ BEGIN
     -------------------------------------------------------------------------
     EXECUTE IMMEDIATE FORMAT("""
       SELECT
-        ABS((SELECT COUNT(*) FROM `%s.scv_summary`) - (SELECT COUNT(*) FROM `%s.gks_dict_scv`))
+        ABS((SELECT COUNT(*) FROM `%s.scv_summary`) - (SELECT COUNT(*) FROM `%s.gkm_dict_scv`))
         + (SELECT COUNT(*) FROM (
              SELECT CONCAT(id, '.', CAST(version AS STRING)) FROM `%s.scv_summary`
              EXCEPT DISTINCT
-             SELECT SPLIT(id, ':')[OFFSET(1)] FROM `%s.gks_dict_scv`))
+             SELECT SPLIT(id, ':')[OFFSET(1)] FROM `%s.gkm_dict_scv`))
         + (SELECT COUNT(*) FROM (
-             SELECT SPLIT(id, ':')[OFFSET(1)] FROM `%s.gks_dict_scv`
+             SELECT SPLIT(id, ':')[OFFSET(1)] FROM `%s.gkm_dict_scv`
              EXCEPT DISTINCT
              SELECT CONCAT(id, '.', CAST(version AS STRING)) FROM `%s.scv_summary`))
     """, rec.schema_name, rec.schema_name, rec.schema_name, rec.schema_name,
@@ -1206,16 +1206,16 @@ BEGIN
 
     IF scv_cov_mismatch != 0 THEN
       RAISE USING MESSAGE = FORMAT(
-        'gks_scv_statement validation FAILED for %s: gks_dict_scv is not 1:1 with scv_summary(id,version) (count/set delta = %t) — missing, extra, or duplicate statement record',
+        'gkm_scv_statement validation FAILED for %s: gkm_dict_scv is not 1:1 with scv_summary(id,version) (count/set delta = %t) — missing, extra, or duplicate statement record',
         rec.schema_name, scv_cov_mismatch);
     END IF;
 
-    -- gks_dict_evidence_line is NOT 1:1 (only clinical-impact SCVs get one). Weak
+    -- gkm_dict_evidence_line is NOT 1:1 (only clinical-impact SCVs get one). Weak
     -- invariant: every evidence_line scv-id must exist in scv_summary (no orphans).
     EXECUTE IMMEDIATE FORMAT("""
       SELECT COUNT(*) FROM (
         SELECT DISTINCT SPLIT(SPLIT(id, ':')[OFFSET(1)], '.')[OFFSET(0)] AS scv
-        FROM `%s.gks_dict_evidence_line`
+        FROM `%s.gkm_dict_evidence_line`
       ) el
       LEFT JOIN `%s.scv_summary` s ON s.id = el.scv
       WHERE s.id IS NULL
@@ -1224,23 +1224,23 @@ BEGIN
 
     IF el_orphan_count != 0 THEN
       RAISE USING MESSAGE = FORMAT(
-        'gks_scv_statement validation FAILED for %s: %t gks_dict_evidence_line scv-id(s) have no matching scv_summary row (orphan evidence line)',
+        'gkm_scv_statement validation FAILED for %s: %t gkm_dict_evidence_line scv-id(s) have no matching scv_summary row (orphan evidence line)',
         rec.schema_name, el_orphan_count);
     END IF;
 
     IF NOT debug THEN
-      DROP TABLE IF EXISTS _SESSION.temp_gks_scv;
+      DROP TABLE IF EXISTS _SESSION.temp_gkm_scv;
       DROP TABLE IF EXISTS _SESSION.temp_gene_context_qualifiers;
       DROP TABLE IF EXISTS _SESSION.temp_moi_qualifiers;
       DROP TABLE IF EXISTS _SESSION.temp_penetrance_qualifiers;
-      DROP TABLE IF EXISTS _SESSION.temp_gks_scv_proposition;
-      DROP TABLE IF EXISTS _SESSION.temp_gks_scv_target_proposition;
+      DROP TABLE IF EXISTS _SESSION.temp_gkm_scv_proposition;
+      DROP TABLE IF EXISTS _SESSION.temp_gkm_scv_target_proposition;
       DROP TABLE IF EXISTS _SESSION.temp_scv_condition_names;
       DROP TABLE IF EXISTS _SESSION.temp_scv_citations;
       DROP TABLE IF EXISTS _SESSION.temp_scv_method;
       IF eff_incremental THEN
-        DROP TABLE IF EXISTS _SESSION.stg_gks_dict_evidence_line;
-        DROP TABLE IF EXISTS _SESSION.stg_gks_dict_scv;
+        DROP TABLE IF EXISTS _SESSION.stg_gkm_dict_evidence_line;
+        DROP TABLE IF EXISTS _SESSION.stg_gkm_dict_scv;
       END IF;
     END IF;
 
@@ -1249,16 +1249,16 @@ END;
 
 
 -- Full rebuild (unchanged public signature/behavior)
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_scv_statement_proc`(on_date DATE, debug BOOL)
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_scv_statement_proc`(on_date DATE, debug BOOL)
 BEGIN
-  CALL `clinvar_ingest.gks_scv_statement_build`(on_date, debug, FALSE);
+  CALL `clinvar_ingest.gkm_scv_statement_build`(on_date, debug, FALSE);
 END;
 
 
 -- Incremental rebuild (carry-forward + merge). Guarded: falls back to full when the
 -- baseline is missing/incomplete, the diff drivers / changed sets are missing, or the
 -- pipeline gate mismatches.
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_scv_statement_proc_incremental`(on_date DATE, debug BOOL)
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_scv_statement_proc_incremental`(on_date DATE, debug BOOL)
 BEGIN
-  CALL `clinvar_ingest.gks_scv_statement_build`(on_date, debug, TRUE);
+  CALL `clinvar_ingest.gkm_scv_statement_build`(on_date, debug, TRUE);
 END;

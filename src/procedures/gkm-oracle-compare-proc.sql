@@ -1,10 +1,10 @@
 -- ============================================================================
--- gks_oracle_compare — assert two builds of a table are canonically identical
+-- gkm_oracle_compare — assert two builds of a table are canonically identical
 -- ============================================================================
 -- Compares `<schema_a>.<table>` vs `<schema_b>.<table>` as a canonical-row MULTISET:
 -- each row is reduced to canonicalize_json(TO_JSON_STRING(row)) (order-independent),
 -- grouped, and the per-canonical-row multiplicities are compared. This is dup-key-safe
--- (tables with legitimately duplicate primary keys, e.g. gks_dict_allele, compare
+-- (tables with legitimately duplicate primary keys, e.g. gkm_dict_allele, compare
 -- correctly) and strictly stronger than a per-pk collapse. SELECTs one result row:
 --   (table_name, a_only, b_only, canonical_diffs)
 -- a_only  = total canonical rows present more times in A than B
@@ -12,7 +12,7 @@
 -- canonical_diffs = number of distinct canonical rows whose multiplicity differs
 -- 0/0/0 == the two builds are identical.
 -- ============================================================================
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_oracle_compare`(
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_oracle_compare`(
   schema_a STRING, schema_b STRING, table_name STRING)
 BEGIN
   DECLARE q STRING;

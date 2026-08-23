@@ -1,17 +1,17 @@
 #!/bin/bash
-# export-gks-dicts.sh
+# export-gkm-dicts.sh
 # Export all GKS dictionary tables to GCS as NDJSON and/or Parquet
 #
-# Usage: ./export-gks-dicts.sh <dataset> <gcs_bucket> [prefix] [--parquet-only] [--delta]
-# Example: ./export-gks-dicts.sh clinvar_2025_06_08 clinvar-gkm gks-dicts
-# Example: ./export-gks-dicts.sh clinvar_2025_06_08 clinvar-gkm gks-dicts --parquet-only
+# Usage: ./export-gkm-dicts.sh <dataset> <gcs_bucket> [prefix] [--parquet-only] [--delta]
+# Example: ./export-gkm-dicts.sh clinvar_2025_06_08 clinvar-gkm gkm-dicts
+# Example: ./export-gkm-dicts.sh clinvar_2025_06_08 clinvar-gkm gkm-dicts --parquet-only
 
 set -euo pipefail
 
 # Parse positional args and flags
 DATASET="${1:?Usage: $0 <dataset> <gcs_bucket> [prefix] [--parquet-only] [--delta]}"
 BUCKET="${2:?Usage: $0 <dataset> <gcs_bucket> [prefix] [--parquet-only] [--delta]}"
-PREFIX="${3:-gks-dicts}"
+PREFIX="${3:-gkm-dicts}"
 PARQUET_ONLY=false
 DELTA=false
 for arg in "$@"; do
@@ -21,7 +21,7 @@ for arg in "$@"; do
   esac
 done
 
-src_table() {           # $1 = base dict table, e.g. gks_dict_scv
+src_table() {           # $1 = base dict table, e.g. gkm_dict_scv
   if $DELTA; then echo "delta_$1"; else echo "$1"; fi
 }
 
@@ -73,9 +73,9 @@ extract_parquet_typed() {
   if $DELTA; then
     # Typed-Parquet can't use src_table() (the table name is embedded inside the schema SQL,
     # not passed as a CLI arg). Every parquet-schemas/*.sql references exactly ONE
-    # {DATASET}.gks_dict_* table and never uses "gks_dict_" in any alias/column/literal, so
+    # {DATASET}.gkm_dict_* table and never uses "gkm_dict_" in any alias/column/literal, so
     # this qualified-reference rewrite is safe. Invariant future schema authors must preserve.
-    sql="${sql//.gks_dict_/.delta_gks_dict_}"
+    sql="${sql//.gkm_dict_/.delta_gkm_dict_}"
   fi
   echo "  Exporting ${sql_file%.sql} -> ${sharded} (Parquet via EXPORT DATA)"
   # ${COLLAPSE_UDF} makes collapse_ext_values(...) available to schema files whose `data` column
@@ -108,10 +108,10 @@ SQL
 )
 
 # Extension value collapse (conformance): the pipeline stores typed extension values as `value_<type>`
-# (value_string, value_boolean, value_submitted_condition, ...) so gks_json_proc can nullify-by-type and
+# (value_string, value_boolean, value_submitted_condition, ...) so gkm_json_proc can nullify-by-type and
 # drop them; the va-spec bundle wants a single polymorphic `value`. This recursive JS UDF renames the one
 # populated `value_*` key (JSON_STRIP_NULLS already dropped the rest) to `value` in every extension object
-# (any object with a `name` sibling), at any nesting depth. The gks_dict_* tables keep `value_*`; only the
+# (any object with a `name` sibling), at any nesting depth. The gkm_dict_* tables keep `value_*`; only the
 # bundle export is collapsed. Prepend ${COLLAPSE_UDF} to any query that uses collapse_ext_values(...).
 COLLAPSE_UDF=$(cat <<'SQL'
 CREATE TEMP FUNCTION collapse_ext_values(j STRING)
@@ -144,9 +144,9 @@ export_proposition_group_ndjson() {
     ) AS
     SELECT key, SAFE.PARSE_JSON(collapse_ext_values(TO_JSON_STRING(value))) AS value FROM (
       SELECT key, value, ${PROP_GROUP_CASE} AS _grp FROM (
-        SELECT key, value FROM \`${DATASET}.$(src_table gks_dict_proposition)\`
-        UNION ALL SELECT key, value FROM \`${DATASET}.$(src_table gks_dict_rcv_proposition)\`
-        UNION ALL SELECT key, value FROM \`${DATASET}.$(src_table gks_dict_vcv_proposition)\`
+        SELECT key, value FROM \`${DATASET}.$(src_table gkm_dict_proposition)\`
+        UNION ALL SELECT key, value FROM \`${DATASET}.$(src_table gkm_dict_rcv_proposition)\`
+        UNION ALL SELECT key, value FROM \`${DATASET}.$(src_table gkm_dict_vcv_proposition)\`
       )
     ) WHERE _grp = '${group}'"
 }
@@ -174,26 +174,26 @@ export_ndjson_ext_collapse() {
 if ! $PARQUET_ONLY; then
   echo "Exporting NDJSON files to ${GCS_PATH}"
 
-  # Cat-VRS dictionaries (from gks_catvar_proc)
-  extract "$(src_table gks_dict_sequence_reference)" sequenceReference.ndjson.gz
-  extract "$(src_table gks_dict_location)" location.ndjson.gz
-  extract "$(src_table gks_dict_allele)" allele.ndjson.gz
-  extract "$(src_table gks_dict_copy_number_count)" copyNumberCount.ndjson.gz
-  extract "$(src_table gks_dict_copy_number_change)" copyNumberChange.ndjson.gz
-  extract "$(src_table gks_dict_gene)" gene.ndjson.gz
-  extract "$(src_table gks_dict_variation)" variation.ndjson.gz
+  # Cat-VRS dictionaries (from gkm_catvar_proc)
+  extract "$(src_table gkm_dict_sequence_reference)" sequenceReference.ndjson.gz
+  extract "$(src_table gkm_dict_location)" location.ndjson.gz
+  extract "$(src_table gkm_dict_allele)" allele.ndjson.gz
+  extract "$(src_table gkm_dict_copy_number_count)" copyNumberCount.ndjson.gz
+  extract "$(src_table gkm_dict_copy_number_change)" copyNumberChange.ndjson.gz
+  extract "$(src_table gkm_dict_gene)" gene.ndjson.gz
+  extract "$(src_table gkm_dict_variation)" variation.ndjson.gz
 
-  # Condition dictionaries (from gks_scv_condition_proc)
-  extract "$(src_table gks_dict_condition)" condition.ndjson.gz
-  extract "$(src_table gks_dict_condition_set)" conditionSet.ndjson.gz
+  # Condition dictionaries (from gkm_scv_condition_proc)
+  extract "$(src_table gkm_dict_condition)" condition.ndjson.gz
+  extract "$(src_table gkm_dict_condition_set)" conditionSet.ndjson.gz
 
-  # SCV dictionaries (from gks_scv_statement_proc)
-  extract "$(src_table gks_dict_submitter)" submitter.ndjson.gz
-  export_ndjson_ext_collapse "$(src_table gks_dict_evidence_line)" evidenceLine.ndjson.gz
+  # SCV dictionaries (from gkm_scv_statement_proc)
+  extract "$(src_table gkm_dict_submitter)" submitter.ndjson.gz
+  export_ndjson_ext_collapse "$(src_table gkm_dict_evidence_line)" evidenceLine.ndjson.gz
 
   # Proposition delivery groups (Phase 2): the 3 per-level proposition dicts are split into 4
   # datatype-homogeneous sections by the canonical group mapping. Delta-aware — the helper reads
-  # $(src_table gks_dict_*proposition), so --delta mode emits proposition deltas split into the 4
+  # $(src_table gkm_dict_*proposition), so --delta mode emits proposition deltas split into the 4
   # group sections (build-delta-manifest.py resolves each changed key to its group section to match).
   export_proposition_group_ndjson varcond
   export_proposition_group_ndjson vartumor
@@ -201,13 +201,13 @@ if ! $PARQUET_ONLY; then
   export_proposition_group_ndjson varcustom
 
   # VCV/RCV evidence line dictionaries (propositions handled by the group split above)
-  extract "$(src_table gks_dict_vcv_evidence_line)" vcv_evidenceLine.ndjson.gz
-  extract "$(src_table gks_dict_rcv_evidence_line)" rcv_evidenceLine.ndjson.gz
+  extract "$(src_table gkm_dict_vcv_evidence_line)" vcv_evidenceLine.ndjson.gz
+  extract "$(src_table gkm_dict_rcv_evidence_line)" rcv_evidenceLine.ndjson.gz
 
   # Statement outputs
-  export_ndjson_ext_collapse "$(src_table gks_dict_scv)" scv.ndjson.gz
-  extract "$(src_table gks_dict_vcv)" vcv.ndjson.gz
-  extract "$(src_table gks_dict_rcv)" rcv.ndjson.gz
+  export_ndjson_ext_collapse "$(src_table gkm_dict_scv)" scv.ndjson.gz
+  extract "$(src_table gkm_dict_vcv)" vcv.ndjson.gz
+  extract "$(src_table gkm_dict_rcv)" rcv.ndjson.gz
 fi
 
 echo ""
@@ -223,7 +223,7 @@ extract_parquet_typed gene.parquet gene.sql
 extract_parquet_typed variation.parquet variation.sql
 
 # Conditions
-extract_parquet "$(src_table gks_dict_condition)" condition.parquet
+extract_parquet "$(src_table gkm_dict_condition)" condition.parquet
 extract_parquet_typed conditionSet.parquet conditionSet.sql
 
 # SCV

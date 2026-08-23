@@ -1,11 +1,11 @@
 -- ============================================================================
--- gks_change_log — per-release A/U/D change log for the gks_* record tables
+-- gkm_change_log — per-release A/U/D change log for the gkm_* record tables
 -- ============================================================================
--- For each tracked gks_* table, records which records were Added / Updated /
+-- For each tracked gkm_* table, records which records were Added / Updated /
 -- Deleted vs the prior release, into a single per-release meta table
--- <S>.gks_change_log:
+-- <S>.gkm_change_log:
 --
---   table_name        STRING   -- e.g. 'gks_scv_statement'
+--   table_name        STRING   -- e.g. 'gkm_scv_statement'
 --   change_type       STRING   -- 'A' (added) | 'U' (updated) | 'D' (deleted)
 --   pk                STRING   -- the record's primary-key value
 --   baseline_release  DATE     -- release the diff was computed against (NULL on first run)
@@ -15,8 +15,8 @@
 -- NOT in the log for its table is unchanged (carry forward from the prior release);
 -- A/U get recomputed, D get deleted.
 --
--- Every tracked gks_* table has a single-value primary key (verified): 'id' for the
--- final artifacts / dict tables. `gks_catvar` / `gks_dict_variation` may contain
+-- Every tracked gkm_* table has a single-value primary key (verified): 'id' for the
+-- final artifacts / dict tables. `gkm_catvar` / `gkm_dict_variation` may contain
 -- exact-duplicate id rows (a separate catvar-proc data issue), so each table is
 -- de-duplicated to one canonical content per pk (GROUP BY pk + ANY_VALUE) before
 -- diffing — the dup collapses harmlessly.
@@ -32,37 +32,37 @@
 -- SQL expression over the table's columns (e.g. a nested field like `in`.variation_id).
 -- ============================================================================
 
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_change_log`(on_date DATE)
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_change_log`(on_date DATE)
 BEGIN
   DECLARE tracked ARRAY<STRUCT<name STRING, pk STRING>> DEFAULT [
-    -- catvar outputs (Plan 1). NOTE: the gks_json JSON-render outputs (gks_catvar,
-    -- gks_scv_statement, gks_rcv_statement, gks_vcv_statement) were REMOVED in Plan 4 —
-    -- gks_json_proc is retired from the hot path, so those tables are no longer built and
+    -- catvar outputs (Plan 1). NOTE: the gkm_json JSON-render outputs (gkm_catvar,
+    -- gkm_scv_statement, gkm_rcv_statement, gkm_vcv_statement) were REMOVED in Plan 4 —
+    -- gkm_json_proc is retired from the hot path, so those tables are no longer built and
     -- must not be diffed here (missing-table analysis error). The published product is the
-    -- gks_dict_* set below.
-    STRUCT('gks_dict_variation'        AS name, 'id' AS pk),
-    STRUCT('gks_dict_sequence_reference',     'key'),
-    STRUCT('gks_dict_location',               'key'),
-    STRUCT('gks_dict_allele',                 'key'),
-    STRUCT('gks_dict_copy_number_count',      'key'),
-    STRUCT('gks_dict_copy_number_change',     'key'),
-    STRUCT('gks_dict_gene',                   'key'),
+    -- gkm_dict_* set below.
+    STRUCT('gkm_dict_variation'        AS name, 'id' AS pk),
+    STRUCT('gkm_dict_sequence_reference',     'key'),
+    STRUCT('gkm_dict_location',               'key'),
+    STRUCT('gkm_dict_allele',                 'key'),
+    STRUCT('gkm_dict_copy_number_count',      'key'),
+    STRUCT('gkm_dict_copy_number_change',     'key'),
+    STRUCT('gkm_dict_gene',                   'key'),
     -- scv condition/statement outputs (Plan 2)
-    STRUCT('gks_dict_condition',              'id'),
-    STRUCT('gks_dict_condition_set',          'id'),
-    STRUCT('gks_scv_condition_sets',          'scv_id'),
-    STRUCT('gks_dict_submitter',              'key'),
-    STRUCT('gks_dict_proposition',            'key'),
-    STRUCT('gks_dict_evidence_line',          'id'),
-    STRUCT('gks_dict_scv',                    'id'),
+    STRUCT('gkm_dict_condition',              'id'),
+    STRUCT('gkm_dict_condition_set',          'id'),
+    STRUCT('gkm_scv_condition_sets',          'scv_id'),
+    STRUCT('gkm_dict_submitter',              'key'),
+    STRUCT('gkm_dict_proposition',            'key'),
+    STRUCT('gkm_dict_evidence_line',          'id'),
+    STRUCT('gkm_dict_scv',                    'id'),
     -- rcv/vcv statement outputs (Plan 3). The 3 per-side `_agg` intermediates are
     -- deliberately NOT tracked — they feed these dict/proposition/evidence_line outputs.
-    STRUCT('gks_dict_rcv',                    'id'),
-    STRUCT('gks_dict_rcv_proposition',        'key'),
-    STRUCT('gks_dict_rcv_evidence_line',      'id'),
-    STRUCT('gks_dict_vcv',                    'id'),
-    STRUCT('gks_dict_vcv_proposition',        'key'),
-    STRUCT('gks_dict_vcv_evidence_line',      'id')
+    STRUCT('gkm_dict_rcv',                    'id'),
+    STRUCT('gkm_dict_rcv_proposition',        'key'),
+    STRUCT('gkm_dict_rcv_evidence_line',      'id'),
+    STRUCT('gkm_dict_vcv',                    'id'),
+    STRUCT('gkm_dict_vcv_proposition',        'key'),
+    STRUCT('gkm_dict_vcv_evidence_line',      'id')
   ];
   DECLARE i INT64 DEFAULT 0;
   DECLARE t STRUCT<name STRING, pk STRING>;
@@ -81,7 +81,7 @@ BEGIN
     SET cur_rel = (SELECT release_date FROM `clinvar_ingest.schema_on`(on_date));
 
     EXECUTE IMMEDIATE FORMAT("""
-      CREATE OR REPLACE TABLE `%s.gks_change_log` (
+      CREATE OR REPLACE TABLE `%s.gkm_change_log` (
         table_name       STRING,
         change_type      STRING,
         pk               STRING,
@@ -105,7 +105,7 @@ BEGIN
       IF NOT base_has THEN
         -- First run / no baseline table: every current record is Added.
         SET q = """
-          INSERT INTO `{S}.gks_change_log` (table_name, change_type, pk, baseline_release, compare_release)
+          INSERT INTO `{S}.gkm_change_log` (table_name, change_type, pk, baseline_release, compare_release)
           SELECT '{T}', 'A', CAST({PK} AS STRING), NULL, DATE '{CREL}'
           FROM `{S}.{T}`
           GROUP BY {PK}
@@ -117,7 +117,7 @@ BEGIN
         EXECUTE IMMEDIATE q;
       ELSE
         SET q = """
-          INSERT INTO `{S}.gks_change_log` (table_name, change_type, pk, baseline_release, compare_release)
+          INSERT INTO `{S}.gkm_change_log` (table_name, change_type, pk, baseline_release, compare_release)
           WITH cur AS (
             SELECT CAST({PK} AS STRING) AS pk, ANY_VALUE(TO_JSON_STRING(t)) AS h
             FROM `{S}.{T}` t GROUP BY {PK}

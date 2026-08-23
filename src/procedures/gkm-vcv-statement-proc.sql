@@ -1,28 +1,28 @@
 -------------------------------------------------------------------------------
--- gks_vcv_statement — build the three VCV statement outputs from a release:
---   gks_dict_vcv_evidence_line  (from the 3 vcv agg tables)
---   gks_dict_vcv_proposition    (from the 3 vcv agg tables; objectCondition inline)
---   gks_dict_vcv                (UNION of the 3 per-layer statement temps)
+-- gkm_vcv_statement — build the three VCV statement outputs from a release:
+--   gkm_dict_vcv_evidence_line  (from the 3 vcv agg tables)
+--   gkm_dict_vcv_proposition    (from the 3 vcv agg tables; objectCondition inline)
+--   gkm_dict_vcv                (UNION of the 3 per-layer statement temps)
 --
 -- Three entry points:
---   gks_vcv_statement_proc(on_date, debug)              -> full rebuild (unchanged behavior)
---   gks_vcv_statement_proc_incremental(on_date, debug)  -> incremental (carry-forward + merge)
---   gks_vcv_statement_build(on_date, debug, incremental) -> internal implementation
+--   gkm_vcv_statement_proc(on_date, debug)              -> full rebuild (unchanged behavior)
+--   gkm_vcv_statement_proc_incremental(on_date, debug)  -> incremental (carry-forward + merge)
+--   gkm_vcv_statement_build(on_date, debug, incremental) -> internal implementation
 --
 -- Incremental strategy (see docs/superpowers/plans/2026-08-08-incremental-gks-
 -- downstream-plan-3-rcv-vcv.md, Chunk 5 — the VCV mirror of Chunk 3):
 --   All three outputs are per-VCV-parent. They are built FROM the three vcv agg tables
---   (gks_vcv_classification_agg / _priority_agg / _aggregate_contribution — each carries
+--   (gkm_vcv_classification_agg / _priority_agg / _aggregate_contribution — each carries
 --   vcv_accession). Only the VCV parents impacted by this release are recomputed; the rest
 --   are carried forward from the baseline release. The impacted-parent set is the persistent
---   {S} table vcv_impacted_ids produced by gks_rcvvcv_changed, the SAME set that drove the
+--   {S} table vcv_impacted_ids produced by gkm_rcvvcv_changed, the SAME set that drove the
 --   agg tables (Chunk 4) — so the agg rows this proc reads for an unimpacted VCV are
 --   byte-identical to baseline, and the deterministic statement transform reproduces the
 --   baseline statement rows exactly.
 --
 --   {PFILTER} restricts each output's read of the agg tables to impacted VCVs in incremental
---   mode ('' in full). The per-layer statement temps (which feed ONLY gks_dict_vcv) are
---   filtered too, so gks_dict_vcv's stage is impacted-only. In incremental mode each output
+--   mode ('' in full). The per-layer statement temps (which feed ONLY gkm_dict_vcv) are
+--   filtered too, so gkm_dict_vcv's stage is impacted-only. In incremental mode each output
 --   is staged to {P}.stg_* and then UNION-CTAS-merged into {S}: carry forward the baseline
 --   rows whose parent VCV is NOT impacted AND still present in {S}.variation_archive (so a
 --   removed VCV is not resurrected), UNION ALL the freshly recomputed impacted rows.
@@ -30,9 +30,9 @@
 --   pk-parse (the outputs have NO vcv_accession column — they UNION statement temps that
 --   carry only id/type/…): the parent accession is recovered from the pk. VCV accessions
 --   contain no '.' or '-'.
---     gks_dict_vcv_evidence_line: id = '{VCV}.{ver}-…'  -> SPLIT(id, '.')[OFFSET(0)]
---     gks_dict_vcv:               id = '{VCV}.{ver}-…'  -> SPLIT(id, '.')[OFFSET(0)]
---     gks_dict_vcv_proposition:   key = '{VCV}-…'       -> SPLIT(key, '-')[OFFSET(0)]
+--     gkm_dict_vcv_evidence_line: id = '{VCV}.{ver}-…'  -> SPLIT(id, '.')[OFFSET(0)]
+--     gkm_dict_vcv:               id = '{VCV}.{ver}-…'  -> SPLIT(id, '.')[OFFSET(0)]
+--     gkm_dict_vcv_proposition:   key = '{VCV}-…'       -> SPLIT(key, '-')[OFFSET(0)]
 --
 --   Determinism: this proc has NO group-by / ANY_VALUE over the agg rows — the outputs are
 --   row-wise projections of the (already-deterministic) agg tables, and the array
@@ -49,7 +49,7 @@
 --   missing/incomplete, the impacted set / required inputs are absent, or the pipeline
 --   gate_key mismatches. Call the *_incremental wrapper only when carry-forward is safe.
 -------------------------------------------------------------------------------
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_vcv_statement_build`(on_date DATE, debug BOOL, incremental BOOL)
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_vcv_statement_build`(on_date DATE, debug BOOL, incremental BOOL)
 BEGIN
   DECLARE query_classification STRING;
   DECLARE query_priority STRING;
@@ -71,9 +71,9 @@ BEGIN
 
   -- mode-dependent fragments ('' / real-table targets in full mode)
   DECLARE pf_agg STRING;       -- impacted-VCV filter on `agg.vcv_accession`
-  DECLARE el_head STRING;      -- gks_dict_vcv_evidence_line target (real table vs stg temp)
-  DECLARE prop_head STRING;    -- gks_dict_vcv_proposition target
-  DECLARE vcv_head STRING;     -- gks_dict_vcv target
+  DECLARE el_head STRING;      -- gkm_dict_vcv_evidence_line target (real table vs stg temp)
+  DECLARE prop_head STRING;    -- gkm_dict_vcv_proposition target
+  DECLARE vcv_head STRING;     -- gkm_dict_vcv target
 
   IF debug THEN
     SET temp_create = 'CREATE OR REPLACE TABLE';
@@ -107,32 +107,32 @@ BEGIN
       -- baseline must have all 3 statement outputs
       EXECUTE IMMEDIATE FORMAT("""
         SELECT (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES`
-                WHERE table_name IN ('gks_dict_vcv_evidence_line','gks_dict_vcv_proposition',
-                  'gks_dict_vcv')) = 3
+                WHERE table_name IN ('gkm_dict_vcv_evidence_line','gkm_dict_vcv_proposition',
+                  'gkm_dict_vcv')) = 3
       """, baseline_schema) INTO base_ok;
 
       -- current release must have the impacted-parent set, the three agg tables it reads,
       -- and variation_archive (removed-VCV exclusion in the merge).
       EXECUTE IMMEDIATE FORMAT("""
         SELECT (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES`
-                WHERE table_name IN ('vcv_impacted_ids','gks_vcv_classification_agg',
-                  'gks_vcv_priority_agg','gks_vcv_aggregate_contribution','variation_archive')) = 5
+                WHERE table_name IN ('vcv_impacted_ids','gkm_vcv_classification_agg',
+                  'gkm_vcv_priority_agg','gkm_vcv_aggregate_contribution','variation_archive')) = 5
       """, rec.schema_name) INTO diff_ok;
 
       -- version gate — TWO statements. BigQuery resolves table refs at analysis time and
       -- does NOT short-circuit that resolution, so a single combined statement referencing
-      -- {base}.gks_pipeline_version would ERROR (not return FALSE) when a pre-feature
+      -- {base}.gkm_pipeline_version would ERROR (not return FALSE) when a pre-feature
       -- baseline lacks the stamp. First confirm both stamps exist; only then compare gate_key.
       EXECUTE IMMEDIATE FORMAT("""
         SELECT
-          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gks_pipeline_version')=1
+          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gkm_pipeline_version')=1
           AND
-          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gks_pipeline_version')=1
+          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gkm_pipeline_version')=1
       """, baseline_schema, rec.schema_name) INTO stamps_exist;
       IF stamps_exist THEN
         EXECUTE IMMEDIATE FORMAT("""
-          SELECT (SELECT gate_key FROM `%s.gks_pipeline_version`)
-               = (SELECT gate_key FROM `%s.gks_pipeline_version`)
+          SELECT (SELECT gate_key FROM `%s.gkm_pipeline_version`)
+               = (SELECT gate_key FROM `%s.gkm_pipeline_version`)
         """, baseline_schema, rec.schema_name) INTO gate_ok;
         -- an empty stamp table yields NULL; NULL-strict so the guard falls back to full
         SET gate_ok = IFNULL(gate_ok, FALSE);
@@ -149,14 +149,14 @@ BEGIN
     -----------------------------------------------------------------------
     IF eff_incremental THEN
       SET pf_agg   = 'AND agg.vcv_accession IN (SELECT vcv_accession FROM `{S}.vcv_impacted_ids`)';
-      SET el_head   = '{CT} `{P}.stg_gks_dict_vcv_evidence_line`';
-      SET prop_head = '{CT} `{P}.stg_gks_dict_vcv_proposition`';
-      SET vcv_head  = '{CT} `{P}.stg_gks_dict_vcv`';
+      SET el_head   = '{CT} `{P}.stg_gkm_dict_vcv_evidence_line`';
+      SET prop_head = '{CT} `{P}.stg_gkm_dict_vcv_proposition`';
+      SET vcv_head  = '{CT} `{P}.stg_gkm_dict_vcv`';
     ELSE
       SET pf_agg   = '';
-      SET el_head   = 'CREATE OR REPLACE TABLE `{S}.gks_dict_vcv_evidence_line`';
-      SET prop_head = 'CREATE OR REPLACE TABLE `{S}.gks_dict_vcv_proposition`';
-      SET vcv_head  = 'CREATE OR REPLACE TABLE `{S}.gks_dict_vcv`';
+      SET el_head   = 'CREATE OR REPLACE TABLE `{S}.gkm_dict_vcv_evidence_line`';
+      SET prop_head = 'CREATE OR REPLACE TABLE `{S}.gkm_dict_vcv_proposition`';
+      SET vcv_head  = 'CREATE OR REPLACE TABLE `{S}.gkm_dict_vcv`';
     END IF;
 
     -- Clean up any persistent temp tables from a prior debug run
@@ -164,7 +164,7 @@ BEGIN
       CALL `clinvar_ingest.cleanup_temp_tables`(rec.schema_name, [
         'temp_vcv_classification_statements', 'temp_vcv_priority_statements',
         'temp_vcv_agg_contribution_statements',
-        'stg_gks_dict_vcv_evidence_line', 'stg_gks_dict_vcv_proposition', 'stg_gks_dict_vcv'
+        'stg_gkm_dict_vcv_evidence_line', 'stg_gkm_dict_vcv_proposition', 'stg_gkm_dict_vcv'
       ]);
     END IF;
 
@@ -220,12 +220,12 @@ BEGIN
 
         FORMAT('#/%s-proposition/%s',
           CASE
-            WHEN cpt.gks_type LIKE 'Clinvar%' THEN 'varcustom'
-            WHEN cpt.gks_type = 'VariantOncogenicityProposition' THEN 'vartumor'
-            WHEN cpt.gks_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-            WHEN cpt.gks_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
+            WHEN cpt.gkm_type LIKE 'Clinvar%' THEN 'varcustom'
+            WHEN cpt.gkm_type = 'VariantOncogenicityProposition' THEN 'vartumor'
+            WHEN cpt.gkm_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
+            WHEN cpt.gkm_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
                                   'VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gks_type))
+            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gkm_type))
           END,
           agg.prop_id) AS proposition,
 
@@ -237,7 +237,7 @@ BEGIN
 
         [FORMAT('#/evidenceLine/%s.contributing', agg.id)] AS hasEvidenceLines
 
-      FROM `{S}.gks_vcv_classification_agg` agg
+      FROM `{S}.gkm_vcv_classification_agg` agg
       LEFT JOIN `clinvar_ingest.clinvar_proposition_types` cpt ON agg.prop_type = cpt.code
       LEFT JOIN `clinvar_ingest.submission_level` sl ON agg.submission_level = sl.code
       WHERE TRUE
@@ -293,12 +293,12 @@ BEGIN
 
         FORMAT('#/%s-proposition/%s',
           CASE
-            WHEN cpt.gks_type LIKE 'Clinvar%' THEN 'varcustom'
-            WHEN cpt.gks_type = 'VariantOncogenicityProposition' THEN 'vartumor'
-            WHEN cpt.gks_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-            WHEN cpt.gks_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
+            WHEN cpt.gkm_type LIKE 'Clinvar%' THEN 'varcustom'
+            WHEN cpt.gkm_type = 'VariantOncogenicityProposition' THEN 'vartumor'
+            WHEN cpt.gkm_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
+            WHEN cpt.gkm_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
                                   'VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gks_type))
+            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gkm_type))
           END,
           agg.prop_id) AS proposition,
 
@@ -316,7 +316,7 @@ BEGIN
           )
         ) AS hasEvidenceLines
 
-      FROM `{S}.gks_vcv_priority_agg` agg
+      FROM `{S}.gkm_vcv_priority_agg` agg
       LEFT JOIN `clinvar_ingest.clinvar_proposition_types` cpt ON agg.prop_type = cpt.code
       LEFT JOIN `clinvar_ingest.submission_level` sl ON agg.submission_level = sl.code
       WHERE TRUE
@@ -371,12 +371,12 @@ BEGIN
 
         FORMAT('#/%s-proposition/%s',
           CASE
-            WHEN cpt.gks_type LIKE 'Clinvar%' THEN 'varcustom'
-            WHEN cpt.gks_type = 'VariantOncogenicityProposition' THEN 'vartumor'
-            WHEN cpt.gks_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-            WHEN cpt.gks_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
+            WHEN cpt.gkm_type LIKE 'Clinvar%' THEN 'varcustom'
+            WHEN cpt.gkm_type = 'VariantOncogenicityProposition' THEN 'vartumor'
+            WHEN cpt.gkm_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
+            WHEN cpt.gkm_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
                                   'VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gks_type))
+            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gkm_type))
           END,
           agg.prop_id) AS proposition,
 
@@ -394,7 +394,7 @@ BEGIN
           )
         ) AS hasEvidenceLines
 
-      FROM `{S}.gks_vcv_aggregate_contribution` agg
+      FROM `{S}.gkm_vcv_aggregate_contribution` agg
       LEFT JOIN `clinvar_ingest.clinvar_proposition_types` cpt ON agg.prop_type = cpt.code
       WHERE TRUE
         {PFILTER}
@@ -425,7 +425,7 @@ BEGIN
           SELECT FORMAT('#/scv/clinvar.submission:%s', scv_id)
           FROM UNNEST(agg.full_scv_ids) AS scv_id
         ) AS evidenceItems
-      FROM `{S}.gks_vcv_classification_agg` agg
+      FROM `{S}.gkm_vcv_classification_agg` agg
       WHERE TRUE
         {PFILTER}
 
@@ -441,7 +441,7 @@ BEGIN
           SELECT FORMAT('#/vcv/%s', stmt_id)
           FROM UNNEST(agg.contributing_statement_ids) AS stmt_id
         ) AS evidenceItems
-      FROM `{S}.gks_vcv_priority_agg` agg
+      FROM `{S}.gkm_vcv_priority_agg` agg
       WHERE TRUE
         {PFILTER}
 
@@ -457,7 +457,7 @@ BEGIN
           SELECT FORMAT('#/vcv/%s', stmt_id)
           FROM UNNEST(agg.non_contributing_statement_ids) AS stmt_id
         ) AS evidenceItems
-      FROM `{S}.gks_vcv_priority_agg` agg
+      FROM `{S}.gkm_vcv_priority_agg` agg
       WHERE ARRAY_LENGTH(agg.non_contributing_statement_ids) > 0
         {PFILTER}
 
@@ -470,7 +470,7 @@ BEGIN
         'supports' AS directionOfEvidenceProvided,
         STRUCT('MappableConcept' AS type, 'Strength' AS conceptType, 'Contributing' AS name) AS strengthOfEvidenceProvided,
         [FORMAT('#/vcv/%s', agg.contributing_layer_id)] AS evidenceItems
-      FROM `{S}.gks_vcv_aggregate_contribution` agg
+      FROM `{S}.gkm_vcv_aggregate_contribution` agg
       WHERE TRUE
         {PFILTER}
 
@@ -486,7 +486,7 @@ BEGIN
           SELECT FORMAT('#/vcv/%s', nc.layer_id)
           FROM UNNEST(agg.non_contributing_details) AS nc
         ) AS evidenceItems
-      FROM `{S}.gks_vcv_aggregate_contribution` agg
+      FROM `{S}.gkm_vcv_aggregate_contribution` agg
       WHERE agg.non_contributing_details IS NOT NULL AND ARRAY_LENGTH(agg.non_contributing_details) > 0
         {PFILTER}
     """, '{EL_HEAD}', el_head);
@@ -508,12 +508,12 @@ BEGIN
       SELECT
         agg.prop_id as key,
         JSON_STRIP_NULLS(TO_JSON(STRUCT(
-          IF(cpt.gks_type LIKE 'Clinvar%', 'CustomProposition', cpt.gks_type) AS type,
-          IF(cpt.gks_type LIKE 'Clinvar%', cpt.gks_type, CAST(NULL AS STRING)) AS customPropositionType,
+          IF(cpt.gkm_type LIKE 'Clinvar%', 'CustomProposition', cpt.gkm_type) AS type,
+          IF(cpt.gkm_type LIKE 'Clinvar%', cpt.gkm_type, CAST(NULL AS STRING)) AS customPropositionType,
           agg.prop_id AS id,
-          IF(cpt.gks_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
-          IF(cpt.gks_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
-          CASE cpt.gks_type
+          IF(cpt.gkm_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
+          IF(cpt.gkm_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
+          CASE cpt.gkm_type
             WHEN 'VariantPathogenicityProposition' THEN 'isCausalFor'
             WHEN 'VariantOncogenicityProposition' THEN 'isOncogenicFor'
             WHEN 'VariantClinicalSignificanceProposition' THEN 'hasClinicalSignificanceFor'
@@ -528,16 +528,16 @@ BEGIN
             WHEN 'ClinvarRiskFactorProposition' THEN 'isRiskFactorFor'
             ELSE 'isClinvarUndefinedAssociationFor'
           END AS predicate,
-          IF(cpt.gks_type LIKE 'Clinvar%' OR cpt.gks_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), agg.obj_ref) AS objectCondition,
-          IF((NOT (cpt.gks_type LIKE 'Clinvar%')) AND cpt.gks_type = 'VariantOncogenicityProposition', agg.obj_ref, CAST(NULL AS STRING)) AS objectTumorType,
-          IF(cpt.gks_type LIKE 'Clinvar%', agg.obj_ref, CAST(NULL AS STRING)) AS object
+          IF(cpt.gkm_type LIKE 'Clinvar%' OR cpt.gkm_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), agg.obj_ref) AS objectCondition,
+          IF((NOT (cpt.gkm_type LIKE 'Clinvar%')) AND cpt.gkm_type = 'VariantOncogenicityProposition', agg.obj_ref, CAST(NULL AS STRING)) AS objectTumorType,
+          IF(cpt.gkm_type LIKE 'Clinvar%', agg.obj_ref, CAST(NULL AS STRING)) AS object
         )), remove_empty => TRUE) as value
       FROM (
         SELECT a.*,
           IF(ARRAY_LENGTH(a.unique_conditions) = 0, CAST(NULL AS STRING),
             IF(ARRAY_LENGTH(a.unique_conditions) = 1, a.unique_conditions[OFFSET(0)],
               CONCAT('#/conditionSet/clinvar.conditionset:vcv-', TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(a.unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|')))))) AS obj_ref
-        FROM `{S}.gks_vcv_classification_agg` a
+        FROM `{S}.gkm_vcv_classification_agg` a
       ) agg
       LEFT JOIN `clinvar_ingest.clinvar_proposition_types` cpt ON agg.prop_type = cpt.code
       WHERE TRUE
@@ -546,12 +546,12 @@ BEGIN
       SELECT
         agg.prop_id as key,
         JSON_STRIP_NULLS(TO_JSON(STRUCT(
-          IF(cpt.gks_type LIKE 'Clinvar%', 'CustomProposition', cpt.gks_type) AS type,
-          IF(cpt.gks_type LIKE 'Clinvar%', cpt.gks_type, CAST(NULL AS STRING)) AS customPropositionType,
+          IF(cpt.gkm_type LIKE 'Clinvar%', 'CustomProposition', cpt.gkm_type) AS type,
+          IF(cpt.gkm_type LIKE 'Clinvar%', cpt.gkm_type, CAST(NULL AS STRING)) AS customPropositionType,
           agg.prop_id AS id,
-          IF(cpt.gks_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
-          IF(cpt.gks_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
-          CASE cpt.gks_type
+          IF(cpt.gkm_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
+          IF(cpt.gkm_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
+          CASE cpt.gkm_type
             WHEN 'VariantPathogenicityProposition' THEN 'isCausalFor'
             WHEN 'VariantOncogenicityProposition' THEN 'isOncogenicFor'
             WHEN 'VariantClinicalSignificanceProposition' THEN 'hasClinicalSignificanceFor'
@@ -566,16 +566,16 @@ BEGIN
             WHEN 'ClinvarRiskFactorProposition' THEN 'isRiskFactorFor'
             ELSE 'isClinvarUndefinedAssociationFor'
           END AS predicate,
-          IF(cpt.gks_type LIKE 'Clinvar%' OR cpt.gks_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), agg.obj_ref) AS objectCondition,
-          IF((NOT (cpt.gks_type LIKE 'Clinvar%')) AND cpt.gks_type = 'VariantOncogenicityProposition', agg.obj_ref, CAST(NULL AS STRING)) AS objectTumorType,
-          IF(cpt.gks_type LIKE 'Clinvar%', agg.obj_ref, CAST(NULL AS STRING)) AS object
+          IF(cpt.gkm_type LIKE 'Clinvar%' OR cpt.gkm_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), agg.obj_ref) AS objectCondition,
+          IF((NOT (cpt.gkm_type LIKE 'Clinvar%')) AND cpt.gkm_type = 'VariantOncogenicityProposition', agg.obj_ref, CAST(NULL AS STRING)) AS objectTumorType,
+          IF(cpt.gkm_type LIKE 'Clinvar%', agg.obj_ref, CAST(NULL AS STRING)) AS object
         )), remove_empty => TRUE) as value
       FROM (
         SELECT a.*,
           IF(ARRAY_LENGTH(a.unique_conditions) = 0, CAST(NULL AS STRING),
             IF(ARRAY_LENGTH(a.unique_conditions) = 1, a.unique_conditions[OFFSET(0)],
               CONCAT('#/conditionSet/clinvar.conditionset:vcv-', TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(a.unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|')))))) AS obj_ref
-        FROM `{S}.gks_vcv_priority_agg` a
+        FROM `{S}.gkm_vcv_priority_agg` a
       ) agg
       LEFT JOIN `clinvar_ingest.clinvar_proposition_types` cpt ON agg.prop_type = cpt.code
       WHERE TRUE
@@ -584,12 +584,12 @@ BEGIN
       SELECT
         agg.prop_id as key,
         JSON_STRIP_NULLS(TO_JSON(STRUCT(
-          IF(cpt.gks_type LIKE 'Clinvar%', 'CustomProposition', cpt.gks_type) AS type,
-          IF(cpt.gks_type LIKE 'Clinvar%', cpt.gks_type, CAST(NULL AS STRING)) AS customPropositionType,
+          IF(cpt.gkm_type LIKE 'Clinvar%', 'CustomProposition', cpt.gkm_type) AS type,
+          IF(cpt.gkm_type LIKE 'Clinvar%', cpt.gkm_type, CAST(NULL AS STRING)) AS customPropositionType,
           agg.prop_id AS id,
-          IF(cpt.gks_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
-          IF(cpt.gks_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
-          CASE cpt.gks_type
+          IF(cpt.gkm_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
+          IF(cpt.gkm_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
+          CASE cpt.gkm_type
             WHEN 'VariantPathogenicityProposition' THEN 'isCausalFor'
             WHEN 'VariantOncogenicityProposition' THEN 'isOncogenicFor'
             WHEN 'VariantClinicalSignificanceProposition' THEN 'hasClinicalSignificanceFor'
@@ -604,16 +604,16 @@ BEGIN
             WHEN 'ClinvarRiskFactorProposition' THEN 'isRiskFactorFor'
             ELSE 'isClinvarUndefinedAssociationFor'
           END AS predicate,
-          IF(cpt.gks_type LIKE 'Clinvar%' OR cpt.gks_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), agg.obj_ref) AS objectCondition,
-          IF((NOT (cpt.gks_type LIKE 'Clinvar%')) AND cpt.gks_type = 'VariantOncogenicityProposition', agg.obj_ref, CAST(NULL AS STRING)) AS objectTumorType,
-          IF(cpt.gks_type LIKE 'Clinvar%', agg.obj_ref, CAST(NULL AS STRING)) AS object
+          IF(cpt.gkm_type LIKE 'Clinvar%' OR cpt.gkm_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), agg.obj_ref) AS objectCondition,
+          IF((NOT (cpt.gkm_type LIKE 'Clinvar%')) AND cpt.gkm_type = 'VariantOncogenicityProposition', agg.obj_ref, CAST(NULL AS STRING)) AS objectTumorType,
+          IF(cpt.gkm_type LIKE 'Clinvar%', agg.obj_ref, CAST(NULL AS STRING)) AS object
         )), remove_empty => TRUE) as value
       FROM (
         SELECT a.*,
           IF(ARRAY_LENGTH(a.unique_conditions) = 0, CAST(NULL AS STRING),
             IF(ARRAY_LENGTH(a.unique_conditions) = 1, a.unique_conditions[OFFSET(0)],
               CONCAT('#/conditionSet/clinvar.conditionset:vcv-', TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(a.unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|')))))) AS obj_ref
-        FROM `{S}.gks_vcv_aggregate_contribution` a
+        FROM `{S}.gkm_vcv_aggregate_contribution` a
       ) agg
       LEFT JOIN `clinvar_ingest.clinvar_proposition_types` cpt ON agg.prop_type = cpt.code
       WHERE TRUE
@@ -633,14 +633,14 @@ BEGIN
     -- 'OR'; concepts may themselves be #/conditionSet/ pointers — nesting is allowed).
     -- The id digest here MUST match the obj_ref computed in the proposition build above.
     -- Rebuild the dict as (trait-set rows) UNION (synthetic vcv- rows) so it is idempotent
-    -- across re-runs. NOTE: reads the three gks_vcv_*_agg tables — in incremental mode those
+    -- across re-runs. NOTE: reads the three gkm_vcv_*_agg tables — in incremental mode those
     -- are carried-forward GLOBAL (impacted recomputed ∪ unimpacted carried forward), so this
     -- producer emits ALL synthetic ConditionSets and carried-forward VCV propositions' refs
-    -- stay present. (Verify via the full-vs-incremental oracle on gks_dict_condition_set.)
+    -- stay present. (Verify via the full-vs-incremental oracle on gkm_dict_condition_set.)
     -------------------------------------------------------------------------
     SET query_vcv_synthetic_condsets = REPLACE("""
-      CREATE OR REPLACE TABLE `{S}.gks_dict_condition_set` AS
-      SELECT * FROM `{S}.gks_dict_condition_set`
+      CREATE OR REPLACE TABLE `{S}.gkm_dict_condition_set` AS
+      SELECT * FROM `{S}.gkm_dict_condition_set`
       WHERE id NOT LIKE 'clinvar.conditionset:vcv-%'
       UNION ALL
       SELECT
@@ -653,9 +653,9 @@ BEGIN
           ARRAY(SELECT c FROM UNNEST(unique_conditions) c WHERE c IS NOT NULL ORDER BY c) AS sc,
           TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|'))) AS id_digest
         FROM (
-          SELECT unique_conditions FROM `{S}.gks_vcv_classification_agg`
-          UNION ALL SELECT unique_conditions FROM `{S}.gks_vcv_priority_agg`
-          UNION ALL SELECT unique_conditions FROM `{S}.gks_vcv_aggregate_contribution`
+          SELECT unique_conditions FROM `{S}.gkm_vcv_classification_agg`
+          UNION ALL SELECT unique_conditions FROM `{S}.gkm_vcv_priority_agg`
+          UNION ALL SELECT unique_conditions FROM `{S}.gkm_vcv_aggregate_contribution`
         )
         WHERE ARRAY_LENGTH(unique_conditions) > 1
       )
@@ -692,49 +692,49 @@ BEGIN
     -----------------------------------------------------------------------
     IF eff_incremental THEN
 
-      -- gks_dict_vcv_evidence_line: id = '{VCV}.{ver}-…' -> SPLIT(id,'.')[OFFSET(0)]
+      -- gkm_dict_vcv_evidence_line: id = '{VCV}.{ver}-…' -> SPLIT(id,'.')[OFFSET(0)]
       SET query_merge = REPLACE("""
-        CREATE OR REPLACE TABLE `{S}.gks_dict_vcv_evidence_line` AS
+        CREATE OR REPLACE TABLE `{S}.gkm_dict_vcv_evidence_line` AS
         SELECT
           b.id, b.type, b.directionOfEvidenceProvided, b.strengthOfEvidenceProvided, b.evidenceItems
-        FROM `{BASE}.gks_dict_vcv_evidence_line` b
+        FROM `{BASE}.gkm_dict_vcv_evidence_line` b
         LEFT JOIN `{S}.vcv_impacted_ids` imp ON imp.vcv_accession = SPLIT(b.id, '.')[OFFSET(0)]
         WHERE imp.vcv_accession IS NULL
           AND SPLIT(b.id, '.')[OFFSET(0)] IN (SELECT id FROM `{S}.variation_archive`)
         UNION ALL
         SELECT
           id, type, directionOfEvidenceProvided, strengthOfEvidenceProvided, evidenceItems
-        FROM `{P}.stg_gks_dict_vcv_evidence_line`
+        FROM `{P}.stg_gkm_dict_vcv_evidence_line`
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));
       SET query_merge = REPLACE(query_merge, '{S}', rec.schema_name);
       EXECUTE IMMEDIATE query_merge;
 
-      -- gks_dict_vcv_proposition: key = '{VCV}-…' -> SPLIT(key,'-')[OFFSET(0)]
+      -- gkm_dict_vcv_proposition: key = '{VCV}-…' -> SPLIT(key,'-')[OFFSET(0)]
       SET query_merge = REPLACE("""
-        CREATE OR REPLACE TABLE `{S}.gks_dict_vcv_proposition` AS
+        CREATE OR REPLACE TABLE `{S}.gkm_dict_vcv_proposition` AS
         SELECT
           b.key, b.value
-        FROM `{BASE}.gks_dict_vcv_proposition` b
+        FROM `{BASE}.gkm_dict_vcv_proposition` b
         LEFT JOIN `{S}.vcv_impacted_ids` imp ON imp.vcv_accession = SPLIT(b.key, '-')[OFFSET(0)]
         WHERE imp.vcv_accession IS NULL
           AND SPLIT(b.key, '-')[OFFSET(0)] IN (SELECT id FROM `{S}.variation_archive`)
         UNION ALL
         SELECT
           key, value
-        FROM `{P}.stg_gks_dict_vcv_proposition`
+        FROM `{P}.stg_gkm_dict_vcv_proposition`
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));
       SET query_merge = REPLACE(query_merge, '{S}', rec.schema_name);
       EXECUTE IMMEDIATE query_merge;
 
-      -- gks_dict_vcv: id = '{VCV}.{ver}-…' -> SPLIT(id,'.')[OFFSET(0)]
+      -- gkm_dict_vcv: id = '{VCV}.{ver}-…' -> SPLIT(id,'.')[OFFSET(0)]
       SET query_merge = REPLACE("""
-        CREATE OR REPLACE TABLE `{S}.gks_dict_vcv` AS
+        CREATE OR REPLACE TABLE `{S}.gkm_dict_vcv` AS
         SELECT
           b.id, b.type, b.direction, b.strength, b.confidence, b.classification,
           b.proposition, b.extensions, b.hasEvidenceLines
-        FROM `{BASE}.gks_dict_vcv` b
+        FROM `{BASE}.gkm_dict_vcv` b
         LEFT JOIN `{S}.vcv_impacted_ids` imp ON imp.vcv_accession = SPLIT(b.id, '.')[OFFSET(0)]
         WHERE imp.vcv_accession IS NULL
           AND SPLIT(b.id, '.')[OFFSET(0)] IN (SELECT id FROM `{S}.variation_archive`)
@@ -742,7 +742,7 @@ BEGIN
         SELECT
           id, type, direction, strength, confidence, classification,
           proposition, extensions, hasEvidenceLines
-        FROM `{P}.stg_gks_dict_vcv`
+        FROM `{P}.stg_gkm_dict_vcv`
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));
       SET query_merge = REPLACE(query_merge, '{S}', rec.schema_name);
@@ -756,9 +756,9 @@ BEGIN
       DROP TABLE IF EXISTS _SESSION.temp_vcv_priority_statements;
       DROP TABLE IF EXISTS _SESSION.temp_vcv_agg_contribution_statements;
       IF eff_incremental THEN
-        DROP TABLE IF EXISTS _SESSION.stg_gks_dict_vcv_evidence_line;
-        DROP TABLE IF EXISTS _SESSION.stg_gks_dict_vcv_proposition;
-        DROP TABLE IF EXISTS _SESSION.stg_gks_dict_vcv;
+        DROP TABLE IF EXISTS _SESSION.stg_gkm_dict_vcv_evidence_line;
+        DROP TABLE IF EXISTS _SESSION.stg_gkm_dict_vcv_proposition;
+        DROP TABLE IF EXISTS _SESSION.stg_gkm_dict_vcv;
       END IF;
     END IF;
 
@@ -767,16 +767,16 @@ END;
 
 
 -- Full rebuild (unchanged public signature/behavior)
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_vcv_statement_proc`(on_date DATE, debug BOOL)
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_vcv_statement_proc`(on_date DATE, debug BOOL)
 BEGIN
-  CALL `clinvar_ingest.gks_vcv_statement_build`(on_date, debug, FALSE);
+  CALL `clinvar_ingest.gkm_vcv_statement_build`(on_date, debug, FALSE);
 END;
 
 
 -- Incremental rebuild (carry-forward + merge). Guarded: falls back to full when the
 -- baseline is missing/incomplete, the impacted set / required inputs are missing, or the
 -- pipeline gate mismatches.
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_vcv_statement_proc_incremental`(on_date DATE, debug BOOL)
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_vcv_statement_proc_incremental`(on_date DATE, debug BOOL)
 BEGIN
-  CALL `clinvar_ingest.gks_vcv_statement_build`(on_date, debug, TRUE);
+  CALL `clinvar_ingest.gkm_vcv_statement_build`(on_date, debug, TRUE);
 END;

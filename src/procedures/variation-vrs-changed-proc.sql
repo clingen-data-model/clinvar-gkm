@@ -5,14 +5,14 @@
 -- per release, the set of variations whose `variation_identity` row differs from
 -- the prior release — i.e. the ones that must be sent through vrs-python — plus
 -- the set that was removed. Everything else is carried forward from the prior
--- release's `gks_vrs`.
+-- release's `gkm_vrs`.
 --
 -- Writes into the release's own dataset:
 --   <S>.variation_vrs_changed  (variation_id)  -- new + modified -> re-vrsify
---   <S>.variation_vrs_removed  (variation_id)  -- gone -> delete from gks_vrs
+--   <S>.variation_vrs_removed  (variation_id)  -- gone -> delete from gkm_vrs
 --
 -- Comparison is the whole `variation_identity` row (it is exactly what becomes
--- `gks_vrs.in`), two-tier for speed + order-independence:
+-- `gkm_vrs.in`), two-tier for speed + order-independence:
 --   1. cheap: raw TO_JSON_STRING byte-compare resolves ~all rows;
 --   2. exact: canonicalize_json (order-independent) runs only on rows whose bytes
 --      differ, so unordered ARRAY_AGG (`mappings`) / array order does not inflate
@@ -21,7 +21,7 @@
 -- Baseline = nearest existing prior release (schema_on(prev_release_date)).
 -- FIRST RUN / no usable baseline (no prior release, or prior lacks
 -- variation_identity): every variation is "changed" and none "removed" — the
--- caller then does a full extract + `bq load --replace` of gks_vrs.
+-- caller then does a full extract + `bq load --replace` of gkm_vrs.
 -- ============================================================================
 
 CREATE OR REPLACE PROCEDURE `clinvar_ingest.variation_vrs_changed`(on_date DATE)

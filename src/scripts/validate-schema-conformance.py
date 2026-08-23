@@ -7,7 +7,7 @@ vrs / gks-core schemas reached through the `schema/` symlinks. Cross-tree `$ref`
 `$id` via the `referencing` registry (no network access).
 
 Records are read as NDJSON from stdin (one JSON object per line — e.g. the `value` of a
-`gks_dict_*proposition` row). Each record is routed to a schema by its type:
+`gkm_dict_*proposition` row). Each record is routed to a schema by its type:
 
   * `$.type == "CustomProposition"`  -> schema named by `$.customPropositionType`
   * `$.type` ending in "Proposition"  -> schema named by `$.type` (va-spec standard types)
@@ -15,7 +15,7 @@ Records are read as NDJSON from stdin (one JSON object per line — e.g. the `va
     `--as <SchemaName>` override is given (statements carry type "Statement", not a schema name).
 
 Usage:
-  bq query ... 'SELECT TO_JSON_STRING(value) FROM ...gks_dict_proposition LIMIT 500' \
+  bq query ... 'SELECT TO_JSON_STRING(value) FROM ...gkm_dict_proposition LIMIT 500' \
     | python3 src/scripts/validate-schema-conformance.py
 
   # or against a file of NDJSON records

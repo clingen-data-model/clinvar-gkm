@@ -4,8 +4,8 @@
 
 VCV statement generation is split across two stored procedures that run sequentially:
 
-1. **`gks_vcv_proc`** -- builds aggregation tables through a two-layer aggregation hierarchy, progressively combining SCV-level data into variant-level summaries
-2. **`gks_vcv_statement_proc`** -- transforms those aggregation tables into GKS-formatted VCV statements with nested evidence lines
+1. **`gkm_vcv_proc`** -- builds aggregation tables through a two-layer aggregation hierarchy, progressively combining SCV-level data into variant-level summaries
+2. **`gkm_vcv_statement_proc`** -- transforms those aggregation tables into GKS-formatted VCV statements with nested evidence lines
 
 Both procedures accept the same parameters:
 
@@ -16,7 +16,7 @@ Both procedures accept the same parameters:
 
 ---
 
-## gks_vcv_proc (Aggregation)
+## gkm_vcv_proc (Aggregation)
 
 This procedure materializes base data from SCV-level sources and builds two layers of progressively broader aggregation. Each layer groups records at a coarser level, applying submission-level-specific classification and review status logic. See [Aggregation Rules](vcv-aggregation-rules.md) for the full logic reference.
 
@@ -36,7 +36,7 @@ Key derivations:
 
 ---
 
-### Step 2: Build gks_vcv_grouping_base_agg
+### Step 2: Build gkm_vcv_grouping_base_agg
 
 Core aggregation step that groups SCVs by `(variation_id, statement_group, prop_type, submission_level, tier_grouping)`. Tier grouping is only populated for somatic clinical impact (sci) propositions; it is NULL for all other proposition types.
 
@@ -47,7 +47,7 @@ The step uses four CTEs:
 | `core_agg` | GROUP BY with `ARRAY_AGG` of SCV IDs and unique submitter count |
 | `label_counts` | Per-classification-label SCV counts with significance values |
 | `conflict_strings` | Aggregated classification labels, significance counts, and formatted conflict explanation strings |
-| `somatic_conditions` | Condition names for somatic sci propositions, joined from `gks_scv_condition_mapping` |
+| `somatic_conditions` | Condition names for somatic sci propositions, joined from `gkm_scv_condition_mapping` |
 
 The `final_prep` CTE applies submission-level-specific logic:
 
@@ -58,11 +58,11 @@ The `final_prep` CTE applies submission-level-specific logic:
 
 ID format: `{VCV}.{ver}-{GROUP}-{PROP}-{LEVEL}[-{TIER}]` (all tier components are uppercase, e.g., `VCV000012582.63-G-SCI-CP-PATHOGENIC`)
 
-**Output:** `gks_vcv_grouping_base_agg` -- one row per aggregation group. <span class="role-badge badge-pipeline">Pipeline table</span>
+**Output:** `gkm_vcv_grouping_base_agg` -- one row per aggregation group. <span class="role-badge badge-pipeline">Pipeline table</span>
 
 ---
 
-### Step 3: Build gks_vcv_grouping_tier_agg
+### Step 3: Build gkm_vcv_grouping_tier_agg
 
 Aggregates Classification Grouping records by tier within each submission level. This layer applies only to somatic clinical impact (sci) propositions where `tier_grouping IS NOT NULL`.
 
@@ -76,11 +76,11 @@ The aggregate label appends secondary trait information when applicable (e.g., "
 
 ID format: `{VCV}.{ver}-{GROUP}-{PROP}-{LEVEL}` (uppercase components)
 
-**Output:** `gks_vcv_grouping_tier_agg` -- one row per submission level within a proposition type. <span class="role-badge badge-pipeline">Pipeline table</span>
+**Output:** `gkm_vcv_grouping_tier_agg` -- one row per submission level within a proposition type. <span class="role-badge badge-pipeline">Pipeline table</span>
 
 ---
 
-### Step 4: Build gks_vcv_aggregate_contribution
+### Step 4: Build gkm_vcv_aggregate_contribution
 
 Submission-level aggregator using winner-takes-all ranking. Takes a unified input of Priority Grouping output (tiered records) combined with non-tiered Classification Grouping records (`tier_grouping IS NULL`).
 
@@ -90,13 +90,13 @@ Non-contributing details are preserved as an array of structs containing the lay
 
 ID format: `{VCV}.{ver}-{GROUP}-{PROP}` (uppercase components)
 
-**Output:** `gks_vcv_aggregate_contribution` -- one row per proposition type within a statement group. <span class="role-badge badge-pipeline">Pipeline table</span>
+**Output:** `gkm_vcv_aggregate_contribution` -- one row per proposition type within a statement group. <span class="role-badge badge-pipeline">Pipeline table</span>
 
 ---
 
-## gks_vcv_statement_proc (Statement Generation)
+## gkm_vcv_statement_proc (Statement Generation)
 
-This procedure transforms the aggregation tables produced by `gks_vcv_proc` into GKS-formatted VCV statements. It generates statement structures at each layer (BASE), inlines evidence items from the layer below (PRE), then combines the results into a final output table.
+This procedure transforms the aggregation tables produced by `gkm_vcv_proc` into GKS-formatted VCV statements. It generates statement structures at each layer (BASE), inlines evidence items from the layer below (PRE), then combines the results into a final output table.
 
 The procedure executes 7 sections: three BASE steps, three PRE steps, and one FINAL union.
 
@@ -112,7 +112,7 @@ Each BASE section reads from the corresponding aggregation table and produces a 
 | `confidence` | The submission level label (e.g., `"expert panel"`, `"assertion criteria provided"`) |
 | `direction` | Derived from the classification label; passed through from the contributing SCV for single-SCV aggregations |
 | `strength` | Derived from the classification label; passed through from the contributing SCV for single-SCV aggregations |
-| `proposition` | Contains `objectCondition` (the unique conditions from contributing SCVs — a single MappableConcept or an OR ConceptSet), the SCV-matching proposition type from `clinvar_proposition_types.gks_type`, the SCV-matching predicate from `clinvar_proposition_types.gks_predicate`, and `subjectVariant` reference |
+| `proposition` | Contains `objectCondition` (the unique conditions from contributing SCVs — a single MappableConcept or an OR ConceptSet), the SCV-matching proposition type from `clinvar_proposition_types.gkm_type`, the SCV-matching predicate from `clinvar_proposition_types.gkm_predicate`, and `subjectVariant` reference |
 | `extensions` | Array with `clinvarReviewStatus` value |
 | `hasEvidenceLines` | References to child layer IDs (SCV IDs for Classification Grouping, contributing/non-contributing statement IDs for Priority Grouping and Aggregate Contribution) |
 
@@ -156,7 +156,7 @@ Inlines evidence items from either Priority Grouping PRE or Classification Group
 
 Selects all Aggregate Contribution PRE statements into the final output table.
 
-**Output:** `gks_dict_vcv` -- the complete set of VCV statements. This is the published product for VCV statements; the export pipeline assembles it directly into the bundle. <span class="role-badge badge-pipeline">Pipeline table</span>
+**Output:** `gkm_dict_vcv` -- the complete set of VCV statements. This is the published product for VCV statements; the export pipeline assembles it directly into the bundle. <span class="role-badge badge-pipeline">Pipeline table</span>
 
 ---
 
@@ -164,35 +164,35 @@ Selects all Aggregate Contribution PRE statements into the final output table.
 
 | Table | Procedure | Description | Role |
 |---|---|---|---|
-| `temp_vcv_base_data` | `gks_vcv_proc` | Materialized SCV base data with submission level mappings | <span class="role-badge badge-internal">Internal</span> |
-| `gks_vcv_grouping_base_agg` | `gks_vcv_proc` | Classification grouping by variation + group + prop + level (+ tier) | <span class="role-badge badge-pipeline">Pipeline table</span> |
-| `gks_vcv_grouping_tier_agg` | `gks_vcv_proc` | Priority grouping within submission level (somatic only) | <span class="role-badge badge-pipeline">Pipeline table</span> |
-| `gks_vcv_aggregate_contribution` | `gks_vcv_proc` | Submission level aggregation with winner-takes-all | <span class="role-badge badge-pipeline">Pipeline table</span> |
-| `temp_vcv_grouping_base_statements` | `gks_vcv_statement_proc` | BASE statement structures for Classification Grouping | <span class="role-badge badge-internal">Internal</span> |
-| `temp_vcv_grouping_tier_statements` | `gks_vcv_statement_proc` | BASE statement structures for Priority Grouping | <span class="role-badge badge-internal">Internal</span> |
-| `temp_vcv_agg_contribution_statements` | `gks_vcv_statement_proc` | BASE statement structures for Aggregate Contribution | <span class="role-badge badge-internal">Internal</span> |
-| `temp_vcv_grouping_base_pre` | `gks_vcv_statement_proc` | PRE statement structures with inlined SCV evidence | <span class="role-badge badge-internal">Internal</span> |
-| `temp_vcv_grouping_tier_pre` | `gks_vcv_statement_proc` | PRE statement structures with inlined Classification Grouping evidence | <span class="role-badge badge-internal">Internal</span> |
-| `temp_vcv_agg_contribution_pre` | `gks_vcv_statement_proc` | PRE statement structures with inlined Priority/Classification Grouping evidence | <span class="role-badge badge-internal">Internal</span> |
-| `gks_dict_vcv` | `gks_vcv_statement_proc` | Final VCV statements from Aggregate Contribution PRE | <span class="role-badge badge-pipeline">Pipeline table</span> |
+| `temp_vcv_base_data` | `gkm_vcv_proc` | Materialized SCV base data with submission level mappings | <span class="role-badge badge-internal">Internal</span> |
+| `gkm_vcv_grouping_base_agg` | `gkm_vcv_proc` | Classification grouping by variation + group + prop + level (+ tier) | <span class="role-badge badge-pipeline">Pipeline table</span> |
+| `gkm_vcv_grouping_tier_agg` | `gkm_vcv_proc` | Priority grouping within submission level (somatic only) | <span class="role-badge badge-pipeline">Pipeline table</span> |
+| `gkm_vcv_aggregate_contribution` | `gkm_vcv_proc` | Submission level aggregation with winner-takes-all | <span class="role-badge badge-pipeline">Pipeline table</span> |
+| `temp_vcv_grouping_base_statements` | `gkm_vcv_statement_proc` | BASE statement structures for Classification Grouping | <span class="role-badge badge-internal">Internal</span> |
+| `temp_vcv_grouping_tier_statements` | `gkm_vcv_statement_proc` | BASE statement structures for Priority Grouping | <span class="role-badge badge-internal">Internal</span> |
+| `temp_vcv_agg_contribution_statements` | `gkm_vcv_statement_proc` | BASE statement structures for Aggregate Contribution | <span class="role-badge badge-internal">Internal</span> |
+| `temp_vcv_grouping_base_pre` | `gkm_vcv_statement_proc` | PRE statement structures with inlined SCV evidence | <span class="role-badge badge-internal">Internal</span> |
+| `temp_vcv_grouping_tier_pre` | `gkm_vcv_statement_proc` | PRE statement structures with inlined Classification Grouping evidence | <span class="role-badge badge-internal">Internal</span> |
+| `temp_vcv_agg_contribution_pre` | `gkm_vcv_statement_proc` | PRE statement structures with inlined Priority/Classification Grouping evidence | <span class="role-badge badge-internal">Internal</span> |
+| `gkm_dict_vcv` | `gkm_vcv_statement_proc` | Final VCV statements from Aggregate Contribution PRE | <span class="role-badge badge-pipeline">Pipeline table</span> |
 
 ---
 
 ## Dependencies
 
-### gks_vcv_proc
+### gkm_vcv_proc
 
-- **Source Tables**: `scv_summary`, `variation_archive`, `gks_scv_condition_mapping`
+- **Source Tables**: `scv_summary`, `variation_archive`, `gkm_scv_condition_mapping`
 - **Lookup Tables**: `clinvar_statement_types`, `clinvar_clinsig_types`, `clinvar_proposition_types`, `submission_level`
 - **UDFs**: `clinvar_ingest.schema_on`, `clinvar_ingest.cleanup_temp_tables`
-- **Upstream Procedures**: `gks_scv_statement_proc` (for `gks_scv_condition_mapping`)
+- **Upstream Procedures**: `gkm_scv_statement_proc` (for `gkm_scv_condition_mapping`)
 
-### gks_vcv_statement_proc
+### gkm_vcv_statement_proc
 
-- **Aggregation Tables**: `gks_vcv_grouping_base_agg`, `gks_vcv_grouping_tier_agg`, `gks_vcv_aggregate_contribution`
-- **Statement Tables**: `gks_dict_scv`, `gks_scv_condition_sets`
+- **Aggregation Tables**: `gkm_vcv_grouping_base_agg`, `gkm_vcv_grouping_tier_agg`, `gkm_vcv_aggregate_contribution`
+- **Statement Tables**: `gkm_dict_scv`, `gkm_scv_condition_sets`
 - **Source Tables**: `scv_summary`
 - **Lookup Tables**: `clinvar_statement_categories`, `clinvar_proposition_types`, `submission_level`, `clinvar_clinsig_types`
 - **UDFs**: `clinvar_ingest.schema_on`, `clinvar_ingest.cleanup_temp_tables`
-- **Upstream Procedures**: `gks_vcv_proc`, `gks_scv_statement_proc`
-- **Downstream Consumers**: change-log / delta build (`gks_change_log`), export pipeline (`gks_dict_vcv` assembled directly into the bundle)
+- **Upstream Procedures**: `gkm_vcv_proc`, `gkm_scv_statement_proc`
+- **Downstream Consumers**: change-log / delta build (`gkm_change_log`), export pipeline (`gkm_dict_vcv` assembled directly into the bundle)

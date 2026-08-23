@@ -5,4 +5,4 @@ SELECT
   JSON_VALUE(value, '$.copyChange') AS copy_change,
   REGEXP_REPLACE(JSON_VALUE(value, '$.location'), r'^#/[^/]+/', '') AS location_id,
   TO_JSON_STRING(value) AS data
-FROM {DATASET}.gks_dict_copy_number_change
+FROM {DATASET}.gkm_dict_copy_number_change

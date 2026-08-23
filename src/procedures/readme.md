@@ -7,22 +7,22 @@
 --    below by running the gh:clinvar-gkm/src/gks-procs/vrs-to-bq-table.sh
 --    which will alter the location start/end arrays to denormalized columns
 --    for inner/outer start/end attributes in order to be importable to BQ
---    and it will import them into the BQ dataset as table 'gks_vrs'
+--    and it will import them into the BQ dataset as table 'gkm_vrs'
 
 -- 3. run the following procedures below (change date arg if not the most recent release)
--- CALL `clinvar_ingest.gks_catvar_proc`(CURRENT_DATE(), FALSE);
--- CALL `clinvar_ingest.gks_scv_condition_proc`(CURRENT_DATE(), FALSE);
--- CALL `clinvar_ingest.gks_scv_statement_proc`(CURRENT_DATE(), FALSE);
+-- CALL `clinvar_ingest.gkm_catvar_proc`(CURRENT_DATE(), FALSE);
+-- CALL `clinvar_ingest.gkm_scv_condition_proc`(CURRENT_DATE(), FALSE);
+-- CALL `clinvar_ingest.gkm_scv_statement_proc`(CURRENT_DATE(), FALSE);
 
 -- 4. export the gks files to gcs by runing gh:clinvar-gkm/src/gks-procs/export-gks-files-to-gcs.sh
 --    by default add these files to the gs://clingen-public/clinvar-gkm/* bucket
---    with the new filename clinvar_gks_(*)_YYYY_MM_DD_v9_9_8.jsonl.gz where
+--    with the new filename clinvar_gkm_(*)_YYYY_MM_DD_v9_9_8.jsonl.gz where
 --    (*) is the name of one of the 3 files.
 
 
 -- Appendix. UNDER DEVELOPMENT
 -- below is a work in progress to get the VCV gks data building
--- CALL `clinvar_ingest.gks_vcv_level_one_proc`(CURRENT_DATE());
+-- CALL `clinvar_ingest.gkm_vcv_level_one_proc`(CURRENT_DATE());
 
 
 
@@ -115,8 +115,8 @@ the prior release are exported (the rest are carried forward in STEP 4):
 > - **STEP 2** (`export-vi-table-to-gcs.sh`) computes `variation_vrs_changed` (diff of
 >   `variation_identity` vs the prior release) and extracts only that set to `vi.jsonl.gz`.
 > - **STEP 3** runs vrs-python on only those (~14K vs 4.5M for a typical weekly release).
-> - **gks_vrs load** (`vrs-to-bq-table.sh`, `INCREMENTAL=true` default) carries the prior
->   release's `gks_vrs` forward (CLONE) for unchanged variations and merges in the new
+> - **gkm_vrs load** (`vrs-to-bq-table.sh`, `INCREMENTAL=true` default) carries the prior
+>   release's `gkm_vrs` forward (CLONE) for unchanged variations and merges in the new
 >   vrs-python output for changed ones (keyed on `in.variation_id`), instead of `--replace`.
 >   It self-corrects to a full replace when the staged rows are not the changed subset.
 >
@@ -137,15 +137,15 @@ run the bash script in the clinvar-ingest-bq-tools github project below
 after editing it to ingest the correct bucket name and project
 
 ```
-clinvar-ingest-bq-tools/gks-procs/create_gks_vrs_table.sh
+clinvar-ingest-bq-tools/gks-procs/create_gkm_vrs_table.sh
 ``` 
 
-This script will create the `gks_vrs` table in the `clinvar_2025_03_23_v2_3_1` dataset
+This script will create the `gkm_vrs` table in the `clinvar_2025_03_23_v2_3_1` dataset
 
 verify in the bq console with the following:
 
 ```
-select * from `clingen-dev.clinvar_2025_03_23_v2_3_1.gks_vrs` limit 100
+select * from `clingen-dev.clinvar_2025_03_23_v2_3_1.gkm_vrs` limit 100
 ```
 
 ## STEP 5 
@@ -153,22 +153,22 @@ From the BQ console
 
 ```
 -- create the catvar entries and all the upstream supporting tables
-CALL `clinvar_ingest.gks_catvar_proc`(CURRENT_DATE(), FALSE);
+CALL `clinvar_ingest.gkm_catvar_proc`(CURRENT_DATE(), FALSE);
 
 -- create the conditions, traits, condition mappings, and condition sets
-CALL `clinvar_ingest.gks_scv_condition_proc`(CURRENT_DATE(), FALSE);
+CALL `clinvar_ingest.gkm_scv_condition_proc`(CURRENT_DATE(), FALSE);
 
--- create the scv records, propositions, and final statement records (gks_dict_scv)
-CALL `clinvar_ingest.gks_scv_statement_proc`(CURRENT_DATE(), FALSE);
+-- create the scv records, propositions, and final statement records (gkm_dict_scv)
+CALL `clinvar_ingest.gkm_scv_statement_proc`(CURRENT_DATE(), FALSE);
 
--- aggregate into VCV and RCV statements (gks_dict_vcv, gks_dict_rcv)
-CALL `clinvar_ingest.gks_vcv_proc`(CURRENT_DATE(), FALSE);
-CALL `clinvar_ingest.gks_vcv_statement_proc`(CURRENT_DATE(), FALSE);
-CALL `clinvar_ingest.gks_rcv_proc`(CURRENT_DATE(), FALSE);
-CALL `clinvar_ingest.gks_rcv_statement_proc`(CURRENT_DATE(), FALSE);
+-- aggregate into VCV and RCV statements (gkm_dict_vcv, gkm_dict_rcv)
+CALL `clinvar_ingest.gkm_vcv_proc`(CURRENT_DATE(), FALSE);
+CALL `clinvar_ingest.gkm_vcv_statement_proc`(CURRENT_DATE(), FALSE);
+CALL `clinvar_ingest.gkm_rcv_proc`(CURRENT_DATE(), FALSE);
+CALL `clinvar_ingest.gkm_rcv_statement_proc`(CURRENT_DATE(), FALSE);
 
--- NOTE: gks_json_proc is retired. Its inlined-render tables were never published;
--- the gks_dict_* tables are the product and are assembled directly at export time.
+-- NOTE: gkm_json_proc is retired. Its inlined-render tables were never published;
+-- the gkm_dict_* tables are the product and are assembled directly at export time.
 
 ```
 

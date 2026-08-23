@@ -1,30 +1,30 @@
 -- ============================================================================
--- gks_scv_changed — shared per-release SCV changed/removed sets + change audit
+-- gkm_scv_changed — shared per-release SCV changed/removed sets + change audit
 -- ============================================================================
 -- Computes, once per release, the single consistent set of SCVs that every
--- incremental downstream GKS SCV proc (gks_scv_condition, gks_scv_statement) and
+-- incremental downstream GKS SCV proc (gkm_scv_condition, gkm_scv_statement) and
 -- Plan 3's aggregate cascade consume. Writes three persistent {S} tables:
 --
 --   {S}.scv_removed_ids(scv_id)                 -- diff_clinical_assertion removed
 --   {S}.scv_changed_ids(scv_id)                 -- new|modified ∪ submitted-side ∪
 --                                                  trait-content ∪ rcv-mapping,
 --                                                  minus removed  (per-SCV recompute set)
---   {S}.gks_scv_change_audit(...)               -- version/review-status classifier
+--   {S}.gkm_scv_change_audit(...)               -- version/review-status classifier
 --       scv_id STRING, baseline_release DATE, compare_release DATE,
 --       version_changed BOOL, review_status_changed BOOL, unexplained BOOL
 --
 -- Every per-SCV output is derived from that one SCV's own record, so any
 -- byte-modified SCV can change its own output — recompute the full new|modified set
 -- (the version/review_status refinement in the audit is for Plan 3's aggregate
--- cascade, not to shrink this per-SCV set). But gks_scv_condition_sets' condition
+-- cascade, not to shrink this per-SCV set). But gkm_scv_condition_sets' condition
 -- resolution ALSO depends on shared inputs (trait / trait_set / trait_mapping /
 -- clinical_assertion_trait / rcv_mapping), so an SCV whose clinical_assertion is
 -- byte-identical (change_type='exact_match', NOT in diff_clinical_assertion) can
--- still change output. The cascade arms below add those SCVs. gks_dict_scv /
--- gks_dict_evidence_line embed the resulting struct, so this cascade is load-bearing
+-- still change output. The cascade arms below add those SCVs. gkm_dict_scv /
+-- gkm_dict_evidence_line embed the resulting struct, so this cascade is load-bearing
 -- for them too — folding all impacted SCVs into this one shared set recomputes all.
 --
--- Trait-content cascade — keyed on the ACTUAL resolution inputs (gks-scv-condition-
+-- Trait-content cascade — keyed on the ACTUAL resolution inputs (gkm-scv-condition-
 -- proc.sql STEP 7-8), NOT on baseline output pointers. Baseline pointers cannot see
 -- a NEW trait attaching to an otherwise-unchanged SCV (the original 4056→1 bug): e.g.
 -- SCV000833724 gained mapped_trait_id when new trait 25997 (medgen C1851936) matched
@@ -50,7 +50,7 @@
 --     record_key JSON carries clinical_assertion_id (= scv id):
 --     JSON_VALUE(record_key,'$.clinical_assertion_id'), non-exact rows.
 --   clinical_assertion_trait cascade: {S}.diff_clinical_assertion_trait (keyed id) —
---     its id is '{scv}.{n}' (proc reads via SPLIT(id,'.'), see gks-scv-condition-proc
+--     its id is '{scv}.{n}' (proc reads via SPLIT(id,'.'), see gkm-scv-condition-proc
 --     :454-456), so scv = SPLIT(id,'.')[OFFSET(0)], non-exact rows.
 --   clinical_assertion_trait_set cascade: {S}.diff_clinical_assertion_trait_set
 --     (keyed id) — 1:1 with the SCV; its id IS the scv id (proc joins rmt.scv_id =
@@ -68,11 +68,11 @@
 -- flip its SCVs' normalized assignment with no SCV/trait edit. Expand changed RCVs to
 -- SCVs via rcv_mapping.scv_accessions from BOTH cur and base (membership moves).
 --
--- Submitter cascade: gks_dict_scv embeds submitter.name INLINE in its classification
--- description (gks-scv-statement-proc.sql ~:763), sourced from the DENORMALIZED
+-- Submitter cascade: gkm_dict_scv embeds submitter.name INLINE in its classification
+-- description (gkm-scv-statement-proc.sql ~:763), sourced from the DENORMALIZED
 -- scv_summary.submitter_name. A submitter RENAME (diff_submitter new/modified/removed)
 -- changes that name for all its SCVs while their clinical_assertion stays byte-identical
--- (exact_match) — no other arm sees it, so gks_dict_scv/evidence_line would carry them
+-- (exact_match) — no other arm sees it, so gkm_dict_scv/evidence_line would carry them
 -- forward stale. Expand changed submitters to SCVs via scv_summary.submitter_id.
 --
 -- diff_clinical_assertion is keyed on ['id','version'], so a VERSION BUMP shows the
@@ -90,11 +90,11 @@
 -- Baseline = nearest existing prior release (schema_on(prev_release_date)).
 -- FIRST RUN / no usable baseline (baseline missing, base lacks scv_summary, or ANY
 -- required diff driver absent — see the all-or-nothing gate above): scv_changed_ids =
--- ALL scv ids from {S}.scv_summary, scv_removed_ids empty, gks_scv_change_audit empty.
+-- ALL scv ids from {S}.scv_summary, scv_removed_ids empty, gkm_scv_change_audit empty.
 -- The per-arm *_present guards remain only as defense-in-depth on the incremental path.
 -- ============================================================================
 
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_scv_changed`(on_date DATE)
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_scv_changed`(on_date DATE)
 BEGIN
   DECLARE base_schema STRING;
   DECLARE base_rel DATE;
@@ -176,7 +176,7 @@ BEGIN
         "CREATE OR REPLACE TABLE `%s.scv_removed_ids` AS SELECT id AS scv_id FROM `%s.scv_summary` WHERE FALSE",
         rec.schema_name, rec.schema_name);
       EXECUTE IMMEDIATE FORMAT("""
-        CREATE OR REPLACE TABLE `%s.gks_scv_change_audit` (
+        CREATE OR REPLACE TABLE `%s.gkm_scv_change_audit` (
           scv_id               STRING,
           baseline_release     DATE,
           compare_release      DATE,
@@ -206,7 +206,7 @@ BEGIN
       --   ∪ submitted-side ∪ trait-content ∪ rcv-mapping SCVs, minus scv_removed_ids
       -- ---------------------------------------------------------------------
       -- The trait-content cascade keys on the ACTUAL resolution inputs of
-      -- gks_scv_condition_sets (see gks-scv-condition-proc.sql STEP 7-8), NOT on the
+      -- gkm_scv_condition_sets (see gkm-scv-condition-proc.sql STEP 7-8), NOT on the
       -- baseline output pointers (which can't see a NEW trait attaching to an
       -- otherwise-unchanged SCV). The two resolutions and their inputs:
       --   mapped_trait_id  (proc :754-761): trait matched by medgen on
@@ -301,7 +301,7 @@ BEGIN
       IF diff_cats_present THEN
         SET submitted_arm = submitted_arm || """
           -- clinical_assertion_trait_set changed -> scv. Its id IS the scv id
-          -- (temp_gks_scv_trait_sets joins rmt.scv_id = cats.id, proc :269,279-281);
+          -- (temp_gkm_scv_trait_sets joins rmt.scv_id = cats.id, proc :269,279-281);
           -- some ids carry a '.{n}' version suffix, so normalize via SPLIT. Drives
           -- @multipleConditionExplanation (output extension) + cats_trait_count (STEP 9).
           UNION DISTINCT
@@ -329,12 +329,12 @@ BEGIN
         """;
       END IF;
 
-      -- Submitter cascade: gks_dict_scv embeds submitter.name INLINE in its
-      -- classification description (gks-scv-statement-proc.sql ~:763), sourced from
+      -- Submitter cascade: gkm_dict_scv embeds submitter.name INLINE in its
+      -- classification description (gkm-scv-statement-proc.sql ~:763), sourced from
       -- the DENORMALIZED scv_summary.submitter_name. A submitter RENAME changes that
       -- name for all the submitter's SCVs while their clinical_assertion stays
       -- byte-identical (diff_clinical_assertion=exact_match) — no other arm catches it,
-      -- so gks_dict_scv/evidence_line would carry them forward stale. Expand changed
+      -- so gkm_dict_scv/evidence_line would carry them forward stale. Expand changed
       -- submitters to their SCVs via scv_summary.submitter_id.
       SET submitter_arm = "";
       IF diff_submitter_present THEN
@@ -378,12 +378,12 @@ BEGIN
       EXECUTE IMMEDIATE q;
 
       -- ---------------------------------------------------------------------
-      -- gks_scv_change_audit — version/review-status classifier over the whole
+      -- gkm_scv_change_audit — version/review-status classifier over the whole
       -- changed set (Plan 3 consumes this). Computed by comparing scv_summary
       -- cur vs base ON id, since version bumps never appear as change_type='modified'.
       -- ---------------------------------------------------------------------
       SET q = """
-        CREATE OR REPLACE TABLE `{S}.gks_scv_change_audit` AS
+        CREATE OR REPLACE TABLE `{S}.gkm_scv_change_audit` AS
         SELECT
           ci.scv_id,
           DATE '{BREL}' AS baseline_release,
@@ -406,7 +406,7 @@ BEGIN
 
     -- Surface the unexplained-modified count in the job output.
     EXECUTE IMMEDIATE FORMAT(
-      "SELECT COUNT(*) AS unexplained_scv FROM `%s.gks_scv_change_audit` WHERE unexplained",
+      "SELECT COUNT(*) AS unexplained_scv FROM `%s.gkm_scv_change_audit` WHERE unexplained",
       rec.schema_name);
   END FOR;
 END;

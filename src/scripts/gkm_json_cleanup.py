@@ -1,8 +1,8 @@
 """Recursively drop null / empty-array / empty-object values from a decoded JSON
 value, matching JSON_STRIP_NULLS(remove_empty => TRUE) for our data shapes.
 
-Used by assemble-gks-dicts.py so the published bundle (full + delta) has the same
-cleanup gks_json_proc used to apply. Publish-layer only — never touches BigQuery
+Used by assemble-gkm-dicts.py so the published bundle (full + delta) has the same
+cleanup gkm_json_proc used to apply. Publish-layer only — never touches BigQuery
 tables, so it cannot affect delta/change-log/oracle correctness.
 
 Rules:

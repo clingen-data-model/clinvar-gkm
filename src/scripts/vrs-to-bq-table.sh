@@ -6,8 +6,8 @@
 # 3. Executes a series of BigQuery stored procedures to process the new data.
 #
 # Export & publish (GCS bundle + Parquet + R2 upload) is handled separately by
-# release-gks.sh, not here. run-release.sh chains this script (steps 1-3) and then
-# release-gks.sh.
+# release-gkm.sh, not here. run-release.sh chains this script (steps 1-3) and then
+# release-gkm.sh.
 #
 # USAGE:
 #   ./vrs-to-bq-table.sh <YYYY-MM-DD> [start_step]
@@ -43,16 +43,16 @@ export CLOUDSDK_CORE_PROJECT="${PROJECT_ID}"
 # GCS Bucket for intermediate and final files
 BUCKET_NAME='clinvar-gkm'
 
-# Incremental gks_vrs load: carry the prior release's gks_vrs forward and merge in
+# Incremental gkm_vrs load: carry the prior release's gkm_vrs forward and merge in
 # only the changed variations (produced when export-vi-table-to-gcs.sh runs in its
 # default incremental mode, so vi-final.jsonl.gz holds only the changed set). Falls
-# back to a full --replace load automatically when no baseline gks_vrs exists.
+# back to a full --replace load automatically when no baseline gkm_vrs exists.
 # Set INCREMENTAL=false for a full --replace load (e.g. after a vrs-python or
 # variation_identity transform version change, which invalidates carry-forward).
 INCREMENTAL="${INCREMENTAL:-true}"
 
 # Set GKS_FULL=true to force the FULL wrappers for the incremental gks procs
-# (gks_catvar / gks_scv_condition / gks_scv_statement) instead of the incremental
+# (gkm_catvar / gkm_scv_condition / gkm_scv_statement) instead of the incremental
 # wrappers, this run only (e.g. propagated from run-release.sh's --full flag). Defaults
 # to false so standalone runs of this script are unaffected and stay incremental
 # (each incremental wrapper self-guards + falls back to full when needed anyway).
@@ -63,18 +63,18 @@ GCLOUD_JOB_NAME='vrs-to-vi-location-transformer'
 GCLOUD_JOB_REGION='us-east1'
 
 # BigQuery Load Configuration
-TABLE_ID='gks_vrs'
+TABLE_ID='gkm_vrs'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCHEMA_FILE_PATH="${SCRIPT_DIR}/../../schemas/vrs_output_2_0_1.schema.json"
 
-# NOTE: gks_catvar, gks_scv_condition, gks_scv_statement, and the four rcv/vcv procs
-# (gks_rcv, gks_rcv_statement, gks_vcv, gks_vcv_statement) are all called via their
-# incremental wrappers (with gks_scv_changed / gks_rcvvcv_changed) directly in
+# NOTE: gkm_catvar, gkm_scv_condition, gkm_scv_statement, and the four rcv/vcv procs
+# (gkm_rcv, gkm_rcv_statement, gkm_vcv, gkm_vcv_statement) are all called via their
+# incremental wrappers (with gkm_scv_changed / gkm_rcvvcv_changed) directly in
 # execute_bq_procedures. There is no longer a full-rebuild loop.
-# NOTE: gks_json_proc is RETIRED (Plan 4) — its 4 JSON-render tables (gks_catvar,
-# gks_scv_statement, gks_rcv_statement, gks_vcv_statement) were never published and had no
-# live consumer, so it is no longer called here. The gks_dict_* tables are the published
-# product; gks_change_log / gks_delta_build run directly after the rcv/vcv loop.
+# NOTE: gkm_json_proc is RETIRED (Plan 4) — its 4 JSON-render tables (gkm_catvar,
+# gkm_scv_statement, gkm_rcv_statement, gkm_vcv_statement) were never published and had no
+# live consumer, so it is no longer called here. The gkm_dict_* tables are the published
+# product; gkm_change_log / gkm_delta_build run directly after the rcv/vcv loop.
 
 # --- END OF CONFIGURATION ---
 
@@ -119,7 +119,7 @@ load_vrs_data() {
   # Always stage the loaded file first (it may be the changed subset or the whole
   # table, depending on how the extract ran). The mode is then DECIDED from the
   # data, not from a flag, so a full extract + incremental flag (or vice-versa)
-  # cannot corrupt gks_vrs.
+  # cannot corrupt gkm_vrs.
   echo "  - Loading vi-final into staging ${staging}..."
   if ! bq --project_id="$PROJECT_ID" load --source_format=NEWLINE_DELIMITED_JSON --schema="$SCHEMA_FILE_PATH" --max_bad_records=2 --ignore_unknown_values --replace "$staging" "$gcs_json_path"; then
     echo "❌ staging load failed."; return 1;
@@ -144,7 +144,7 @@ load_vrs_data() {
       "SELECT COUNT(*) FROM \`${dataset_id}.variation_vrs_changed\`" | tail -n 1 | tr -d '[:space:]')
   fi
 
-  # Incremental only when: enabled, a baseline gks_vrs exists, the changed-set
+  # Incremental only when: enabled, a baseline gkm_vrs exists, the changed-set
   # table exists, AND staging == changed-set count (i.e. vi-final really is the
   # changed subset). Otherwise a full replace from staging.
   if [[ "$INCREMENTAL" == "true" && -n "$base_dataset" && "$base_has_vrs" == "true" && "$changed_n" != "-1" && "$staging_n" == "$changed_n" ]]; then
@@ -158,18 +158,18 @@ load_vrs_data() {
            UNION DISTINCT SELECT variation_id FROM \`${dataset_id}.variation_vrs_removed\`);
        INSERT INTO \`${dataset_id}.${TABLE_ID}\` SELECT * FROM \`${staging}\`;
        DROP TABLE \`${staging}\`;"; then
-      echo "✅ BigQuery incremental gks_vrs merge succeeded."; return 0;
+      echo "✅ BigQuery incremental gkm_vrs merge succeeded."; return 0;
     else
       echo "❌ BigQuery incremental merge failed."; return 1;
     fi
   fi
 
-  # Full replace: gks_vrs = staging (staging is the whole table, or no usable
+  # Full replace: gkm_vrs = staging (staging is the whole table, or no usable
   # baseline / mismatch was detected).
-  echo "  - Full replace (INCREMENTAL=${INCREMENTAL}, baseline gks_vrs=${base_has_vrs}, staging=${staging_n}, changed=${changed_n})"
+  echo "  - Full replace (INCREMENTAL=${INCREMENTAL}, baseline gkm_vrs=${base_has_vrs}, staging=${staging_n}, changed=${changed_n})"
   if bq --project_id="$PROJECT_ID" query --use_legacy_sql=false --quiet \
     "CREATE OR REPLACE TABLE \`${dataset_id}.${TABLE_ID}\` CLONE \`${staging}\`; DROP TABLE \`${staging}\`;"; then
-    echo "✅ BigQuery full gks_vrs load succeeded."; return 0;
+    echo "✅ BigQuery full gkm_vrs load succeeded."; return 0;
   else
     echo "❌ BigQuery full load failed."; return 1;
   fi
@@ -182,29 +182,29 @@ execute_bq_procedures() {
   # catvar + scv are incremental (Plans 1-2); their build procs self-guard + fall back to
   # full. GKS_FULL forces the full wrappers for this run only (e.g. run-release.sh --full).
   if [[ "$GKS_FULL" == "true" ]]; then
-    echo "  - Calling procedure: clinvar_ingest.gks_catvar_proc (FULL, --full requested)..."
+    echo "  - Calling procedure: clinvar_ingest.gkm_catvar_proc (FULL, --full requested)..."
     if ! bq --project_id="$PROJECT_ID" query --quiet --use_legacy_sql=false \
-        "CALL \`clinvar_ingest.gks_catvar_proc\`('$release_date', FALSE)" > /dev/null; then
-      echo "❌ gks_catvar_proc (full) FAILED"; return 1;
+        "CALL \`clinvar_ingest.gkm_catvar_proc\`('$release_date', FALSE)" > /dev/null; then
+      echo "❌ gkm_catvar_proc (full) FAILED"; return 1;
     fi
   else
-    echo "  - Calling procedure: clinvar_ingest.gks_catvar_proc_incremental..."
+    echo "  - Calling procedure: clinvar_ingest.gkm_catvar_proc_incremental..."
     if ! bq --project_id="$PROJECT_ID" query --quiet --use_legacy_sql=false \
-        "CALL \`clinvar_ingest.gks_catvar_proc_incremental\`('$release_date', FALSE)" > /dev/null; then
-      echo "❌ gks_catvar_proc_incremental FAILED"; return 1;
+        "CALL \`clinvar_ingest.gkm_catvar_proc_incremental\`('$release_date', FALSE)" > /dev/null; then
+      echo "❌ gkm_catvar_proc_incremental FAILED"; return 1;
     fi
   fi
   echo "    ✅ Success."
 
   # scv (Plan 2): compute the shared changed-set/audit FIRST, then the two incremental
-  # scv procs (condition before statement — statement joins {S}.gks_scv_condition_sets).
-  echo "  - Calling procedure: clinvar_ingest.gks_scv_changed..."
+  # scv procs (condition before statement — statement joins {S}.gkm_scv_condition_sets).
+  echo "  - Calling procedure: clinvar_ingest.gkm_scv_changed..."
   if ! bq --project_id="$PROJECT_ID" query --quiet --use_legacy_sql=false \
-      "CALL \`clinvar_ingest.gks_scv_changed\`('$release_date')" > /dev/null; then
-    echo "❌ gks_scv_changed FAILED"; return 1;
+      "CALL \`clinvar_ingest.gkm_scv_changed\`('$release_date')" > /dev/null; then
+    echo "❌ gkm_scv_changed FAILED"; return 1;
   fi
   echo "    ✅ Success."
-  for scv_proc in gks_scv_condition gks_scv_statement; do
+  for scv_proc in gkm_scv_condition gkm_scv_statement; do
     if [[ "$GKS_FULL" == "true" ]]; then
       echo "  - Calling procedure: clinvar_ingest.${scv_proc}_proc (FULL, --full requested)..."
       if ! bq --project_id="$PROJECT_ID" query --quiet --use_legacy_sql=false \
@@ -224,13 +224,13 @@ execute_bq_procedures() {
   # rcv/vcv (Plan 3): compute the shared impacted-parent sets FIRST, then the four
   # incremental rcv/vcv procs (rcv before rcv_statement, vcv before vcv_statement —
   # the statements read the agg tables). RCV and VCV are independent aggregates.
-  echo "  - Calling procedure: clinvar_ingest.gks_rcvvcv_changed..."
+  echo "  - Calling procedure: clinvar_ingest.gkm_rcvvcv_changed..."
   if ! bq --project_id="$PROJECT_ID" query --quiet --use_legacy_sql=false \
-      "CALL \`clinvar_ingest.gks_rcvvcv_changed\`('$release_date')" > /dev/null; then
-    echo "❌ gks_rcvvcv_changed FAILED"; return 1;
+      "CALL \`clinvar_ingest.gkm_rcvvcv_changed\`('$release_date')" > /dev/null; then
+    echo "❌ gkm_rcvvcv_changed FAILED"; return 1;
   fi
   echo "    ✅ Success."
-  for rv_proc in gks_rcv gks_rcv_statement gks_vcv gks_vcv_statement; do
+  for rv_proc in gkm_rcv gkm_rcv_statement gkm_vcv gkm_vcv_statement; do
     if [[ "$GKS_FULL" == "true" ]]; then
       echo "  - Calling procedure: clinvar_ingest.${rv_proc}_proc (FULL, --full requested)..."
       if ! bq --project_id="$PROJECT_ID" query --quiet --use_legacy_sql=false \
@@ -247,14 +247,14 @@ execute_bq_procedures() {
     echo "    ✅ Success."
   done
 
-  echo "  - Calling procedure: clinvar_ingest.gks_change_log..."
+  echo "  - Calling procedure: clinvar_ingest.gkm_change_log..."
   bq --project_id="$PROJECT_ID" query --quiet --use_legacy_sql=false \
-    "CALL \`clinvar_ingest.gks_change_log\`('$release_date')" > /dev/null \
-    || { echo "❌ gks_change_log FAILED"; return 1; }
-  echo "  - Calling procedure: clinvar_ingest.gks_delta_build..."
+    "CALL \`clinvar_ingest.gkm_change_log\`('$release_date')" > /dev/null \
+    || { echo "❌ gkm_change_log FAILED"; return 1; }
+  echo "  - Calling procedure: clinvar_ingest.gkm_delta_build..."
   bq --project_id="$PROJECT_ID" query --quiet --use_legacy_sql=false \
-    "CALL \`clinvar_ingest.gks_delta_build\`('$release_date')" > /dev/null \
-    || { echo "❌ gks_delta_build FAILED"; return 1; }
+    "CALL \`clinvar_ingest.gkm_delta_build\`('$release_date')" > /dev/null \
+    || { echo "❌ gkm_delta_build FAILED"; return 1; }
 
   echo "✅ All BigQuery procedures completed successfully."; return 0;
 }

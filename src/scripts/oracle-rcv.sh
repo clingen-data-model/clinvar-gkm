@@ -1,11 +1,11 @@
 #!/bin/bash
-# oracle-rcv.sh — full-vs-incremental oracle for gks_rcv (the 3 RCV agg layers).
-# Builds gks_rcv FULL and INCREMENTAL for the same compare release from the same
+# oracle-rcv.sh — full-vs-incremental oracle for gkm_rcv (the 3 RCV agg layers).
+# Builds gkm_rcv FULL and INCREMENTAL for the same compare release from the same
 # baseline, into two scratch datasets, and asserts 0 canonical diffs on all 3 outputs.
 #
 # USAGE: ./src/scripts/oracle-rcv.sh <COMPARE_DATE> [PROJECT_ID]
 #   Requires: rcv_mapping / scv_summary / rcv_accession + diff_* already built for
-#   COMPARE_DATE, the shared impacted set (gks_rcvvcv_changed) run, and a same-gate
+#   COMPARE_DATE, the shared impacted set (gkm_rcvvcv_changed) run, and a same-gate
 #   baseline release present with the three rcv agg outputs.
 # NOTE: the ${SCHEMA}_oracle_full / _oracle_incr scratch datasets are left behind for
 #   inspection.
@@ -24,18 +24,18 @@ INCR_DS="${SCHEMA}_oracle_incr"
 
 # The three rcv agg outputs.
 TABLES=(
-  "gks_rcv_classification_agg"
-  "gks_rcv_priority_agg"
-  "gks_rcv_aggregate_contribution"
+  "gkm_rcv_classification_agg"
+  "gkm_rcv_priority_agg"
+  "gkm_rcv_aggregate_contribution"
 )
 
-# gks_rcv writes into {S}; to compare two builds we run full, snapshot the 3 tables
+# gkm_rcv writes into {S}; to compare two builds we run full, snapshot the 3 tables
 # aside via CLONE, then run incremental (which overwrites {S}) and snapshot again.
 # We compare the two snapshots. The FINAL state of {S} is the incremental build — the
 # intended production output.
 echo ">>> full build"
 bq query --project_id="$PROJECT_ID" --use_legacy_sql=false \
-  "CALL \`clinvar_ingest.gks_rcv_proc\`(DATE '${DATE}', FALSE)"
+  "CALL \`clinvar_ingest.gkm_rcv_proc\`(DATE '${DATE}', FALSE)"
 bq mk --project_id="$PROJECT_ID" --dataset --force "${FULL_DS}" 2>/dev/null || true
 for n in "${TABLES[@]}"; do
   bq query --project_id="$PROJECT_ID" --use_legacy_sql=false \
@@ -44,7 +44,7 @@ done
 
 echo ">>> incremental build"
 bq query --project_id="$PROJECT_ID" --use_legacy_sql=false \
-  "CALL \`clinvar_ingest.gks_rcv_proc_incremental\`(DATE '${DATE}', FALSE)"
+  "CALL \`clinvar_ingest.gkm_rcv_proc_incremental\`(DATE '${DATE}', FALSE)"
 bq mk --project_id="$PROJECT_ID" --dataset --force "${INCR_DS}" 2>/dev/null || true
 for n in "${TABLES[@]}"; do
   bq query --project_id="$PROJECT_ID" --use_legacy_sql=false \
@@ -55,7 +55,7 @@ echo ">>> compare"
 FAIL=0
 for n in "${TABLES[@]}"; do
   OUT=$(bq query --project_id="$PROJECT_ID" --use_legacy_sql=false --format=csv --quiet \
-    "CALL \`clinvar_ingest.gks_oracle_compare\`('${FULL_DS}','${INCR_DS}','${n}')" | tail -1)
+    "CALL \`clinvar_ingest.gkm_oracle_compare\`('${FULL_DS}','${INCR_DS}','${n}')" | tail -1)
   echo "  ${OUT}"
   echo "${OUT}" | awk -F, '{ if ($2+$3+$4 != 0) exit 1 }' || FAIL=1
 done

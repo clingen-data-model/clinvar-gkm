@@ -3,20 +3,20 @@
 # Release ClinVar-GKM: export from BigQuery, assemble bundle, upload to R2.
 #
 # Combines four pipeline steps into a single command:
-#   1. export-gks-dicts.sh  — export dictionary tables to GCS as NDJSON + Parquet
-#   2. assemble-gks-dicts.py — assemble NDJSON into a single JSON bundle
+#   1. export-gkm-dicts.sh  — export dictionary tables to GCS as NDJSON + Parquet
+#   2. assemble-gkm-dicts.py — assemble NDJSON into a single JSON bundle
 #   3. Download Parquet files from GCS to local disk
-#   4. upload-gks-to-r2.sh  — upload bundle + Parquet to Cloudflare R2
+#   4. upload-gkm-to-r2.sh  — upload bundle + Parquet to Cloudflare R2
 #
 # Usage:
-#   ./release-gks.sh <export_date> <dataset_version> [--start-step=N] [--keep-source] [--dry-run]
+#   ./release-gkm.sh <export_date> <dataset_version> [--start-step=N] [--keep-source] [--dry-run]
 #
 # Examples:
-#   ./release-gks.sh 2026-05-03 v2_5_0
-#   ./release-gks.sh 2026-05-03 v2_5_0 --dry-run
-#   ./release-gks.sh 2026-05-03 v2_5_0 --keep-source
-#   ./release-gks.sh 2026-05-03 v2_5_0 --start-step=2  # re-run from assemble step
-#   ./release-gks.sh 2026-05-03 v2_5_0 --start-step=4  # re-run upload only
+#   ./release-gkm.sh 2026-05-03 v2_5_0
+#   ./release-gkm.sh 2026-05-03 v2_5_0 --dry-run
+#   ./release-gkm.sh 2026-05-03 v2_5_0 --keep-source
+#   ./release-gkm.sh 2026-05-03 v2_5_0 --start-step=2  # re-run from assemble step
+#   ./release-gkm.sh 2026-05-03 v2_5_0 --start-step=4  # re-run upload only
 
 set -e
 
@@ -62,7 +62,7 @@ fi
 
 # --- Configuration ---
 GCS_BUCKET="clinvar-gkm"
-GCS_DICTS_PREFIX="gks-dicts"
+GCS_DICTS_PREFIX="gkm-dicts"
 GCS_DICTS_PATH="gs://${GCS_BUCKET}/${GCS_DICTS_PREFIX}"
 GCS_PARQUET_PREFIX="${GCS_DICTS_PREFIX}-parquet"
 GCS_PARQUET_PATH="gs://${GCS_BUCKET}/${GCS_PARQUET_PREFIX}"
@@ -100,14 +100,14 @@ echo ""
 if [[ "$START_STEP" -le 1 ]]; then
   echo "=== Step 1/4: Exporting dictionary tables ==="
   if $DRY_RUN; then
-    echo "  [dry-run] Would clear ${GCS_DICTS_PATH}/ and ${GCS_PARQUET_PATH}/, then run: export-gks-dicts.sh ${BQ_DATASET} ${GCS_BUCKET} ${GCS_DICTS_PREFIX}"
+    echo "  [dry-run] Would clear ${GCS_DICTS_PATH}/ and ${GCS_PARQUET_PATH}/, then run: export-gkm-dicts.sh ${BQ_DATASET} ${GCS_BUCKET} ${GCS_DICTS_PREFIX}"
   else
-    # Clear gks-dicts and gks-parquet before export to ensure no stale shards from a prior run
+    # Clear gkm-dicts and gkm-parquet before export to ensure no stale shards from a prior run
     echo "  Clearing ${GCS_DICTS_PATH}/ ..."
     gsutil -m -q rm -r "${GCS_DICTS_PATH}/" 2>/dev/null || true
     echo "  Clearing ${GCS_PARQUET_PATH}/ ..."
     gsutil -m -q rm -r "${GCS_PARQUET_PATH}/" 2>/dev/null || true
-    "${SCRIPT_DIR}/export-gks-dicts.sh" "${BQ_DATASET}" "${GCS_BUCKET}" "${GCS_DICTS_PREFIX}"
+    "${SCRIPT_DIR}/export-gkm-dicts.sh" "${BQ_DATASET}" "${GCS_BUCKET}" "${GCS_DICTS_PREFIX}"
   fi
   echo ""
 else
@@ -127,9 +127,9 @@ if [[ "$START_STEP" -le 2 ]]; then
   fi
 
   if $DRY_RUN; then
-    echo "  [dry-run] Would run: ${PYTHON} assemble-gks-dicts.py ${ASSEMBLE_ARGS[*]}"
+    echo "  [dry-run] Would run: ${PYTHON} assemble-gkm-dicts.py ${ASSEMBLE_ARGS[*]}"
   else
-    "${PYTHON}" "${SCRIPT_DIR}/assemble-gks-dicts.py" "${ASSEMBLE_ARGS[@]}"
+    "${PYTHON}" "${SCRIPT_DIR}/assemble-gkm-dicts.py" "${ASSEMBLE_ARGS[@]}"
   fi
   echo ""
 else
@@ -182,7 +182,7 @@ if $DRY_RUN; then
   UPLOAD_ARGS+=("--dry-run")
 fi
 
-"${SCRIPT_DIR}/upload-gks-to-r2.sh" "${UPLOAD_ARGS[@]}"
+"${SCRIPT_DIR}/upload-gkm-to-r2.sh" "${UPLOAD_ARGS[@]}"
 
 # --- Cleanup ---
 if ! $DRY_RUN; then

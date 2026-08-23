@@ -4,9 +4,9 @@
 
 VRS processing is the manual step between [Variation Identity](variation-identity/index.md) extraction and [Cat-VRS](cat-vrs/index.md) generation. It translates the selected SPDI or HGVS expression for each variation's defining allele into a GA4GH VRS (Variation Representation Specification) object — producing a computable, digest-identified representation of the variant.
 
-The step is driven by two scripts in this project with an external vrs-python step between them: `src/scripts/export-vi-table-to-gcs.sh` exports the input, [clinvar-gk-python](https://github.com/clingen-data-model/clinvar-gk-python) resolves VRS, and `src/scripts/vrs-to-bq-table.sh` transforms the output, loads `gks_vrs`, and runs the downstream procedures. Export and publish (the R2 bundle + Parquet) are a separate final stage handled by `release-gks.sh`. The whole release, including this step, can be run end-to-end via `run-release.sh` (see [Single-command run](index.md#single-command-run)); only the vrs-python resolution requires local services.
+The step is driven by two scripts in this project with an external vrs-python step between them: `src/scripts/export-vi-table-to-gcs.sh` exports the input, [clinvar-gk-python](https://github.com/clingen-data-model/clinvar-gk-python) resolves VRS, and `src/scripts/vrs-to-bq-table.sh` transforms the output, loads `gkm_vrs`, and runs the downstream procedures. Export and publish (the R2 bundle + Parquet) are a separate final stage handled by `release-gkm.sh`. The whole release, including this step, can be run end-to-end via `run-release.sh` (see [Single-command run](index.md#single-command-run)); only the vrs-python resolution requires local services.
 
-**This step is incremental.** vrs-python resolution is per-variation (no cross-variation dependency), so diffing `variation_identity` between releases is a clean driver: the export sends only the variations whose `variation_identity` changed since the prior release (~0.3% of a weekly release, versus the whole ~4.5M snapshot), and the `gks_vrs` load carries the prior release's results forward for the unchanged variations. This is where the largest cost reduction in the whole pipeline lands, because vrs-python is the most expensive stage.
+**This step is incremental.** vrs-python resolution is per-variation (no cross-variation dependency), so diffing `variation_identity` between releases is a clean driver: the export sends only the variations whose `variation_identity` changed since the prior release (~0.3% of a weekly release, versus the whole ~4.5M snapshot), and the `gkm_vrs` load carries the prior release's results forward for the unchanged variations. This is where the largest cost reduction in the whole pipeline lands, because vrs-python is the most expensive stage.
 
 VRS resolution is performed by the [clinvar-gk-python](https://github.com/clingen-data-model/clinvar-gk-python) project, which wraps [vrs-python](https://github.com/ga4gh/vrs-python) and the [variation-normalizer](https://github.com/GenomicMedLab/variation-normalizer) to resolve expressions against a local SeqRepo sequence repository. The location transformation step uses a lightweight Cloud Run job defined in this project under `src/vrs-location-transformer/`.
 
@@ -64,23 +64,23 @@ gcloud run jobs execute vrs-to-vi-location-transformer \
 
 ### Step 4: Transform, load, run procedures
 
-The transform + load + downstream procedures are run by `src/scripts/vrs-to-bq-table.sh` (a 3-step script): the Cloud Run transform (Step 3 above), the `gks_vrs` load, and the gks_* stored procedures. Export and publish are **not** done here — they are handled separately by `release-gks.sh` (see [Export & Distribute](export.md)); `run-release.sh` chains this script and then `release-gks.sh`.
+The transform + load + downstream procedures are run by `src/scripts/vrs-to-bq-table.sh` (a 3-step script): the Cloud Run transform (Step 3 above), the `gkm_vrs` load, and the gkm_* stored procedures. Export and publish are **not** done here — they are handled separately by `release-gkm.sh` (see [Export & Distribute](export.md)); `run-release.sh` chains this script and then `release-gkm.sh`.
 
 ```bash
 ./src/scripts/vrs-to-bq-table.sh YYYY-MM-DD          # from the start (Cloud Run transform)
 ./src/scripts/vrs-to-bq-table.sh YYYY-MM-DD 2        # resume from a later step (2=load, 3=procs)
 ```
 
-The `gks_vrs` load is **incremental**: it clones the prior release's `gks_vrs` forward and merges in only the changed variations' new results (keyed on `in.variation_id`), rather than a `--replace` full load. It **self-corrects to a full `--replace`** when no baseline `gks_vrs` exists or when the staged rows are not the changed subset — so a full export (Step 1 `--full`) is loaded correctly without any flag change.
+The `gkm_vrs` load is **incremental**: it clones the prior release's `gkm_vrs` forward and merges in only the changed variations' new results (keyed on `in.variation_id`), rather than a `--replace` full load. It **self-corrects to a full `--replace`** when no baseline `gkm_vrs` exists or when the staged rows are not the changed subset — so a full export (Step 1 `--full`) is loaded correctly without any flag change.
 
 !!! warning "Version-invalidation"
-    The incremental carry-forward assumes the prior release's `gks_vrs` was produced by the **same** vrs-python normalizer and the **same** `variation_identity` transform. After a change to either, run Step 1 with `--full` on the next release to reprocess and reseed every variation; the load's self-correction then does a full `--replace`. Resume incremental afterward.
+    The incremental carry-forward assumes the prior release's `gkm_vrs` was produced by the **same** vrs-python normalizer and the **same** `variation_identity` transform. After a change to either, run Step 1 with `--full` on the next release to reprocess and reseed every variation; the load's self-correction then does a full `--replace`. Resume incremental afterward.
 
 ---
 
-## Output Table (`gks_vrs`)
+## Output Table (`gkm_vrs`)
 
-The `gks_vrs` table contains one row per variation that was submitted for VRS processing. Each row is a two-part record:
+The `gkm_vrs` table contains one row per variation that was submitted for VRS processing. Each row is a two-part record:
 
 <div class="field-table" markdown>
 
@@ -114,4 +114,4 @@ One area of improvement remains planned:
 - **Cloud Run job**: `vrs-to-vi-location-transformer` (`src/vrs-location-transformer/`) — location field flattening
 - **BigQuery schema**: `schemas/vrs_output_2_0_1.schema.json`
 - **Source table**: [`variation_identity`](variation-identity/variation-identity.md)
-- **Downstream consumer**: [`gks_catvar_proc`](cat-vrs/index.md)
+- **Downstream consumer**: [`gkm_catvar_proc`](cat-vrs/index.md)

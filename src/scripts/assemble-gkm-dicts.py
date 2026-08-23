@@ -11,19 +11,19 @@ Source files are removed after successful assembly unless --keep-source is used.
 
 Usage:
   # From GCS (section-by-section download to minimise disk usage)
-  python3 assemble-gks-dicts.py gs://bucket/gks-dicts/ 2026-05-03
+  python3 assemble-gkm-dicts.py gs://bucket/gkm-dicts/ 2026-05-03
 
   # Also copy the bundle to GCS after assembly
-  python3 assemble-gks-dicts.py gs://bucket/gks-dicts/ 2026-05-03 --copy-to-gcs
+  python3 assemble-gkm-dicts.py gs://bucket/gkm-dicts/ 2026-05-03 --copy-to-gcs
 
   # Keep source files for debugging
-  python3 assemble-gks-dicts.py gs://bucket/gks-dicts/ 2026-05-03 --keep-source
+  python3 assemble-gkm-dicts.py gs://bucket/gkm-dicts/ 2026-05-03 --keep-source
 
   # Override the output path (e.g. for a delta bundle)
-  python3 assemble-gks-dicts.py gs://bucket/gks-deltas/ 2026-05-03 --output /tmp/clinvar-gkm-delta-2026-05-03.json.gz
+  python3 assemble-gkm-dicts.py gs://bucket/gkm-deltas/ 2026-05-03 --output /tmp/clinvar-gkm-delta-2026-05-03.json.gz
 
   # From local files
-  python3 assemble-gks-dicts.py ./gks-dicts/ 2026-05-03
+  python3 assemble-gkm-dicts.py ./gkm-dicts/ 2026-05-03
 
 Dependencies:
   pip install orjson  # optional, 10-50x faster JSON; falls back to stdlib json
@@ -60,7 +60,7 @@ except ImportError:
 
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from gks_json_cleanup import strip_empty
+from gkm_json_cleanup import strip_empty
 
 
 # Dictionary sections in output order.

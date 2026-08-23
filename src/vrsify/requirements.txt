@@ -6,7 +6,7 @@
 # (ga4gh.vrs[extras]~=2.3.1, variation-normalizer@0.15.0, gene-normalizer[pg], cool-seq-tool).
 #
 # VERSION-INVALIDATION: bumping this pin changes VRS output for every variation. After a
-# bump, run the pipeline with --full on the next release so gks_vrs is fully reseeded
+# bump, run the pipeline with --full on the next release so gkm_vrs is fully reseeded
 # (see README.md and docs/pipeline/vrs-processing.md).
 #
 # Install:  pip install -r src/vrsify/requirements.txt      (Python >= 3.11)

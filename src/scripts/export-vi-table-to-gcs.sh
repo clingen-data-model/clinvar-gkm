@@ -6,7 +6,7 @@
 # Default is INCREMENTAL: only the variations whose variation_identity changed
 # since the prior release are exported, so vrs-python processes the delta (~0.3%
 # of variations for a weekly release) instead of the whole ~4.5M snapshot. The
-# unchanged variations' VRS results are carried forward when gks_vrs is loaded
+# unchanged variations' VRS results are carried forward when gkm_vrs is loaded
 # (see vrs-to-bq-table.sh). Pass --full to export the entire table (first release,
 # or after a vrs-python / variation_identity transform version change).
 #

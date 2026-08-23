@@ -1,8 +1,8 @@
-# Cat-VRS Generation (gks_catvar_proc)
+# Cat-VRS Generation (gkm_catvar_proc)
 
 ## Overview
 
-The `clinvar_ingest.gks_catvar_proc` stored procedure transforms ClinVar variation data into GA4GH Cat-VRS (Categorical Variation Representation Specification) format. It builds categorical variant records that group genomic variants at a higher level for use in clinical assertions — linking VRS-resolved alleles with their expressions, cross-references, constraints, and ClinVar metadata.
+The `clinvar_ingest.gkm_catvar_proc` stored procedure transforms ClinVar variation data into GA4GH Cat-VRS (Categorical Variation Representation Specification) format. It builds categorical variant records that group genomic variants at a higher level for use in clinical assertions — linking VRS-resolved alleles with their expressions, cross-references, constraints, and ClinVar metadata.
 
 The procedure accepts a single parameter — `on_date DATE` — which identifies the ClinVar release schema to process.
 
@@ -83,7 +83,7 @@ Builds cross-reference mappings for each variation from two sources:
 
 **Output:** `temp_catvar_mappings` — one row per variation with a `mappings` array. <span class="role-badge badge-internal">Internal</span>
 
-### Step 6: Build `gks_catvar_pre`
+### Step 6: Build `gkm_catvar_pre`
 
 Assembles the preliminary categorical variant record by joining contextual variants with their constraints, extensions, and mappings. Generates constraint structures based on categorical variant type:
 
@@ -93,13 +93,13 @@ Assembles the preliminary categorical variant record by joining contextual varia
 | `CategoricalCnvCount` | `DefiningLocationConstraint` + `CopyCountConstraint` |
 | `CategoricalCnvChange` | `DefiningLocationConstraint` + `CopyChangeConstraint` |
 
-**Output:** `gks_catvar_pre` — one row per categorical variant with full structured record. <span class="role-badge badge-pipeline">Pipeline table</span>
+**Output:** `gkm_catvar_pre` — one row per categorical variant with full structured record. <span class="role-badge badge-pipeline">Pipeline table</span>
 
-### Step 7: Build `gks_catvar`
+### Step 7: Build `gkm_catvar`
 
-Converts the structured records from `gks_catvar_pre` into JSON format using `TO_JSON` with null/empty stripping, then normalizes and keys the output using the `clinvar_ingest.normalizeAndKeyById` UDF.
+Converts the structured records from `gkm_catvar_pre` into JSON format using `TO_JSON` with null/empty stripping, then normalizes and keys the output using the `clinvar_ingest.normalizeAndKeyById` UDF.
 
-**Output:** `gks_catvar` — final JSON-normalized categorical variant records. <span class="role-badge badge-artifact">JSON artifact</span> — exported as `variation.jsonl.gz`. See [Categorical Variants](../../output-reference/cat-vrs.md) for consumer documentation.
+**Output:** `gkm_catvar` — final JSON-normalized categorical variant records. <span class="role-badge badge-artifact">JSON artifact</span> — exported as `variation.jsonl.gz`. See [Categorical Variants](../../output-reference/cat-vrs.md) for consumer documentation.
 
 ---
 
@@ -113,17 +113,17 @@ Converts the structured records from `gks_catvar_pre` into JSON format using `TO
 | `temp_ctxvar` | Contextual variants with VRS type mapping | <span class="role-badge badge-internal">Internal</span> |
 | `temp_catvar_extension` | Extension metadata arrays (HGVS list, genes, types) | <span class="role-badge badge-internal">Internal</span> |
 | `temp_catvar_mappings` | Cross-reference mappings to external databases | <span class="role-badge badge-internal">Internal</span> |
-| `gks_catvar_pre` | Assembled categorical variant records with constraints | <span class="role-badge badge-pipeline">Pipeline table</span> |
-| `gks_catvar` | Final JSON-normalized output | <span class="role-badge badge-artifact">JSON artifact</span> |
+| `gkm_catvar_pre` | Assembled categorical variant records with constraints | <span class="role-badge badge-pipeline">Pipeline table</span> |
+| `gkm_catvar` | Final JSON-normalized output | <span class="role-badge badge-artifact">JSON artifact</span> |
 
 ---
 
 ## Dependencies
 
 - **UDFs**: `clinvar_ingest.normalizeAndKeyById`, `clinvar_ingest.schema_on`
-- **Source Tables**: `gks_vrs`, `variation_loc`, `variation_hgvs`, `variation_identity`, `variation_xref`, `gene_association`, `gene`
+- **Source Tables**: `gkm_vrs`, `variation_loc`, `variation_hgvs`, `variation_identity`, `variation_xref`, `gene_association`, `gene`
 - **Upstream Procedures**: `variation_identity` (or `variation_identity_incremental`), VRS Python processing
-- **Downstream Consumers**: `gks_scv_statement_proc`, export pipeline
+- **Downstream Consumers**: `gkm_scv_statement_proc`, export pipeline
 
 ---
 
