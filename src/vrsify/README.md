@@ -1,6 +1,6 @@
 # VRS-ification (`src/vrsify/`)
 
-The one ClinVar-GKS pipeline stage that does not run in BigQuery. It resolves each
+The one ClinVar-GKM pipeline stage that does not run in BigQuery. It resolves each
 variation's selected expression (SPDI / HGVS / gnomAD) into a GA4GH VRS object using
 [vrs-python](https://github.com/ga4gh/vrs-python) + the
 [variation-normalizer](https://github.com/cancervariants/variation-normalization),
@@ -11,10 +11,10 @@ It sits between `export-vi-table-to-gcs.sh` (which produces the input) and
 `src/scripts/run-release.sh`.
 
 ```
-gs://clinvar-gks/<date>/dev/vi.jsonl.gz
+gs://clinvar-gkm/<date>/dev/vi.jsonl.gz
         │  vrsify.sh
         ▼
-gs://clinvar-gks/<date>/dev/vi-normalized-no-liftover.jsonl.gz
+gs://clinvar-gkm/<date>/dev/vi-normalized-no-liftover.jsonl.gz
 ```
 
 ## What is vendored here

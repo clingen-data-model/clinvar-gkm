@@ -1,6 +1,6 @@
 # Output File
 
-ClinVar-GKS is published as **gzip-compressed JSON files** in the bundle format — a **monthly full bundle** containing all data for a release, plus a **weekly delta** carrying only the records changed since the prior release. Typed **Parquet files** (one per bundle section) accompany both for analytical workloads.
+ClinVar-GKM is published as **gzip-compressed JSON files** in the bundle format — a **monthly full bundle** containing all data for a release, plus a **weekly delta** carrying only the records changed since the prior release. Typed **Parquet files** (one per bundle section) accompany both for analytical workloads.
 
 ---
 
@@ -10,7 +10,7 @@ The release file is a `.json.gz` file. The decompressed content is a single JSON
 
 ```bash
 # Decompress and inspect the top-level keys
-gunzip -c clinvar-gks_00-latest.json.gz | python3 -c "
+gunzip -c clinvar-gkm_00-latest.json.gz | python3 -c "
 import json, sys
 data = json.load(sys.stdin)
 for key in data:
@@ -29,8 +29,8 @@ See [Output Format](../output-reference/overview.md) for the full bundle structu
 Stable filenames that always point to the most recent full and delta:
 
 ```text
-clinvar-gks_00-latest.json.gz               (latest monthly full)
-clinvar-gks-delta_00-latest.json.gz         (latest weekly delta)
+clinvar-gkm_00-latest.json.gz               (latest monthly full)
+clinvar-gkm-delta_00-latest.json.gz         (latest weekly delta)
 ```
 
 The `00-` prefix ensures these sort before dated files in directory listings.
@@ -40,21 +40,21 @@ The `00-` prefix ensures these sort before dated files in directory listings.
 Monthly full bundles include the year and month:
 
 ```text
-datasets/clinvar-gks_yyyy-mm.json.gz
+datasets/clinvar-gkm_yyyy-mm.json.gz
 ```
 
-For example, `clinvar-gks_2026-06.json.gz` for the June 2026 release.
+For example, `clinvar-gkm_2026-06.json.gz` for the June 2026 release.
 
 ### Weekly Deltas
 
 Each weekly delta lives in a release directory named with the ClinVar release year, month, and day:
 
 ```text
-deltas/yyyy-mmdd/clinvar-gks-delta_yyyy-mmdd.json.gz
+deltas/yyyy-mmdd/clinvar-gkm-delta_yyyy-mmdd.json.gz
 deltas/yyyy-mmdd/manifest.json
 ```
 
-For example, `deltas/2026-0614/clinvar-gks-delta_2026-0614.json.gz` for the June 14, 2026 release. The delta bundle carries only added and updated records; deletes and per-section change counts are recorded in the accompanying `manifest.json`. See [Downloads](download.md#weekly-deltas) for the delta model and consumer replay example.
+For example, `deltas/2026-0614/clinvar-gkm-delta_2026-0614.json.gz` for the June 14, 2026 release. The delta bundle carries only added and updated records; deletes and per-section change counts are recorded in the accompanying `manifest.json`. See [Downloads](download.md#weekly-deltas) for the delta model and consumer replay example.
 
 ---
 
@@ -66,7 +66,7 @@ For example, `deltas/2026-0614/clinvar-gks-delta_2026-0614.json.gz` for the June
 import gzip
 import json
 
-with gzip.open('clinvar-gks_00-latest.json.gz', 'rt') as f:
+with gzip.open('clinvar-gkm_00-latest.json.gz', 'rt') as f:
     bundle = json.load(f)
 
 # Look up a specific variation
@@ -83,7 +83,7 @@ allele = bundle[section][key]
 
 ```bash
 # Count entries per section
-gunzip -c clinvar-gks_00-latest.json.gz | python3 -c "
+gunzip -c clinvar-gkm_00-latest.json.gz | python3 -c "
 import json, sys
 data = json.load(sys.stdin)
 for key in data:
@@ -91,7 +91,7 @@ for key in data:
 "
 
 # Extract a single variation as pretty-printed JSON
-gunzip -c clinvar-gks_00-latest.json.gz | python3 -c "
+gunzip -c clinvar-gkm_00-latest.json.gz | python3 -c "
 import json, sys
 data = json.load(sys.stdin)
 print(json.dumps(data['variation']['clinvar:10'], indent=2))

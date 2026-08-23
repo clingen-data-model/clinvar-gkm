@@ -1,6 +1,6 @@
 # Statement Types
 
-ClinVar-GKS groups ClinVar submissions into 14 unique statement types. Several of these types are no longer accepted by ClinVar but exist historically.
+ClinVar-GKM groups ClinVar submissions into 14 unique statement types. Several of these types are no longer accepted by ClinVar but exist historically.
 
 | # | Statement Type | Proposition Profile | Statement Category |
 | --- | --- | --- | --- |
@@ -29,7 +29,7 @@ ClinVar aggregates these 14 statement types into one of 3 VCV-level categories:
 
 ## About Non-Standard Statements
 
-The non-standard statements (marked with \*) are defined only in the ClinVar-GKS datasets. These are needed to handle non-standard data in ClinVar. The ClinVar-GKS dataset is a complete representation of ClinVar's XML VCV and RCV releases and must have a way to represent all of the data in ClinVar. ClinVar-GKS does NOT attempt to guess at or map submissions like `Risk Factor` to the `Pathogenicity` Risk Allele classifications since the Risk Factor classification was provided years ahead of the recent ability to classify Variant Pathogenicity submissions with `established`, `likely` or `uncertain` `risk allele`.
+The non-standard statements (marked with \*) are defined only in the ClinVar-GKM datasets. These are needed to handle non-standard data in ClinVar. The ClinVar-GKM dataset is a complete representation of ClinVar's XML VCV and RCV releases and must have a way to represent all of the data in ClinVar. ClinVar-GKM does NOT attempt to guess at or map submissions like `Risk Factor` to the `Pathogenicity` Risk Allele classifications since the Risk Factor classification was provided years ahead of the recent ability to classify Variant Pathogenicity submissions with `established`, `likely` or `uncertain` `risk allele`.
 
 Additionally, some of these non-standard statements are no longer accepted as submissions to ClinVar. ClinVar has stopped accepting `Risk Factor` in favor of the newer Pathogenicity classification terms, as well as `other`, `confers sensitivity`, `affects` and `association`.
 

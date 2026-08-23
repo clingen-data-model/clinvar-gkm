@@ -3,8 +3,8 @@
 # Export all GKS dictionary tables to GCS as NDJSON and/or Parquet
 #
 # Usage: ./export-gks-dicts.sh <dataset> <gcs_bucket> [prefix] [--parquet-only] [--delta]
-# Example: ./export-gks-dicts.sh clinvar_2025_06_08 clinvar-gks gks-dicts
-# Example: ./export-gks-dicts.sh clinvar_2025_06_08 clinvar-gks gks-dicts --parquet-only
+# Example: ./export-gks-dicts.sh clinvar_2025_06_08 clinvar-gkm gks-dicts
+# Example: ./export-gks-dicts.sh clinvar_2025_06_08 clinvar-gkm gks-dicts --parquet-only
 
 set -euo pipefail
 

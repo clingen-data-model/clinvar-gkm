@@ -1,6 +1,6 @@
 # Propositions
 
-Each statement type is mapped to a GKS proposition type. Standard GA4GH proposition types are used where they exist. For statement types not covered by the GA4GH specifications, ClinVar-GKS defines custom proposition types.
+Each statement type is mapped to a GKS proposition type. Standard GA4GH proposition types are used where they exist. For statement types not covered by the GA4GH specifications, ClinVar-GKM defines custom proposition types.
 
 ## Standard GA4GH Proposition Types
 
@@ -13,9 +13,9 @@ Each statement type is mapped to a GKS proposition type. Standard GA4GH proposit
 | Diagnostic | VariantDiagnosticProposition |
 | Prognostic | VariantPrognosticProposition |
 
-## ClinVar-GKS Custom Proposition Types
+## ClinVar-GKM Custom Proposition Types
 
-These custom propositions are defined specifically for the ClinVar-GKS dataset to handle non-standard ClinVar submission types that do not have corresponding GA4GH proposition types.
+These custom propositions are defined specifically for the ClinVar-GKM dataset to handle non-standard ClinVar submission types that do not have corresponding GA4GH proposition types.
 
 | Statement Type | Proposition Type |
 | --- | --- |

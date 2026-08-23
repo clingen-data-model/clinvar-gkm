@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# Backfill a historical monthly ClinVar-GKS release to Cloudflare R2.
+# Backfill a historical monthly ClinVar-GKM release to Cloudflare R2.
 #
 # Use this script to upload past monthly releases that were not captured
 # by the normal pipeline. It uploads directly to the monthly destination
 # without updating the 00-latest pointer.
 #
 # Destination is derived from the export year vs. the current calendar year:
-#   Current year:  datasets/clinvar-gks_{YYYY}-{MM}.json.gz          (+ datasets/parquet/{YYYY-MM}/)
-#   Prior year:    archives/{YYYY}/clinvar-gks_{YYYY}-{MM}.json.gz   (+ archives/{YYYY}/parquet/{YYYY-MM}/)
+#   Current year:  datasets/clinvar-gkm_{YYYY}-{MM}.json.gz          (+ datasets/parquet/{YYYY-MM}/)
+#   Prior year:    archives/{YYYY}/clinvar-gkm_{YYYY}-{MM}.json.gz   (+ archives/{YYYY}/parquet/{YYYY-MM}/)
 #
 # Pass --parquet-dir=DIR to also backfill that month's typed Parquet set to the dated
 # path (datasets/parquet/{YYYY-MM}/ or archives/{YYYY}/parquet/{YYYY-MM}/).
@@ -20,8 +20,8 @@
 #   ./backfill-monthly-to-r2.sh <export_date> <dataset_version> <bundle_file> [--dry-run] [--parquet-dir=DIR]
 #
 # Examples:
-#   ./backfill-monthly-to-r2.sh 2026-03-29 v2_5_0 /tmp/clinvar-gks-2026-03-29.json.gz
-#   ./backfill-monthly-to-r2.sh 2025-11-28 v2_4_0 /tmp/clinvar-gks-2025-11-28.json.gz --dry-run
+#   ./backfill-monthly-to-r2.sh 2026-03-29 v2_5_0 /tmp/clinvar-gkm-2026-03-29.json.gz
+#   ./backfill-monthly-to-r2.sh 2025-11-28 v2_4_0 /tmp/clinvar-gkm-2025-11-28.json.gz --dry-run
 #   ./backfill-monthly-to-r2.sh 2026-03-29 v2_5_0 /tmp/bundle.json.gz --parquet-dir=/tmp/parquet
 
 set -e
@@ -62,10 +62,10 @@ done
 
 # --- R2 Configuration ---
 R2_ACCOUNT_ID="09208aa33790838db213a21f630c33e7"
-R2_BUCKET="clinvar-gks"
+R2_BUCKET="clinvar-gkm"
 R2_ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
 R2_PROFILE="r2"
-R2_PUBLIC_URL="https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev"
+R2_PUBLIC_URL="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
 
 # --- Derived date components ---
 YEAR="${EXPORT_DATE:0:4}"
@@ -73,7 +73,7 @@ MM="${EXPORT_DATE:5:2}"
 CURRENT_YEAR="$(date +%Y)"
 
 # --- Filenames ---
-MONTHLY_FILE="clinvar-gks_${YEAR}-${MM}.json.gz"
+MONTHLY_FILE="clinvar-gkm_${YEAR}-${MM}.json.gz"
 
 # --- Destination (JSON bundle + dated Parquet set) ---
 if [[ "$YEAR" == "$CURRENT_YEAR" ]]; then
@@ -143,7 +143,7 @@ upload_parquet_backfill() {
 # Main
 # =====================================================================
 
-echo "=== ClinVar-GKS Backfill Monthly ==="
+echo "=== ClinVar-GKM Backfill Monthly ==="
 echo "  Release date:  ${EXPORT_DATE}"
 echo "  Version:       ${DATASET_VERSION}"
 echo "  Monthly file:  ${MONTHLY_FILE}"

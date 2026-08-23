@@ -1,6 +1,6 @@
 # Downloads
 
-ClinVar-GKS releases are hosted on Cloudflare R2 object storage. All downloads are free with no authentication required and no egress fees.
+ClinVar-GKM releases are hosted on Cloudflare R2 object storage. All downloads are free with no authentication required and no egress fees.
 
 Distribution follows a **full + delta** model:
 
@@ -20,26 +20,26 @@ Download the most recent full bundle and the most recent weekly delta using the 
 
 | Product | Download | Description |
 | --- | --- | --- |
-| Monthly full (JSON) | [clinvar-gks_00-latest.json.gz](https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/datasets/clinvar-gks_00-latest.json.gz) | Latest monthly full bundle |
-| Weekly delta (JSON) | [clinvar-gks-delta_00-latest.json.gz](https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/deltas/00-latest/clinvar-gks-delta_00-latest.json.gz) | Latest weekly delta (added + updated records) |
-| Delta manifest | [manifest.json](https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/deltas/00-latest/manifest.json) | Per-section adds, updates, and deletes for the latest delta |
+| Monthly full (JSON) | [clinvar-gkm_00-latest.json.gz](https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/clinvar-gkm_00-latest.json.gz) | Latest monthly full bundle |
+| Weekly delta (JSON) | [clinvar-gkm-delta_00-latest.json.gz](https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz) | Latest weekly delta (added + updated records) |
+| Delta manifest | [manifest.json](https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/manifest.json) | Per-section adds, updates, and deletes for the latest delta |
 | Parquet (full) | See [download instructions](#download) | Typed Parquet files (one per bundle section) at `datasets/parquet/00-latest/`, always the newest monthly full |
 
 ### Download with curl
 
 ```bash
 # Latest monthly full bundle (JSON)
-curl -O https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/datasets/clinvar-gks_00-latest.json.gz
+curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/clinvar-gkm_00-latest.json.gz
 
 # Latest weekly delta + its manifest
-curl -O https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/deltas/00-latest/clinvar-gks-delta_00-latest.json.gz
-curl -O https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/deltas/00-latest/manifest.json
+curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
+curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/manifest.json
 
 # Decompress
-gunzip clinvar-gks_00-latest.json.gz
+gunzip clinvar-gkm_00-latest.json.gz
 
 # Download a single Parquet section from the latest monthly full (e.g., SCV statements)
-curl -O https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/datasets/parquet/00-latest/scv.parquet
+curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/parquet/00-latest/scv.parquet
 
 # Download all Parquet files (latest monthly full)
 for section in sequenceReference location allele copyNumberCount copyNumberChange \
@@ -47,7 +47,7 @@ for section in sequenceReference location allele copyNumberCount copyNumberChang
                varcond-proposition vartumor-proposition vartherapy-proposition varcustom-proposition \
                evidenceLine vcv_evidenceLine rcv_evidenceLine \
                scv vcv rcv; do
-  curl -O "https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/datasets/parquet/00-latest/${section}.parquet"
+  curl -O "https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/parquet/00-latest/${section}.parquet"
 done
 ```
 
@@ -56,24 +56,24 @@ done
 ```python
 import urllib.request
 
-BASE = "https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev"
+BASE = "https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
 
 # Download latest monthly full bundle
 urllib.request.urlretrieve(
-    f"{BASE}/datasets/clinvar-gks_00-latest.json.gz",
-    "clinvar-gks_00-latest.json.gz"
+    f"{BASE}/datasets/clinvar-gkm_00-latest.json.gz",
+    "clinvar-gkm_00-latest.json.gz"
 )
 
 # Download a specific monthly full bundle
 urllib.request.urlretrieve(
-    f"{BASE}/datasets/clinvar-gks_2026-06.json.gz",
-    "clinvar-gks_2026-06.json.gz"
+    f"{BASE}/datasets/clinvar-gkm_2026-06.json.gz",
+    "clinvar-gkm_2026-06.json.gz"
 )
 
 # Download the latest weekly delta + manifest
 urllib.request.urlretrieve(
-    f"{BASE}/deltas/00-latest/clinvar-gks-delta_00-latest.json.gz",
-    "clinvar-gks-delta_00-latest.json.gz"
+    f"{BASE}/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz",
+    "clinvar-gkm-delta_00-latest.json.gz"
 )
 urllib.request.urlretrieve(
     f"{BASE}/deltas/00-latest/manifest.json",
@@ -82,14 +82,14 @@ urllib.request.urlretrieve(
 
 # Download a specific weekly delta (release 2026-07-06 -> dir 2026-0706)
 urllib.request.urlretrieve(
-    f"{BASE}/deltas/2026-0706/clinvar-gks-delta_2026-0706.json.gz",
-    "clinvar-gks-delta_2026-0706.json.gz"
+    f"{BASE}/deltas/2026-0706/clinvar-gkm-delta_2026-0706.json.gz",
+    "clinvar-gkm-delta_2026-0706.json.gz"
 )
 
 # Download an archived full bundle from a prior year
 urllib.request.urlretrieve(
-    f"{BASE}/archives/2025/clinvar-gks_2025-03.json.gz",
-    "clinvar-gks_2025-03.json.gz"
+    f"{BASE}/archives/2025/clinvar-gkm_2025-03.json.gz",
+    "clinvar-gkm_2025-03.json.gz"
 )
 
 # Download a Parquet section from the latest monthly full
@@ -113,12 +113,12 @@ A weekly delta is published for every ClinVar release under `deltas/<YYYY-MMDD>/
 
 ```text
 deltas/2026-0706/
-  clinvar-gks-delta_2026-0706.json.gz   added + updated records (same section structure as the full bundle)
+  clinvar-gkm-delta_2026-0706.json.gz   added + updated records (same section structure as the full bundle)
   manifest.json                         per-section adds, updates, and deletes for this release
   parquet/<section>.parquet             typed Parquet for the changed records only
 ```
 
-The most recent delta is mirrored at `deltas/00-latest/` under stable filenames (`clinvar-gks-delta_00-latest.json.gz`, `manifest.json`, `parquet/<section>.parquet`).
+The most recent delta is mirrored at `deltas/00-latest/` under stable filenames (`clinvar-gkm-delta_00-latest.json.gz`, `manifest.json`, `parquet/<section>.parquet`).
 
 ### Delta Bundle
 
@@ -133,8 +133,8 @@ The manifest describes exactly what changed and which full bundle the delta chai
   "release": "2026-07-06",
   "baseline_release": "2026-06-29",
   "compare_release": "2026-07-06",
-  "pipeline_version": "clinvar-gks vX.Y.Z @ 2026-07-06T00:00:00Z",
-  "checkpoint_full": { "path": "datasets/clinvar-gks_2026-06.json.gz", "release": "2026-06" },
+  "pipeline_version": "clinvar-gkm vX.Y.Z @ 2026-07-06T00:00:00Z",
+  "checkpoint_full": { "path": "datasets/clinvar-gkm_2026-06.json.gz", "release": "2026-06" },
   "sections": {
     "allele":  { "added": 812,  "updated": 34,  "deleted": ["ga4gh:VA.oldDigest1"] },
     "scv":     { "added": 1203, "updated": 517, "deleted": ["clinvar.submission:SCV000000001.1"] },
@@ -167,7 +167,7 @@ import gzip
 import json
 import urllib.request
 
-BASE = "https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev"
+BASE = "https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
 
 
 def fetch_json(url):
@@ -182,7 +182,7 @@ def fetch_json_gz(url):
 
 # 1. The latest delta's manifest names the monthly full to bootstrap from.
 latest = fetch_json(f"{BASE}/deltas/00-latest/manifest.json")
-checkpoint = latest["checkpoint_full"]        # {"path": "datasets/clinvar-gks_2026-06.json.gz",
+checkpoint = latest["checkpoint_full"]        # {"path": "datasets/clinvar-gkm_2026-06.json.gz",
                                               #  "release": "2026-06"}  (None on initial rollout,
                                               #  before any monthly full exists)
 
@@ -215,7 +215,7 @@ for d in deltas:
         )
 
     dirname = d["path"].strip("/").split("/")[-1]            # "2026-0706"
-    delta = fetch_json_gz(f"{BASE}/{d['path']}clinvar-gks-delta_{dirname}.json.gz")
+    delta = fetch_json_gz(f"{BASE}/{d['path']}clinvar-gkm-delta_{dirname}.json.gz")
 
     # 4a. Apply deletes (manifest only), then 4b. upsert added + updated records.
     for section, info in manifest["sections"].items():
@@ -243,7 +243,7 @@ The file browser below shows all available releases — monthly full bundles, we
 JavaScript is required to browse releases interactively. You can fetch the release index directly:
 
 ```bash
-curl -s https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/index.json | python3 -m json.tool
+curl -s https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/index.json | python3 -m json.tool
 ```
 
 </noscript>
@@ -284,8 +284,8 @@ curl -s https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/index.json | python3
 
 <script>
 (function() {
-  var INDEX_URL = "https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/index.json";
-  var BASE_URL = "https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev";
+  var INDEX_URL = "https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/index.json";
+  var BASE_URL = "https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev";
 
   function el(tag, attrs, children) {
     var e = document.createElement(tag);
@@ -335,7 +335,7 @@ curl -s https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/index.json | python3
   function renderDelta(d) {
     var div = el("div", {className: "r2-file"});
     var dirname = d.path.replace(/^deltas\//, "").replace(/\/$/, "");
-    var bundleUrl = BASE_URL + "/" + d.path + "clinvar-gks-delta_" + dirname + ".json.gz";
+    var bundleUrl = BASE_URL + "/" + d.path + "clinvar-gkm-delta_" + dirname + ".json.gz";
     div.appendChild(el("a", {href: bundleUrl, text: dirname}));
     div.appendChild(el("span", {className: "r2-size"}, [
       el("a", {href: BASE_URL + "/" + d.manifest, text: "manifest.json"})
@@ -480,8 +480,8 @@ curl -s https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/index.json | python3
 
 ```text
 datasets/
-  clinvar-gks_00-latest.json.gz              latest monthly full bundle (stable URL)
-  clinvar-gks_YYYY-MM.json.gz                monthly full bundles (current year)
+  clinvar-gkm_00-latest.json.gz              latest monthly full bundle (stable URL)
+  clinvar-gkm_YYYY-MM.json.gz                monthly full bundles (current year)
 
 datasets/parquet/00-latest/
   {section}.parquet                          typed Parquet for the latest monthly full (stable URL)
@@ -490,17 +490,17 @@ datasets/parquet/YYYY-MM/
   {section}.parquet                          typed Parquet for a specific monthly full (current year)
 
 deltas/00-latest/
-  clinvar-gks-delta_00-latest.json.gz        latest weekly delta bundle (stable URL)
+  clinvar-gkm-delta_00-latest.json.gz        latest weekly delta bundle (stable URL)
   manifest.json                              latest delta manifest
   parquet/{section}.parquet                  typed Parquet for the latest delta
 
 deltas/YYYY-MMDD/
-  clinvar-gks-delta_YYYY-MMDD.json.gz        weekly delta bundle (added + updated records)
+  clinvar-gkm-delta_YYYY-MMDD.json.gz        weekly delta bundle (added + updated records)
   manifest.json                              per-release change manifest
   parquet/{section}.parquet                  typed Parquet for the changed records
 
 archives/{YYYY}/
-  clinvar-gks_YYYY-MM.json.gz                monthly full bundles from prior years
+  clinvar-gkm_YYYY-MM.json.gz                monthly full bundles from prior years
   parquet/YYYY-MM/{section}.parquet          typed Parquet month sets from prior years
 
 index.json                                   release index (datasets, archives, deltas)
@@ -549,8 +549,8 @@ Download individual sections or all files at once:
 
 ```bash
 # 00-latest = the newest monthly full; swap for a dated month (e.g. .../parquet/2026-06) to pin a release.
-BASE="https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/datasets/parquet/00-latest"
-mkdir -p clinvar-gks-parquet && cd clinvar-gks-parquet
+BASE="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/parquet/00-latest"
+mkdir -p clinvar-gkm-parquet && cd clinvar-gkm-parquet
 
 # Download specific sections
 curl -O "${BASE}/scv.parquet"
@@ -786,7 +786,7 @@ Every section Parquet — full and delta alike — exposes an `id` column, and t
 #### Download the pieces
 
 ```bash
-BASE="https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev"
+BASE="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
 
 # 1. The checkpoint monthly full named by the delta's manifest (e.g. 2026-06).
 curl -s "${BASE}/deltas/00-latest/manifest.json" -o manifest.json
@@ -860,7 +860,7 @@ A single-file convenience alternative: because the pipeline also refreshes `data
 
 A **weekly delta** is published for every ClinVar release, typically within 1-2 days of each ClinVar XML release. Each delta lands under `deltas/<YYYY-MMDD>/` and is mirrored at `deltas/00-latest/`.
 
-A **monthly full bundle** is published once a month. The full for a given month corresponds to the last release of that month and is published retroactively — when the first release of the next month runs. That upload writes `datasets/clinvar-gks_YYYY-MM.json.gz` and its Parquet month set `datasets/parquet/YYYY-MM/`, and refreshes the `datasets/clinvar-gks_00-latest.json.gz` and `datasets/parquet/00-latest/` pointers. Each delta manifest's `checkpoint_full` records which monthly full its chain replays onto — and because each Parquet month set is retained, that checkpoint's Parquet stays reconstructable after later months publish.
+A **monthly full bundle** is published once a month. The full for a given month corresponds to the last release of that month and is published retroactively — when the first release of the next month runs. That upload writes `datasets/clinvar-gkm_YYYY-MM.json.gz` and its Parquet month set `datasets/parquet/YYYY-MM/`, and refreshes the `datasets/clinvar-gkm_00-latest.json.gz` and `datasets/parquet/00-latest/` pointers. Each delta manifest's `checkpoint_full` records which monthly full its chain replays onto — and because each Parquet month set is retained, that checkpoint's Parquet stays reconstructable after later months publish.
 
 At year boundaries, the prior year's monthly full bundles and Parquet month sets are moved to `archives/{YYYY}/` (`archives/{YYYY}/parquet/YYYY-MM/` for Parquet). All monthly archives are retained indefinitely.
 
@@ -872,5 +872,5 @@ There is no weekly full bundle — weekly changes are distributed as deltas only
 
 This project is in active development and we welcome community feedback. If you encounter data quality issues, have questions about the output format, or want to suggest improvements:
 
-- Open an issue on [GitHub](https://github.com/clingen-data-model/clinvar-gks/issues)
+- Open an issue on [GitHub](https://github.com/clingen-data-model/clinvar-gkm/issues)
 - Include the release date and specific records involved

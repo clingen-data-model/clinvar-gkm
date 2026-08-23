@@ -18,7 +18,7 @@ if ! [[ "$START_STEP" =~ ^[1-4]$ ]]; then
   echo "ERROR: --start-step must be 1, 2, 3, or 4, got '${START_STEP}'"; exit 1
 fi
 
-GCS_BUCKET="clinvar-gks"
+GCS_BUCKET="clinvar-gkm"
 GCS_DELTAS_PREFIX="gks-deltas"
 GCS_DELTAS_PATH="gs://${GCS_BUCKET}/${GCS_DELTAS_PREFIX}"
 GCS_DELTAS_PARQUET_PATH="gs://${GCS_BUCKET}/${GCS_DELTAS_PREFIX}-parquet"
@@ -29,11 +29,11 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 PYTHON="python3"; [[ -x "${PROJECT_ROOT}/venv/3.12/bin/python3" ]] && PYTHON="${PROJECT_ROOT}/venv/3.12/bin/python3"
 
-DELTA_BUNDLE="/tmp/clinvar-gks-delta-${EXPORT_DATE}.json.gz"
-DELTA_PARQUET_DIR="/tmp/clinvar-gks-delta-${EXPORT_DATE}-parquet"
-MANIFEST_FILE="/tmp/clinvar-gks-delta-${EXPORT_DATE}-manifest.json"
+DELTA_BUNDLE="/tmp/clinvar-gkm-delta-${EXPORT_DATE}.json.gz"
+DELTA_PARQUET_DIR="/tmp/clinvar-gkm-delta-${EXPORT_DATE}-parquet"
+MANIFEST_FILE="/tmp/clinvar-gkm-delta-${EXPORT_DATE}-manifest.json"
 
-echo "=== ClinVar-GKS DELTA release ${EXPORT_DATE} (dataset ${BQ_DATASET}) ==="
+echo "=== ClinVar-GKM DELTA release ${EXPORT_DATE} (dataset ${BQ_DATASET}) ==="
 $DRY_RUN && echo "  Mode: DRY RUN"
 
 # Step 1: export delta tables -> GCS

@@ -4,11 +4,11 @@
   <a href="https://www.ga4gh.org"><img src="docs/assets/images/ga4gh-logo.svg" alt="GA4GH" height="50"></a>
 </p>
 
-# ClinVar-GKS
+# ClinVar-GKM
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18343663.svg)](https://doi.org/10.5281/zenodo.18343663)
 
-ClinVar-GKS is a data transformation pipeline that converts [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) release data into [GA4GH GKS](https://www.ga4gh.org/genomic-knowledge-standards/) (Genomic Knowledge Standards) format. Developed and maintained by the [ClinGen](https://clinicalgenome.org/) driver project, it transforms the **entirety** of each ClinVar release — every variation, submitted classification, and aggregate record — into standardized, computable formats.
+ClinVar-GKM is a data transformation pipeline that converts [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) release data into [GA4GH GKS](https://www.ga4gh.org/genomic-knowledge-standards/) (Genomic Knowledge Standards) format. Developed and maintained by the [ClinGen](https://clinicalgenome.org/) driver project, it transforms the **entirety** of each ClinVar release — every variation, submitted classification, and aggregate record — into standardized, computable formats.
 
 The pipeline is designed to run automatically with each weekly ClinVar release, producing sibling datasets in GA4GH standard format.
 
@@ -52,7 +52,7 @@ The pipeline runs on **Google BigQuery** using SQL stored procedures, with an ex
 
 ## Documentation
 
-Full documentation is available at **[clingen-data-model.github.io/clinvar-gks](https://clingen-data-model.github.io/clinvar-gks/)**, including pipeline details, GA4GH profile definitions, data access guides, and a schema registry.
+Full documentation is available at **[clingen-data-model.github.io/clinvar-gkm](https://clingen-data-model.github.io/clinvar-gkm/)**, including pipeline details, GA4GH profile definitions, data access guides, and a schema registry.
 
 ## Repository Structure
 
@@ -71,7 +71,7 @@ docs/               MkDocs documentation source
 
 If you use this project, please cite it:
 
-> Babb, L. (2025). *ClinVar-GKS* [Software]. <https://doi.org/10.5281/zenodo.18343663>
+> Babb, L. (2025). *ClinVar-GKM* [Software]. <https://doi.org/10.5281/zenodo.18343663>
 
 See [CITATION.cff](CITATION.cff) for machine-readable citation metadata.
 

@@ -41,7 +41,7 @@ PROJECT_ID='clingen-dev'
 # against the wrong project. Keeping them identical avoids that.
 export CLOUDSDK_CORE_PROJECT="${PROJECT_ID}"
 # GCS Bucket for intermediate and final files
-BUCKET_NAME='clinvar-gks'
+BUCKET_NAME='clinvar-gkm'
 
 # Incremental gks_vrs load: carry the prior release's gks_vrs forward and merge in
 # only the changed variations (produced when export-vi-table-to-gcs.sh runs in its

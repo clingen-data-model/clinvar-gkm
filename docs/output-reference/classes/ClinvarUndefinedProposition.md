@@ -4,9 +4,9 @@
 
     This data class is at a **trial use** maturity level and may change in future releases. Maturity levels are described in the [GKS Maturity Model](https://vrs.ga4gh.org/en/2.0/appendices/maturity_model.html#maturity-model).
 
-A fallback custom proposition for a ClinVar submission whose classification does not map to any defined ClinVar-GKS or GA4GH proposition type. Emitted only when the upstream classification-to-type mapping yields no gks_type.
+A fallback custom proposition for a ClinVar submission whose classification does not map to any defined ClinVar-GKM or GA4GH proposition type. Emitted only when the upstream classification-to-type mapping yields no gks_type.
 
-**JSON Schema:** [ClinvarUndefinedProposition](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/ClinvarUndefinedProposition){ target=_blank }
+**JSON Schema:** [ClinvarUndefinedProposition](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarUndefinedProposition){ target=_blank }
 
 Some ClinvarUndefinedProposition attributes are inherited from `ClinvarGermlineCustomProposition`.
 

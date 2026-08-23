@@ -22,7 +22,7 @@ See [RCV Statements](../rcv-statements.md#layer-hierarchy) for details.
 
 RCV statements use the same 12 proposition types as SCV statements. See [ClinvarScvStatement — Proposition Types](ClinvarScvStatement.md#proposition-types) for the full list.
 
-**JSON Schema:** [ClinvarRcvStatement](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/ClinvarRcvStatement){ target=_blank }
+**JSON Schema:** [ClinvarRcvStatement](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarRcvStatement){ target=_blank }
 
 Some ClinvarRcvStatement attributes are inherited from `Statement`, `ClinvarAggregateStatementProperties`.
 

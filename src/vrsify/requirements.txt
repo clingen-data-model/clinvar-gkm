@@ -1,4 +1,4 @@
-# Pinned VRS-ification engine for the ClinVar-GKS pipeline.
+# Pinned VRS-ification engine for the ClinVar-GKM pipeline.
 #
 # The resolver is the clinvar_gk_pilot package (wraps ga4gh.vrs + variation-normalizer);
 # it is pinned to an exact commit so the VRS output is reproducible and version changes

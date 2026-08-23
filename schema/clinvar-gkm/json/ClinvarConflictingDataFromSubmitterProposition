@@ -1,0 +1,29 @@
+{
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarConflictingDataFromSubmitterProposition",
+   "title": "ClinvarConflictingDataFromSubmitterProposition",
+   "description": "A proposition for ClinVar submissions where the submitter's data conflicts with other submitters' data for the same variant-condition pair. Used for submissions classified as \"conflicting data from submitters\".",
+   "type": "object",
+   "maturity": "draft",
+   "allOf": [
+      {
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarGermlineCustomProposition"
+      }
+   ],
+   "properties": {
+      "customPropositionType": {
+         "type": "string",
+         "const": "ClinvarConflictingDataFromSubmitterProposition",
+         "default": "ClinvarConflictingDataFromSubmitterProposition",
+         "description": "MUST be \"ClinvarConflictingDataFromSubmitterProposition\"."
+      },
+      "predicate": {
+         "type": "string",
+         "const": "isConflictingDataFromSubmittersFor",
+         "default": "isConflictingDataFromSubmittersFor",
+         "description": "The relationship the Proposition describes between the subject variant and object condition. MUST be \"isConflictingDataFromSubmittersFor\"."
+      }
+   },
+   "required": [],
+   "additionalProperties": false
+}

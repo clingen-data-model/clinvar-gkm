@@ -2,7 +2,7 @@
 """validate-schema-conformance.py — JSON-Schema conformance check for emitted GKS records.
 
 Validates emitted proposition (and, with --statements, statement) records against the
-project's JSON Schemas in `schema/` — the clinvar-gks schemas plus the va-spec / cat-vrs /
+project's JSON Schemas in `schema/` — the clinvar-gkm schemas plus the va-spec / cat-vrs /
 vrs / gks-core schemas reached through the `schema/` symlinks. Cross-tree `$ref`s resolve by
 `$id` via the `referencing` registry (no network access).
 
@@ -89,7 +89,7 @@ def load_registry(schema_root: Path, relax: bool = True):
             if relax:
                 relax_additional_properties(doc)
             resources.append((sid, Resource.from_contents(doc, default_specification=DRAFT202012)))
-            # first one wins on name collision; clinvar-gks names are unique vs va-spec
+            # first one wins on name collision; clinvar-gkm names are unique vs va-spec
             name2contents.setdefault(fn, doc)
     registry = Registry().with_resources(resources)
     return registry, name2contents

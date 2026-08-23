@@ -15,7 +15,7 @@ __pycache__/
 site/
 
 # Schema build output
-schema/clinvar-gks/build/
+schema/clinvar-gkm/build/
 
 # IDE
 .vscode/

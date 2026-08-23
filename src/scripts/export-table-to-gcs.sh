@@ -136,5 +136,5 @@ echo "All schema exports completed."
 #   --destination_format NEWLINE_DELIMITED_JSON \
 #   --compression GZIP \
 #   'clinvar_2025_07_29_v2_3_1.variation_identity' \
-#   gs://clinvar-gks/2025-07-29/dev/vi.json.gz
-# #   # gs://clinvar-gks/20??-??-??/dev/vi.json.gz
+#   gs://clinvar-gkm/2025-07-29/dev/vi.json.gz
+# #   # gs://clinvar-gkm/20??-??-??/dev/vi.json.gz

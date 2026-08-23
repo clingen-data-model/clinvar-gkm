@@ -2,20 +2,20 @@
 
 ## Download the Latest Release
 
-The latest ClinVar-GKS release is available as a compressed JSON file (with Parquet files also available for analytical use):
+The latest ClinVar-GKM release is available as a compressed JSON file (with Parquet files also available for analytical use):
 
 ```text
-https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/datasets/
+https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/
 ```
 
 Download and decompress:
 
 ```bash
 # Download the latest monthly release
-curl -O https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/datasets/clinvar-gks_00-latest.json.gz
+curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/clinvar-gkm_00-latest.json.gz
 
 # Decompress
-gunzip clinvar-gks_00-latest.json.gz
+gunzip clinvar-gkm_00-latest.json.gz
 ```
 
 See [Data Access](data-access/index.md) for the full release schedule, archives, and file naming conventions.
@@ -78,7 +78,7 @@ The SCV statements for this variant reference it via `#/variation/clinvar:10` in
 
 ## Key Concepts
 
-**Statements** are the core unit of ClinVar-GKS. Each statement represents a clinical classification — either submitted (SCV), aggregated per variation (VCV), or aggregated per condition (RCV). Statements carry:
+**Statements** are the core unit of ClinVar-GKM. Each statement represents a clinical classification — either submitted (SCV), aggregated per variation (VCV), or aggregated per condition (RCV). Statements carry:
 
 - A **classification** — the clinical significance label (e.g., Pathogenic, Likely benign)
 - A **proposition** — what the classification asserts (variant X causes condition Y)

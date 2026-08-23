@@ -12,8 +12,8 @@
 # export-vi-table-to-gcs.sh and writes the VRS output back to GCS for
 # vrs-to-bq-table.sh to load.
 #
-#   in :  gs://clinvar-gks/<date>/dev/vi.jsonl.gz
-#   out:  gs://clinvar-gks/<date>/dev/vi-normalized-no-liftover.jsonl.gz
+#   in :  gs://clinvar-gkm/<date>/dev/vi.jsonl.gz
+#   out:  gs://clinvar-gkm/<date>/dev/vi-normalized-no-liftover.jsonl.gz
 #
 # PREREQUISITES (see README.md for full setup): a Python env with the pinned
 # requirements installed, the variation-normalizer service topology running, and
@@ -29,7 +29,7 @@
 #   VRSIFY_CMD    resolver invocation (default "clinvar-gk-pilot"); set to
 #                 e.g. "uv run python clinvar_gk_pilot/main.py" to run from a checkout
 #   PROJECT_ID    GCP project (default clingen-dev) — only used for logging parity
-#   BUCKET_NAME   GCS bucket (default clinvar-gks)
+#   BUCKET_NAME   GCS bucket (default clinvar-gkm)
 
 set -o errexit
 set -o nounset
@@ -38,7 +38,7 @@ set -o pipefail
 PROJECT_ID="${PROJECT_ID:-clingen-dev}"
 # Keep gcloud defaulting to the same project (avoids a mismatched --project_id).
 export CLOUDSDK_CORE_PROJECT="${PROJECT_ID}"
-BUCKET_NAME="${BUCKET_NAME:-clinvar-gks}"
+BUCKET_NAME="${BUCKET_NAME:-clinvar-gkm}"
 PARALLELISM="${PARALLELISM:-2}"
 VRSIFY_CMD="${VRSIFY_CMD:-clinvar-gk-pilot}"
 

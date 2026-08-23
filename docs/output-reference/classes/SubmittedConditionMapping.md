@@ -6,7 +6,7 @@
 
 The submitter's original condition details and how they were mapped to a ClinVar canonical condition. Includes the submitted name, type, MedGen ID, cross-references, and the normalization path (direct match, original medgen match, normalized match, resolution type, mapping details).
 
-**JSON Schema:** [SubmittedConditionMapping](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/SubmittedConditionMapping){ target=_blank }
+**JSON Schema:** [SubmittedConditionMapping](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/SubmittedConditionMapping){ target=_blank }
 
 ## Information Model
 

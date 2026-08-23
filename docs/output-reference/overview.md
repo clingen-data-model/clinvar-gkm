@@ -1,6 +1,6 @@
 # Output "Bundle" Format Overview
 
-The ClinVar-GKS release file uses a **bundle format** — a single JSON object with named sections at the root level. A bundle is a dictionary-style approach to organizing a large amount of data across heterogeneous classes in a single file, where each section is a keyed collection of objects of the same class. The key is the object's unique identifier, and the value is the complete object.
+The ClinVar-GKM release file uses a **bundle format** — a single JSON object with named sections at the root level. A bundle is a dictionary-style approach to organizing a large amount of data across heterogeneous classes in a single file, where each section is a keyed collection of objects of the same class. The key is the object's unique identifier, and the value is the complete object.
 
 This design eliminates duplication (a sequence reference shared by thousands of locations appears once), keeps individual objects compact, and enables efficient lookups by ID.
 

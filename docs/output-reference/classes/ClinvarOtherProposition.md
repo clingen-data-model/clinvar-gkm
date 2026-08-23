@@ -6,7 +6,7 @@
 
 A proposition for ClinVar submissions classified as "other" that do not fit any standard or named classification category. ClinVar has stopped accepting new submissions with this classification, but historical submissions remain.
 
-**JSON Schema:** [ClinvarOtherProposition](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/ClinvarOtherProposition){ target=_blank }
+**JSON Schema:** [ClinvarOtherProposition](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarOtherProposition){ target=_blank }
 
 Some ClinvarOtherProposition attributes are inherited from `ClinvarGermlineCustomProposition`.
 

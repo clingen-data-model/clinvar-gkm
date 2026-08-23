@@ -6,7 +6,7 @@
 
 A proposition describing the role of a variant in modulating drug response. Used for ClinVar submissions classified as "drug response". Distinct from the GA4GH VariantTherapeuticResponseProposition which is used for somatic clinical impact therapeutic response assertions.
 
-**JSON Schema:** [ClinvarDrugResponseProposition](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/ClinvarDrugResponseProposition){ target=_blank }
+**JSON Schema:** [ClinvarDrugResponseProposition](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarDrugResponseProposition){ target=_blank }
 
 Some ClinvarDrugResponseProposition attributes are inherited from `ClinvarGermlineCustomProposition`.
 

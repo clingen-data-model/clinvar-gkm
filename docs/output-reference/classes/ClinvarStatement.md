@@ -6,7 +6,7 @@
 
 Any ClinVar statement, at either the submission (SCV) or aggregate (VCV, RCV) level.
 
-**JSON Schema:** [ClinvarStatement](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/ClinvarStatement){ target=_blank }
+**JSON Schema:** [ClinvarStatement](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarStatement){ target=_blank }
 
 **One of:**
 

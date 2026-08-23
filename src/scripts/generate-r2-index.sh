@@ -30,12 +30,12 @@ done
 
 # --- R2 Configuration ---
 R2_ACCOUNT_ID="09208aa33790838db213a21f630c33e7"
-R2_BUCKET="clinvar-gks"
+R2_BUCKET="clinvar-gkm"
 R2_ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
 R2_PROFILE="r2"
-R2_PUBLIC_URL="https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev"
+R2_PUBLIC_URL="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
 
-LATEST_MONTHLY="clinvar-gks_00-latest.json.gz"
+LATEST_MONTHLY="clinvar-gkm_00-latest.json.gz"
 
 # =====================================================================
 # Helper functions
@@ -171,7 +171,7 @@ build_deltas_array() {
 
 echo "--- Generating index.json ---"
 
-INDEX_TMP="/tmp/clinvar-gks-index.json"
+INDEX_TMP="/tmp/clinvar-gkm-index.json"
 
 # datasets.monthly (weekly section dropped — full is month-end only now)
 DS_MONTHLY=$(build_file_array "datasets/" "${LATEST_MONTHLY}")
@@ -201,7 +201,7 @@ DELTAS_JSON=$(build_deltas_array)
 
 cat > "$INDEX_TMP" <<INDEXEOF
 {
-  "description": "ClinVar-GKS release index",
+  "description": "ClinVar-GKM release index",
   "updated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "base_url": "${R2_PUBLIC_URL}",
   "datasets": {

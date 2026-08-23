@@ -1,6 +1,6 @@
 # Data Model
 
-The ClinVar-GKS release file organizes data into bundle sections, each containing objects of a specific class. These classes form a directed graph of relationships — variants reference alleles, alleles reference locations, statements reference propositions, and so on.
+The ClinVar-GKM release file organizes data into bundle sections, each containing objects of a specific class. These classes form a directed graph of relationships — variants reference alleles, alleles reference locations, statements reference propositions, and so on.
 
 This page provides a visual overview of how the classes relate to each other, with links to detailed documentation for each class.
 

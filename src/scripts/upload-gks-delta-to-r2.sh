@@ -1,17 +1,17 @@
 #!/bin/bash
 
-# Upload a ClinVar-GKS DELTA tree (bundle + manifest + Parquet) to Cloudflare R2.
+# Upload a ClinVar-GKM DELTA tree (bundle + manifest + Parquet) to Cloudflare R2.
 # Runs after release-gks-delta.sh has produced the delta bundle, manifest.json,
 # and merged per-section delta Parquet.
 #
 # R2 layout written:
-#   deltas/<YYYY-MMDD>/clinvar-gks-delta_<YYYY-MMDD>.json.gz   — the delta bundle
+#   deltas/<YYYY-MMDD>/clinvar-gkm-delta_<YYYY-MMDD>.json.gz   — the delta bundle
 #   deltas/<YYYY-MMDD>/manifest.json                          — per-release manifest
 #   deltas/<YYYY-MMDD>/parquet/<section>.parquet              — per-section delta Parquet
-#   deltas/00-latest/{clinvar-gks-delta_00-latest.json.gz, manifest.json, parquet/*}
+#   deltas/00-latest/{clinvar-gkm-delta_00-latest.json.gz, manifest.json, parquet/*}
 #
 # Before upload it resolves manifest.checkpoint_full = the newest monthly FULL
-# currently in datasets/ (clinvar-gks_YYYY-MM.json.gz), so a consumer knows which
+# currently in datasets/ (clinvar-gkm_YYYY-MM.json.gz), so a consumer knows which
 # full bundle this delta chain replays onto. Then regenerates index.json.
 #
 # Usage:
@@ -56,10 +56,10 @@ done
 
 # --- R2 Configuration ---
 R2_ACCOUNT_ID="09208aa33790838db213a21f630c33e7"
-R2_BUCKET="clinvar-gks"
+R2_BUCKET="clinvar-gkm"
 R2_ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
 R2_PROFILE="r2"
-R2_PUBLIC_URL="https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev"
+R2_PUBLIC_URL="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
 
 # --- Derived date components ---
 YEAR="${EXPORT_DATE:0:4}"
@@ -69,8 +69,8 @@ MMDD="${MM}${DD}"                    # 0706
 PREFIX="deltas/${YEAR}-${MMDD}"     # deltas/2026-0706
 LATEST_PREFIX="deltas/00-latest"
 
-DELTA_NAME="clinvar-gks-delta_${YEAR}-${MMDD}.json.gz"
-LATEST_DELTA_NAME="clinvar-gks-delta_00-latest.json.gz"
+DELTA_NAME="clinvar-gkm-delta_${YEAR}-${MMDD}.json.gz"
+LATEST_DELTA_NAME="clinvar-gkm-delta_00-latest.json.gz"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
@@ -131,7 +131,7 @@ r2_ls() {
 # Main
 # =====================================================================
 
-echo "=== ClinVar-GKS DELTA Upload ==="
+echo "=== ClinVar-GKM DELTA Upload ==="
 echo "  Release date:  ${EXPORT_DATE}"
 echo "  Delta prefix:  ${PREFIX}/"
 echo "  Delta bundle:  ${DELTA_NAME}"
@@ -154,18 +154,18 @@ echo "--- Resolving checkpoint_full (newest monthly FULL in datasets/) ---"
 CHECKPOINT_FILE=""
 while IFS= read -r f; do
   [[ -z "$f" ]] && continue
-  # Keep only clinvar-gks_YYYY-MM.json.gz (monthly full); exclude 00-latest + weekly.
+  # Keep only clinvar-gkm_YYYY-MM.json.gz (monthly full); exclude 00-latest + weekly.
   [[ "$f" == *"00-latest"* ]] && continue
-  [[ "$f" =~ ^clinvar-gks_[0-9]{4}-[0-9]{2}\.json\.gz$ ]] || continue
+  [[ "$f" =~ ^clinvar-gkm_[0-9]{4}-[0-9]{2}\.json\.gz$ ]] || continue
   # lexically-last wins (YYYY-MM sorts chronologically)
   if [[ -z "$CHECKPOINT_FILE" || "$f" > "$CHECKPOINT_FILE" ]]; then
     CHECKPOINT_FILE="$f"
   fi
-done < <(r2_ls "datasets/clinvar-gks_")
+done < <(r2_ls "datasets/clinvar-gkm_")
 
 if [[ -n "$CHECKPOINT_FILE" ]]; then
   CHECKPOINT_PATH="datasets/${CHECKPOINT_FILE}"
-  CHECKPOINT_RELEASE="${CHECKPOINT_FILE#clinvar-gks_}"   # 2026-06.json.gz
+  CHECKPOINT_RELEASE="${CHECKPOINT_FILE#clinvar-gkm_}"   # 2026-06.json.gz
   CHECKPOINT_RELEASE="${CHECKPOINT_RELEASE%.json.gz}"     # 2026-06
   echo "  checkpoint_full = ${CHECKPOINT_PATH} (release ${CHECKPOINT_RELEASE})"
   if $DRY_RUN; then

@@ -1,6 +1,6 @@
 # This CITATION.cff file was generated with the help of Claude Code.
 cff-version: 1.2.0
-title: ClinVar-GKS
+title: ClinVar-GKM
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
@@ -25,11 +25,11 @@ identifiers:
   - type: doi
     value: 10.5281/zenodo.18343663
     description: Zenodo concept DOI for all versions
-repository-code: 'https://github.com/clingen-data-model/clinvar-gks'
-url: 'https://dataexchange.clinicalgenome.org/clinvar-gks/'
+repository-code: 'https://github.com/clingen-data-model/clinvar-gkm'
+url: 'https://dataexchange.clinicalgenome.org/clinvar-gkm/'
 doi: 10.5281/zenodo.18343663
 abstract: >-
-  ClinVar-GKS is a data transformation pipeline that
+  ClinVar-GKM is a data transformation pipeline that
   converts ClinVar release data into its GA4GH GKS (Genomic
   Knowledge Standards) equivalent. It is developed and
   maintained by the ClinGen driver project.
@@ -47,6 +47,6 @@ keywords:
   - data transformation
   - BigQuery
 license: CC0-1.0
-license-url: https://github.com/clingen-data-model/clinvar-gks/blob/main/LICENSE
+license-url: https://github.com/clingen-data-model/clinvar-gkm/blob/main/LICENSE
 version: 1.0.0
 date-released: '2025-09-01'

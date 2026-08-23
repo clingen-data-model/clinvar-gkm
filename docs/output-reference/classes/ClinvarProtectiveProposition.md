@@ -6,7 +6,7 @@
 
 A custom proposition describing the protective role of a variant against a condition. Used for ClinVar submissions classified as "protective". ClinVar has stopped accepting new submissions with this classification, but historical submissions remain.
 
-**JSON Schema:** [ClinvarProtectiveProposition](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/ClinvarProtectiveProposition){ target=_blank }
+**JSON Schema:** [ClinvarProtectiveProposition](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarProtectiveProposition){ target=_blank }
 
 Some ClinvarProtectiveProposition attributes are inherited from `ClinvarGermlineCustomProposition`.
 

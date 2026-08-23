@@ -24,7 +24,7 @@ RCVs and VCVs use only the highest-ranking review status levels in the aggregate
 
 ## Rank Order
 
-The rank order is a quantification of the review status levels used to appropriately segregate submissions within a single statement type, variant, and condition. Rank order is not a ClinVar concept but is used during the ClinVar-GKS aggregation process.
+The rank order is a quantification of the review status levels used to appropriately segregate submissions within a single statement type, variant, and condition. Rank order is not a ClinVar concept but is used during the ClinVar-GKM aggregation process.
 
 | Rank | Review Status | Stars | Scope |
 | --- | --- | --- | --- |

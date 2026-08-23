@@ -164,4 +164,4 @@ See [Aggregation Rules](../pipeline/vcv-statements/vcv-aggregation-rules.md) for
 
 Annotated JSONC examples of VCV statement records are available in the repository:
 
-- [VCV statement examples](https://github.com/clingen-data-model/clinvar-gks/tree/main/examples/vcv)
+- [VCV statement examples](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples/vcv)

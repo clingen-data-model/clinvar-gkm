@@ -28,10 +28,10 @@ The export and distribution process uses four steps, executed in sequence. The `
 
 ```bash
 # Export both NDJSON and Parquet
-./src/scripts/export-gks-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gks gks-dicts
+./src/scripts/export-gks-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gkm gks-dicts
 
 # Export Parquet only (skip NDJSON)
-./src/scripts/export-gks-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gks gks-dicts --parquet-only
+./src/scripts/export-gks-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gkm gks-dicts --parquet-only
 ```
 
 The script exports the following 19 tables:
@@ -68,11 +68,11 @@ BigQuery `EXTRACT` shards large NDJSON tables across multiple files automaticall
 python3 ./src/scripts/assemble-gks-dicts.py <source> <date> [--keep-source] [--copy-to-gcs]
 ```
 
-`<source>` is a local path or `gs://` URI containing the NDJSON shards. `<date>` is the ClinVar release date (`YYYY-MM-DD`); the output path is derived as `/tmp/clinvar-gks-{date}.json.gz`. By default, source files are deleted after assembly; use `--keep-source` to retain them.
+`<source>` is a local path or `gs://` URI containing the NDJSON shards. `<date>` is the ClinVar release date (`YYYY-MM-DD`); the output path is derived as `/tmp/clinvar-gkm-{date}.json.gz`. By default, source files are deleted after assembly; use `--keep-source` to retain them.
 
 ```bash
 python3 ./src/scripts/assemble-gks-dicts.py \
-  gs://clinvar-gks/gks-dicts/ \
+  gs://clinvar-gkm/gks-dicts/ \
   2026-06-14
 ```
 
@@ -128,16 +128,16 @@ See [Parquet Files](../data-access/download.md#parquet-files) for download URLs 
 
 ```bash
 # Upload full bundle + Parquet files
-./src/scripts/upload-gks-to-r2.sh 2026-06-14 v2_5_0 /tmp/clinvar-gks-2026-06-14.json.gz \
-  --parquet-dir=/tmp/clinvar-gks-2026-06-14-parquet
+./src/scripts/upload-gks-to-r2.sh 2026-06-14 v2_5_0 /tmp/clinvar-gkm-2026-06-14.json.gz \
+  --parquet-dir=/tmp/clinvar-gkm-2026-06-14-parquet
 
 # Preview without uploading
-./src/scripts/upload-gks-to-r2.sh 2026-06-14 v2_5_0 /tmp/clinvar-gks-2026-06-14.json.gz --dry-run
+./src/scripts/upload-gks-to-r2.sh 2026-06-14 v2_5_0 /tmp/clinvar-gkm-2026-06-14.json.gz --dry-run
 ```
 
 The script manages the monthly full slots:
 
-- **`datasets/`** — monthly full bundles for the current year (`clinvar-gks_yyyy-mm.json.gz`) plus a stable `clinvar-gks_00-latest.json.gz`
+- **`datasets/`** — monthly full bundles for the current year (`clinvar-gkm_yyyy-mm.json.gz`) plus a stable `clinvar-gkm_00-latest.json.gz`
 - **`datasets/parquet/{yyyy-mm}/`** — dated per-section Parquet for each monthly full, plus a stable `datasets/parquet/00-latest/` pointing at the newest monthly full
 - **`archives/{yyyy}/`** — monthly full bundles and dated Parquet month sets (`parquet/{yyyy-mm}/`) from prior years
 
@@ -158,7 +158,7 @@ There is **no weekly full bundle** — weekly changes are published as deltas (s
 
 The four internal steps are: export delta tables to GCS, assemble the delta bundle, merge delta Parquet, then build the manifest (`build-delta-manifest.py`) and upload (`upload-gks-delta-to-r2.sh`). The uploader writes:
 
-- **`deltas/<yyyy-mmdd>/`** — the delta bundle (`clinvar-gks-delta_<yyyy-mmdd>.json.gz`), `manifest.json`, and `parquet/<section>.parquet`
+- **`deltas/<yyyy-mmdd>/`** — the delta bundle (`clinvar-gkm-delta_<yyyy-mmdd>.json.gz`), `manifest.json`, and `parquet/<section>.parquet`
 - **`deltas/00-latest/`** — a server-side mirror of the most recent delta under stable filenames
 
 `build-delta-manifest.py` derives each section's `added` / `updated` counts and `deleted` primary-key list from the dataset's `gks_change_log`, and records `baseline_release`, `compare_release`, `pipeline_version`, and `counts`. The uploader then resolves `checkpoint_full` — the newest monthly full currently in `datasets/` — so a consumer knows which full bundle the delta chain replays onto. See [Downloads](../data-access/download.md#weekly-deltas) for the manifest shape and the consumer replay model.
@@ -201,11 +201,11 @@ Steps 1 and 2 of the full can also be run individually. Steps 3–4 (Parquet dow
 
 ```bash
 # 1. Export dictionary tables to GCS (NDJSON + Parquet)
-./src/scripts/export-gks-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gks gks-dicts
+./src/scripts/export-gks-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gkm gks-dicts
 
 # 2. Assemble NDJSON into a single JSON bundle
 python3 ./src/scripts/assemble-gks-dicts.py \
-  gs://clinvar-gks/gks-dicts/ \
+  gs://clinvar-gkm/gks-dicts/ \
   2026-06-14
 
 # 3-4. Download Parquet, merge shards, upload to R2
