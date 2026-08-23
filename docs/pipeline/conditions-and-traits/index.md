@@ -2,7 +2,7 @@
 
 ## Overview
 
-ClinVar submissions (SCVs) reference conditions — diseases, phenotypes, or findings — that a submitter associates with a variant. Internally, ClinVar uses the term "trait" for these condition records, and each submission's traits may differ from the normalized traits that ClinVar assigns at the RCV (aggregate review) level. The `gks_scv_condition_proc` procedure bridges that gap: it maps each SCV's submitted traits to ClinVar's normalized trait records, builds GKS-compliant condition structures with standardized codings and cross-references, and assembles multi-condition submissions into condition sets.
+ClinVar submissions (SCVs) reference conditions — diseases, phenotypes, or findings — that a submitter associates with a variant. Internally, ClinVar uses the term "trait" for these condition records, and each submission's traits may differ from the normalized traits that ClinVar assigns at the RCV (aggregate review) level. The `gkm_scv_condition_proc` procedure bridges that gap: it maps each SCV's submitted traits to ClinVar's normalized trait records, builds GKS-compliant condition structures with standardized codings and cross-references, and assembles multi-condition submissions into condition sets.
 
 The procedure executes three logical phases in sequence:
 
@@ -10,7 +10,7 @@ The procedure executes three logical phases in sequence:
 2. **Condition Mapping** (Steps 2–14) — resolves each SCV's submitted traits to ClinVar's normalized RCV traits through a multi-stage matching strategy
 3. **Condition Sets** (Step 15) — assembles individual conditions into `Condition` or `ConditionSet` domain entities for each SCV
 
-These steps do not produce a standalone output file. Instead, the resulting `gks_scv_condition_sets` table feeds directly into the SCV and RCV record assembly, where conditions become part of the full statement output.
+These steps do not produce a standalone output file. Instead, the resulting `gkm_scv_condition_sets` table feeds directly into the SCV and RCV record assembly, where conditions become part of the full statement output.
 
 ---
 
@@ -31,17 +31,17 @@ ClinVar's XML schema uses "trait" where the GKS output uses "condition." The map
 
 ```text
 ┌──────────────────────────────────────────────────────────────────┐
-│  gks_scv_condition_proc                                          │
+│  gkm_scv_condition_proc                                          │
 │                                                                  │
-│  Step 1:     Traits (temp_gks_trait)                             │
-│  Steps 2–14: Condition Mapping (gks_scv_condition_mapping)       │
-│  Step 15:    Condition Sets (gks_scv_condition_sets)             │
+│  Step 1:     Traits (temp_gkm_trait)                             │
+│  Steps 2–14: Condition Mapping (gkm_scv_condition_mapping)       │
+│  Step 15:    Condition Sets (gkm_scv_condition_sets)             │
 │                                                                  │
 │  Inputs:  trait, trait_mapping, rcv_mapping,                     │
 │           clinical_assertion_trait,                               │
 │           clinical_assertion_trait_set                            │
 │                                                                  │
-│  Outputs: gks_scv_condition_mapping, gks_scv_condition_sets      │
+│  Outputs: gkm_scv_condition_mapping, gkm_scv_condition_sets      │
 └──────────────────────────┬───────────────────────────────────────┘
                            │
                            ▼

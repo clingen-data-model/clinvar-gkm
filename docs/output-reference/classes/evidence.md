@@ -1,6 +1,6 @@
 # Evidence Lines
 
-Evidence lines in ClinVar-GKM are stored in the `evidenceLine` bundle section and referenced from statements via `hasEvidenceLines` arrays of `#/evidenceLine/` JSON pointer strings. There are three underlying dict tables that are merged into the single bundle section: `gks_dict_evidence_line` (SCV), `gks_dict_vcv_evidence_line` (VCV), and `gks_dict_rcv_evidence_line` (RCV).
+Evidence lines in ClinVar-GKM are stored in the `evidenceLine` bundle section and referenced from statements via `hasEvidenceLines` arrays of `#/evidenceLine/` JSON pointer strings. There are three underlying dict tables that are merged into the single bundle section: `gkm_dict_evidence_line` (SCV), `gkm_dict_vcv_evidence_line` (VCV), and `gkm_dict_rcv_evidence_line` (RCV).
 
 SCV evidence lines appear only on somatic clinical impact (SCI) statements, linking the parent `VariantClinicalSignificanceProposition` to a specific clinical assertion type — therapeutic response, diagnostic, or prognostic. VCV and RCV evidence lines connect aggregate statements to their contributing and non-contributing evidence items at each aggregation layer.
 

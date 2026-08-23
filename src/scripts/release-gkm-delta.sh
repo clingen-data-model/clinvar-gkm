@@ -2,7 +2,7 @@
 # Release the per-release GKS DELTA: export delta_<dict> tables, assemble a delta
 # bundle, merge delta Parquet, build manifest.json, upload the delta tree to R2.
 #
-# Usage: ./release-gks-delta.sh <export_date> <dataset_version> [--start-step=N] [--dry-run]
+# Usage: ./release-gkm-delta.sh <export_date> <dataset_version> [--start-step=N] [--dry-run]
 set -e
 [[ $# -lt 2 ]] && { echo "Usage: $0 <export_date> <dataset_version> [--start-step=N] [--dry-run]"; exit 1; }
 EXPORT_DATE="$1"; DATASET_VERSION="$2"; shift 2
@@ -19,7 +19,7 @@ if ! [[ "$START_STEP" =~ ^[1-4]$ ]]; then
 fi
 
 GCS_BUCKET="clinvar-gkm"
-GCS_DELTAS_PREFIX="gks-deltas"
+GCS_DELTAS_PREFIX="gkm-deltas"
 GCS_DELTAS_PATH="gs://${GCS_BUCKET}/${GCS_DELTAS_PREFIX}"
 GCS_DELTAS_PARQUET_PATH="gs://${GCS_BUCKET}/${GCS_DELTAS_PREFIX}-parquet"
 DATE_US="${EXPORT_DATE//-/_}"
@@ -40,11 +40,11 @@ $DRY_RUN && echo "  Mode: DRY RUN"
 if (( START_STEP <= 1 )); then
   echo "=== [1/4] export delta tables ==="
   if $DRY_RUN; then
-    echo "  [dry-run] export-gks-dicts.sh ${BQ_DATASET} ${GCS_BUCKET} ${GCS_DELTAS_PREFIX} --delta"
+    echo "  [dry-run] export-gkm-dicts.sh ${BQ_DATASET} ${GCS_BUCKET} ${GCS_DELTAS_PREFIX} --delta"
   else
     gsutil -m -q rm -r "${GCS_DELTAS_PATH}/" 2>/dev/null || true
     gsutil -m -q rm -r "${GCS_DELTAS_PARQUET_PATH}/" 2>/dev/null || true
-    "${SCRIPT_DIR}/export-gks-dicts.sh" "${BQ_DATASET}" "${GCS_BUCKET}" "${GCS_DELTAS_PREFIX}" --delta
+    "${SCRIPT_DIR}/export-gkm-dicts.sh" "${BQ_DATASET}" "${GCS_BUCKET}" "${GCS_DELTAS_PREFIX}" --delta
   fi
 fi
 
@@ -52,9 +52,9 @@ fi
 if (( START_STEP <= 2 )); then
   echo "=== [2/4] assemble delta bundle ==="
   if $DRY_RUN; then
-    echo "  [dry-run] assemble-gks-dicts.py ${GCS_DELTAS_PATH}/ ${EXPORT_DATE} --output ${DELTA_BUNDLE}"
+    echo "  [dry-run] assemble-gkm-dicts.py ${GCS_DELTAS_PATH}/ ${EXPORT_DATE} --output ${DELTA_BUNDLE}"
   else
-    "${PYTHON}" "${SCRIPT_DIR}/assemble-gks-dicts.py" "${GCS_DELTAS_PATH}/" "${EXPORT_DATE}" --output "${DELTA_BUNDLE}"
+    "${PYTHON}" "${SCRIPT_DIR}/assemble-gkm-dicts.py" "${GCS_DELTAS_PATH}/" "${EXPORT_DATE}" --output "${DELTA_BUNDLE}"
   fi
 fi
 
@@ -86,10 +86,10 @@ if (( START_STEP <= 4 )); then
   fi
   UPLOAD_ARGS=("${EXPORT_DATE}" "${DELTA_BUNDLE}" "${MANIFEST_FILE}" "--parquet-dir=${DELTA_PARQUET_DIR}")
   $DRY_RUN && UPLOAD_ARGS+=("--dry-run")
-  if [[ -x "${SCRIPT_DIR}/upload-gks-delta-to-r2.sh" ]]; then
-    "${SCRIPT_DIR}/upload-gks-delta-to-r2.sh" "${UPLOAD_ARGS[@]}"
+  if [[ -x "${SCRIPT_DIR}/upload-gkm-delta-to-r2.sh" ]]; then
+    "${SCRIPT_DIR}/upload-gkm-delta-to-r2.sh" "${UPLOAD_ARGS[@]}"
   else
-    echo "  NOTE: upload-gks-delta-to-r2.sh not present yet (built in Plan 4 Chunk 4) — skipping R2 upload."
+    echo "  NOTE: upload-gkm-delta-to-r2.sh not present yet (built in Plan 4 Chunk 4) — skipping R2 upload."
   fi
 fi
 

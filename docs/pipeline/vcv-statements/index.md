@@ -6,10 +6,10 @@ VCV statement generation aggregates individual SCV (submission-level) classifica
 
 The pipeline is implemented across two stored procedures:
 
-1. **`gks_vcv_proc`** — builds the aggregation tables through a two-layer aggregation hierarchy
-2. **`gks_vcv_statement_proc`** — transforms the aggregation tables into GKS-formatted VCV statements with nested evidence lines, written to `gks_dict_vcv`
+1. **`gkm_vcv_proc`** — builds the aggregation tables through a two-layer aggregation hierarchy
+2. **`gkm_vcv_statement_proc`** — transforms the aggregation tables into GKS-formatted VCV statements with nested evidence lines, written to `gkm_dict_vcv`
 
-`gks_dict_vcv` is the published product for VCV statements. Null/empty field stripping is applied during bundle assembly at export time (`assemble-gks-dicts.py`).
+`gkm_dict_vcv` is the published product for VCV statements. Null/empty field stripping is applied during bundle assembly at export time (`assemble-gkm-dicts.py`).
 
 ---
 
@@ -24,11 +24,11 @@ The pipeline is implemented across two stored procedures:
 ## Pipeline Flow
 
 ```text
-SCV Statements (gks_dict_scv)
+SCV Statements (gkm_dict_scv)
          │
          ▼
 ┌──────────────────────────────────┐
-│  gks_vcv_proc                    │
+│  gkm_vcv_proc                    │
 │  Classification Grouping         │  Group by variation + group + prop + level [+ tier]
 │  Priority Grouping               │  Aggregate tiers within level (somatic only)
 │  Aggregate Contribution          │  Winner-takes-all across submission levels
@@ -36,14 +36,14 @@ SCV Statements (gks_dict_scv)
                 │
                 ▼
 ┌──────────────────────────────────┐
-│  gks_vcv_statement_proc          │
+│  gkm_vcv_statement_proc          │
 │  BASE statements (3 steps)       │  Build statement structures from agg tables
 │  PRE: inline evidence (3 steps)  │  Propagate evidence through layers
 │  FINAL: select all               │  All Aggregate Contribution statements
 └───────────────┬──────────────────┘
                 │
                 ▼
-         gks_dict_vcv
+         gkm_dict_vcv
 ```
 
 ---
@@ -51,7 +51,7 @@ SCV Statements (gks_dict_scv)
 ## Section Contents
 
 - [Aggregation Rules](vcv-aggregation-rules.md) — submission level logic, classification output formats, review status derivation, and layer hierarchy
-- [VCV Procedures](vcv-proc.md) — detailed documentation of `gks_vcv_proc` and `gks_vcv_statement_proc`
+- [VCV Procedures](vcv-proc.md) — detailed documentation of `gkm_vcv_proc` and `gkm_vcv_statement_proc`
 
 ---
 

@@ -6,4 +6,4 @@ SELECT
   CAST(JSON_VALUE(value, '$.end') AS INT64) AS loc_end,
   REGEXP_REPLACE(JSON_VALUE(value, '$.sequenceReference'), r'^#/[^/]+/', '') AS sequence_reference_id,
   TO_JSON_STRING(value) AS data
-FROM {DATASET}.gks_dict_location
+FROM {DATASET}.gkm_dict_location

@@ -1,8 +1,8 @@
-# Condition Mapping (Steps 2–14 of gks_scv_condition_proc)
+# Condition Mapping (Steps 2–14 of gkm_scv_condition_proc)
 
 ## Overview
 
-Steps 2–14 of the `clinvar_ingest.gks_scv_condition_proc` procedure map each SCV's submitted traits (clinical assertion traits) to ClinVar's normalized RCV traits. This is the most complex phase in the conditions pipeline because submitters provide their own trait names and cross-references, which frequently differ from the curated trait records that ClinVar assigns at the RCV level. The procedure uses a progressive, multi-stage matching strategy — starting with high-confidence trait mapping records and falling back through increasingly broad matching techniques — to resolve as many SCV traits as possible to a normalized `trait_id`.
+Steps 2–14 of the `clinvar_ingest.gkm_scv_condition_proc` procedure map each SCV's submitted traits (clinical assertion traits) to ClinVar's normalized RCV traits. This is the most complex phase in the conditions pipeline because submitters provide their own trait names and cross-references, which frequently differ from the curated trait records that ClinVar assigns at the RCV level. The procedure uses a progressive, multi-stage matching strategy — starting with high-confidence trait mapping records and falling back through increasingly broad matching techniques — to resolve as many SCV traits as possible to a normalized `trait_id`.
 
 ---
 
@@ -23,7 +23,7 @@ Two temp tables are created to stage the input data:
 - **`temp_normalized_trait_mappings`** — loads ClinVar's `trait_mapping` table, normalizing `mapping_type`, `mapping_ref`, and `mapping_value` to lowercase for consistent matching
 - **`temp_rcv_mapping_traits`** — parses RCV mapping records, unnesting the `scv_accessions` array so each SCV is paired with its RCV's parsed trait set content
 
-### Step 4: Build `temp_gks_scv_trait_sets`
+### Step 4: Build `temp_gkm_scv_trait_sets`
 
 Joins the parsed RCV mapping traits with the `clinical_assertion_trait_set` table to produce a per-SCV record containing:
 
@@ -33,11 +33,11 @@ Joins the parsed RCV mapping traits with the `clinical_assertion_trait_set` tabl
 - The SCV's submitted trait set type (`cats_type`) vs. the RCV trait set type
 - Extensions for `clinvarTraitSetType` and `clinvarTraitSetId`
 
-**Output:** `temp_gks_scv_trait_sets` — one row per SCV with its associated RCV trait set. <span class="role-badge badge-internal">Internal</span>
+**Output:** `temp_gkm_scv_trait_sets` — one row per SCV with its associated RCV trait set. <span class="role-badge badge-internal">Internal</span>
 
 ### Step 5: Build `temp_all_rcv_traits`
 
-Unnests the `rcv_traits` array from `temp_gks_scv_trait_sets` to extract individual RCV trait records. For each trait, extracts:
+Unnests the `rcv_traits` array from `temp_gkm_scv_trait_sets` to extract individual RCV trait records. For each trait, extracts:
 
 - Preferred and alternate names
 - Cross-reference IDs by database: MedGen, MONDO, OMIM, HPO, Orphanet, MeSH
@@ -145,7 +145,7 @@ Each sub-step only processes traits that were not matched by a previous sub-step
 
 **Output:** `temp_rcv_trait_assignment_stage4` — cumulative assignments from all stages. <span class="role-badge badge-internal">Internal</span>
 
-### Step 14: Build `gks_scv_condition_mapping`
+### Step 14: Build `gkm_scv_condition_mapping`
 
 Assembles the final condition mapping table by joining Stage 4 assignments with the SCV trait data and trait mapping records. Includes:
 
@@ -158,7 +158,7 @@ Assembles the final condition mapping table by joining Stage 4 assignments with 
 
 SCV traits that could not be resolved by any stage are included with a null `trait_id` and an `assign_type` of `unassignable scv trait`.
 
-**Output:** `gks_scv_condition_mapping` — one row per SCV trait with its resolved (or unresolved) trait assignment. <span class="role-badge badge-pipeline">Pipeline table</span>
+**Output:** `gkm_scv_condition_mapping` — one row per SCV trait with its resolved (or unresolved) trait assignment. <span class="role-badge badge-pipeline">Pipeline table</span>
 
 ---
 
@@ -166,17 +166,17 @@ SCV traits that could not be resolved by any stage are included with a null `tra
 
 | Table | Description | Role |
 | --- | --- | --- |
-| `temp_gks_scv_trait_sets` | Per-SCV record with RCV trait set, trait counts, and trait set extensions | <span class="role-badge badge-internal">Internal</span> |
+| `temp_gkm_scv_trait_sets` | Per-SCV record with RCV trait set, trait counts, and trait set extensions | <span class="role-badge badge-internal">Internal</span> |
 | `temp_normalized_traits` | Deduplicated master list of unique RCV trait IDs with richest cross-reference data | <span class="role-badge badge-internal">Internal</span> |
 | `temp_all_scv_traits` | All direct SCV traits with parsed xrefs, counts, and trait set metadata | <span class="role-badge badge-internal">Internal</span> |
 | `temp_all_mapped_scv_traits` | SCV traits matched to ClinVar trait mapping records | <span class="role-badge badge-internal">Internal</span> |
-| `gks_scv_condition_mapping` | Final per-SCV-trait mapping to a normalized trait ID with assignment provenance | <span class="role-badge badge-pipeline">Pipeline table</span> |
+| `gkm_scv_condition_mapping` | Final per-SCV-trait mapping to a normalized trait ID with assignment provenance | <span class="role-badge badge-pipeline">Pipeline table</span> |
 
 ---
 
 ## Assignment Type Reference
 
-The `assign_type` field in `gks_scv_condition_mapping` records how each SCV trait was resolved:
+The `assign_type` field in `gkm_scv_condition_mapping` records how each SCV trait was resolved:
 
 | Stage | `assign_type` | Description |
 | --- | --- | --- |
@@ -211,5 +211,5 @@ The `assign_type` field in `gks_scv_condition_mapping` records how each SCV trai
 
 - **UDFs**: `clinvar_ingest.parseTraitSet`, `clinvar_ingest.parseXRefItems`, `clinvar_ingest.normalizeHpId`
 - **Source Tables**: `trait_mapping`, `rcv_mapping`, `clinical_assertion_trait_set`, `clinical_assertion_trait`
-- **Upstream Steps**: Step 1 (Traits) — `temp_gks_trait` is available but not used by these steps
-- **Downstream Steps**: Step 15 (Condition Sets); `gks_scv_condition_mapping` also consumed by `gks_vcv_proc`
+- **Upstream Steps**: Step 1 (Traits) — `temp_gkm_trait` is available but not used by these steps
+- **Downstream Steps**: Step 15 (Condition Sets); `gkm_scv_condition_mapping` also consumed by `gkm_vcv_proc`

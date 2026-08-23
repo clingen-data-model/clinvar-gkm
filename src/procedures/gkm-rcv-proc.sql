@@ -1,25 +1,25 @@
 -------------------------------------------------------------------------------
--- gks_rcv — build the three RCV aggregation-layer outputs from a release:
---   gks_rcv_classification_agg   (from temp_rcv_base_data + gks_scv_condition_sets)
---   gks_rcv_priority_agg         (reads gks_rcv_classification_agg)
---   gks_rcv_aggregate_contribution (reads BOTH prior agg tables)
+-- gkm_rcv — build the three RCV aggregation-layer outputs from a release:
+--   gkm_rcv_classification_agg   (from temp_rcv_base_data + gkm_scv_condition_sets)
+--   gkm_rcv_priority_agg         (reads gkm_rcv_classification_agg)
+--   gkm_rcv_aggregate_contribution (reads BOTH prior agg tables)
 --
 -- Three entry points:
---   gks_rcv_proc(on_date, debug)              -> full rebuild (unchanged behavior)
---   gks_rcv_proc_incremental(on_date, debug)  -> incremental (carry-forward + merge)
---   gks_rcv_build(on_date, debug, incremental) -> internal implementation
+--   gkm_rcv_proc(on_date, debug)              -> full rebuild (unchanged behavior)
+--   gkm_rcv_proc_incremental(on_date, debug)  -> incremental (carry-forward + merge)
+--   gkm_rcv_build(on_date, debug, incremental) -> internal implementation
 --
 -- Incremental strategy (see docs/superpowers/plans/2026-08-08-incremental-gks-
 -- downstream-plan-3-rcv-vcv.md, Chunk 2):
 --   All three outputs are per-RCV-parent (every row carries rcv_accession). Only the
 --   RCV parents impacted by this release are recomputed; the rest are carried forward
 --   from the baseline release. The impacted-parent set is the persistent {S} table
---   rcv_impacted_ids produced by gks_rcvvcv_changed (membership-first over
+--   rcv_impacted_ids produced by gkm_rcvvcv_changed (membership-first over
 --   scv_changed_ids ∪ scv_removed_ids plus rcv_mapping / rcv_accession diffs).
 --
 --   Chained-layer read source (the incremental trap): priority reads classification
 --   and aggregate reads BOTH. In incremental mode the whole chain is recomputed
---   impacted-only into {P}.stg_gks_rcv_* and each layer reads the PRIOR layer's stg
+--   impacted-only into {P}.stg_gkm_rcv_* and each layer reads the PRIOR layer's stg
 --   table (NOT {S}.*), so the chain is impacted-consistent regardless of merge order.
 --   Each stg table is then UNION-CTAS-merged into {S}: carry forward the baseline rows
 --   whose rcv_accession is NOT impacted AND still present in {S}.rcv_accession (so a
@@ -35,7 +35,7 @@
 --   missing/incomplete, the impacted set / required inputs are absent, or the pipeline
 --   gate_key mismatches. Call the *_incremental wrapper only when carry-forward is safe.
 -------------------------------------------------------------------------------
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_rcv_build`(on_date DATE, debug BOOL, incremental BOOL)
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_rcv_build`(on_date DATE, debug BOOL, incremental BOOL)
 BEGIN
   DECLARE query_base STRING;
   DECLARE query_classification STRING;
@@ -92,8 +92,8 @@ BEGIN
       -- baseline must have all 3 rcv agg outputs
       EXECUTE IMMEDIATE FORMAT("""
         SELECT (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES`
-                WHERE table_name IN ('gks_rcv_classification_agg','gks_rcv_priority_agg',
-                  'gks_rcv_aggregate_contribution')) = 3
+                WHERE table_name IN ('gkm_rcv_classification_agg','gkm_rcv_priority_agg',
+                  'gkm_rcv_aggregate_contribution')) = 3
       """, baseline_schema) INTO base_ok;
 
       -- current release must have the impacted-parent set + the aggregation inputs.
@@ -105,19 +105,19 @@ BEGIN
 
       -- version gate — TWO statements. BigQuery resolves table refs at analysis time
       -- and does NOT short-circuit that resolution, so a single combined statement
-      -- referencing {base}.gks_pipeline_version would ERROR (not return FALSE) when a
+      -- referencing {base}.gkm_pipeline_version would ERROR (not return FALSE) when a
       -- pre-feature baseline lacks the stamp. First confirm both stamps exist; only
       -- then compare gate_key.
       EXECUTE IMMEDIATE FORMAT("""
         SELECT
-          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gks_pipeline_version')=1
+          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gkm_pipeline_version')=1
           AND
-          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gks_pipeline_version')=1
+          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gkm_pipeline_version')=1
       """, baseline_schema, rec.schema_name) INTO stamps_exist;
       IF stamps_exist THEN
         EXECUTE IMMEDIATE FORMAT("""
-          SELECT (SELECT gate_key FROM `%s.gks_pipeline_version`)
-               = (SELECT gate_key FROM `%s.gks_pipeline_version`)
+          SELECT (SELECT gate_key FROM `%s.gkm_pipeline_version`)
+               = (SELECT gate_key FROM `%s.gkm_pipeline_version`)
         """, baseline_schema, rec.schema_name) INTO gate_ok;
         -- an empty stamp table yields NULL; NULL-strict so the guard falls back to full
         SET gate_ok = IFNULL(gate_ok, FALSE);
@@ -135,27 +135,27 @@ BEGIN
     -----------------------------------------------------------------------
     IF eff_incremental THEN
       SET pfilter = 'AND rm.rcv_accession IN (SELECT rcv_accession FROM `{S}.rcv_impacted_ids`)';
-      SET class_head = '{CT} `{P}.stg_gks_rcv_classification_agg`';
-      SET priority_head = '{CT} `{P}.stg_gks_rcv_priority_agg`';
-      SET agg_head = '{CT} `{P}.stg_gks_rcv_aggregate_contribution`';
-      SET class_src = '`{P}.stg_gks_rcv_classification_agg`';
-      SET priority_src = '`{P}.stg_gks_rcv_priority_agg`';
+      SET class_head = '{CT} `{P}.stg_gkm_rcv_classification_agg`';
+      SET priority_head = '{CT} `{P}.stg_gkm_rcv_priority_agg`';
+      SET agg_head = '{CT} `{P}.stg_gkm_rcv_aggregate_contribution`';
+      SET class_src = '`{P}.stg_gkm_rcv_classification_agg`';
+      SET priority_src = '`{P}.stg_gkm_rcv_priority_agg`';
     ELSE
       SET pfilter = '';
-      SET class_head = 'CREATE OR REPLACE TABLE `{S}.gks_rcv_classification_agg`';
-      SET priority_head = 'CREATE OR REPLACE TABLE `{S}.gks_rcv_priority_agg`';
-      SET agg_head = 'CREATE OR REPLACE TABLE `{S}.gks_rcv_aggregate_contribution`';
-      SET class_src = '`{S}.gks_rcv_classification_agg`';
-      SET priority_src = '`{S}.gks_rcv_priority_agg`';
+      SET class_head = 'CREATE OR REPLACE TABLE `{S}.gkm_rcv_classification_agg`';
+      SET priority_head = 'CREATE OR REPLACE TABLE `{S}.gkm_rcv_priority_agg`';
+      SET agg_head = 'CREATE OR REPLACE TABLE `{S}.gkm_rcv_aggregate_contribution`';
+      SET class_src = '`{S}.gkm_rcv_classification_agg`';
+      SET priority_src = '`{S}.gkm_rcv_priority_agg`';
     END IF;
 
     -- Clean up any persistent temp tables from a prior debug run
     IF NOT debug THEN
       CALL `clinvar_ingest.cleanup_temp_tables`(rec.schema_name, [
         'temp_rcv_base_data',
-        'stg_gks_rcv_classification_agg',
-        'stg_gks_rcv_priority_agg',
-        'stg_gks_rcv_aggregate_contribution'
+        'stg_gkm_rcv_classification_agg',
+        'stg_gkm_rcv_priority_agg',
+        'stg_gkm_rcv_aggregate_contribution'
       ]);
     END IF;
 
@@ -163,7 +163,7 @@ BEGIN
     -- GROUPING LAYER: MATERIALIZE BASE DATA (Metadata Driven)
     -- {PFILTER} restricts to impacted RCV parents in incremental mode ('' in full),
     -- which propagates the restriction to all three agg outputs (they read only
-    -- temp_rcv_base_data + {S}.gks_scv_condition_sets).
+    -- temp_rcv_base_data + {S}.gkm_scv_condition_sets).
     -------------------------------------------------------------------------
     SET query_base = REPLACE("""
       {CT} `{P}.temp_rcv_base_data`
@@ -288,7 +288,7 @@ BEGIN
           SELECT b.variation_id, b.rcv_accession, b.trait_set_id, b.statement_group, b.prop_type, b.submission_level, b.classif_type as tier_grouping,
                  ARRAY_AGG(DISTINCT trait_name IGNORE NULLS) as unique_traits
           FROM `{P}.temp_rcv_base_data` b
-          JOIN `{S}.gks_scv_condition_sets` scs_sc ON b.scv_id = scs_sc.scv_id
+          JOIN `{S}.gkm_scv_condition_sets` scs_sc ON b.scv_id = scs_sc.scv_id
           CROSS JOIN UNNEST(
             IF(scs_sc.extensions.value_submitted_condition IS NOT NULL,
               [scs_sc.extensions.value_submitted_condition.name],
@@ -504,14 +504,14 @@ BEGIN
 
       -- classification
       SET query_merge = REPLACE("""
-        CREATE OR REPLACE TABLE `{S}.gks_rcv_classification_agg` AS
+        CREATE OR REPLACE TABLE `{S}.gkm_rcv_classification_agg` AS
         SELECT
           b.id, b.prop_id, b.variation_id, b.rcv_accession, b.full_rcv_id, b.trait_set_id,
           b.statement_group, b.prop_type, b.submission_level, b.tier_grouping, b.full_scv_ids,
           b.tier_priority, b.prop_display_order, b.unique_traits, b.agg_label_conflicting_explanation,
           b.actual_agg_classif_label, b.aggregate_review_status, b.scv_direction, b.scv_strength_name,
           b.submission_level_label
-        FROM `{BASE}.gks_rcv_classification_agg` b
+        FROM `{BASE}.gkm_rcv_classification_agg` b
         LEFT JOIN `{S}.rcv_impacted_ids` imp ON imp.rcv_accession = b.rcv_accession
         WHERE imp.rcv_accession IS NULL
           AND b.rcv_accession IN (SELECT id FROM `{S}.rcv_accession`)
@@ -522,7 +522,7 @@ BEGIN
           tier_priority, prop_display_order, unique_traits, agg_label_conflicting_explanation,
           actual_agg_classif_label, aggregate_review_status, scv_direction, scv_strength_name,
           submission_level_label
-        FROM `{P}.stg_gks_rcv_classification_agg`
+        FROM `{P}.stg_gkm_rcv_classification_agg`
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));
       SET query_merge = REPLACE(query_merge, '{S}', rec.schema_name);
@@ -530,13 +530,13 @@ BEGIN
 
       -- priority
       SET query_merge = REPLACE("""
-        CREATE OR REPLACE TABLE `{S}.gks_rcv_priority_agg` AS
+        CREATE OR REPLACE TABLE `{S}.gkm_rcv_priority_agg` AS
         SELECT
           b.id, b.prop_id, b.variation_id, b.rcv_accession, b.full_rcv_id, b.trait_set_id,
           b.statement_group, b.prop_type, b.submission_level, b.submission_level_label,
           b.agg_label, b.agg_label_conflicting_explanation, b.unique_traits,
           b.contributing_statement_ids, b.non_contributing_statement_ids, b.aggregate_review_status
-        FROM `{BASE}.gks_rcv_priority_agg` b
+        FROM `{BASE}.gkm_rcv_priority_agg` b
         LEFT JOIN `{S}.rcv_impacted_ids` imp ON imp.rcv_accession = b.rcv_accession
         WHERE imp.rcv_accession IS NULL
           AND b.rcv_accession IN (SELECT id FROM `{S}.rcv_accession`)
@@ -546,7 +546,7 @@ BEGIN
           statement_group, prop_type, submission_level, submission_level_label,
           agg_label, agg_label_conflicting_explanation, unique_traits,
           contributing_statement_ids, non_contributing_statement_ids, aggregate_review_status
-        FROM `{P}.stg_gks_rcv_priority_agg`
+        FROM `{P}.stg_gkm_rcv_priority_agg`
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));
       SET query_merge = REPLACE(query_merge, '{S}', rec.schema_name);
@@ -554,13 +554,13 @@ BEGIN
 
       -- aggregate_contribution
       SET query_merge = REPLACE("""
-        CREATE OR REPLACE TABLE `{S}.gks_rcv_aggregate_contribution` AS
+        CREATE OR REPLACE TABLE `{S}.gkm_rcv_aggregate_contribution` AS
         SELECT
           b.id, b.prop_id, b.variation_id, b.rcv_accession, b.full_rcv_id, b.trait_set_id,
           b.statement_group, b.prop_type, b.contributing_layer_id, b.contributing_submission_level,
           b.contributing_submission_level_label, b.agg_label, b.agg_label_conflicting_explanation,
           b.prop_display_order, b.aggregate_review_status, b.non_contributing_details
-        FROM `{BASE}.gks_rcv_aggregate_contribution` b
+        FROM `{BASE}.gkm_rcv_aggregate_contribution` b
         LEFT JOIN `{S}.rcv_impacted_ids` imp ON imp.rcv_accession = b.rcv_accession
         WHERE imp.rcv_accession IS NULL
           AND b.rcv_accession IN (SELECT id FROM `{S}.rcv_accession`)
@@ -570,7 +570,7 @@ BEGIN
           statement_group, prop_type, contributing_layer_id, contributing_submission_level,
           contributing_submission_level_label, agg_label, agg_label_conflicting_explanation,
           prop_display_order, aggregate_review_status, non_contributing_details
-        FROM `{P}.stg_gks_rcv_aggregate_contribution`
+        FROM `{P}.stg_gkm_rcv_aggregate_contribution`
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));
       SET query_merge = REPLACE(query_merge, '{S}', rec.schema_name);
@@ -581,9 +581,9 @@ BEGIN
     IF NOT debug THEN
       DROP TABLE IF EXISTS _SESSION.temp_rcv_base_data;
       IF eff_incremental THEN
-        DROP TABLE IF EXISTS _SESSION.stg_gks_rcv_classification_agg;
-        DROP TABLE IF EXISTS _SESSION.stg_gks_rcv_priority_agg;
-        DROP TABLE IF EXISTS _SESSION.stg_gks_rcv_aggregate_contribution;
+        DROP TABLE IF EXISTS _SESSION.stg_gkm_rcv_classification_agg;
+        DROP TABLE IF EXISTS _SESSION.stg_gkm_rcv_priority_agg;
+        DROP TABLE IF EXISTS _SESSION.stg_gkm_rcv_aggregate_contribution;
       END IF;
     END IF;
 
@@ -592,16 +592,16 @@ END;
 
 
 -- Full rebuild (unchanged public signature/behavior)
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_rcv_proc`(on_date DATE, debug BOOL)
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_rcv_proc`(on_date DATE, debug BOOL)
 BEGIN
-  CALL `clinvar_ingest.gks_rcv_build`(on_date, debug, FALSE);
+  CALL `clinvar_ingest.gkm_rcv_build`(on_date, debug, FALSE);
 END;
 
 
 -- Incremental rebuild (carry-forward + merge). Guarded: falls back to full when the
 -- baseline is missing/incomplete, the impacted set / required inputs are missing, or the
 -- pipeline gate mismatches.
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_rcv_proc_incremental`(on_date DATE, debug BOOL)
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_rcv_proc_incremental`(on_date DATE, debug BOOL)
 BEGIN
-  CALL `clinvar_ingest.gks_rcv_build`(on_date, debug, TRUE);
+  CALL `clinvar_ingest.gkm_rcv_build`(on_date, debug, TRUE);
 END;

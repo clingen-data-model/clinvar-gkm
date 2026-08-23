@@ -1,8 +1,8 @@
-# Traits (Step 1 of gks_scv_condition_proc)
+# Traits (Step 1 of gkm_scv_condition_proc)
 
 ## Overview
 
-Step 1 of the `clinvar_ingest.gks_scv_condition_proc` procedure builds GKS-compliant trait records from ClinVar's normalized `trait` table. Each output record includes a primary coding (MedGen when available), cross-reference mappings to external ontologies (OMIM, MONDO, HPO, Orphanet, MeSH, EFO), and ClinVar-specific extensions. The resulting `temp_gks_trait` table serves as the lookup for the [Condition Sets](condition-sets.md) step (Step 15), which joins it with condition mapping results to build the final condition structures.
+Step 1 of the `clinvar_ingest.gkm_scv_condition_proc` procedure builds GKS-compliant trait records from ClinVar's normalized `trait` table. Each output record includes a primary coding (MedGen when available), cross-reference mappings to external ontologies (OMIM, MONDO, HPO, Orphanet, MeSH, EFO), and ClinVar-specific extensions. The resulting `temp_gkm_trait` table serves as the lookup for the [Condition Sets](condition-sets.md) step (Step 15), which joins it with condition mapping results to build the final condition structures.
 
 ---
 
@@ -31,7 +31,7 @@ Cross-references are filtered to include only:
 - Records with no `ref_field` (inline xrefs only)
 - Primary type xrefs (or xrefs with no type specified)
 
-### Step 3: Aggregate into `temp_gks_trait`
+### Step 3: Aggregate into `temp_gkm_trait`
 
 The final query joins traits with their cross-references and aggregates into one row per trait:
 
@@ -42,13 +42,13 @@ The final query joins traits with their cross-references and aggregates into one
   - `clinvarTraitId` — the ClinVar trait ID
   - `clinvarTraitType` — the trait type (e.g., Disease, Finding, PhenotypeInstruction)
 
-**Output:** `temp_gks_trait` — one row per trait with structured codings, mappings, and extensions. <span class="role-badge badge-internal">Internal</span>
+**Output:** `temp_gkm_trait` — one row per trait with structured codings, mappings, and extensions. <span class="role-badge badge-internal">Internal</span>
 
 ---
 
 ## conceptType Mapping (ClinVar → GKS)
 
-Each trait's ClinVar `type` is mapped to a standardized GKS `conceptType` — the value carried on the emitted condition's [MappableConcept](../../output-reference/overview.md) and used to distinguish diseases, phenotypes, and other traits. The mapping is applied in Step 1 (`gks_scv_condition_proc`) and yields one of four `conceptType` values: **`Disease`**, **`Phenotype`**, **`Trait`**, or **`Condition`**.
+Each trait's ClinVar `type` is mapped to a standardized GKS `conceptType` — the value carried on the emitted condition's [MappableConcept](../../output-reference/overview.md) and used to distinguish diseases, phenotypes, and other traits. The mapping is applied in Step 1 (`gkm_scv_condition_proc`) and yields one of four `conceptType` values: **`Disease`**, **`Phenotype`**, **`Trait`**, or **`Condition`**.
 
 | ClinVar trait `type` | GKS `conceptType` | Notes |
 | --- | --- | --- |
@@ -86,7 +86,7 @@ MONDO IDs are normalized by extracting the numeric portion — `MONDO:0000001` b
 
 | Table | Description | Role |
 | --- | --- | --- |
-| `temp_gks_trait` | GKS-compliant trait records with primary coding, cross-reference mappings, and extensions | <span class="role-badge badge-internal">Internal</span> |
+| `temp_gkm_trait` | GKS-compliant trait records with primary coding, cross-reference mappings, and extensions | <span class="role-badge badge-internal">Internal</span> |
 
 ---
 

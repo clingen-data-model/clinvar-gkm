@@ -80,8 +80,8 @@ installed console script).
 
 ## Version-invalidation
 
-The resolver version is an input to the incremental pipeline: `gks_vrs` carry-forward assumes
+The resolver version is an input to the incremental pipeline: `gkm_vrs` carry-forward assumes
 unchanged variations were vrsified by the **same** resolver. **After bumping the pin in
 `requirements.txt`, run the next release with `run-release.sh … --full`** so every variation is
-re-resolved and `gks_vrs` is fully reseeded. See
+re-resolved and `gkm_vrs` is fully reseeded. See
 [docs/pipeline/vrs-processing.md](../../docs/pipeline/vrs-processing.md).

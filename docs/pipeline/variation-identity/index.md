@@ -166,4 +166,4 @@ Producing `variation_identity` incrementally also yields the clean changed-varia
 - **UDFs**: `clinvar_ingest.parseAttributeSet`, `clinvar_ingest.parseSequenceLocations`, `clinvar_ingest.deriveHGVS`, `clinvar_ingest.parseHGVS`, `clinvar_ingest.parseXRefs`, `clinvar_ingest.schema_on`
 - **Source Tables**: `variation`, `clinical_assertion_variation`, `clinical_assertion`
 - **Incremental drivers** (incremental mode only): `diff_variation`, `diff_clinical_assertion`, `diff_clinical_assertion_variation` (from `dataset_diff_on`), plus the prior release's `variation_identity` / `variation_loc` / `variation_hgvs` / `variation_xref` as the carry-forward baseline
-- **Downstream Consumers**: VRS Python processing pipeline, `gks_catvar_proc`
+- **Downstream Consumers**: VRS Python processing pipeline, `gkm_catvar_proc`

@@ -2,8 +2,8 @@
 
 # Regenerate index.json from the CURRENT Cloudflare R2 bucket state.
 #
-# Standalone generator called by BOTH uploaders (upload-gks-to-r2.sh and
-# upload-gks-delta-to-r2.sh) so the published index is consistent regardless of
+# Standalone generator called by BOTH uploaders (upload-gkm-to-r2.sh and
+# upload-gkm-delta-to-r2.sh) so the published index is consistent regardless of
 # which one ran last. Lists:
 #   datasets.monthly — monthly full bundles in datasets/ (00-latest marked)
 #   datasets.parquet — dated Parquet month sets under datasets/parquet/ (00-latest marked)

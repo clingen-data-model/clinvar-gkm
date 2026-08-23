@@ -4,14 +4,14 @@
 #
 # Chains the five stages that turn an ingested ClinVar release into published GKS output:
 # Stage 0 (dataset_diff_on) runs ahead of stage 1 to build the {S}.diff_* drivers, and a
-# version stamp (gks_pipeline_version) is written between stages 3 and 4.
+# version stamp (gkm_pipeline_version) is written between stages 3 and 4.
 #
 #   1. variation_identity   BigQuery CALL   (incremental by default; full with --full)
 #   2. export-vi-to-gcs      src/scripts/export-vi-table-to-gcs.sh   -> gs://.../vi.jsonl.gz
 #   3. vrsify                src/vrsify/vrsify.sh   (external vrs-python; needs local services)
 #   4. vrs-to-bq             src/scripts/vrs-to-bq-table.sh
-#                            (Cloud Run transform -> load gks_vrs -> gks_* procs)
-#   5. release               src/scripts/release-gks.sh
+#                            (Cloud Run transform -> load gkm_vrs -> gkm_* procs)
+#   5. release               src/scripts/release-gkm.sh
 #                            (export dict bundle + Parquet -> assemble -> upload to Cloudflare R2)
 #
 # Stages 1 and 2 are incremental by default (recompute only changed variations, carry the
@@ -33,7 +33,7 @@
 #
 #   --full          full rebuild of stages 1-2 and catvar in stage 4 (reseed the baseline);
 #                   the version-stamp gate is unaffected, so next week resumes incremental
-#   --dry-run       stage 5 (release-gks.sh) runs in dry-run: no R2 upload / no GCS writes
+#   --dry-run       stage 5 (release-gkm.sh) runs in dry-run: no R2 upload / no GCS writes
 #   --start-step N  begin at stage N (1-5); default 1. Stage 3 (vrsify) needs the local
 #                   SeqRepo/UTA/gene-norm services — see src/vrsify/README.md.
 #
@@ -129,19 +129,19 @@ if (( START_STEP <= 4 )); then
   case "${AUDIT_STAMP}${GATE_KEY}" in *\'*) echo "ERROR: version stamp contains a single quote" >&2; exit 1;; esac
   echo ">>> stamping pipeline_version audit=${AUDIT_STAMP} gate=${GATE_KEY}"
   bq query --project_id="${PROJECT_ID}" --use_legacy_sql=false \
-    "CALL \`clinvar_ingest.gks_pipeline_version\`(DATE '${DATE}', '${AUDIT_STAMP}', '${GATE_KEY}')"
+    "CALL \`clinvar_ingest.gkm_pipeline_version\`(DATE '${DATE}', '${AUDIT_STAMP}', '${GATE_KEY}')"
 fi
 
-# --- Stage 4: transform -> load gks_vrs -> gks_* procs ---------------------------------
+# --- Stage 4: transform -> load gkm_vrs -> gkm_* procs ---------------------------------
 if (( START_STEP <= 4 )); then
-  echo ">>> [4/5] vrs-to-bq-table.sh (transform, load gks_vrs, run gks_* procs)"
+  echo ">>> [4/5] vrs-to-bq-table.sh (transform, load gkm_vrs, run gkm_* procs)"
   GKS_FULL="${FULL}" "${REPO_ROOT}/src/scripts/vrs-to-bq-table.sh" "${DATE}"
 fi
 
 # --- Stage 5: export bundle + Parquet, upload to R2 ------------------------------------
 if (( START_STEP <= 5 )); then
-  echo ">>> [5/5] release-gks.sh (export bundle + Parquet, upload to R2)"
-  # release-gks.sh needs the dataset version (e.g. v2_5_0); derive it from the dataset name.
+  echo ">>> [5/5] release-gkm.sh (export bundle + Parquet, upload to R2)"
+  # release-gkm.sh needs the dataset version (e.g. v2_5_0); derive it from the dataset name.
   DATE_US="${DATE//-/_}"
   DATASET_ID="$(bq ls --project_id="${PROJECT_ID}" --max_results=10000 \
     | awk '{$1=$1; print}' | grep "^clinvar_${DATE_US}_" | head -n 1)"
@@ -175,13 +175,13 @@ if (( START_STEP <= 5 )); then
       # weekly delta below. The delta chain's integrity does not depend on the full existing
       # (the full is a checkpoint convenience; contiguous deltas bridge it), and the full is
       # recoverable by re-running this release.
-      "${REPO_ROOT}/src/scripts/release-gks.sh" "${FULL_ARGS[@]}" \
+      "${REPO_ROOT}/src/scripts/release-gkm.sh" "${FULL_ARGS[@]}" \
         || echo "WARNING: retroactive monthly FULL failed for ${PREV_DATE}; continuing to weekly delta" >&2
     fi
   fi
 
   echo ">>> [5/5] publishing weekly DELTA for ${DATE}"
-  "${REPO_ROOT}/src/scripts/release-gks-delta.sh" "${DELTA_ARGS[@]}"
+  "${REPO_ROOT}/src/scripts/release-gkm-delta.sh" "${DELTA_ARGS[@]}"
 fi
 
 echo "=== run-release ${DATE} complete ==="

@@ -5,4 +5,4 @@ SELECT
   JSON_VALUE(value, '$.name') AS name,
   REGEXP_REPLACE(JSON_VALUE(value, '$.location'), r'^#/[^/]+/', '') AS location_id,
   TO_JSON_STRING(value) AS data
-FROM {DATASET}.gks_dict_allele
+FROM {DATASET}.gkm_dict_allele

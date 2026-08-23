@@ -1,19 +1,19 @@
 #!/bin/bash
 
-# Batch release: run release-gks.sh for multiple dates with the same version.
+# Batch release: run release-gkm.sh for multiple dates with the same version.
 #
 # Usage:
-#   ./release-gks-batch.sh <dataset_version> [release-gks flags...]
+#   ./release-gkm-batch.sh <dataset_version> [release-gkm flags...]
 #
 # Examples:
-#   ./release-gks-batch.sh v2_5_0
-#   ./release-gks-batch.sh v2_5_0 --keep-source
-#   ./release-gks-batch.sh v2_5_0 --dry-run
+#   ./release-gkm-batch.sh v2_5_0
+#   ./release-gkm-batch.sh v2_5_0 --keep-source
+#   ./release-gkm-batch.sh v2_5_0 --dry-run
 
 set -e
 
 if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 <dataset_version> [release-gks flags...]"
+  echo "Usage: $0 <dataset_version> [release-gkm flags...]"
   exit 1
 fi
 
@@ -38,7 +38,7 @@ for i in "${!DATES[@]}"; do
   echo "######################################################"
   echo ""
 
-  if "${SCRIPT_DIR}/release-gks.sh" "${date}" "${DATASET_VERSION}" "$@"; then
+  if "${SCRIPT_DIR}/release-gkm.sh" "${date}" "${DATASET_VERSION}" "$@"; then
     echo ""
     echo ">>> ${date} completed successfully."
   else

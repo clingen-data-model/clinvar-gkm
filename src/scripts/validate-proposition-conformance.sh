@@ -16,9 +16,9 @@ DS="clinvar_${DATE//-/_}_${VER}"
 echo "=== proposition conformance: ${DS} ==="
 bq query --project_id="$PROJECT" --use_legacy_sql=false --format=pretty --quiet "
 WITH allp AS (
-  SELECT value FROM \`${DS}.gks_dict_proposition\`
-  UNION ALL SELECT value FROM \`${DS}.gks_dict_rcv_proposition\`
-  UNION ALL SELECT value FROM \`${DS}.gks_dict_vcv_proposition\`
+  SELECT value FROM \`${DS}.gkm_dict_proposition\`
+  UNION ALL SELECT value FROM \`${DS}.gkm_dict_rcv_proposition\`
+  UNION ALL SELECT value FROM \`${DS}.gkm_dict_vcv_proposition\`
 )
 SELECT
   COUNTIF(JSON_VALUE(value,'\$.subjectVariant') IS NOT NULL AND JSON_VALUE(value,'\$.subject') IS NOT NULL) AS both_subject_BAD,
@@ -36,7 +36,7 @@ echo "=== condition conceptType enum (must be only Condition/Phenotype/Disease/T
 bq query --project_id="$PROJECT" --use_legacy_sql=false --format=pretty --quiet "
 SELECT COUNTIF(conceptType NOT IN ('Condition','Phenotype','Disease','Trait','Absent')) AS invalid_conceptType_BAD,
        COUNT(*) AS total
-FROM \`${DS}.gks_dict_condition\`"
+FROM \`${DS}.gkm_dict_condition\`"
 
 # --- Phase 2: proposition delivery-group reference integrity -------------------------------------
 # Every statement/evidence-line proposition pointer is now group-qualified (#/<group>-proposition/<id>).
@@ -45,18 +45,18 @@ FROM \`${DS}.gks_dict_condition\`"
 echo "=== proposition reference integrity (group prefix == recomputed group; no old/dangling refs) ==="
 bq query --project_id="$PROJECT" --use_legacy_sql=false --format=pretty --quiet "
 WITH refs AS (
-  SELECT proposition FROM \`${DS}.gks_dict_scv\`
-  UNION ALL SELECT proposition FROM \`${DS}.gks_dict_rcv\`
-  UNION ALL SELECT proposition FROM \`${DS}.gks_dict_vcv\`
-  UNION ALL SELECT proposition FROM \`${DS}.gks_dict_evidence_line\`
+  SELECT proposition FROM \`${DS}.gkm_dict_scv\`
+  UNION ALL SELECT proposition FROM \`${DS}.gkm_dict_rcv\`
+  UNION ALL SELECT proposition FROM \`${DS}.gkm_dict_vcv\`
+  UNION ALL SELECT proposition FROM \`${DS}.gkm_dict_evidence_line\`
 ),
 props AS (
   SELECT key, COALESCE(JSON_VALUE(value,'\$.customPropositionType'), JSON_VALUE(value,'\$.type')) AS raw_type
-  FROM \`${DS}.gks_dict_proposition\`
+  FROM \`${DS}.gkm_dict_proposition\`
   UNION ALL SELECT key, COALESCE(JSON_VALUE(value,'\$.customPropositionType'), JSON_VALUE(value,'\$.type'))
-  FROM \`${DS}.gks_dict_rcv_proposition\`
+  FROM \`${DS}.gkm_dict_rcv_proposition\`
   UNION ALL SELECT key, COALESCE(JSON_VALUE(value,'\$.customPropositionType'), JSON_VALUE(value,'\$.type'))
-  FROM \`${DS}.gks_dict_vcv_proposition\`
+  FROM \`${DS}.gkm_dict_vcv_proposition\`
 ),
 parsed AS (
   SELECT
@@ -82,9 +82,9 @@ FROM parsed LEFT JOIN props p ON p.key = parsed.ref_id"
 echo "=== proposition group coverage (every prop maps to a known group) ==="
 bq query --project_id="$PROJECT" --use_legacy_sql=false --format=pretty --quiet "
 WITH allp AS (
-  SELECT value FROM \`${DS}.gks_dict_proposition\`
-  UNION ALL SELECT value FROM \`${DS}.gks_dict_rcv_proposition\`
-  UNION ALL SELECT value FROM \`${DS}.gks_dict_vcv_proposition\`)
+  SELECT value FROM \`${DS}.gkm_dict_proposition\`
+  UNION ALL SELECT value FROM \`${DS}.gkm_dict_rcv_proposition\`
+  UNION ALL SELECT value FROM \`${DS}.gkm_dict_vcv_proposition\`)
 SELECT COUNTIF(
     COALESCE(JSON_VALUE(value,'\$.customPropositionType'), JSON_VALUE(value,'\$.type')) NOT IN
       ('VariantOncogenicityProposition','VariantTherapeuticResponseProposition','VariantPathogenicityProposition',

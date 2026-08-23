@@ -17,51 +17,51 @@ The pipeline executes in the following order. Each step is a BigQuery stored pro
                │
 ┌──────────────▼───────────────┐
 │ 2. VRS Processing            │  External: vrs-python
-│    Export → VRS Python →     │  → gks_vrs table
+│    Export → VRS Python →     │  → gkm_vrs table
 │    Import back to BigQuery   │
 └──────────────┬───────────────┘
                │
 ┌──────────────▼───────────────┐
-│ 3. Cat-VRS Generation        │  gks_catvar_proc
-│    Canonical alleles &       │  → gks_catvar table
+│ 3. Cat-VRS Generation        │  gkm_catvar_proc
+│    Canonical alleles &       │  → gkm_catvar table
 │    categorical variants      │
 └──────────────┬───────────────┘
                │
 ┌──────────────▼───────────────┐
-│ 4. Conditions & Traits       │  gks_scv_condition_proc
+│ 4. Conditions & Traits       │  gkm_scv_condition_proc
 │    Map traits, build         │  → condition mapping &
 │    conditions & condition    │    condition set tables
 │    sets                      │
 └──────────────┬───────────────┘
                │
 ┌──────────────▼───────────────┐
-│ 5. SCV Statements            │  gks_scv_statement_proc
-│    Build SCV records,        │  → gks_dict_scv table
+│ 5. SCV Statements            │  gkm_scv_statement_proc
+│    Build SCV records,        │  → gkm_dict_scv table
 │    propositions & statements │
 └──────────────┬───────────────┘
                │
 ┌──────────────▼───────────────┐
-│ 6. VCV Statements            │  gks_vcv_proc +
-│    Aggregate SCVs into       │  gks_vcv_statement_proc
-│    variant-level statements  │  → gks_dict_vcv table
+│ 6. VCV Statements            │  gkm_vcv_proc +
+│    Aggregate SCVs into       │  gkm_vcv_statement_proc
+│    variant-level statements  │  → gkm_dict_vcv table
 └──────────────┬───────────────┘
                │
 ┌──────────────▼───────────────┐
-│ 7. RCV Statements            │  gks_rcv_proc +
-│    Aggregate SCVs into       │  gks_rcv_statement_proc
-│    condition-level statements│  → gks_dict_rcv table
+│ 7. RCV Statements            │  gkm_rcv_proc +
+│    Aggregate SCVs into       │  gkm_rcv_statement_proc
+│    condition-level statements│  → gkm_dict_rcv table
 └──────────────┬───────────────┘
                │
 ┌──────────────▼───────────────┐
-│ 8. Change log + deltas       │  gks_change_log +
-│    A/U/D per dict + delta     │  gks_delta_build
-│    payloads for publishing    │  → gks_change_log, delta_<dict>
+│ 8. Change log + deltas       │  gkm_change_log +
+│    A/U/D per dict + delta     │  gkm_delta_build
+│    payloads for publishing    │  → gkm_change_log, delta_<dict>
 └──────────────┬───────────────┘
                │
 ┌──────────────▼───────────────┐
-│ 9. Export & Distribute       │  export-gks-dicts.sh
-│    Export NDJSON + Parquet    │  assemble-gks-dicts.py
-│    to GCS, assemble JSON     │  release-gks.sh
+│ 9. Export & Distribute       │  export-gkm-dicts.sh
+│    Export NDJSON + Parquet    │  assemble-gkm-dicts.py
+│    to GCS, assemble JSON     │  release-gkm.sh
 │    bundle, upload to R2      │  → R2 public bucket
 └──────────────────────────────┘
 ```
@@ -70,7 +70,7 @@ The pipeline executes in the following order. Each step is a BigQuery stored pro
 
 ### Single-command run
 
-The whole release can be run end-to-end with the `run-release.sh` orchestrator, which chains five stages: variation identity, the GCS export, vrsification, the transform/load/procedures step (`vrs-to-bq-table.sh`), and the export/publish step (`release-gks.sh`):
+The whole release can be run end-to-end with the `run-release.sh` orchestrator, which chains five stages: variation identity, the GCS export, vrsification, the transform/load/procedures step (`vrs-to-bq-table.sh`), and the export/publish step (`release-gkm.sh`):
 
 ```bash
 ./src/scripts/run-release.sh YYYY-MM-DD              # incremental (default)
@@ -97,46 +97,46 @@ CALL `clinvar_ingest.variation_identity`(CURRENT_DATE(), FALSE);
 
 ### Step 2: VRS Processing
 
-Export, process externally with vrs-python, and load back — incremental by default (only changed variations are vrsified; unchanged `gks_vrs` results carry forward). See [VRS Processing](vrs-processing.md).
+Export, process externally with vrs-python, and load back — incremental by default (only changed variations are vrsified; unchanged `gkm_vrs` results carry forward). See [VRS Processing](vrs-processing.md).
 
 ### Step 3: Cat-VRS through JSON Output
 
 From the BigQuery console:
 
 ```sql
-CALL `clinvar_ingest.gks_scv_condition_proc`(CURRENT_DATE(), FALSE);
-CALL `clinvar_ingest.gks_scv_statement_proc`(CURRENT_DATE(), FALSE);
-CALL `clinvar_ingest.gks_vcv_proc`(CURRENT_DATE(), FALSE);
-CALL `clinvar_ingest.gks_vcv_statement_proc`(CURRENT_DATE(), FALSE);
-CALL `clinvar_ingest.gks_rcv_proc`(CURRENT_DATE(), FALSE);
-CALL `clinvar_ingest.gks_rcv_statement_proc`(CURRENT_DATE(), FALSE);
--- NOTE: gks_json_proc is retired (Plan 4) — its JSON-render tables were unpublished;
--- the gks_dict_* tables are the published product and are built by the procs above.
+CALL `clinvar_ingest.gkm_scv_condition_proc`(CURRENT_DATE(), FALSE);
+CALL `clinvar_ingest.gkm_scv_statement_proc`(CURRENT_DATE(), FALSE);
+CALL `clinvar_ingest.gkm_vcv_proc`(CURRENT_DATE(), FALSE);
+CALL `clinvar_ingest.gkm_vcv_statement_proc`(CURRENT_DATE(), FALSE);
+CALL `clinvar_ingest.gkm_rcv_proc`(CURRENT_DATE(), FALSE);
+CALL `clinvar_ingest.gkm_rcv_statement_proc`(CURRENT_DATE(), FALSE);
+-- NOTE: gkm_json_proc is retired (Plan 4) — its JSON-render tables were unpublished;
+-- the gkm_dict_* tables are the published product and are built by the procs above.
 ```
 
 ### Step 4: Export & Distribute
 
-The `gks_dict_*` tables are the published product. The monthly full bundle and the weekly delta are published by separate scripts:
+The `gkm_dict_*` tables are the published product. The monthly full bundle and the weekly delta are published by separate scripts:
 
 ```bash
 # Monthly full bundle (export, assemble, download Parquet, upload to R2)
-./src/scripts/release-gks.sh 2026-06-14 v2_5_0
+./src/scripts/release-gkm.sh 2026-06-14 v2_5_0
 
 # Weekly delta (added + updated records + change manifest)
-./src/scripts/release-gks-delta.sh 2026-06-14 v2_5_0
+./src/scripts/release-gkm-delta.sh 2026-06-14 v2_5_0
 ```
 
-Steps 1 and 2 can also be run individually. Steps 3–4 (Parquet download, shard merging, and upload) are handled internally by `release-gks.sh` — use `--start-step` to resume from a specific step.
+Steps 1 and 2 can also be run individually. Steps 3–4 (Parquet download, shard merging, and upload) are handled internally by `release-gkm.sh` — use `--start-step` to resume from a specific step.
 
 ```bash
 # 1. Export dictionary tables to GCS (NDJSON + Parquet)
-./src/scripts/export-gks-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gkm gks-dicts
+./src/scripts/export-gkm-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gkm gkm-dicts
 
 # 2. Assemble NDJSON into JSON bundle
-python3 ./src/scripts/assemble-gks-dicts.py gs://clinvar-gkm/gks-dicts/ 2026-06-14
+python3 ./src/scripts/assemble-gkm-dicts.py gs://clinvar-gkm/gkm-dicts/ 2026-06-14
 
 # 3-4. Download Parquet, merge shards, upload to R2
-./src/scripts/release-gks.sh 2026-06-14 v2_5_0 --start-step=3
+./src/scripts/release-gkm.sh 2026-06-14 v2_5_0 --start-step=3
 ```
 
 See [Export](export.md) for details on each step.

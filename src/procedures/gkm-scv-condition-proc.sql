@@ -1,38 +1,38 @@
 -------------------------------------------------------------------------------
--- gks_scv_condition — build the SCV condition dictionaries + per-SCV condition
+-- gkm_scv_condition — build the SCV condition dictionaries + per-SCV condition
 -- sets from a release
 --
 -- Three entry points:
---   gks_scv_condition_proc(on_date, debug)              -> full rebuild (unchanged behavior)
---   gks_scv_condition_proc_incremental(on_date, debug)  -> incremental (carry-forward + merge)
---   gks_scv_condition_build(on_date, debug, incremental) -> internal implementation
+--   gkm_scv_condition_proc(on_date, debug)              -> full rebuild (unchanged behavior)
+--   gkm_scv_condition_proc_incremental(on_date, debug)  -> incremental (carry-forward + merge)
+--   gkm_scv_condition_build(on_date, debug, incremental) -> internal implementation
 --
 -- Incremental strategy (see docs/superpowers/plans/2026-08-07-incremental-gks-
 -- downstream-plan-2-scv.md):
---   The two global dedup dictionaries (gks_dict_condition, gks_dict_condition_set)
---   are ALWAYS globally recomputed — gks_dict_condition is a whole-snapshot dedup of
---   {S}.trait, and gks_dict_condition_set is fed by the GLOBAL temps
---   temp_gks_scv_trait_sets + temp_all_rcv_traits (whole-snapshot), so filtering
+--   The two global dedup dictionaries (gkm_dict_condition, gkm_dict_condition_set)
+--   are ALWAYS globally recomputed — gkm_dict_condition is a whole-snapshot dedup of
+--   {S}.trait, and gkm_dict_condition_set is fed by the GLOBAL temps
+--   temp_gkm_scv_trait_sets + temp_all_rcv_traits (whole-snapshot), so filtering
 --   either would corrupt them.
---   Only gks_scv_condition_sets is per-SCV: in incremental mode the exclusive
+--   Only gkm_scv_condition_sets is per-SCV: in incremental mode the exclusive
 --   per-SCV chain (temp_scv_trait_name_xrefs -> temp_scv_trait_mappings ->
 --   temp_scv_trait_assignment_stage1 -> _stage2) and the final assembly are filtered
 --   to the changed set, staged, and merged with the carried-forward baseline rows
 --   via UNION-CTAS. The changed / removed SCV sets are the persistent {S} tables
---   scv_changed_ids / scv_removed_ids produced by gks_scv_changed (which includes the
+--   scv_changed_ids / scv_removed_ids produced by gkm_scv_changed (which includes the
 --   trait-content cascade so a trait/traitset edit re-derives the affected SCV rows).
 --   Version-invalidation: the guard falls back to a full rebuild when the baseline
 --   is missing/incomplete, the diff drivers / changed sets are absent, or the
 --   pipeline gate_key mismatches. Call the *_incremental wrapper only when carry-
 --   forward is safe.
 -------------------------------------------------------------------------------
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_scv_condition_build`(on_date DATE, debug BOOL, incremental BOOL)
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_scv_condition_build`(on_date DATE, debug BOOL, incremental BOOL)
 BEGIN
-  DECLARE query_gks_dict_condition STRING;
+  DECLARE query_gkm_dict_condition STRING;
   DECLARE temp_rcv_mapping_traits_query STRING;
-  DECLARE temp_gks_scv_trait_sets_query STRING;
+  DECLARE temp_gkm_scv_trait_sets_query STRING;
   DECLARE temp_all_rcv_traits_query STRING;
-  DECLARE query_gks_dict_condition_set STRING;
+  DECLARE query_gkm_dict_condition_set STRING;
   DECLARE temp_scv_trait_name_xrefs_query STRING;
   DECLARE temp_scv_trait_mappings_query STRING;
   DECLARE temp_scv_trait_assignment_stage1_query STRING;
@@ -50,12 +50,12 @@ BEGIN
   DECLARE stamps_exist BOOL DEFAULT FALSE;
 
   -- per-query changed-set filter fragments ('' in full mode). scv_changed_ids /
-  -- scv_removed_ids are PERSISTENT {S} tables (written by gks_scv_changed), so the
+  -- scv_removed_ids are PERSISTENT {S} tables (written by gkm_scv_changed), so the
   -- fragments reference `{S}.scv_changed_ids` directly (resolved by each query's
   -- final {S} REPLACE), not a session temp.
   DECLARE tfilter_cs STRING;   -- Step 6 temp_scv_trait_name_xrefs (head of the exclusive per-SCV chain; scv id = SPLIT(cat.id,'.')[0])
-  DECLARE vfilter_cs STRING;   -- Step 10 gks_scv_condition_sets final assembly (outer alias gsts.scv_id)
-  DECLARE cs_head STRING;      -- gks_scv_condition_sets target (real table vs stg temp)
+  DECLARE vfilter_cs STRING;   -- Step 10 gkm_scv_condition_sets final assembly (outer alias gsts.scv_id)
+  DECLARE cs_head STRING;      -- gkm_scv_condition_sets target (real table vs stg temp)
 
   IF debug THEN
     SET temp_create = 'CREATE OR REPLACE TABLE';
@@ -89,11 +89,11 @@ BEGIN
       -- baseline must have all 3 condition outputs
       EXECUTE IMMEDIATE FORMAT("""
         SELECT (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES`
-                WHERE table_name IN ('gks_dict_condition','gks_dict_condition_set','gks_scv_condition_sets')) = 3
+                WHERE table_name IN ('gkm_dict_condition','gkm_dict_condition_set','gkm_scv_condition_sets')) = 3
       """, baseline_schema) INTO base_ok;
 
       -- current release must have the diff drivers (the trait cascade + SCV diff)
-      -- AND the precomputed changed / removed SCV sets from gks_scv_changed.
+      -- AND the precomputed changed / removed SCV sets from gkm_scv_changed.
       EXECUTE IMMEDIATE FORMAT("""
         SELECT (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES`
                 WHERE table_name IN ('diff_clinical_assertion','diff_trait','diff_trait_set',
@@ -102,19 +102,19 @@ BEGIN
 
       -- version gate — TWO statements. BigQuery resolves table refs at analysis time
       -- and does NOT short-circuit that resolution, so a single combined statement
-      -- referencing {base}.gks_pipeline_version would ERROR (not return FALSE) when a
+      -- referencing {base}.gkm_pipeline_version would ERROR (not return FALSE) when a
       -- pre-feature baseline lacks the stamp — defeating the fail-safe. First confirm
       -- both stamps exist; only then compare gate_key.
       EXECUTE IMMEDIATE FORMAT("""
         SELECT
-          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gks_pipeline_version')=1
+          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gkm_pipeline_version')=1
           AND
-          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gks_pipeline_version')=1
+          (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES` WHERE table_name='gkm_pipeline_version')=1
       """, baseline_schema, rec.schema_name) INTO stamps_exist;
       IF stamps_exist THEN
         EXECUTE IMMEDIATE FORMAT("""
-          SELECT (SELECT gate_key FROM `%s.gks_pipeline_version`)
-               = (SELECT gate_key FROM `%s.gks_pipeline_version`)
+          SELECT (SELECT gate_key FROM `%s.gkm_pipeline_version`)
+               = (SELECT gate_key FROM `%s.gkm_pipeline_version`)
         """, baseline_schema, rec.schema_name) INTO gate_ok;
         -- an empty stamp table yields NULL; NULL-strict so the guard falls back to full
         SET gate_ok = IFNULL(gate_ok, FALSE);
@@ -125,38 +125,38 @@ BEGIN
 
     -----------------------------------------------------------------------
     -- Mode-dependent fragments. In full mode all filters are empty and the
-    -- final assembly writes straight to {S}.gks_scv_condition_sets. In
+    -- final assembly writes straight to {S}.gkm_scv_condition_sets. In
     -- incremental mode the exclusive per-SCV chain + final assembly are filtered
-    -- to scv_changed_ids and the assembly is staged to {P}.stg_gks_scv_condition_sets
+    -- to scv_changed_ids and the assembly is staged to {P}.stg_gkm_scv_condition_sets
     -- for the merge. The two global dicts are NEVER filtered.
     -----------------------------------------------------------------------
     IF eff_incremental THEN
       SET tfilter_cs = 'AND SPLIT(id, ".")[OFFSET(0)] IN (SELECT scv_id FROM `{S}.scv_changed_ids`)';
       SET vfilter_cs = 'WHERE gsts.scv_id IN (SELECT scv_id FROM `{S}.scv_changed_ids`)';
-      SET cs_head = '{CT} {P}.stg_gks_scv_condition_sets';
+      SET cs_head = '{CT} {P}.stg_gkm_scv_condition_sets';
     ELSE
       SET tfilter_cs = '';
       SET vfilter_cs = '';
-      SET cs_head = 'CREATE OR REPLACE TABLE `{S}.gks_scv_condition_sets`';
+      SET cs_head = 'CREATE OR REPLACE TABLE `{S}.gkm_scv_condition_sets`';
     END IF;
 
     -- Clean up any persistent temp tables from a prior debug run
     IF NOT debug THEN
       CALL `clinvar_ingest.cleanup_temp_tables`(rec.schema_name, [
-        'temp_rcv_mapping_traits', 'temp_gks_scv_trait_sets',
+        'temp_rcv_mapping_traits', 'temp_gkm_scv_trait_sets',
         'temp_all_rcv_traits', 'temp_scv_trait_name_xrefs',
         'temp_scv_trait_mappings', 'temp_scv_trait_assignment_stage1',
-        'temp_scv_trait_assignment_stage2', 'stg_gks_scv_condition_sets'
+        'temp_scv_trait_assignment_stage2', 'stg_gkm_scv_condition_sets'
       ]);
     END IF;
 
     -- -----------------------------------------------------------------------
-    -- STEP 1: Create gks_dict_condition (canonical trait representations) — GLOBAL
+    -- STEP 1: Create gkm_dict_condition (canonical trait representations) — GLOBAL
     -- All traits with clinvar.trait:{id} identifiers, with primaryCoding,
     -- mappings (deduplicated by code+system), and aliases extension.
     -- -----------------------------------------------------------------------
-    SET query_gks_dict_condition = REPLACE("""
-      CREATE OR REPLACE TABLE `{S}.gks_dict_condition` AS
+    SET query_gkm_dict_condition = REPLACE("""
+      CREATE OR REPLACE TABLE `{S}.gkm_dict_condition` AS
       WITH traits AS (
         select distinct
           t.id,
@@ -197,7 +197,7 @@ BEGIN
             ) as iris
           ) as mapping
         FROM distinct_trait_xrefs dtxr
-        LEFT JOIN `clinvar_ingest.gks_xref_iri_templates` iri
+        LEFT JOIN `clinvar_ingest.gkm_xref_iri_templates` iri
           ON iri.category = 'Condition'
           AND iri.db = dtxr.db
           AND iri.type IS NOT DISTINCT FROM dtxr.type
@@ -245,10 +245,10 @@ BEGIN
         t.type,
         t.name
     """, '{S}', rec.schema_name);
-    EXECUTE IMMEDIATE query_gks_dict_condition;
+    EXECUTE IMMEDIATE query_gkm_dict_condition;
 
     -- -----------------------------------------------------------------------
-    -- STEP 2: Create temp_rcv_mapping_traits — GLOBAL (feeds temp_gks_scv_trait_sets)
+    -- STEP 2: Create temp_rcv_mapping_traits — GLOBAL (feeds temp_gkm_scv_trait_sets)
     -- -----------------------------------------------------------------------
     SET temp_rcv_mapping_traits_query = REPLACE("""
       {CT} {P}.temp_rcv_mapping_traits
@@ -267,12 +267,12 @@ BEGIN
     EXECUTE IMMEDIATE temp_rcv_mapping_traits_query;
 
     -- -----------------------------------------------------------------------
-    -- STEP 3: Create temp_gks_scv_trait_sets — GLOBAL
-    -- Feeds gks_dict_condition_set (via trait_set_info) AND temp_all_rcv_traits;
+    -- STEP 3: Create temp_gkm_scv_trait_sets — GLOBAL
+    -- Feeds gkm_dict_condition_set (via trait_set_info) AND temp_all_rcv_traits;
     -- must NOT be filtered. Per-SCV filtering happens at the STEP 10 outer alias.
     -- -----------------------------------------------------------------------
-    SET temp_gks_scv_trait_sets_query = REPLACE("""
-      {CT} {P}.temp_gks_scv_trait_sets
+    SET temp_gkm_scv_trait_sets_query = REPLACE("""
+      {CT} {P}.temp_gkm_scv_trait_sets
       AS
         SELECT
           cats.id as scv_id,
@@ -289,14 +289,14 @@ BEGIN
         ON
           rmt.scv_id = cats.id
     """, '{S}', rec.schema_name);
-    SET temp_gks_scv_trait_sets_query = REPLACE(temp_gks_scv_trait_sets_query, '{CT}', temp_create);
-    SET temp_gks_scv_trait_sets_query = REPLACE(temp_gks_scv_trait_sets_query, '{P}', IF(debug, rec.schema_name, '_SESSION'));
+    SET temp_gkm_scv_trait_sets_query = REPLACE(temp_gkm_scv_trait_sets_query, '{CT}', temp_create);
+    SET temp_gkm_scv_trait_sets_query = REPLACE(temp_gkm_scv_trait_sets_query, '{P}', IF(debug, rec.schema_name, '_SESSION'));
 
-    EXECUTE IMMEDIATE temp_gks_scv_trait_sets_query;
+    EXECUTE IMMEDIATE temp_gkm_scv_trait_sets_query;
 
     -- -----------------------------------------------------------------------
     -- STEP 4: Create temp_all_rcv_traits — GLOBAL
-    -- Feeds gks_dict_condition_set AND the (filtered) assignment stages; must NOT
+    -- Feeds gkm_dict_condition_set AND the (filtered) assignment stages; must NOT
     -- be filtered (it is the whole-snapshot RCV trait lookup used by every SCV).
     -- -----------------------------------------------------------------------
     SET temp_all_rcv_traits_query = REPLACE("""
@@ -319,7 +319,7 @@ BEGIN
             ARRAY_AGG(DISTINCT orphanet.id IGNORE NULLS ORDER BY orphanet.id) as orphanet_ids,
             ARRAY_AGG(DISTINCT mesh.id IGNORE NULLS ORDER BY mesh.id) as mesh_ids,
             ARRAY_AGG(DISTINCT sts.scv_id ORDER BY sts.scv_id) as scv_ids
-          from {P}.temp_gks_scv_trait_sets sts
+          from {P}.temp_gkm_scv_trait_sets sts
           cross join unnest(sts.rcv_traits) as t
           left join unnest(t.name) as pref_name
           on
@@ -402,12 +402,12 @@ BEGIN
     EXECUTE IMMEDIATE temp_all_rcv_traits_query;
 
     -- -----------------------------------------------------------------------
-    -- STEP 5: Create gks_dict_condition_set — GLOBAL
+    -- STEP 5: Create gkm_dict_condition_set — GLOBAL
     -- Unique trait sets with clinvar.traitset:{id} identifiers, referencing
     -- member traits via #/traits/clinvar.trait:{trait_id}. Recomputed unfiltered.
     -- -----------------------------------------------------------------------
-    SET query_gks_dict_condition_set = REPLACE("""
-      CREATE OR REPLACE TABLE `{S}.gks_dict_condition_set` AS
+    SET query_gkm_dict_condition_set = REPLACE("""
+      CREATE OR REPLACE TABLE `{S}.gkm_dict_condition_set` AS
       WITH trait_set_traits AS (
         SELECT DISTINCT
           art.rcv_trait_set_id,
@@ -418,7 +418,7 @@ BEGIN
         SELECT DISTINCT
           gsts.rcv_trait_set_id,
           gsts.rcv_trait_set_type
-        FROM {P}.temp_gks_scv_trait_sets gsts
+        FROM {P}.temp_gkm_scv_trait_sets gsts
       )
       SELECT
         FORMAT('clinvar.traitset:%s', tsi.rcv_trait_set_id) AS id,
@@ -439,12 +439,12 @@ BEGIN
         ON art.rcv_trait_set_id = tsi.rcv_trait_set_id AND art.rcv_trait_id = tst.rcv_trait_id
       GROUP BY tsi.rcv_trait_set_id, tsi.rcv_trait_set_type
     """, '{S}', rec.schema_name);
-    SET query_gks_dict_condition_set = REPLACE(query_gks_dict_condition_set, '{P}', IF(debug, rec.schema_name, '_SESSION'));
-    EXECUTE IMMEDIATE query_gks_dict_condition_set;
+    SET query_gkm_dict_condition_set = REPLACE(query_gkm_dict_condition_set, '{P}', IF(debug, rec.schema_name, '_SESSION'));
+    EXECUTE IMMEDIATE query_gkm_dict_condition_set;
 
     -- -----------------------------------------------------------------------
     -- STEP 6: Create temp_scv_trait_name_xrefs — per-SCV ({TFILTER})
-    -- Head of the exclusive chain feeding ONLY gks_scv_condition_sets. Filtering
+    -- Head of the exclusive chain feeding ONLY gkm_scv_condition_sets. Filtering
     -- here on scv id (= SPLIT(cat.id,'.')[0]) propagates the changed-set restriction
     -- through the whole downstream chain (mappings -> stage1 -> stage2).
     -- -----------------------------------------------------------------------
@@ -516,7 +516,7 @@ BEGIN
             stx.id
         )
         -- this statement is responsible for preserving the submitted xref id and db values as well as normalizing
-        --  them so they best match the intended values and subsequently give the best opportunity to match with the gks_dict_condition.xrefs.
+        --  them so they best match the intended values and subsequently give the best opportunity to match with the gkm_dict_condition.xrefs.
         SELECT
           stx.id as cat_id,
           stx.type as cat_type,
@@ -698,7 +698,7 @@ BEGIN
           tm.medgen_id AS tm_medgen_id,
           tm.medgen_name AS tm_medgen_name
         FROM scv_traits st
-        JOIN {P}.temp_gks_scv_trait_sets gsts
+        JOIN {P}.temp_gkm_scv_trait_sets gsts
           ON gsts.scv_id = st.scv_id
         LEFT JOIN trait_mappings tm
           ON  st.scv_id = tm.clinical_assertion_id
@@ -766,7 +766,7 @@ BEGIN
             gt.primaryCoding.code AS mapped_medgen_id,
             IF(gt.trait_id IS NOT NULL, 'trait-mapping-then-submitted-medgen-id', NULL) AS mapped_resolution_type
           FROM medgen_scv_traits mst
-          LEFT JOIN `{S}.gks_dict_condition` gt
+          LEFT JOIN `{S}.gkm_dict_condition` gt
             ON gt.primaryCoding.code = mst.lookup_medgen_id
         ),
         -- Pivot each SCV trait's match key into a row with priority
@@ -1014,7 +1014,7 @@ BEGIN
 
 
     -- -----------------------------------------------------------------------
-    -- STEP 10: Create gks_scv_condition_sets — per-SCV ({VFILTER} on outer alias
+    -- STEP 10: Create gkm_scv_condition_sets — per-SCV ({VFILTER} on outer alias
     -- gsts.scv_id; {CS_HEAD} targets the real table in full mode, a stg temp in
     -- incremental mode).
     -- -----------------------------------------------------------------------
@@ -1053,7 +1053,7 @@ BEGIN
             ) AS condition_struct
           FROM
             {P}.temp_scv_trait_assignment_stage2 scm
-          LEFT JOIN `{S}.gks_dict_condition_set`
+          LEFT JOIN `{S}.gkm_dict_condition_set`
             ts ON FORMAT('clinvar.traitset:%s', scm.rcv_trait_set_id) = ts.id
         ),
         multi_sets AS (
@@ -1096,7 +1096,7 @@ BEGIN
             s.value_submitted_condition
           ) AS extensions
         FROM
-          {P}.temp_gks_scv_trait_sets gsts
+          {P}.temp_gkm_scv_trait_sets gsts
         LEFT JOIN
           multi_sets ms ON ms.scv_id = gsts.scv_id
         LEFT JOIN
@@ -1111,20 +1111,20 @@ BEGIN
     EXECUTE IMMEDIATE query_condition_sets;
 
     -----------------------------------------------------------------------
-    -- Step 10b (incremental only): UNION-CTAS merge gks_scv_condition_sets —
+    -- Step 10b (incremental only): UNION-CTAS merge gkm_scv_condition_sets —
     -- carry forward the unchanged baseline rows and union in the freshly staged
     -- changed rows. Explicit column list so any schema/column-order drift errors
     -- (the version-invalidation signal) instead of silently corrupting. The
-    -- changed / removed sets are the persistent {S} tables from gks_scv_changed.
+    -- changed / removed sets are the persistent {S} tables from gkm_scv_changed.
     -----------------------------------------------------------------------
     IF eff_incremental THEN
       -- NULL-safe anti-join (LEFT JOIN … IS NULL) rather than NOT IN: NOT IN over a
       -- subquery that yields any NULL scv_id goes UNKNOWN for every row -> empty
-      -- carry-forward. Consistent with the gks_scv_changed pattern.
+      -- carry-forward. Consistent with the gkm_scv_changed pattern.
       SET query_merge = REPLACE("""
-        CREATE OR REPLACE TABLE `{S}.gks_scv_condition_sets` AS
+        CREATE OR REPLACE TABLE `{S}.gkm_scv_condition_sets` AS
         SELECT b.scv_id, b.extensions
-        FROM `{BASE}.gks_scv_condition_sets` b
+        FROM `{BASE}.gkm_scv_condition_sets` b
         LEFT JOIN (
           SELECT scv_id FROM `{S}.scv_changed_ids`
           UNION DISTINCT
@@ -1133,7 +1133,7 @@ BEGIN
         WHERE x.scv_id IS NULL
         UNION ALL
         SELECT scv_id, extensions
-        FROM {P}.stg_gks_scv_condition_sets
+        FROM {P}.stg_gkm_scv_condition_sets
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));
       SET query_merge = REPLACE(query_merge, '{S}', rec.schema_name);
@@ -1143,14 +1143,14 @@ BEGIN
     IF NOT debug THEN
 
       DROP TABLE IF EXISTS _SESSION.temp_rcv_mapping_traits;
-      DROP TABLE IF EXISTS _SESSION.temp_gks_scv_trait_sets;
+      DROP TABLE IF EXISTS _SESSION.temp_gkm_scv_trait_sets;
       DROP TABLE IF EXISTS _SESSION.temp_all_rcv_traits;
       DROP TABLE IF EXISTS _SESSION.temp_scv_trait_name_xrefs;
       DROP TABLE IF EXISTS _SESSION.temp_scv_trait_mappings;
       DROP TABLE IF EXISTS _SESSION.temp_scv_trait_assignment_stage1;
       DROP TABLE IF EXISTS _SESSION.temp_scv_trait_assignment_stage2;
       IF eff_incremental THEN
-        DROP TABLE IF EXISTS _SESSION.stg_gks_scv_condition_sets;
+        DROP TABLE IF EXISTS _SESSION.stg_gkm_scv_condition_sets;
       END IF;
 
     END IF;
@@ -1161,16 +1161,16 @@ END;
 
 
 -- Full rebuild (unchanged public signature/behavior)
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_scv_condition_proc`(on_date DATE, debug BOOL)
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_scv_condition_proc`(on_date DATE, debug BOOL)
 BEGIN
-  CALL `clinvar_ingest.gks_scv_condition_build`(on_date, debug, FALSE);
+  CALL `clinvar_ingest.gkm_scv_condition_build`(on_date, debug, FALSE);
 END;
 
 
 -- Incremental rebuild (carry-forward + merge). Guarded: falls back to full when the
 -- baseline is missing/incomplete, the diff drivers / changed sets are missing, or the
 -- pipeline gate mismatches.
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.gks_scv_condition_proc_incremental`(on_date DATE, debug BOOL)
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.gkm_scv_condition_proc_incremental`(on_date DATE, debug BOOL)
 BEGIN
-  CALL `clinvar_ingest.gks_scv_condition_build`(on_date, debug, TRUE);
+  CALL `clinvar_ingest.gkm_scv_condition_build`(on_date, debug, TRUE);
 END;

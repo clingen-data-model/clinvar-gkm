@@ -7,7 +7,7 @@
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------
--- gks_xref_iri_templates
+-- gkm_xref_iri_templates
 -- Maps a database/namespace key and type to one or more IRI templates.
 -- Used wherever xref (db, id) pairs need to be expanded into IRI arrays.
 --
@@ -25,7 +25,7 @@
 --                        (e.g. pattern '\\.' and replacement '#' turns '616101.0002' → '616101#0002')
 --   Note: id_extract_pattern and id_replace_pattern are mutually exclusive per row.
 -- -----------------------------------------------------------------------------
-CREATE OR REPLACE TABLE `clinvar_ingest.gks_xref_iri_templates` (
+CREATE OR REPLACE TABLE `clinvar_ingest.gkm_xref_iri_templates` (
   category STRING NOT NULL,
   db STRING NOT NULL,
   type STRING,
@@ -36,7 +36,7 @@ CREATE OR REPLACE TABLE `clinvar_ingest.gks_xref_iri_templates` (
   id_replacement STRING
 );
 
-INSERT INTO `clinvar_ingest.gks_xref_iri_templates` (category, db, type, system, template, id_extract_pattern)
+INSERT INTO `clinvar_ingest.gkm_xref_iri_templates` (category, db, type, system, template, id_extract_pattern)
 VALUES
   -- Condition / Trait xrefs
   ('Condition', 'MedGen',                   NULL,           'https://www.ncbi.nlm.nih.gov/medgen/', 'https://identifiers.org/medgen:%s',                                NULL),
@@ -114,7 +114,7 @@ VALUES
 ;
 
 -- Rows requiring id_replace_pattern / id_replacement (all 6 columns)
-INSERT INTO `clinvar_ingest.gks_xref_iri_templates` (category, db, type, system, template, id_extract_pattern, id_replace_pattern, id_replacement)
+INSERT INTO `clinvar_ingest.gkm_xref_iri_templates` (category, db, type, system, template, id_extract_pattern, id_replace_pattern, id_replacement)
 VALUES
   ('Variation', 'OMIM',                     'Allelic variant',   'https://www.omim.org/', 'https://www.omim.org/entry/%s',                                    NULL, '\\.', '#')
 ;

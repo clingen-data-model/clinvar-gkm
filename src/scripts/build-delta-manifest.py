@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build manifest.json for a GKS delta release from {dataset}.gks_change_log.
+"""Build manifest.json for a GKS delta release from {dataset}.gkm_change_log.
 
 Usage: build-delta-manifest.py <release_date> <dataset_version> <output_path>
 """
@@ -8,35 +8,35 @@ import os
 import subprocess
 import sys
 
-# dict table_name -> bundle section (mirrors assemble-gks-dicts.py SECTIONS)
+# dict table_name -> bundle section (mirrors assemble-gkm-dicts.py SECTIONS)
 TABLE_SECTION = {
-    "gks_dict_sequence_reference": "sequenceReference",
-    "gks_dict_location": "location",
-    "gks_dict_allele": "allele",
-    "gks_dict_copy_number_count": "copyNumberCount",
-    "gks_dict_copy_number_change": "copyNumberChange",
-    "gks_dict_gene": "gene",
-    "gks_dict_variation": "variation",
-    "gks_dict_condition": "condition",
-    "gks_dict_condition_set": "conditionSet",
-    "gks_dict_submitter": "submitter",
-    "gks_dict_proposition": "proposition",
-    "gks_dict_vcv_proposition": "proposition",
-    "gks_dict_rcv_proposition": "proposition",
-    "gks_dict_evidence_line": "evidenceLine",
-    "gks_dict_vcv_evidence_line": "evidenceLine",
-    "gks_dict_rcv_evidence_line": "evidenceLine",
-    "gks_dict_scv": "scv",
-    "gks_dict_vcv": "vcv",
-    "gks_dict_rcv": "rcv",
+    "gkm_dict_sequence_reference": "sequenceReference",
+    "gkm_dict_location": "location",
+    "gkm_dict_allele": "allele",
+    "gkm_dict_copy_number_count": "copyNumberCount",
+    "gkm_dict_copy_number_change": "copyNumberChange",
+    "gkm_dict_gene": "gene",
+    "gkm_dict_variation": "variation",
+    "gkm_dict_condition": "condition",
+    "gkm_dict_condition_set": "conditionSet",
+    "gkm_dict_submitter": "submitter",
+    "gkm_dict_proposition": "proposition",
+    "gkm_dict_vcv_proposition": "proposition",
+    "gkm_dict_rcv_proposition": "proposition",
+    "gkm_dict_evidence_line": "evidenceLine",
+    "gkm_dict_vcv_evidence_line": "evidenceLine",
+    "gkm_dict_rcv_evidence_line": "evidenceLine",
+    "gkm_dict_scv": "scv",
+    "gkm_dict_vcv": "vcv",
+    "gkm_dict_rcv": "rcv",
 }
 
 # The 3 proposition dicts are delivered as 4 datatype-homogeneous bundle sections (Phase 2), so a
 # proposition change-log row maps to a section by its ROW CONTENT, not just its table. Each key encodes
 # its type code ({scv}-CODE / accession-...-PROPTYPE-...), so a type change is a new key (A) + old key
 # gone (D) — never a group-migrating U — so A/U resolve the group from the CURRENT table and D from the
-# BASELINE table. This CASE mirrors export-gks-dicts.sh PROP_GROUP_CASE + assemble SECTIONS.
-PROP_TABLES = ("gks_dict_proposition", "gks_dict_vcv_proposition", "gks_dict_rcv_proposition")
+# BASELINE table. This CASE mirrors export-gkm-dicts.sh PROP_GROUP_CASE + assemble SECTIONS.
+PROP_TABLES = ("gkm_dict_proposition", "gkm_dict_vcv_proposition", "gkm_dict_rcv_proposition")
 GROUP_SECTION_CASE = """CASE
     WHEN COALESCE(JSON_VALUE(p.value,'$.customPropositionType'), JSON_VALUE(p.value,'$.type')) LIKE 'Clinvar%' THEN 'varcustom-proposition'
     WHEN COALESCE(JSON_VALUE(p.value,'$.customPropositionType'), JSON_VALUE(p.value,'$.type')) = 'VariantOncogenicityProposition' THEN 'vartumor-proposition'
@@ -81,7 +81,7 @@ def main():
     nonprop = [t for t in TABLE_SECTION if t not in PROP_TABLES]
     rows = bq_json(
         f"SELECT table_name, change_type, pk "
-        f"FROM `{ds}.gks_change_log` "
+        f"FROM `{ds}.gkm_change_log` "
         f"WHERE table_name IN ({','.join(repr(t) for t in nonprop)})"
     )
 
@@ -92,7 +92,7 @@ def main():
         f"SELECT key, value FROM `{ds}.{t}`" for t in PROP_TABLES)
     prop_sql = (
         f"SELECT cl.change_type, cl.pk, {GROUP_SECTION_CASE} AS section "
-        f"FROM `{ds}.gks_change_log` cl JOIN ({cur_union}) p ON p.key = cl.pk "
+        f"FROM `{ds}.gkm_change_log` cl JOIN ({cur_union}) p ON p.key = cl.pk "
         f"WHERE cl.table_name IN ({prop_in}) AND cl.change_type IN ('A','U')"
     )
     if baseline:
@@ -101,12 +101,12 @@ def main():
             f"SELECT key, value FROM `{base_ds}.{t}`" for t in PROP_TABLES)
         prop_sql += (
             f" UNION ALL SELECT cl.change_type, cl.pk, {GROUP_SECTION_CASE} AS section "
-            f"FROM `{ds}.gks_change_log` cl JOIN ({base_union}) p ON p.key = cl.pk "
+            f"FROM `{ds}.gkm_change_log` cl JOIN ({base_union}) p ON p.key = cl.pk "
             f"WHERE cl.table_name IN ({prop_in}) AND cl.change_type = 'D'"
         )
     prop_rows = bq_json(prop_sql)
 
-    pv = bq_json(f"SELECT ANY_VALUE(audit_stamp) AS a FROM `{ds}.gks_pipeline_version`")
+    pv = bq_json(f"SELECT ANY_VALUE(audit_stamp) AS a FROM `{ds}.gkm_pipeline_version`")
     pipeline_version = pv[0]["a"] if pv and pv[0].get("a") else None
 
     sections = {}

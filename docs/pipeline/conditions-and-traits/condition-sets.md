@@ -1,8 +1,8 @@
-# Condition Sets (Step 15 of gks_scv_condition_proc)
+# Condition Sets (Step 15 of gkm_scv_condition_proc)
 
 ## Overview
 
-Step 15 of the `clinvar_ingest.gks_scv_condition_proc` procedure assembles individual conditions into structured domain entities for each SCV. SCVs with a single condition produce a `Condition` record; SCVs with multiple conditions produce a `ConditionSet` containing a `concepts` array, `conceptSetType`, and `membershipOperator`. The resulting `gks_scv_condition_sets` table feeds directly into the SCV statement assembly procedure (`gks_scv_statement_proc`), where it becomes the condition component of the full SCV statement.
+Step 15 of the `clinvar_ingest.gkm_scv_condition_proc` procedure assembles individual conditions into structured domain entities for each SCV. SCVs with a single condition produce a `Condition` record; SCVs with multiple conditions produce a `ConditionSet` containing a `concepts` array, `conceptSetType`, and `membershipOperator`. The resulting `gkm_scv_condition_sets` table feeds directly into the SCV statement assembly procedure (`gkm_scv_statement_proc`), where it becomes the condition component of the full SCV statement.
 
 ---
 
@@ -12,13 +12,13 @@ This step executes as a single query with two CTEs.
 
 ### Build Individual Condition Records
 
-The `enriched_conditions` CTE joins each SCV trait from `gks_scv_condition_mapping` with its normalized trait record from `temp_gks_trait`, and uses a `COUNT(*) OVER` window function to classify single vs multi-condition SCVs in one pass. For each condition, the output includes:
+The `enriched_conditions` CTE joins each SCV trait from `gkm_scv_condition_mapping` with its normalized trait record from `temp_gkm_trait`, and uses a `COUNT(*) OVER` window function to classify single vs multi-condition SCVs in one pass. For each condition, the output includes:
 
 - **`id`** — the clinical assertion trait ID (`cat_id`)
 - **`name`** — the CA trait name, falling back to the submitted trait name if the CA name is null
 - **`conceptType`** — the CA trait type
-- **`primaryCoding`** — from the normalized `gks_trait` record (MedGen coding)
-- **`mappings`** — from the normalized `gks_trait` record (non-MedGen cross-references)
+- **`primaryCoding`** — from the normalized `gkm_trait` record (MedGen coding)
+- **`mappings`** — from the normalized `gkm_trait` record (non-MedGen cross-references)
 - **`extensions`** — a concatenation of trait extensions plus condition-specific extensions (see [Condition Extensions](condition-extensions.md) for full field documentation)
 
 ### Build Condition Sets for Multi-Condition SCVs
@@ -33,7 +33,7 @@ The `multi_sets` CTE filters to only multi-condition SCVs (where `trait_count > 
 
 ### Assemble Final Output
 
-The final query joins `temp_gks_scv_trait_sets` with the condition and condition set CTEs to produce one row per SCV with two mutually exclusive fields:
+The final query joins `temp_gkm_scv_trait_sets` with the condition and condition set CTEs to produce one row per SCV with two mutually exclusive fields:
 
 **Single-condition SCVs** populate the `condition` field:
 
@@ -46,7 +46,7 @@ The final query joins `temp_gks_scv_trait_sets` with the condition and condition
 - A `ConditionSet` struct with the concepts array, conceptSetType, membershipOperator, and extensions
 - Extensions include the trait set extensions and the optional `submittedScvTraitSetType`
 
-**Output:** `gks_scv_condition_sets` — one row per SCV with either a `condition` or `conditionSet` field populated. <span class="role-badge badge-pipeline">Pipeline table</span>
+**Output:** `gkm_scv_condition_sets` — one row per SCV with either a `condition` or `conditionSet` field populated. <span class="role-badge badge-pipeline">Pipeline table</span>
 
 ---
 
@@ -60,12 +60,12 @@ See [Condition Extensions](condition-extensions.md) for the complete extension r
 
 | Table | Description | Role |
 | --- | --- | --- |
-| `gks_scv_condition_sets` | Per-SCV condition or condition set with structured codings, mappings, and extensions | <span class="role-badge badge-pipeline">Pipeline table</span> |
+| `gkm_scv_condition_sets` | Per-SCV condition or condition set with structured codings, mappings, and extensions | <span class="role-badge badge-pipeline">Pipeline table</span> |
 
 ---
 
 ## Dependencies
 
-- **Source Tables**: `gks_scv_condition_mapping` (persistent), `temp_gks_trait` (internal), `temp_gks_scv_trait_sets` (internal)
+- **Source Tables**: `gkm_scv_condition_mapping` (persistent), `temp_gkm_trait` (internal), `temp_gkm_scv_trait_sets` (internal)
 - **Upstream Steps**: Step 1 (Traits), Steps 2–14 (Condition Mapping)
-- **Downstream Consumers**: `gks_scv_statement_proc`
+- **Downstream Consumers**: `gkm_scv_statement_proc`

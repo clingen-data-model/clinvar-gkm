@@ -14,7 +14,7 @@
 # path (datasets/parquet/{YYYY-MM}/ or archives/{YYYY}/parquet/{YYYY-MM}/).
 #
 # The 00-latest pointers (JSON and Parquet) are NOT updated — this is a backfill, not the
-# most recent release. Run the normal upload-gks-to-r2.sh for current releases.
+# most recent release. Run the normal upload-gkm-to-r2.sh for current releases.
 #
 # Usage:
 #   ./backfill-monthly-to-r2.sh <export_date> <dataset_version> <bundle_file> [--dry-run] [--parquet-dir=DIR]

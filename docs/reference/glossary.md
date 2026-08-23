@@ -204,7 +204,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   VCV/RCV statement-level classification attribute. Contains a single aggregate label with optional `conflictingExplanation` extension. The classification lives only on the statement, not on the proposition.
 
 **objectCondition**
-:   VCV/RCV proposition attribute. Contains the unique condition(s) associated with the aggregate statement. For VCV, this is a single MappableConcept or an OR ConceptSet of distinct conditions from contributing SCVs. For RCV, this is the condition sourced from `gks_scv_condition_sets` — either a `Condition` MappableConcept or a `ConditionSet` ConceptSet. Extensions excluded.
+:   VCV/RCV proposition attribute. Contains the unique condition(s) associated with the aggregate statement. For VCV, this is a single MappableConcept or an OR ConceptSet of distinct conditions from contributing SCVs. For RCV, this is the condition sourced from `gkm_scv_condition_sets` — either a `Condition` MappableConcept or a `ConditionSet` ConceptSet. Extensions excluded.
 
 ---
 
@@ -261,7 +261,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   Google Cloud Platform data warehouse used for all ClinVar-GKM SQL procedures and table storage.
 
 **Stored Procedure**
-:   BigQuery SQL routine executing a specific pipeline step (e.g., `gks_catvar_proc`, `gks_vcv_proc`).
+:   BigQuery SQL routine executing a specific pipeline step (e.g., `gkm_catvar_proc`, `gkm_vcv_proc`).
 
 ---
 
