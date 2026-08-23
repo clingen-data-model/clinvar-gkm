@@ -6,7 +6,7 @@
 
 A proposition for ClinVar submissions where the submitter did not provide a clinical classification. These submissions still carry variant-condition associations but lack a formal pathogenicity or clinical significance assessment.
 
-**JSON Schema:** [ClinvarNotProvidedProposition](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/ClinvarNotProvidedProposition){ target=_blank }
+**JSON Schema:** [ClinvarNotProvidedProposition](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarNotProvidedProposition){ target=_blank }
 
 Some ClinvarNotProvidedProposition attributes are inherited from `ClinvarGermlineCustomProposition`.
 

@@ -18,7 +18,7 @@ SCV statements support 12 proposition types across four categories:
 
 See [Propositions](propositions.md) for the full type/code/predicate reference.
 
-**JSON Schema:** [ClinvarScvStatement](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/ClinvarScvStatement){ target=_blank }
+**JSON Schema:** [ClinvarScvStatement](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarScvStatement){ target=_blank }
 
 Some ClinvarScvStatement attributes are inherited from `Statement`, `ClinvarScvStatementProperties`.
 

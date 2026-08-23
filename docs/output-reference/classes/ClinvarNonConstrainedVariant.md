@@ -6,7 +6,7 @@
 
 A ClinVar variant that cannot be mapped to a specific VRS allele or location — haplotypes, genotypes, and other complex or ambiguously defined variants. These rely solely on the ClinVar variation ID and use the generalized Cat-VRS CategoricalVariant without VRS constraints.
 
-**JSON Schema:** [ClinvarNonConstrainedVariant](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/ClinvarNonConstrainedVariant){ target=_blank }
+**JSON Schema:** [ClinvarNonConstrainedVariant](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarNonConstrainedVariant){ target=_blank }
 
 Some ClinvarNonConstrainedVariant attributes are inherited from `CategoricalVariant`, `ClinvarCategoricalVariantProperties`.
 

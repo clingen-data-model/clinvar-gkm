@@ -6,7 +6,7 @@
 
 A proposition for ClinVar submissions where the submitter's data conflicts with other submitters' data for the same variant-condition pair. Used for submissions classified as "conflicting data from submitters".
 
-**JSON Schema:** [ClinvarConflictingDataFromSubmitterProposition](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/ClinvarConflictingDataFromSubmitterProposition){ target=_blank }
+**JSON Schema:** [ClinvarConflictingDataFromSubmitterProposition](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarConflictingDataFromSubmitterProposition){ target=_blank }
 
 Some ClinvarConflictingDataFromSubmitterProposition attributes are inherited from `ClinvarGermlineCustomProposition`.
 

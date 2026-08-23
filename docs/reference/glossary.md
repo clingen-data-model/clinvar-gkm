@@ -1,6 +1,6 @@
 # Glossary
 
-Key terms, acronyms, and concepts used throughout the ClinVar-GKS documentation.
+Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 
 ---
 
@@ -258,7 +258,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKS documentation.
 :   Standard format (RFC 6901) for referencing nested JSON values. Used in somatic target propositions (e.g., `4/proposition/subjectVariant`).
 
 **BigQuery**
-:   Google Cloud Platform data warehouse used for all ClinVar-GKS SQL procedures and table storage.
+:   Google Cloud Platform data warehouse used for all ClinVar-GKM SQL procedures and table storage.
 
 **Stored Procedure**
 :   BigQuery SQL routine executing a specific pipeline step (e.g., `gks_catvar_proc`, `gks_vcv_proc`).

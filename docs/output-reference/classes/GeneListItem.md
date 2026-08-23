@@ -6,7 +6,7 @@
 
 A complex structure for sharing individual Gene entries associated with Clinvar Variations including `entrez_gene_id`, `hgnc_id`, `symbol`, `relationship_type`, `source`, and `iris`.
 
-**JSON Schema:** [GeneListItem](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/GeneListItem){ target=_blank }
+**JSON Schema:** [GeneListItem](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/GeneListItem){ target=_blank }
 
 ## Information Model
 

@@ -1,6 +1,6 @@
 # Pipeline Overview
 
-The ClinVar-GKS pipeline transforms ClinVar XML release data into GA4GH GKS format through a series of BigQuery stored procedures with an external VRS Python processing step.
+The ClinVar-GKM pipeline transforms ClinVar XML release data into GA4GH GKS format through a series of BigQuery stored procedures with an external VRS Python processing step.
 
 The two most expensive stages — [Variation Identity](variation-identity/index.md) and [VRS Processing](vrs-processing.md) — support **incremental** processing: they recompute only the variations that changed since the prior release and carry the rest forward, driven by the release-to-release diff (`dataset_diff_on`). The remaining stored procedures currently run as full rebuilds each release.
 
@@ -79,7 +79,7 @@ The whole release can be run end-to-end with the `run-release.sh` orchestrator, 
 ./src/scripts/run-release.sh YYYY-MM-DD --start-step 5   # resume from a stage (1-5)
 ```
 
-`--full` propagates version-invalidation across stages 1–2; use it for the first release or after a `variation_identity` transform change or a vrsify-pin bump. `--dry-run` runs the build stages but has the final release stage only print what it would upload — use it for test runs. The vrsify stage (stage 3) requires local SeqRepo / UTA / gene-normalizer services — see [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gks/tree/main/src/vrsify) — so on hosts without them, run the BigQuery-side stages with `--start-step` and run vrsify separately.
+`--full` propagates version-invalidation across stages 1–2; use it for the first release or after a `variation_identity` transform change or a vrsify-pin bump. `--dry-run` runs the build stages but has the final release stage only print what it would upload — use it for test runs. The vrsify stage (stage 3) requires local SeqRepo / UTA / gene-normalizer services — see [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/src/vrsify) — so on hosts without them, run the BigQuery-side stages with `--start-step` and run vrsify separately.
 
 The individual stages are documented below.
 
@@ -130,10 +130,10 @@ Steps 1 and 2 can also be run individually. Steps 3–4 (Parquet download, shard
 
 ```bash
 # 1. Export dictionary tables to GCS (NDJSON + Parquet)
-./src/scripts/export-gks-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gks gks-dicts
+./src/scripts/export-gks-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gkm gks-dicts
 
 # 2. Assemble NDJSON into JSON bundle
-python3 ./src/scripts/assemble-gks-dicts.py gs://clinvar-gks/gks-dicts/ 2026-06-14
+python3 ./src/scripts/assemble-gks-dicts.py gs://clinvar-gkm/gks-dicts/ 2026-06-14
 
 # 3-4. Download Parquet, merge shards, upload to R2
 ./src/scripts/release-gks.sh 2026-06-14 v2_5_0 --start-step=3

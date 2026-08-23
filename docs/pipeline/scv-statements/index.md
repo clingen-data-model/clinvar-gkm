@@ -95,4 +95,4 @@ Final assembly of VA-Spec Statement records. Joins SCV records with propositions
 
 ## Examples
 
-See [SCV statement examples](https://github.com/clingen-data-model/clinvar-gks/tree/main/examples/scv) in the repository for annotated JSONC examples covering pathogenicity, oncogenicity, somatic clinical impact, and therapeutic response statement types.
+See [SCV statement examples](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples/scv) in the repository for annotated JSONC examples covering pathogenicity, oncogenicity, somatic clinical impact, and therapeutic response statement types.

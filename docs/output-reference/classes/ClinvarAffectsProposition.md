@@ -6,7 +6,7 @@
 
 A proposition describing a variant that affects a condition without implying causality. Used for ClinVar submissions classified as "affects". ClinVar has stopped accepting new submissions with this classification, but historical submissions remain.
 
-**JSON Schema:** [ClinvarAffectsProposition](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/ClinvarAffectsProposition){ target=_blank }
+**JSON Schema:** [ClinvarAffectsProposition](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarAffectsProposition){ target=_blank }
 
 Some ClinvarAffectsProposition attributes are inherited from `ClinvarGermlineCustomProposition`.
 

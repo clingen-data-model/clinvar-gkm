@@ -288,4 +288,4 @@ The `submittedConditionSet` extension captures provenance for multi-condition su
 
 Annotated JSONC examples of SCV statement records are available in the repository:
 
-- [SCV statement examples](https://github.com/clingen-data-model/clinvar-gks/tree/main/examples/scv) — pathogenicity, oncogenicity, somatic clinical impact, therapeutic response, and other statement types
+- [SCV statement examples](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples/scv) — pathogenicity, oncogenicity, somatic clinical impact, therapeutic response, and other statement types

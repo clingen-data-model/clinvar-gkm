@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# run-release.sh — end-to-end ClinVar-GKS release pipeline for a single release date.
+# run-release.sh — end-to-end ClinVar-GKM release pipeline for a single release date.
 #
 # Chains the five stages that turn an ingested ClinVar release into published GKS output:
 # Stage 0 (dataset_diff_on) runs ahead of stage 1 to build the {S}.diff_* drivers, and a

@@ -16,7 +16,7 @@ VRS resolution is performed by the [clinvar-gk-python](https://github.com/clinge
 
 ### Step 1: Export `variation_identity` from BigQuery
 
-The `variation_identity` table is exported to Google Cloud Storage as gzipped NDJSON at `gs://clinvar-gks/YYYY-MM-DD/dev/vi.jsonl.gz`.
+The `variation_identity` table is exported to Google Cloud Storage as gzipped NDJSON at `gs://clinvar-gkm/YYYY-MM-DD/dev/vi.jsonl.gz`.
 
 ```bash
 ./src/scripts/export-vi-table-to-gcs.sh YYYY-MM-DD          # incremental (default)
@@ -55,8 +55,8 @@ This job is normally invoked by the `src/scripts/vrs-to-bq-table.sh` orchestrato
 
 ```bash
 gcloud run jobs execute vrs-to-vi-location-transformer \
-  --args "gs://clinvar-gks/YYYY-MM-DD/dev/vi-normalized-no-liftover.jsonl.gz" \
-  --args "gs://clinvar-gks/YYYY-MM-DD/dev/vi-final.jsonl.gz" \
+  --args "gs://clinvar-gkm/YYYY-MM-DD/dev/vi-normalized-no-liftover.jsonl.gz" \
+  --args "gs://clinvar-gkm/YYYY-MM-DD/dev/vi-final.jsonl.gz" \
   --wait --region us-east1
 ```
 
@@ -100,7 +100,7 @@ The `out.location` record includes the flattened position fields: `start`, `end`
 !!! warning "Limited Scope"
     VRS processing currently resolves only the **single best expression** per variation — the defining allele for each Canonical Allele as selected by the [precedence hierarchy](variation-identity/index.md#precedence-hierarchy). Only variations that vrs-python can handle are successfully resolved; the remainder carry errors in the output.
 
-The full release now runs from a single command — `src/scripts/run-release.sh` chains variation identity, the export, this vrsify stage (via `src/vrsify/vrsify.sh`), and the transform/load/procedures/publish stages. See [Single-command run](index.md#single-command-run). The vrsify resolver is installed as a pinned dependency rather than forked (see [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gks/tree/main/src/vrsify)); it still requires the local SeqRepo / UTA / gene-normalizer services.
+The full release now runs from a single command — `src/scripts/run-release.sh` chains variation identity, the export, this vrsify stage (via `src/vrsify/vrsify.sh`), and the transform/load/procedures/publish stages. See [Single-command run](index.md#single-command-run). The vrsify resolver is installed as a pinned dependency rather than forked (see [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/src/vrsify)); it still requires the local SeqRepo / UTA / gene-normalizer services.
 
 One area of improvement remains planned:
 

@@ -1,0 +1,48 @@
+{
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarProposition",
+   "title": "ClinvarProposition",
+   "description": "Any proposition type valid in ClinVar-GKM statements. Includes the GA4GH standard proposition types (pathogenicity, oncogenicity, clinical significance) and ClinVar-specific proposition types for submission categories not covered by the GA4GH specifications.",
+   "maturity": "draft",
+   "oneOf": [
+      {
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarAffectsProposition"
+      },
+      {
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarAssociationProposition"
+      },
+      {
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarConfersSensitivityProposition"
+      },
+      {
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarConflictingDataFromSubmitterProposition"
+      },
+      {
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarDrugResponseProposition"
+      },
+      {
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarNotProvidedProposition"
+      },
+      {
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarOtherProposition"
+      },
+      {
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarProtectiveProposition"
+      },
+      {
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarRiskFactorProposition"
+      },
+      {
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarUndefinedProposition"
+      },
+      {
+         "$ref": "/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.2/base/json/VariantClinicalSignificanceProposition"
+      },
+      {
+         "$ref": "/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.2/base/json/VariantOncogenicityProposition"
+      },
+      {
+         "$ref": "/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.2/base/json/VariantPathogenicityProposition"
+      }
+   ]
+}

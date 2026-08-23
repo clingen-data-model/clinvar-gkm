@@ -129,4 +129,4 @@ Converts the structured records from `gks_catvar_pre` into JSON format using `TO
 
 ## Examples
 
-See [Cat-VRS examples](https://github.com/clingen-data-model/clinvar-gks/tree/main/examples/cat-vrs) in the repository for annotated JSONC examples of the output records.
+See [Cat-VRS examples](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples/cat-vrs) in the repository for annotated JSONC examples of the output records.

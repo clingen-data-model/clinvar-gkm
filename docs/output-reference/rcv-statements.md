@@ -149,4 +149,4 @@ See [RCV Procedures](../pipeline/rcv-statements/rcv-proc.md) for implementation 
 
 Annotated JSONC examples of RCV statement records are available in the repository:
 
-- [RCV statement examples](https://github.com/clingen-data-model/clinvar-gks/tree/main/examples/rcv)
+- [RCV statement examples](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples/rcv)

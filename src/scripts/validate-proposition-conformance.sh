@@ -4,7 +4,7 @@
 # over the SCV+RCV+VCV proposition dicts + the condition conceptType enum for a release.
 #
 # This is a STRUCTURAL gate (field mutual-exclusivity, discriminator correctness, no residual
-# arrays, valid conceptType enum). A full JSON-Schema validation against schema/clinvar-gks/json/*
+# arrays, valid conceptType enum). A full JSON-Schema validation against schema/clinvar-gkm/json/*
 # is a recommended follow-on (resolves clinvar + va-spec $refs; e.g. check-jsonschema over a sample).
 #
 # Usage: ./validate-proposition-conformance.sh <release_date> <dataset_version>   (project clingen-dev)

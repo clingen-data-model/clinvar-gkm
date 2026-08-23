@@ -1,6 +1,6 @@
 # Output Reference
 
-The ClinVar-GKS pipeline produces a single compressed JSON file per release, containing all variant representations, clinical classification statements, and supporting reference data. This section documents the output from a **consumer perspective** — how the file is structured, what each section contains, and how to interpret the data.
+The ClinVar-GKM pipeline produces a single compressed JSON file per release, containing all variant representations, clinical classification statements, and supporting reference data. This section documents the output from a **consumer perspective** — how the file is structured, what each section contains, and how to interpret the data.
 
 For details on how the output is built, see the [Pipeline](../pipeline/index.md) documentation.
 

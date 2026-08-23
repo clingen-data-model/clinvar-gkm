@@ -20,7 +20,7 @@ Evidence lines at each layer reference either SCV submissions or lower-level VCV
 
 VCV statements use the same 12 proposition types as SCV statements. See [ClinvarScvStatement — Proposition Types](ClinvarScvStatement.md#proposition-types) for the full list.
 
-**JSON Schema:** [ClinvarVcvStatement](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/ClinvarVcvStatement){ target=_blank }
+**JSON Schema:** [ClinvarVcvStatement](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarVcvStatement){ target=_blank }
 
 Some ClinvarVcvStatement attributes are inherited from `Statement`, `ClinvarAggregateStatementProperties`.
 

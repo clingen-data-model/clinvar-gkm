@@ -6,7 +6,7 @@
 
 A proposition describing a variant that confers sensitivity to a condition or environmental factor. Used for ClinVar submissions classified as "confers sensitivity". ClinVar has stopped accepting new submissions with this classification, but historical submissions remain.
 
-**JSON Schema:** [ClinvarConfersSensitivityProposition](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/ClinvarConfersSensitivityProposition){ target=_blank }
+**JSON Schema:** [ClinvarConfersSensitivityProposition](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarConfersSensitivityProposition){ target=_blank }
 
 Some ClinvarConfersSensitivityProposition attributes are inherited from `ClinvarGermlineCustomProposition`.
 

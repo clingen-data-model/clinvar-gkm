@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Export a release's variation_identity to gs://clinvar-gks/<date>/dev/vi.jsonl.gz
+# Export a release's variation_identity to gs://clinvar-gkm/<date>/dev/vi.jsonl.gz
 # for vrs-python normalization (clinvar-gk-python `misc/clinvar-vrsification`).
 #
 # Default is INCREMENTAL: only the variations whose variation_identity changed
@@ -18,7 +18,7 @@ set -o nounset
 set -o pipefail
 
 PROJECT_ID='clingen-dev'
-BUCKET_NAME='clinvar-gks'
+BUCKET_NAME='clinvar-gkm'
 
 DATE="${1:?Usage: $0 YYYY-MM-DD [--full]}"
 MODE="${2:-}"

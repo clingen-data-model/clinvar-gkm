@@ -2,13 +2,13 @@
 
 ## Overview
 
-The ClinVar-GKS bundle uses typed identifiers and `#/` JSON pointer references to link objects across bundle sections. This page documents all identifier formats, reference patterns, and how to resolve them.
+The ClinVar-GKM bundle uses typed identifiers and `#/` JSON pointer references to link objects across bundle sections. This page documents all identifier formats, reference patterns, and how to resolve them.
 
 ---
 
 ## Identifier Namespaces
 
-All ClinVar-GKS identifiers use a prefix namespace to indicate the resource type:
+All ClinVar-GKM identifiers use a prefix namespace to indicate the resource type:
 
 | Prefix | Resource Type | Format | Example |
 | --- | --- | --- | --- |
@@ -83,7 +83,7 @@ import gzip
 import json
 
 # Load the bundle
-with gzip.open("clinvar-gks_00-latest.json.gz", "rt") as f:
+with gzip.open("clinvar-gkm_00-latest.json.gz", "rt") as f:
     bundle = json.load(f)
 
 def resolve(bundle, ref):

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Release ClinVar-GKS: export from BigQuery, assemble bundle, upload to R2.
+# Release ClinVar-GKM: export from BigQuery, assemble bundle, upload to R2.
 #
 # Combines four pipeline steps into a single command:
 #   1. export-gks-dicts.sh  — export dictionary tables to GCS as NDJSON + Parquet
@@ -61,7 +61,7 @@ if ! [[ "$START_STEP" =~ ^[1-4]$ ]]; then
 fi
 
 # --- Configuration ---
-GCS_BUCKET="clinvar-gks"
+GCS_BUCKET="clinvar-gkm"
 GCS_DICTS_PREFIX="gks-dicts"
 GCS_DICTS_PATH="gs://${GCS_BUCKET}/${GCS_DICTS_PREFIX}"
 GCS_PARQUET_PREFIX="${GCS_DICTS_PREFIX}-parquet"
@@ -77,10 +77,10 @@ else
   PYTHON="python3"
 fi
 
-BUNDLE_FILE="/tmp/clinvar-gks-${EXPORT_DATE}.json.gz"
-PARQUET_DIR="/tmp/clinvar-gks-${EXPORT_DATE}-parquet"
+BUNDLE_FILE="/tmp/clinvar-gkm-${EXPORT_DATE}.json.gz"
+PARQUET_DIR="/tmp/clinvar-gkm-${EXPORT_DATE}-parquet"
 
-echo "=== ClinVar-GKS Release Pipeline ==="
+echo "=== ClinVar-GKM Release Pipeline ==="
 echo "  Release date:  ${EXPORT_DATE}"
 echo "  Version:       ${DATASET_VERSION}"
 echo "  BQ dataset:    ${BQ_DATASET}"

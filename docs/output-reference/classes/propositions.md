@@ -6,13 +6,13 @@ A proposition defines what a statement asserts — the relationship between a va
 - **Predicate** — the relationship type (e.g., `isCausalFor`, `isOncogenicFor`)
 - **Object** (`objectCondition`) — a condition, disease, or phenotype
 
-The [ClinvarProposition](ClinvarProposition.md) union type encompasses all 12 proposition types valid in ClinVar-GKS.
+The [ClinvarProposition](ClinvarProposition.md) union type encompasses all 12 proposition types valid in ClinVar-GKM.
 
 ---
 
 ## Proposition Types
 
-ClinVar-GKS uses 12 proposition types: 3 from the GA4GH VA-Spec standard and 9 defined specifically for ClinVar submission categories.
+ClinVar-GKM uses 12 proposition types: 3 from the GA4GH VA-Spec standard and 9 defined specifically for ClinVar submission categories.
 
 ### GA4GH Standard Types
 

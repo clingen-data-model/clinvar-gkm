@@ -1,6 +1,6 @@
 # Data Access
 
-ClinVar-GKS is distributed as a **monthly full bundle** plus **weekly deltas**, synchronized with ClinVar's XML releases. Each is a gzip-compressed JSON file with typed Parquet (one file per section). The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
+ClinVar-GKM is distributed as a **monthly full bundle** plus **weekly deltas**, synchronized with ClinVar's XML releases. Each is a gzip-compressed JSON file with typed Parquet (one file per section). The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
 
 ---
 
@@ -9,14 +9,14 @@ ClinVar-GKS is distributed as a **monthly full bundle** plus **weekly deltas**, 
 Download the most recent monthly full bundle:
 
 ```bash
-curl -O https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/datasets/clinvar-gks_00-latest.json.gz
+curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/clinvar-gkm_00-latest.json.gz
 ```
 
 Download the most recent weekly delta and its manifest:
 
 ```bash
-curl -O https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/deltas/00-latest/clinvar-gks-delta_00-latest.json.gz
-curl -O https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/deltas/00-latest/manifest.json
+curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
+curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/manifest.json
 ```
 
 The full bundle is a single JSON object containing all bundle sections — variations, statements, propositions, conditions, and supporting reference data. A delta uses the same section structure but carries only the records added or updated since its baseline release. Typed Parquet files (one per section) accompany both — dated monthly full sets at `datasets/parquet/<yyyy-mm>/` (with a stable `datasets/parquet/00-latest/`) and weekly delta sets at `deltas/<yyyy-mmdd>/parquet/`. See [Output Format](../output-reference/overview.md) for the complete structure and [Downloads](download.md) for the consumer replay model and the full Parquet list.
@@ -29,7 +29,7 @@ The full bundle is a single JSON object containing all bundle sections — varia
 - **Monthly full bundles** are published once a month under `datasets/` — the full corresponds to the last release of a month, published retroactively when the next month's first release runs
 - At the start of each year, the previous year's monthly full bundles and dated Parquet month sets move to `archives/`
 
-The stable filenames `clinvar-gks_00-latest.json.gz` (monthly full) and `clinvar-gks-delta_00-latest.json.gz` (weekly delta) always point to the most recent full and delta respectively.
+The stable filenames `clinvar-gkm_00-latest.json.gz` (monthly full) and `clinvar-gkm-delta_00-latest.json.gz` (weekly delta) always point to the most recent full and delta respectively.
 
 ---
 
@@ -37,8 +37,8 @@ The stable filenames `clinvar-gks_00-latest.json.gz` (monthly full) and `clinvar
 
 ```text
 datasets/
-  clinvar-gks_00-latest.json.gz              latest monthly full bundle
-  clinvar-gks_yyyy-mm.json.gz                monthly full bundles (current year)
+  clinvar-gkm_00-latest.json.gz              latest monthly full bundle
+  clinvar-gkm_yyyy-mm.json.gz                monthly full bundles (current year)
 
 datasets/parquet/00-latest/
   {section}.parquet                          typed Parquet for the latest monthly full (stable URL)
@@ -47,17 +47,17 @@ datasets/parquet/yyyy-mm/
   {section}.parquet                          typed Parquet for a specific monthly full (current year)
 
 deltas/00-latest/
-  clinvar-gks-delta_00-latest.json.gz        latest weekly delta bundle
+  clinvar-gkm-delta_00-latest.json.gz        latest weekly delta bundle
   manifest.json                              latest delta manifest
   parquet/{section}.parquet                  typed Parquet for the latest delta
 
 deltas/yyyy-mmdd/
-  clinvar-gks-delta_yyyy-mmdd.json.gz        weekly delta bundle (added + updated records)
+  clinvar-gkm-delta_yyyy-mmdd.json.gz        weekly delta bundle (added + updated records)
   manifest.json                              per-release change manifest
   parquet/{section}.parquet                  typed Parquet for the changed records
 
 archives/{yyyy}/
-  clinvar-gks_yyyy-mm.json.gz                monthly full bundles from prior years
+  clinvar-gkm_yyyy-mm.json.gz                monthly full bundles from prior years
   parquet/yyyy-mm/{section}.parquet          typed Parquet month sets from prior years
 ```
 
@@ -65,7 +65,7 @@ archives/{yyyy}/
 
 ## Release Notes
 
-Pipeline changes that affect the structure or content of the output are documented in the `release_notes/` directory. These notes cover additions, bug fixes, or schema changes specific to the ClinVar-GKS pipeline — they do not replicate ClinVar's own release notes.
+Pipeline changes that affect the structure or content of the output are documented in the `release_notes/` directory. These notes cover additions, bug fixes, or schema changes specific to the ClinVar-GKM pipeline — they do not replicate ClinVar's own release notes.
 
 ---
 

@@ -1,6 +1,6 @@
 # Statements
 
-ClinVar-GKS statements are profiles of the GA4GH [VA-Spec Statement](https://va-spec.ga4gh.org/) type. They exist at three levels of aggregation, each carrying a [ClinvarProposition](ClinvarProposition.md) that defines what is being asserted.
+ClinVar-GKM statements are profiles of the GA4GH [VA-Spec Statement](https://va-spec.ga4gh.org/) type. They exist at three levels of aggregation, each carrying a [ClinvarProposition](ClinvarProposition.md) that defines what is being asserted.
 
 The [ClinvarStatement](ClinvarStatement.md) union type encompasses all three:
 

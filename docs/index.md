@@ -1,12 +1,12 @@
-# ClinVar-GKS
+# ClinVar-GKM
 
-ClinVar-GKS provides a standardized, machine-readable representation of [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) release data using the [GA4GH Genomic Knowledge Standards](https://www.ga4gh.org/genomic-knowledge-standards/) (GKS). It is developed and maintained by the [ClinGen](https://clinicalgenome.org/) driver project.
+ClinVar-GKM provides a standardized, machine-readable representation of [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) release data using the [GA4GH Genomic Knowledge Standards](https://www.ga4gh.org/genomic-knowledge-standards/) (GKS). It is developed and maintained by the [ClinGen](https://clinicalgenome.org/) driver project.
 
-## Why ClinVar-GKS
+## Why ClinVar-GKM
 
 ClinVar is one of the most widely used public archives of human genetic variation and its relationship to disease. However, the native ClinVar XML format presents challenges for programmatic consumption — inconsistent structures, deeply nested records, and representations that do not align with emerging genomic data standards.
 
-ClinVar-GKS addresses these challenges by transforming every ClinVar release into a consistent, semantically rich format built on GA4GH specifications:
+ClinVar-GKM addresses these challenges by transforming every ClinVar release into a consistent, semantically rich format built on GA4GH specifications:
 
 - **Normalized variant identifiers** — Every variant receives a computable [VRS](https://vrs.ga4gh.org/) identifier, enabling unambiguous cross-system matching
 - **Categorical variant representations** — Variants are represented as [Cat-VRS](https://cat-vrs.readthedocs.io/) categorical variants with defining allele constraints and expressions
@@ -32,7 +32,7 @@ Items marked **Planned** are not currently included in the v1 release. If this d
 !!! note "Functional Data Submissions"
     Functional data is submitted to ClinVar as an SCV and may or may not be associated with a germline or somatic classification record. Functional data SCVs are excluded from the v1 release regardless of whether they are linked to a classification SCV. They will be included in a future release when functional data support is added.
 
-Feedback and feature requests are welcome via the [GitHub issue tracker](https://github.com/clingen-data-model/clinvar-gks/issues).
+Feedback and feature requests are welcome via the [GitHub issue tracker](https://github.com/clingen-data-model/clinvar-gkm/issues).
 
 New releases are produced within a day or two after ClinVar's XML releases and are intended to be synchronized with ClinVar's release dates.
 
@@ -40,7 +40,7 @@ New releases are produced within a day or two after ClinVar's XML releases and a
 
 - **Variant scientists** seeking a clear, consistent representation of ClinVar classifications with explicit propositions, conditions, and evidence
 - **Platform engineers** building systems that consume ClinVar data and need a structured, well-documented format for integration
-- **GA4GH implementers** using ClinVar-GKS as a real-world validation of VRS, Cat-VRS, and VA-Spec schemas
+- **GA4GH implementers** using ClinVar-GKM as a real-world validation of VRS, Cat-VRS, and VA-Spec schemas
 
 ---
 
@@ -48,14 +48,14 @@ New releases are produced within a day or two after ClinVar's XML releases and a
 
 ### Download the Latest Release
 
-The latest ClinVar-GKS release is available as a single compressed JSON file:
+The latest ClinVar-GKM release is available as a single compressed JSON file:
 
 ```bash
 # Download the latest monthly release
-curl -O https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/datasets/clinvar-gks_00-latest.json.gz
+curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/clinvar-gkm_00-latest.json.gz
 
 # Decompress
-gunzip clinvar-gks_00-latest.json.gz
+gunzip clinvar-gkm_00-latest.json.gz
 ```
 
 ### What's in the File
@@ -110,7 +110,7 @@ The SCV statements for this variant reference it via `#/variation/clinvar:10` in
 
 ### Key Concepts
 
-**Statements** are the core unit of ClinVar-GKS. Each statement represents a classification — either submitted (SCV), aggregated per variation (VCV), or aggregated per condition (RCV). Statements carry:
+**Statements** are the core unit of ClinVar-GKM. Each statement represents a classification — either submitted (SCV), aggregated per variation (VCV), or aggregated per condition (RCV). Statements carry:
 
 - A **classification** — the clinical significance label (e.g., Pathogenic, Likely benign)
 - A **proposition** — what the classification asserts (variant X causes condition Y)
@@ -126,7 +126,7 @@ The SCV statements for this variant reference it via `#/variation/clinvar:10` in
 
 ## Data Access
 
-ClinVar-GKS is distributed as a **monthly full bundle** plus **weekly deltas**. Each is a gzip-compressed JSON file with typed Parquet (one file per section). The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
+ClinVar-GKM is distributed as a **monthly full bundle** plus **weekly deltas**. Each is a gzip-compressed JSON file with typed Parquet (one file per section). The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
 
 ### Release Schedule
 
@@ -134,21 +134,21 @@ ClinVar-GKS is distributed as a **monthly full bundle** plus **weekly deltas**. 
 - **Monthly full bundles** are published once a month under `datasets/` — the full corresponds to the last release of a month and is published retroactively when the next month's first release runs
 - At the start of each year, the previous year's monthly full bundles move to `archives/`
 
-The stable filenames `clinvar-gks_00-latest.json.gz` (monthly full) and `clinvar-gks-delta_00-latest.json.gz` (weekly delta) always point to the most recent full and delta respectively. To reconstruct the current state, take the latest monthly full and replay the weekly deltas published since it.
+The stable filenames `clinvar-gkm_00-latest.json.gz` (monthly full) and `clinvar-gkm-delta_00-latest.json.gz` (weekly delta) always point to the most recent full and delta respectively. To reconstruct the current state, take the latest monthly full and replay the weekly deltas published since it.
 
 ### Downloads
 
 Download the most recent monthly full bundle:
 
 ```bash
-curl -O https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/datasets/clinvar-gks_00-latest.json.gz
+curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/clinvar-gkm_00-latest.json.gz
 ```
 
 Download the most recent weekly delta and its manifest:
 
 ```bash
-curl -O https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/deltas/00-latest/clinvar-gks-delta_00-latest.json.gz
-curl -O https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev/deltas/00-latest/manifest.json
+curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
+curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/manifest.json
 ```
 
 See [Downloads](data-access/download.md) for the full directory layout, the manifest shape, and the consumer replay model.
@@ -157,24 +157,24 @@ See [Downloads](data-access/download.md) for the full directory layout, the mani
 
 ```text
 datasets/
-  clinvar-gks_00-latest.json.gz              latest monthly full bundle
-  clinvar-gks_yyyy-mm.json.gz                monthly full bundles (current year)
+  clinvar-gkm_00-latest.json.gz              latest monthly full bundle
+  clinvar-gkm_yyyy-mm.json.gz                monthly full bundles (current year)
 
 deltas/00-latest/
-  clinvar-gks-delta_00-latest.json.gz        latest weekly delta bundle
+  clinvar-gkm-delta_00-latest.json.gz        latest weekly delta bundle
   manifest.json                              latest delta manifest
 
 deltas/yyyy-mmdd/
-  clinvar-gks-delta_yyyy-mmdd.json.gz        weekly delta bundle (added + updated records)
+  clinvar-gkm-delta_yyyy-mmdd.json.gz        weekly delta bundle (added + updated records)
   manifest.json                              per-release change manifest
 
 archives/{yyyy}/
-  clinvar-gks_yyyy-mm.json.gz                monthly full bundles from prior years
+  clinvar-gkm_yyyy-mm.json.gz                monthly full bundles from prior years
 ```
 
 ### Release Notes
 
-Pipeline changes that affect the structure or content of the output are documented in the `release_notes/` directory. These notes cover additions, bug fixes, or schema changes specific to the ClinVar-GKS pipeline — they do not replicate ClinVar's own release notes.
+Pipeline changes that affect the structure or content of the output are documented in the `release_notes/` directory. These notes cover additions, bug fixes, or schema changes specific to the ClinVar-GKM pipeline — they do not replicate ClinVar's own release notes.
 
 ---
 
@@ -197,4 +197,4 @@ See the [Pipeline Overview](pipeline/index.md) for the full workflow.
 
 ## License
 
-This project is licensed under [CC0 1.0 Universal](https://github.com/clingen-data-model/clinvar-gks/blob/main/LICENSE) (public domain dedication). The output data carries the same terms as the source ClinVar data.
+This project is licensed under [CC0 1.0 Universal](https://github.com/clingen-data-model/clinvar-gkm/blob/main/LICENSE) (public domain dedication). The output data carries the same terms as the source ClinVar data.

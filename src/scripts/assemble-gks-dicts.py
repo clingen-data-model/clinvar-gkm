@@ -5,7 +5,7 @@ Assemble GKS dictionary NDJSON files into a single keyed JSON file.
 For GCS sources, shards are downloaded one section at a time and deleted
 after each section is processed, keeping disk usage minimal.
 
-Output is written locally to /tmp/clinvar-gks-{date}.json.gz by default, or to
+Output is written locally to /tmp/clinvar-gkm-{date}.json.gz by default, or to
 the path given by --output.
 Source files are removed after successful assembly unless --keep-source is used.
 
@@ -20,7 +20,7 @@ Usage:
   python3 assemble-gks-dicts.py gs://bucket/gks-dicts/ 2026-05-03 --keep-source
 
   # Override the output path (e.g. for a delta bundle)
-  python3 assemble-gks-dicts.py gs://bucket/gks-deltas/ 2026-05-03 --output /tmp/clinvar-gks-delta-2026-05-03.json.gz
+  python3 assemble-gks-dicts.py gs://bucket/gks-deltas/ 2026-05-03 --output /tmp/clinvar-gkm-delta-2026-05-03.json.gz
 
   # From local files
   python3 assemble-gks-dicts.py ./gks-dicts/ 2026-05-03
@@ -270,13 +270,13 @@ def assemble(source, output_path, is_gcs):
 
 def derive_output_path(date):
     """Derive local output path from date."""
-    return str(Path("/tmp") / f"clinvar-gks-{date}.json.gz")
+    return str(Path("/tmp") / f"clinvar-gkm-{date}.json.gz")
 
 
 def derive_gcs_path(source, date):
     """Derive GCS output path from source bucket and date."""
     bucket = source.split("/")[2]
-    return f"gs://{bucket}/{date}/release/clinvar-gks-{date}.json.gz"
+    return f"gs://{bucket}/{date}/release/clinvar-gkm-{date}.json.gz"
 
 
 def cleanup_source(source):
@@ -305,7 +305,7 @@ def main():
     )
     parser.add_argument(
         "--output", default=None,
-        help="Override the local output path (default: /tmp/clinvar-gks-{date}.json.gz)",
+        help="Override the local output path (default: /tmp/clinvar-gkm-{date}.json.gz)",
     )
     args = parser.parse_args()
 

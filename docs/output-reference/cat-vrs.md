@@ -183,4 +183,4 @@ Each item in the `clinvarGeneList` extension array represents one gene associati
 
 Annotated JSONC examples of variation records are available in the repository:
 
-- [Cat-VRS examples](https://github.com/clingen-data-model/clinvar-gks/tree/main/examples/cat-vrs) — CanonicalAllele records for ClinVar variations
+- [Cat-VRS examples](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples/cat-vrs) — CanonicalAllele records for ClinVar variations

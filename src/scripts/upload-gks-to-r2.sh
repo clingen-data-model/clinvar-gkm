@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Upload the ClinVar-GKS monthly FULL bundle from local disk to Cloudflare R2.
+# Upload the ClinVar-GKM monthly FULL bundle from local disk to Cloudflare R2.
 # Runs after export-gks-dicts.sh + assemble-gks-dicts.py have produced the bundle.
 #
 # As of Plan 4 the full bundle is published MONTH-END ONLY (retroactively, for the
@@ -22,8 +22,8 @@
 #   ./upload-gks-to-r2.sh <export_date> <dataset_version> <bundle_file> [--dry-run] [--parquet-dir=DIR]
 #
 # Examples:
-#   ./upload-gks-to-r2.sh 2026-06-27 v2_5_0 /tmp/clinvar-gks-2026-06-27.json.gz
-#   ./upload-gks-to-r2.sh 2026-06-27 v2_5_0 /tmp/clinvar-gks-2026-06-27.json.gz --dry-run
+#   ./upload-gks-to-r2.sh 2026-06-27 v2_5_0 /tmp/clinvar-gkm-2026-06-27.json.gz
+#   ./upload-gks-to-r2.sh 2026-06-27 v2_5_0 /tmp/clinvar-gkm-2026-06-27.json.gz --dry-run
 
 set -e
 
@@ -64,18 +64,18 @@ done
 
 # --- R2 Configuration ---
 R2_ACCOUNT_ID="09208aa33790838db213a21f630c33e7"
-R2_BUCKET="clinvar-gks"
+R2_BUCKET="clinvar-gkm"
 R2_ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
 R2_PROFILE="r2"
-R2_PUBLIC_URL="https://pub-9c5470edadb8496fb0abbf396291660b.r2.dev"
+R2_PUBLIC_URL="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
 
 # --- Derived date components ---
 YEAR="${EXPORT_DATE:0:4}"
 MM="${EXPORT_DATE:5:2}"
 
 # --- Filenames ---
-MONTHLY_FILE="clinvar-gks_${YEAR}-${MM}.json.gz"
-LATEST_MONTHLY="clinvar-gks_00-latest.json.gz"
+MONTHLY_FILE="clinvar-gkm_${YEAR}-${MM}.json.gz"
+LATEST_MONTHLY="clinvar-gkm_00-latest.json.gz"
 
 # --- Locate script directory for r2-readme.txt + generate-r2-index.sh ---
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -157,23 +157,23 @@ detect_boundaries() {
   while IFS= read -r f; do
     [[ -z "$f" ]] && continue
     [[ "$f" == *"00-latest"* ]] && continue
-    [[ "$f" =~ ^clinvar-gks_[0-9]{4}-[0-9]{2}\.json\.gz$ ]] || continue
+    [[ "$f" =~ ^clinvar-gkm_[0-9]{4}-[0-9]{2}\.json\.gz$ ]] || continue
     EXISTING_MONTHLY_FILES+=("$f")
-  done < <(r2_ls "datasets/clinvar-gks_")
+  done < <(r2_ls "datasets/clinvar-gkm_")
 
   IS_NEW_YEAR=false
   PREV_YEAR=""
 
   local newest=""
   for f in "${EXISTING_MONTHLY_FILES[@]}"; do
-    # clinvar-gks_2026-06.json.gz -> newest lexical filename == newest year-month
+    # clinvar-gkm_2026-06.json.gz -> newest lexical filename == newest year-month
     if [[ -z "$newest" || "$f" > "$newest" ]]; then
       newest="$f"
     fi
   done
 
   if [[ -n "$newest" ]]; then
-    local date_part="${newest#clinvar-gks_}"   # 2026-06.json.gz
+    local date_part="${newest#clinvar-gkm_}"   # 2026-06.json.gz
     PREV_YEAR="${date_part:0:4}"               # 2026
     if [[ "$YEAR" != "$PREV_YEAR" ]]; then
       IS_NEW_YEAR=true
@@ -193,7 +193,7 @@ archive_yearly() {
   local monthly_files=()
   while IFS= read -r f; do
     [[ -n "$f" ]] && monthly_files+=("$f")
-  done < <(r2_ls "datasets/clinvar-gks_" | grep -v "00-latest" || true)
+  done < <(r2_ls "datasets/clinvar-gkm_" | grep -v "00-latest" || true)
 
   for f in "${monthly_files[@]}"; do
     echo "  Moving datasets/${f} -> archives/${PREV_YEAR}/${f}"
@@ -292,7 +292,7 @@ publish_monthly() {
 # Main
 # =====================================================================
 
-echo "=== ClinVar-GKS Monthly FULL Upload ==="
+echo "=== ClinVar-GKM Monthly FULL Upload ==="
 echo "  Release date:  ${EXPORT_DATE}"
 echo "  Version:       ${DATASET_VERSION}"
 echo "  Monthly file:  ${MONTHLY_FILE}"

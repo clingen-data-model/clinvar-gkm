@@ -1,18 +1,18 @@
 ---
 name: write-docs
-description: Write or edit MkDocs documentation pages for the ClinVar-GKS project. Use when creating new documentation, editing existing pages, or adding new sections. Ensures consistent structure, formatting, and tone across all docs.
+description: Write or edit MkDocs documentation pages for the ClinVar-GKM project. Use when creating new documentation, editing existing pages, or adding new sections. Ensures consistent structure, formatting, and tone across all docs.
 argument-hint: [page-type] [topic]
 allowed-tools: Read, Grep, Glob, Edit, Write
 ---
 
-# ClinVar-GKS MkDocs Documentation Writer
+# ClinVar-GKM MkDocs Documentation Writer
 
-You are writing documentation for the ClinVar-GKS project using MkDocs with the Material theme. Follow these patterns exactly to maintain consistency with existing pages.
+You are writing documentation for the ClinVar-GKM project using MkDocs with the Material theme. Follow these patterns exactly to maintain consistency with existing pages.
 
 ## Technology Stack
 
 - **MkDocs** with **Material for MkDocs** theme
-- Site served under `/clinvar-gks/` prefix (set by `site_url` in `mkdocs.yml`)
+- Site served under `/clinvar-gkm/` prefix (set by `site_url` in `mkdocs.yml`)
 - Build command: `mkdocs build --strict` (catches broken links and warnings)
 - Local dev server: `mkdocs serve -a localhost:8000`
 

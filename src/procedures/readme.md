@@ -1,10 +1,10 @@
 -- after a new clinvar release dataset is fully ingested do the 
 -- following steps to get the GKS files created
 -- 
--- 1. ask Kyle to vrsify the gs://clinvar-gks/YYYY-MM-DD/dev/vi.jsonl.gz file
+-- 1. ask Kyle to vrsify the gs://clinvar-gkm/YYYY-MM-DD/dev/vi.jsonl.gz file
 
 -- 2. transform the vrs locations to vi compatible form for bigquery processing
---    below by running the gh:clinvar-gks/src/gks-procs/vrs-to-bq-table.sh
+--    below by running the gh:clinvar-gkm/src/gks-procs/vrs-to-bq-table.sh
 --    which will alter the location start/end arrays to denormalized columns
 --    for inner/outer start/end attributes in order to be importable to BQ
 --    and it will import them into the BQ dataset as table 'gks_vrs'
@@ -14,8 +14,8 @@
 -- CALL `clinvar_ingest.gks_scv_condition_proc`(CURRENT_DATE(), FALSE);
 -- CALL `clinvar_ingest.gks_scv_statement_proc`(CURRENT_DATE(), FALSE);
 
--- 4. export the gks files to gcs by runing gh:clinvar-gks/src/gks-procs/export-gks-files-to-gcs.sh
---    by default add these files to the gs://clingen-public/clinvar-gks/* bucket
+-- 4. export the gks files to gcs by runing gh:clinvar-gkm/src/gks-procs/export-gks-files-to-gcs.sh
+--    by default add these files to the gs://clingen-public/clinvar-gkm/* bucket
 --    with the new filename clinvar_gks_(*)_YYYY_MM_DD_v9_9_8.jsonl.gz where
 --    (*) is the name of one of the 3 files.
 
@@ -102,7 +102,7 @@ CALL `clinvar_ingest.variation_identity`(CURRENT_DATE(), FALSE);
 >   set that STEP 2/3 vrsify consumes — see the "Incremental vrsify" note under STEP 3.
 
 ## STEP 2
-From a terminal, extract `variation_identity` to `gs://clinvar-gks/<date>/dev/vi.jsonl.gz`.
+From a terminal, extract `variation_identity` to `gs://clinvar-gkm/<date>/dev/vi.jsonl.gz`.
 Default is **incremental** — only the variations whose `variation_identity` changed since
 the prior release are exported (the rest are carried forward in STEP 4):
 

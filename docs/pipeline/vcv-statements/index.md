@@ -57,4 +57,4 @@ SCV Statements (gks_dict_scv)
 
 ## Examples
 
-See [VCV statement examples](https://github.com/clingen-data-model/clinvar-gks/tree/main/examples/vcv) in the repository for annotated JSONC examples of germline and somatic aggregate classification statements.
+See [VCV statement examples](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples/vcv) in the repository for annotated JSONC examples of germline and somatic aggregate classification statements.

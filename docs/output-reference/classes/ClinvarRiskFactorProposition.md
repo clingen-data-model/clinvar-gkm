@@ -6,7 +6,7 @@
 
 A custom proposition describing the role of a variant as a risk factor for a condition. Used for ClinVar submissions classified as "risk factor". ClinVar has stopped accepting new submissions with this classification in favor of standard pathogenicity terms, but historical submissions remain.
 
-**JSON Schema:** [ClinvarRiskFactorProposition](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/ClinvarRiskFactorProposition){ target=_blank }
+**JSON Schema:** [ClinvarRiskFactorProposition](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarRiskFactorProposition){ target=_blank }
 
 Some ClinvarRiskFactorProposition attributes are inherited from `ClinvarGermlineCustomProposition`.
 

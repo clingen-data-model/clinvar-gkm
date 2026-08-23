@@ -6,7 +6,7 @@
 
 A complex structure for sharing individual HGVS entries associated with Clinvar Variations including nucleotide expressions, protein expressions, molecular consequence and mane select/plus settings for the specific aligned and projected forms of the clinvar variant.
 
-**JSON Schema:** [HgvsListItem](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/HgvsListItem){ target=_blank }
+**JSON Schema:** [HgvsListItem](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/HgvsListItem){ target=_blank }
 
 ## Information Model
 

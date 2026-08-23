@@ -1,12 +1,12 @@
 # Statement Profiles
 
-This section describes the fundamental aspects of how ClinVar data is organized and transformed into GKS standard statements within the ClinVar-GKS pipeline.
+This section describes the fundamental aspects of how ClinVar data is organized and transformed into GKS standard statements within the ClinVar-GKM pipeline.
 
 ## Overview
 
 ClinVar submissions (SCVs) are the baseline statements submitted to ClinVar by laboratories, expert panels, research groups, locus-specific databases (LSDBs), and other organizations. ClinVar aggregates these submissions using different rules for specific statement types to produce higher-order statements (RCVs and VCVs).
 
-ClinVar-GKS maps each submission to a specific **statement type**, **proposition profile**, and **classification** with corresponding **direction** and **strength** values conforming to the GA4GH VA-Spec standard.
+ClinVar-GKM maps each submission to a specific **statement type**, **proposition profile**, and **classification** with corresponding **direction** and **strength** values conforming to the GA4GH VA-Spec standard.
 
 ## Sections
 

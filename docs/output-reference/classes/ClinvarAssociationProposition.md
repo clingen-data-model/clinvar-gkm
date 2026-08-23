@@ -6,7 +6,7 @@
 
 A proposition describing a statistical or observational association between a variant and a condition. Used for ClinVar submissions classified as "association". Does not imply a causal relationship.
 
-**JSON Schema:** [ClinvarAssociationProposition](https://github.com/clingen-data-model/clinvar-gks/blob/main/schema/clinvar-gks/json/ClinvarAssociationProposition){ target=_blank }
+**JSON Schema:** [ClinvarAssociationProposition](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarAssociationProposition){ target=_blank }
 
 Some ClinvarAssociationProposition attributes are inherited from `ClinvarGermlineCustomProposition`.
 
