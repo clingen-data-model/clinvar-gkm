@@ -84,6 +84,12 @@ per-release dataset (`clinvar_YYYY_MM_DD_v2_5_0`). Renaming is three coordinated
   delta_gkm_dict_*` (script the list from `INFORMATION_SCHEMA.TABLES WHERE table_name LIKE 'gks\\_%' OR
   LIKE 'delta_gks_%'`). Include `gks_vrs`, `gks_change_log`, `gks_pipeline_version`, `gks_scv_condition_sets`.
 - [ ] **3.3** Verify each dataset has the `gkm_*` set and no residual `gks_*`.
+- [ ] **3.4 CRITICAL — update change-log DATA, not just table names.** `ALTER TABLE RENAME` renames the
+  table but does NOT rewrite column *values*. `gkm_change_log.table_name` stores the tracked table names as
+  data (e.g. `gks_dict_proposition`), and the reconstruction oracle filters deletes by that column — so the
+  tombstones are missed and the oracle fails with `a_only == D count` per section. Fix per migrated dataset:
+  `UPDATE {ds}.gkm_change_log SET table_name = REPLACE(table_name,'gks_','gkm_') WHERE STARTS_WITH(table_name,'gks_')`.
+  (Found via the Chunk-4 oracle on 2026-08-23 — it did its job.)
 
 ## Chunk 4: End-to-end verification
 
