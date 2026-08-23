@@ -267,12 +267,12 @@ BEGIN
 
         FORMAT('#/%s-proposition/%s',
           CASE
-            WHEN cpt.gkm_type LIKE 'Clinvar%' THEN 'varcustom'
-            WHEN cpt.gkm_type = 'VariantOncogenicityProposition' THEN 'vartumor'
-            WHEN cpt.gkm_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-            WHEN cpt.gkm_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
+            WHEN cpt.gks_type LIKE 'Clinvar%' THEN 'varcustom'
+            WHEN cpt.gks_type = 'VariantOncogenicityProposition' THEN 'vartumor'
+            WHEN cpt.gks_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
+            WHEN cpt.gks_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
                                   'VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gkm_type))
+            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gks_type))
           END,
           agg.prop_id) AS proposition,
 
@@ -340,12 +340,12 @@ BEGIN
 
         FORMAT('#/%s-proposition/%s',
           CASE
-            WHEN cpt.gkm_type LIKE 'Clinvar%' THEN 'varcustom'
-            WHEN cpt.gkm_type = 'VariantOncogenicityProposition' THEN 'vartumor'
-            WHEN cpt.gkm_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-            WHEN cpt.gkm_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
+            WHEN cpt.gks_type LIKE 'Clinvar%' THEN 'varcustom'
+            WHEN cpt.gks_type = 'VariantOncogenicityProposition' THEN 'vartumor'
+            WHEN cpt.gks_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
+            WHEN cpt.gks_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
                                   'VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gkm_type))
+            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gks_type))
           END,
           agg.prop_id) AS proposition,
 
@@ -418,12 +418,12 @@ BEGIN
 
         FORMAT('#/%s-proposition/%s',
           CASE
-            WHEN cpt.gkm_type LIKE 'Clinvar%' THEN 'varcustom'
-            WHEN cpt.gkm_type = 'VariantOncogenicityProposition' THEN 'vartumor'
-            WHEN cpt.gkm_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-            WHEN cpt.gkm_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
+            WHEN cpt.gks_type LIKE 'Clinvar%' THEN 'varcustom'
+            WHEN cpt.gks_type = 'VariantOncogenicityProposition' THEN 'vartumor'
+            WHEN cpt.gks_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
+            WHEN cpt.gks_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
                                   'VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gkm_type))
+            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gks_type))
           END,
           agg.prop_id) AS proposition,
 
@@ -557,13 +557,13 @@ BEGIN
         agg.prop_id as key,
         JSON_STRIP_NULLS(TO_JSON(STRUCT(
           -- custom types collapse to CustomProposition + customPropositionType; standard keep their specific type
-          IF(cpt.gkm_type LIKE 'Clinvar%', 'CustomProposition', cpt.gkm_type) AS type,
-          IF(cpt.gkm_type LIKE 'Clinvar%', cpt.gkm_type, CAST(NULL AS STRING)) AS customPropositionType,
+          IF(cpt.gks_type LIKE 'Clinvar%', 'CustomProposition', cpt.gks_type) AS type,
+          IF(cpt.gks_type LIKE 'Clinvar%', cpt.gks_type, CAST(NULL AS STRING)) AS customPropositionType,
           agg.prop_id AS id,
           -- standard uses subjectVariant; custom uses subject (same variation pointer)
-          IF(cpt.gkm_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
-          IF(cpt.gkm_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
-          CASE cpt.gkm_type
+          IF(cpt.gks_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
+          IF(cpt.gks_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
+          CASE cpt.gks_type
             WHEN 'VariantPathogenicityProposition' THEN 'isCausalFor'
             WHEN 'VariantOncogenicityProposition' THEN 'isOncogenicFor'
             WHEN 'VariantClinicalSignificanceProposition' THEN 'hasClinicalSignificanceFor'
@@ -579,9 +579,9 @@ BEGIN
             ELSE 'isClinvarUndefinedAssociationFor'
           END AS predicate,
           -- object field is 3-way: custom->object, standard Oncogenicity->objectTumorType, other standard->objectCondition (same value)
-          IF(cpt.gkm_type LIKE 'Clinvar%' OR cpt.gkm_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), rcd.condition_concept) AS objectCondition,
-          IF((NOT (cpt.gkm_type LIKE 'Clinvar%')) AND cpt.gkm_type = 'VariantOncogenicityProposition', rcd.condition_concept, CAST(NULL AS STRING)) AS objectTumorType,
-          IF(cpt.gkm_type LIKE 'Clinvar%', rcd.condition_concept, CAST(NULL AS STRING)) AS object
+          IF(cpt.gks_type LIKE 'Clinvar%' OR cpt.gks_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), rcd.condition_concept) AS objectCondition,
+          IF((NOT (cpt.gks_type LIKE 'Clinvar%')) AND cpt.gks_type = 'VariantOncogenicityProposition', rcd.condition_concept, CAST(NULL AS STRING)) AS objectTumorType,
+          IF(cpt.gks_type LIKE 'Clinvar%', rcd.condition_concept, CAST(NULL AS STRING)) AS object
         )), remove_empty => TRUE) as value
       FROM `{S}.gkm_rcv_classification_agg` agg
       LEFT JOIN `clinvar_ingest.clinvar_proposition_types` cpt ON agg.prop_type = cpt.code
@@ -593,13 +593,13 @@ BEGIN
         agg.prop_id as key,
         JSON_STRIP_NULLS(TO_JSON(STRUCT(
           -- custom types collapse to CustomProposition + customPropositionType; standard keep their specific type
-          IF(cpt.gkm_type LIKE 'Clinvar%', 'CustomProposition', cpt.gkm_type) AS type,
-          IF(cpt.gkm_type LIKE 'Clinvar%', cpt.gkm_type, CAST(NULL AS STRING)) AS customPropositionType,
+          IF(cpt.gks_type LIKE 'Clinvar%', 'CustomProposition', cpt.gks_type) AS type,
+          IF(cpt.gks_type LIKE 'Clinvar%', cpt.gks_type, CAST(NULL AS STRING)) AS customPropositionType,
           agg.prop_id AS id,
           -- standard uses subjectVariant; custom uses subject (same variation pointer)
-          IF(cpt.gkm_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
-          IF(cpt.gkm_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
-          CASE cpt.gkm_type
+          IF(cpt.gks_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
+          IF(cpt.gks_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
+          CASE cpt.gks_type
             WHEN 'VariantPathogenicityProposition' THEN 'isCausalFor'
             WHEN 'VariantOncogenicityProposition' THEN 'isOncogenicFor'
             WHEN 'VariantClinicalSignificanceProposition' THEN 'hasClinicalSignificanceFor'
@@ -615,9 +615,9 @@ BEGIN
             ELSE 'isClinvarUndefinedAssociationFor'
           END AS predicate,
           -- object field is 3-way: custom->object, standard Oncogenicity->objectTumorType, other standard->objectCondition (same value)
-          IF(cpt.gkm_type LIKE 'Clinvar%' OR cpt.gkm_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), rcd.condition_concept) AS objectCondition,
-          IF((NOT (cpt.gkm_type LIKE 'Clinvar%')) AND cpt.gkm_type = 'VariantOncogenicityProposition', rcd.condition_concept, CAST(NULL AS STRING)) AS objectTumorType,
-          IF(cpt.gkm_type LIKE 'Clinvar%', rcd.condition_concept, CAST(NULL AS STRING)) AS object
+          IF(cpt.gks_type LIKE 'Clinvar%' OR cpt.gks_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), rcd.condition_concept) AS objectCondition,
+          IF((NOT (cpt.gks_type LIKE 'Clinvar%')) AND cpt.gks_type = 'VariantOncogenicityProposition', rcd.condition_concept, CAST(NULL AS STRING)) AS objectTumorType,
+          IF(cpt.gks_type LIKE 'Clinvar%', rcd.condition_concept, CAST(NULL AS STRING)) AS object
         )), remove_empty => TRUE) as value
       FROM `{S}.gkm_rcv_priority_agg` agg
       LEFT JOIN `clinvar_ingest.clinvar_proposition_types` cpt ON agg.prop_type = cpt.code
@@ -629,13 +629,13 @@ BEGIN
         agg.prop_id as key,
         JSON_STRIP_NULLS(TO_JSON(STRUCT(
           -- custom types collapse to CustomProposition + customPropositionType; standard keep their specific type
-          IF(cpt.gkm_type LIKE 'Clinvar%', 'CustomProposition', cpt.gkm_type) AS type,
-          IF(cpt.gkm_type LIKE 'Clinvar%', cpt.gkm_type, CAST(NULL AS STRING)) AS customPropositionType,
+          IF(cpt.gks_type LIKE 'Clinvar%', 'CustomProposition', cpt.gks_type) AS type,
+          IF(cpt.gks_type LIKE 'Clinvar%', cpt.gks_type, CAST(NULL AS STRING)) AS customPropositionType,
           agg.prop_id AS id,
           -- standard uses subjectVariant; custom uses subject (same variation pointer)
-          IF(cpt.gkm_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
-          IF(cpt.gkm_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
-          CASE cpt.gkm_type
+          IF(cpt.gks_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
+          IF(cpt.gks_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
+          CASE cpt.gks_type
             WHEN 'VariantPathogenicityProposition' THEN 'isCausalFor'
             WHEN 'VariantOncogenicityProposition' THEN 'isOncogenicFor'
             WHEN 'VariantClinicalSignificanceProposition' THEN 'hasClinicalSignificanceFor'
@@ -651,9 +651,9 @@ BEGIN
             ELSE 'isClinvarUndefinedAssociationFor'
           END AS predicate,
           -- object field is 3-way: custom->object, standard Oncogenicity->objectTumorType, other standard->objectCondition (same value)
-          IF(cpt.gkm_type LIKE 'Clinvar%' OR cpt.gkm_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), rcd.condition_concept) AS objectCondition,
-          IF((NOT (cpt.gkm_type LIKE 'Clinvar%')) AND cpt.gkm_type = 'VariantOncogenicityProposition', rcd.condition_concept, CAST(NULL AS STRING)) AS objectTumorType,
-          IF(cpt.gkm_type LIKE 'Clinvar%', rcd.condition_concept, CAST(NULL AS STRING)) AS object
+          IF(cpt.gks_type LIKE 'Clinvar%' OR cpt.gks_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), rcd.condition_concept) AS objectCondition,
+          IF((NOT (cpt.gks_type LIKE 'Clinvar%')) AND cpt.gks_type = 'VariantOncogenicityProposition', rcd.condition_concept, CAST(NULL AS STRING)) AS objectTumorType,
+          IF(cpt.gks_type LIKE 'Clinvar%', rcd.condition_concept, CAST(NULL AS STRING)) AS object
         )), remove_empty => TRUE) as value
       FROM `{S}.gkm_rcv_aggregate_contribution` agg
       LEFT JOIN `clinvar_ingest.clinvar_proposition_types` cpt ON agg.prop_type = cpt.code

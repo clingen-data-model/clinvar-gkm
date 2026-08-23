@@ -202,13 +202,13 @@ BEGIN
           scv.id,
           scv.version,
           IF(
-            cpt.gkm_type IS NOT NULL,
+            cpt.gks_type IS NOT NULL,
             -- VariantClinicalSignificance predicate is always 'hasClinicalSignificanceFor' (va-spec const);
             -- override the upstream clinvar_clinsig_types.final_predicate for that type to stay conformant
             -- and consistent with the RCV/VCV statement procs.
             STRUCT(
-              cpt.gkm_type as type,
-              IF(cpt.gkm_type = 'VariantClinicalSignificanceProposition',
+              cpt.gks_type as type,
+              IF(cpt.gks_type = 'VariantClinicalSignificanceProposition',
                  'hasClinicalSignificanceFor', cct.final_predicate) as pred),
             STRUCT('ClinvarUndefinedProposition' as type, 'isClinvarUndefinedAssociationFor' as pred)
           ) as proposition,
@@ -667,7 +667,7 @@ BEGIN
           sd.scv_id = scv.id
         LEFT JOIN `clinvar_ingest.clinvar_proposition_types` tp
         ON
-          tp.gkm_type = scv.evidence_line_target_proposition.type
+          tp.gks_type = scv.evidence_line_target_proposition.type
         WHERE
           scv.evidence_line_target_proposition IS NOT NULL
     """, '{S}', rec.schema_name);
