@@ -26,7 +26,7 @@ The full bundle is a single JSON object containing all bundle sections — varia
 ## Release Schedule
 
 - **Weekly deltas** are published for every ClinVar release under `deltas/<yyyy-mmdd>/`, mirrored at `deltas/00-latest/`
-- **Monthly full bundles** are published once a month under `datasets/` — the full corresponds to the last release of a month, published retroactively when the next month's first release runs
+- **Monthly full bundles** are published once a month under `datasets/`, aligned to ClinVar's own monthly VCV releases — each `ClinVarVCVRelease_YYYY-MM` triggers our `clinvar-gkm_YYYY-MM` full, built from the most recent weekly release before ClinVar's monthly cut
 - At the start of each year, the previous year's monthly full bundles and dated Parquet month sets move to `archives/`
 
 The stable filenames `clinvar-gkm_00-latest.json.gz` (monthly full) and `clinvar-gkm-delta_00-latest.json.gz` (weekly delta) always point to the most recent full and delta respectively.

@@ -50,17 +50,29 @@ fi
 # --- Parse flags ---
 DRY_RUN=false
 PARQUET_DIR=""
+MONTH_LABEL=""
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=true ;;
     --parquet-dir=*) PARQUET_DIR="${arg#--parquet-dir=}" ;;
+    --month-label=*) MONTH_LABEL="${arg#--month-label=}" ;;
     *)
       echo "ERROR: Unknown argument '${arg}'"
-      echo "Usage: $0 <export_date> <dataset_version> <bundle_file> [--dry-run] [--parquet-dir=DIR]"
+      echo "Usage: $0 <export_date> <dataset_version> <bundle_file> [--dry-run] [--parquet-dir=DIR] [--month-label=YYYY-MM]"
       exit 1
       ;;
   esac
 done
+
+# --month-label decouples the published monthly slot (YYYY-MM) from the source
+# release date: the ClinVar-index trigger maps a monthly to the last of our builds
+# BEFORE ClinVar's monthly cut, whose own calendar month may differ from the label
+# (e.g. the 2026-07 monthly is built from our 06-27 build). Bundle content still
+# comes from export_date's dataset; only the slot name/label changes.
+if [[ -n "${MONTH_LABEL}" ]] && ! [[ "${MONTH_LABEL}" =~ ^[0-9]{4}-[0-9]{2}$ ]]; then
+  echo "ERROR: --month-label must be YYYY-MM format, got '${MONTH_LABEL}'"
+  exit 1
+fi
 
 # --- R2 Configuration ---
 R2_ACCOUNT_ID="09208aa33790838db213a21f630c33e7"
@@ -69,9 +81,14 @@ R2_ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
 R2_PROFILE="r2"
 R2_PUBLIC_URL="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
 
-# --- Derived date components ---
-YEAR="${EXPORT_DATE:0:4}"
-MM="${EXPORT_DATE:5:2}"
+# --- Derived date components (month label overrides the source date's month) ---
+if [[ -n "${MONTH_LABEL}" ]]; then
+  YEAR="${MONTH_LABEL:0:4}"
+  MM="${MONTH_LABEL:5:2}"
+else
+  YEAR="${EXPORT_DATE:0:4}"
+  MM="${EXPORT_DATE:5:2}"
+fi
 
 # --- Filenames ---
 MONTHLY_FILE="clinvar-gkm_${YEAR}-${MM}.json.gz"
