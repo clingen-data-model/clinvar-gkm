@@ -672,7 +672,7 @@ Every section includes `id` and `data` at minimum. Run `DESCRIBE` in DuckDB to s
 
 #### Example Queries
 
-These examples demonstrate cross-section JOINs using typed columns. Most analytical queries can be answered without parsing JSON — the varcond proposition's `gene_context_name` column carries the gene symbol directly, and the condition's `primary_coding` struct carries the MedGen code. (These queries join `scv.parquet` to `varcond-proposition.parquet`, the variant×condition group that holds pathogenicity and clinical-significance propositions; the other three proposition groups — `vartumor`, `vartherapy`, `varcustom` — have their own typed columns.)
+These examples demonstrate cross-section JOINs using typed columns. Most analytical queries can be answered without parsing JSON — the varcond proposition's `gene_context_name` column carries the gene symbol directly, and the condition's `primaryCoding` struct carries the MedGen code. (These queries join `scv.parquet` to `varcond-proposition.parquet`, the variant×condition group that holds pathogenicity and clinical-significance propositions; the other three proposition groups — `vartumor`, `vartherapy`, `varcustom` — have their own typed columns.)
 
 **All SCVs for a gene — detailed view:**
 
@@ -686,7 +686,7 @@ SELECT
     s.confidence.name AS review_status,
     p.gene_context_name AS gene,
     c.name AS condition_name,
-    c.primary_coding.code AS condition_code
+    c.primaryCoding.code AS condition_code
 FROM 'scv.parquet' s
 JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
 LEFT JOIN 'condition.parquet' c ON p.object_condition_id = c.id
