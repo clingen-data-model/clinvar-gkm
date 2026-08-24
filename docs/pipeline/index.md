@@ -1,6 +1,6 @@
 # Pipeline Overview
 
-The ClinVar-GKM pipeline transforms ClinVar XML release data into GA4GH GKS format through a series of BigQuery stored procedures with an external VRS Python processing step.
+The ClinVar-GKM pipeline transforms ClinVar XML release data into the GKM (Genomic Knowledge Model) schema set (VRS, Cat-VRS, VA-Spec) through a series of BigQuery stored procedures with an external VRS Python processing step.
 
 The two most expensive stages — [Variation Identity](variation-identity/index.md) and [VRS Processing](vrs-processing.md) — support **incremental** processing: they recompute only the variations that changed since the prior release and carry the rest forward, driven by the release-to-release diff (`dataset_diff_on`). The remaining stored procedures currently run as full rebuilds each release.
 

@@ -8,7 +8,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18343663.svg)](https://doi.org/10.5281/zenodo.18343663)
 
-ClinVar-GKM is a data transformation pipeline that converts [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) release data into [GA4GH GKS](https://www.ga4gh.org/genomic-knowledge-standards/) (Genomic Knowledge Standards) format. Developed and maintained by the [ClinGen](https://clinicalgenome.org/) driver project, it transforms the **entirety** of each ClinVar release — every variation, submitted classification, and aggregate record — into standardized, computable formats.
+ClinVar-GKM is a data transformation pipeline that converts [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) release data into the **GKM (Genomic Knowledge Model)** schema set — VRS, Cat-VRS, and VA-Spec — curated by the GA4GH [GKS (Genomic Knowledge Standards)](https://www.ga4gh.org/genomic-knowledge-standards/) workstream. Developed and maintained by the [ClinGen](https://clinicalgenome.org/) driver project, it transforms the **entirety** of each ClinVar release — every variation, submitted classification, and aggregate record — into standardized, computable formats.
 
 The pipeline is designed to run automatically with each weekly ClinVar release, producing sibling datasets in GA4GH standard format.
 

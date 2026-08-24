@@ -10,7 +10,7 @@
 
 ## Project Context
 
-ClinVar-GKM transforms ClinVar XML releases into GA4GH GKS format (VRS, Cat-VRS, VA-Spec). BigQuery SQL stored procedures in `src/procedures/` do the heavy lifting. Output is a single bundled JSON file distributed via Cloudflare R2. Documentation lives in `docs/` (MkDocs with Material theme).
+ClinVar-GKM transforms ClinVar XML releases into the GKM (Genomic Knowledge Model) schema set — VRS, Cat-VRS, VA-Spec — curated by the GA4GH GKS (Genomic Knowledge Standards) workstream. BigQuery SQL stored procedures in `src/procedures/` do the heavy lifting. Output is a single bundled JSON file distributed via Cloudflare R2. Documentation lives in `docs/` (MkDocs with Material theme).
 
 ## SQL Stored Procedure Conventions
 

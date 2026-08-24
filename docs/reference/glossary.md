@@ -10,7 +10,10 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   International consortium developing standards for genomic data representation and exchange.
 
 **GKS** (Genomic Knowledge Standards)
-:   Collective term for GA4GH standards — VRS, Cat-VRS, and VA-Spec — for representing genomic variants and variant assertions.
+:   The GA4GH workstream that develops standards for representing genomic knowledge. Its schema set is referred to in this project as GKM (see below).
+
+**GKM** (Genomic Knowledge Model)
+:   The set of GA4GH GKS schemas — VRS, Cat-VRS, VA-Spec, and gks-core — that ClinVar-GKM transforms ClinVar data into. Also the project's name and output brand.
 
 **VRS** (Variation Representation Specification)
 :   GA4GH standard for normalized, computable variant identifiers. Defines how variants are represented with sequence references, locations, and states.
