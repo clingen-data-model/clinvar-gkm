@@ -580,9 +580,9 @@ brew install duckdb   # macOS
 ```bash
 # Query SCV statements
 duckdb -c "
-  SELECT id, classification, direction, strength, confidence
+  SELECT id, classification.name AS classification, direction, strength.name AS strength, confidence.name AS confidence
   FROM 'scv.parquet'
-  WHERE classification = 'Pathogenic'
+  WHERE classification.name = 'Pathogenic'
   LIMIT 10;
 "
 ```
@@ -590,9 +590,9 @@ duckdb -c "
 ```bash
 # Count classifications across all SCVs
 duckdb -c "
-  SELECT classification, direction, COUNT(*) as n
+  SELECT classification.name AS classification, direction, COUNT(*) as n
   FROM 'scv.parquet'
-  GROUP BY classification, direction
+  GROUP BY classification.name, direction
   ORDER BY n DESC;
 "
 ```
@@ -600,10 +600,10 @@ duckdb -c "
 ```bash
 # Join SCVs with propositions to find pathogenic variants for a specific condition
 duckdb -c "
-  SELECT s.id, s.classification, p.predicate, p.object_condition_id
+  SELECT s.id, s.classification.name AS classification, p.predicate, p.object_condition_id
   FROM 'scv.parquet' s
   JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
-  WHERE s.classification = 'Pathogenic'
+  WHERE s.classification.name = 'Pathogenic'
     AND p.object_condition_id LIKE '%clinvar.trait:9580%'
   LIMIT 10;
 "
@@ -620,9 +620,9 @@ DuckDB also works from Python:
 import duckdb
 
 df = duckdb.sql("""
-    SELECT id, classification, direction, strength, confidence
+    SELECT id, classification.name AS classification, direction, strength.name AS strength, confidence.name AS confidence
     FROM 'scv.parquet'
-    WHERE classification = 'Pathogenic'
+    WHERE classification.name = 'Pathogenic'
     LIMIT 100
 """).df()
 
@@ -637,8 +637,8 @@ import pandas as pd
 # Load a section into a DataFrame
 scv = pd.read_parquet("scv.parquet")
 
-# Filter pathogenic SCVs
-pathogenic = scv[scv["classification"] == "Pathogenic"]
+# Filter pathogenic SCVs — classification is a MappableConcept struct (dict), so read .name
+pathogenic = scv[scv["classification"].map(lambda c: c and c.get("name")) == "Pathogenic"]
 print(f"{len(pathogenic)} pathogenic SCVs")
 
 # Access the full JSON when you need nested fields
@@ -656,10 +656,10 @@ Statement sections (`scv`, `vcv`, `rcv`) share a common set of typed columns:
 | `id` | string | Statement identifier |
 | `type` | string | Statement type |
 | `proposition_id` | string | FK to the matching proposition Parquet — one of `varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`, per the proposition's datatype |
-| `classification` | string | Classification label (e.g., "Pathogenic") |
-| `strength` | string | Evidence strength (e.g., "definitive", "likely") |
+| `classification` | struct (MappableConcept) | Use `classification.name` (or `classification.primaryCoding.code`) — e.g., "Pathogenic" |
+| `strength` | struct (MappableConcept) | Use `strength.name` — e.g., "definitive", "likely" |
 | `direction` | string | Evidence direction ("supports", "disputes", "neutral") |
-| `confidence` | string | Submission level label (e.g., "criteria provided") |
+| `confidence` | struct (MappableConcept) | Use `confidence.name` — submission level, e.g., "criteria provided" |
 | `has_evidence_lines` | list\<string\> | FK references to evidence line Parquet (`evidenceLine` for SCV, `vcv_evidenceLine` for VCV, `rcv_evidenceLine` for RCV) |
 | `extensions` | string | JSON array of extensions |
 | `data` | string | Full JSON object |
@@ -680,10 +680,10 @@ These examples demonstrate cross-section JOINs using typed columns. Most analyti
 -- SCVs for BRCA1: classification, review status, condition
 SELECT
     s.id AS scv_id,
-    s.classification,
+    s.classification.name AS classification,
     s.direction,
-    s.strength,
-    s.confidence AS review_status,
+    s.strength.name AS strength,
+    s.confidence.name AS review_status,
     p.gene_context_name AS gene,
     c.name AS condition_name,
     c.primary_coding.code AS condition_code
@@ -691,7 +691,7 @@ FROM 'scv.parquet' s
 JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
 LEFT JOIN 'condition.parquet' c ON p.object_condition_id = c.id
 WHERE p.gene_context_name = 'BRCA1'
-ORDER BY s.classification;
+ORDER BY s.classification.name;
 ```
 
 **Classification summary for a gene:**
@@ -700,8 +700,8 @@ ORDER BY s.classification;
 -- Count SCVs by classification and review status for BRCA2
 SELECT
     p.gene_context_name AS gene,
-    s.classification,
-    s.confidence AS review_status,
+    s.classification.name AS classification,
+    s.confidence.name AS review_status,
     s.direction,
     COUNT(*) AS scv_count
 FROM 'scv.parquet' s
@@ -717,15 +717,15 @@ ORDER BY scv_count DESC;
 -- Only expert panel and criteria-provided SCVs for a gene
 SELECT
     s.id AS scv_id,
-    s.classification,
-    s.confidence AS review_status,
+    s.classification.name AS classification,
+    s.confidence.name AS review_status,
     c.name AS condition_name
 FROM 'scv.parquet' s
 JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
 LEFT JOIN 'condition.parquet' c ON p.object_condition_id = c.id
 WHERE p.gene_context_name = 'TP53'
-  AND s.confidence IN ('criteria provided', 'reviewed by expert panel')
-ORDER BY s.classification;
+  AND s.confidence.name IN ('criteria provided', 'reviewed by expert panel')
+ORDER BY s.classification.name;
 ```
 
 **Cross-gene comparison — classification breakdown for multiple genes:**
@@ -734,13 +734,13 @@ ORDER BY s.classification;
 -- Compare pathogenicity classification distributions across genes
 SELECT
     p.gene_context_name AS gene,
-    s.classification,
+    s.classification.name AS classification,
     COUNT(*) AS n
 FROM 'scv.parquet' s
 JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
 WHERE p.gene_context_name IN ('BRCA1', 'BRCA2', 'TP53', 'MLH1')
-  AND s.confidence = 'criteria provided'
-GROUP BY gene, s.classification
+  AND s.confidence.name = 'criteria provided'
+GROUP BY gene, s.classification.name
 ORDER BY gene, n DESC;
 ```
 
@@ -752,15 +752,15 @@ Some fields — like submitter names, HGVS expressions, and assertion methods �
 -- SCVs with submitter name and assertion method (from JSON)
 SELECT
     s.id AS scv_id,
-    s.classification,
+    s.classification.name AS classification,
     p.gene_context_name AS gene,
     json_extract_string(s.data, '$.contributions[0].agent.name') AS submitter,
     json_extract_string(s.data, '$.specifiedBy.name') AS method
 FROM 'scv.parquet' s
 JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
 WHERE p.gene_context_name = 'BRCA1'
-  AND s.classification = 'Pathogenic'
-  AND s.confidence = 'reviewed by expert panel'
+  AND s.classification.name = 'Pathogenic'
+  AND s.confidence.name = 'reviewed by expert panel'
 LIMIT 20;
 ```
 
