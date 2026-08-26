@@ -64,7 +64,7 @@ The `_agg` tables are intermediate (feed the statements); they are carried forwa
 
 **Files:** Create `src/procedures/gks-rcvvcv-changed-proc.sql`.
 
-- [ ] **Step 1: Verify the drivers + membership tables exist and their keys.** Confirm `diff_rcv_mapping`, `diff_rcv_accession`, `diff_variation_archive` are produced by `dataset_diff_all` (check `src/procedures/dataset-diff-all-proc.sql` for their `keys`) and present in `{S}`. Confirm `rcv_mapping` has `rcv_accession` + `scv_accessions` (array); `rcv_accession` has `id`; `variation_archive` has `id` + `variation_id`; `scv_summary` has `id` + `variation_id`.
+- [ ] **Step 1: Verify the drivers + membership tables exist and their keys.** Confirm `diff_rcv_mapping`, `diff_rcv_accession`, `diff_variation_archive` are produced by `dataset_diff_required` (check `src/procedures/dataset-diff-required-proc.sql` for their `keys`) and present in `{S}`. Confirm `rcv_mapping` has `rcv_accession` + `scv_accessions` (array); `rcv_accession` has `id`; `variation_archive` has `id` + `variation_id`; `scv_summary` has `id` + `variation_id`.
 
 - [ ] **Step 2: Write the proc** `clinvar_ingest.gks_rcvvcv_changed(on_date DATE)` (single-arg, persistent `{S}` tables, mirror `gks_scv_changed`'s structure). Resolve baseline via `schema_on(prev_release_date)`. All-or-nothing gate: if baseline missing OR any required driver/changed-set table missing → `rcv_impacted_ids` = all `{S}.rcv_accession.id`, `vcv_impacted_ids` = all `{S}.variation_archive.id`; RETURN. Otherwise build `{S}.rcv_impacted_ids(rcv_accession)` and `{S}.vcv_impacted_ids(vcv_accession)` exactly per the Impact model above (uncorrelated UNION-DISTINCT arms; anti-join out removed; NULL-safe). Document each arm in a comment.
 

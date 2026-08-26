@@ -3,7 +3,7 @@
 -- ============================================================================
 -- Creates the two reusable JavaScript UDFs used for order-independent
 -- comparison. They live in the existing clinvar_ingest dataset alongside the
--- dataset_diff / dataset_diff_all procedures (see 01-, 02- files).
+-- dataset_diff / dataset_diff_required procedures (see 01-, 02- files).
 --
 -- The diff_<table> OUTPUT tables are written into the compare (2nd/newer)
 -- snapshot's own dataset, not here.
