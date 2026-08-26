@@ -149,8 +149,25 @@ load_vrs_data() {
   # changed subset). Otherwise a full replace from staging.
   if [[ "$INCREMENTAL" == "true" && -n "$base_dataset" && "$base_has_vrs" == "true" && "$changed_n" != "-1" && "$staging_n" == "$changed_n" ]]; then
     echo "  - Incremental: carry forward ${base_dataset}.${TABLE_ID} + merge ${staging_n} changed rows"
-    bq --project_id="$PROJECT_ID" query --use_legacy_sql=false --quiet \
-      "CREATE OR REPLACE TABLE \`${dataset_id}.${TABLE_ID}\` CLONE \`${base_dataset}.${TABLE_ID}\`" || { echo "❌ seed CLONE failed."; return 1; }
+    # Seed the new gkm_vrs from the baseline. Prefer a lightweight CLONE, but BigQuery caps
+    # clone/snapshot chains at depth 3, and the incremental seed clones the prior release
+    # every week, so the chain fills roughly every 3 releases. On that specific error, fall
+    # back to a deep copy (CTAS): it reads the baseline regardless of its chain depth and
+    # materializes a fresh depth-0 table, resetting the chain. Self-healing — no need to
+    # touch prior published datasets. gkm_vrs is an unpartitioned/unclustered plain table,
+    # so CTAS preserves it exactly.
+    local seed_err
+    if ! seed_err=$(bq --project_id="$PROJECT_ID" query --use_legacy_sql=false --quiet \
+        "CREATE OR REPLACE TABLE \`${dataset_id}.${TABLE_ID}\` CLONE \`${base_dataset}.${TABLE_ID}\`" 2>&1); then
+      if grep -qi "chained clones or snapshots" <<<"$seed_err"; then
+        echo "  - clone chain full; reseeding via deep copy (resets chain depth)"
+        bq --project_id="$PROJECT_ID" query --use_legacy_sql=false --quiet \
+          "CREATE OR REPLACE TABLE \`${dataset_id}.${TABLE_ID}\` AS SELECT * FROM \`${base_dataset}.${TABLE_ID}\`" \
+          || { echo "❌ seed deep copy failed."; return 1; }
+      else
+        echo "❌ seed CLONE failed:" >&2; echo "$seed_err" >&2; return 1
+      fi
+    fi
     if bq --project_id="$PROJECT_ID" query --use_legacy_sql=false --quiet \
       "DELETE FROM \`${dataset_id}.${TABLE_ID}\`
          WHERE \`in\`.variation_id IN (
