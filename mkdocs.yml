@@ -54,7 +54,6 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Downloads: data-access/download.md
-  - Roadmap: reference/roadmap.md
   # --- Data Guide: narrative topic pages ---
   - Data Guide:
     - Output Format: output-reference/overview.md
@@ -142,6 +141,7 @@ nav:
     - Export & Distribute: pipeline/export.md
   # --- Reference ---
   - Reference:
+    - Roadmap: reference/roadmap.md
     - GA4GH Standards: reference/gks-standards.md
     - Known Issues: reference/known-issues.md
     - Glossary: reference/glossary.md
