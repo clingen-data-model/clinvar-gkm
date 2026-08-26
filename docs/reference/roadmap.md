@@ -21,6 +21,7 @@ Nothing here is a commitment or a delivery date — it's a prioritization board.
 | 7 | **Capture functional-data submissions (incl. MaveDB)** — ClinVar's functional-data SCVs and MaveDB submissions (currently excluded); design shaped with interested community members | Proposed | [#105](https://github.com/clingen-data-model/clinvar-gkm/discussions/105) |
 | 8 | **Backfill historical ClinVar releases** — extend coverage back from July 2026, potentially to July 2019 (ClinVar's first VCV XML production release), at relatively low effort | Proposed | [#107](https://github.com/clingen-data-model/clinvar-gkm/discussions/107) |
 | 9 | **Temporal representation for analytics** — time-series view of ClinVar change (classification churn, submission growth, conflicting-variant changes, new genes/diseases) to power trend reporting | Proposed | [#109](https://github.com/clingen-data-model/clinvar-gkm/discussions/109) |
+| 10 | **Submitter tool (compare, manage, simulate) + API** — let submitters compare their submissions with others, create/update/remove submissions, preview a change's impact before submitting, and integrate via an API | Proposed | [#110](https://github.com/clingen-data-model/clinvar-gkm/discussions/110) |
 
 ## How it works
 
