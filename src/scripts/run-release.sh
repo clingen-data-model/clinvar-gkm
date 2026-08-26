@@ -138,6 +138,93 @@ if (( START_STEP <= 4 )); then
   GKS_FULL="${FULL}" "${REPO_ROOT}/src/scripts/vrs-to-bq-table.sh" "${DATE}"
 fi
 
+# --- Monthly-full trigger helpers (ClinVar authoritative index) -----------------------
+# The monthly full bundle is anchored to ClinVar's own monthly cadence, not our weekly
+# release cadence. ClinVar publishes ClinVarVCVRelease_YYYY-MM.xml.gz at the FTP index
+# early each month; its appearance is the ONLY signal we use (we never ingest that XML).
+# Our monthly full for YYYY-MM = the most recent of OUR builds with release date strictly
+# before ClinVar's monthly Released datetime, re-exported into the YYYY-MM slot (label from
+# ClinVar, content from our build). See docs/superpowers/specs/2026-08-24-clinvar-index-
+# monthly-trigger-design.md.
+CLINVAR_XML_INDEX="https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/"
+R2_BUCKET_NAME="clinvar-gkm"
+R2_ENDPOINT_URL="https://09208aa33790838db213a21f630c33e7.r2.cloudflarestorage.com"
+R2_PROFILE_NAME="r2"
+
+# Emit "YYYY-MM<TAB>YYYY-MM-DD HH:MM:SS" per ClinVar monthly release, ascending. Parses the
+# autoindex: after tag-strip the fields are filename, size, released-date, released-time,
+# modified-date, modified-time. Excludes the sibling .xml.gz.md5 rows.
+clinvar_monthlies() {
+  curl -sf --max-time 60 "${CLINVAR_XML_INDEX}" 2>/dev/null \
+    | sed -E 's/<[^>]+>/ /g' \
+    | tr -s ' ' \
+    | awk '$1 ~ /^ClinVarVCVRelease_[0-9]{4}-[0-9]{2}\.xml\.gz$/ {
+             print substr($1, 19, 7) "\t" $3 " " $4 }' \
+    | sort -u
+}
+
+# Echo the newest YYYY-MM already published as a monthly full in R2 (datasets/), or empty.
+r2_latest_published_month() {
+  aws s3 ls "s3://${R2_BUCKET_NAME}/datasets/" \
+    --endpoint-url "${R2_ENDPOINT_URL}" --profile "${R2_PROFILE_NAME}" 2>/dev/null \
+    | grep -oE 'clinvar-gkm_[0-9]{4}-[0-9]{2}\.json\.gz' \
+    | sed -E 's/clinvar-gkm_([0-9]{4}-[0-9]{2})\.json\.gz/\1/' \
+    | sort | tail -n1
+}
+
+# True if the dataset carries the published GKM product (marker table present). The GKM era
+# began 2026-06-27; older raw clinvar_ingest datasets have no gkm_dict_* tables to export.
+# bq show is location-agnostic (INFORMATION_SCHEMA queries need the dataset's region).
+dataset_is_gkm_capable() {
+  bq show --project_id="${PROJECT_ID}" --format=none "$1.gkm_pipeline_version" >/dev/null 2>&1
+}
+
+# Echo the newest GKM-capable dataset date (YYYY-MM-DD) with release date strictly before the
+# cutoff datetime's DATE, or empty. Walks newest-first, skipping raw datasets not yet GKM-built
+# (date-strict "<" implements "before that datetime" — ClinVar monthlies land ~00:07 early
+# month, so a same-date weekly collision is unlikely).
+resolve_source_date() {
+  local cutoff_date="${1:0:10}" d
+  while IFS= read -r d; do
+    [[ -n "${d}" ]] || continue
+    if dataset_is_gkm_capable "clinvar_${d//-/_}_${DATASET_VERSION}"; then echo "${d}"; return 0; fi
+  done < <(
+    bq ls --project_id="${PROJECT_ID}" --max_results=100000 2>/dev/null \
+      | awk '{print $1}' \
+      | grep -E "^clinvar_[0-9]{4}_[0-9]{2}_[0-9]{2}_${DATASET_VERSION}$" \
+      | sed -E 's/^clinvar_([0-9]{4})_([0-9]{2})_([0-9]{2})_.*/\1-\2-\3/' \
+      | awk -v c="${cutoff_date}" '$0 < c' \
+      | sort -r
+  )
+}
+
+# Publish a monthly full for any ClinVar monthly strictly NEWER than the latest already in R2
+# (the bound keeps this cheap and stops it from re-touching history). Normally 0 or 1 per run.
+# Bootstrap (empty bucket) is intentionally a manual re-align, not this trigger. Every failure
+# mode here is non-fatal to the weekly delta that follows.
+publish_due_monthly_fulls() {
+  local latest_pub month cv_dt src_date
+  latest_pub="$(r2_latest_published_month)" || true
+  if [[ -z "${latest_pub}" ]]; then
+    echo "    monthly trigger: no monthly full in R2 yet; skipping (bootstrap is a manual re-align)"
+    return 0
+  fi
+  while IFS=$'\t' read -r month cv_dt; do
+    [[ -n "${month}" ]] || continue
+    [[ "${month}" > "${latest_pub}" ]] || continue
+    src_date="$(resolve_source_date "${cv_dt}")" || true
+    if [[ -z "${src_date}" ]]; then
+      echo "    monthly ${month}: no GKM-built release before ${cv_dt} yet; will retry next run"
+      continue
+    fi
+    echo ">>> [5/5] ClinVar monthly ${month} (released ${cv_dt}) -> publishing FULL from ${src_date}"
+    local full_args=("${src_date}" "${DATASET_VERSION}" "--month-label=${month}")
+    $DRY_RUN && full_args+=("--dry-run")
+    "${REPO_ROOT}/src/scripts/release-gkm.sh" "${full_args[@]}" \
+      || echo "WARNING: monthly FULL ${month} from ${src_date} failed; continuing to weekly delta" >&2
+  done < <(clinvar_monthlies)
+}
+
 # --- Stage 5: export bundle + Parquet, upload to R2 ------------------------------------
 if (( START_STEP <= 5 )); then
   echo ">>> [5/5] release-gkm.sh (export bundle + Parquet, upload to R2)"
@@ -152,33 +239,11 @@ if (( START_STEP <= 5 )); then
   DATASET_VERSION="${DATASET_ID#clinvar_"${DATE_US}"_}"
   echo "    dataset=${DATASET_ID} version=${DATASET_VERSION}"
 
-  # Resolve previous release + month-boundary (retroactive monthly full).
-  PREV_DATE="$(bq --project_id="${PROJECT_ID}" query --use_legacy_sql=false --format=csv --quiet \
-    "SELECT CAST(prev_release_date AS STRING) FROM \`clinvar_ingest.schema_on\`(DATE '${DATE}')" \
-    | tail -n1 | tr -d '[:space:]')"
-
   DELTA_ARGS=("${DATE}" "${DATASET_VERSION}"); $DRY_RUN && DELTA_ARGS+=("--dry-run")
 
-  if [[ -n "${PREV_DATE}" && "${PREV_DATE:0:7}" != "${DATE:0:7}" ]]; then
-    echo ">>> [5/5] month boundary: publishing retroactive monthly FULL for ${PREV_DATE}"
-    PREV_US="${PREV_DATE//-/_}"
-    PREV_DS="$(bq ls --project_id="${PROJECT_ID}" --max_results=10000 | awk '{$1=$1;print}' | grep "^clinvar_${PREV_US}_" | head -n1)"
-    if [[ -z "${PREV_DS}" ]]; then
-      # Prior month's dataset was pruned — can't rebuild its full. Warn and skip the
-      # retroactive full, but DO NOT abort: the weekly delta below must still publish
-      # (it is decoupled from the full's success).
-      echo "WARNING: no dataset for prior release ${PREV_DATE}; skipping retroactive monthly FULL" >&2
-    else
-      PREV_VER="${PREV_DS#clinvar_"${PREV_US}"_}"
-      FULL_ARGS=("${PREV_DATE}" "${PREV_VER}"); $DRY_RUN && FULL_ARGS+=("--dry-run")
-      # Non-fatal: a transient failure of the retroactive monthly full must NOT suppress the
-      # weekly delta below. The delta chain's integrity does not depend on the full existing
-      # (the full is a checkpoint convenience; contiguous deltas bridge it), and the full is
-      # recoverable by re-running this release.
-      "${REPO_ROOT}/src/scripts/release-gkm.sh" "${FULL_ARGS[@]}" \
-        || echo "WARNING: retroactive monthly FULL failed for ${PREV_DATE}; continuing to weekly delta" >&2
-    fi
-  fi
+  # Monthly full: publish any ClinVar monthly not yet in R2, BEFORE the weekly delta so the
+  # delta's checkpoint_full resolves to the freshly-published month. Non-fatal to the delta.
+  publish_due_monthly_fulls
 
   echo ">>> [5/5] publishing weekly DELTA for ${DATE}"
   "${REPO_ROOT}/src/scripts/release-gkm-delta.sh" "${DELTA_ARGS[@]}"

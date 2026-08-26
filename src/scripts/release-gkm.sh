@@ -22,10 +22,11 @@ set -e
 
 # --- Positional arguments ---
 if [[ $# -lt 2 ]]; then
-  echo "Usage: $0 <export_date> <dataset_version> [--start-step=N] [--keep-source] [--dry-run]"
+  echo "Usage: $0 <export_date> <dataset_version> [--start-step=N] [--keep-source] [--dry-run] [--month-label=YYYY-MM]"
   echo "  export_date      ClinVar release date (YYYY-MM-DD)"
   echo "  dataset_version  Dataset version (e.g. v2_5_0)"
   echo "  --start-step=N   Start at step N (1=export, 2=assemble, 3=download parquet, 4=upload)"
+  echo "  --month-label=   Publish to this YYYY-MM monthly slot instead of export_date's month"
   exit 1
 fi
 
@@ -43,11 +44,13 @@ fi
 DRY_RUN=false
 KEEP_SOURCE=false
 START_STEP=1
+MONTH_LABEL=""
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=true ;;
     --keep-source) KEEP_SOURCE=true ;;
     --start-step=*) START_STEP="${arg#--start-step=}" ;;
+    --month-label=*) MONTH_LABEL="${arg#--month-label=}" ;;
     *)
       echo "ERROR: Unknown argument '${arg}'"
       exit 1
@@ -180,6 +183,9 @@ echo "=== Step 4/4: Uploading to R2 ==="
 UPLOAD_ARGS=("${EXPORT_DATE}" "${DATASET_VERSION}" "${BUNDLE_FILE}" "--parquet-dir=${PARQUET_DIR}")
 if $DRY_RUN; then
   UPLOAD_ARGS+=("--dry-run")
+fi
+if [[ -n "${MONTH_LABEL}" ]]; then
+  UPLOAD_ARGS+=("--month-label=${MONTH_LABEL}")
 fi
 
 "${SCRIPT_DIR}/upload-gkm-to-r2.sh" "${UPLOAD_ARGS[@]}"

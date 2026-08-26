@@ -120,7 +120,7 @@ See [Parquet Files](../data-access/download.md#parquet-files) for download URLs 
 
 ### Step 4: Upload the Monthly Full to R2
 
-`upload-gkm-to-r2.sh` uploads the assembled full bundle and Parquet files to Cloudflare R2. As of the delta distribution model, the full bundle is published **month-end only** — it corresponds to the last release of a month and is uploaded retroactively when the first release of the next month runs.
+`upload-gkm-to-r2.sh` uploads the assembled full bundle and Parquet files to Cloudflare R2. The full bundle is published **once a month, aligned to ClinVar's own monthly VCV releases**: when a new `ClinVarVCVRelease_YYYY-MM.xml.gz` appears at ClinVar's [XML index](https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/), `run-release.sh` publishes our `clinvar-gkm_YYYY-MM` full from the most recent weekly release **before** ClinVar's monthly cut datetime. The `--month-label=YYYY-MM` flag sets the target month slot independently of the source release date (e.g. the `2026-07` full is built from our `2026-06-27` release, the last one before ClinVar's `_2026-07` cut).
 
 ```bash
 ./src/scripts/upload-gkm-to-r2.sh <export_date> <dataset_version> <bundle_file> [--parquet-dir=DIR] [--dry-run]
