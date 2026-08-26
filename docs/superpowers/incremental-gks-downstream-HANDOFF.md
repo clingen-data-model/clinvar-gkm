@@ -67,7 +67,7 @@ because a changed input can add a shared entry or drop the last reference to one
 - `clinvar_ingest.gks_delta_build(on_date)` — materializes `{S}.delta_<table>` = A∪U rows (same schema as target;
   D tombstones live only in the manifest). Extend its `tables` array in lockstep with `gks_change_log.tracked`.
 - `clinvar_ingest.dataset_diff_on(on_date)` — produces all `{S}.diff_<table>` drivers (wired into `run-release.sh`
-  Stage 0). Diff tables are keyed per `src/procedures/dataset-diff-all-proc.sql`.
+  Stage 0). Diff tables are keyed per `src/procedures/dataset-diff-required-proc.sql`.
 - Shared changed/impacted-set procs: `gks_scv_changed` (SCV changed/removed + `gks_scv_change_audit`),
   `gks_rcvvcv_changed` (impacted RCV/VCV parent sets). Pattern: single-arg proc, persistent `{S}` tables,
   **all-or-nothing driver gate** (any required `diff_*` missing → everything-changed fallback), uncorrelated
@@ -120,7 +120,7 @@ Stage 0 dataset_diff + version stamp; Stage 4 = vrs-to-bq-table.sh; Stage 5 = re
    row" invariant (and flakes full-vs-full). Fixed across `variation_identity` (ORDER BY on aggregates),
    `gks_rcv_proc` (4 attrs), `gks_vcv_proc` (2 attrs) via a deterministic representative pick (smallest
    `full_scv_id`). Watch for this in `gks_json` (Plan 4) too.
-4. **All-or-nothing driver gate, not per-arm skip.** `dataset_diff_all` wraps each table's diff in
+4. **All-or-nothing driver gate, not per-arm skip.** `dataset_diff_required` wraps each table's diff in
    `BEGIN…EXCEPTION…continue`, so a single `diff_*` can be silently absent. A shared changed/impacted-set proc
    must fall back to everything-changed if ANY required driver is missing (per-arm skipping ships a partial set
    that looks valid).
@@ -138,7 +138,7 @@ Stage 0 dataset_diff + version stamp; Stage 4 = vrs-to-bq-table.sh; Stage 5 = re
 ## Known residuals / follow-ups (not blocking; decide in a future plan)
 
 - **`dataset_diff` SKIPs `variation_archive_classification`** (a `release_date` / `SELECT * EXCEPT` bug in
-  `dataset-diff-all-proc.sql`). Unrelated to correctness so far (GKS VCV recomputes classification from SCVs), but
+  `dataset-diff-required-proc.sql`). Unrelated to correctness so far (GKS VCV recomputes classification from SCVs), but
   worth fixing in `dataset_diff`.
 - **Config-data-only changes** to shared `clinvar_ingest.clinvar_*_types` / `submission_level` /
   `gks_xref_iri_templates` lookups aren't caught per-record and aren't in the build-path `gate_key` (they change

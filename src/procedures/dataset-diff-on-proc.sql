@@ -1,5 +1,5 @@
 -- ============================================================================
--- dataset_diff_on — on_date driver bridging dataset_diff_all into the GKS idiom
+-- dataset_diff_on — on_date driver bridging dataset_diff_required into the GKS idiom
 -- ============================================================================
 -- The GKS procedures are called with an (on_date, debug) signature and resolve
 -- the active release snapshot via `clinvar_ingest.schema_on(on_date)`. A diff,
@@ -7,7 +7,7 @@
 -- given a single `on_date`, it resolves
 --   * the COMPARE snapshot  = the release active on on_date               (newer)
 --   * the BASELINE snapshot = the nearest EXISTING release before it      (older)
--- and calls `clinvar_ingest.dataset_diff_all(baseline, compare)`, which writes
+-- and calls `clinvar_ingest.dataset_diff_required(baseline, compare)`, which writes
 -- `<compare_schema>.diff_<table>` for the full ClinVar table set.
 --
 -- Prior-release resolution uses the registry that already backs schema_on:
@@ -23,7 +23,7 @@
 -- creating diff tables. Callers must treat "no diff tables" as "first run =>
 -- full rebuild", never as "nothing changed".
 --
--- No `debug` parameter: unlike the per-release GKS procs, dataset_diff_all writes
+-- No `debug` parameter: unlike the per-release GKS procs, dataset_diff_required writes
 -- persistent `diff_<table>` outputs (not session temp tables), so there is no
 -- temp-vs-debug table mode to switch.
 --
@@ -58,5 +58,5 @@ BEGIN
     RETURN;
   END IF;
 
-  CALL `clinvar_ingest.dataset_diff_all`(base_schema, cur_schema);
+  CALL `clinvar_ingest.dataset_diff_required`(base_schema, cur_schema);
 END;

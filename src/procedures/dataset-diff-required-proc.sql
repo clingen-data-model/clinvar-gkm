@@ -1,9 +1,19 @@
 -- ============================================================================
--- dataset_diff_all — driver: diff every ClinVar table between two snapshots
+-- dataset_diff_required — driver: diff the ClinVar tables the incremental build
+-- actually consumes, between two snapshots
 -- ============================================================================
--- Loops the full ClinVar table set (with each table's natural key) and calls
--- clinvar_ingest.dataset_diff for each, producing <compare_schema>.diff_<table>
--- (the diff tables are written into the compare/newer snapshot's own dataset).
+-- Loops the ClinVar tables whose diffs drive an incremental changed-set (with
+-- each table's natural key) and calls clinvar_ingest.dataset_diff for each,
+-- producing <compare_schema>.diff_<table> (written into the compare/newer
+-- snapshot's own dataset).
+--
+-- Scope note: only tables consumed by the gkm_* changed-set logic are listed.
+-- ClinVar's pre-aggregated classification tables (variation_archive_classification,
+-- rcv_accession_classification) and other unconsumed tables (scv_summary — read
+-- directly cur-vs-base by gkm_scv_changed, not via a diff; clinical_assertion_
+-- observation; submission) are intentionally excluded. (This also drops
+-- variation_archive_classification, which lacked a release_date column and so
+-- errored under the EXCEPT(release_date) diff.)
 --
 -- 'release_date' is ignored for every table (it changes on every snapshot).
 --
@@ -13,13 +23,13 @@
 --     is TRUE. Per spec its key is "all columns except release_date".
 --
 -- Usage:
---   CALL `clinvar_ingest.dataset_diff_all`(
+--   CALL `clinvar_ingest.dataset_diff_required`(
 --     'clinvar_2026_07_15_v2_5_0',   -- baseline (older)
 --     'clinvar_2026_07_20_v2_5_0'    -- compare (newer)
 --   );
 -- ============================================================================
 
-CREATE OR REPLACE PROCEDURE `clinvar_ingest.dataset_diff_all`(
+CREATE OR REPLACE PROCEDURE `clinvar_ingest.dataset_diff_required`(
   baseline_schema STRING,
   compare_schema  STRING
 )
@@ -28,26 +38,23 @@ BEGIN
   DECLARE i INT64 DEFAULT 0;
   DECLARE t STRUCT<name STRING, keys ARRAY<STRING>, distinct_rows BOOL>;
 
+  -- Only tables whose diff_<table> is consumed by the incremental changed-set
+  -- logic (gkm_scv_changed, gkm_rcvvcv_changed, gkm_catvar, variation_identity).
   SET tables = [
     STRUCT('clinical_assertion'               AS name, ['id','version']            AS keys, FALSE AS distinct_rows),
-    STRUCT('clinical_assertion_observation',       ['id'],                              FALSE),
     STRUCT('clinical_assertion_trait',             ['id'],                              FALSE),
     STRUCT('clinical_assertion_trait_set',         ['id'],                              FALSE),
     STRUCT('clinical_assertion_variation',         ['id'],                              FALSE),
     STRUCT('gene',                                 ['id'],                              FALSE),
     STRUCT('gene_association',                      ['gene_id','variation_id'],          FALSE),
     STRUCT('rcv_accession',                         ['id','version'],                    FALSE),
-    STRUCT('rcv_accession_classification',          ['rcv_id','statement_type'],         FALSE),
     STRUCT('rcv_mapping',                           ['rcv_accession'],                   FALSE),
-    STRUCT('scv_summary',                           ['id','version'],                    FALSE),
-    STRUCT('submission',                            ['id'],                              FALSE),
     STRUCT('submitter',                             ['id'],                              FALSE),
     STRUCT('trait',                                 ['id'],                              FALSE),
     STRUCT('trait_mapping',                         CAST([] AS ARRAY<STRING>),           TRUE),
     STRUCT('trait_set',                             ['id'],                              FALSE),
     STRUCT('variation',                             ['id'],                              FALSE),
-    STRUCT('variation_archive',                     ['id','version'],                    FALSE),
-    STRUCT('variation_archive_classification',      ['vcv_id','statement_type'],         FALSE)
+    STRUCT('variation_archive',                     ['id','version'],                    FALSE)
   ];
 
   WHILE i < ARRAY_LENGTH(tables) DO

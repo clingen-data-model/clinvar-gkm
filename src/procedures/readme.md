@@ -41,14 +41,14 @@ procs here). Deploy the UDFs first, then the procedures:
 ```bash
 bq query --use_legacy_sql=false < src/procedures/dataset-diff-func.sql       # UDFs: canonicalize_json, json_changed_keys
 bq query --use_legacy_sql=false < src/procedures/dataset-diff-proc.sql       # clinvar_ingest.dataset_diff (one table)
-bq query --use_legacy_sql=false < src/procedures/dataset-diff-all-proc.sql   # clinvar_ingest.dataset_diff_all (all tables)
+bq query --use_legacy_sql=false < src/procedures/dataset-diff-required-proc.sql   # clinvar_ingest.dataset_diff_required (consumed tables only)
 bq query --use_legacy_sql=false < src/procedures/dataset-diff-on-proc.sql    # clinvar_ingest.dataset_diff_on (by on_date)
 ```
 
 Diff one table, or all tables between a baseline (older) and compare (newer) snapshot:
 
 ```sql
-CALL `clinvar_ingest.dataset_diff_all`('clinvar_2026_07_15_v2_5_0', 'clinvar_2026_07_20_v2_5_0');
+CALL `clinvar_ingest.dataset_diff_required`('clinvar_2026_07_15_v2_5_0', 'clinvar_2026_07_20_v2_5_0');
 ```
 
 Or by release date — `dataset_diff_on` resolves the compare snapshot and the nearest

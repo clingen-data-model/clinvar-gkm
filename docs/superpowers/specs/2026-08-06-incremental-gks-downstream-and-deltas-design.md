@@ -135,9 +135,9 @@ copy-number CAV/CA cascade), `variation_vrs_changed` (`gks_vrs` A/U), `gks_chang
 | `gks_vcv` / `gks_vcv_statement` | vcv_id | **VCV impact set** (§3.2) |
 | `gks_json` | record key | union of all upstream A/U/D read directly from `gks_change_log` (each `gks_json` output is a 1:1 JSON render of its source dict, keyed by the same `id`) |
 
-**Diff drivers already exist — the work is wiring, not producing them.** `dataset_diff_all`
+**Diff drivers already exist — the work is wiring, not producing them.** `dataset_diff_required`
 (→ `dataset_diff_on`) already emits `diff_gene_association`, `diff_trait`, and `diff_trait_set`
-(`dataset-diff-all-proc.sql:38,45,47`). The task is to consume them in the impact sets above, not to
+(`dataset-diff-required-proc.sql:38,45,47`). The task is to consume them in the impact sets above, not to
 add them to the diff producer.
 
 **`gks_json` is driven directly by `gks_change_log`** — the union of all upstream A/U/D keys *is* its

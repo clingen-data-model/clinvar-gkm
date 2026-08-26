@@ -425,4 +425,4 @@ git commit -am "docs(variation-identity): document incremental mode and vrsify h
 2. **Removed records** — must be deleted from all four tables, else stale identities leak forward.
 3. **No usable baseline** (first run, archived prior, missing table) — MUST fall back to full rebuild, never emit a partial result. Never infer "nothing changed" from absent diffs.
 4. **Version invalidation** — carried-forward rows assume identical transform + vrs-python version. Operationally gated (Task 7); `incremental=FALSE` is always safe.
-5. **Diff freshness** — incremental assumes `dataset_diff_on(on_date)` (or `dataset_diff_all`) has already produced the `diff_*` tables in `{S}` for this baseline→compare pair. Add a precondition check (diff tables exist) or call `dataset_diff_on` first.
+5. **Diff freshness** — incremental assumes `dataset_diff_on(on_date)` (or `dataset_diff_required`) has already produced the `diff_*` tables in `{S}` for this baseline→compare pair. Add a precondition check (diff tables exist) or call `dataset_diff_on` first.

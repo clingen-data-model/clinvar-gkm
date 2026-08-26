@@ -55,7 +55,7 @@
 --       the VCV is live and must recompute — its version is in full_vcv_id → id).
 --   (No own-agg-row-diff arm — same reason as RCV.)
 --
--- All-or-nothing driver gate (mirrors gkm_scv_changed): dataset_diff_all wraps each
+-- All-or-nothing driver gate (mirrors gkm_scv_changed): dataset_diff_required wraps each
 -- table diff in an EXCEPTION handler and continues, so a required diff_* can be
 -- silently absent. Required drivers = diff_rcv_mapping, diff_rcv_accession,
 -- diff_variation_archive (current) + scv_changed_ids, scv_removed_ids (from

@@ -57,7 +57,7 @@
 --     cats.id, :269,279-281), some carry a '.{n}' suffix so normalize via SPLIT.
 --     Drives @multipleConditionExplanation (output) + cats_trait_count (STEP 9 gate).
 --
--- All-or-nothing driver gate: dataset_diff_all wraps each table diff in an EXCEPTION
+-- All-or-nothing driver gate: dataset_diff_required wraps each table diff in an EXCEPTION
 -- handler and continues, so a required diff_* can be silently absent. If ANY required
 -- driver is missing (diff_clinical_assertion, diff_trait, diff_trait_set,
 -- diff_trait_mapping, diff_clinical_assertion_trait, diff_clinical_assertion_trait_set,
@@ -155,7 +155,7 @@ BEGIN
         base_schema) INTO base_has_summary;
     END IF;
 
-    -- All-or-nothing gate: dataset_diff_all wraps each table diff in an EXCEPTION
+    -- All-or-nothing gate: dataset_diff_required wraps each table diff in an EXCEPTION
     -- handler and CONTINUES on failure, so a single diff_* can be absent while others
     -- exist. A per-arm skip would then silently produce a partial (wrong-looking-valid)
     -- changed set. So require the FULL required-driver set; if ANY is missing, take the

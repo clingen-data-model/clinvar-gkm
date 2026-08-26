@@ -15,7 +15,7 @@ snapshot's own dataset** (e.g. `clinvar_2026_07_20_v2_5_0.diff_clinical_assertio
 |------|---------|
 | `dataset-diff-func.sql` | JS UDFs `canonicalize_json`, `json_changed_keys` in `clinvar_ingest` |
 | `dataset-diff-proc.sql` | `clinvar_ingest.dataset_diff` — the generic engine (one table) |
-| `dataset-diff-all-proc.sql` | `clinvar_ingest.dataset_diff_all` — driver over the full ClinVar table set |
+| `dataset-diff-required-proc.sql` | `clinvar_ingest.dataset_diff_required` — driver over the ClinVar tables the incremental build consumes |
 
 These procedures are deployed manually (like the other `src/procedures/` procs),
 into the `clinvar_ingest` dataset in `clingen-dev`. Deploy the UDFs first, then
@@ -24,7 +24,7 @@ the procs:
 ```bash
 bq query --use_legacy_sql=false < src/procedures/dataset-diff-func.sql
 bq query --use_legacy_sql=false < src/procedures/dataset-diff-proc.sql
-bq query --use_legacy_sql=false < src/procedures/dataset-diff-all-proc.sql
+bq query --use_legacy_sql=false < src/procedures/dataset-diff-required-proc.sql
 ```
 
 ## Usage
@@ -45,7 +45,7 @@ CALL `clinvar_ingest.dataset_diff`(
 All tables at once (uses the built-in table→key map):
 
 ```sql
-CALL `clinvar_ingest.dataset_diff_all`(
+CALL `clinvar_ingest.dataset_diff_required`(
   'clinvar_2026_07_15_v2_5_0',
   'clinvar_2026_07_20_v2_5_0'
 );
@@ -100,29 +100,24 @@ always be in `ignore_columns` — otherwise every row would look `modified`.
 with an empty key (the whole non-ignored row is the identity) and `use_distinct
 = TRUE`, so each snapshot is de-duplicated before diffing.
 
-## Table → key map (`dataset_diff_all`)
+## Table → key map (`dataset_diff_required`)
 
 | table | natural key | notes |
 |-------|-------------|-------|
 | clinical_assertion | id, version | |
-| clinical_assertion_observation | id | |
 | clinical_assertion_trait | id | |
 | clinical_assertion_trait_set | id | |
 | clinical_assertion_variation | id | |
 | gene | id | |
 | gene_association | gene_id, variation_id | |
 | rcv_accession | id, version | |
-| rcv_accession_classification | rcv_id, statement_type | |
 | rcv_mapping | rcv_accession | |
-| scv_summary | id, version | |
-| submission | id | |
 | submitter | id | |
 | trait | id | |
 | trait_mapping | *(all cols except release_date)* | `use_distinct = TRUE` |
 | trait_set | id | |
 | variation | id | |
 | variation_archive | id, version | |
-| variation_archive_classification | vcv_id, statement_type | |
 
 The driver isolates each table (`BEGIN … EXCEPTION WHEN ERROR`), so a missing
 table or per-table failure emits a `SKIPPED <table>: <message>` warning and the
