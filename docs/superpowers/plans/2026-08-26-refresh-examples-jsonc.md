@@ -60,7 +60,7 @@ For **cat-vrs → scv → vcv → rcv** (simplest first):
 ## Notes
 
 - The upcoming VCV/RCV aggregate extensions (`reviewStarRating`, `aggregateSignificance`,
-  `significanceBreakdown` — see the [clinsig/star spec](2026-08-26-vcv-rcv-clinsig-star-extensions-design.md))
+  `significanceBreakdown` — spec at `docs/superpowers/specs/2026-08-26-vcv-rcv-clinsig-star-extensions-design.md`)
   are **not yet in output**; regenerate against what is actually published, and refresh the VCV/RCV examples
   again once that work ships.
 - Do the regeneration against a **single, fixed release** so all examples are internally consistent.
