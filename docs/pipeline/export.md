@@ -165,6 +165,21 @@ The four internal steps are: export delta tables to GCS, assemble the delta bund
 
 ---
 
+## R2 bucket CORS policy
+
+The "Browse All Releases" file browser on the [Downloads](../data-access/download.md) page does a cross-origin `fetch()` of `index.json` from the docs site. That only works if the public R2 bucket serves a CORS policy allowing `GET` from other origins — otherwise the browser blocks the read and the widget can't populate (it then shows a network/CORS message with a `curl` fallback).
+
+The policy is checked in at [`src/scripts/r2-cors.json`](https://github.com/clingen-data-model/clinvar-gkm/blob/main/src/scripts/r2-cors.json) (`GET`/`HEAD` from `*` — appropriate for public, read-only data). It is **not** applied by the release scripts, because their object-scoped `r2` upload token cannot read or write bucket configuration (`PutBucketCors` → `AccessDenied`). Apply it once with an **Admin Read & Write** R2 token:
+
+```bash
+# after configuring an admin token as an aws profile (default name: r2admin)
+./src/scripts/apply-r2-cors.sh            # or: ./src/scripts/apply-r2-cors.sh <profile>
+```
+
+Or paste `r2-cors.json`'s rules into the Cloudflare dashboard: **R2 → clinvar-gkm → Settings → CORS Policy**. It only needs to be re-applied if the bucket is recreated or the policy is cleared.
+
+---
+
 ## Retired: gkm_json_proc
 
 `gkm_json_proc` previously rendered the statement and dictionary tables into inlined JSON columns. Those render tables were **never published** — the export assembles the bundle directly from the `gkm_dict_*` tables — so the procedure has been retired from the hot path. The null/empty stripping it used to perform is now applied during assembly (`assemble-gkm-dicts.py`), matching the old `remove_empty` cleanup. `gkm_json_proc` is not a live pipeline step and not a downstream consumer of the dictionary tables.
