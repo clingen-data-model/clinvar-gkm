@@ -141,6 +141,7 @@ nav:
     - Export & Distribute: pipeline/export.md
   # --- Reference ---
   - Reference:
+    - Roadmap: reference/roadmap.md
     - GA4GH Standards: reference/gks-standards.md
     - Known Issues: reference/known-issues.md
     - Glossary: reference/glossary.md
