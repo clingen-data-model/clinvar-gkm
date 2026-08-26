@@ -53,6 +53,9 @@ done
 
 ### Download with Python
 
+!!! note "Prerequisites"
+    These snippets use **Python 3** (the download examples need only the standard library). New to Python? Install it from [python.org/downloads](https://www.python.org/downloads/) or your OS package manager.
+
 ```python
 import urllib.request
 
@@ -561,6 +564,9 @@ Available Parquet files (20 sections):
 ### Working with Parquet Files
 
 Download the Parquet files you need, then query them locally. The R2 hosting has rate limits and is designed for file downloads, not as a remote query endpoint for tools like DuckDB.
+
+!!! note "Prerequisites"
+    The examples below use the **[DuckDB CLI](https://duckdb.org/docs/installation/)** and/or **Python with `pandas` + `pyarrow`** (`pip install pandas pyarrow`). If you don't already have these tools, install them from the linked pages first — each subsection also shows its own one-line install command.
 
 #### Download
 
