@@ -3,10 +3,17 @@ name: Deploy Documentation
 on:
   release:
     types: [published]
+  # Roadmap membership/status changes fire discussion events; upvote-based
+  # re-ordering is picked up by the daily schedule (upvotes don't fire events).
+  discussion:
+    types: [created, edited, deleted, labeled, unlabeled]
+  schedule:
+    - cron: '17 13 * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
+  discussions: read
 
 jobs:
   deploy:
@@ -19,5 +26,14 @@ jobs:
           python-version: '3.11'
 
       - run: pip install -r docs/requirements.txt
+
+      # Regenerate the Roadmap table from GitHub Discussions labeled
+      # "roadmap authorized" (ordered by upvotes). Non-fatal: a transient API
+      # failure falls back to the committed snapshot rather than blocking deploy.
+      - name: Generate roadmap from discussions
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python src/scripts/generate-roadmap.py
 
       - run: mkdocs gh-deploy --force
