@@ -1,8 +1,14 @@
 # CLAUDE.md
 
+Project-wide invariants for ClinVar-GKM. Keep this file short (< ~200 lines) and limited to things that are
+true across the whole repo. Path-specific conventions live in `.claude/rules/` (loaded only when working on
+matching files); one-off decisions live in `docs/decisions/` (ADRs). This file is shared context — change it
+via PR review.
+
 ## General Rules
 
-- Only modify files explicitly requested by the user. Do not proactively edit test files, SQL files, or other files beyond the scope of the current request without asking first.
+- Only modify files explicitly requested by the user. Do not proactively edit test files, SQL files, or other
+  files beyond the scope of the current request without asking first.
 - Don't assume. Don't hide confusion. Surface tradeoffs.
 - Minimum code that solves the problem. Nothing speculative.
 - Touch only what you must. Clean up only your own mess.
@@ -10,53 +16,27 @@
 
 ## Project Context
 
-ClinVar-GKM transforms ClinVar XML releases into the GKM (Genomic Knowledge Model) schema set — VRS, Cat-VRS, VA-Spec — curated by the GA4GH GKS (Genomic Knowledge Standards) workstream. BigQuery SQL stored procedures in `src/procedures/` do the heavy lifting. Output is a single bundled JSON file distributed via Cloudflare R2. Documentation lives in `docs/` (MkDocs with Material theme).
-
-## SQL Stored Procedure Conventions
-
-### Dynamic SQL Pattern
-
-All procedures use `DECLARE` / `SET` / `REPLACE` / `EXECUTE IMMEDIATE`:
-
-```sql
-DECLARE query STRING;
-SET query = """
-  CREATE OR REPLACE TABLE {S}.my_table AS
-  SELECT * FROM {S}.source_table
-""";
-SET query = REPLACE(query, '{S}', rec.schema_name);
-EXECUTE IMMEDIATE query;
-```
-
-- `{S}` = `rec.schema_name` (target dataset/schema)
-- `{CT}` = `temp_create` (switches between `CREATE TEMP TABLE` and `CREATE OR REPLACE TABLE` based on debug flag)
-- `{P}` = table prefix (`_SESSION` for temp tables, `rec.schema_name` for debug)
-- One `DECLARE` per query variable at the top of the procedure body
-
-### BigQuery Gotchas
-
-- No DEFAULT parameter values in procedures
-- Escape sequences in `EXECUTE IMMEDIATE` triple-quoted strings: `\\n`, `\\d`
-- `ARRAY_CONCAT_AGG` cannot be used inside `UNNEST` — split into two layers
-- `SELECT DISTINCT` cannot include JSON columns — use `GROUP BY` + `ANY_VALUE` instead
-- `COALESCE` across subqueries returning different STRUCT types fails — use `UNION ALL` CTE instead
-- Arrays cannot contain NULL elements — guard with `IF(val IS NOT NULL, [FORMAT(...)], [])`
-
-## Naming Conventions
-
-- VCV/RCV aggregation layers: **classification** (by classification label), **priority** (by tier), **aggregate** (by submission level)
-- Proposition IDs: `{scv_id}-{PROP_CODE}` for SCVs, `{accession}-{group}-{PROP}-{level}` for VCV/RCV
-- Bundle references use `#/{section}/{key}` JSON pointer format
-- Use "Variant" or "Variation" in docs headers; introduce Cat-VRS types only in GKS context
+ClinVar-GKM transforms ClinVar XML releases into the GKM (Genomic Knowledge Model) schema set — VRS, Cat-VRS,
+VA-Spec — curated by the GA4GH GKS (Genomic Knowledge Standards) workstream. BigQuery SQL stored procedures in
+`src/procedures/` do the heavy lifting; release orchestration is in `src/scripts/`. Output is a JSON bundle plus
+typed Parquet, distributed via Cloudflare R2. Documentation lives in `docs/` (MkDocs Material).
 
 ## Git Conventions
 
-- Default branch is `main`
-- Do NOT include "Generated with Claude Code" or "Co-Authored-By: Claude" in commits
-- Keep commit messages clean and focused on the changes
+- Default branch is `main`. Do work on a branch; land changes via PR review.
+- Do NOT include "Generated with Claude Code" or "Co-Authored-By: Claude" in commits.
+- Keep commit messages clean and focused on the changes.
 
-## Documentation
+## Where the rest lives
 
-- Run `mkdocs build --strict` after any docs changes to validate before committing
-- Use the `write-docs` skill for creating/editing MkDocs pages
-- Use "bundle" (not "dictionary") when referring to the output format
+- **Path-specific conventions** — `.claude/rules/*.md`, auto-loaded when working on matching paths:
+  - [`sql-procedures.md`](.claude/rules/sql-procedures.md) — dynamic SQL, BigQuery gotchas, naming,
+    oracle-gating (`src/procedures/**`)
+  - [`scripts.md`](.claude/rules/scripts.md) — bash 3.2, R2/Cloudflare, `bq`/`gh` gotchas
+    (`src/scripts/**`, `src/vrsify/**`)
+  - [`docs.md`](.claude/rules/docs.md) — MkDocs `--strict`, terminology, roadmap generation (`docs/**`)
+- **Architectural decisions** — [`docs/decisions/`](docs/decisions/) (ADRs, one per decision). Fuller design
+  specs are in `docs/superpowers/specs/`.
+- **What changed since you last looked** — run `/catchup` (`.claude/commands/catchup.md`): it diffs `git log`,
+  reads merged PR bodies + new ADRs, and briefs you on changes relevant to the files you're about to touch.
+  Don't hand-maintain a "team memory" doc — derive the moving picture from git + GitHub.
