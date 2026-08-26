@@ -18,7 +18,7 @@ Nothing here is a commitment or a delivery date — it's a prioritization board.
 | 4 | **Expert Panel / Practice Guideline VCV classification fix** — distinct aggregate classifications when multiple SCVs contribute | Proposed | [#102](https://github.com/clingen-data-model/clinvar-gkm/discussions/102) |
 | 5 | **Per-release exception log + processing-policy reference** — anomaly log per release + a transformation-rules reference artifact | Proposed | [#103](https://github.com/clingen-data-model/clinvar-gkm/discussions/103) |
 | 6 | **Capture submission case data as EvidenceLines/EvidenceItems** — aggregate case-related values + grouped/individual case-level evidence records, attached to the submitting SCV (currently excluded) | Proposed | [#104](https://github.com/clingen-data-model/clinvar-gkm/discussions/104) |
-| 7 | **Functional data submissions support** — represent functional-data SCVs (currently excluded) | Proposed | [#105](https://github.com/clingen-data-model/clinvar-gkm/discussions/105) |
+| 7 | **Capture functional-data submissions (incl. MaveDB)** — ClinVar's functional-data SCVs and MaveDB submissions (currently excluded); design shaped with interested community members | Proposed | [#105](https://github.com/clingen-data-model/clinvar-gkm/discussions/105) |
 
 ## How it works
 
