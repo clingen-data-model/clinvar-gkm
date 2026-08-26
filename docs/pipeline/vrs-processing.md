@@ -73,6 +73,8 @@ The transform + load + downstream procedures are run by `src/scripts/vrs-to-bq-t
 
 The `gkm_vrs` load is **incremental**: it clones the prior release's `gkm_vrs` forward and merges in only the changed variations' new results (keyed on `in.variation_id`), rather than a `--replace` full load. It **self-corrects to a full `--replace`** when no baseline `gkm_vrs` exists or when the staged rows are not the changed subset — so a full export (Step 1 `--full`) is loaded correctly without any flag change.
 
+Because each release clones the immediately prior one, the clone lineage grows one level per release and reaches BigQuery's cap of **3 chained clones/snapshots** roughly every 3 releases. When the seed clone fails with that error, the load automatically falls back to a **deep copy** (`CREATE OR REPLACE TABLE … AS SELECT *`) of the baseline, which materializes a fresh depth-0 table and resets the chain — self-healing, with no manual intervention. You'll see `clone chain full; reseeding via deep copy` in the log on those releases; it is expected and does not change the result.
+
 !!! warning "Version-invalidation"
     The incremental carry-forward assumes the prior release's `gkm_vrs` was produced by the **same** vrs-python normalizer and the **same** `variation_identity` transform. After a change to either, run Step 1 with `--full` on the next release to reprocess and reseed every variation; the load's self-correction then does a full `--replace`. Resume incremental afterward.
 
