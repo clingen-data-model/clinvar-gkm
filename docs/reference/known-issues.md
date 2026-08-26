@@ -28,6 +28,17 @@ functional data are already tracked as roadmap items
 ([case data](https://github.com/clingen-data-model/clinvar-gkm/discussions/104),
 [functional data](https://github.com/clingen-data-model/clinvar-gkm/discussions/105)).
 
+## Outdated example files
+
+The annotated JSONC/JSON example files in the repository's [`examples/`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples)
+directory (VCV, RCV, SCV, and Cat-VRS) currently reflect an **earlier output shape** and do **not** match what
+the pipeline now produces in the bundles. They predate the four-section proposition refactor and the va-spec
+1.1.0 conformance updates — for example, `classification`/`confidence`/`strength` are shown in an older form
+rather than as `MappableConcept` structs, and propositions are shown inline rather than in the datatype-specific
+sections. Refreshing them from current output is tracked in
+[issue #115](https://github.com/clingen-data-model/clinvar-gkm/issues/115). Until then, treat the published
+bundle (and `DESCRIBE` on the Parquet files) as the source of truth for output structure, not the example files.
+
 ---
 
 Additional edge cases, transformation caveats, and specific limitations will be documented here as they are
