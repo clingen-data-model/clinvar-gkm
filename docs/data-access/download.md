@@ -469,7 +469,26 @@ curl -s https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/index.json | python3
       document.getElementById("r2-loading").style.display = "none";
       var errDiv = document.getElementById("r2-error");
       errDiv.style.display = "block";
-      errDiv.textContent = "Unable to load release index. The file browser will be available once the first index.json is published. Use the download links above to access releases directly. (" + err.message + ")";
+      // A CORS/network failure rejects with a TypeError ("Failed to fetch" /
+      // "NetworkError" / "Load failed") and never reaches an HTTP status; an
+      // HTTP or JSON error throws a plain Error. Distinguish them so the CORS
+      // case gets an actionable message instead of a "not published yet" one.
+      var isNetwork = (err instanceof TypeError) ||
+        /failed to fetch|networkerror|load failed/i.test(err.message || "");
+      if (isNetwork) {
+        errDiv.innerHTML =
+          "<strong>Couldn't load the release index (network / CORS).</strong> " +
+          "The browser blocked the cross-origin request to <code>index.json</code> — " +
+          "typically the R2 bucket is missing a CORS policy allowing <code>GET</code> from this site. " +
+          "The releases themselves are fine; fetch the index directly:" +
+          "<pre style=\"margin:0.6rem 0 0;white-space:pre-wrap;\">curl -s " + INDEX_URL +
+          " | python3 -m json.tool</pre>";
+      } else {
+        errDiv.textContent =
+          "Unable to load the release index (" + err.message + "). " +
+          "The file browser will be available once the first index.json is published — " +
+          "use the download links above to access releases directly.";
+      }
     });
 })();
 </script>
