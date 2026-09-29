@@ -21,14 +21,14 @@ WITH allp AS (
   UNION ALL SELECT value FROM \`${DS}.gkm_dict_vcv_proposition\`
 )
 SELECT
-  COUNTIF(JSON_VALUE(value,'\$.subjectVariant') IS NOT NULL AND JSON_VALUE(value,'\$.subject') IS NOT NULL) AS both_subject_BAD,
-  COUNTIF( IF(JSON_VALUE(value,'\$.objectCondition') IS NOT NULL,1,0)
-         + IF(JSON_VALUE(value,'\$.object') IS NOT NULL,1,0)
-         + IF(JSON_VALUE(value,'\$.objectTumorType') IS NOT NULL,1,0) > 1) AS multi_object_BAD,
-  COUNTIF(JSON_VALUE(value,'\$.type')='CustomProposition' AND JSON_VALUE(value,'\$.customPropositionType') IS NULL) AS custom_missing_cpt_BAD,
-  COUNTIF(JSON_VALUE(value,'\$.type')!='CustomProposition' AND JSON_VALUE(value,'\$.customPropositionType') IS NOT NULL) AS std_has_cpt_BAD,
-  COUNTIF(JSON_TYPE(JSON_QUERY(value,'\$.object'))='array' OR JSON_TYPE(JSON_QUERY(value,'\$.objectCondition'))='array' OR JSON_TYPE(JSON_QUERY(value,'\$.objectTumorType'))='array') AS object_array_BAD,
-  COUNTIF(JSON_VALUE(value,'\$.type') LIKE 'Clinvar%') AS leftover_clinvar_type_BAD,
+  COUNTIF(JSON_VALUE(value,'\$.subject') IS NULL) AS missing_subject_BAD,
+  COUNTIF(JSON_QUERY(value,'\$.object') IS NULL) AS missing_object_BAD,
+  COUNTIF(JSON_VALUE(value,'\$.type') IS NULL) AS missing_type_BAD,
+  COUNTIF(JSON_TYPE(JSON_QUERY(value,'\$.object'))='array') AS object_array_BAD,
+  COUNTIF(JSON_VALUE(value,'\$.customPropositionType') IS NOT NULL
+       OR JSON_VALUE(value,'\$.subjectVariant') IS NOT NULL
+       OR JSON_VALUE(value,'\$.objectCondition') IS NOT NULL
+       OR JSON_VALUE(value,'\$.objectTumorType') IS NOT NULL) AS stale_field_BAD,
   COUNT(*) AS total
 FROM allp"
 
@@ -48,14 +48,14 @@ WITH refs AS (
   SELECT proposition FROM \`${DS}.gkm_dict_scv\`
   UNION ALL SELECT proposition FROM \`${DS}.gkm_dict_rcv\`
   UNION ALL SELECT proposition FROM \`${DS}.gkm_dict_vcv\`
-  UNION ALL SELECT proposition FROM \`${DS}.gkm_dict_evidence_line\`
+  UNION ALL SELECT targetProposition FROM \`${DS}.gkm_dict_evidence_line\`
 ),
 props AS (
-  SELECT key, COALESCE(JSON_VALUE(value,'\$.customPropositionType'), JSON_VALUE(value,'\$.type')) AS raw_type
+  SELECT key, JSON_VALUE(value,'\$.type') AS raw_type
   FROM \`${DS}.gkm_dict_proposition\`
-  UNION ALL SELECT key, COALESCE(JSON_VALUE(value,'\$.customPropositionType'), JSON_VALUE(value,'\$.type'))
+  UNION ALL SELECT key, JSON_VALUE(value,'\$.type')
   FROM \`${DS}.gkm_dict_rcv_proposition\`
-  UNION ALL SELECT key, COALESCE(JSON_VALUE(value,'\$.customPropositionType'), JSON_VALUE(value,'\$.type'))
+  UNION ALL SELECT key, JSON_VALUE(value,'\$.type')
   FROM \`${DS}.gkm_dict_vcv_proposition\`
 ),
 parsed AS (
@@ -86,10 +86,10 @@ WITH allp AS (
   UNION ALL SELECT value FROM \`${DS}.gkm_dict_rcv_proposition\`
   UNION ALL SELECT value FROM \`${DS}.gkm_dict_vcv_proposition\`)
 SELECT COUNTIF(
-    COALESCE(JSON_VALUE(value,'\$.customPropositionType'), JSON_VALUE(value,'\$.type')) NOT IN
+    JSON_VALUE(value,'\$.type') NOT IN
       ('VariantOncogenicityProposition','VariantTherapeuticResponseProposition','VariantPathogenicityProposition',
        'VariantClinicalSignificanceProposition','VariantDiagnosticProposition','VariantPrognosticProposition')
-    AND NOT COALESCE(JSON_VALUE(value,'\$.customPropositionType'), JSON_VALUE(value,'\$.type')) LIKE 'Clinvar%'
+    AND NOT JSON_VALUE(value,'\$.type') LIKE 'Clinvar%'
   ) AS unknown_group_BAD,
   COUNT(*) AS total
 FROM allp"

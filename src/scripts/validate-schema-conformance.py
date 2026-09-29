@@ -9,10 +9,9 @@ vrs / gks-core schemas reached through the `schema/` symlinks. Cross-tree `$ref`
 Records are read as NDJSON from stdin (one JSON object per line — e.g. the `value` of a
 `gkm_dict_*proposition` row). Each record is routed to a schema by its type:
 
-  * `$.type == "CustomProposition"`  -> schema named by `$.customPropositionType`
-  * `$.type` ending in "Proposition"  -> schema named by `$.type` (va-spec standard types)
-  * with --statements, `$.type == "Statement"/"EvidenceLine"` records are skipped unless a
-    `--as <SchemaName>` override is given (statements carry type "Statement", not a schema name).
+  * `$.type` ending in "Proposition"  -> schema named by `$.type` (Clinvar* custom + va-spec standard)
+  * `$.type == "Statement"/"EvidenceLine"`  -> the base va-spec Statement/EvidenceLine schema
+    (a `--as <SchemaName>` override still forces every record against one named schema).
 
 Usage:
   bq query ... 'SELECT TO_JSON_STRING(value) FROM ...gkm_dict_proposition LIMIT 500' \
@@ -103,10 +102,10 @@ def load_registry(schema_root: Path, relax: bool = True):
 def schema_name_for(record):
     """Return the schema (type) name a record should validate against, or None to skip."""
     t = record.get("type")
-    if t == "CustomProposition":
-        return record.get("customPropositionType")
+    if t in ("Statement", "EvidenceLine"):
+        return t  # validate against the base va-spec Statement / EvidenceLine
     if isinstance(t, str) and t.endswith("Proposition"):
-        return t
+        return t  # Clinvar* custom + va-spec standard proposition types both route by type
     return None
 
 
