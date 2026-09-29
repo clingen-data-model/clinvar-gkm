@@ -1,17 +1,17 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarConfersSensitivityProposition",
+   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/ClinvarConfersSensitivityProposition",
    "title": "ClinvarConfersSensitivityProposition",
    "description": "A proposition describing a variant that confers sensitivity to a condition or environmental factor. Used for ClinVar submissions classified as \"confers sensitivity\". ClinVar has stopped accepting new submissions with this classification, but historical submissions remain.",
    "type": "object",
    "maturity": "draft",
    "allOf": [
       {
-         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarGermlineCustomProposition"
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/ClinvarGermlineCustomProposition"
       }
    ],
    "properties": {
-      "customPropositionType": {
+      "type": {
          "type": "string",
          "const": "ClinvarConfersSensitivityProposition",
          "default": "ClinvarConfersSensitivityProposition",
@@ -24,6 +24,5 @@
          "description": "The relationship the Proposition describes between the subject variant and object condition. MUST be \"confersSensitivityFor\"."
       }
    },
-   "required": [],
-   "additionalProperties": false
+   "unevaluatedProperties": false
 }

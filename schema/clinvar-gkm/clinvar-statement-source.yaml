@@ -1,5 +1,5 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
-$id: "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/clinvar-statement-source.yaml"
+$id: "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/clinvar-statement-source.yaml"
 title: ClinVar-GKM statement profiles
 description: >-
   Profiles of the VA-Spec Statement type for ClinVar SCV (submission-level),
@@ -9,20 +9,20 @@ description: >-
 strict: true
 
 imports:
-  va-core: ../va-spec/base/va-core-source.yaml
-  domain-entities: ../va-spec/base/domain-entities-source.yaml
+  va-core: ../va-spec/va-spec-source.yaml
+  domain-entities: ../va-spec/domain-entities-source.yaml
   clinvar-proposition: ./clinvar-proposition-source.yaml
   clinvar-evidence: ./clinvar-evidence-source.yaml
   cat-vrs: ../cat-vrs/cat-vrs-source.yaml
   vrs: ../vrs/vrs-source.yaml
-  gks-core: ../gks-core/gks-core-source.yaml
+  gkm-core: ../gkm-core/gkm-core-source.yaml
 
 namespaces:
-  gks.core: /ga4gh/schema/gks-core/1.2.0-ballot.2026-07.1/json/
-  vrs: /ga4gh/schema/vrs/2.1.0-ballot.2026-07.1/json/
-  cat-vrs: /ga4gh/schema/cat-vrs/1.1.0-ballot.2026-07.1/json/
-  va-spec: /ga4gh/schema/va-spec/1.1.0-ballot.2026-07.2/base/json/
-  clinvar-gkm: /ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/
+  gkm.core: /ga4gh/schema/gkm-core/1.3.0-ballot.2026-09.1/json/
+  vrs: /ga4gh/schema/vrs/2.1.1-ballot.2026-09.1/json/
+  cat-vrs: /ga4gh/schema/cat-vrs/1.1.1-ballot.2026-09.1/json/
+  va-spec: /ga4gh/schema/va-spec/1.1.0-ballot.2026-09.1/json/
+  clinvar-gkm: /ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/
 
 $defs:
   # ─── SCV Extension Types ───
@@ -173,7 +173,7 @@ $defs:
         type: array
         ordered: false
         items:
-          $refCurie: gks.core:Coding
+          $refCurie: gkm.core:Coding
         description: >-
           Cross-references submitted by the submitter for this condition.
       original_medgen_match:
@@ -341,16 +341,16 @@ $defs:
           (risk factor, protective, drug response, affects, association,
           confers sensitivity, other, not provided, conflicting data).
         oneOf:
-          - $ref: ClinvarProposition
-          - $refCurie: gks.core:iriReference
+          - $refCurie: clinvar-gkm:ClinvarProposition
+          - $refCurie: gkm.core:iriReference
       hasEvidenceLines:
         type: array
         ordered: false
         items:
           anyOf:
-            - $ref: ClinvarSomaticEvidenceLine
+            - $refCurie: clinvar-gkm:ClinvarSomaticEvidenceLine
             - $refCurie: va-spec:EvidenceLine
-            - $refCurie: gks.core:iriReference
+            - $refCurie: gkm.core:iriReference
         description: >-
           Evidence lines for this SCV statement. For somatic clinical impact
           (SCI) statements, evidence lines carry target propositions
@@ -416,15 +416,15 @@ $defs:
           at the aggregate level represents the consensus or highest-priority
           classification across contributing submissions.
         oneOf:
-          - $ref: ClinvarProposition
-          - $refCurie: gks.core:iriReference
+          - $refCurie: clinvar-gkm:ClinvarProposition
+          - $refCurie: gkm.core:iriReference
       hasEvidenceLines:
         type: array
         ordered: false
         items:
           anyOf:
             - $refCurie: va-spec:EvidenceLine
-            - $refCurie: gks.core:iriReference
+            - $refCurie: gkm.core:iriReference
         description: >-
           Evidence lines grouping contributing submissions by review status
           priority tier. Each evidence line contains nested sub-statements

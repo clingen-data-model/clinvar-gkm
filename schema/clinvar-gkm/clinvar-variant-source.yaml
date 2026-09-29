@@ -1,5 +1,5 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
-$id: "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/clinvar-variant-source.yaml"
+$id: "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/clinvar-variant-source.yaml"
 title: ClinGen's Clinvar variant profile
 description: >-
   Profiles defined to support the clinvar GKS datasets.
@@ -9,7 +9,14 @@ imports:
   cat-vrs: ../cat-vrs/cat-vrs-source.yaml
   recipes: ../cat-vrs/recipes-source.yaml
   vrs: ../vrs/vrs-source.yaml
-  gks-core: ../gks-core/gks-core-source.yaml
+  gkm-core: ../gkm-core/gkm-core-source.yaml
+
+namespaces:
+  vrs: /ga4gh/schema/vrs/2.1.1-ballot.2026-09.1/json/
+  cat-vrs: /ga4gh/schema/cat-vrs/1.1.1-ballot.2026-09.1/json/
+  recipes: /ga4gh/schema/cat-vrs/1.1.1-ballot.2026-09.1/json/
+  gkm.core: /ga4gh/schema/gkm-core/1.3.0-ballot.2026-09.1/json/
+  clinvar-gkm: /ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/
 
 $defs:
   # Extension types for Clinvar variants
@@ -23,7 +30,7 @@ $defs:
     maturity: draft
     properties:
       nucleotideExpression:
-        $ref: "/ga4gh/schema/vrs/2.1.0-ballot.2026-07.1/json/Expression"
+        $refCurie: vrs:Expression
         description: >-
           The nucleotide HGVS expression with `syntax` (e.g.,` hgvs.c`, `hgvs.g`) 
           and `value` (the HGVS string). 
@@ -48,7 +55,7 @@ $defs:
           `true` if this transcript is designated as MANE Plus Clinical. Absent or `false` 
           when not applicable.
       proteinExpression:
-        $ref: "/ga4gh/schema/vrs/2.1.0-ballot.2026-07.1/json/Expression"
+        $refCurie: vrs:Expression
         description: >-
           The protein HGVS expression with syntax (typically `hgvs.p`) and `value`. Present 
           only when a protein-level expression exists for the nucleotide expression.
@@ -56,7 +63,7 @@ $defs:
         type: array
         ordered: false
         items:
-          $ref: "/ga4gh/schema/gks-core/1.2.0-ballot.2026-07.1/json/Coding"
+          $refCurie: gkm.core:Coding
         description: >-
           Sequence Ontology terms describing the predicted molecular consequence. 
           Each entry includes `code` (SO identifier), `system`, `name` (SO term label), 
@@ -102,7 +109,7 @@ $defs:
         type: array
         ordered: false
         items:
-          $ref: "/ga4gh/schema/gks-core/1.2.0-ballot.2026-07.1/json/iriReference"
+          $refCurie: gkm.core:iriReference
         description: >-
           Identifier IRIs for the gene, including links to identifiers.org (HGNC and/or NCBI Gene) and NCBI Gene pages.        
 
@@ -420,7 +427,7 @@ $defs:
       The GA4GH Sequence Reference Representation(SR) profile specific to Clinvar.
     protectedClassOf: ClinvarCategoricalVariation
     allOf:
-      - $ref: "/ga4gh/schema/vrs/2.1.0-ballot.2026-07.1/json/SequenceReference"
+      - $refCurie: vrs:SequenceReference
       - $ref: "#/$defs/ClinvarSequenceReferenceProperties"
 
   ClinvarSequenceLocationProperties:
@@ -432,7 +439,7 @@ $defs:
     properties:
       sequenceReference:
         oneOf:
-          - $ref: "/ga4gh/schema/gks-core/1.2.0-ballot.2026-07.1/json/iriReference"
+          - $refCurie: gkm.core:iriReference
           - $ref: "#/$defs/ClinvarSequenceReference"
         description: >-
           The reference sequence for the location.
@@ -441,7 +448,7 @@ $defs:
         ordered: false
         maxItems: 0
         items:
-          $ref: "/ga4gh/schema/gks-core/1.2.0-ballot.2026-07.1/json/Extension"
+          $refCurie: gkm.core:Extension
     additionalProperties: true
 
   ClinvarSequenceLocation:
@@ -450,7 +457,7 @@ $defs:
       The GA4GH Sequence Location Representation(SL) profile specific to Clinvar.
     protectedClassOf: ClinvarCategoricalVariation
     allOf:
-      - $ref: "/ga4gh/schema/vrs/2.1.0-ballot.2026-07.1/json/SequenceLocation"
+      - $refCurie: vrs:SequenceLocation
       - $ref: "#/$defs/ClinvarSequenceLocationProperties"
 
   ClinvarAlleleProperties:
@@ -462,7 +469,7 @@ $defs:
     properties:
       location:
         oneOf:
-          - $ref: "/ga4gh/schema/gks-core/1.2.0-ballot.2026-07.1/json/iriReference"
+          - $refCurie: gkm.core:iriReference
           - $ref: "#/$defs/ClinvarSequenceLocation"
         description: >-
           The location of the variant.
@@ -484,7 +491,7 @@ $defs:
       The GA4GH Allele Representation(AR) profile specific to Clinvar.
     protectedClassOf: ClinvarCategoricalVariation
     allOf:
-      - $ref: "/ga4gh/schema/vrs/2.1.0-ballot.2026-07.1/json/Allele"
+      - $refCurie: vrs:Allele
       - $ref: "#/$defs/ClinvarAlleleProperties"
 
   ClinvarCanonicalAlleleProperties:
@@ -496,7 +503,7 @@ $defs:
     properties:
       definingContext:
         oneOf:
-          - $ref: "/ga4gh/schema/gks-core/1.2.0-ballot.2026-07.1/json/iriReference"
+          - $refCurie: gkm.core:iriReference
           - $ref: "#/$defs/ClinvarAllele"
       members:
         type: array
@@ -506,7 +513,7 @@ $defs:
           this categorical variant.
         items:
           oneOf:
-            - $ref: "/ga4gh/schema/gks-core/1.2.0-ballot.2026-07.1/json/iriReference"
+            - $refCurie: gkm.core:iriReference
             - $ref: "#/$defs/ClinvarAllele"
     additionalProperties: true
 
@@ -545,7 +552,7 @@ $defs:
       ClinVar-specific extensions (HGVS list, gene list, cytogenetic location,
       variation type, etc.) alongside the Cat-VRS CanonicalAllele structure.
     allOf:
-      - $ref: "/ga4gh/schema/cat-vrs/1.0.0/json/CanonicalAllele"
+      - $refCurie: cat-vrs:CanonicalAllele
       - $ref: "#/$defs/ClinvarCanonicalAlleleProperties"
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
 
@@ -556,7 +563,7 @@ $defs:
       (gain or loss). Uses a DefiningLocationConstraint with a
       CopyChangeConstraint from Cat-VRS CategoricalCnv.
     allOf:
-      - $ref: "/ga4gh/schema/cat-vrs/1.0.0/json/CategoricalCnv"
+      - $refCurie: cat-vrs:CategoricalCnv
       # - $ref: "#/$defs/ClinvarCategoricalCnvProperties"
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
 
@@ -567,7 +574,7 @@ $defs:
       DefiningLocationConstraint with a CopyCountConstraint from Cat-VRS
       CategoricalCnv.
     allOf:
-      - $ref: "/ga4gh/schema/cat-vrs/1.0.0/json/CategoricalCnv"
+      - $refCurie: cat-vrs:CategoricalCnv
       # - $ref: "#/$defs/ClinvarCategoricalCnvProperties"
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
 
@@ -579,7 +586,7 @@ $defs:
       defined variants. These rely solely on the ClinVar variation ID and
       use the generalized Cat-VRS CategoricalVariant without VRS constraints.
     allOf:
-      - $ref: "/ga4gh/schema/cat-vrs/1.0.0/json/CategoricalVariant"
+      - $refCurie: cat-vrs:CategoricalVariant
       # - $ref: "#/$defs/ClinvarDescribedVariationProperties"
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
 

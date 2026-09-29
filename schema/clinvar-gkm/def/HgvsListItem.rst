@@ -1,6 +1,7 @@
-.. warning:: This data class is at a **draft** maturity level and may \
-    change significantly in future releases. Maturity \
-    levels are described in the :ref:`maturity-model`.
+.. admonition:: Draft
+    :class: warning
+
+    May change significantly in future releases. See |maturity-model|.
 
 **Computational Definition**
 
@@ -53,3 +54,5 @@ A complex structure for sharing individual HGVS entries associated with Clinvar 
       - :ref:`Coding`
       - 0..m
       - Sequence Ontology terms describing the predicted molecular consequence.  Each entry includes `code` (SO identifier), `system`, `name` (SO term label),  and `iris` (identifiers.org link).
+
+**Used in:** :ref:`ExtensionClinvarHgvsList`

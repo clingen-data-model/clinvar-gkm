@@ -1,6 +1,7 @@
-.. warning:: This data class is at a **draft** maturity level and may \
-    change significantly in future releases. Maturity \
-    levels are described in the :ref:`maturity-model`.
+.. admonition:: Draft
+    :class: warning
+
+    May change significantly in future releases. See |maturity-model|.
 
 **Computational Definition**
 
@@ -8,15 +9,8 @@ Any ClinVar statement, at either the submission (SCV) or aggregate (VCV, RCV) le
 
 **Information Model**
 
+This class must match **one of** the following:
 
-.. list-table::
-   :class: clean-wrap
-   :header-rows: 1
-   :align: left
-   :widths: auto
-
-   *  - Field
-      - Flags
-      - Type
-      - Limits
-      - Description
+* :ref:`ClinvarScvStatement`
+* :ref:`ClinvarVcvStatement`
+* :ref:`ClinvarRcvStatement`

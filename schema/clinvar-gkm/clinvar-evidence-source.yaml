@@ -1,5 +1,5 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
-$id: "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/clinvar-evidence-source.yaml"
+$id: "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/clinvar-evidence-source.yaml"
 title: ClinVar-GKM evidence line profiles
 description: >-
   Profiles of the VA-Spec EvidenceLine type for ClinVar somatic clinical
@@ -9,16 +9,16 @@ description: >-
 strict: true
 
 imports:
-  va-core: ../va-spec/base/va-core-source.yaml
-  domain-entities: ../va-spec/base/domain-entities-source.yaml
+  va-core: ../va-spec/va-spec-source.yaml
+  domain-entities: ../va-spec/domain-entities-source.yaml
   cat-vrs: ../cat-vrs/cat-vrs-source.yaml
   vrs: ../vrs/vrs-source.yaml
-  gks-core: ../gks-core/gks-core-source.yaml
+  gkm-core: ../gkm-core/gkm-core-source.yaml
 
 namespaces:
-  gks.core: /ga4gh/schema/gks-core/1.2.0-ballot.2026-07.1/json/
-  va-spec: /ga4gh/schema/va-spec/1.1.0-ballot.2026-07.2/base/json/
-  clinvar-gkm: /ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/
+  gkm.core: /ga4gh/schema/gkm-core/1.3.0-ballot.2026-09.1/json/
+  va-spec: /ga4gh/schema/va-spec/1.1.0-ballot.2026-09.1/json/
+  clinvar-gkm: /ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/
 
 $defs:
   ClinvarSomaticEvidenceLineProperties:
@@ -29,13 +29,13 @@ $defs:
     protectedClassOf: ClinvarSomaticEvidenceLine
     properties:
       evidenceOutcome:
-        $refCurie: gks.core:MappableConcept
+        $refCurie: gkm.core:MappableConcept
         description: >-
           The evidence level outcome for the somatic clinical impact assertion,
           based on the AMP/ASCO/CAP tiered evidence framework. Values reflect
           the tier mapping (e.g., "Level A/B" for Tier I, "Level C/D" for
           Tier II). Present only on somatic clinical impact evidence lines.
-      proposition:
+      targetProposition:
         description: >-
           The target proposition for this evidence line. For somatic clinical
           impact statements, this is one of the specific assertion type
@@ -46,7 +46,7 @@ $defs:
           - $refCurie: va-spec:VariantTherapeuticResponseProposition
           - $refCurie: va-spec:VariantDiagnosticProposition
           - $refCurie: va-spec:VariantPrognosticProposition
-          - $refCurie: gks.core:iriReference
+          - $refCurie: gkm.core:iriReference
     additionalProperties: true
     $comment: >-
       Somatic evidence lines also carry submittedCondition or

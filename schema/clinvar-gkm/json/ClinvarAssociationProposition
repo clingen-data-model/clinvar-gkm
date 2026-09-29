@@ -1,17 +1,17 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarAssociationProposition",
+   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/ClinvarAssociationProposition",
    "title": "ClinvarAssociationProposition",
    "description": "A proposition describing a statistical or observational association between a variant and a condition. Used for ClinVar submissions classified as \"association\". Does not imply a causal relationship.",
    "type": "object",
    "maturity": "draft",
    "allOf": [
       {
-         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/ClinvarGermlineCustomProposition"
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/ClinvarGermlineCustomProposition"
       }
    ],
    "properties": {
-      "customPropositionType": {
+      "type": {
          "type": "string",
          "const": "ClinvarAssociationProposition",
          "default": "ClinvarAssociationProposition",
@@ -24,6 +24,5 @@
          "description": "The relationship the Proposition describes between the subject variant and object condition. MUST be \"isAssociatedWith\"."
       }
    },
-   "required": [],
-   "additionalProperties": false
+   "unevaluatedProperties": false
 }

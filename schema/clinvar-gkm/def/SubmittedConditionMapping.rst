@@ -1,6 +1,7 @@
-.. warning:: This data class is at a **draft** maturity level and may \
-    change significantly in future releases. Maturity \
-    levels are described in the :ref:`maturity-model`.
+.. admonition:: Draft
+    :class: warning
+
+    May change significantly in future releases. See |maturity-model|.
 
 **Computational Definition**
 
@@ -73,3 +74,5 @@ The submitter's original condition details and how they were mapped to a ClinVar
       - object
       - 0..1
       - The mapping details used to resolve the submitted condition to a ClinVar trait, including mapping type, reference field, and value.
+
+**Used in:** :ref:`ExtensionSubmittedConditionSet`
