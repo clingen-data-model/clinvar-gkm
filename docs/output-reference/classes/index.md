@@ -176,7 +176,7 @@ These classes represent the conditions, submitters, and propositions that suppor
 | Condition | `condition` | `clinvar.trait:{id}` | Disease or phenotype with MedGen coding and cross-references |
 | ConditionSet | `conditionSet` | `clinvar.traitset:{id}` | Grouping of conditions with AND/OR membership operator |
 | Submitter | `submitter` | `clinvar.submitter:{id}` | Submitting organization |
-| [ClinvarProposition](ClinvarProposition.md) | `proposition` | `{scv_id}-{CODE}` | Classification proposition (12 types) |
+| [ClinvarProposition](ClinvarProposition.md) | `proposition` | `{scv_id}-{CODE}` | Classification proposition (13 types) |
 
 See [Propositions](propositions.md) for the full type/code/predicate reference.
 
