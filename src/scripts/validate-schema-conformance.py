@@ -53,6 +53,11 @@ def relax_additional_properties(node):
     if isinstance(node, dict):
         if node.get("additionalProperties") is False:
             del node["additionalProperties"]
+        # gkm-metaschema (0.4.x) stamps `unevaluatedProperties: false` on composed classes; like
+        # `additionalProperties: false` it does not see allOf-sibling / open-base-inherited props, so it
+        # rejects every legitimately inherited field. Strip it too and validate open-world.
+        if node.get("unevaluatedProperties") is False:
+            del node["unevaluatedProperties"]
         for v in node.values():
             relax_additional_properties(v)
     elif isinstance(node, list):
