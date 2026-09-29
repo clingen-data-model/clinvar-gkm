@@ -191,7 +191,7 @@ BEGIN
           END
         ) AS direction,
 
-        STRUCT(
+        (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
           IF(ARRAY_LENGTH(agg.full_scv_ids) = 1,
             agg.scv_strength_name,
@@ -204,7 +204,7 @@ BEGIN
               ELSE CAST(NULL AS STRING)
             END
           ) AS name
-        ) AS strength,
+        )]) s WHERE s.name IS NOT NULL) AS strength,
 
         STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, sl.label AS name) AS quality,
 
@@ -267,7 +267,7 @@ BEGIN
           ELSE 'supports'
         END AS direction,
 
-        STRUCT(
+        (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
           CASE
             WHEN agg.agg_label IN ('Pathogenic', 'Benign', 'Oncogenic') THEN 'Definitive'
@@ -277,7 +277,7 @@ BEGIN
             WHEN agg.agg_label LIKE 'Tier IV%' THEN 'Likely'
             ELSE CAST(NULL AS STRING)
           END AS name
-        ) AS strength,
+        )]) s WHERE s.name IS NOT NULL) AS strength,
 
         STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, sl.label AS name) AS quality,
 
@@ -345,7 +345,7 @@ BEGIN
           ELSE 'supports'
         END AS direction,
 
-        STRUCT(
+        (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
           CASE
             WHEN agg.agg_label IN ('Pathogenic', 'Benign', 'Oncogenic') THEN 'Definitive'
@@ -355,7 +355,7 @@ BEGIN
             WHEN agg.agg_label LIKE 'Tier IV%' THEN 'Likely'
             ELSE CAST(NULL AS STRING)
           END AS name
-        ) AS strength,
+        )]) s WHERE s.name IS NOT NULL) AS strength,
 
         STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, agg.contributing_submission_level_label AS name) AS quality,
 

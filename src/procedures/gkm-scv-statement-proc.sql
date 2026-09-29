@@ -1003,7 +1003,7 @@ BEGIN
             ) AS value_string
           )] AS extensions
         ) as classification,
-         STRUCT(
+         (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
           scv.strength_name as name,
           IF(
@@ -1011,7 +1011,7 @@ BEGIN
             STRUCT(scv.strength_code as code, scv.classif_and_strength_code_system as system),
             null
           ) as primaryCoding
-        ) as strength,
+        )]) s WHERE s.name IS NOT NULL OR s.primaryCoding IS NOT NULL) as strength,
         scv.direction,
         STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, scv.submission_level_label AS name) as quality,
         scv.classification_comment as description,
