@@ -82,4 +82,4 @@ Examples:
 - `Tier I - Strong - therapeutic - sensitivity/response (2)`
 - `Tier II - Potential - prognostic - poor outcome (1)`
 
-The condition/tumor name is not included in the classification label because it is already represented in the proposition's `objectCondition` reference.
+The condition/tumor name is not included in the classification label because it is already represented in the proposition's `object` reference.

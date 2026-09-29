@@ -13,7 +13,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   The GA4GH workstream that develops standards for representing genomic knowledge. Its schema set is referred to in this project as GKM (see below).
 
 **GKM** (Genomic Knowledge Model)
-:   The set of GA4GH GKS schemas — VRS, Cat-VRS, VA-Spec, and gks-core — that ClinVar-GKM transforms ClinVar data into. Also the project's name and output brand.
+:   The set of GA4GH GKS schemas — VRS, Cat-VRS, VA-Spec, and gkm-core — that ClinVar-GKM transforms ClinVar data into. Also the project's name and output brand.
 
 **VRS** (Variation Representation Specification)
 :   GA4GH standard for normalized, computable variant identifiers. Defines how variants are represented with sequence references, locations, and states.
@@ -97,10 +97,10 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   Higher-level grouping that associates a ClinVar variation with its resolved VRS representation. Types: CanonicalAllele, CategoricalCnvChange, CategoricalCnvCount.
 
 **MappableConcept**
-:   A single concept with `conceptType`, `name`, and optional `extension` array. Used for single-label classifications and single-condition `objectCondition` values.
+:   A single concept with `conceptType`, `name`, and optional `extension` array. Used for single-label classifications and single-condition `object` values.
 
 **ConceptSet**
-:   A structured group of concepts with `concepts` array, `conceptSetType`, and `membershipOperator`. Used for multi-condition `objectCondition` values (OR operator for VCV with multiple distinct conditions; AND operator for RCV conditionSets).
+:   A structured group of concepts with `concepts` array, `conceptSetType`, and `membershipOperator`. Used for multi-condition `object` values (OR operator for VCV with multiple distinct conditions; AND operator for RCV conditionSets).
 
 **Constraint** (Cat-VRS)
 :   Defining relationship between a categorical variant and its VRS representation. Types: DefiningAlleleConstraint, DefiningLocationConstraint, CopyChangeConstraint, CopyCountConstraint.
@@ -119,7 +119,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   Proposition type for oncogenicity assertions. Predicate: `isOncogenicFor`. Statement type O.10.
 
 **VariantClinicalSignificanceProposition**
-:   Proposition type for somatic clinical significance (AMP/ASCO/CAP tiering). Predicate: `isClinicallySignificantFor`. Statement type S.11.
+:   Proposition type for somatic clinical significance (AMP/ASCO/CAP tiering). Predicate: `hasClinicalSignificanceFor`. Statement type S.11.
 
 **VariantTherapeuticResponseProposition**
 :   Proposition type for therapeutic response assertions. Predicate: `predictsSensitivityTo`. Statement type S.12.
@@ -137,8 +137,8 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 
 ## Classification Terms
 
-**Confidence**
-:   Statement-level attribute indicating the submission level. A Concept struct with `conceptType: "Confidence"` and `name` set to the submission level label (e.g., `"criteria provided"`, `"expert panel"`). Present on both SCV and aggregate (VCV/RCV) statements.
+**Quality**
+:   Statement-level attribute (`Statement.quality`, va-spec 2026-09) indicating the submission level — a review-status/trust rating. A Concept struct with `conceptType: "Quality"` and `name` set to the submission level label (e.g., `"criteria provided"`, `"expert panel"`). Present on SCV and aggregate (VCV/RCV) statements. Replaces the former `confidence` attribute.
 
 **Direction**
 :   Whether evidence supports or disputes a proposition. Values: `supports`, `disputes`, `neutral`. On aggregate statements, derived from the classification label (multi-SCV) or passed through from the contributing SCV (single-SCV).
@@ -206,7 +206,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 **classification**
 :   VCV/RCV statement-level classification attribute. Contains a single aggregate label with optional `conflictingExplanation` extension. The classification lives only on the statement, not on the proposition.
 
-**objectCondition**
+**object**
 :   VCV/RCV proposition attribute. Contains the unique condition(s) associated with the aggregate statement. For VCV, this is a single MappableConcept or an OR ConceptSet of distinct conditions from contributing SCVs. For RCV, this is the condition sourced from `gkm_scv_condition_sets` — either a `Condition` MappableConcept or a `ConditionSet` ConceptSet. Extensions excluded.
 
 ---
@@ -258,7 +258,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   JSON structure where related objects are fully embedded within the parent. Self-contained — each record has all data needed for interpretation.
 
 **JSON Pointer**
-:   Standard format (RFC 6901) for referencing nested JSON values. Used in somatic target propositions (e.g., `4/proposition/subjectVariant`).
+:   Standard format (RFC 6901) for referencing nested JSON values. Used in somatic target propositions (e.g., `4/proposition/subject`).
 
 **BigQuery**
 :   Google Cloud Platform data warehouse used for all ClinVar-GKM SQL procedures and table storage.

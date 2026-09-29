@@ -80,7 +80,7 @@ classDiagram
             classification : MappableConcept
             strength : MappableConcept
             direction : string
-            confidence : Concept
+            quality : Concept
             contributions : Contribution[1..*]
             specifiedBy : Method[0..1]
             reportedIn : Publication[0..*]
@@ -92,7 +92,7 @@ classDiagram
             classification : MappableConcept
             strength : MappableConcept
             direction : string
-            confidence : Concept
+            quality : Concept
             extensions : Extension[0..*]
         }
         class RcvStatement {
@@ -101,7 +101,7 @@ classDiagram
             classification : MappableConcept
             strength : MappableConcept
             direction : string
-            confidence : Concept
+            quality : Concept
             extensions : Extension[0..*]
         }
         class EvidenceLine {
@@ -119,9 +119,9 @@ classDiagram
 
     %% Supporting relationships
     ConditionSet "1" --> "1..*" Condition : members
-    Proposition "*" --> "1" CategoricalVariant : subjectVariant
-    Proposition "*" --> "0..1" Condition : objectCondition
-    Proposition "*" --> "0..1" ConditionSet : objectCondition
+    Proposition "*" --> "1" CategoricalVariant : subject
+    Proposition "*" --> "0..1" Condition : object
+    Proposition "*" --> "0..1" ConditionSet : object
 
     %% Statement → Proposition
     ScvStatement "1" --> "1" Proposition : proposition
@@ -137,9 +137,9 @@ classDiagram
     RcvStatement "1" --> "1..*" EvidenceLine : hasEvidenceLines
 
     %% Evidence items (what evidence lines reference)
-    EvidenceLine "*" --> "1..*" ScvStatement : evidenceItems
-    EvidenceLine "*" ..> "0..*" VcvStatement : evidenceItems
-    EvidenceLine "*" ..> "0..*" RcvStatement : evidenceItems
+    EvidenceLine "*" --> "1..*" ScvStatement : hasEvidenceItems
+    EvidenceLine "*" ..> "0..*" VcvStatement : hasEvidenceItems
+    EvidenceLine "*" ..> "0..*" RcvStatement : hasEvidenceItems
 ```
 
 **Reading the diagram:**

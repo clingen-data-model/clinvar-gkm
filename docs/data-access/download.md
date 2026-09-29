@@ -605,7 +605,7 @@ brew install duckdb   # macOS
 ```bash
 # Query SCV statements
 duckdb -c "
-  SELECT id, classification.name AS classification, direction, strength.name AS strength, confidence.name AS confidence
+  SELECT id, classification.name AS classification, direction, strength.name AS strength, quality.name AS quality
   FROM 'scv.parquet'
   WHERE classification.name = 'Pathogenic'
   LIMIT 10;
@@ -645,7 +645,7 @@ DuckDB also works from Python:
 import duckdb
 
 df = duckdb.sql("""
-    SELECT id, classification.name AS classification, direction, strength.name AS strength, confidence.name AS confidence
+    SELECT id, classification.name AS classification, direction, strength.name AS strength, quality.name AS quality
     FROM 'scv.parquet'
     WHERE classification.name = 'Pathogenic'
     LIMIT 100
@@ -684,7 +684,7 @@ Statement sections (`scv`, `vcv`, `rcv`) share a common set of typed columns:
 | `classification` | struct (MappableConcept) | Use `classification.name` (or `classification.primaryCoding.code`) — e.g., "Pathogenic" |
 | `strength` | struct (MappableConcept) | Use `strength.name` — e.g., "definitive", "likely" |
 | `direction` | string | Evidence direction ("supports", "disputes", "neutral") |
-| `confidence` | struct (MappableConcept) | Use `confidence.name` — submission level, e.g., "criteria provided" |
+| `quality` | struct (MappableConcept) | Use `quality.name` — submission level, e.g., "criteria provided" |
 | `has_evidence_lines` | list\<string\> | FK references to evidence line Parquet (`evidenceLine` for SCV, `vcv_evidenceLine` for VCV, `rcv_evidenceLine` for RCV) |
 | `extensions` | string | JSON array of extensions |
 | `data` | string | Full JSON object |
@@ -708,7 +708,7 @@ SELECT
     s.classification.name AS classification,
     s.direction,
     s.strength.name AS strength,
-    s.confidence.name AS review_status,
+    s.quality.name AS review_status,
     p.gene_context_name AS gene,
     c.name AS condition_name,
     c.primaryCoding.code AS condition_code
@@ -726,7 +726,7 @@ ORDER BY s.classification.name;
 SELECT
     p.gene_context_name AS gene,
     s.classification.name AS classification,
-    s.confidence.name AS review_status,
+    s.quality.name AS review_status,
     s.direction,
     COUNT(*) AS scv_count
 FROM 'scv.parquet' s
@@ -743,13 +743,13 @@ ORDER BY scv_count DESC;
 SELECT
     s.id AS scv_id,
     s.classification.name AS classification,
-    s.confidence.name AS review_status,
+    s.quality.name AS review_status,
     c.name AS condition_name
 FROM 'scv.parquet' s
 JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
 LEFT JOIN 'condition.parquet' c ON p.object_condition_id = c.id
 WHERE p.gene_context_name = 'TP53'
-  AND s.confidence.name IN ('criteria provided', 'reviewed by expert panel')
+  AND s.quality.name IN ('criteria provided', 'reviewed by expert panel')
 ORDER BY s.classification.name;
 ```
 
@@ -764,7 +764,7 @@ SELECT
 FROM 'scv.parquet' s
 JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
 WHERE p.gene_context_name IN ('BRCA1', 'BRCA2', 'TP53', 'MLH1')
-  AND s.confidence.name = 'criteria provided'
+  AND s.quality.name = 'criteria provided'
 GROUP BY gene, s.classification.name
 ORDER BY gene, n DESC;
 ```
@@ -785,7 +785,7 @@ FROM 'scv.parquet' s
 JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
 WHERE p.gene_context_name = 'BRCA1'
   AND s.classification.name = 'Pathogenic'
-  AND s.confidence.name = 'reviewed by expert panel'
+  AND s.quality.name = 'reviewed by expert panel'
 LIMIT 20;
 ```
 

@@ -33,3 +33,6 @@ parquet/
 output/
 buckets/
 *-noliftover.log
+
+# y2md.py scratch output (final pages live in docs/output-reference/classes/)
+schema/clinvar-gkm/md/

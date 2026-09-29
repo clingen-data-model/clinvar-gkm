@@ -22,7 +22,7 @@ Each record is a `Statement` with the following top-level fields:
 | `classification` | object | MappableConcept — the aggregate classification label. See [Classification](#classification) |
 | `strength` | object | MappableConcept — the aggregate evidence strength. See [Strength](#strength) |
 | `direction` | string | `supports`, `disputes`, or `neutral` — derived from the aggregate classification |
-| `confidence` | object | Concept struct with `conceptType: "Confidence"` and `name` (the submission level label, e.g., `criteria provided`, `expert panel`) |
+| `quality` | object | Concept struct with `conceptType: "Quality"` and `name` (the submission level label, e.g., `criteria provided`, `expert panel`) |
 | `extensions` | array of [Extension](#extensions) | ClinVar-specific aggregate metadata (0..*). See [Extensions](#extensions) |
 | `hasEvidenceLines` | array | `#/evidenceLine/` references to contributing and non-contributing evidence. See [Evidence Lines](#evidence-lines) |
 
@@ -82,9 +82,9 @@ A resolved VCV proposition contains:
 | --- | --- | --- |
 | `type` | string | Proposition type matching the underlying SCVs (e.g., `VariantPathogenicityProposition`) |
 | `id` | string | Proposition ID (e.g., `VCV000012582-G-PATH-CP`) |
-| `subjectVariant` | string | `#/variation/clinvar:{id}` reference |
+| `subject` | string | `#/variation/clinvar:{id}` reference |
 | `predicate` | string | Predicate matching the underlying SCVs (e.g., `isCausalFor`) |
-| `objectCondition` | array | Unique condition references from contributing SCVs (`#/condition/` and/or `#/conditionSet/`) |
+| `object` | array | Unique condition references from contributing SCVs (`#/condition/` and/or `#/conditionSet/`) |
 
 ---
 
@@ -108,7 +108,7 @@ Each referenced evidence line record contains:
 | `type` | string | Always `EvidenceLine` |
 | `directionOfEvidenceProvided` | string | `supports` or `neutral` |
 | `strengthOfEvidenceProvided` | object | MappableConcept — `Contributing` or `Non-contributing` |
-| `evidenceItems` | array | `#/scv/` references (at classification layer) or `#/vcv/` references (at priority/aggregate layers) |
+| `hasEvidenceItems` | array | `#/scv/` references (at classification layer) or `#/vcv/` references (at priority/aggregate layers) |
 
 Contributing evidence lines use `directionOfEvidenceProvided: "supports"`. Non-contributing evidence lines (lower-ranked submission levels) use `directionOfEvidenceProvided: "neutral"`.
 
@@ -146,7 +146,7 @@ Extensions on the `classification` MappableConcept within the Statement.
 
 ## Layer Hierarchy
 
-VCV statements are built through a multi-layer aggregation hierarchy. The top-level output is the Aggregate Contribution layer; lower layers appear in the `evidenceItems` of higher layers.
+VCV statements are built through a multi-layer aggregation hierarchy. The top-level output is the Aggregate Contribution layer; lower layers appear in the `hasEvidenceItems` of higher layers.
 
 | Layer | ID Format | Aggregates By | Scope |
 | --- | --- | --- | --- |

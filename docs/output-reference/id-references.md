@@ -63,8 +63,8 @@ Objects reference each other using `#/{section}/{key}` strings. To resolve a ref
 | Variation | `constraints[].allele` | `#/allele/` |
 | Variation | `constraints[].location` | `#/location/` |
 | Variation | `extensions[].clinvarGeneList[].gene` | `#/gene/` |
-| Proposition (standard) | `subjectVariant` | `#/variation/` |
-| Proposition (standard) | `objectCondition` / `objectTumorType` | `#/condition/` or `#/conditionSet/` |
+| Proposition (standard) | `subject` | `#/variation/` |
+| Proposition (standard) | `object` / `object` | `#/condition/` or `#/conditionSet/` |
 | Proposition (custom) | `subject` | `#/variation/` |
 | Proposition (custom) | `object` | `#/condition/` or `#/conditionSet/` |
 | SCV Statement | `proposition` | `#/{varcond,vartumor,vartherapy,varcustom}-proposition/` |
@@ -74,7 +74,7 @@ Objects reference each other using `#/{section}/{key}` strings. To resolve a ref
 | VCV Statement | `hasEvidenceLines[]` | `#/evidenceLine/` |
 | RCV Statement | `proposition` | `#/{varcond,vartumor,vartherapy,varcustom}-proposition/` |
 | RCV Statement | `hasEvidenceLines[]` | `#/evidenceLine/` |
-| EvidenceLine | `evidenceItems[]` | `#/scv/`, `#/vcv/`, or `#/rcv/` |
+| EvidenceLine | `hasEvidenceItems[]` | `#/scv/`, `#/vcv/`, or `#/rcv/` |
 
 ### Resolution Example
 

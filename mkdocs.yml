@@ -78,6 +78,7 @@ nav:
     - Propositions:
       - output-reference/classes/propositions.md
       - ClinvarProposition: output-reference/classes/ClinvarProposition.md
+      - ClinvarGermlineCustomProposition: output-reference/classes/ClinvarGermlineCustomProposition.md
       - ClinvarRiskFactorProposition: output-reference/classes/ClinvarRiskFactorProposition.md
       - ClinvarProtectiveProposition: output-reference/classes/ClinvarProtectiveProposition.md
       - ClinvarDrugResponseProposition: output-reference/classes/ClinvarDrugResponseProposition.md

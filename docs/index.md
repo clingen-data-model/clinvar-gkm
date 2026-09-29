@@ -106,7 +106,7 @@ To find the classification statements for a specific variant, start with the var
 }
 ```
 
-The SCV statements for this variant reference it via `#/variation/clinvar:10` in their propositions. To find them, look for entries in the proposition sections (`varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`) where `subjectVariant` (or `subject`, for custom) matches, then find the corresponding `scv` entries that reference those propositions.
+The SCV statements for this variant reference it via `#/variation/clinvar:10` in their propositions. To find them, look for entries in the proposition sections (`varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`) where `subject` (or `subject`, for custom) matches, then find the corresponding `scv` entries that reference those propositions.
 
 ### Key Concepts
 

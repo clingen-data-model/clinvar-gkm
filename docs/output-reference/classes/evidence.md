@@ -50,7 +50,7 @@ An SCI statement's structure connects the tiers to the clinical assertions:
 
 ```
 SCV Statement
-├── proposition: VariantClinicalSignificanceProposition (isClinicallySignificantFor)
+├── proposition: VariantClinicalSignificanceProposition (hasClinicalSignificanceFor)
 ├── classification: "Tier I - Strong"
 └── hasEvidenceLines:
     └── ClinvarSomaticEvidenceLine

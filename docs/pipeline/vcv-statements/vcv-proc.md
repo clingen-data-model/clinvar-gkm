@@ -109,10 +109,10 @@ Each BASE section reads from the corresponding aggregation table and produces a 
 | Field | Description |
 |---|---|
 | `classification` | A simple Classification concept with `name` and optional `conflictingExplanation` extension |
-| `confidence` | The submission level label (e.g., `"expert panel"`, `"assertion criteria provided"`) |
+| `quality` | The submission level label (e.g., `"expert panel"`, `"assertion criteria provided"`) |
 | `direction` | Derived from the classification label; passed through from the contributing SCV for single-SCV aggregations |
 | `strength` | Derived from the classification label; passed through from the contributing SCV for single-SCV aggregations |
-| `proposition` | Contains `objectCondition` (the unique conditions from contributing SCVs — a single MappableConcept or an OR ConceptSet), the SCV-matching proposition type from `clinvar_proposition_types.gkm_type`, the SCV-matching predicate from `clinvar_proposition_types.gkm_predicate`, and `subjectVariant` reference |
+| `proposition` | Contains `object` (the unique conditions from contributing SCVs — a single MappableConcept or an OR ConceptSet), the SCV-matching proposition type from `clinvar_proposition_types.gkm_type`, the SCV-matching predicate from `clinvar_proposition_types.gkm_predicate`, and `subject` reference |
 | `extensions` | Array with `clinvarReviewStatus` value |
 | `hasEvidenceLines` | References to child layer IDs (SCV IDs for Classification Grouping, contributing/non-contributing statement IDs for Priority Grouping and Aggregate Contribution) |
 
@@ -128,7 +128,7 @@ Step-specific differences:
 
 ### Classification Grouping PRE
 
-Inlines SCV evidence items into each Classification Grouping BASE statement. Evidence lines are rewritten to reference SCV IDs in `clinvar.submission:{scv_id}` format. The `classification`, `confidence`, `direction`, `strength`, and `proposition` fields are carried forward from the BASE statement unchanged.
+Inlines SCV evidence items into each Classification Grouping BASE statement. Evidence lines are rewritten to reference SCV IDs in `clinvar.submission:{scv_id}` format. The `classification`, `quality`, `direction`, `strength`, and `proposition` fields are carried forward from the BASE statement unchanged.
 
 **Output:** `temp_vcv_grouping_base_pre` <span class="role-badge badge-internal">Internal</span>
 
@@ -136,7 +136,7 @@ Inlines SCV evidence items into each Classification Grouping BASE statement. Evi
 
 ### Priority Grouping PRE
 
-Inlines Classification Grouping PRE evidence items into Priority Grouping statements. This step is somatic only. Classification, confidence, direction, strength, and proposition are passed through without modification.
+Inlines Classification Grouping PRE evidence items into Priority Grouping statements. This step is somatic only. Classification, quality, direction, strength, and proposition are passed through without modification.
 
 Contributing and non-contributing evidence lines are rebuilt with the full inlined Classification Grouping PRE statement structures.
 
@@ -146,7 +146,7 @@ Contributing and non-contributing evidence lines are rebuilt with the full inlin
 
 ### Aggregate Contribution PRE
 
-Inlines evidence items from either Priority Grouping PRE or Classification Grouping PRE (using COALESCE to check Priority Grouping first, then Classification Grouping). Classification, confidence, direction, strength, and proposition on the Aggregate Contribution statement are taken directly from the Aggregate Contribution BASE row and are not modified at the PRE step.
+Inlines evidence items from either Priority Grouping PRE or Classification Grouping PRE (using COALESCE to check Priority Grouping first, then Classification Grouping). Classification, quality, direction, strength, and proposition on the Aggregate Contribution statement are taken directly from the Aggregate Contribution BASE row and are not modified at the PRE step.
 
 **Output:** `temp_vcv_agg_contribution_pre` <span class="role-badge badge-internal">Internal</span>
 

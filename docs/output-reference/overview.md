@@ -65,10 +65,10 @@ These sections contain the condition, submitter, and proposition reference data:
 
 **`varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`** — Classification propositions defining what a statement asserts (proposition type, predicate, subject, object, qualifiers). Propositions are delivered in four datatype-homogeneous sections keyed by their (subject, object) signature so each is a fully-typed table:
 
-- **`varcond-proposition`** — variant×condition (standard): `VariantPathogenicity`, `VariantClinicalSignificance`, `VariantDiagnostic`, `VariantPrognostic`; `subjectVariant` → `objectCondition`.
-- **`vartumor-proposition`** — variant×tumorType (standard): `VariantOncogenicity`; `subjectVariant` → `objectTumorType`.
-- **`vartherapy-proposition`** — variant×therapy (standard): `VariantTherapeuticResponse`; `subjectVariant` → `objectTherapy` (+ `conditionQualifier`).
-- **`varcustom-proposition`** — custom variant×condition: the 10 `Clinvar*` `CustomProposition` types (specific type in `customPropositionType`); `subject` → `object` with a generic `qualifiers[]` array.
+- **`varcond-proposition`** — variant×condition (standard): `VariantPathogenicity`, `VariantClinicalSignificance`, `VariantDiagnostic`, `VariantPrognostic`; `subject` → `object`.
+- **`vartumor-proposition`** — variant×tumorType (standard): `VariantOncogenicity`; `subject` → `object`.
+- **`vartherapy-proposition`** — variant×therapy (standard): `VariantTherapeuticResponse`; `subject` → `object` (+ `conditionQualifier`).
+- **`varcustom-proposition`** — custom variant×condition: the 10 `Clinvar*` types (e.g. `ClinvarRiskFactorProposition`, `ClinvarDrugResponseProposition`) — open subtypes of the VA-Spec `SubjectVariantProposition` base, each carrying its own real `type` name; `subject` → `object` with typed qualifiers (`geneContextQualifier`, `modeOfInheritanceQualifier`, `penetranceQualifier`).
 
 Each contains SCV, VCV, and RCV propositions of that signature. Keyed by proposition ID (e.g., `SCV001234567-PATH` for SCVs, `VCV000012582.63-G-PATH-CP` for VCVs). A `#/{section}-proposition/{id}` pointer names the exact section a proposition lives in.
 

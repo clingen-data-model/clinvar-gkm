@@ -5,7 +5,7 @@ ClinVar-GKM pipeline.
 
 ## Release status — Release Candidate
 
-The current release is a **Release Candidate** (`1.0-rc3`). It will **not** become the first official version
+The current release is a **Release Candidate** (`1.0-rc4`). It will **not** become the first official version
 until the impending release of the **GKM (Genomic Knowledge Model)** suite — VRS, Cat-VRS, and VA-Spec — which
 is currently in **Ballot review** and expected to be released **before mid-September 2026**. Until those
 specifications are finalized, schema and output details may still change to track the approved standards.

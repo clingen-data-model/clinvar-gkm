@@ -53,10 +53,10 @@ Assembles the SCV proposition by joining `temp_gkm_scv` with all qualifier table
 | Field | Description |
 |---|---|
 | `type` | Proposition type from Step 1 mapping (e.g., `VariantPathogenicityProposition`) |
-| `subjectVariant` | Reference to the categorical variant via `clinvar:{variation_id}` |
+| `subject` | Reference to the categorical variant via `clinvar:{variation_id}` |
 | `predicate` | Predicate from Step 1 mapping (e.g., `isCausalFor`, `isOncogenicFor`) |
-| `objectCondition_single` | Single condition from the condition pipeline |
-| `objectCondition_compound` | ConditionSet for SCVs with multiple conditions |
+| `object_single` | Single condition from the condition pipeline |
+| `object_compound` | ConditionSet for SCVs with multiple conditions |
 | `geneContextQualifier` | Gene concept from Step 2 |
 | `modeOfInheritanceQualifier` | Mode of inheritance from Step 3 |
 | `penetranceQualifier` | Penetrance from Step 4 |
@@ -72,15 +72,15 @@ Builds the evidence line target proposition for somatic clinical impact assertio
 | Field | Description |
 |---|---|
 | `type` | Target proposition type (e.g., `VariantPrognosticProposition`, `VariantTherapeuticResponseProposition`) |
-| `subjectVariant` | JSON pointer `4/proposition/subjectVariant` referencing the parent proposition's variant |
+| `subject` | JSON pointer `4/proposition/subject` referencing the parent proposition's variant |
 | `predicate` | Target predicate (e.g., `associatedWithBetterOutcomeFor`, `predictsSensitivityTo`) |
-| `objectTherapy_single` | Single drug therapy for therapeutic assertions |
-| `objectTherapy_compound` | Compound therapy for multi-drug therapeutic assertions |
-| `conditionQualifier` | Condition moved to qualifier position for therapeutic assertions (since `objectCondition` becomes the therapy) |
+| `object_single` | Single drug therapy for therapeutic assertions |
+| `object_compound` | Compound therapy for multi-drug therapeutic assertions |
+| `conditionQualifier` | Condition moved to qualifier position for therapeutic assertions (since `object` becomes the therapy) |
 | `geneContextQualifier` | Gene concept from Step 2 |
 | `modeOfInheritanceQualifier` | Mode of inheritance from Step 3 |
 
-The JSON pointer `4/proposition/subjectVariant` is used instead of duplicating the variant reference, linking the target proposition back to the same variant defined in the parent (Step 5) proposition.
+The JSON pointer `4/proposition/subject` is used instead of duplicating the variant reference, linking the target proposition back to the same variant defined in the parent (Step 5) proposition.
 
 **Output:** `temp_gkm_scv_target_proposition` -- one row per somatic SCV with target proposition. <span class="role-badge badge-internal">Internal</span>
 
