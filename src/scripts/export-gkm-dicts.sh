@@ -92,17 +92,17 @@ extract_parquet_typed() {
 }
 
 # Proposition delivery-group split (Phase 2): the 3 per-level proposition dicts are delivered as 4
-# datatype-homogeneous sections. Group is keyed on the raw gks type (custom rows carry it in
-# customPropositionType, standard rows in type) — the SAME canonical mapping the statement procs use.
+# datatype-homogeneous sections. Group is keyed on the proposition `type` (va-spec 2026-09: custom +
+# standard alike carry the real type name in `type`) — the SAME canonical mapping the statement procs use.
 # Quoted heredoc so nothing ($., single quotes) expands in bash.
 PROP_GROUP_CASE=$(cat <<'SQL'
 CASE
-  WHEN COALESCE(JSON_VALUE(value, '$.customPropositionType'), JSON_VALUE(value, '$.type')) LIKE 'Clinvar%' THEN 'varcustom'
-  WHEN COALESCE(JSON_VALUE(value, '$.customPropositionType'), JSON_VALUE(value, '$.type')) = 'VariantOncogenicityProposition' THEN 'vartumor'
-  WHEN COALESCE(JSON_VALUE(value, '$.customPropositionType'), JSON_VALUE(value, '$.type')) = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-  WHEN COALESCE(JSON_VALUE(value, '$.customPropositionType'), JSON_VALUE(value, '$.type')) IN
+  WHEN JSON_VALUE(value, '$.type') LIKE 'Clinvar%' THEN 'varcustom'
+  WHEN JSON_VALUE(value, '$.type') = 'VariantOncogenicityProposition' THEN 'vartumor'
+  WHEN JSON_VALUE(value, '$.type') = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
+  WHEN JSON_VALUE(value, '$.type') IN
     ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition','VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-  ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', COALESCE(JSON_VALUE(value, '$.customPropositionType'), JSON_VALUE(value, '$.type'))))
+  ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', JSON_VALUE(value, '$.type')))
 END
 SQL
 )
