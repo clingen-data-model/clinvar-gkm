@@ -314,7 +314,13 @@ BEGIN
             -- Aggregate classification label: submission-level-specific logic
             CASE
               WHEN c.submission_level = 'FLAG' THEN 'no classifications from unflagged records'
-              WHEN cs.significance_count > 1 AND c.conflict_detectable AND c.prop_type != 'sci' AND c.submission_level NOT IN ('PG', 'EP') THEN
+              -- Multiple contributing submissions with disagreeing significance (and a
+              -- conflict-detectable proposition type) aggregate to a conflicting label. This
+              -- now includes EP/PG: an expert-panel/practice-guideline VCV can aggregate
+              -- several conflicting submissions (typically across conditions), so by ClinVar's
+              -- own definitions it is conflicting — the review status still stays EP/PG
+              -- (3-/4-star). Consumers recover the individual submissions via evidence lines.
+              WHEN cs.significance_count > 1 AND c.conflict_detectable AND c.prop_type != 'sci' THEN
                 FORMAT('Conflicting classifications of %s', LOWER(c.prop_label))
               WHEN c.prop_type = 'sci' THEN
                 CASE
