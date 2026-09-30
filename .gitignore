@@ -36,3 +36,8 @@ buckets/
 
 # y2md.py scratch output (final pages live in docs/output-reference/classes/)
 schema/clinvar-gkm/md/
+
+# Local sub-bundle extracts (src/scripts/sub-bundle.py) — track only the
+# compressed .gz form, never the large uncompressed .json (the *.json glob
+# ends in .json, so .json.gz is NOT matched and stays trackable)
+nch-igm-bundle*.json
