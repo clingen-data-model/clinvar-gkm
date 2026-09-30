@@ -159,7 +159,9 @@ load_vrs_data() {
     local seed_err
     if ! seed_err=$(bq --project_id="$PROJECT_ID" query --use_legacy_sql=false --quiet \
         "CREATE OR REPLACE TABLE \`${dataset_id}.${TABLE_ID}\` CLONE \`${base_dataset}.${TABLE_ID}\`" 2>&1); then
-      if grep -qi "chained clones or snapshots" <<<"$seed_err"; then
+      # Normalize newlines: bq wraps its error to the terminal width, which can split
+      # "chained clones or snapshots" across a line break and defeat a plain grep.
+      if grep -qi "chained clones or snapshots" <<<"${seed_err//$'\n'/ }"; then
         echo "  - clone chain full; reseeding via deep copy (resets chain depth)"
         bq --project_id="$PROJECT_ID" query --use_legacy_sql=false --quiet \
           "CREATE OR REPLACE TABLE \`${dataset_id}.${TABLE_ID}\` AS SELECT * FROM \`${base_dataset}.${TABLE_ID}\`" \
