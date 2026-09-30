@@ -81,11 +81,11 @@
   <p class="caption">The release bundle is a single JSON object of <b>named sections</b>; each section is a dictionary mapping a typed id to one object. Objects link across sections with <code>#/section/id</code> JSON pointers &mdash; each drawer lists its outgoing references as <code>field &rarr; #/section/</code>. Each drawer links to its reference page; see <a href="../../output-reference/id-references/" target="_top">ID References</a> for the full pointer catalog.</p>
 
   <div class="skeleton">
-<span class="c">// one JSON object, 16 named sections, each { id: object }</span><br>
+<span class="c">// one JSON object, 20 named sections, each { id: object }</span><br>
 { <span class="k">"scv"</span>, <span class="k">"vcv"</span>, <span class="k">"rcv"</span>, <span class="k">"evidenceLine"</span>,
 &nbsp;&nbsp;<span class="k">"varcond-proposition"</span>, <span class="k">"vartumor-proposition"</span>, <span class="k">"vartherapy-proposition"</span>, <span class="k">"varcustom-proposition"</span>,
-&nbsp;&nbsp;<span class="k">"condition"</span>, <span class="k">"conditionSet"</span>, <span class="k">"submitter"</span>,
-&nbsp;&nbsp;<span class="k">"variation"</span>, <span class="k">"allele"</span>, <span class="k">"location"</span>, <span class="k">"sequenceReference"</span>, <span class="k">"gene"</span> }
+&nbsp;&nbsp;<span class="k">"condition"</span>, <span class="k">"conditionSet"</span>, <span class="k">"therapy"</span>, <span class="k">"therapyGroup"</span>, <span class="k">"submitter"</span>,
+&nbsp;&nbsp;<span class="k">"variation"</span>, <span class="k">"allele"</span>, <span class="k">"location"</span>, <span class="k">"sequenceReference"</span>, <span class="k">"gene"</span>, <span class="k">"copyNumberCount"</span>, <span class="k">"copyNumberChange"</span> }
   </div>
 
   <div class="diagram">
@@ -169,7 +169,8 @@
             <div class="eid">SCV003456789-TR</div>
             <div class="refs">
               <div class="ref"><b>subject</b> &rarr; <span class="to">#/variation/</span></div>
-              <div class="ref"><b>object</b>: <span style="opacity:.7">therapy (inline)</span></div>
+              <div class="ref"><b>object</b> &rarr; <span class="to">#/therapy|therapyGroup/</span></div>
+              <div class="ref"><b>conditionQualifier</b> &rarr; <span class="to">#/condition/</span></div>
             </div>
           </div>
         </a>
@@ -230,7 +231,7 @@
             </a>
             <div style="height:14px"></div>
             <a class="sec" href="../../output-reference/classes/variations/" target="_top">
-              <div class="head"><div class="skey">gene</div><div class="otype">MappableConcept &middot; gks-core</div></div>
+              <div class="head"><div class="skey">gene</div><div class="otype">MappableConcept &middot; gkm-core</div></div>
               <div class="body">
                 <div class="eid">ncbigene:3077</div>
                 <div class="leaf">NCBI Gene coding + HGNC mapping &mdash; leaf</div>
@@ -243,7 +244,7 @@
       <div class="colstack">
         <div class="vconnector"><div class="vline"></div><span class="role">object <span class="card">0..1</span></span><div class="vline arrow"></div></div>
         <div class="frame">
-          <span class="frame-label">Conditions &amp; submitters</span>
+          <span class="frame-label">Conditions, therapies &amp; submitters</span>
           <div class="frame-content">
             <a class="sec" href="../../output-reference/classes/#supporting-classes" target="_top">
               <div class="head"><div class="skey">conditionSet</div><div class="otype">ConditionSet &middot; ClinVar</div></div>
@@ -264,8 +265,27 @@
               </div>
             </a>
             <div style="height:14px"></div>
+            <a class="sec" href="../../output-reference/id-references/" target="_top">
+              <div class="head"><div class="skey">therapyGroup</div><div class="otype">TherapyGroup (ConceptSet) &middot; va-spec</div></div>
+              <div class="body">
+                <div class="eid">clinvar.therapygroup:df1d8467&hellip;</div>
+                <div class="refs">
+                  <div class="ref"><b>concepts[]</b> &rarr; <span class="to">#/therapy/</span></div>
+                  <div class="ref"><b>membershipOperator</b>: AND</div>
+                </div>
+              </div>
+            </a>
+            <div class="vconnector"><div class="vline"></div><span class="role">concepts <span class="card">2..*</span></span><div class="vline arrow"></div></div>
+            <a class="sec" href="../../output-reference/id-references/" target="_top">
+              <div class="head"><div class="skey">therapy</div><div class="otype">Therapy (MappableConcept) &middot; va-spec</div></div>
+              <div class="body">
+                <div class="eid">clinvar.therapy:ab221549&hellip;</div>
+                <div class="leaf">drug name + conceptType &mdash; content-addressed, leaf</div>
+              </div>
+            </a>
+            <div style="height:14px"></div>
             <a class="sec" href="../../output-reference/classes/#supporting-classes" target="_top">
-              <div class="head"><div class="skey">submitter</div><div class="otype">Agent &middot; gks-core</div></div>
+              <div class="head"><div class="skey">submitter</div><div class="otype">Agent &middot; gkm-core</div></div>
               <div class="body">
                 <div class="eid">clinvar.submitter:508027</div>
                 <div class="leaf">name &mdash; leaf (cited by scv contributions)</div>

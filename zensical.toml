@@ -11,6 +11,7 @@ strict = true
 nav = [
   { Home = "index.md" },
   { Downloads = "data-access/download.md" },
+  { "User Story" = "user-story.md" },
   { "Data Guide" = [
     { "Output Format" = "output-reference/overview.md" },
     { Variations = "output-reference/cat-vrs.md" },
@@ -107,6 +108,7 @@ nav = [
       { "RCV Extensions" = "pipeline/rcv-statements/rcv-extensions.md" },
     ] },
     { "Export & Distribute" = "pipeline/export.md" },
+    { "Sub-Bundle Extraction" = "pipeline/sub-bundle.md" },
   ] },
   { Reference = [
     { Roadmap = "reference/roadmap.md" },
@@ -132,7 +134,16 @@ features = [
   "toc.follow",
 ]
 
+# Auto — follow the OS light/dark preference (first-visit default; matches the
+# GKM Starter Kit, so jumping between the two sites stays consistent for
+# system-theme users). Toggle cycles auto -> light -> dark.
 [[project.theme.palette]]
+media = "(prefers-color-scheme)"
+toggle.icon = "material/brightness-auto"
+toggle.name = "Switch to light mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
 scheme = "default"
 primary = "indigo"
 accent = "indigo"
@@ -140,11 +151,12 @@ toggle.icon = "material/brightness-7"
 toggle.name = "Switch to dark mode"
 
 [[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
 scheme = "slate"
 primary = "indigo"
 accent = "indigo"
 toggle.icon = "material/brightness-4"
-toggle.name = "Switch to light mode"
+toggle.name = "Switch to system preference"
 
 [project.plugins.search]
 

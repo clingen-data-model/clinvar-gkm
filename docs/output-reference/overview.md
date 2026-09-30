@@ -19,6 +19,8 @@ This design eliminates duplication (a sequence reference shared by thousands of 
   "variation":         { "<key>": { ... }, ... },
   "condition":         { "<key>": { ... }, ... },
   "conditionSet":      { "<key>": { ... }, ... },
+  "therapy":           { "<key>": { ... }, ... },
+  "therapyGroup":      { "<key>": { ... }, ... },
   "submitter":            { "<key>": { ... }, ... },
   "varcond-proposition":  { "<key>": { ... }, ... },
   "vartumor-proposition": { "<key>": { ... }, ... },
@@ -55,11 +57,15 @@ These sections contain the VRS and Cat-VRS variant data:
 
 ### Supporting Data Sections
 
-These sections contain the condition, submitter, and proposition reference data:
+These sections contain the condition, therapy, submitter, and proposition reference data:
 
 **`condition`** — Trait and disease concepts from ClinVar, with MedGen primary coding and cross-references to OMIM, MONDO, HPO, Orphanet, and MeSH. Keyed by `clinvar.trait:{trait_id}` (e.g., `clinvar.trait:9580`).
 
-**`conditionSet`** — Multi-condition groupings with member condition references and a membership operator (AND or OR). Keyed by `clinvar.traitset:{trait_set_id}` (e.g., `clinvar.traitset:1234`).
+**`conditionSet`** — Multi-condition groupings with member condition references (`concepts` → `#/condition/`) and a membership operator (AND or OR). Keyed by `clinvar.traitset:{trait_set_id}` (e.g., `clinvar.traitset:1234`).
+
+**`therapy`** — Individual drug therapies (Therapy MappableConcepts) referenced by therapeutic-response propositions. Content-addressed and deduplicated (therapies have no native ClinVar id). Keyed by `clinvar.therapy:{sha256}`.
+
+**`therapyGroup`** — Combination (multi-drug) therapies (TherapyGroup ConceptSets) whose `concepts` reference member therapies via `#/therapy/`, with a membership operator. Content-addressed and deduplicated. Keyed by `clinvar.therapygroup:{sha256}`.
 
 **`submitter`** — Submitting organizations with name and identifier. Keyed by `clinvar.submitter:{submitter_id}` (e.g., `clinvar.submitter:500139`).
 
@@ -67,7 +73,7 @@ These sections contain the condition, submitter, and proposition reference data:
 
 - **`varcond-proposition`** — variant×condition (standard): `VariantPathogenicity`, `VariantClinicalSignificance`, `VariantDiagnostic`, `VariantPrognostic`; `subject` → `object`.
 - **`vartumor-proposition`** — variant×tumorType (standard): `VariantOncogenicity`; `subject` → `object`.
-- **`vartherapy-proposition`** — variant×therapy (standard): `VariantTherapeuticResponse`; `subject` → `object` (+ `conditionQualifier`).
+- **`vartherapy-proposition`** — variant×therapy (standard): `VariantTherapeuticResponse`; `subject` → `object` where `object` references the therapy (`#/therapy/` single, or `#/therapyGroup/` combination), and the condition moves to `conditionQualifier` (`#/condition/` or `#/conditionSet/`).
 - **`varcustom-proposition`** — custom variant×condition: the 10 `Clinvar*` types (e.g. `ClinvarRiskFactorProposition`, `ClinvarDrugResponseProposition`) — open subtypes of the VA-Spec `SubjectVariantProposition` base, each carrying its own real `type` name; `subject` → `object` with typed qualifiers (`geneContextQualifier`, `modeOfInheritanceQualifier`, `penetranceQualifier`).
 
 Each contains SCV, VCV, and RCV propositions of that signature. Keyed by proposition ID (e.g., `SCV001234567-PATH` for SCVs, `VCV000012582.63-G-PATH-CP` for VCVs). A `#/{section}-proposition/{id}` pointer names the exact section a proposition lives in.

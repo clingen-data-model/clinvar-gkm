@@ -35,6 +35,8 @@ The release file is a single JSON object with **bundle sections** at the root le
   "variation":         { "clinvar:10": { ... } },
   "condition":         { "clinvar.trait:9580": { ... } },
   "conditionSet":      { "clinvar.traitset:1234": { ... } },
+  "therapy":           { "clinvar.therapy:{sha256}": { ... } },
+  "therapyGroup":      { "clinvar.therapygroup:{sha256}": { ... } },
   "submitter":            { "clinvar.submitter:500139": { ... } },
   "varcond-proposition":  { "SCV001234567-PATH": { ... } },
   "vartumor-proposition": { "SCV002345678-ONCO": { ... } },

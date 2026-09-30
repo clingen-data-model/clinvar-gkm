@@ -187,6 +187,11 @@ if ! $PARQUET_ONLY; then
   extract "$(src_table gkm_dict_condition)" condition.ndjson.gz
   extract "$(src_table gkm_dict_condition_set)" conditionSet.ndjson.gz
 
+  # Therapy dictionaries (from gkm_scv_statement_proc) — content-addressed dedup; the
+  # therapeutic proposition `object` references these via #/therapy/ and #/therapyGroup/.
+  extract "$(src_table gkm_dict_therapy)" therapy.ndjson.gz
+  extract "$(src_table gkm_dict_therapygroup)" therapyGroup.ndjson.gz
+
   # SCV dictionaries (from gkm_scv_statement_proc)
   extract "$(src_table gkm_dict_submitter)" submitter.ndjson.gz
   export_ndjson_ext_collapse "$(src_table gkm_dict_evidence_line)" evidenceLine.ndjson.gz
@@ -225,6 +230,10 @@ extract_parquet_typed variation.parquet variation.sql
 # Conditions
 extract_parquet "$(src_table gkm_dict_condition)" condition.parquet
 extract_parquet_typed conditionSet.parquet conditionSet.sql
+
+# Therapies (key/value JSON dicts -> two string columns key,value)
+extract_parquet "$(src_table gkm_dict_therapy)" therapy.parquet
+extract_parquet "$(src_table gkm_dict_therapygroup)" therapyGroup.parquet
 
 # SCV
 extract_parquet_typed submitter.parquet submitter.sql

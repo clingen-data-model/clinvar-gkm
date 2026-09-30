@@ -143,7 +143,8 @@ A resolved proposition contains:
 | `type` | string | Proposition type (e.g., `VariantPathogenicityProposition`) |
 | `predicate` | string | The relationship asserted (e.g., `isCausalFor`) |
 | `subject` | string | `#/variation/clinvar:{id}` reference |
-| `object` | string | `#/condition/clinvar.trait:{id}` or `#/conditionSet/clinvar.traitset:{id}` reference |
+| `object` | string | The asserted object, as a reference. For most types: `#/condition/clinvar.trait:{id}` or `#/conditionSet/clinvar.traitset:{id}`. For `VariantTherapeuticResponseProposition`: `#/therapy/clinvar.therapy:{sha256}` (single) or `#/therapyGroup/clinvar.therapygroup:{sha256}` (combination) |
+| `conditionQualifier` | string | `#/condition/` or `#/conditionSet/` reference — present on `VariantTherapeuticResponseProposition` (where `object` carries the therapy, so the condition moves to this qualifier) |
 | `geneContextQualifier` | object | Gene context with NCBI Gene and HGNC identifiers (when applicable) |
 | `modeOfInheritanceQualifier` | object | Mode of inheritance with HPO coding (when submitted) |
 | `penetranceQualifier` | object | Penetrance qualifier (for low-penetrance/risk factor classifications) |

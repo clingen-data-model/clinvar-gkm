@@ -9,9 +9,6 @@ Distribution follows a **full + delta** model:
 
 A consumer that wants the current state takes the latest monthly full and replays the weekly deltas published since it. See [Weekly Deltas](#weekly-deltas) for the replay model.
 
-!!! warning "Breaking change — proposition sections"
-    The single `proposition` bundle section (and its `proposition-*.parquet`) has been **replaced by four datatype-homogeneous sections**: `varcond-proposition` (variant×condition), `vartumor-proposition` (variant×tumorType), `vartherapy-proposition` (variant×therapy), and `varcustom-proposition` (custom variant×condition), each with a matching Parquet file. Proposition references are now group-qualified — `#/{group}-proposition/{id}` instead of `#/proposition/{id}`. Consumers reading the `proposition` section must switch to the four new keys, and the Parquet `proposition.parquet`/`vcv_proposition.parquet`/`rcv_proposition.parquet` files are replaced by `varcond-proposition.parquet`, `vartumor-proposition.parquet`, `vartherapy-proposition.parquet`, and `varcustom-proposition.parquet`.
-
 ---
 
 ## Latest Release
@@ -43,7 +40,7 @@ curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/parquet/00-
 
 # Download all Parquet files (latest monthly full)
 for section in sequenceReference location allele copyNumberCount copyNumberChange \
-               gene variation condition conditionSet submitter \
+               gene variation condition conditionSet therapy therapyGroup submitter \
                varcond-proposition vartumor-proposition vartherapy-proposition varcustom-proposition \
                evidenceLine vcv_evidenceLine rcv_evidenceLine \
                scv vcv rcv; do
@@ -397,7 +394,7 @@ curl -s https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/index.json | python3
     // The section schema is stable, so we compose the known section files under each set's path.
     var parquetSections = [
       "sequenceReference", "location", "allele", "copyNumberCount", "copyNumberChange",
-      "gene", "variation", "condition", "conditionSet", "submitter",
+      "gene", "variation", "condition", "conditionSet", "therapy", "therapyGroup", "submitter",
       "varcond-proposition", "vartumor-proposition", "vartherapy-proposition", "varcustom-proposition",
       "evidenceLine", "vcv_evidenceLine", "rcv_evidenceLine",
       "scv", "vcv", "rcv"
@@ -549,6 +546,8 @@ Available Parquet files (20 sections):
 | `variation.parquet` | CategoricalVariant records (Cat-VRS) |
 | `condition.parquet` | Condition records (traits) |
 | `conditionSet.parquet` | ConditionSet records (trait sets) |
+| `therapy.parquet` | Therapy records (drug therapies, content-addressed) |
+| `therapyGroup.parquet` | TherapyGroup records (combination therapies) |
 | `submitter.parquet` | Submitter organization records |
 | `varcond-proposition.parquet` | Variant×condition propositions (Pathogenicity, ClinicalSignificance, Diagnostic, Prognostic) |
 | `vartumor-proposition.parquet` | Variant×tumorType propositions (Oncogenicity) |
@@ -584,7 +583,7 @@ curl -O "${BASE}/condition.parquet"
 
 # Or download all 20 sections
 for section in sequenceReference location allele copyNumberCount copyNumberChange \
-               gene variation condition conditionSet submitter \
+               gene variation condition conditionSet therapy therapyGroup submitter \
                varcond-proposition vartumor-proposition vartherapy-proposition varcustom-proposition \
                evidenceLine vcv_evidenceLine rcv_evidenceLine \
                scv vcv rcv; do
@@ -820,7 +819,7 @@ CKPT=$(python3 -c "import json;print(json.load(open('manifest.json'))['checkpoin
 # 2. The checkpoint full Parquet set -> full/, and the delta set -> delta/.
 mkdir -p full delta
 for section in sequenceReference location allele copyNumberCount copyNumberChange \
-               gene variation condition conditionSet submitter \
+               gene variation condition conditionSet therapy therapyGroup submitter \
                varcond-proposition vartumor-proposition vartherapy-proposition varcustom-proposition \
                evidenceLine vcv_evidenceLine rcv_evidenceLine scv vcv rcv; do
   curl -sf "${BASE}/datasets/parquet/${CKPT}/${section}.parquet" -o "full/${section}.parquet"  || true

@@ -50,6 +50,8 @@ BEGIN
     -- scv condition/statement outputs (Plan 2)
     STRUCT('gkm_dict_condition',              'id'),
     STRUCT('gkm_dict_condition_set',          'id'),
+    STRUCT('gkm_dict_therapy',                'key'),
+    STRUCT('gkm_dict_therapygroup',           'key'),
     STRUCT('gkm_scv_condition_sets',          'scv_id'),
     STRUCT('gkm_dict_submitter',              'key'),
     STRUCT('gkm_dict_proposition',            'key'),

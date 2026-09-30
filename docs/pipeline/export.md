@@ -76,7 +76,7 @@ python3 ./src/scripts/assemble-gkm-dicts.py \
   2026-06-14
 ```
 
-The script assembles 18 bundle sections in a fixed order: `sequenceReference`, `location`, `allele`, `copyNumberCount`, `copyNumberChange`, `gene`, `variation`, `condition`, `conditionSet`, `submitter`, `varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`, `evidenceLine`, `scv`, `vcv`, `rcv`. Each section is a keyed object where the key is the record's unique identifier. Propositions from SCV, VCV, and RCV are delivered in **four datatype-homogeneous sections** keyed by their (subject, object) signature — `varcond-proposition` (variant×condition), `vartumor-proposition` (variant×tumorType), `vartherapy-proposition` (variant×therapy), `varcustom-proposition` (custom variant×condition); evidence line shards are merged into a single `evidenceLine` section.
+The script assembles 20 bundle sections in a fixed order: `sequenceReference`, `location`, `allele`, `copyNumberCount`, `copyNumberChange`, `gene`, `variation`, `condition`, `conditionSet`, `therapy`, `therapyGroup`, `submitter`, `varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`, `evidenceLine`, `scv`, `vcv`, `rcv`. The `therapy` / `therapyGroup` sections hold content-addressed (deduplicated) drug therapies referenced by `VariantTherapeuticResponseProposition.object` via `#/therapy/` and `#/therapyGroup/`. Each section is a keyed object where the key is the record's unique identifier. Propositions from SCV, VCV, and RCV are delivered in **four datatype-homogeneous sections** keyed by their (subject, object) signature — `varcond-proposition` (variant×condition), `vartumor-proposition` (variant×tumorType), `vartherapy-proposition` (variant×therapy), `varcustom-proposition` (custom variant×condition); evidence line shards are merged into a single `evidenceLine` section.
 
 Install `orjson` for best performance:
 
@@ -92,7 +92,7 @@ This step is handled automatically by `release-gkm.sh` and cannot be run as a st
 
 #### Parquet Output
 
-The export produces 19 Parquet files — one per dictionary table. Statement and stream passthrough tables (variation, condition, conditionSet, scv, vcv, rcv, evidenceLine) have fully typed columns matching the BigQuery table schema. Key-value tables (sequenceReference, location, allele, gene, submitter, proposition, etc.) export as two string columns (`key`, `value`).
+The export produces 21 Parquet files — one per dictionary table. Statement and stream passthrough tables (variation, condition, conditionSet, scv, vcv, rcv, evidenceLine) have fully typed columns matching the BigQuery table schema. Key-value tables (sequenceReference, location, allele, gene, submitter, proposition, therapy, therapyGroup, etc.) export as two string columns (`key`, `value`).
 
 | Parquet File | Content |
 | --- | --- |

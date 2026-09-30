@@ -29,6 +29,8 @@ TABLES=(
   "gkm_dict_proposition"
   "gkm_dict_evidence_line"
   "gkm_dict_scv"
+  "gkm_dict_therapy"
+  "gkm_dict_therapygroup"
 )
 
 # gkm_scv_statement writes into {S}; to compare two builds we run full, snapshot the 4

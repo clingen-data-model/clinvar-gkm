@@ -74,9 +74,8 @@ Builds the evidence line target proposition for somatic clinical impact assertio
 | `type` | Target proposition type (e.g., `VariantPrognosticProposition`, `VariantTherapeuticResponseProposition`) |
 | `subject` | JSON pointer `4/proposition/subject` referencing the parent proposition's variant |
 | `predicate` | Target predicate (e.g., `associatedWithBetterOutcomeFor`, `predictsSensitivityTo`) |
-| `object_single` | Single drug therapy for therapeutic assertions |
-| `object_compound` | Compound therapy for multi-drug therapeutic assertions |
-| `conditionQualifier` | Condition moved to qualifier position for therapeutic assertions (since `object` becomes the therapy) |
+| `object` | For therapeutic assertions, a reference to the therapy: `#/therapy/clinvar.therapy:{sha256}` for a single drug, or `#/therapyGroup/clinvar.therapygroup:{sha256}` for a multi-drug combination. Therapies are extracted (`temp_gkm_scv_therapy`), content-addressed, and deduplicated into the `gkm_dict_therapy` / `gkm_dict_therapygroup` dictionaries; a TherapyGroup's `concepts` reference its member therapies via `#/therapy/` |
+| `conditionQualifier` | Condition moved to qualifier position for therapeutic assertions (since `object` becomes the therapy), as a `#/condition/` or `#/conditionSet/` reference |
 | `geneContextQualifier` | Gene concept from Step 2 |
 | `modeOfInheritanceQualifier` | Mode of inheritance from Step 3 |
 

@@ -2,7 +2,7 @@
 
 ClinVar-GKM represents ClinVar data using the **GKM (Genomic Knowledge Model)** schema set — **VRS**,
 **Cat-VRS**, and **VA-Spec** — curated by the GA4GH [Genomic Knowledge Standards (GKS)](https://www.ga4gh.org/genomic-knowledge-standards/)
-workstream and built on shared **GKS-Core** classes. This page links each specification, its schema
+workstream and built on shared **GKM-Core** classes. This page links each specification, its schema
 repository, and its official Python implementation, and notes how each is applied in this pipeline.
 
 ## Specifications
@@ -12,7 +12,7 @@ repository, and its official Python implementation, and notes how each is applie
 | **VRS** — Variation Representation Specification | Extensible spec for representing and uniquely identifying biological sequence variation | Every variant receives a computable, digest-identified VRS identifier | [vrs.ga4gh.org](https://vrs.ga4gh.org) | [ga4gh/vrs](https://github.com/ga4gh/vrs) | [ga4gh/vrs-python](https://github.com/ga4gh/vrs-python) |
 | **Cat-VRS** — Categorical Variation | A terminology and data model for describing categorical variation concepts | Variations are represented as Cat-VRS categorical variants with defining-allele constraints and expressions | [cat-vrs.ga4gh.org](https://cat-vrs.ga4gh.org/) | [ga4gh/cat-vrs](https://github.com/ga4gh/cat-vrs) | [ga4gh/cat-vrs-python](https://github.com/ga4gh/cat-vrs-python) |
 | **VA-Spec** — Variant Annotation Specification | An information model for representing variant annotations (statements, propositions, evidence) | Every SCV, VCV, and RCV classification is a VA-Spec statement with explicit propositions, evidence, and provenance | [va-spec.ga4gh.org](https://va-spec.ga4gh.org/) | [ga4gh/va-spec](https://github.com/ga4gh/va-spec) | [ga4gh/va-spec-python](https://github.com/ga4gh/va-spec-python) |
-| **GKS-Core** | Common classes and schemas shared by all GKS specifications (entities, `MappableConcept`, extensions, etc.) | Underlies the shared building blocks used across VRS, Cat-VRS, and VA-Spec output | — | [ga4gh/gkm-core](https://github.com/ga4gh/gkm-core) | *(bundled with the libraries above)* |
+| **GKM-Core** | Common classes and schemas shared by all GKS specifications (entities, `MappableConcept`, extensions, etc.) | Underlies the shared building blocks used across VRS, Cat-VRS, and VA-Spec output | — | [ga4gh/gkm-core](https://github.com/ga4gh/gkm-core) | *(bundled with the libraries above)* |
 
 ## Getting started with the standards
 

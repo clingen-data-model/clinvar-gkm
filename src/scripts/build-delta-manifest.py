@@ -19,6 +19,8 @@ TABLE_SECTION = {
     "gkm_dict_variation": "variation",
     "gkm_dict_condition": "condition",
     "gkm_dict_condition_set": "conditionSet",
+    "gkm_dict_therapy": "therapy",
+    "gkm_dict_therapygroup": "therapyGroup",
     "gkm_dict_submitter": "submitter",
     "gkm_dict_proposition": "proposition",
     "gkm_dict_vcv_proposition": "proposition",

@@ -51,6 +51,8 @@ These classes represent the conditions, submitters, and propositions that suppor
 | --- | --- | --- | --- |
 | Condition | `condition` | `clinvar.trait:{id}` | Disease or phenotype with MedGen coding and cross-references |
 | ConditionSet | `conditionSet` | `clinvar.traitset:{id}` | Grouping of conditions with AND/OR membership operator |
+| Therapy | `therapy` | `clinvar.therapy:{sha256}` | Drug therapy (content-addressed); `object` of therapeutic propositions via `#/therapy/` |
+| TherapyGroup | `therapyGroup` | `clinvar.therapygroup:{sha256}` | Combination therapy whose `concepts` reference `#/therapy/` members |
 | Submitter | `submitter` | `clinvar.submitter:{id}` | Submitting organization |
 | [ClinvarProposition](ClinvarProposition.md) | `varcond-proposition` | `{scv_id}-{CODE}` | Variant–condition propositions: Pathogenicity, Clinical Significance, Diagnostic, Prognostic |
 | [ClinvarProposition](ClinvarProposition.md) | `vartumor-proposition` | `{scv_id}-ONCO` | Variant–tumor-type Oncogenicity propositions |

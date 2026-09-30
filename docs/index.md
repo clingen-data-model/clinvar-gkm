@@ -2,6 +2,9 @@
 
 ClinVar-GKM provides a standardized, machine-readable representation of [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) release data using the **GKM (Genomic Knowledge Model)** schema set — VRS, Cat-VRS, and VA-Spec — curated by the GA4GH [GKS (Genomic Knowledge Standards)](https://www.ga4gh.org/genomic-knowledge-standards/) workstream. It is developed and maintained by the [ClinGen](https://clinicalgenome.org/) driver project.
 
+!!! tip "New to GKM datasets? Start with the GKM Starter Kit"
+    The GA4GH [**GKM Starter Kit**](https://ga4gh.github.io/gkm-starter-kit/) is a practical entry point for working with GKM data. It brings together the [reference libraries](https://ga4gh.github.io/gkm-starter-kit/tools/reference-implementations/) (vrs-python, cat-vrs-python, va-spec-python), the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/tools/gkm-toolkit/getting-started/) for loading and exploring published bundles, and [user stories](https://ga4gh.github.io/gkm-starter-kit/user-stories/) from projects putting GKM to work. clinvar-gkm is a GKM data producer — those tools work directly on its bundles.
+
 ## Why ClinVar-GKM
 
 ClinVar is one of the most widely used public archives of human genetic variation and its relationship to disease. However, the native ClinVar XML format presents challenges for programmatic consumption — inconsistent structures, deeply nested records, and representations that do not align with emerging genomic data standards.
@@ -71,6 +74,8 @@ The release file is a single JSON object with **bundle sections** at the root le
   "variation":         { "clinvar:10": { ... } },
   "condition":         { "clinvar.trait:9580": { ... } },
   "conditionSet":      { "clinvar.traitset:1234": { ... } },
+  "therapy":           { "clinvar.therapy:{sha256}": { ... } },
+  "therapyGroup":      { "clinvar.therapygroup:{sha256}": { ... } },
   "submitter":            { "clinvar.submitter:500139": { ... } },
   "varcond-proposition":  { "SCV001234567-PATH": { ... } },
   "vartumor-proposition": { "SCV002345678-ONCO": { ... } },

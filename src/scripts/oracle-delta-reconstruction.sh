@@ -26,6 +26,7 @@ PAIRS=(
   "gkm_dict_submitter key" "gkm_dict_proposition key" "gkm_dict_vcv_proposition key"
   "gkm_dict_rcv_proposition key"
   "gkm_dict_variation id" "gkm_dict_condition id" "gkm_dict_condition_set id"
+  "gkm_dict_therapy key" "gkm_dict_therapygroup key"
   "gkm_dict_evidence_line id" "gkm_dict_vcv_evidence_line id" "gkm_dict_rcv_evidence_line id"
   "gkm_dict_scv id" "gkm_dict_vcv id" "gkm_dict_rcv id"
 )
