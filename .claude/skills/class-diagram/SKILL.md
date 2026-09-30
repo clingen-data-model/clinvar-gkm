@@ -1,26 +1,26 @@
 ---
 name: class-diagram
-description: Generate a compact, semi-technical HTML class-relationship diagram (classes, properties, cardinalities, associations) in the established visual style, embeddable in the ClinVar-GKM MkDocs docs. Use when adding or replacing a diagram in docs/**/*.md that needs to show class structure and associations between clinvar-gkm / va-spec / gkm-core classes — including converting an existing mermaid classDiagram to a clickable HTML diagram. Not for general explainer/infographic graphics.
+description: Generate a compact, semi-technical HTML class-relationship diagram (classes, properties, cardinalities, associations) in the established visual style, embeddable in the ClinVar-GKM Zensical docs. Use when adding or replacing a diagram in docs/**/*.md that needs to show class structure and associations between clinvar-gkm / va-spec / gkm-core classes — including converting an existing mermaid classDiagram to a clickable HTML diagram. Not for general explainer/infographic graphics.
 ---
 
 # Class Diagram
 
-> **ClinVar-GKM adaptation (this repo uses MkDocs + Material, not va-spec's Sphinx/RST).** The design
+> **ClinVar-GKM adaptation (this repo uses Zensical + Material, not va-spec's Sphinx/RST).** The design
 > vocabulary, CSS components, scale-to-fit, and measurement/verification rules below are portable and
 > apply verbatim. Only the project bindings differ — translate as you read:
 >
-> | va-spec (Sphinx) reference in this skill | ClinVar-GKM (MkDocs) equivalent |
+> | va-spec (Sphinx) reference in this skill | ClinVar-GKM (Zensical) equivalent |
 > |---|---|
 > | `docs/source/**/*.rst` pages | `docs/**/*.md` pages |
 > | `schema/va-spec/*.yaml` / `schema/gkm-core/*.yaml` | `schema/clinvar-gkm/*-source.yaml` (+ va-spec/gkm-core/vrs/cat-vrs via the `schema/` symlinks). Regenerated class facts also live in `schema/clinvar-gkm/json/*` and the class pages `docs/output-reference/classes/*.md`. |
-> | diagram file at `docs/source/_static/diagrams/<name>.html` | `docs/assets/diagrams/<name>.html` (MkDocs serves `docs/` as the site root) |
+> | diagram file at `docs/source/_static/diagrams/<name>.html` | `docs/assets/diagrams/<name>.html` (Zensical serves `docs/` as the site root — `docs_dir = "docs"`) |
 > | RST embed `.. raw:: html` + `<iframe src="../_static/diagrams/…">` | raw HTML `<iframe>` **directly in the `.md`** (Material passes HTML through). Path is relative to the *page's* built URL, e.g. from `output-reference/classes/index.md` → `../../assets/diagrams/<name>.html`. |
-> | site-wide height-sync `docs/source/_static/diagram-iframe-height.js` wired via Sphinx `html_js_files` in `conf.py` | `docs/assets/diagram-iframe-height.js` wired via `extra_javascript:` in `mkdocs.yml`. Keep the same `{type:'…-diagram-height', height}` postMessage contract. |
-> | linkable-box `href` = `../../<page-path>.html#<anchor>` (RTD tree) | Material with `use_directory_urls` serves pages as `<path>/`; from `docs/assets/diagrams/<name>.html` a class page `docs/output-reference/classes/<Class>.md` is `../../output-reference/classes/<Class>/#<anchor>`. Material lowercases heading anchors (`## Information Model` → `#information-model`); confirm against the built `site/`. |
+> | site-wide height-sync `docs/source/_static/diagram-iframe-height.js` wired via Sphinx `html_js_files` in `conf.py` | `docs/assets/diagram-iframe-height.js` wired via `extra_javascript = [...]` in `zensical.toml`. Keep the same `{type:'…-diagram-height', height}` postMessage contract. |
+> | linkable-box `href` = `../../<page-path>.html#<anchor>` (RTD tree) | Zensical serves pages as directory URLs (`<path>/`, confirmed); from `docs/assets/diagrams/<name>.html` a class page `docs/output-reference/classes/<Class>.md` is `../../output-reference/classes/<Class>/#<anchor>`. Zensical lowercases heading anchors (`## Information Model` → `#information-model`); confirm against the built `site/`. |
 > | "publish as an Artifact for review" | still applies — publish the standalone `.html` as an Artifact to iterate on layout before wiring it into the page. |
-> | Rebuild/verify command `sphinx-build` | `mkdocs build --strict` (then screenshot the built page; the diagram must scale-to-fit the Material content column). |
+> | Rebuild/verify command `sphinx-build` | `zensical build --strict` (then screenshot the built page; the diagram must scale-to-fit the Material content column). |
 >
-> **First job on request: convert `docs/output-reference/classes/index.md`'s mermaid `classDiagram`** (the bundle class-relationship graph — Variation / Supporting / Statements namespaces) to a clickable HTML diagram whose boxes link to the class pages under `docs/output-reference/classes/`. If the docs later migrate to Zensical, only the embed/asset-path/JS-wiring bindings above change — the HTML diagram files are portable.
+> **First job on request: convert `docs/output-reference/classes/index.md`'s mermaid `classDiagram`** (the bundle class-relationship graph — Variation / Supporting / Statements namespaces) to a clickable HTML diagram whose boxes link to the class pages under `docs/output-reference/classes/`. The HTML diagram files are engine-portable; only the embed / asset-path / JS-wiring bindings in the table above are Zensical-specific.
 
 # VA-Spec Class Diagram
 

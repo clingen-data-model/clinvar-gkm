@@ -1,24 +1,24 @@
 ---
 name: write-docs
-description: Write or edit MkDocs documentation pages for the ClinVar-GKM project. Use when creating new documentation, editing existing pages, or adding new sections. Ensures consistent structure, formatting, and tone across all docs.
+description: Write or edit Zensical documentation pages for the ClinVar-GKM project. Use when creating new documentation, editing existing pages, or adding new sections. Ensures consistent structure, formatting, and tone across all docs.
 argument-hint: [page-type] [topic]
 allowed-tools: Read, Grep, Glob, Edit, Write
 ---
 
-# ClinVar-GKM MkDocs Documentation Writer
+# ClinVar-GKM Zensical Documentation Writer
 
-You are writing documentation for the ClinVar-GKM project using MkDocs with the Material theme. Follow these patterns exactly to maintain consistency with existing pages.
+You are writing documentation for the ClinVar-GKM project using Zensical with the Material theme. Follow these patterns exactly to maintain consistency with existing pages.
 
 ## Technology Stack
 
-- **MkDocs** with **Material for MkDocs** theme
-- Site served under `/clinvar-gkm/` prefix (set by `site_url` in `mkdocs.yml`)
-- Build command: `mkdocs build --strict` (catches broken links and warnings)
-- Local dev server: `mkdocs serve -a localhost:8000`
+- **Zensical** with the **Material** theme (classic variant)
+- Site served under `/clinvar-gkm/` prefix (set by `site_url` in `zensical.toml`)
+- Build command: `zensical build --strict` (catches broken links and warnings)
+- Local dev server: `zensical serve`
 
 ### Available Markdown Extensions
 
-These are configured in `mkdocs.yml` — use them freely:
+These are configured in `zensical.toml` — use them freely:
 
 - `tables` — standard markdown tables
 - `admonition` — `!!! note`, `!!! warning`, etc.
@@ -91,21 +91,21 @@ Rules:
 
 Distinguish between **downstream tables** (consumed by other procedures or pipelines) and **internal tables** (used only within the procedure to build the final output):
 
-- **Downstream tables** get their own sub-pages with full field documentation and appear in the Output Tables section and mkdocs.yml nav
+- **Downstream tables** get their own sub-pages with full field documentation and appear in the Output Tables section and the `zensical.toml` nav
 - **Internal tables** are described inline within their workflow step, do not get separate pages, and do not appear in Output Tables. Their `**Output:**` line says "Internal temporary table consumed by Step N."
 - Internal tables should use `CREATE TEMP TABLE` in BigQuery SQL (no schema prefix, session-scoped). This prevents intermediate data from persisting unnecessarily in the dataset
 - If an internal step has important logic (e.g., a precedence hierarchy), document it inline in the workflow step rather than on a separate page
 
 #### Navigation Titles
 
-Use descriptive nav titles in `mkdocs.yml`, not raw table names:
-```yaml
+Use descriptive nav titles in `zensical.toml`, not raw table names:
+```toml
 # Good
-- Sequence Locations: pipeline/variation-identity/variation-loc.md
-- HGVS Expressions: pipeline/variation-identity/variation-hgvs.md
+{ "Sequence Locations" = "pipeline/variation-identity/variation-loc.md" },
+{ "HGVS Expressions" = "pipeline/variation-identity/variation-hgvs.md" },
 
 # Avoid
-- variation_loc: pipeline/variation-identity/variation-loc.md
+{ variation_loc = "pipeline/variation-identity/variation-loc.md" },
 ```
 
 ### 2. Table Documentation Page
@@ -309,20 +309,25 @@ One sentence describing what the page will contain when complete.
 - No `---` between subsections (between Step 1 and Step 2)
 - No `---` at the end of a page
 
-## Navigation (`mkdocs.yml`)
+## Navigation (`zensical.toml`)
+
+The `nav` is a TOML array of inline tables. A section is `{ "Title" = [ ... ] }`; a leaf
+page is `{ "Title" = "path.md" }`; a bare string (no title) is the section's index page
+(pairs with the `navigation.indexes` theme feature). Keys with spaces or `&` must be quoted.
 
 ### Adding New Pages
 
 Multi-page sections:
-```yaml
-- Section Name:
-  - section/index.md
-  - Sub Page: section/sub-page.md
+```toml
+{ "Section Name" = [
+  "section/index.md",
+  { "Sub Page" = "section/sub-page.md" },
+] },
 ```
 
 Single-page sections:
-```yaml
-- Page Title: section/page-name.md
+```toml
+{ "Page Title" = "section/page-name.md" },
 ```
 
 ### File Naming
@@ -340,9 +345,9 @@ When creating example files in `/examples/`:
 
 ## Checklist Before Finishing
 
-1. Run `mkdocs build --strict` — zero warnings
+1. Run `zensical build --strict` — zero warnings
 2. All internal links resolve
-3. New pages are added to `nav:` in `mkdocs.yml`
+3. New pages are added to the `nav` array in `zensical.toml`
 4. Parent index pages reference new sub-pages
 5. Consistent formatting with existing pages
 

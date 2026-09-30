@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Convert YAML schema source files to Markdown class definition files.
 
-Generates Markdown suitable for MkDocs (Material theme) from the same
+Generates Markdown suitable for Zensical (Material theme) from the same
 ga4gh.gkm.metaschema YAML sources that y2t uses for RST. Each public class
 gets a .md file in the md/ output directory with:
 

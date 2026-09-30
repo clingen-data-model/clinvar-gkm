@@ -36,4 +36,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python src/scripts/generate-roadmap.py
 
-      - run: mkdocs gh-deploy --force
+      - run: zensical build --clean --strict
+
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ github.token }}
+          publish_dir: ./site
