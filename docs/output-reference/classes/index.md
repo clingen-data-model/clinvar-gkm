@@ -6,23 +6,24 @@ This page provides a visual overview of how the classes relate to each other, wi
 
 ---
 
-## Class Relationship Diagram
+## Bundle Section Map
 
-The diagram below shows how the bundle classes relate to each other in a UML-style view. Each class shows its key attributes. Lines indicate reference relationships — navigable from the class with the arrow. Multiplicity is shown on each end.
+The release bundle is a single JSON object of **named sections** — each section is a dictionary mapping a typed id to one object. Objects link across sections with `#/section/id` JSON pointers. The map below shows every section, its object type, an example id, and its outgoing references. See [ID References](../id-references.md) for the full pointer catalog.
 
-<iframe src="../../assets/diagrams/bundle-class-model.html"
+<iframe src="../../assets/diagrams/bundle-section-map.html"
         style="width:100%; height:660px; border:1px solid rgba(128,128,128,.25); border-radius:6px;"
-        title="ClinVar-GKM bundle class-relationship diagram"
+        title="ClinVar-GKM bundle section map"
         loading="lazy"></iframe>
 
-The diagram renders at full size in a scrollable frame — scroll within it to follow the reference chain from statements down to VRS locations. Each box links to that class's reference page.
+The map renders at full size in a scrollable frame — scroll within it to follow the reference chain from statements down to VRS sequence references. Each drawer links to that section's class reference page.
 
-**Reading the diagram:**
+**Reading the map:**
 
-- **Solid lines** are primary associations — always present when the parent object exists
-- **Dashed lines** are optional or conditional associations (e.g., gene list from extensions, VCV/RCV self-referencing through evidence lines)
-- **Multiplicity** on each end indicates cardinality (e.g., `1` = exactly one, `0..*` = zero or more, `1..*` = one or more)
-- **Labels** on lines show the field name or JSON pointer path used for the reference
+- **`{ } key`** is the section name — the JSON key under which that section's dictionary of objects lives
+- **The pill** is an example object id (the dictionary key within the section)
+- **`field → #/section/`** lines are the outgoing cross-section references an object in that section carries
+- **Solid arrows** trace the primary reference flow between section clusters; **dashed** arrows are optional or back-references (e.g., evidence items pointing back at statements)
+- The four `*-proposition` sections are datatype-homogeneous **delivery groups** of the proposition content, keyed by proposition type
 
 ---
 
@@ -44,16 +45,19 @@ See [Variations](variations.md) for the full variant type hierarchy and extensio
 
 ## Supporting Classes
 
-These classes represent the conditions, submitters, and propositions that support classification statements. Conditions and submitters use upstream GA4GH types. ClinVar-specific proposition types are documented under [Propositions](propositions.md).
+These classes represent the conditions, submitters, and propositions that support classification statements. Conditions and submitters use upstream GA4GH types. Proposition content is delivered in **four datatype-homogeneous sections** keyed by proposition type — together they hold all 13 [ClinvarProposition](ClinvarProposition.md) types.
 
 | Class | Bundle Section | Key Pattern | Description |
 | --- | --- | --- | --- |
 | Condition | `condition` | `clinvar.trait:{id}` | Disease or phenotype with MedGen coding and cross-references |
 | ConditionSet | `conditionSet` | `clinvar.traitset:{id}` | Grouping of conditions with AND/OR membership operator |
 | Submitter | `submitter` | `clinvar.submitter:{id}` | Submitting organization |
-| [ClinvarProposition](ClinvarProposition.md) | `proposition` | `{scv_id}-{CODE}` | Classification proposition (13 types) |
+| [ClinvarProposition](ClinvarProposition.md) | `varcond-proposition` | `{scv_id}-{CODE}` | Variant–condition propositions: Pathogenicity, Clinical Significance, Diagnostic, Prognostic |
+| [ClinvarProposition](ClinvarProposition.md) | `vartumor-proposition` | `{scv_id}-ONCO` | Variant–tumor-type Oncogenicity propositions |
+| [ClinvarProposition](ClinvarProposition.md) | `vartherapy-proposition` | `{scv_id}-TR` | Variant–therapy Therapeutic Response propositions |
+| [ClinvarProposition](ClinvarProposition.md) | `varcustom-proposition` | `{scv_id}-{CODE}` | ClinVar-specific proposition types (Risk Factor, Protective, Drug Response, …) |
 
-See [Propositions](propositions.md) for the full type/code/predicate reference.
+See [Propositions](propositions.md) for the full type/code/predicate reference and [ID References](../id-references.md) for how the delivery groups are keyed.
 
 ---
 
