@@ -712,15 +712,25 @@ BEGIN
     SET query_scv_condition_names = REPLACE("""
       {CT} {P}.temp_scv_condition_names AS
       SELECT
-        scv_id,
+        cs.scv_id,
         CASE
-          WHEN extensions.value_submitted_condition.name IS NOT NULL
-            THEN extensions.value_submitted_condition.name
-          WHEN ARRAY_LENGTH(extensions.value_submitted_condition_set.concepts) >= 2
-            THEN FORMAT('%d conditions', ARRAY_LENGTH(extensions.value_submitted_condition_set.concepts))
+          WHEN cs.extensions.value_submitted_condition.name IS NOT NULL
+            THEN cs.extensions.value_submitted_condition.name
+          WHEN ARRAY_LENGTH(cs.extensions.value_submitted_condition_set.concepts) >= 2
+            THEN FORMAT('%d conditions', ARRAY_LENGTH(cs.extensions.value_submitted_condition_set.concepts))
+          -- Single submitted condition with no submitted name (e.g. a coded-only
+          -- submission): fall back to the normalized trait's name -- what ClinVar
+          -- renders -- before the generic 'unspecified condition'.
+          WHEN dc.name IS NOT NULL
+            THEN dc.name
           ELSE 'unspecified condition'
         END AS condition_name
-      FROM `{S}.gkm_scv_condition_sets`
+      FROM `{S}.gkm_scv_condition_sets` cs
+      LEFT JOIN `{S}.gkm_dict_condition` dc
+        ON dc.id = REPLACE(
+             COALESCE(cs.extensions.value_submitted_condition.condition,
+                      cs.extensions.value_submitted_condition.normalized_match),
+             '#/condition/', '')
       {VF_CN}
     """, '{S}', rec.schema_name);
     SET query_scv_condition_names = REPLACE(query_scv_condition_names, '{VF_CN}', vf_cn_where);
