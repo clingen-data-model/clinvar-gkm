@@ -5,7 +5,7 @@ ClinVar-GKM pipeline.
 
 ## Release status
 
-This is the **first official release** (`1.0`) of ClinVar-GKM, built on the finalized **GKM (Genomic
+This is the **first official release** (`1.0.0`) of ClinVar-GKM, built on the finalized **GKM (Genomic
 Knowledge Model)** standards — VRS 2.1.1, Cat-VRS 1.1.1, VA-Spec 1.1.0, and GKM-Core 1.3.0. Earlier builds
 were release candidates that tracked these specifications while they were in ballot review; now that the
 standards are finalized, the 1.0 output validates against the released schemas.

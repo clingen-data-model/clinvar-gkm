@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarCategoricalVariant",
+   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarCategoricalVariant",
    "title": "ClinvarCategoricalVariant",
    "description": "The Clinvar specific representations of categorical variants.",
    "$defs": {
@@ -146,7 +146,7 @@
             "value": {
                "type": "array",
                "items": {
-                  "$ref": "/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/GeneListItem"
+                  "$ref": "/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/GeneListItem"
                },
                "ordered": false,
                "description": "Clinvar's data structure for representing genes associated with a clinvar variant.          "
@@ -235,7 +235,7 @@
             "value": {
                "type": "array",
                "items": {
-                  "$ref": "/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/HgvsListItem"
+                  "$ref": "/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/HgvsListItem"
                },
                "ordered": false,
                "description": "Clinvar's data structure for representing the HGVS expressions, mane select/plus settings and  molecular consequence for dervied genomic/transcript sequence alignmnents and protein sequence projections originating from the definining allele or location for CNVs."
@@ -288,16 +288,16 @@
    "maturity": "draft",
    "oneOf": [
       {
-         "$ref": "/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarCanonicalAllele"
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarCanonicalAllele"
       },
       {
-         "$ref": "/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarCategoricalCnvChange"
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarCategoricalCnvChange"
       },
       {
-         "$ref": "/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarCategoricalCnvCount"
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarCategoricalCnvCount"
       },
       {
-         "$ref": "/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarNonConstrainedVariant"
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarNonConstrainedVariant"
       }
    ],
    "type": "object",

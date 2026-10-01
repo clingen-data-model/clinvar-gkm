@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarGkmBundle",
+  "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarGkmBundle",
   "title": "ClinVar-GKM Bundle",
   "description": "A ClinVar-GKM bundle: a single JSON object whose root properties are named sections, each a non-empty map from a typed record id to a GKM object. Objects cross-reference each other by '#/<section>/<id>' JSON pointers. The same shape covers the monthly full bundle, the weekly delta, and sub-bundle extracts, so no individual section is required (a delta or sub-bundle carries only the sections it touches). Beyond this schema, a producer must also guarantee that every bundle-local '#/...' pointer resolves within the bundle.",
   "type": "object",
@@ -88,19 +88,19 @@
         "^clinvar:[0-9]+$": {
           "anyOf": [
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarCategoricalVariant"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarCategoricalVariant"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarCanonicalAllele"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarCanonicalAllele"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarNonConstrainedVariant"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarNonConstrainedVariant"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarCategoricalCnvChange"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarCategoricalCnvChange"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarCategoricalCnvCount"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarCategoricalCnvCount"
             }
           ]
         }
@@ -225,37 +225,37 @@
         "^(SCV|VCV|RCV).+": {
           "anyOf": [
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarGermlineCustomProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarGermlineCustomProposition"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarRiskFactorProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarRiskFactorProposition"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarProtectiveProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarProtectiveProposition"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarDrugResponseProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarDrugResponseProposition"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarAffectsProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarAffectsProposition"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarAssociationProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarAssociationProposition"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarConfersSensitivityProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarConfersSensitivityProposition"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarOtherProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarOtherProposition"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarNotProvidedProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarNotProvidedProposition"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarConflictingDataFromSubmitterProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarConflictingDataFromSubmitterProposition"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarUndefinedProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarUndefinedProposition"
             }
           ]
         }
@@ -274,7 +274,7 @@
               "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/EvidenceLine"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarSomaticEvidenceLine"
+              "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarSomaticEvidenceLine"
             }
           ]
         }
@@ -288,7 +288,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^clinvar\\.submission:SCV[0-9]+\\.[0-9]+$": {
-          "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarScvStatement"
+          "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarScvStatement"
         }
       },
       "additionalProperties": false
@@ -300,7 +300,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^VCV[0-9]+\\..+": {
-          "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarVcvStatement"
+          "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarVcvStatement"
         }
       },
       "additionalProperties": false
@@ -312,7 +312,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^RCV[0-9]+\\..+": {
-          "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarRcvStatement"
+          "$ref": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarRcvStatement"
         }
       },
       "additionalProperties": false
