@@ -157,6 +157,62 @@ The `conceptType` identifies the kind of concept. The `name` is the human-readab
 
 ---
 
+## Bundle Schema
+
+The bundle structure described above is formalized as a JSON Schema, authored to the
+[GKM Starter Kit](https://ga4gh.github.io/gkm-starter-kit/) bundle-schema conventions:
+
+**JSON Schema:** [clinvar-gkm-bundle.schema.json](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/clinvar-gkm-bundle.schema.json){ target=_blank }
+
+- **Draft 2020-12**, root `type: object` — each root property is one of the bundle sections, and
+  `additionalProperties: false` rejects unknown sections.
+- Each section is a keyed map whose keys are constrained by that section's id pattern
+  (`patternProperties`) and whose values `$ref` the appropriate GA4GH class schema by **versioned
+  [W3ID](https://w3id.org/) URI** — VRS, Cat-VRS, VA-Spec, and GKM-Core for the shared types, and the
+  ClinVar-GKM subtypes (`ClinvarScvStatement`, `ClinvarCategoricalVariant`, the `Clinvar*Proposition`
+  family, …) for the ClinVar-specific ones.
+- No section is individually required, so the **same schema validates a monthly full bundle, a weekly
+  delta, and a sub-bundle extract** — each carries only the sections it touches.
+
+The schema constrains the bundle's *shape* (which sections may appear, how their keys are formed, and
+what each value validates against). The starter-kit's companion invariant — that every `#/section/key`
+pointer resolves within the bundle — is a producer-side guarantee, not expressible in JSON Schema alone.
+
+### Validating with the GKM Toolkit
+
+The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) (`ga4gh.gkm`)
+validates a bundle against this schema directly. It
+[resolves](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-resolution/) the
+W3ID `$ref` URIs to the actual VRS / VA-Spec / GKM-Core class schemas and expands the bundle-local
+`#/…` pointers before [validating](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-validation/),
+so each section's objects are checked against their full class definition rather than their serialized
+pointer strings:
+
+```python
+import json
+from ga4gh.gkm.bundles.schema_validation import (
+    prepare_bundle_schema,
+    validate_bundle_schema,
+)
+
+schema = json.load(open("clinvar-gkm-bundle.schema.json"))
+
+# Validate one bundle — raises on any violation, returns None on success.
+bundle = json.load(open("clinvar-gkm_00-latest.json"))
+validate_bundle_schema(bundle, schema)
+
+# Or compile the validator once and reuse it across many bundles / deltas.
+validator = prepare_bundle_schema(schema)
+for path in ("clinvar-gkm_2026-06.json", "clinvar-gkm-delta_00-latest.json"):
+    validate_bundle_schema(json.load(open(path)), schema, validator=validator)
+```
+
+See the GKM Toolkit [schema-validation](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-validation/)
+and [schema-resolution](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-resolution/)
+API references for exact signatures and options.
+
+---
+
 ## Parquet Output
 
 In addition to the JSON bundle, the assembler can produce **typed Parquet files** — one per bundle section — using the `--parquet-dir` flag. Parquet files use columnar storage with named, typed columns for each section's fields, making them suitable for analytical workloads, DuckDB, pandas, or Apache Spark.

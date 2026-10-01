@@ -105,6 +105,12 @@ urllib.request.urlretrieve(
 )
 ```
 
+!!! tip "Validate a downloaded bundle"
+    Every JSON bundle conforms to the [ClinVar-GKM bundle schema](../output-reference/overview.md#bundle-schema)
+    (JSON Schema Draft 2020-12) — the same schema covers the monthly full, weekly deltas, and sub-bundle
+    extracts. The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) validates
+    a bundle against it in one call.
+
 ---
 
 ## Weekly Deltas
