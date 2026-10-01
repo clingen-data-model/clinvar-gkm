@@ -1,45 +1,9 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarScvStatement",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarScvStatement",
    "title": "ClinvarScvStatement",
    "description": "A ClinVar SCV (submitted clinical variant) statement. Represents a single submitter's assertion about a variant-condition relationship, including their classification, direction, strength, method, and contributions. Allowable proposition types at SCV level: Germline classification (9 types): VariantPathogenicityProposition, ClinvarRiskFactorProposition, ClinvarProtectiveProposition, ClinvarDrugResponseProposition, ClinvarAffectsProposition, ClinvarAssociationProposition, ClinvarConfersSensitivityProposition, ClinvarOtherProposition, ClinvarNotProvidedProposition. Oncogenicity (1 type): VariantOncogenicityProposition. Somatic clinical impact (1 type): VariantClinicalSignificanceProposition with evidence lines carrying VariantTherapeuticResponseProposition, VariantDiagnosticProposition, or VariantPrognosticProposition. Conflicting data (1 type): ClinvarConflictingDataFromSubmitterProposition.",
    "$defs": {
-      "ExtensionClinvarScvVersion": {
-         "type": "object",
-         "maturity": "draft",
-         "description": "The version number of the SCV submission (e.g., \"2\").",
-         "protectedClassOf": "ClinvarScvStatement",
-         "properties": {
-            "name": {
-               "type": "string",
-               "const": "clinvarScvVersion",
-               "description": "Must be 'clinvarScvVersion'."
-            },
-            "value": {
-               "type": "string",
-               "description": "The version number as a string."
-            }
-         },
-         "additionalProperties": false
-      },
-      "ExtensionSubmittedScvClassification": {
-         "type": "object",
-         "maturity": "draft",
-         "description": "The original classification label as submitted by the submitter, before any normalization. Present when the submitted classification differs from the normalized classification.",
-         "protectedClassOf": "ClinvarScvStatement",
-         "properties": {
-            "name": {
-               "type": "string",
-               "const": "submittedScvClassification",
-               "description": "Must be 'submittedScvClassification'."
-            },
-            "value": {
-               "type": "string",
-               "description": "The original submitted classification string."
-            }
-         },
-         "additionalProperties": false
-      },
       "ClinvarScvStatementProperties": {
          "type": "object",
          "maturity": "draft",
@@ -50,7 +14,7 @@
                "description": "The proposition assessed by this SCV statement. Must be one of the GA4GH standard proposition types (pathogenicity, oncogenicity, clinical significance) or a ClinVar-specific proposition type (risk factor, protective, drug response, affects, association, confers sensitivity, other, not provided, conflicting data).",
                "oneOf": [
                   {
-                     "$ref": "/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarProposition"
+                     "$ref": "/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarProposition"
                   },
                   {
                      "$ref": "/ga4gh/schema/gkm-core/1.3.0/json/iriReference"
@@ -63,7 +27,7 @@
                "items": {
                   "anyOf": [
                      {
-                        "$ref": "/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarSomaticEvidenceLine"
+                        "$ref": "/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarSomaticEvidenceLine"
                      },
                      {
                         "$ref": "/ga4gh/schema/va-spec/1.1.0/json/EvidenceLine"
@@ -111,34 +75,6 @@
          },
          "additionalProperties": false
       },
-      "ExtensionClinvarScvReviewStatus": {
-         "type": "object",
-         "maturity": "draft",
-         "description": "The review status of the individual SCV submission as reported by ClinVar (e.g., \"criteria provided, single submitter\", \"no assertion criteria provided\").",
-         "protectedClassOf": "ClinvarScvStatement",
-         "properties": {
-            "name": {
-               "type": "string",
-               "const": "clinvarScvReviewStatus",
-               "description": "Must be 'clinvarScvReviewStatus'."
-            },
-            "value": {
-               "type": "string",
-               "enum": [
-                  "criteria provided, single submitter",
-                  "criteria provided, conflicting classifications",
-                  "criteria provided, multiple submitters, no conflicts",
-                  "no assertion criteria provided",
-                  "no classification provided",
-                  "no assertion provided",
-                  "practice guideline",
-                  "reviewed by expert panel"
-               ],
-               "description": "The ClinVar review status for the submission."
-            }
-         },
-         "additionalProperties": false
-      },
       "ExtensionSubmissionLevel": {
          "type": "object",
          "maturity": "draft",
@@ -159,6 +95,24 @@
                   "NOCP"
                ],
                "description": "Practice Guideline (PG), Expert Panel (EP), Criteria Provided (CP), or No Criteria Provided (NOCP)."
+            }
+         },
+         "additionalProperties": false
+      },
+      "ExtensionSubmittedScvClassification": {
+         "type": "object",
+         "maturity": "draft",
+         "description": "The original classification label as submitted by the submitter, before any normalization. Present when the submitted classification differs from the normalized classification.",
+         "protectedClassOf": "ClinvarScvStatement",
+         "properties": {
+            "name": {
+               "type": "string",
+               "const": "submittedScvClassification",
+               "description": "Must be 'submittedScvClassification'."
+            },
+            "value": {
+               "type": "string",
+               "description": "The original submitted classification string."
             }
          },
          "additionalProperties": false
@@ -188,24 +142,6 @@
                   }
                },
                "additionalProperties": true
-            }
-         },
-         "additionalProperties": false
-      },
-      "ExtensionSubmittedScvLocalKey": {
-         "type": "object",
-         "maturity": "draft",
-         "description": "The local key submitted by the submitter for this SCV, typically a combination of variant and condition identifiers used internally by the submitting lab.",
-         "protectedClassOf": "ClinvarScvStatement",
-         "properties": {
-            "name": {
-               "type": "string",
-               "const": "submittedScvLocalKey",
-               "description": "Must be 'submittedScvLocalKey'."
-            },
-            "value": {
-               "type": "string",
-               "description": "The submitter's local key string."
             }
          },
          "additionalProperties": false
@@ -241,12 +177,76 @@
                      "type": "array",
                      "ordered": true,
                      "items": {
-                        "$ref": "/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/SubmittedConditionMapping"
+                        "$ref": "/clingen/schema/clinvar-gkm/1.0.0/json/SubmittedConditionMapping"
                      },
                      "description": "Array of individual submitted condition mappings, one per condition in the set. Ordered by the condition's cat_id suffix."
                   }
                },
                "additionalProperties": true
+            }
+         },
+         "additionalProperties": false
+      },
+      "ExtensionSubmittedScvLocalKey": {
+         "type": "object",
+         "maturity": "draft",
+         "description": "The local key submitted by the submitter for this SCV, typically a combination of variant and condition identifiers used internally by the submitting lab.",
+         "protectedClassOf": "ClinvarScvStatement",
+         "properties": {
+            "name": {
+               "type": "string",
+               "const": "submittedScvLocalKey",
+               "description": "Must be 'submittedScvLocalKey'."
+            },
+            "value": {
+               "type": "string",
+               "description": "The submitter's local key string."
+            }
+         },
+         "additionalProperties": false
+      },
+      "ExtensionClinvarScvVersion": {
+         "type": "object",
+         "maturity": "draft",
+         "description": "The version number of the SCV submission (e.g., \"2\").",
+         "protectedClassOf": "ClinvarScvStatement",
+         "properties": {
+            "name": {
+               "type": "string",
+               "const": "clinvarScvVersion",
+               "description": "Must be 'clinvarScvVersion'."
+            },
+            "value": {
+               "type": "string",
+               "description": "The version number as a string."
+            }
+         },
+         "additionalProperties": false
+      },
+      "ExtensionClinvarScvReviewStatus": {
+         "type": "object",
+         "maturity": "draft",
+         "description": "The review status of the individual SCV submission as reported by ClinVar (e.g., \"criteria provided, single submitter\", \"no assertion criteria provided\").",
+         "protectedClassOf": "ClinvarScvStatement",
+         "properties": {
+            "name": {
+               "type": "string",
+               "const": "clinvarScvReviewStatus",
+               "description": "Must be 'clinvarScvReviewStatus'."
+            },
+            "value": {
+               "type": "string",
+               "enum": [
+                  "criteria provided, single submitter",
+                  "criteria provided, conflicting classifications",
+                  "criteria provided, multiple submitters, no conflicts",
+                  "no assertion criteria provided",
+                  "no classification provided",
+                  "no assertion provided",
+                  "practice guideline",
+                  "reviewed by expert panel"
+               ],
+               "description": "The ClinVar review status for the submission."
             }
          },
          "additionalProperties": false

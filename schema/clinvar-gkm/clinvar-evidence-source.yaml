@@ -1,5 +1,5 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
-$id: "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/clinvar-evidence-source.yaml"
+$id: "https://w3id.org/clingen/schema/clinvar-gkm/1.0.0/clinvar-evidence-source.yaml"
 title: ClinVar-GKM evidence line profiles
 description: >-
   Profiles of the VA-Spec EvidenceLine type for ClinVar somatic clinical
@@ -18,7 +18,7 @@ imports:
 namespaces:
   gkm.core: /ga4gh/schema/gkm-core/1.3.0/json/
   va-spec: /ga4gh/schema/va-spec/1.1.0/json/
-  clinvar-gkm: /ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/
+  clinvar-gkm: /clingen/schema/clinvar-gkm/1.0.0/json/
 
 $defs:
   ClinvarSomaticEvidenceLineProperties:

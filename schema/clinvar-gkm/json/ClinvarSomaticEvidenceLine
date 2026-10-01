@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0.0/clinvar-gkm/json/ClinvarSomaticEvidenceLine",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarSomaticEvidenceLine",
    "title": "ClinvarSomaticEvidenceLine",
    "description": "An evidence line for ClinVar somatic clinical impact (SCI) statements. Carries a target proposition (therapeutic response, diagnostic, or prognostic) and an evidence outcome reflecting the AMP/ASCO/CAP tiered classification. SCI statements use this evidence line to link the parent VariantClinicalSignificanceProposition to specific clinical assertion types.",
    "$defs": {
