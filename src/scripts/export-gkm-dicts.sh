@@ -231,9 +231,10 @@ extract_parquet_typed variation.parquet variation.sql
 extract_parquet "$(src_table gkm_dict_condition)" condition.parquet
 extract_parquet_typed conditionSet.parquet conditionSet.sql
 
-# Therapies (key/value JSON dicts -> two string columns key,value)
-extract_parquet "$(src_table gkm_dict_therapy)" therapy.parquet
-extract_parquet "$(src_table gkm_dict_therapygroup)" therapyGroup.parquet
+# Therapies (key/value JSON dicts -> two string columns key,value). Typed export casts the
+# JSON `value` to a STRING (TO_JSON_STRING); a raw bq extract can't export a JSON column.
+extract_parquet_typed therapy.parquet therapy.sql
+extract_parquet_typed therapyGroup.parquet therapyGroup.sql
 
 # SCV
 extract_parquet_typed submitter.parquet submitter.sql
