@@ -1,5 +1,5 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
-$id: "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/clinvar-variant-source.yaml"
+$id: "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/clinvar-variant-source.yaml"
 title: ClinGen's Clinvar variant profile
 description: >-
   Profiles defined to support the clinvar GKS datasets.
@@ -12,11 +12,11 @@ imports:
   gkm-core: ../gkm-core/gkm-core-source.yaml
 
 namespaces:
-  vrs: /ga4gh/schema/vrs/2.1.1-ballot.2026-09.1/json/
-  cat-vrs: /ga4gh/schema/cat-vrs/1.1.1-ballot.2026-09.1/json/
-  recipes: /ga4gh/schema/cat-vrs/1.1.1-ballot.2026-09.1/json/
-  gkm.core: /ga4gh/schema/gkm-core/1.3.0-ballot.2026-09.1/json/
-  clinvar-gkm: /ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/
+  vrs: /ga4gh/schema/vrs/2.1.1/json/
+  cat-vrs: /ga4gh/schema/cat-vrs/1.1.1/json/
+  recipes: /ga4gh/schema/cat-vrs/1.1.1/json/
+  gkm.core: /ga4gh/schema/gkm-core/1.3.0/json/
+  clinvar-gkm: /ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/
 
 $defs:
   # Extension types for Clinvar variants

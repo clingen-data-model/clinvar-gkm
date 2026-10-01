@@ -405,7 +405,7 @@ BEGIN
     -- STEP 5: Create gkm_dict_condition_set — GLOBAL
     -- Unique trait sets with clinvar.traitset:{id} identifiers, referencing
     -- member traits via #/condition/clinvar.trait:{trait_id} iriReferences (a
-    -- ConceptSet.concepts member type, per gkm-core 1.3.0-ballot.2026-09).
+    -- ConceptSet.concepts member type, per gkm-core 1.3.0).
     -- Recomputed unfiltered.
     -- -----------------------------------------------------------------------
     SET query_gkm_dict_condition_set = REPLACE("""

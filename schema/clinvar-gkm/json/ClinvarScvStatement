@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/ClinvarScvStatement",
+   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarScvStatement",
    "title": "ClinvarScvStatement",
    "description": "A ClinVar SCV (submitted clinical variant) statement. Represents a single submitter's assertion about a variant-condition relationship, including their classification, direction, strength, method, and contributions. Allowable proposition types at SCV level: Germline classification (9 types): VariantPathogenicityProposition, ClinvarRiskFactorProposition, ClinvarProtectiveProposition, ClinvarDrugResponseProposition, ClinvarAffectsProposition, ClinvarAssociationProposition, ClinvarConfersSensitivityProposition, ClinvarOtherProposition, ClinvarNotProvidedProposition. Oncogenicity (1 type): VariantOncogenicityProposition. Somatic clinical impact (1 type): VariantClinicalSignificanceProposition with evidence lines carrying VariantTherapeuticResponseProposition, VariantDiagnosticProposition, or VariantPrognosticProposition. Conflicting data (1 type): ClinvarConflictingDataFromSubmitterProposition.",
    "$defs": {
@@ -50,10 +50,10 @@
                "description": "The proposition assessed by this SCV statement. Must be one of the GA4GH standard proposition types (pathogenicity, oncogenicity, clinical significance) or a ClinVar-specific proposition type (risk factor, protective, drug response, affects, association, confers sensitivity, other, not provided, conflicting data).",
                "oneOf": [
                   {
-                     "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/ClinvarProposition"
+                     "$ref": "/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarProposition"
                   },
                   {
-                     "$ref": "/ga4gh/schema/gkm-core/1.3.0-ballot.2026-09.1/json/iriReference"
+                     "$ref": "/ga4gh/schema/gkm-core/1.3.0/json/iriReference"
                   }
                ]
             },
@@ -63,13 +63,13 @@
                "items": {
                   "anyOf": [
                      {
-                        "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/ClinvarSomaticEvidenceLine"
+                        "$ref": "/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarSomaticEvidenceLine"
                      },
                      {
-                        "$ref": "/ga4gh/schema/va-spec/1.1.0-ballot.2026-09.1/json/EvidenceLine"
+                        "$ref": "/ga4gh/schema/va-spec/1.1.0/json/EvidenceLine"
                      },
                      {
-                        "$ref": "/ga4gh/schema/gkm-core/1.3.0-ballot.2026-09.1/json/iriReference"
+                        "$ref": "/ga4gh/schema/gkm-core/1.3.0/json/iriReference"
                      }
                   ]
                },
@@ -241,7 +241,7 @@
                      "type": "array",
                      "ordered": true,
                      "items": {
-                        "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/SubmittedConditionMapping"
+                        "$ref": "/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/SubmittedConditionMapping"
                      },
                      "description": "Array of individual submitted condition mappings, one per condition in the set. Ordered by the condition's cat_id suffix."
                   }
@@ -273,7 +273,7 @@
    "maturity": "draft",
    "allOf": [
       {
-         "$ref": "/ga4gh/schema/va-spec/1.1.0-ballot.2026-09.1/json/Statement"
+         "$ref": "/ga4gh/schema/va-spec/1.1.0/json/Statement"
       },
       {
          "$ref": "#/$defs/ClinvarScvStatementProperties"

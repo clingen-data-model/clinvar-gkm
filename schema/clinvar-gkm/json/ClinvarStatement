@@ -1,18 +1,18 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/ClinvarStatement",
+   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarStatement",
    "title": "ClinvarStatement",
    "description": "Any ClinVar statement, at either the submission (SCV) or aggregate (VCV, RCV) level.",
    "maturity": "draft",
    "oneOf": [
       {
-         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/ClinvarScvStatement"
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarScvStatement"
       },
       {
-         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/ClinvarVcvStatement"
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarVcvStatement"
       },
       {
-         "$ref": "/ga4gh/schema/clinvar-gkm/1.0-rc4/clinvar-gkm/json/ClinvarRcvStatement"
+         "$ref": "/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/ClinvarRcvStatement"
       }
    ],
    "type": "object",
