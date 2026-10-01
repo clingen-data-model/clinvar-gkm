@@ -11,7 +11,10 @@ strict = true
 nav = [
   { Home = "index.md" },
   { Downloads = "data-access/download.md" },
-  { "User Story" = "user-story.md" },
+  { "User Stories" = [
+    { "Harmonizing by VRS Identity" = "user-story.md" },
+    { "Auditing a Submitter's Footprint" = "user-story-audit.md" },
+  ] },
   { "Data Guide" = [
     { "Output Format" = "output-reference/overview.md" },
     { Variations = "output-reference/cat-vrs.md" },
