@@ -118,6 +118,10 @@ nav = [
     { "GA4GH Standards" = "reference/gks-standards.md" },
     { "Known Issues" = "reference/known-issues.md" },
     { Glossary = "reference/glossary.md" },
+    { Presentations = [
+      "reference/presentations/index.md",
+      { "ClinVar-GKM Primer" = "reference/presentations/clinvar-gkm-primer.md" },
+    ] },
   ] },
 ]
 
