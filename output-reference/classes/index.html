@@ -16,14 +16,14 @@
         <link rel="prev" href="../../data-access/examples/">
       
       
-        <link rel="next" href="variations/">
+        <link rel="next" href="./variations/">
       
       
         
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="zensical-0.0.59">
     
     
       
@@ -31,10 +31,15 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/classic/main.38807bfb.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/classic/palette.c7ab7c71.min.css">
       
       
 
@@ -48,14 +53,14 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
     
       <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
     
       
 
@@ -76,7 +81,7 @@
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer"></label>
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
     <div data-md-component="skip">
       
         
@@ -129,9 +134,19 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
     
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
@@ -139,9 +154,9 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
     
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
@@ -154,54 +169,12 @@
     
     
     
-      
-      
-        <label class="md-header__button md-icon" for="__search">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        </label>
-        <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="__search"></label>
-  <div class="md-search__inner" role="search">
-    <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
-      <label class="md-search__icon md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-      </label>
-      <nav class="md-search__options" aria-label="Search">
-        
-        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-        </button>
-      </nav>
-      
-        <div class="md-search__suggest" data-md-component="search-suggest"></div>
-      
-    </form>
-    <div class="md-search__output">
-      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="search-result">
-          <div class="md-search-result__meta">
-            Initializing search
-          </div>
-          <ol class="md-search-result__list" role="presentation"></ol>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-      
-    
     
       <div class="md-header__source">
         <a href="https://github.com/clingen-data-model/clinvar-gkm" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
     clingen-data-model/clinvar-gkm
@@ -226,9 +199,6 @@
       <a href="../.." class="md-tabs__link">
         
   
-  
-    
-  
   Home
 
       </a>
@@ -245,9 +215,6 @@
       <a href="../../data-access/download/" class="md-tabs__link">
         
   
-  
-    
-  
   Downloads
 
       </a>
@@ -261,13 +228,57 @@
   
   
     
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-story/" class="md-tabs__link">
+          
+  
+  User Stories
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
     
       <li class="md-tabs__item">
         <a href="../overview/" class="md-tabs__link">
           
-  
-  
-    
   
   Data Guide
 
@@ -285,13 +296,29 @@
   
   
     
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+        <a href="././" class="md-tabs__link">
           
-  
-  
-    
   
   Data Model
 
@@ -307,13 +334,37 @@
   
   
     
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
     
       <li class="md-tabs__item">
         <a href="../../pipeline/" class="md-tabs__link">
           
-  
-  
-    
   
   Pipeline
 
@@ -329,13 +380,23 @@
   
   
     
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
     
       <li class="md-tabs__item">
         <a href="../../reference/roadmap/" class="md-tabs__link">
           
-  
-  
-    
   
   Reference
 
@@ -375,7 +436,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="ClinVar-GKM" class="md-nav__button md-logo" aria-label="ClinVar-GKM" data-md-component="logo">
       
-  <img src="../../assets/images/clingen-logo-white.svg" alt="logo">
+  <img src="../../assets/images/clingen-logo-white.svg" alt="ClinVar-GKM">
 
     </a>
     ClinVar-GKM
@@ -385,7 +446,7 @@
       <a href="https://github.com/clingen-data-model/clinvar-gkm" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
     clingen-data-model/clinvar-gkm
@@ -409,8 +470,7 @@
   <span class="md-ellipsis">
     
   
-    Home
-  
+  Home
 
     
   </span>
@@ -436,8 +496,7 @@
   <span class="md-ellipsis">
     
   
-    Downloads
-  
+  Downloads
 
     
   </span>
@@ -445,6 +504,123 @@
   
 
       </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  User Stories
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  User Stories
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-story/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Harmonizing by VRS Identity
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-story-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Auditing a Submitter's Footprint
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -485,18 +661,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    Data Guide
-  
+  Data Guide
 
     
   </span>
@@ -506,13 +681,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Data Guide
-  
+  Data Guide
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -531,8 +705,7 @@
   <span class="md-ellipsis">
     
   
-    Output Format
-  
+  Output Format
 
     
   </span>
@@ -559,8 +732,7 @@
   <span class="md-ellipsis">
     
   
-    Variations
-  
+  Variations
 
     
   </span>
@@ -587,8 +759,7 @@
   <span class="md-ellipsis">
     
   
-    SCV Statements
-  
+  SCV Statements
 
     
   </span>
@@ -615,8 +786,7 @@
   <span class="md-ellipsis">
     
   
-    VCV Statements
-  
+  VCV Statements
 
     
   </span>
@@ -643,8 +813,7 @@
   <span class="md-ellipsis">
     
   
-    RCV Statements
-  
+  RCV Statements
 
     
   </span>
@@ -671,8 +840,7 @@
   <span class="md-ellipsis">
     
   
-    ID References
-  
+  ID References
 
     
   </span>
@@ -699,8 +867,7 @@
   <span class="md-ellipsis">
     
   
-    Examples
-  
+  Examples
 
     
   </span>
@@ -761,19 +928,18 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="./" class="md-nav__link md-nav__link--active">
+            <a href="././" class="md-nav__link md-nav__link--active">
               
   
   
   <span class="md-ellipsis">
     
   
-    Data Model
-  
+  Data Model
 
     
   </span>
@@ -783,19 +949,18 @@
             </a>
             
               
-              <label class="md-nav__link md-nav__link--active" for="__nav_4" id="__nav_4_label" tabindex="">
+              <label class="md-nav__link md-nav__link--active" for="__nav_5" id="__nav_5_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Data Model
-  
+  Data Model
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -843,18 +1008,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
         
           
-          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="">
             
   
   
   <span class="md-ellipsis">
     
   
-    Variations
-  
+  Variations
 
     
   </span>
@@ -864,13 +1028,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Variations
-  
+  Variations
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -882,15 +1045,14 @@
   
   
     <li class="md-nav__item">
-      <a href="variations/" class="md-nav__link">
+      <a href="./variations/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Variations
-  
+  Variations
 
     
   </span>
@@ -910,15 +1072,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarCategoricalVariant/" class="md-nav__link">
+      <a href="./ClinvarCategoricalVariant/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarCategoricalVariant
-  
+  ClinvarCategoricalVariant
 
     
   </span>
@@ -938,15 +1099,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarCanonicalAllele/" class="md-nav__link">
+      <a href="./ClinvarCanonicalAllele/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarCanonicalAllele
-  
+  ClinvarCanonicalAllele
 
     
   </span>
@@ -966,15 +1126,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarCategoricalCnvChange/" class="md-nav__link">
+      <a href="./ClinvarCategoricalCnvChange/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarCategoricalCnvChange
-  
+  ClinvarCategoricalCnvChange
 
     
   </span>
@@ -994,15 +1153,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarCategoricalCnvCount/" class="md-nav__link">
+      <a href="./ClinvarCategoricalCnvCount/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarCategoricalCnvCount
-  
+  ClinvarCategoricalCnvCount
 
     
   </span>
@@ -1022,15 +1180,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarNonConstrainedVariant/" class="md-nav__link">
+      <a href="./ClinvarNonConstrainedVariant/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarNonConstrainedVariant
-  
+  ClinvarNonConstrainedVariant
 
     
   </span>
@@ -1050,15 +1207,14 @@
   
   
     <li class="md-nav__item">
-      <a href="HgvsListItem/" class="md-nav__link">
+      <a href="./HgvsListItem/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    HgvsListItem
-  
+  HgvsListItem
 
     
   </span>
@@ -1078,15 +1234,14 @@
   
   
     <li class="md-nav__item">
-      <a href="GeneListItem/" class="md-nav__link">
+      <a href="./GeneListItem/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    GeneListItem
-  
+  GeneListItem
 
     
   </span>
@@ -1140,6 +1295,8 @@
       
         
       
+        
+      
     
     
     
@@ -1156,18 +1313,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
         
           
-          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="">
             
   
   
   <span class="md-ellipsis">
     
   
-    Propositions
-  
+  Propositions
 
     
   </span>
@@ -1177,13 +1333,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Propositions
-  
+  Propositions
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -1195,15 +1350,14 @@
   
   
     <li class="md-nav__item">
-      <a href="propositions/" class="md-nav__link">
+      <a href="./propositions/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Propositions
-  
+  Propositions
 
     
   </span>
@@ -1223,15 +1377,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarProposition/" class="md-nav__link">
+      <a href="./ClinvarProposition/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarProposition
-  
+  ClinvarProposition
 
     
   </span>
@@ -1251,15 +1404,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarRiskFactorProposition/" class="md-nav__link">
+      <a href="./ClinvarGermlineCustomProposition/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarRiskFactorProposition
-  
+  ClinvarGermlineCustomProposition
 
     
   </span>
@@ -1279,15 +1431,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarProtectiveProposition/" class="md-nav__link">
+      <a href="./ClinvarRiskFactorProposition/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarProtectiveProposition
-  
+  ClinvarRiskFactorProposition
 
     
   </span>
@@ -1307,15 +1458,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarDrugResponseProposition/" class="md-nav__link">
+      <a href="./ClinvarProtectiveProposition/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarDrugResponseProposition
-  
+  ClinvarProtectiveProposition
 
     
   </span>
@@ -1335,15 +1485,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarAffectsProposition/" class="md-nav__link">
+      <a href="./ClinvarDrugResponseProposition/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarAffectsProposition
-  
+  ClinvarDrugResponseProposition
 
     
   </span>
@@ -1363,15 +1512,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarAssociationProposition/" class="md-nav__link">
+      <a href="./ClinvarAffectsProposition/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarAssociationProposition
-  
+  ClinvarAffectsProposition
 
     
   </span>
@@ -1391,15 +1539,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarConfersSensitivityProposition/" class="md-nav__link">
+      <a href="./ClinvarAssociationProposition/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarConfersSensitivityProposition
-  
+  ClinvarAssociationProposition
 
     
   </span>
@@ -1419,15 +1566,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarOtherProposition/" class="md-nav__link">
+      <a href="./ClinvarConfersSensitivityProposition/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarOtherProposition
-  
+  ClinvarConfersSensitivityProposition
 
     
   </span>
@@ -1447,15 +1593,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarNotProvidedProposition/" class="md-nav__link">
+      <a href="./ClinvarOtherProposition/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarNotProvidedProposition
-  
+  ClinvarOtherProposition
 
     
   </span>
@@ -1475,15 +1620,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarConflictingDataFromSubmitterProposition/" class="md-nav__link">
+      <a href="./ClinvarNotProvidedProposition/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarConflictingDataFromSubmitterProposition
-  
+  ClinvarNotProvidedProposition
 
     
   </span>
@@ -1503,15 +1647,41 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarUndefinedProposition/" class="md-nav__link">
+      <a href="./ClinvarConflictingDataFromSubmitterProposition/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarUndefinedProposition
+  ClinvarConflictingDataFromSubmitterProposition
+
+    
+  </span>
   
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./ClinvarUndefinedProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarUndefinedProposition
 
     
   </span>
@@ -1569,18 +1739,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
         
           
-          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="">
             
   
   
   <span class="md-ellipsis">
     
   
-    Statements
-  
+  Statements
 
     
   </span>
@@ -1590,13 +1759,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_4">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Statements
-  
+  Statements
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -1608,15 +1776,14 @@
   
   
     <li class="md-nav__item">
-      <a href="statements/" class="md-nav__link">
+      <a href="./statements/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Statements
-  
+  Statements
 
     
   </span>
@@ -1636,15 +1803,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarStatement/" class="md-nav__link">
+      <a href="./ClinvarStatement/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarStatement
-  
+  ClinvarStatement
 
     
   </span>
@@ -1664,15 +1830,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarScvStatement/" class="md-nav__link">
+      <a href="./ClinvarScvStatement/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarScvStatement
-  
+  ClinvarScvStatement
 
     
   </span>
@@ -1692,15 +1857,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarVcvStatement/" class="md-nav__link">
+      <a href="./ClinvarVcvStatement/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarVcvStatement
-  
+  ClinvarVcvStatement
 
     
   </span>
@@ -1720,15 +1884,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarRcvStatement/" class="md-nav__link">
+      <a href="./ClinvarRcvStatement/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarRcvStatement
-  
+  ClinvarRcvStatement
 
     
   </span>
@@ -1748,15 +1911,14 @@
   
   
     <li class="md-nav__item">
-      <a href="SubmittedConditionMapping/" class="md-nav__link">
+      <a href="./SubmittedConditionMapping/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    SubmittedConditionMapping
-  
+  SubmittedConditionMapping
 
     
   </span>
@@ -1806,18 +1968,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
         
           
-          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="">
             
   
   
   <span class="md-ellipsis">
     
   
-    Evidence
-  
+  Evidence
 
     
   </span>
@@ -1827,13 +1988,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_5">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_5">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Evidence
-  
+  Evidence
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -1845,15 +2005,14 @@
   
   
     <li class="md-nav__item">
-      <a href="evidence/" class="md-nav__link">
+      <a href="./evidence/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Evidence Lines
-  
+  Evidence Lines
 
     
   </span>
@@ -1873,15 +2032,14 @@
   
   
     <li class="md-nav__item">
-      <a href="ClinvarSomaticEvidenceLine/" class="md-nav__link">
+      <a href="./ClinvarSomaticEvidenceLine/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarSomaticEvidenceLine
-  
+  ClinvarSomaticEvidenceLine
 
     
   </span>
@@ -1939,7 +2097,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_6" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -1950,8 +2108,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
-  
+  Profiles
 
     
   </span>
@@ -1961,19 +2118,18 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_6" id="__nav_4_6_label" tabindex="">
+              <label class="md-nav__link " for="__nav_5_6" id="__nav_5_6_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_6">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
-  
+  Profiles
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -1994,8 +2150,7 @@
   <span class="md-ellipsis">
     
   
-    Statement Types
-  
+  Statement Types
 
     
   </span>
@@ -2022,8 +2177,7 @@
   <span class="md-ellipsis">
     
   
-    Classifications
-  
+  Classifications
 
     
   </span>
@@ -2050,8 +2204,7 @@
   <span class="md-ellipsis">
     
   
-    Propositions
-  
+  Propositions
 
     
   </span>
@@ -2078,8 +2231,7 @@
   <span class="md-ellipsis">
     
   
-    Review Status
-  
+  Review Status
 
     
   </span>
@@ -2136,6 +2288,8 @@
       
         
       
+        
+      
     
     
     
@@ -2149,7 +2303,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -2160,8 +2314,7 @@
   <span class="md-ellipsis">
     
   
-    Pipeline
-  
+  Pipeline
 
     
   </span>
@@ -2171,19 +2324,18 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Pipeline
-  
+  Pipeline
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -2224,7 +2376,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -2235,8 +2387,7 @@
   <span class="md-ellipsis">
     
   
-    Variation Identity
-  
+  Variation Identity
 
     
   </span>
@@ -2246,19 +2397,18 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Variation Identity
-  
+  Variation Identity
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -2279,8 +2429,7 @@
   <span class="md-ellipsis">
     
   
-    Sequence Locations
-  
+  Sequence Locations
 
     
   </span>
@@ -2307,8 +2456,7 @@
   <span class="md-ellipsis">
     
   
-    HGVS Expressions
-  
+  HGVS Expressions
 
     
   </span>
@@ -2335,8 +2483,7 @@
   <span class="md-ellipsis">
     
   
-    Cross-References
-  
+  Cross-References
 
     
   </span>
@@ -2363,8 +2510,7 @@
   <span class="md-ellipsis">
     
   
-    Variation Identity Table
-  
+  Variation Identity Table
 
     
   </span>
@@ -2399,8 +2545,7 @@
   <span class="md-ellipsis">
     
   
-    VRS Processing
-  
+  VRS Processing
 
     
   </span>
@@ -2441,7 +2586,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_4" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -2452,8 +2597,7 @@
   <span class="md-ellipsis">
     
   
-    Cat-VRS
-  
+  Cat-VRS
 
     
   </span>
@@ -2463,19 +2607,18 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_4">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Cat-VRS
-  
+  Cat-VRS
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -2496,8 +2639,7 @@
   <span class="md-ellipsis">
     
   
-    Categorical Variant Extensions
-  
+  Categorical Variant Extensions
 
     
   </span>
@@ -2552,7 +2694,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -2563,8 +2705,7 @@
   <span class="md-ellipsis">
     
   
-    Conditions & Traits
-  
+  Conditions & Traits
 
     
   </span>
@@ -2574,19 +2715,18 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_6_5" id="__nav_6_5_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_5">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_5">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Conditions & Traits
-  
+  Conditions & Traits
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -2607,8 +2747,7 @@
   <span class="md-ellipsis">
     
   
-    Condition Mapping
-  
+  Condition Mapping
 
     
   </span>
@@ -2635,8 +2774,7 @@
   <span class="md-ellipsis">
     
   
-    Traits
-  
+  Traits
 
     
   </span>
@@ -2663,8 +2801,7 @@
   <span class="md-ellipsis">
     
   
-    Condition Sets
-  
+  Condition Sets
 
     
   </span>
@@ -2691,8 +2828,7 @@
   <span class="md-ellipsis">
     
   
-    Condition Extensions
-  
+  Condition Extensions
 
     
   </span>
@@ -2747,7 +2883,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -2758,8 +2894,7 @@
   <span class="md-ellipsis">
     
   
-    SCV Statements
-  
+  SCV Statements
 
     
   </span>
@@ -2769,19 +2904,18 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_6" id="__nav_5_6_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_6_6" id="__nav_6_6_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6">
             <span class="md-nav__icon md-icon"></span>
             
   
-    SCV Statements
-  
+  SCV Statements
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -2802,8 +2936,7 @@
   <span class="md-ellipsis">
     
   
-    SCV Records
-  
+  SCV Records
 
     
   </span>
@@ -2830,8 +2963,7 @@
   <span class="md-ellipsis">
     
   
-    Propositions
-  
+  Propositions
 
     
   </span>
@@ -2858,8 +2990,7 @@
   <span class="md-ellipsis">
     
   
-    Final Statements
-  
+  Final Statements
 
     
   </span>
@@ -2886,8 +3017,7 @@
   <span class="md-ellipsis">
     
   
-    SCV Extensions
-  
+  SCV Extensions
 
     
   </span>
@@ -2940,7 +3070,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -2951,8 +3081,7 @@
   <span class="md-ellipsis">
     
   
-    VCV Statements
-  
+  VCV Statements
 
     
   </span>
@@ -2962,19 +3091,18 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_7" id="__nav_5_7_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_6_7" id="__nav_6_7_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_7">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_7">
             <span class="md-nav__icon md-icon"></span>
             
   
-    VCV Statements
-  
+  VCV Statements
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -2995,8 +3123,7 @@
   <span class="md-ellipsis">
     
   
-    Aggregation Rules
-  
+  Aggregation Rules
 
     
   </span>
@@ -3023,8 +3150,7 @@
   <span class="md-ellipsis">
     
   
-    VCV Procedures
-  
+  VCV Procedures
 
     
   </span>
@@ -3051,8 +3177,7 @@
   <span class="md-ellipsis">
     
   
-    VCV Extensions
-  
+  VCV Extensions
 
     
   </span>
@@ -3103,7 +3228,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -3114,8 +3239,7 @@
   <span class="md-ellipsis">
     
   
-    RCV Statements
-  
+  RCV Statements
 
     
   </span>
@@ -3125,19 +3249,18 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_8" id="__nav_5_8_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_6_8" id="__nav_6_8_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_8">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8">
             <span class="md-nav__icon md-icon"></span>
             
   
-    RCV Statements
-  
+  RCV Statements
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -3158,8 +3281,7 @@
   <span class="md-ellipsis">
     
   
-    RCV Procedures
-  
+  RCV Procedures
 
     
   </span>
@@ -3186,8 +3308,7 @@
   <span class="md-ellipsis">
     
   
-    RCV Extensions
-  
+  RCV Extensions
 
     
   </span>
@@ -3222,8 +3343,34 @@
   <span class="md-ellipsis">
     
   
-    Export & Distribute
+  Export & Distribute
+
+    
+  </span>
   
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/sub-bundle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sub-Bundle Extraction
 
     
   </span>
@@ -3273,18 +3420,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    Reference
-  
+  Reference
 
     
   </span>
@@ -3294,13 +3440,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Reference
-  
+  Reference
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -3319,8 +3464,7 @@
   <span class="md-ellipsis">
     
   
-    Roadmap
-  
+  Roadmap
 
     
   </span>
@@ -3347,8 +3491,7 @@
   <span class="md-ellipsis">
     
   
-    GA4GH Standards
-  
+  GA4GH Standards
 
     
   </span>
@@ -3375,8 +3518,7 @@
   <span class="md-ellipsis">
     
   
-    Known Issues
-  
+  Known Issues
 
     
   </span>
@@ -3403,8 +3545,7 @@
   <span class="md-ellipsis">
     
   
-    Glossary
-  
+  Glossary
 
     
   </span>
@@ -3434,10 +3575,12 @@
               
               <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
+                  
                   <div class="md-sidebar__inner">
                     
 
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
   
   
   
@@ -3446,16 +3589,16 @@
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      Table of contents
+      On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#class-relationship-diagram" class="md-nav__link">
+  <a href="#bundle-section-map" class="md-nav__link">
     <span class="md-ellipsis">
-      
-        Class Relationship Diagram
-      
+      <span class="md-typeset">
+        Bundle Section Map
+      </span>
     </span>
   </a>
   
@@ -3464,9 +3607,9 @@
         <li class="md-nav__item">
   <a href="#variation-classes" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Variation Classes
-      
+      </span>
     </span>
   </a>
   
@@ -3475,9 +3618,9 @@
         <li class="md-nav__item">
   <a href="#supporting-classes" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Supporting Classes
-      
+      </span>
     </span>
   </a>
   
@@ -3486,9 +3629,9 @@
         <li class="md-nav__item">
   <a href="#statement-classes" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Statement Classes
-      
+      </span>
     </span>
   </a>
   
@@ -3508,8 +3651,6 @@
               <article class="md-content__inner md-typeset">
                 
                   
-
-
   
   
 
@@ -3518,143 +3659,21 @@
 <p>The ClinVar-GKM release file organizes data into bundle sections, each containing objects of a specific class. These classes form a directed graph of relationships — variants reference alleles, alleles reference locations, statements reference propositions, and so on.</p>
 <p>This page provides a visual overview of how the classes relate to each other, with links to detailed documentation for each class.</p>
 <hr />
-<h2 id="class-relationship-diagram">Class Relationship Diagram<a class="headerlink" href="#class-relationship-diagram" title="Permanent link">&para;</a></h2>
-<p>The diagram below shows how the bundle classes relate to each other in a UML-style view. Each class shows its key attributes. Lines indicate reference relationships — navigable from the class with the arrow. Multiplicity is shown on each end.</p>
-<pre class="mermaid"><code>classDiagram
-    direction TB
+<h2 id="bundle-section-map">Bundle Section Map<a class="headerlink" href="#bundle-section-map" title="Permanent link">&para;</a></h2>
+<p>The release bundle is a single JSON object of <strong>named sections</strong> — each section is a dictionary mapping a typed id to one object. Objects link across sections with <code>#/section/id</code> JSON pointers. The map below shows every section, its object type, an example id, and its outgoing references. See <a href="../id-references/">ID References</a> for the full pointer catalog.</p>
+<iframe src="../../assets/diagrams/bundle-section-map.html"
+        style="width:100%; height:660px; border:1px solid rgba(128,128,128,.25); border-radius:6px;"
+        title="ClinVar-GKM bundle section map"
+        loading="lazy"></iframe>
 
-    namespace Variation {
-        class SequenceReference {
-            refgetAccession : string
-            residueAlphabet : string
-            molecularType : string
-            extensions : Extension[0..*]
-        }
-        class Location {
-            id : ga4gh:SL.digest
-            start : integer
-            end : integer
-        }
-        class Allele {
-            id : ga4gh:VA.digest
-            state : object
-            expressions : Expression[0..*]
-        }
-        class Gene {
-            id : ncbigene:id
-            conceptType : gene
-            name : string
-            primaryCoding : Coding
-            mappings : Mapping[0..*]
-        }
-        class CategoricalVariant {
-            id : clinvar:id
-            type : string
-            name : string
-            constraints : Constraint[0..*]
-            mappings : Mapping[0..*]
-            extensions : Extension[0..*]
-        }
-    }
-
-    namespace Supporting {
-        class Condition {
-            id : clinvar.trait:id
-            name : string
-            primaryCoding : Coding
-            mappings : Mapping[0..*]
-        }
-        class ConditionSet {
-            id : clinvar.traitset:id
-            operator : AND | OR
-        }
-        class Submitter {
-            id : clinvar.submitter:id
-            name : string
-        }
-        class Proposition {
-            id : string
-            type : string
-            predicate : string
-            geneContextQualifier : Concept[0..1]
-            modeOfInheritanceQualifier : Concept[0..1]
-            penetranceQualifier : Concept[0..1]
-        }
-    }
-
-    namespace Statements {
-        class ScvStatement {
-            id : clinvar.submission:id.ver
-            type : Statement
-            classification : MappableConcept
-            strength : MappableConcept
-            direction : string
-            confidence : Concept
-            contributions : Contribution[1..*]
-            specifiedBy : Method[0..1]
-            reportedIn : Publication[0..*]
-            extensions : Extension[0..*]
-        }
-        class VcvStatement {
-            id : VCV.ver-group-PROP-level
-            type : Statement
-            classification : MappableConcept
-            strength : MappableConcept
-            direction : string
-            confidence : Concept
-            extensions : Extension[0..*]
-        }
-        class RcvStatement {
-            id : RCV.ver-group-PROP-level
-            type : Statement
-            classification : MappableConcept
-            strength : MappableConcept
-            direction : string
-            confidence : Concept
-            extensions : Extension[0..*]
-        }
-        class EvidenceLine {
-            type : EvidenceLine
-            directionOfEvidenceProvided : string
-            strengthOfEvidenceProvided : MappableConcept
-        }
-    }
-
-    %% Variation relationships
-    Location "1" --&gt; "1" SequenceReference : sequenceReference
-    Allele "1" --&gt; "1" Location : location
-    CategoricalVariant "*" --&gt; "0..*" Allele : members
-    CategoricalVariant "*" ..&gt; "0..*" Gene : extensions.clinvarGeneList
-
-    %% Supporting relationships
-    ConditionSet "1" --&gt; "1..*" Condition : members
-    Proposition "*" --&gt; "1" CategoricalVariant : subjectVariant
-    Proposition "*" --&gt; "0..1" Condition : objectCondition
-    Proposition "*" --&gt; "0..1" ConditionSet : objectCondition
-
-    %% Statement → Proposition
-    ScvStatement "1" --&gt; "1" Proposition : proposition
-    VcvStatement "1" --&gt; "1" Proposition : proposition
-    RcvStatement "1" --&gt; "1" Proposition : proposition
-
-    %% Statement → Submitter
-    ScvStatement "*" --&gt; "1..*" Submitter : contributions
-
-    %% Evidence lines
-    ScvStatement "1" --&gt; "0..*" EvidenceLine : hasEvidenceLines
-    VcvStatement "1" --&gt; "1..*" EvidenceLine : hasEvidenceLines
-    RcvStatement "1" --&gt; "1..*" EvidenceLine : hasEvidenceLines
-
-    %% Evidence items (what evidence lines reference)
-    EvidenceLine "*" --&gt; "1..*" ScvStatement : evidenceItems
-    EvidenceLine "*" ..&gt; "0..*" VcvStatement : evidenceItems
-    EvidenceLine "*" ..&gt; "0..*" RcvStatement : evidenceItems</code></pre>
-<p><strong>Reading the diagram:</strong></p>
+<p>The map renders at full size in a scrollable frame — scroll within it to follow the reference chain from statements down to VRS sequence references. Each drawer links to that section's class reference page.</p>
+<p><strong>Reading the map:</strong></p>
 <ul>
-<li><strong>Solid lines</strong> are primary associations — always present when the parent object exists</li>
-<li><strong>Dashed lines</strong> are optional or conditional associations (e.g., gene list from extensions, VCV/RCV self-referencing through evidence lines)</li>
-<li><strong>Multiplicity</strong> on each end indicates cardinality (e.g., <code>1</code> = exactly one, <code>0..*</code> = zero or more, <code>1..*</code> = one or more)</li>
-<li><strong>Labels</strong> on lines show the field name or JSON pointer path used for the reference</li>
+<li><strong><code>{ } key</code></strong> is the section name — the JSON key under which that section's dictionary of objects lives</li>
+<li><strong>The pill</strong> is an example object id (the dictionary key within the section)</li>
+<li><strong><code>field → #/section/</code></strong> lines are the outgoing cross-section references an object in that section carries</li>
+<li><strong>Solid arrows</strong> trace the primary reference flow between section clusters; <strong>dashed</strong> arrows are optional or back-references (e.g., evidence items pointing back at statements)</li>
+<li>The four <code>*-proposition</code> sections are datatype-homogeneous <strong>delivery groups</strong> of the proposition content, keyed by proposition type</li>
 </ul>
 <hr />
 <h2 id="variation-classes">Variation Classes<a class="headerlink" href="#variation-classes" title="Permanent link">&para;</a></h2>
@@ -3704,7 +3723,7 @@
 <p>See <a href="variations/">Variations</a> for the full variant type hierarchy and extension documentation.</p>
 <hr />
 <h2 id="supporting-classes">Supporting Classes<a class="headerlink" href="#supporting-classes" title="Permanent link">&para;</a></h2>
-<p>These classes represent the conditions, submitters, and propositions that support classification statements. Conditions and submitters use upstream GA4GH types. ClinVar-specific proposition types are documented under <a href="propositions/">Propositions</a>.</p>
+<p>These classes represent the conditions, submitters, and propositions that support classification statements. Conditions and submitters use upstream GA4GH types. Proposition content is delivered in <strong>four datatype-homogeneous sections</strong> keyed by proposition type — together they hold all 13 <a href="ClinvarProposition/">ClinvarProposition</a> types.</p>
 <table>
 <thead>
 <tr>
@@ -3728,6 +3747,18 @@
 <td>Grouping of conditions with AND/OR membership operator</td>
 </tr>
 <tr>
+<td>Therapy</td>
+<td><code>therapy</code></td>
+<td><code>clinvar.therapy:{sha256}</code></td>
+<td>Drug therapy (content-addressed); <code>object</code> of therapeutic propositions via <code>#/therapy/</code></td>
+</tr>
+<tr>
+<td>TherapyGroup</td>
+<td><code>therapyGroup</code></td>
+<td><code>clinvar.therapygroup:{sha256}</code></td>
+<td>Combination therapy whose <code>concepts</code> reference <code>#/therapy/</code> members</td>
+</tr>
+<tr>
 <td>Submitter</td>
 <td><code>submitter</code></td>
 <td><code>clinvar.submitter:{id}</code></td>
@@ -3735,13 +3766,31 @@
 </tr>
 <tr>
 <td><a href="ClinvarProposition/">ClinvarProposition</a></td>
-<td><code>proposition</code></td>
+<td><code>varcond-proposition</code></td>
 <td><code>{scv_id}-{CODE}</code></td>
-<td>Classification proposition (12 types)</td>
+<td>Variant–condition propositions: Pathogenicity, Clinical Significance, Diagnostic, Prognostic</td>
+</tr>
+<tr>
+<td><a href="ClinvarProposition/">ClinvarProposition</a></td>
+<td><code>vartumor-proposition</code></td>
+<td><code>{scv_id}-ONCO</code></td>
+<td>Variant–tumor-type Oncogenicity propositions</td>
+</tr>
+<tr>
+<td><a href="ClinvarProposition/">ClinvarProposition</a></td>
+<td><code>vartherapy-proposition</code></td>
+<td><code>{scv_id}-TR</code></td>
+<td>Variant–therapy Therapeutic Response propositions</td>
+</tr>
+<tr>
+<td><a href="ClinvarProposition/">ClinvarProposition</a></td>
+<td><code>varcustom-proposition</code></td>
+<td><code>{scv_id}-{CODE}</code></td>
+<td>ClinVar-specific proposition types (Risk Factor, Protective, Drug Response, …)</td>
 </tr>
 </tbody>
 </table>
-<p>See <a href="propositions/">Propositions</a> for the full type/code/predicate reference.</p>
+<p>See <a href="propositions/">Propositions</a> for the full type/code/predicate reference and <a href="../id-references/">ID References</a> for how the delivery groups are keyed.</p>
 <hr />
 <h2 id="statement-classes">Statement Classes<a class="headerlink" href="#statement-classes" title="Permanent link">&para;</a></h2>
 <p>These classes represent classification statements at different levels of aggregation. All are profiles of the VA-Spec Statement type documented under <a href="statements/">Statements</a>.</p>
@@ -3794,6 +3843,8 @@
 
 
 
+
+
                 
               </article>
             </div>
@@ -3818,8 +3869,8 @@
   
   
     Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-      Material for MkDocs
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
     </a>
   
 </div>
@@ -3837,10 +3888,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.tabs.sticky","navigation.sections","navigation.indexes","navigation.top","search.suggest","search.highlight","content.code.copy","toc.follow"],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.6970bfe9.min.js"></script>
       
     
   </body>

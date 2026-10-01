@@ -16,14 +16,14 @@
         <link rel="prev" href="../..">
       
       
-        <link rel="next" href="../../output-reference/overview/">
+        <link rel="next" href="../../user-story/">
       
       
         
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="zensical-0.0.59">
     
     
       
@@ -31,10 +31,15 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/classic/main.38807bfb.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/classic/palette.c7ab7c71.min.css">
       
       
 
@@ -48,14 +53,14 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
     
       <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
     
       
 
@@ -76,7 +81,7 @@
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer"></label>
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
     <div data-md-component="skip">
       
         
@@ -129,9 +134,19 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
     
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
@@ -139,9 +154,9 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
     
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
@@ -154,54 +169,12 @@
     
     
     
-      
-      
-        <label class="md-header__button md-icon" for="__search">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        </label>
-        <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="__search"></label>
-  <div class="md-search__inner" role="search">
-    <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
-      <label class="md-search__icon md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-      </label>
-      <nav class="md-search__options" aria-label="Search">
-        
-        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-        </button>
-      </nav>
-      
-        <div class="md-search__suggest" data-md-component="search-suggest"></div>
-      
-    </form>
-    <div class="md-search__output">
-      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="search-result">
-          <div class="md-search-result__meta">
-            Initializing search
-          </div>
-          <ol class="md-search-result__list" role="presentation"></ol>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-      
-    
     
       <div class="md-header__source">
         <a href="https://github.com/clingen-data-model/clinvar-gkm" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
     clingen-data-model/clinvar-gkm
@@ -226,9 +199,6 @@
       <a href="../.." class="md-tabs__link">
         
   
-  
-    
-  
   Home
 
       </a>
@@ -244,11 +214,8 @@
   
   
     <li class="md-tabs__item md-tabs__item--active">
-      <a href="./" class="md-tabs__link">
+      <a href="././" class="md-tabs__link">
         
-  
-  
-    
   
   Downloads
 
@@ -263,13 +230,57 @@
   
   
     
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-story/" class="md-tabs__link">
+          
+  
+  User Stories
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
     
       <li class="md-tabs__item">
         <a href="../../output-reference/overview/" class="md-tabs__link">
           
-  
-  
-    
   
   Data Guide
 
@@ -285,13 +296,29 @@
   
   
     
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
     
       <li class="md-tabs__item">
         <a href="../../output-reference/classes/" class="md-tabs__link">
           
-  
-  
-    
   
   Data Model
 
@@ -307,13 +334,37 @@
   
   
     
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
     
       <li class="md-tabs__item">
         <a href="../../pipeline/" class="md-tabs__link">
           
-  
-  
-    
   
   Pipeline
 
@@ -329,13 +380,23 @@
   
   
     
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
     
       <li class="md-tabs__item">
         <a href="../../reference/roadmap/" class="md-tabs__link">
           
-  
-  
-    
   
   Reference
 
@@ -375,7 +436,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="ClinVar-GKM" class="md-nav__button md-logo" aria-label="ClinVar-GKM" data-md-component="logo">
       
-  <img src="../../assets/images/clingen-logo-white.svg" alt="logo">
+  <img src="../../assets/images/clingen-logo-white.svg" alt="ClinVar-GKM">
 
     </a>
     ClinVar-GKM
@@ -385,7 +446,7 @@
       <a href="https://github.com/clingen-data-model/clinvar-gkm" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
     clingen-data-model/clinvar-gkm
@@ -409,8 +470,7 @@
   <span class="md-ellipsis">
     
   
-    Home
-  
+  Home
 
     
   </span>
@@ -432,7 +492,9 @@
   
     <li class="md-nav__item md-nav__item--active">
       
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+        <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
       
       
         
@@ -445,8 +507,7 @@
   <span class="md-ellipsis">
     
   
-    Downloads
-  
+  Downloads
 
     
   </span>
@@ -456,15 +517,14 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="./" class="md-nav__link md-nav__link--active">
+      <a href="././" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    Downloads
-  
+  Downloads
 
     
   </span>
@@ -475,7 +535,8 @@
       
         
 
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
   
   
   
@@ -484,16 +545,16 @@
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      Table of contents
+      On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
   <a href="#latest-release" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Latest Release
-      
+      </span>
     </span>
   </a>
   
@@ -503,9 +564,9 @@
           <li class="md-nav__item">
   <a href="#download-with-curl" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Download with curl
-      
+      </span>
     </span>
   </a>
   
@@ -514,9 +575,9 @@
           <li class="md-nav__item">
   <a href="#download-with-python" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Download with Python
-      
+      </span>
     </span>
   </a>
   
@@ -530,9 +591,9 @@
         <li class="md-nav__item">
   <a href="#weekly-deltas" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Weekly Deltas
-      
+      </span>
     </span>
   </a>
   
@@ -542,9 +603,9 @@
           <li class="md-nav__item">
   <a href="#delta-bundle" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Delta Bundle
-      
+      </span>
     </span>
   </a>
   
@@ -553,9 +614,9 @@
           <li class="md-nav__item">
   <a href="#manifestjson" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         manifest.json
-      
+      </span>
     </span>
   </a>
   
@@ -564,9 +625,9 @@
           <li class="md-nav__item">
   <a href="#consumer-replay-model" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Consumer Replay Model
-      
+      </span>
     </span>
   </a>
   
@@ -580,9 +641,9 @@
         <li class="md-nav__item">
   <a href="#browse-all-releases" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Browse All Releases
-      
+      </span>
     </span>
   </a>
   
@@ -591,9 +652,9 @@
         <li class="md-nav__item">
   <a href="#directory-structure" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Directory Structure
-      
+      </span>
     </span>
   </a>
   
@@ -602,9 +663,9 @@
         <li class="md-nav__item">
   <a href="#parquet-files" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Parquet Files
-      
+      </span>
     </span>
   </a>
   
@@ -614,9 +675,9 @@
           <li class="md-nav__item">
   <a href="#working-with-parquet-files" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Working with Parquet Files
-      
+      </span>
     </span>
   </a>
   
@@ -626,9 +687,9 @@
           <li class="md-nav__item">
   <a href="#download" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Download
-      
+      </span>
     </span>
   </a>
   
@@ -637,9 +698,9 @@
           <li class="md-nav__item">
   <a href="#duckdb" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         DuckDB
-      
+      </span>
     </span>
   </a>
   
@@ -648,9 +709,9 @@
           <li class="md-nav__item">
   <a href="#pandas-pyarrow" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         pandas / pyarrow
-      
+      </span>
     </span>
   </a>
   
@@ -659,9 +720,9 @@
           <li class="md-nav__item">
   <a href="#column-reference" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Column Reference
-      
+      </span>
     </span>
   </a>
   
@@ -670,9 +731,9 @@
           <li class="md-nav__item">
   <a href="#example-queries" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Example Queries
-      
+      </span>
     </span>
   </a>
   
@@ -686,9 +747,9 @@
           <li class="md-nav__item">
   <a href="#applying-deltas-keeping-a-parquet-set-current" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Applying Deltas (keeping a Parquet set current)
-      
+      </span>
     </span>
   </a>
   
@@ -698,9 +759,9 @@
           <li class="md-nav__item">
   <a href="#download-the-pieces" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Download the pieces
-      
+      </span>
     </span>
   </a>
   
@@ -709,9 +770,9 @@
           <li class="md-nav__item">
   <a href="#apply-one-delta" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Apply one delta
-      
+      </span>
     </span>
   </a>
   
@@ -720,9 +781,9 @@
           <li class="md-nav__item">
   <a href="#chaining-multiple-weeks" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Chaining multiple weeks
-      
+      </span>
     </span>
   </a>
   
@@ -741,9 +802,9 @@
         <li class="md-nav__item">
   <a href="#release-cadence" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Release Cadence
-      
+      </span>
     </span>
   </a>
   
@@ -752,9 +813,9 @@
         <li class="md-nav__item">
   <a href="#feedback" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Feedback
-      
+      </span>
     </span>
   </a>
   
@@ -776,16 +837,6 @@
   
     
     
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
       
         
       
@@ -814,8 +865,7 @@
   <span class="md-ellipsis">
     
   
-    Data Guide
-  
+  User Stories
 
     
   </span>
@@ -830,8 +880,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Data Guide
-  
+  User Stories
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -843,15 +892,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../output-reference/overview/" class="md-nav__link">
+      <a href="../../user-story/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Output Format
-  
+  Harmonizing by VRS Identity
 
     
   </span>
@@ -871,155 +919,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../output-reference/cat-vrs/" class="md-nav__link">
+      <a href="../../user-story-audit/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Variations
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/scv-statements/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    SCV Statements
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/vcv-statements/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    VCV Statements
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/rcv-statements/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    RCV Statements
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/id-references/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ID References
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../examples/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Examples
-  
+  Auditing a Submitter's Footprint
 
     
   </span>
@@ -1049,7 +956,7 @@
     
       
         
-          
+      
         
       
         
@@ -1078,110 +985,29 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
-          <div class="md-nav__link md-nav__container">
-            <a href="../../output-reference/classes/" class="md-nav__link ">
-              
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
   
   
   <span class="md-ellipsis">
     
   
-    Data Model
-  
+  Data Guide
 
     
   </span>
   
   
 
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
+            <span class="md-nav__icon md-icon"></span>
+          </label>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Data Model
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Variations
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Variations
-  
+  Data Guide
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -1193,15 +1019,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../output-reference/classes/variations/" class="md-nav__link">
+      <a href="../../output-reference/overview/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Variations
-  
+  Output Format
 
     
   </span>
@@ -1221,15 +1046,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarCategoricalVariant/" class="md-nav__link">
+      <a href="../../output-reference/cat-vrs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarCategoricalVariant
-  
+  Variations
 
     
   </span>
@@ -1249,15 +1073,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarCanonicalAllele/" class="md-nav__link">
+      <a href="../../output-reference/scv-statements/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarCanonicalAllele
-  
+  SCV Statements
 
     
   </span>
@@ -1277,15 +1100,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarCategoricalCnvChange/" class="md-nav__link">
+      <a href="../../output-reference/vcv-statements/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarCategoricalCnvChange
-  
+  VCV Statements
 
     
   </span>
@@ -1305,15 +1127,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarCategoricalCnvCount/" class="md-nav__link">
+      <a href="../../output-reference/rcv-statements/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarCategoricalCnvCount
-  
+  RCV Statements
 
     
   </span>
@@ -1333,15 +1154,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarNonConstrainedVariant/" class="md-nav__link">
+      <a href="../../output-reference/id-references/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    ClinvarNonConstrainedVariant
-  
+  ID References
 
     
   </span>
@@ -1361,15 +1181,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../output-reference/classes/HgvsListItem/" class="md-nav__link">
+      <a href="../examples/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    HgvsListItem
-  
+  Examples
 
     
   </span>
@@ -1377,1023 +1196,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/GeneListItem/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    GeneListItem
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Propositions
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_3">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Propositions
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/propositions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Propositions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarProposition/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarProposition
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarRiskFactorProposition/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarRiskFactorProposition
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarProtectiveProposition/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarProtectiveProposition
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarDrugResponseProposition/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarDrugResponseProposition
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarAffectsProposition/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarAffectsProposition
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarAssociationProposition/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarAssociationProposition
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarConfersSensitivityProposition/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarConfersSensitivityProposition
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarOtherProposition/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarOtherProposition
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarNotProvidedProposition/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarNotProvidedProposition
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarConflictingDataFromSubmitterProposition/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarConflictingDataFromSubmitterProposition
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarUndefinedProposition/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarUndefinedProposition
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Statements
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Statements
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/statements/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Statements
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarStatement/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarStatement
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarScvStatement/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarScvStatement
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarVcvStatement/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarVcvStatement
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarRcvStatement/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarRcvStatement
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/SubmittedConditionMapping/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    SubmittedConditionMapping
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Evidence
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Evidence
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/evidence/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Evidence Lines
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../output-reference/classes/ClinvarSomaticEvidenceLine/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ClinvarSomaticEvidenceLine
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_6" >
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../profiles/" class="md-nav__link ">
-              
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Profiles
-  
-
-    
-  </span>
-  
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_4_6" id="__nav_4_6_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_6">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Profiles
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../profiles/statement-types/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Statement Types
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../profiles/classifications/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Classifications
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../profiles/propositions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Propositions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../profiles/review-status/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Review Status
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2417,12 +1219,6 @@
       
         
           
-        
-      
-        
-      
-        
-      
         
       
         
@@ -2452,15 +1248,14 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../pipeline/" class="md-nav__link ">
+            <a href="../../output-reference/classes/" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    Pipeline
-  
+  Data Model
 
     
   </span>
@@ -2481,8 +1276,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Pipeline
-  
+  Data Model
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -2499,7 +1293,11 @@
     
       
         
-          
+      
+        
+      
+        
+      
         
       
         
@@ -2526,60 +1324,48 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
         
           
-          <div class="md-nav__link md-nav__container">
-            <a href="../../pipeline/variation-identity/" class="md-nav__link ">
-              
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
   
   
   <span class="md-ellipsis">
     
   
-    Variation Identity
-  
+  Variations
 
     
   </span>
   
   
 
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
+            <span class="md-nav__icon md-icon"></span>
+          </label>
         
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_2">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Variation Identity
-  
+  Variations
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
               
-            
-              
                 
   
   
   
   
     <li class="md-nav__item">
-      <a href="../../pipeline/variation-identity/variation-loc/" class="md-nav__link">
+      <a href="../../output-reference/classes/variations/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Sequence Locations
-  
+  Variations
 
     
   </span>
@@ -2599,15 +1385,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../pipeline/variation-identity/variation-hgvs/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarCategoricalVariant/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    HGVS Expressions
-  
+  ClinvarCategoricalVariant
 
     
   </span>
@@ -2627,15 +1412,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../pipeline/variation-identity/variation-xref/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarCanonicalAllele/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Cross-References
-  
+  ClinvarCanonicalAllele
 
     
   </span>
@@ -2655,15 +1439,122 @@
   
   
     <li class="md-nav__item">
-      <a href="../../pipeline/variation-identity/variation-identity/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarCategoricalCnvChange/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Variation Identity Table
+  ClinvarCategoricalCnvChange
+
+    
+  </span>
   
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarCategoricalCnvCount/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarCategoricalCnvCount
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarNonConstrainedVariant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarNonConstrainedVariant
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/HgvsListItem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  HgvsListItem
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/GeneListItem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GeneListItem
 
     
   </span>
@@ -2690,16 +1581,93 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Propositions
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Propositions
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../pipeline/vrs-processing/" class="md-nav__link">
+      <a href="../../output-reference/classes/propositions/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    VRS Processing
-  
+  Propositions
 
     
   </span>
@@ -2718,11 +1686,349 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarGermlineCustomProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarGermlineCustomProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarRiskFactorProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarRiskFactorProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarProtectiveProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarProtectiveProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarDrugResponseProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarDrugResponseProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarAffectsProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarAffectsProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarAssociationProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarAssociationProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarConfersSensitivityProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarConfersSensitivityProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarOtherProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarOtherProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarNotProvidedProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarNotProvidedProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarConflictingDataFromSubmitterProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarConflictingDataFromSubmitterProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarUndefinedProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarUndefinedProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
       
         
-          
+      
+        
+      
+        
+      
+        
+      
         
       
         
@@ -2743,42 +2049,58 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
         
           
-          <div class="md-nav__link md-nav__container">
-            <a href="../../pipeline/cat-vrs/" class="md-nav__link ">
-              
+          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
+            
   
   
   <span class="md-ellipsis">
     
   
-    Cat-VRS
-  
+  Statements
 
     
   </span>
   
   
 
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
+            <span class="md-nav__icon md-icon"></span>
+          </label>
         
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_4">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Cat-VRS
-  
+  Statements
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/statements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Statements
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
               
             
               
@@ -2788,15 +2110,122 @@
   
   
     <li class="md-nav__item">
-      <a href="../../pipeline/cat-vrs/catvar-extensions/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarStatement/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Categorical Variant Extensions
+  ClinvarStatement
+
+    
+  </span>
   
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarScvStatement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarScvStatement
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarVcvStatement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarVcvStatement
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarRcvStatement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarRcvStatement
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/SubmittedConditionMapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SubmittedConditionMapping
 
     
   </span>
@@ -2825,14 +2254,6 @@
   
     
     
-      
-        
-          
-        
-      
-        
-      
-        
       
         
       
@@ -2854,60 +2275,48 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
         
           
-          <div class="md-nav__link md-nav__container">
-            <a href="../../pipeline/conditions-and-traits/" class="md-nav__link ">
-              
+          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
+            
   
   
   <span class="md-ellipsis">
     
   
-    Conditions & Traits
-  
+  Evidence
 
     
   </span>
   
   
 
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
+            <span class="md-nav__icon md-icon"></span>
+          </label>
         
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_5">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Conditions & Traits
-  
+  Evidence
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
               
-            
-              
                 
   
   
   
   
     <li class="md-nav__item">
-      <a href="../../pipeline/conditions-and-traits/condition-mapping/" class="md-nav__link">
+      <a href="../../output-reference/classes/evidence/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Condition Mapping
-  
+  Evidence Lines
 
     
   </span>
@@ -2927,71 +2336,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../pipeline/conditions-and-traits/traits/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarSomaticEvidenceLine/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Traits
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../pipeline/conditions-and-traits/condition-sets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Condition Sets
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../pipeline/conditions-and-traits/condition-extensions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Condition Extensions
-  
+  ClinvarSomaticEvidenceLine
 
     
   </span>
@@ -3050,15 +2402,14 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../pipeline/scv-statements/" class="md-nav__link ">
+            <a href="../../profiles/" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    SCV Statements
-  
+  Profiles
 
     
   </span>
@@ -3079,8 +2430,793 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    SCV Statements
+  Profiles
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
   
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../profiles/statement-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Statement Types
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../profiles/classifications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Classifications
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../profiles/propositions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Propositions
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../profiles/review-status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Review Status
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../pipeline/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Pipeline
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Pipeline
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../pipeline/variation-identity/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Variation Identity
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Variation Identity
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/variation-identity/variation-loc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sequence Locations
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/variation-identity/variation-hgvs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  HGVS Expressions
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/variation-identity/variation-xref/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Cross-References
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/variation-identity/variation-identity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Variation Identity Table
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/vrs-processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  VRS Processing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../pipeline/cat-vrs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Cat-VRS
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Cat-VRS
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/cat-vrs/catvar-extensions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Categorical Variant Extensions
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../pipeline/conditions-and-traits/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Conditions & Traits
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_5" id="__nav_6_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Conditions & Traits
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/conditions-and-traits/condition-mapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Condition Mapping
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/conditions-and-traits/traits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Traits
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/conditions-and-traits/condition-sets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Condition Sets
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/conditions-and-traits/condition-extensions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Condition Extensions
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../pipeline/scv-statements/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SCV Statements
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_6" id="__nav_6_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  SCV Statements
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -3101,8 +3237,7 @@
   <span class="md-ellipsis">
     
   
-    SCV Records
-  
+  SCV Records
 
     
   </span>
@@ -3129,8 +3264,7 @@
   <span class="md-ellipsis">
     
   
-    Propositions
-  
+  Propositions
 
     
   </span>
@@ -3157,8 +3291,7 @@
   <span class="md-ellipsis">
     
   
-    Final Statements
-  
+  Final Statements
 
     
   </span>
@@ -3185,8 +3318,7 @@
   <span class="md-ellipsis">
     
   
-    SCV Extensions
-  
+  SCV Extensions
 
     
   </span>
@@ -3239,7 +3371,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -3250,8 +3382,7 @@
   <span class="md-ellipsis">
     
   
-    VCV Statements
-  
+  VCV Statements
 
     
   </span>
@@ -3261,19 +3392,18 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_7" id="__nav_5_7_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_6_7" id="__nav_6_7_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_7">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_7">
             <span class="md-nav__icon md-icon"></span>
             
   
-    VCV Statements
-  
+  VCV Statements
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -3294,8 +3424,7 @@
   <span class="md-ellipsis">
     
   
-    Aggregation Rules
-  
+  Aggregation Rules
 
     
   </span>
@@ -3322,8 +3451,7 @@
   <span class="md-ellipsis">
     
   
-    VCV Procedures
-  
+  VCV Procedures
 
     
   </span>
@@ -3350,8 +3478,7 @@
   <span class="md-ellipsis">
     
   
-    VCV Extensions
-  
+  VCV Extensions
 
     
   </span>
@@ -3402,7 +3529,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -3413,8 +3540,7 @@
   <span class="md-ellipsis">
     
   
-    RCV Statements
-  
+  RCV Statements
 
     
   </span>
@@ -3424,19 +3550,18 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_8" id="__nav_5_8_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_6_8" id="__nav_6_8_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_8">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8">
             <span class="md-nav__icon md-icon"></span>
             
   
-    RCV Statements
-  
+  RCV Statements
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -3457,8 +3582,7 @@
   <span class="md-ellipsis">
     
   
-    RCV Procedures
-  
+  RCV Procedures
 
     
   </span>
@@ -3485,8 +3609,7 @@
   <span class="md-ellipsis">
     
   
-    RCV Extensions
-  
+  RCV Extensions
 
     
   </span>
@@ -3521,8 +3644,34 @@
   <span class="md-ellipsis">
     
   
-    Export & Distribute
+  Export & Distribute
+
+    
+  </span>
   
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/sub-bundle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sub-Bundle Extraction
 
     
   </span>
@@ -3572,18 +3721,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    Reference
-  
+  Reference
 
     
   </span>
@@ -3593,13 +3741,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Reference
-  
+  Reference
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
@@ -3618,8 +3765,7 @@
   <span class="md-ellipsis">
     
   
-    Roadmap
-  
+  Roadmap
 
     
   </span>
@@ -3646,8 +3792,7 @@
   <span class="md-ellipsis">
     
   
-    GA4GH Standards
-  
+  GA4GH Standards
 
     
   </span>
@@ -3674,8 +3819,7 @@
   <span class="md-ellipsis">
     
   
-    Known Issues
-  
+  Known Issues
 
     
   </span>
@@ -3702,8 +3846,7 @@
   <span class="md-ellipsis">
     
   
-    Glossary
-  
+  Glossary
 
     
   </span>
@@ -3733,10 +3876,12 @@
               
               <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
+                  
                   <div class="md-sidebar__inner">
                     
 
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
   
   
   
@@ -3745,16 +3890,16 @@
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      Table of contents
+      On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
   <a href="#latest-release" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Latest Release
-      
+      </span>
     </span>
   </a>
   
@@ -3764,9 +3909,9 @@
           <li class="md-nav__item">
   <a href="#download-with-curl" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Download with curl
-      
+      </span>
     </span>
   </a>
   
@@ -3775,9 +3920,9 @@
           <li class="md-nav__item">
   <a href="#download-with-python" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Download with Python
-      
+      </span>
     </span>
   </a>
   
@@ -3791,9 +3936,9 @@
         <li class="md-nav__item">
   <a href="#weekly-deltas" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Weekly Deltas
-      
+      </span>
     </span>
   </a>
   
@@ -3803,9 +3948,9 @@
           <li class="md-nav__item">
   <a href="#delta-bundle" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Delta Bundle
-      
+      </span>
     </span>
   </a>
   
@@ -3814,9 +3959,9 @@
           <li class="md-nav__item">
   <a href="#manifestjson" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         manifest.json
-      
+      </span>
     </span>
   </a>
   
@@ -3825,9 +3970,9 @@
           <li class="md-nav__item">
   <a href="#consumer-replay-model" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Consumer Replay Model
-      
+      </span>
     </span>
   </a>
   
@@ -3841,9 +3986,9 @@
         <li class="md-nav__item">
   <a href="#browse-all-releases" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Browse All Releases
-      
+      </span>
     </span>
   </a>
   
@@ -3852,9 +3997,9 @@
         <li class="md-nav__item">
   <a href="#directory-structure" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Directory Structure
-      
+      </span>
     </span>
   </a>
   
@@ -3863,9 +4008,9 @@
         <li class="md-nav__item">
   <a href="#parquet-files" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Parquet Files
-      
+      </span>
     </span>
   </a>
   
@@ -3875,9 +4020,9 @@
           <li class="md-nav__item">
   <a href="#working-with-parquet-files" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Working with Parquet Files
-      
+      </span>
     </span>
   </a>
   
@@ -3887,9 +4032,9 @@
           <li class="md-nav__item">
   <a href="#download" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Download
-      
+      </span>
     </span>
   </a>
   
@@ -3898,9 +4043,9 @@
           <li class="md-nav__item">
   <a href="#duckdb" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         DuckDB
-      
+      </span>
     </span>
   </a>
   
@@ -3909,9 +4054,9 @@
           <li class="md-nav__item">
   <a href="#pandas-pyarrow" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         pandas / pyarrow
-      
+      </span>
     </span>
   </a>
   
@@ -3920,9 +4065,9 @@
           <li class="md-nav__item">
   <a href="#column-reference" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Column Reference
-      
+      </span>
     </span>
   </a>
   
@@ -3931,9 +4076,9 @@
           <li class="md-nav__item">
   <a href="#example-queries" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Example Queries
-      
+      </span>
     </span>
   </a>
   
@@ -3947,9 +4092,9 @@
           <li class="md-nav__item">
   <a href="#applying-deltas-keeping-a-parquet-set-current" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Applying Deltas (keeping a Parquet set current)
-      
+      </span>
     </span>
   </a>
   
@@ -3959,9 +4104,9 @@
           <li class="md-nav__item">
   <a href="#download-the-pieces" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Download the pieces
-      
+      </span>
     </span>
   </a>
   
@@ -3970,9 +4115,9 @@
           <li class="md-nav__item">
   <a href="#apply-one-delta" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Apply one delta
-      
+      </span>
     </span>
   </a>
   
@@ -3981,9 +4126,9 @@
           <li class="md-nav__item">
   <a href="#chaining-multiple-weeks" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Chaining multiple weeks
-      
+      </span>
     </span>
   </a>
   
@@ -4002,9 +4147,9 @@
         <li class="md-nav__item">
   <a href="#release-cadence" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Release Cadence
-      
+      </span>
     </span>
   </a>
   
@@ -4013,9 +4158,9 @@
         <li class="md-nav__item">
   <a href="#feedback" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Feedback
-      
+      </span>
     </span>
   </a>
   
@@ -4035,8 +4180,6 @@
               <article class="md-content__inner md-typeset">
                 
                   
-
-
   
   
 
@@ -4049,10 +4192,6 @@
 <li>A <strong>weekly delta</strong> is published for every ClinVar release. Each delta carries only the records that were added or updated since the prior release, in the same section structure as the full bundle, alongside a <code>manifest.json</code> that lists per-section adds, updates, and deletes.</li>
 </ul>
 <p>A consumer that wants the current state takes the latest monthly full and replays the weekly deltas published since it. See <a href="#weekly-deltas">Weekly Deltas</a> for the replay model.</p>
-<div class="admonition warning">
-<p class="admonition-title">Breaking change — proposition sections</p>
-<p>The single <code>proposition</code> bundle section (and its <code>proposition-*.parquet</code>) has been <strong>replaced by four datatype-homogeneous sections</strong>: <code>varcond-proposition</code> (variant×condition), <code>vartumor-proposition</code> (variant×tumorType), <code>vartherapy-proposition</code> (variant×therapy), and <code>varcustom-proposition</code> (custom variant×condition), each with a matching Parquet file. Proposition references are now group-qualified — <code>#/{group}-proposition/{id}</code> instead of <code>#/proposition/{id}</code>. Consumers reading the <code>proposition</code> section must switch to the four new keys, and the Parquet <code>proposition.parquet</code>/<code>vcv_proposition.parquet</code>/<code>rcv_proposition.parquet</code> files are replaced by <code>varcond-proposition.parquet</code>, <code>vartumor-proposition.parquet</code>, <code>vartherapy-proposition.parquet</code>, and <code>varcustom-proposition.parquet</code>.</p>
-</div>
 <hr />
 <h2 id="latest-release">Latest Release<a class="headerlink" href="#latest-release" title="Permanent link">&para;</a></h2>
 <p>Download the most recent full bundle and the most recent weekly delta using the stable URLs below:</p>
@@ -4103,7 +4242,7 @@
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="c1"># Download all Parquet files (latest monthly full)</span>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="k">for</span><span class="w"> </span>section<span class="w"> </span><span class="k">in</span><span class="w"> </span>sequenceReference<span class="w"> </span>location<span class="w"> </span>allele<span class="w"> </span>copyNumberCount<span class="w"> </span>copyNumberChange<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">               </span>gene<span class="w"> </span>variation<span class="w"> </span>condition<span class="w"> </span>conditionSet<span class="w"> </span>submitter<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">               </span>gene<span class="w"> </span>variation<span class="w"> </span>condition<span class="w"> </span>conditionSet<span class="w"> </span>therapy<span class="w"> </span>therapyGroup<span class="w"> </span>submitter<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">               </span>varcond-proposition<span class="w"> </span>vartumor-proposition<span class="w"> </span>vartherapy-proposition<span class="w"> </span>varcustom-proposition<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">               </span>evidenceLine<span class="w"> </span>vcv_evidenceLine<span class="w"> </span>rcv_evidenceLine<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">               </span>scv<span class="w"> </span>vcv<span class="w"> </span>rcv<span class="p">;</span><span class="w"> </span><span class="k">do</span>
@@ -4165,6 +4304,13 @@
 <a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>    <span class="s2">"scv.parquet"</span>
 <a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a><span class="p">)</span>
 </code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Validate a downloaded bundle</p>
+<p>Every JSON bundle conforms to the <a href="../../output-reference/overview/#bundle-schema">ClinVar-GKM bundle schema</a>
+(JSON Schema Draft 2020-12) — the same schema covers the monthly full, weekly deltas, and sub-bundle
+extracts. The <a href="https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/">GKM Toolkit</a> validates
+a bundle against it in one call.</p>
+</div>
 <hr />
 <h2 id="weekly-deltas">Weekly Deltas<a class="headerlink" href="#weekly-deltas" title="Permanent link">&para;</a></h2>
 <p>A weekly delta is published for every ClinVar release under <code>deltas/&lt;YYYY-MMDD&gt;/</code>. Each release directory contains three artifact kinds:</p>
@@ -4456,7 +4602,7 @@ JavaScript is required to browse releases interactively. You can fetch the relea
     // The section schema is stable, so we compose the known section files under each set's path.
     var parquetSections = [
       "sequenceReference", "location", "allele", "copyNumberCount", "copyNumberChange",
-      "gene", "variation", "condition", "conditionSet", "submitter",
+      "gene", "variation", "condition", "conditionSet", "therapy", "therapyGroup", "submitter",
       "varcond-proposition", "vartumor-proposition", "vartherapy-proposition", "varcustom-proposition",
       "evidenceLine", "vcv_evidenceLine", "rcv_evidenceLine",
       "scv", "vcv", "rcv"
@@ -4633,6 +4779,14 @@ JavaScript is required to browse releases interactively. You can fetch the relea
 <td>ConditionSet records (trait sets)</td>
 </tr>
 <tr>
+<td><code>therapy.parquet</code></td>
+<td>Therapy records (drug therapies, content-addressed)</td>
+</tr>
+<tr>
+<td><code>therapyGroup.parquet</code></td>
+<td>TherapyGroup records (combination therapies)</td>
+</tr>
+<tr>
 <td><code>submitter.parquet</code></td>
 <td>Submitter organization records</td>
 </tr>
@@ -4697,7 +4851,7 @@ JavaScript is required to browse releases interactively. You can fetch the relea
 <a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
 <a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="c1"># Or download all 20 sections</span>
 <a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="k">for</span><span class="w"> </span>section<span class="w"> </span><span class="k">in</span><span class="w"> </span>sequenceReference<span class="w"> </span>location<span class="w"> </span>allele<span class="w"> </span>copyNumberCount<span class="w"> </span>copyNumberChange<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">               </span>gene<span class="w"> </span>variation<span class="w"> </span>condition<span class="w"> </span>conditionSet<span class="w"> </span>submitter<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">               </span>gene<span class="w"> </span>variation<span class="w"> </span>condition<span class="w"> </span>conditionSet<span class="w"> </span>therapy<span class="w"> </span>therapyGroup<span class="w"> </span>submitter<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">               </span>varcond-proposition<span class="w"> </span>vartumor-proposition<span class="w"> </span>vartherapy-proposition<span class="w"> </span>varcustom-proposition<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">               </span>evidenceLine<span class="w"> </span>vcv_evidenceLine<span class="w"> </span>rcv_evidenceLine<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">               </span>scv<span class="w"> </span>vcv<span class="w"> </span>rcv<span class="p">;</span><span class="w"> </span><span class="k">do</span>
@@ -4712,7 +4866,7 @@ JavaScript is required to browse releases interactively. You can fetch the relea
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Query SCV statements</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>duckdb<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="s2">  SELECT id, classification.name AS classification, direction, strength.name AS strength, confidence.name AS confidence</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="s2">  SELECT id, classification.name AS classification, direction, strength.name AS strength, quality.name AS quality</span>
 <a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="s2">  FROM 'scv.parquet'</span>
 <a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="s2">  WHERE classification.name = 'Pathogenic'</span>
 <a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="s2">  LIMIT 10;</span>
@@ -4743,7 +4897,7 @@ JavaScript is required to browse releases interactively. You can fetch the relea
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
 <a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="n">df</span> <span class="o">=</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"""</span>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="s2">    SELECT id, classification.name AS classification, direction, strength.name AS strength, confidence.name AS confidence</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="s2">    SELECT id, classification.name AS classification, direction, strength.name AS strength, quality.name AS quality</span>
 <a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="s2">    FROM 'scv.parquet'</span>
 <a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="s2">    WHERE classification.name = 'Pathogenic'</span>
 <a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="s2">    LIMIT 100</span>
@@ -4808,9 +4962,9 @@ JavaScript is required to browse releases interactively. You can fetch the relea
 <td>Evidence direction ("supports", "disputes", "neutral")</td>
 </tr>
 <tr>
-<td><code>confidence</code></td>
+<td><code>quality</code></td>
 <td>struct (MappableConcept)</td>
-<td>Use <code>confidence.name</code> — submission level, e.g., "criteria provided"</td>
+<td>Use <code>quality.name</code> — submission level, e.g., "criteria provided"</td>
 </tr>
 <tr>
 <td><code>has_evidence_lines</code></td>
@@ -4841,7 +4995,7 @@ JavaScript is required to browse releases interactively. You can fetch the relea
 <a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">classification</span><span class="p">,</span>
 <a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">direction</span><span class="p">,</span>
 <a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">strength</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">strength</span><span class="p">,</span>
-<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">confidence</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">review_status</span><span class="p">,</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">review_status</span><span class="p">,</span>
 <a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">    </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gene</span><span class="p">,</span>
 <a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">    </span><span class="k">c</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">condition_name</span><span class="p">,</span>
 <a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">    </span><span class="k">c</span><span class="p">.</span><span class="n">primaryCoding</span><span class="p">.</span><span class="n">code</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">condition_code</span>
@@ -4856,7 +5010,7 @@ JavaScript is required to browse releases interactively. You can fetch the relea
 <a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="k">SELECT</span>
 <a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gene</span><span class="p">,</span>
 <a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">classification</span><span class="p">,</span>
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">confidence</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">review_status</span><span class="p">,</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">review_status</span><span class="p">,</span>
 <a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">direction</span><span class="p">,</span>
 <a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">    </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">scv_count</span>
 <a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span><span class="w"> </span><span class="n">s</span>
@@ -4870,13 +5024,13 @@ JavaScript is required to browse releases interactively. You can fetch the relea
 <a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="k">SELECT</span>
 <a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">scv_id</span><span class="p">,</span>
 <a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">classification</span><span class="p">,</span>
-<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">confidence</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">review_status</span><span class="p">,</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">review_status</span><span class="p">,</span>
 <a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">    </span><span class="k">c</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">condition_name</span>
 <a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span><span class="w"> </span><span class="n">s</span>
 <a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="k">JOIN</span><span class="w"> </span><span class="s1">'varcond-proposition.parquet'</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span>
 <a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="s1">'condition.parquet'</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">object_condition_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">id</span>
 <a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'TP53'</span>
-<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">confidence</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'criteria provided'</span><span class="p">,</span><span class="w"> </span><span class="s1">'reviewed by expert panel'</span><span class="p">)</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'criteria provided'</span><span class="p">,</span><span class="w"> </span><span class="s1">'reviewed by expert panel'</span><span class="p">)</span>
 <a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
 </code></pre></div>
 <p><strong>Cross-gene comparison — classification breakdown for multiple genes:</strong></p>
@@ -4888,7 +5042,7 @@ JavaScript is required to browse releases interactively. You can fetch the relea
 <a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span><span class="w"> </span><span class="n">s</span>
 <a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="k">JOIN</span><span class="w"> </span><span class="s1">'varcond-proposition.parquet'</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span>
 <a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'BRCA1'</span><span class="p">,</span><span class="w"> </span><span class="s1">'BRCA2'</span><span class="p">,</span><span class="w"> </span><span class="s1">'TP53'</span><span class="p">,</span><span class="w"> </span><span class="s1">'MLH1'</span><span class="p">)</span>
-<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">confidence</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'criteria provided'</span>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'criteria provided'</span>
 <a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">gene</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span>
 <a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">gene</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
@@ -4905,7 +5059,7 @@ JavaScript is required to browse releases interactively. You can fetch the relea
 <a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="k">JOIN</span><span class="w"> </span><span class="s1">'varcond-proposition.parquet'</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span>
 <a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'BRCA1'</span>
 <a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Pathogenic'</span>
-<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">confidence</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'reviewed by expert panel'</span>
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'reviewed by expert panel'</span>
 <a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="k">LIMIT</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
 </code></pre></div>
 <p><strong>Summary:</strong></p>
@@ -4953,7 +5107,7 @@ JavaScript is required to browse releases interactively. You can fetch the relea
 <a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="c1"># 2. The checkpoint full Parquet set -&gt; full/, and the delta set -&gt; delta/.</span>
 <a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>full<span class="w"> </span>delta
 <a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="k">for</span><span class="w"> </span>section<span class="w"> </span><span class="k">in</span><span class="w"> </span>sequenceReference<span class="w"> </span>location<span class="w"> </span>allele<span class="w"> </span>copyNumberCount<span class="w"> </span>copyNumberChange<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="w">               </span>gene<span class="w"> </span>variation<span class="w"> </span>condition<span class="w"> </span>conditionSet<span class="w"> </span>submitter<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="w">               </span>gene<span class="w"> </span>variation<span class="w"> </span>condition<span class="w"> </span>conditionSet<span class="w"> </span>therapy<span class="w"> </span>therapyGroup<span class="w"> </span>submitter<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="w">               </span>varcond-proposition<span class="w"> </span>vartumor-proposition<span class="w"> </span>vartherapy-proposition<span class="w"> </span>varcustom-proposition<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a><span class="w">               </span>evidenceLine<span class="w"> </span>vcv_evidenceLine<span class="w"> </span>rcv_evidenceLine<span class="w"> </span>scv<span class="w"> </span>vcv<span class="w"> </span>rcv<span class="p">;</span><span class="w"> </span><span class="k">do</span>
 <a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a><span class="w">  </span>curl<span class="w"> </span>-sf<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/datasets/parquet/</span><span class="si">${</span><span class="nv">CKPT</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">section</span><span class="si">}</span><span class="s2">.parquet"</span><span class="w"> </span>-o<span class="w"> </span><span class="s2">"full/</span><span class="si">${</span><span class="nv">section</span><span class="si">}</span><span class="s2">.parquet"</span><span class="w">  </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
@@ -5030,6 +5184,8 @@ JavaScript is required to browse releases interactively. You can fetch the relea
 
 
 
+
+
                 
               </article>
             </div>
@@ -5054,8 +5210,8 @@ JavaScript is required to browse releases interactively. You can fetch the relea
   
   
     Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-      Material for MkDocs
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
     </a>
   
 </div>
@@ -5073,10 +5229,10 @@ JavaScript is required to browse releases interactively. You can fetch the relea
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.tabs.sticky","navigation.sections","navigation.indexes","navigation.top","search.suggest","search.highlight","content.code.copy","toc.follow"],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.6970bfe9.min.js"></script>
       
     
   </body>
