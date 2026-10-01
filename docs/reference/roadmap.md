@@ -2,8 +2,9 @@
 
 ClinVar-GKM's direction is shaped in the open. The table below is the current backlog of ideas under
 consideration, ordered by community **upvotes**. Each idea has a matching **GitHub Discussion** — open it and
-use the **Upvote** button (the ▲ next to the discussion title) to signal you want it prioritized, and comment
-with your use case. Maintainers use the upvote tally to decide the order in which features and improvements are
+use the **Upvote** button (the ▲ in the bottom-left corner of the discussion's opening post) to signal you want
+it prioritized, and comment with your use case. Maintainers use the upvote tally to decide the order in which
+features and improvements are
 taken on.
 
 Nothing here is a commitment or a delivery date — it's a prioritization board. Items move through
@@ -32,9 +33,9 @@ upvote count. To read the full proposal (and any linked spec) for an item, open 
 
 ## How it works
 
-- **Upvote:** open an idea's discussion and click the **Upvote** button (the ▲ next to the discussion title).
-  The upvote tally drives the ordering above. GitHub Discussions support **upvotes only — there is no
-  downvote.** Add a comment with your use case for extra signal.
+- **Upvote:** open an idea's discussion and click the **Upvote** button (the ▲ in the bottom-left corner of the
+  discussion's opening post). The upvote tally drives the ordering above. GitHub Discussions support **upvotes
+  only — there is no downvote.** Add a comment with your use case for extra signal.
 - **Propose a new idea:** open a discussion in the **[Ideas](https://github.com/clingen-data-model/clinvar-gkm/discussions/categories/ideas)**
   category. If the maintainers authorize it (by adding the `roadmap authorized` label), it appears in the table
   automatically.
