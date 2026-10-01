@@ -191,7 +191,7 @@ BEGIN
           END
         ) AS direction,
 
-        STRUCT(
+        (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
           IF(ARRAY_LENGTH(agg.full_scv_ids) = 1,
             agg.scv_strength_name,
@@ -204,9 +204,9 @@ BEGIN
               ELSE CAST(NULL AS STRING)
             END
           ) AS name
-        ) AS strength,
+        )]) s WHERE s.name IS NOT NULL) AS strength,
 
-        STRUCT('MappableConcept' AS type, 'Confidence' AS conceptType, sl.label AS name) AS confidence,
+        STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, sl.label AS name) AS quality,
 
         STRUCT(
           'MappableConcept' AS type, 'Classification' AS conceptType,
@@ -267,7 +267,7 @@ BEGIN
           ELSE 'supports'
         END AS direction,
 
-        STRUCT(
+        (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
           CASE
             WHEN agg.agg_label IN ('Pathogenic', 'Benign', 'Oncogenic') THEN 'Definitive'
@@ -277,9 +277,9 @@ BEGIN
             WHEN agg.agg_label LIKE 'Tier IV%' THEN 'Likely'
             ELSE CAST(NULL AS STRING)
           END AS name
-        ) AS strength,
+        )]) s WHERE s.name IS NOT NULL) AS strength,
 
-        STRUCT('MappableConcept' AS type, 'Confidence' AS conceptType, sl.label AS name) AS confidence,
+        STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, sl.label AS name) AS quality,
 
         STRUCT(
           'MappableConcept' AS type, 'Classification' AS conceptType,
@@ -345,7 +345,7 @@ BEGIN
           ELSE 'supports'
         END AS direction,
 
-        STRUCT(
+        (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
           CASE
             WHEN agg.agg_label IN ('Pathogenic', 'Benign', 'Oncogenic') THEN 'Definitive'
@@ -355,9 +355,9 @@ BEGIN
             WHEN agg.agg_label LIKE 'Tier IV%' THEN 'Likely'
             ELSE CAST(NULL AS STRING)
           END AS name
-        ) AS strength,
+        )]) s WHERE s.name IS NOT NULL) AS strength,
 
-        STRUCT('MappableConcept' AS type, 'Confidence' AS conceptType, agg.contributing_submission_level_label AS name) AS confidence,
+        STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, agg.contributing_submission_level_label AS name) AS quality,
 
         STRUCT(
           'MappableConcept' AS type, 'Classification' AS conceptType,
@@ -424,7 +424,7 @@ BEGIN
         ARRAY(
           SELECT FORMAT('#/scv/clinvar.submission:%s', scv_id)
           FROM UNNEST(agg.full_scv_ids) AS scv_id
-        ) AS evidenceItems
+        ) AS hasEvidenceItems
       FROM `{S}.gkm_vcv_classification_agg` agg
       WHERE TRUE
         {PFILTER}
@@ -440,7 +440,7 @@ BEGIN
         ARRAY(
           SELECT FORMAT('#/vcv/%s', stmt_id)
           FROM UNNEST(agg.contributing_statement_ids) AS stmt_id
-        ) AS evidenceItems
+        ) AS hasEvidenceItems
       FROM `{S}.gkm_vcv_priority_agg` agg
       WHERE TRUE
         {PFILTER}
@@ -456,7 +456,7 @@ BEGIN
         ARRAY(
           SELECT FORMAT('#/vcv/%s', stmt_id)
           FROM UNNEST(agg.non_contributing_statement_ids) AS stmt_id
-        ) AS evidenceItems
+        ) AS hasEvidenceItems
       FROM `{S}.gkm_vcv_priority_agg` agg
       WHERE ARRAY_LENGTH(agg.non_contributing_statement_ids) > 0
         {PFILTER}
@@ -469,7 +469,7 @@ BEGIN
         'EvidenceLine' AS type,
         'supports' AS directionOfEvidenceProvided,
         STRUCT('MappableConcept' AS type, 'Strength' AS conceptType, 'Contributing' AS name) AS strengthOfEvidenceProvided,
-        [FORMAT('#/vcv/%s', agg.contributing_layer_id)] AS evidenceItems
+        [FORMAT('#/vcv/%s', agg.contributing_layer_id)] AS hasEvidenceItems
       FROM `{S}.gkm_vcv_aggregate_contribution` agg
       WHERE TRUE
         {PFILTER}
@@ -485,7 +485,7 @@ BEGIN
         ARRAY(
           SELECT FORMAT('#/vcv/%s', nc.layer_id)
           FROM UNNEST(agg.non_contributing_details) AS nc
-        ) AS evidenceItems
+        ) AS hasEvidenceItems
       FROM `{S}.gkm_vcv_aggregate_contribution` agg
       WHERE agg.non_contributing_details IS NOT NULL AND ARRAY_LENGTH(agg.non_contributing_details) > 0
         {PFILTER}
@@ -508,11 +508,9 @@ BEGIN
       SELECT
         agg.prop_id as key,
         JSON_STRIP_NULLS(TO_JSON(STRUCT(
-          IF(cpt.gks_type LIKE 'Clinvar%', 'CustomProposition', cpt.gks_type) AS type,
-          IF(cpt.gks_type LIKE 'Clinvar%', cpt.gks_type, CAST(NULL AS STRING)) AS customPropositionType,
+          IFNULL(cpt.gks_type, 'ClinvarUndefinedProposition') AS type,
           agg.prop_id AS id,
-          IF(cpt.gks_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
-          IF(cpt.gks_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
+          FORMAT('#/variation/clinvar:%s', agg.variation_id) AS subject,
           CASE cpt.gks_type
             WHEN 'VariantPathogenicityProposition' THEN 'isCausalFor'
             WHEN 'VariantOncogenicityProposition' THEN 'isOncogenicFor'
@@ -528,9 +526,7 @@ BEGIN
             WHEN 'ClinvarRiskFactorProposition' THEN 'isRiskFactorFor'
             ELSE 'isClinvarUndefinedAssociationFor'
           END AS predicate,
-          IF(cpt.gks_type LIKE 'Clinvar%' OR cpt.gks_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), agg.obj_ref) AS objectCondition,
-          IF((NOT (cpt.gks_type LIKE 'Clinvar%')) AND cpt.gks_type = 'VariantOncogenicityProposition', agg.obj_ref, CAST(NULL AS STRING)) AS objectTumorType,
-          IF(cpt.gks_type LIKE 'Clinvar%', agg.obj_ref, CAST(NULL AS STRING)) AS object
+          agg.obj_ref AS object
         )), remove_empty => TRUE) as value
       FROM (
         SELECT a.*,
@@ -546,11 +542,9 @@ BEGIN
       SELECT
         agg.prop_id as key,
         JSON_STRIP_NULLS(TO_JSON(STRUCT(
-          IF(cpt.gks_type LIKE 'Clinvar%', 'CustomProposition', cpt.gks_type) AS type,
-          IF(cpt.gks_type LIKE 'Clinvar%', cpt.gks_type, CAST(NULL AS STRING)) AS customPropositionType,
+          IFNULL(cpt.gks_type, 'ClinvarUndefinedProposition') AS type,
           agg.prop_id AS id,
-          IF(cpt.gks_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
-          IF(cpt.gks_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
+          FORMAT('#/variation/clinvar:%s', agg.variation_id) AS subject,
           CASE cpt.gks_type
             WHEN 'VariantPathogenicityProposition' THEN 'isCausalFor'
             WHEN 'VariantOncogenicityProposition' THEN 'isOncogenicFor'
@@ -566,9 +560,7 @@ BEGIN
             WHEN 'ClinvarRiskFactorProposition' THEN 'isRiskFactorFor'
             ELSE 'isClinvarUndefinedAssociationFor'
           END AS predicate,
-          IF(cpt.gks_type LIKE 'Clinvar%' OR cpt.gks_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), agg.obj_ref) AS objectCondition,
-          IF((NOT (cpt.gks_type LIKE 'Clinvar%')) AND cpt.gks_type = 'VariantOncogenicityProposition', agg.obj_ref, CAST(NULL AS STRING)) AS objectTumorType,
-          IF(cpt.gks_type LIKE 'Clinvar%', agg.obj_ref, CAST(NULL AS STRING)) AS object
+          agg.obj_ref AS object
         )), remove_empty => TRUE) as value
       FROM (
         SELECT a.*,
@@ -584,11 +576,9 @@ BEGIN
       SELECT
         agg.prop_id as key,
         JSON_STRIP_NULLS(TO_JSON(STRUCT(
-          IF(cpt.gks_type LIKE 'Clinvar%', 'CustomProposition', cpt.gks_type) AS type,
-          IF(cpt.gks_type LIKE 'Clinvar%', cpt.gks_type, CAST(NULL AS STRING)) AS customPropositionType,
+          IFNULL(cpt.gks_type, 'ClinvarUndefinedProposition') AS type,
           agg.prop_id AS id,
-          IF(cpt.gks_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
-          IF(cpt.gks_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
+          FORMAT('#/variation/clinvar:%s', agg.variation_id) AS subject,
           CASE cpt.gks_type
             WHEN 'VariantPathogenicityProposition' THEN 'isCausalFor'
             WHEN 'VariantOncogenicityProposition' THEN 'isOncogenicFor'
@@ -604,9 +594,7 @@ BEGIN
             WHEN 'ClinvarRiskFactorProposition' THEN 'isRiskFactorFor'
             ELSE 'isClinvarUndefinedAssociationFor'
           END AS predicate,
-          IF(cpt.gks_type LIKE 'Clinvar%' OR cpt.gks_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), agg.obj_ref) AS objectCondition,
-          IF((NOT (cpt.gks_type LIKE 'Clinvar%')) AND cpt.gks_type = 'VariantOncogenicityProposition', agg.obj_ref, CAST(NULL AS STRING)) AS objectTumorType,
-          IF(cpt.gks_type LIKE 'Clinvar%', agg.obj_ref, CAST(NULL AS STRING)) AS object
+          agg.obj_ref AS object
         )), remove_empty => TRUE) as value
       FROM (
         SELECT a.*,
@@ -696,14 +684,14 @@ BEGIN
       SET query_merge = REPLACE("""
         CREATE OR REPLACE TABLE `{S}.gkm_dict_vcv_evidence_line` AS
         SELECT
-          b.id, b.type, b.directionOfEvidenceProvided, b.strengthOfEvidenceProvided, b.evidenceItems
+          b.id, b.type, b.directionOfEvidenceProvided, b.strengthOfEvidenceProvided, b.hasEvidenceItems
         FROM `{BASE}.gkm_dict_vcv_evidence_line` b
         LEFT JOIN `{S}.vcv_impacted_ids` imp ON imp.vcv_accession = SPLIT(b.id, '.')[OFFSET(0)]
         WHERE imp.vcv_accession IS NULL
           AND SPLIT(b.id, '.')[OFFSET(0)] IN (SELECT id FROM `{S}.variation_archive`)
         UNION ALL
         SELECT
-          id, type, directionOfEvidenceProvided, strengthOfEvidenceProvided, evidenceItems
+          id, type, directionOfEvidenceProvided, strengthOfEvidenceProvided, hasEvidenceItems
         FROM `{P}.stg_gkm_dict_vcv_evidence_line`
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));
@@ -732,7 +720,7 @@ BEGIN
       SET query_merge = REPLACE("""
         CREATE OR REPLACE TABLE `{S}.gkm_dict_vcv` AS
         SELECT
-          b.id, b.type, b.direction, b.strength, b.confidence, b.classification,
+          b.id, b.type, b.direction, b.strength, b.quality, b.classification,
           b.proposition, b.extensions, b.hasEvidenceLines
         FROM `{BASE}.gkm_dict_vcv` b
         LEFT JOIN `{S}.vcv_impacted_ids` imp ON imp.vcv_accession = SPLIT(b.id, '.')[OFFSET(0)]
@@ -740,7 +728,7 @@ BEGIN
           AND SPLIT(b.id, '.')[OFFSET(0)] IN (SELECT id FROM `{S}.variation_archive`)
         UNION ALL
         SELECT
-          id, type, direction, strength, confidence, classification,
+          id, type, direction, strength, quality, classification,
           proposition, extensions, hasEvidenceLines
         FROM `{P}.stg_gkm_dict_vcv`
       """, '{BASE}', baseline_schema);

@@ -19,7 +19,7 @@ via PR review.
 ClinVar-GKM transforms ClinVar XML releases into the GKM (Genomic Knowledge Model) schema set — VRS, Cat-VRS,
 VA-Spec — curated by the GA4GH GKS (Genomic Knowledge Standards) workstream. BigQuery SQL stored procedures in
 `src/procedures/` do the heavy lifting; release orchestration is in `src/scripts/`. Output is a JSON bundle plus
-typed Parquet, distributed via Cloudflare R2. Documentation lives in `docs/` (MkDocs Material).
+typed Parquet, distributed via Cloudflare R2. Documentation lives in `docs/` (Zensical, Material theme).
 
 ## Git Conventions
 
@@ -34,7 +34,7 @@ typed Parquet, distributed via Cloudflare R2. Documentation lives in `docs/` (Mk
     oracle-gating (`src/procedures/**`)
   - [`scripts.md`](.claude/rules/scripts.md) — bash 3.2, R2/Cloudflare, `bq`/`gh` gotchas
     (`src/scripts/**`, `src/vrsify/**`)
-  - [`docs.md`](.claude/rules/docs.md) — MkDocs `--strict`, terminology, roadmap generation (`docs/**`)
+  - [`docs.md`](.claude/rules/docs.md) — Zensical `--strict`, terminology, roadmap generation (`docs/**`)
 - **Architectural decisions** — [`docs/decisions/`](docs/decisions/) (ADRs, one per decision). Fuller design
   specs are in `docs/superpowers/specs/`.
 - **What changed since you last looked** — run `/catchup` (`.claude/commands/catchup.md`): it diffs `git log`,

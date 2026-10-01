@@ -24,13 +24,13 @@ Each record is a `Statement` with the following top-level fields:
 | `classification` | object | MappableConcept — the aggregate classification label. See [Classification](#classification) |
 | `strength` | object | MappableConcept — the aggregate evidence strength |
 | `direction` | string | `supports`, `disputes`, or `neutral` — derived from the aggregate classification |
-| `confidence` | object | Concept struct with `conceptType: "Confidence"` and `name` (the submission level label, e.g., `criteria provided`, `expert panel`) |
+| `quality` | object | Concept struct with `conceptType: "Quality"` and `name` (the submission level label, e.g., `criteria provided`, `expert panel`) |
 | `extensions` | array of [Extension](#extensions) | ClinVar-specific aggregate metadata (0..*). See [Extensions](#extensions) |
 | `hasEvidenceLines` | array | `#/evidenceLine/` references to contributing and non-contributing evidence. See [Evidence Lines](#evidence-lines) |
 
 </div>
 
-The `classification`, `strength`, `direction`, and `confidence` fields follow the same structure and rules as [VCV Statements](vcv-statements.md).
+The `classification`, `strength`, `direction`, and `quality` fields follow the same structure and rules as [VCV Statements](vcv-statements.md).
 
 ---
 
@@ -62,11 +62,11 @@ A resolved RCV proposition contains:
 | --- | --- | --- |
 | `type` | string | Proposition type matching the underlying SCVs (e.g., `VariantPathogenicityProposition`) |
 | `id` | string | Proposition ID (e.g., `RCV001781420-G-PATH-CP`) |
-| `subjectVariant` | string | `#/variation/clinvar:{id}` reference |
+| `subject` | string | `#/variation/clinvar:{id}` reference |
 | `predicate` | string | Predicate matching the underlying SCVs (e.g., `isCausalFor`) |
-| `objectCondition` | string | `#/condition/clinvar.trait:{id}` or `#/conditionSet/clinvar.traitset:{id}` reference — the specific condition for this RCV |
+| `object` | string | `#/condition/clinvar.trait:{id}` or `#/conditionSet/clinvar.traitset:{id}` reference — the specific condition for this RCV |
 
-The key difference from VCV propositions: the `objectCondition` references the specific condition for this RCV accession, sourced from the representative SCV's condition mapping. VCV propositions may carry multiple condition references from contributing SCVs.
+The key difference from VCV propositions: the `object` references the specific condition for this RCV accession, sourced from the representative SCV's condition mapping. VCV propositions may carry multiple condition references from contributing SCVs.
 
 ---
 

@@ -1,6 +1,7 @@
-.. warning:: This data class is at a **draft** maturity level and may \
-    change significantly in future releases. Maturity \
-    levels are described in the :ref:`maturity-model`.
+.. admonition:: Draft
+    :class: warning
+
+    May change significantly in future releases. See |maturity-model|.
 
 **Computational Definition**
 
@@ -20,13 +21,73 @@ A custom proposition describing the role of a variant as a risk factor for a con
       - Type
       - Limits
       - Description
-   *  - customPropositionType
+   *  - id
       -
       - string
       - 0..1
+      - The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another.
+   *  - type
+      -
+      - string
+      - 1..1
       - MUST be "ClinvarRiskFactorProposition"
+   *  - name
+      -
+      - string
+      - 0..1
+      - A primary name for the entity.
+   *  - description
+      -
+      - string
+      - 0..1
+      - A free-text description of the Entity.
+   *  - aliases
+      -
+                        .. raw:: html
+
+                            <span style="background-color: #B2DFEE; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Unordered">&#8942;</span>
+      - string
+      - 0..m
+      - Alternative name(s) for the Entity.
+   *  - extensions
+      -
+                        .. raw:: html
+
+                            <span style="background-color: #B2DFEE; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Unordered">&#8942;</span>
+      - :ref:`Extension`
+      - 0..m
+      - A list of extensions to the Entity, that allow for capture of information not directly supported by elements defined in the model.
+   *  - subject
+      -
+      - :ref:`MolecularVariation` | :ref:`CategoricalVariant` | :ref:`iriReference`
+      - 1..1
+      - A variant that is the subject of the Proposition.
    *  - predicate
       -
       - string
-      - 0..1
+      - 1..1
       - The relationship the Proposition describes between the subject variant and object condition. MUST be "isRiskFactorFor".
+   *  - object
+      -
+      - :ref:`Entity` | :ref:`iriReference`
+      - 1..1
+      - An Entity or concept that is related to the subject of a Proposition via its predicate.
+   *  - geneContextQualifier
+      -
+      - :ref:`MappableConcept` | :ref:`iriReference`
+      - 0..1
+      - Reports a gene impacted by the variant, which may contribute to the association described in the Proposition.
+   *  - modeOfInheritanceQualifier
+      -
+      - :ref:`MappableConcept` | :ref:`iriReference`
+      - 0..1
+      - Reports a pattern of inheritance expected for the effect of the variant.
+   *  - penetranceQualifier
+      -
+      - :ref:`MappableConcept` | :ref:`iriReference`
+      - 0..1
+      - Reports the penetrance of the effect - the extent to which the variant impact is expressed by carriers.
+
+**Composes:** :ref:`ClinvarGermlineCustomProposition`
+
+**Used in:** :ref:`ClinvarProposition`

@@ -18,7 +18,7 @@ The pipeline is implemented across two stored procedures:
 - **Condition-specific aggregation** -- RCV groups SCVs by (variation, condition) pair via `trait_set_id`, producing one aggregate statement per RCV accession rather than one per variation
 - **Submission levels** -- PG, EP, CP, NOCP, NOCL, and FLAG -- same as VCV. PG and EP are separate top-tier submission levels with PG outranking EP at the Aggregate Contribution Layer winner-takes-all
 - **Two-layer hierarchy** -- the Grouping Layer (Classification Grouping and Priority Grouping steps) aggregates individual SCVs, and the Aggregate Contribution Layer applies winner-takes-all across submission levels to produce final RCV-level summaries
-- **objectCondition** -- RCV propositions use `objectCondition` to carry the condition from `gkm_scv_condition_sets` -- either a `Condition` MappableConcept or a `ConditionSet` ConceptSet (extensions excluded). The classification lives on the statement, not in the proposition
+- **object** -- RCV propositions use `object` to carry the condition from `gkm_scv_condition_sets` -- either a `Condition` MappableConcept or a `ConditionSet` ConceptSet (extensions excluded). The classification lives on the statement, not in the proposition
 - **Proposition type** -- uses the same SCV-matching proposition types from `clinvar_proposition_types` (e.g., `VariantPathogenicityProposition` with `isCausalFor`)
 - **Single classification form** -- RCV uses only `classification` at every layer, consistent with VCV
 

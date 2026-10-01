@@ -1,14 +1,14 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0-rc3/clinvar-gkm/json/HgvsListItem",
+   "$id": "https://w3id.org/ga4gh/schema/clinvar-gkm/1.0/clinvar-gkm/json/HgvsListItem",
    "title": "HgvsListItem",
    "description": "A complex structure for sharing individual HGVS entries associated with Clinvar Variations including nucleotide expressions, protein expressions, molecular consequence and mane select/plus settings for the specific aligned and projected forms of the clinvar variant.",
    "type": "object",
    "maturity": "draft",
    "properties": {
       "nucleotideExpression": {
-         "$ref": "/ga4gh/schema/vrs/2.1.0-ballot.2026-07.1/json/Expression",
-         "description": "The nucleotide HGVS expression with `syntax` (e.g.,` hgvs.c`, `hgvs.g`)  and `value` (the HGVS string). "
+         "description": "The nucleotide HGVS expression with `syntax` (e.g.,` hgvs.c`, `hgvs.g`)  and `value` (the HGVS string). ",
+         "$ref": "/ga4gh/schema/vrs/2.1.1/json/Expression"
       },
       "nucleotideType": {
          "type": "string",
@@ -29,18 +29,17 @@
          "description": "`true` if this transcript is designated as MANE Plus Clinical. Absent or `false`  when not applicable."
       },
       "proteinExpression": {
-         "$ref": "/ga4gh/schema/vrs/2.1.0-ballot.2026-07.1/json/Expression",
-         "description": "The protein HGVS expression with syntax (typically `hgvs.p`) and `value`. Present  only when a protein-level expression exists for the nucleotide expression."
+         "description": "The protein HGVS expression with syntax (typically `hgvs.p`) and `value`. Present  only when a protein-level expression exists for the nucleotide expression.",
+         "$ref": "/ga4gh/schema/vrs/2.1.1/json/Expression"
       },
       "molecularConsequence": {
          "type": "array",
          "ordered": false,
          "items": {
-            "$ref": "/ga4gh/schema/gks-core/1.2.0-ballot.2026-07.1/json/Coding"
+            "$ref": "/ga4gh/schema/gkm-core/1.3.0/json/Coding"
          },
          "description": "Sequence Ontology terms describing the predicted molecular consequence.  Each entry includes `code` (SO identifier), `system`, `name` (SO term label),  and `iris` (identifiers.org link)."
       }
    },
-   "required": [],
    "additionalProperties": false
 }

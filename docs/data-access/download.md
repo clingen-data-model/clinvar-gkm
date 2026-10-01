@@ -9,9 +9,6 @@ Distribution follows a **full + delta** model:
 
 A consumer that wants the current state takes the latest monthly full and replays the weekly deltas published since it. See [Weekly Deltas](#weekly-deltas) for the replay model.
 
-!!! warning "Breaking change — proposition sections"
-    The single `proposition` bundle section (and its `proposition-*.parquet`) has been **replaced by four datatype-homogeneous sections**: `varcond-proposition` (variant×condition), `vartumor-proposition` (variant×tumorType), `vartherapy-proposition` (variant×therapy), and `varcustom-proposition` (custom variant×condition), each with a matching Parquet file. Proposition references are now group-qualified — `#/{group}-proposition/{id}` instead of `#/proposition/{id}`. Consumers reading the `proposition` section must switch to the four new keys, and the Parquet `proposition.parquet`/`vcv_proposition.parquet`/`rcv_proposition.parquet` files are replaced by `varcond-proposition.parquet`, `vartumor-proposition.parquet`, `vartherapy-proposition.parquet`, and `varcustom-proposition.parquet`.
-
 ---
 
 ## Latest Release
@@ -43,7 +40,7 @@ curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/parquet/00-
 
 # Download all Parquet files (latest monthly full)
 for section in sequenceReference location allele copyNumberCount copyNumberChange \
-               gene variation condition conditionSet submitter \
+               gene variation condition conditionSet therapy therapyGroup submitter \
                varcond-proposition vartumor-proposition vartherapy-proposition varcustom-proposition \
                evidenceLine vcv_evidenceLine rcv_evidenceLine \
                scv vcv rcv; do
@@ -107,6 +104,12 @@ urllib.request.urlretrieve(
     "scv.parquet"
 )
 ```
+
+!!! tip "Validate a downloaded bundle"
+    Every JSON bundle conforms to the [ClinVar-GKM bundle schema](../output-reference/overview.md#bundle-schema)
+    (JSON Schema Draft 2020-12) — the same schema covers the monthly full, weekly deltas, and sub-bundle
+    extracts. The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) validates
+    a bundle against it in one call.
 
 ---
 
@@ -397,7 +400,7 @@ curl -s https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/index.json | python3
     // The section schema is stable, so we compose the known section files under each set's path.
     var parquetSections = [
       "sequenceReference", "location", "allele", "copyNumberCount", "copyNumberChange",
-      "gene", "variation", "condition", "conditionSet", "submitter",
+      "gene", "variation", "condition", "conditionSet", "therapy", "therapyGroup", "submitter",
       "varcond-proposition", "vartumor-proposition", "vartherapy-proposition", "varcustom-proposition",
       "evidenceLine", "vcv_evidenceLine", "rcv_evidenceLine",
       "scv", "vcv", "rcv"
@@ -549,6 +552,8 @@ Available Parquet files (20 sections):
 | `variation.parquet` | CategoricalVariant records (Cat-VRS) |
 | `condition.parquet` | Condition records (traits) |
 | `conditionSet.parquet` | ConditionSet records (trait sets) |
+| `therapy.parquet` | Therapy records (drug therapies, content-addressed) |
+| `therapyGroup.parquet` | TherapyGroup records (combination therapies) |
 | `submitter.parquet` | Submitter organization records |
 | `varcond-proposition.parquet` | Variant×condition propositions (Pathogenicity, ClinicalSignificance, Diagnostic, Prognostic) |
 | `vartumor-proposition.parquet` | Variant×tumorType propositions (Oncogenicity) |
@@ -584,7 +589,7 @@ curl -O "${BASE}/condition.parquet"
 
 # Or download all 20 sections
 for section in sequenceReference location allele copyNumberCount copyNumberChange \
-               gene variation condition conditionSet submitter \
+               gene variation condition conditionSet therapy therapyGroup submitter \
                varcond-proposition vartumor-proposition vartherapy-proposition varcustom-proposition \
                evidenceLine vcv_evidenceLine rcv_evidenceLine \
                scv vcv rcv; do
@@ -605,7 +610,7 @@ brew install duckdb   # macOS
 ```bash
 # Query SCV statements
 duckdb -c "
-  SELECT id, classification.name AS classification, direction, strength.name AS strength, confidence.name AS confidence
+  SELECT id, classification.name AS classification, direction, strength.name AS strength, quality.name AS quality
   FROM 'scv.parquet'
   WHERE classification.name = 'Pathogenic'
   LIMIT 10;
@@ -645,7 +650,7 @@ DuckDB also works from Python:
 import duckdb
 
 df = duckdb.sql("""
-    SELECT id, classification.name AS classification, direction, strength.name AS strength, confidence.name AS confidence
+    SELECT id, classification.name AS classification, direction, strength.name AS strength, quality.name AS quality
     FROM 'scv.parquet'
     WHERE classification.name = 'Pathogenic'
     LIMIT 100
@@ -684,7 +689,7 @@ Statement sections (`scv`, `vcv`, `rcv`) share a common set of typed columns:
 | `classification` | struct (MappableConcept) | Use `classification.name` (or `classification.primaryCoding.code`) — e.g., "Pathogenic" |
 | `strength` | struct (MappableConcept) | Use `strength.name` — e.g., "definitive", "likely" |
 | `direction` | string | Evidence direction ("supports", "disputes", "neutral") |
-| `confidence` | struct (MappableConcept) | Use `confidence.name` — submission level, e.g., "criteria provided" |
+| `quality` | struct (MappableConcept) | Use `quality.name` — submission level, e.g., "criteria provided" |
 | `has_evidence_lines` | list\<string\> | FK references to evidence line Parquet (`evidenceLine` for SCV, `vcv_evidenceLine` for VCV, `rcv_evidenceLine` for RCV) |
 | `extensions` | string | JSON array of extensions |
 | `data` | string | Full JSON object |
@@ -708,7 +713,7 @@ SELECT
     s.classification.name AS classification,
     s.direction,
     s.strength.name AS strength,
-    s.confidence.name AS review_status,
+    s.quality.name AS review_status,
     p.gene_context_name AS gene,
     c.name AS condition_name,
     c.primaryCoding.code AS condition_code
@@ -726,7 +731,7 @@ ORDER BY s.classification.name;
 SELECT
     p.gene_context_name AS gene,
     s.classification.name AS classification,
-    s.confidence.name AS review_status,
+    s.quality.name AS review_status,
     s.direction,
     COUNT(*) AS scv_count
 FROM 'scv.parquet' s
@@ -743,13 +748,13 @@ ORDER BY scv_count DESC;
 SELECT
     s.id AS scv_id,
     s.classification.name AS classification,
-    s.confidence.name AS review_status,
+    s.quality.name AS review_status,
     c.name AS condition_name
 FROM 'scv.parquet' s
 JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
 LEFT JOIN 'condition.parquet' c ON p.object_condition_id = c.id
 WHERE p.gene_context_name = 'TP53'
-  AND s.confidence.name IN ('criteria provided', 'reviewed by expert panel')
+  AND s.quality.name IN ('criteria provided', 'reviewed by expert panel')
 ORDER BY s.classification.name;
 ```
 
@@ -764,7 +769,7 @@ SELECT
 FROM 'scv.parquet' s
 JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
 WHERE p.gene_context_name IN ('BRCA1', 'BRCA2', 'TP53', 'MLH1')
-  AND s.confidence.name = 'criteria provided'
+  AND s.quality.name = 'criteria provided'
 GROUP BY gene, s.classification.name
 ORDER BY gene, n DESC;
 ```
@@ -785,7 +790,7 @@ FROM 'scv.parquet' s
 JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
 WHERE p.gene_context_name = 'BRCA1'
   AND s.classification.name = 'Pathogenic'
-  AND s.confidence.name = 'reviewed by expert panel'
+  AND s.quality.name = 'reviewed by expert panel'
 LIMIT 20;
 ```
 
@@ -820,7 +825,7 @@ CKPT=$(python3 -c "import json;print(json.load(open('manifest.json'))['checkpoin
 # 2. The checkpoint full Parquet set -> full/, and the delta set -> delta/.
 mkdir -p full delta
 for section in sequenceReference location allele copyNumberCount copyNumberChange \
-               gene variation condition conditionSet submitter \
+               gene variation condition conditionSet therapy therapyGroup submitter \
                varcond-proposition vartumor-proposition vartherapy-proposition varcustom-proposition \
                evidenceLine vcv_evidenceLine rcv_evidenceLine scv vcv rcv; do
   curl -sf "${BASE}/datasets/parquet/${CKPT}/${section}.parquet" -o "full/${section}.parquet"  || true

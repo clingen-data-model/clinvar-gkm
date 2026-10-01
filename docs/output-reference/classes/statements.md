@@ -57,5 +57,5 @@ Each layer is connected via `hasEvidenceLines` — an array of `#/evidenceLine/`
 
 ### VCV vs RCV
 
-- **VCV** statements aggregate across all conditions for a variant — the `objectCondition` on the proposition may reference multiple conditions or a condition set
+- **VCV** statements aggregate across all conditions for a variant — the `object` on the proposition may reference multiple conditions or a condition set
 - **RCV** statements are scoped to a single ClinVar RCV accession (one variant + one condition combination)

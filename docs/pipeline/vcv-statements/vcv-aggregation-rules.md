@@ -117,11 +117,11 @@ Used by all submission levels (PG, EP, CP, NOCP, NOCL, and FLAG). Contains a sin
 
 The `extension` array is only present when the classification is conflicting.
 
-### `confidence`, `direction`, and `strength`
+### `quality`, `direction`, and `strength`
 
 These statement-level fields are derived from the aggregate classification label:
 
-- **`confidence`** — a Concept struct with `conceptType: "Confidence"` and `name` set to the submission level label (e.g., `"criteria provided"`, `"expert panel"`). Set on every VCV statement.
+- **`quality`** — a Concept struct with `conceptType: "Quality"` and `name` set to the submission level label (e.g., `"criteria provided"`, `"expert panel"`). Set on every VCV statement.
 - **`direction`** — derived from the classification label. For single-SCV aggregations, passed through directly from the contributing SCV. For multi-SCV aggregations, derived from the winning label.
 - **`strength`** — derived from the classification label. For single-SCV aggregations, passed through directly from the contributing SCV. For multi-SCV aggregations, derived from the winning label. No hardcoded `"definitive"` value.
 

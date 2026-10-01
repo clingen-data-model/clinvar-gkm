@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<title>ClinVar-GKM bundle — section map</title>
+<style>
+  :root {
+    --bg: #FFFFFF; --ink: #1B2430; --ink-soft: #5B6572; --line: #B9C0C8; --line-strong: #8A939E;
+    --box: #FFFFFF; --hdr: #F0EEE7; --accent: #3E6B6B; --id: #7A4D9C;
+  }
+  :root[data-theme="dark"] {
+    --bg: #171D24; --ink: #E7E9EC; --ink-soft: #97A1AC; --line: #3A434D; --line-strong: #4B5560;
+    --box: #1B222A; --hdr: #232B34; --accent: #7FC4C4; --id: #C6A0E0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #171D24; --ink: #E7E9EC; --ink-soft: #97A1AC; --line: #3A434D; --line-strong: #4B5560;
+      --box: #1B222A; --hdr: #232B34; --accent: #7FC4C4; --id: #C6A0E0;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, "Segoe UI", system-ui, sans-serif; }
+  /* Natural size; the embedding iframe scrolls. Kept narrow (clusters are at most
+     two drawers wide) so it fits the site content column with little scrolling. */
+  body { padding: 20px; }
+  .wrap { width: 100%; }
+  .title-row, .caption, .legend, .skeleton { max-width: 720px; }
+  .title-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .title-row h1 { font-size: 15px; margin: 0; font-weight: 700; }
+  .title-row .src { font-family: ui-monospace, monospace; font-size: 10px; color: var(--ink-soft); }
+  .caption { font-size: 12px; color: var(--ink-soft); margin: 0 0 12px; line-height: 1.5; }
+  .caption code { font-family: ui-monospace, monospace; font-size: 11px; color: var(--ink); }
+
+  .skeleton { font-family: ui-monospace, monospace; font-size: 10.5px; line-height: 1.7; color: var(--ink-soft);
+    background: var(--box); border: 1px solid var(--line); border-radius: 5px; padding: 10px 12px; margin: 0 0 18px; }
+  .skeleton .k { color: var(--ink); font-weight: 600; }
+  .skeleton .c { color: var(--ink-soft); opacity: .8; }
+
+  .diagram { display: flex; flex-direction: column; align-items: center; width: max-content; margin: 0 auto; }
+
+  .vconnector { display: flex; flex-direction: column; align-items: center; min-height: 40px; position: relative; padding: 0; }
+  .vconnector .vline { width: 1.5px; flex: 1 1 auto; min-height: 8px; background: var(--line-strong); position: relative; }
+  .vconnector .vline.arrow::after {
+    content: ""; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid var(--line-strong);
+  }
+  .vconnector .role { flex: 0 0 auto; margin: 3px 0; font-family: ui-monospace, monospace; font-size: 10.5px; color: var(--ink-soft); white-space: nowrap; text-align: center; }
+  .vconnector .card { font-family: ui-monospace, monospace; font-size: 9.5px; color: var(--ink-soft); opacity: 0.75; }
+
+  /* A section drawer: one named bundle section (a keyed dictionary of objects).
+     Deliberately NOT a UML class box -- a labeled data container: tinted header
+     strip with the section key, then a sample id and its outgoing references. */
+  .sec { position: relative; display: block; text-decoration: none; color: inherit; cursor: pointer;
+    background: var(--box); border: 1px solid var(--line-strong); border-radius: 6px; width: 268px; overflow: hidden; }
+  .sec:hover, .sec:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); outline: none; }
+  .sec .head { padding: 6px 10px 6px; background: var(--hdr); }
+  .sec .skey { font-weight: 700; font-size: 13px; font-family: ui-monospace, "SF Mono", Consolas, monospace; }
+  .sec .skey::before { content: "{ } "; color: var(--ink-soft); font-weight: 400; opacity: .55; }
+  .sec .otype { font-size: 9px; color: var(--ink-soft); margin-top: 1px; letter-spacing: .01em; }
+  .sec .body { padding: 8px 10px 9px; }
+  .sec .eid { display: inline-block; font-family: ui-monospace, monospace; font-size: 9.5px; color: var(--id);
+    background: color-mix(in srgb, var(--id) 12%, transparent); border: 1px solid color-mix(in srgb, var(--id) 40%, transparent);
+    border-radius: 3px; padding: 1px 6px; margin-bottom: 6px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sec .refs { display: flex; flex-direction: column; gap: 2.5px; }
+  .sec .ref { font-family: ui-monospace, monospace; font-size: 9.5px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sec .ref b { color: var(--ink); font-weight: 600; }
+  .sec .ref .to { color: var(--accent); }
+  .sec .leaf { font-family: ui-monospace, monospace; font-size: 9.5px; color: var(--ink-soft); font-style: italic; }
+
+  .grid2 { display: grid; grid-template-columns: repeat(2, auto); gap: 14px; justify-content: center; align-items: start; }
+  .colstack { display: flex; flex-direction: column; align-items: center; }
+
+  .frame { position: relative; border: 1px dashed var(--line); border-radius: 8px; padding: 22px 16px 16px; }
+  .frame .frame-label { position: absolute; top: -9px; left: 14px; background: var(--bg); padding: 0 6px; font-family: ui-monospace, monospace; font-size: 9.5px; color: var(--ink-soft); letter-spacing: .03em; }
+  .frame-content { display: flex; flex-direction: column; align-items: center; }
+
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 16px; font-size: 10px; color: var(--ink-soft); align-items: center; justify-content: center; }
+  .legend .pill { display: inline-block; font-family: ui-monospace, monospace; font-size: 8.5px; color: var(--id); background: color-mix(in srgb, var(--id) 12%, transparent); border: 1px solid color-mix(in srgb, var(--id) 40%, transparent); border-radius: 3px; padding: 0 5px; margin-right: 5px; }
+  .legend span.item { display: inline-flex; align-items: center; }
+</style>
+
+<div class="wrap">
+  <div class="title-row"><h1>ClinVar-GKM bundle &mdash; section map</h1><span class="src">clinvar-gkm_&hellip;.json</span></div>
+  <p class="caption">The release bundle is a single JSON object of <b>named sections</b>; each section is a dictionary mapping a typed id to one object. Objects link across sections with <code>#/section/id</code> JSON pointers &mdash; each drawer lists its outgoing references as <code>field &rarr; #/section/</code>. Each drawer links to its reference page; see <a href="../../output-reference/id-references/" target="_top">ID References</a> for the full pointer catalog.</p>
+
+  <div class="skeleton">
+<span class="c">// one JSON object, 20 named sections, each { id: object }</span><br>
+{ <span class="k">"scv"</span>, <span class="k">"vcv"</span>, <span class="k">"rcv"</span>, <span class="k">"evidenceLine"</span>,
+&nbsp;&nbsp;<span class="k">"varcond-proposition"</span>, <span class="k">"vartumor-proposition"</span>, <span class="k">"vartherapy-proposition"</span>, <span class="k">"varcustom-proposition"</span>,
+&nbsp;&nbsp;<span class="k">"condition"</span>, <span class="k">"conditionSet"</span>, <span class="k">"therapy"</span>, <span class="k">"therapyGroup"</span>, <span class="k">"submitter"</span>,
+&nbsp;&nbsp;<span class="k">"variation"</span>, <span class="k">"allele"</span>, <span class="k">"location"</span>, <span class="k">"sequenceReference"</span>, <span class="k">"gene"</span>, <span class="k">"copyNumberCount"</span>, <span class="k">"copyNumberChange"</span> }
+  </div>
+
+  <div class="diagram">
+
+    <!-- ===================== STATEMENTS & EVIDENCE ===================== -->
+    <div class="frame">
+      <span class="frame-label">Statements &amp; evidence lines</span>
+      <div class="grid2">
+        <a class="sec" href="../../output-reference/classes/ClinvarScvStatement/" target="_top">
+          <div class="head"><div class="skey">scv</div><div class="otype">ClinvarScvStatement &middot; va-spec Statement</div></div>
+          <div class="body">
+            <div class="eid">clinvar.submission:SCV001571657.2</div>
+            <div class="refs">
+              <div class="ref"><b>proposition</b> &rarr; <span class="to">#/&hellip;-proposition/</span></div>
+              <div class="ref"><b>contributor</b> &rarr; <span class="to">#/submitter/</span></div>
+              <div class="ref"><b>hasEvidenceLines[]</b> &rarr; <span class="to">#/evidenceLine/</span></div>
+            </div>
+          </div>
+        </a>
+        <a class="sec" href="../../output-reference/classes/ClinvarVcvStatement/" target="_top">
+          <div class="head"><div class="skey">vcv</div><div class="otype">ClinvarVcvStatement &middot; va-spec Statement</div></div>
+          <div class="body">
+            <div class="eid">VCV000012582.63-G-PATH-CP</div>
+            <div class="refs">
+              <div class="ref"><b>proposition</b> &rarr; <span class="to">#/&hellip;-proposition/</span></div>
+              <div class="ref"><b>hasEvidenceLines[]</b> &rarr; <span class="to">#/evidenceLine/</span></div>
+            </div>
+          </div>
+        </a>
+        <a class="sec" href="../../output-reference/classes/ClinvarRcvStatement/" target="_top">
+          <div class="head"><div class="skey">rcv</div><div class="otype">ClinvarRcvStatement &middot; va-spec Statement</div></div>
+          <div class="body">
+            <div class="eid">RCV000012345.8-G-PATH-CP</div>
+            <div class="refs">
+              <div class="ref"><b>proposition</b> &rarr; <span class="to">#/&hellip;-proposition/</span></div>
+              <div class="ref"><b>hasEvidenceLines[]</b> &rarr; <span class="to">#/evidenceLine/</span></div>
+            </div>
+          </div>
+        </a>
+        <a class="sec" href="../../output-reference/classes/ClinvarSomaticEvidenceLine/" target="_top">
+          <div class="head"><div class="skey">evidenceLine</div><div class="otype">ClinvarSomaticEvidenceLine &middot; va-spec</div></div>
+          <div class="body">
+            <div class="eid">&hellip;-PATH-CP.contributing</div>
+            <div class="refs">
+              <div class="ref"><b>hasEvidenceItems[]</b> &rarr; <span class="to">#/scv|vcv|rcv/</span></div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="vconnector"><div class="vline"></div><span class="role">proposition <span class="card">1..1</span></span><div class="vline arrow"></div></div>
+
+    <!-- ===================== PROPOSITIONS ===================== -->
+    <div class="frame">
+      <span class="frame-label">Propositions &mdash; 4 delivery groups, keyed by type</span>
+      <div class="grid2">
+        <a class="sec" href="../../output-reference/classes/ClinvarProposition/" target="_top">
+          <div class="head"><div class="skey">varcond-<wbr>proposition</div><div class="otype">Pathogenicity / ClinSig / Diagnostic / Prognostic</div></div>
+          <div class="body">
+            <div class="eid">SCV001234567-PATH</div>
+            <div class="refs">
+              <div class="ref"><b>subject</b> &rarr; <span class="to">#/variation/</span></div>
+              <div class="ref"><b>object</b> &rarr; <span class="to">#/condition|conditionSet/</span></div>
+            </div>
+          </div>
+        </a>
+        <a class="sec" href="../../output-reference/classes/ClinvarProposition/" target="_top">
+          <div class="head"><div class="skey">vartumor-<wbr>proposition</div><div class="otype">VariantOncogenicityProposition</div></div>
+          <div class="body">
+            <div class="eid">SCV002345678-ONCO</div>
+            <div class="refs">
+              <div class="ref"><b>subject</b> &rarr; <span class="to">#/variation/</span></div>
+              <div class="ref"><b>object</b> &rarr; <span class="to">#/condition/</span> <span style="opacity:.7">(tumor)</span></div>
+            </div>
+          </div>
+        </a>
+        <a class="sec" href="../../output-reference/classes/ClinvarProposition/" target="_top">
+          <div class="head"><div class="skey">vartherapy-<wbr>proposition</div><div class="otype">VariantTherapeuticResponseProposition</div></div>
+          <div class="body">
+            <div class="eid">SCV003456789-TR</div>
+            <div class="refs">
+              <div class="ref"><b>subject</b> &rarr; <span class="to">#/variation/</span></div>
+              <div class="ref"><b>object</b> &rarr; <span class="to">#/therapy|therapyGroup/</span></div>
+              <div class="ref"><b>conditionQualifier</b> &rarr; <span class="to">#/condition/</span></div>
+            </div>
+          </div>
+        </a>
+        <a class="sec" href="../../output-reference/classes/ClinvarProposition/" target="_top">
+          <div class="head"><div class="skey">varcustom-<wbr>proposition</div><div class="otype">Clinvar*Proposition &middot; 10 ClinVar types</div></div>
+          <div class="body">
+            <div class="eid">SCV004567890-RF</div>
+            <div class="refs">
+              <div class="ref"><b>subject</b> &rarr; <span class="to">#/variation/</span></div>
+              <div class="ref"><b>object</b> &rarr; <span class="to">#/condition|conditionSet/</span></div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- proposition subject -> variation (right), object -> condition (left) -->
+    <div class="side-row" style="display:flex; align-items:flex-start; gap:26px;">
+      <div class="colstack">
+        <div class="vconnector"><div class="vline"></div><span class="role">subject <span class="card">1..1</span></span><div class="vline arrow"></div></div>
+        <div class="frame">
+          <span class="frame-label">Variation &mdash; VRS identity chain</span>
+          <div class="frame-content">
+            <a class="sec" href="../../output-reference/classes/ClinvarCategoricalVariant/" target="_top">
+              <div class="head"><div class="skey">variation</div><div class="otype">CategoricalVariant &middot; Cat-VRS</div></div>
+              <div class="body">
+                <div class="eid">clinvar:12582</div>
+                <div class="refs">
+                  <div class="ref"><b>members[]</b> &rarr; <span class="to">#/allele/</span></div>
+                  <div class="ref"><b>constraints[]</b> &rarr; <span class="to">#/allele|location/</span></div>
+                  <div class="ref"><b>&hellip;clinvarGeneList[].gene</b> &rarr; <span class="to">#/gene/</span></div>
+                </div>
+              </div>
+            </a>
+            <div class="vconnector"><div class="vline"></div><span class="role">members <span class="card">0..*</span></span><div class="vline arrow"></div></div>
+            <a class="sec" href="../../output-reference/classes/ClinvarCanonicalAllele/" target="_top">
+              <div class="head"><div class="skey">allele</div><div class="otype">Allele &middot; VRS</div></div>
+              <div class="body">
+                <div class="eid">ga4gh:VA.ELQCnIBGqaTl&hellip;</div>
+                <div class="refs"><div class="ref"><b>location</b> &rarr; <span class="to">#/location/</span></div></div>
+              </div>
+            </a>
+            <div class="vconnector"><div class="vline"></div><span class="role">location <span class="card">1..1</span></span><div class="vline arrow"></div></div>
+            <a class="sec" href="../../output-reference/classes/variations/" target="_top">
+              <div class="head"><div class="skey">location</div><div class="otype">SequenceLocation &middot; VRS</div></div>
+              <div class="body">
+                <div class="eid">ga4gh:SL.Eg_6kV6Bb4FM&hellip;</div>
+                <div class="refs"><div class="ref"><b>sequenceReference</b> &rarr; <span class="to">#/sequenceReference/</span></div></div>
+              </div>
+            </a>
+            <div class="vconnector"><div class="vline"></div><span class="role">sequenceReference <span class="card">1..1</span></span><div class="vline arrow"></div></div>
+            <a class="sec" href="../../output-reference/classes/variations/" target="_top">
+              <div class="head"><div class="skey">sequenceReference</div><div class="otype">SequenceReference &middot; VRS</div></div>
+              <div class="body">
+                <div class="eid">SQ.0iKlIQk2oZLoeOG9&hellip;</div>
+                <div class="leaf">refgetAccession + moleculeType &mdash; leaf</div>
+              </div>
+            </a>
+            <div style="height:14px"></div>
+            <a class="sec" href="../../output-reference/classes/variations/" target="_top">
+              <div class="head"><div class="skey">gene</div><div class="otype">MappableConcept &middot; gkm-core</div></div>
+              <div class="body">
+                <div class="eid">ncbigene:3077</div>
+                <div class="leaf">NCBI Gene coding + HGNC mapping &mdash; leaf</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="colstack">
+        <div class="vconnector"><div class="vline"></div><span class="role">object <span class="card">0..1</span></span><div class="vline arrow"></div></div>
+        <div class="frame">
+          <span class="frame-label">Conditions, therapies &amp; submitters</span>
+          <div class="frame-content">
+            <a class="sec" href="../../output-reference/classes/#supporting-classes" target="_top">
+              <div class="head"><div class="skey">conditionSet</div><div class="otype">ConditionSet &middot; ClinVar</div></div>
+              <div class="body">
+                <div class="eid">clinvar.traitset:1234</div>
+                <div class="refs">
+                  <div class="ref"><b>members[]</b> &rarr; <span class="to">#/condition/</span></div>
+                  <div class="ref"><b>operator</b>: AND | OR</div>
+                </div>
+              </div>
+            </a>
+            <div class="vconnector"><div class="vline"></div><span class="role">members <span class="card">1..*</span></span><div class="vline arrow"></div></div>
+            <a class="sec" href="../../output-reference/classes/#supporting-classes" target="_top">
+              <div class="head"><div class="skey">condition</div><div class="otype">Condition &middot; MappableConcept</div></div>
+              <div class="body">
+                <div class="eid">clinvar.trait:9580</div>
+                <div class="leaf">MedGen primaryCoding + mappings &mdash; leaf</div>
+              </div>
+            </a>
+            <div style="height:14px"></div>
+            <a class="sec" href="../../output-reference/id-references/" target="_top">
+              <div class="head"><div class="skey">therapyGroup</div><div class="otype">TherapyGroup (ConceptSet) &middot; va-spec</div></div>
+              <div class="body">
+                <div class="eid">clinvar.therapygroup:df1d8467&hellip;</div>
+                <div class="refs">
+                  <div class="ref"><b>concepts[]</b> &rarr; <span class="to">#/therapy/</span></div>
+                  <div class="ref"><b>membershipOperator</b>: AND</div>
+                </div>
+              </div>
+            </a>
+            <div class="vconnector"><div class="vline"></div><span class="role">concepts <span class="card">2..*</span></span><div class="vline arrow"></div></div>
+            <a class="sec" href="../../output-reference/id-references/" target="_top">
+              <div class="head"><div class="skey">therapy</div><div class="otype">Therapy (MappableConcept) &middot; va-spec</div></div>
+              <div class="body">
+                <div class="eid">clinvar.therapy:ab221549&hellip;</div>
+                <div class="leaf">drug name + conceptType &mdash; content-addressed, leaf</div>
+              </div>
+            </a>
+            <div style="height:14px"></div>
+            <a class="sec" href="../../output-reference/classes/#supporting-classes" target="_top">
+              <div class="head"><div class="skey">submitter</div><div class="otype">Agent &middot; gkm-core</div></div>
+              <div class="body">
+                <div class="eid">clinvar.submitter:508027</div>
+                <div class="leaf">name &mdash; leaf (cited by scv contributions)</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="item"><b style="font-family:ui-monospace,monospace;color:var(--ink);margin-right:5px">{ } key</b> section name (JSON key)</span>
+    <span class="item"><span class="pill">id</span> example object id</span>
+    <span class="item"><b style="font-family:ui-monospace,monospace;color:var(--accent);margin-right:5px">&rarr; #/x/</b> cross-section reference</span>
+  </div>
+</div>

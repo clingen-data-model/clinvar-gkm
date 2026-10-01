@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Convert YAML schema source files to Markdown class definition files.
 
-Generates Markdown suitable for MkDocs (Material theme) from the same
-ga4gh.gks.metaschema YAML sources that y2t uses for RST. Each public class
+Generates Markdown suitable for Zensical (Material theme) from the same
+ga4gh.gkm.metaschema YAML sources that y2t uses for RST. Each public class
 gets a .md file in the md/ output directory with:
 
   - Maturity admonition
@@ -19,7 +19,7 @@ import pathlib
 import sys
 from pathlib import Path
 
-from ga4gh.gks.metaschema.tools.source_proc import YamlSchemaProcessor
+from ga4gh.gkm.metaschema.tools.source_proc import YamlSchemaProcessor
 
 # Cache of loaded processors keyed by resolved source file path
 _processor_cache: dict[str, YamlSchemaProcessor] = {}

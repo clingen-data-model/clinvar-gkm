@@ -237,7 +237,7 @@ BEGIN
           END
         ) AS direction,
 
-        STRUCT(
+        (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
           IF(ARRAY_LENGTH(agg.full_scv_ids) = 1,
             agg.scv_strength_name,
@@ -250,9 +250,9 @@ BEGIN
               ELSE CAST(NULL AS STRING)
             END
           ) AS name
-        ) AS strength,
+        )]) s WHERE s.name IS NOT NULL) AS strength,
 
-        STRUCT('MappableConcept' AS type, 'Confidence' AS conceptType, sl.label AS name) AS confidence,
+        STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, sl.label AS name) AS quality,
 
         -- classification: single MappableConcept for all submission levels
         STRUCT(
@@ -314,7 +314,7 @@ BEGIN
           ELSE 'supports'
         END AS direction,
 
-        STRUCT(
+        (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
           CASE
             WHEN agg.agg_label IN ('Pathogenic', 'Benign', 'Oncogenic') THEN 'Definitive'
@@ -324,9 +324,9 @@ BEGIN
             WHEN agg.agg_label LIKE 'Tier IV%' THEN 'Likely'
             ELSE CAST(NULL AS STRING)
           END AS name
-        ) AS strength,
+        )]) s WHERE s.name IS NOT NULL) AS strength,
 
-        STRUCT('MappableConcept' AS type, 'Confidence' AS conceptType, sl.label AS name) AS confidence,
+        STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, sl.label AS name) AS quality,
 
         STRUCT(
           'MappableConcept' AS type, 'Classification' AS conceptType,
@@ -392,7 +392,7 @@ BEGIN
           ELSE 'supports'
         END AS direction,
 
-        STRUCT(
+        (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
           CASE
             WHEN agg.agg_label IN ('Pathogenic', 'Benign', 'Oncogenic') THEN 'Definitive'
@@ -402,9 +402,9 @@ BEGIN
             WHEN agg.agg_label LIKE 'Tier IV%' THEN 'Likely'
             ELSE CAST(NULL AS STRING)
           END AS name
-        ) AS strength,
+        )]) s WHERE s.name IS NOT NULL) AS strength,
 
-        STRUCT('MappableConcept' AS type, 'Confidence' AS conceptType, agg.contributing_submission_level_label AS name) AS confidence,
+        STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, agg.contributing_submission_level_label AS name) AS quality,
 
         STRUCT(
           'MappableConcept' AS type, 'Classification' AS conceptType,
@@ -471,7 +471,7 @@ BEGIN
         ARRAY(
           SELECT FORMAT('#/scv/clinvar.submission:%s', scv_id)
           FROM UNNEST(agg.full_scv_ids) AS scv_id
-        ) AS evidenceItems
+        ) AS hasEvidenceItems
       FROM `{S}.gkm_rcv_classification_agg` agg
       WHERE TRUE
         {PFILTER}
@@ -487,7 +487,7 @@ BEGIN
         ARRAY(
           SELECT FORMAT('#/rcv/%s', stmt_id)
           FROM UNNEST(agg.contributing_statement_ids) AS stmt_id
-        ) AS evidenceItems
+        ) AS hasEvidenceItems
       FROM `{S}.gkm_rcv_priority_agg` agg
       WHERE TRUE
         {PFILTER}
@@ -503,7 +503,7 @@ BEGIN
         ARRAY(
           SELECT FORMAT('#/rcv/%s', stmt_id)
           FROM UNNEST(agg.non_contributing_statement_ids) AS stmt_id
-        ) AS evidenceItems
+        ) AS hasEvidenceItems
       FROM `{S}.gkm_rcv_priority_agg` agg
       WHERE ARRAY_LENGTH(agg.non_contributing_statement_ids) > 0
         {PFILTER}
@@ -516,7 +516,7 @@ BEGIN
         'EvidenceLine' AS type,
         'supports' AS directionOfEvidenceProvided,
         STRUCT('MappableConcept' AS type, 'Strength' AS conceptType, 'Contributing' AS name) AS strengthOfEvidenceProvided,
-        [FORMAT('#/rcv/%s', agg.contributing_layer_id)] AS evidenceItems
+        [FORMAT('#/rcv/%s', agg.contributing_layer_id)] AS hasEvidenceItems
       FROM `{S}.gkm_rcv_aggregate_contribution` agg
       WHERE TRUE
         {PFILTER}
@@ -532,7 +532,7 @@ BEGIN
         ARRAY(
           SELECT FORMAT('#/rcv/%s', nc.layer_id)
           FROM UNNEST(agg.non_contributing_details) AS nc
-        ) AS evidenceItems
+        ) AS hasEvidenceItems
       FROM `{S}.gkm_rcv_aggregate_contribution` agg
       WHERE agg.non_contributing_details IS NOT NULL AND ARRAY_LENGTH(agg.non_contributing_details) > 0
         {PFILTER}
@@ -556,13 +556,9 @@ BEGIN
       SELECT
         agg.prop_id as key,
         JSON_STRIP_NULLS(TO_JSON(STRUCT(
-          -- custom types collapse to CustomProposition + customPropositionType; standard keep their specific type
-          IF(cpt.gks_type LIKE 'Clinvar%', 'CustomProposition', cpt.gks_type) AS type,
-          IF(cpt.gks_type LIKE 'Clinvar%', cpt.gks_type, CAST(NULL AS STRING)) AS customPropositionType,
+          IFNULL(cpt.gks_type, 'ClinvarUndefinedProposition') AS type,
           agg.prop_id AS id,
-          -- standard uses subjectVariant; custom uses subject (same variation pointer)
-          IF(cpt.gks_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
-          IF(cpt.gks_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
+          FORMAT('#/variation/clinvar:%s', agg.variation_id) AS subject,
           CASE cpt.gks_type
             WHEN 'VariantPathogenicityProposition' THEN 'isCausalFor'
             WHEN 'VariantOncogenicityProposition' THEN 'isOncogenicFor'
@@ -578,10 +574,7 @@ BEGIN
             WHEN 'ClinvarRiskFactorProposition' THEN 'isRiskFactorFor'
             ELSE 'isClinvarUndefinedAssociationFor'
           END AS predicate,
-          -- object field is 3-way: custom->object, standard Oncogenicity->objectTumorType, other standard->objectCondition (same value)
-          IF(cpt.gks_type LIKE 'Clinvar%' OR cpt.gks_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), rcd.condition_concept) AS objectCondition,
-          IF((NOT (cpt.gks_type LIKE 'Clinvar%')) AND cpt.gks_type = 'VariantOncogenicityProposition', rcd.condition_concept, CAST(NULL AS STRING)) AS objectTumorType,
-          IF(cpt.gks_type LIKE 'Clinvar%', rcd.condition_concept, CAST(NULL AS STRING)) AS object
+          rcd.condition_concept AS object
         )), remove_empty => TRUE) as value
       FROM `{S}.gkm_rcv_classification_agg` agg
       LEFT JOIN `clinvar_ingest.clinvar_proposition_types` cpt ON agg.prop_type = cpt.code
@@ -592,13 +585,9 @@ BEGIN
       SELECT
         agg.prop_id as key,
         JSON_STRIP_NULLS(TO_JSON(STRUCT(
-          -- custom types collapse to CustomProposition + customPropositionType; standard keep their specific type
-          IF(cpt.gks_type LIKE 'Clinvar%', 'CustomProposition', cpt.gks_type) AS type,
-          IF(cpt.gks_type LIKE 'Clinvar%', cpt.gks_type, CAST(NULL AS STRING)) AS customPropositionType,
+          IFNULL(cpt.gks_type, 'ClinvarUndefinedProposition') AS type,
           agg.prop_id AS id,
-          -- standard uses subjectVariant; custom uses subject (same variation pointer)
-          IF(cpt.gks_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
-          IF(cpt.gks_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
+          FORMAT('#/variation/clinvar:%s', agg.variation_id) AS subject,
           CASE cpt.gks_type
             WHEN 'VariantPathogenicityProposition' THEN 'isCausalFor'
             WHEN 'VariantOncogenicityProposition' THEN 'isOncogenicFor'
@@ -614,10 +603,7 @@ BEGIN
             WHEN 'ClinvarRiskFactorProposition' THEN 'isRiskFactorFor'
             ELSE 'isClinvarUndefinedAssociationFor'
           END AS predicate,
-          -- object field is 3-way: custom->object, standard Oncogenicity->objectTumorType, other standard->objectCondition (same value)
-          IF(cpt.gks_type LIKE 'Clinvar%' OR cpt.gks_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), rcd.condition_concept) AS objectCondition,
-          IF((NOT (cpt.gks_type LIKE 'Clinvar%')) AND cpt.gks_type = 'VariantOncogenicityProposition', rcd.condition_concept, CAST(NULL AS STRING)) AS objectTumorType,
-          IF(cpt.gks_type LIKE 'Clinvar%', rcd.condition_concept, CAST(NULL AS STRING)) AS object
+          rcd.condition_concept AS object
         )), remove_empty => TRUE) as value
       FROM `{S}.gkm_rcv_priority_agg` agg
       LEFT JOIN `clinvar_ingest.clinvar_proposition_types` cpt ON agg.prop_type = cpt.code
@@ -628,13 +614,9 @@ BEGIN
       SELECT
         agg.prop_id as key,
         JSON_STRIP_NULLS(TO_JSON(STRUCT(
-          -- custom types collapse to CustomProposition + customPropositionType; standard keep their specific type
-          IF(cpt.gks_type LIKE 'Clinvar%', 'CustomProposition', cpt.gks_type) AS type,
-          IF(cpt.gks_type LIKE 'Clinvar%', cpt.gks_type, CAST(NULL AS STRING)) AS customPropositionType,
+          IFNULL(cpt.gks_type, 'ClinvarUndefinedProposition') AS type,
           agg.prop_id AS id,
-          -- standard uses subjectVariant; custom uses subject (same variation pointer)
-          IF(cpt.gks_type LIKE 'Clinvar%', CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', agg.variation_id)) AS subjectVariant,
-          IF(cpt.gks_type LIKE 'Clinvar%', FORMAT('#/variation/clinvar:%s', agg.variation_id), CAST(NULL AS STRING)) AS subject,
+          FORMAT('#/variation/clinvar:%s', agg.variation_id) AS subject,
           CASE cpt.gks_type
             WHEN 'VariantPathogenicityProposition' THEN 'isCausalFor'
             WHEN 'VariantOncogenicityProposition' THEN 'isOncogenicFor'
@@ -650,10 +632,7 @@ BEGIN
             WHEN 'ClinvarRiskFactorProposition' THEN 'isRiskFactorFor'
             ELSE 'isClinvarUndefinedAssociationFor'
           END AS predicate,
-          -- object field is 3-way: custom->object, standard Oncogenicity->objectTumorType, other standard->objectCondition (same value)
-          IF(cpt.gks_type LIKE 'Clinvar%' OR cpt.gks_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), rcd.condition_concept) AS objectCondition,
-          IF((NOT (cpt.gks_type LIKE 'Clinvar%')) AND cpt.gks_type = 'VariantOncogenicityProposition', rcd.condition_concept, CAST(NULL AS STRING)) AS objectTumorType,
-          IF(cpt.gks_type LIKE 'Clinvar%', rcd.condition_concept, CAST(NULL AS STRING)) AS object
+          rcd.condition_concept AS object
         )), remove_empty => TRUE) as value
       FROM `{S}.gkm_rcv_aggregate_contribution` agg
       LEFT JOIN `clinvar_ingest.clinvar_proposition_types` cpt ON agg.prop_type = cpt.code
@@ -700,14 +679,14 @@ BEGIN
       SET query_merge = REPLACE("""
         CREATE OR REPLACE TABLE `{S}.gkm_dict_rcv_evidence_line` AS
         SELECT
-          b.id, b.type, b.directionOfEvidenceProvided, b.strengthOfEvidenceProvided, b.evidenceItems
+          b.id, b.type, b.directionOfEvidenceProvided, b.strengthOfEvidenceProvided, b.hasEvidenceItems
         FROM `{BASE}.gkm_dict_rcv_evidence_line` b
         LEFT JOIN `{S}.rcv_impacted_ids` imp ON imp.rcv_accession = SPLIT(b.id, '.')[OFFSET(0)]
         WHERE imp.rcv_accession IS NULL
           AND SPLIT(b.id, '.')[OFFSET(0)] IN (SELECT id FROM `{S}.rcv_accession`)
         UNION ALL
         SELECT
-          id, type, directionOfEvidenceProvided, strengthOfEvidenceProvided, evidenceItems
+          id, type, directionOfEvidenceProvided, strengthOfEvidenceProvided, hasEvidenceItems
         FROM `{P}.stg_gkm_dict_rcv_evidence_line`
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));
@@ -736,7 +715,7 @@ BEGIN
       SET query_merge = REPLACE("""
         CREATE OR REPLACE TABLE `{S}.gkm_dict_rcv` AS
         SELECT
-          b.id, b.type, b.direction, b.strength, b.confidence, b.classification,
+          b.id, b.type, b.direction, b.strength, b.quality, b.classification,
           b.proposition, b.extensions, b.hasEvidenceLines
         FROM `{BASE}.gkm_dict_rcv` b
         LEFT JOIN `{S}.rcv_impacted_ids` imp ON imp.rcv_accession = SPLIT(b.id, '.')[OFFSET(0)]
@@ -744,7 +723,7 @@ BEGIN
           AND SPLIT(b.id, '.')[OFFSET(0)] IN (SELECT id FROM `{S}.rcv_accession`)
         UNION ALL
         SELECT
-          id, type, direction, strength, confidence, classification,
+          id, type, direction, strength, quality, classification,
           proposition, extensions, hasEvidenceLines
         FROM `{P}.stg_gkm_dict_rcv`
       """, '{BASE}', baseline_schema);

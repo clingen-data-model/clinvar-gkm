@@ -75,6 +75,8 @@ SECTIONS = [
     ("variation", "variation-*.ndjson.gz", "id", None),
     ("condition", "condition-*.ndjson.gz", "id", None),
     ("conditionSet", "conditionSet-*.ndjson.gz", "id", None),
+    ("therapy", "therapy-*.ndjson.gz", "key", "value"),
+    ("therapyGroup", "therapyGroup-*.ndjson.gz", "key", "value"),
     ("submitter", "submitter-*.ndjson.gz", "key", "value"),
     ("varcond-proposition", "varcond-proposition-*.ndjson.gz", "key", "value"),
     ("vartumor-proposition", "vartumor-proposition-*.ndjson.gz", "key", "value"),

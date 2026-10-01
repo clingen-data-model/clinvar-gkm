@@ -17,6 +17,8 @@ All ClinVar-GKM identifiers use a prefix namespace to indicate the resource type
 | `clinvar.submitter:` | Submitter organization | `clinvar.submitter:{submitter_id}` | `clinvar.submitter:508027` |
 | `clinvar.trait:` | Condition / trait | `clinvar.trait:{trait_id}` | `clinvar.trait:9580` |
 | `clinvar.traitset:` | Condition set | `clinvar.traitset:{trait_set_id}` | `clinvar.traitset:1234` |
+| `clinvar.therapy:` | Therapy (drug/procedure) | `clinvar.therapy:{sha256}` | `clinvar.therapy:ab221549…d1c2b` |
+| `clinvar.therapygroup:` | Therapy group (combination) | `clinvar.therapygroup:{sha256}` | `clinvar.therapygroup:df1d8467…9f05c` |
 | `ncbigene:` | Gene | `ncbigene:{gene_id}` | `ncbigene:3077` |
 | `ga4gh:` | VRS identity | `ga4gh:{type}.{digest}` | `ga4gh:VA.ELQCnIBGqaTl0AEE0Az18XZ2cgIHAQIY` |
 | `SQ.` | Sequence reference | `SQ.{digest}` | `SQ.0iKlIQk2oZLoeOG9P1riRU6hvL5Ux8TV` |
@@ -43,6 +45,8 @@ Objects reference each other using `#/{section}/{key}` strings. To resolve a ref
 | `#/variation/{key}` | `#/variation/clinvar:10` | `variation` |
 | `#/condition/{key}` | `#/condition/clinvar.trait:9580` | `condition` |
 | `#/conditionSet/{key}` | `#/conditionSet/clinvar.traitset:1234` | `conditionSet` |
+| `#/therapy/{key}` | `#/therapy/clinvar.therapy:ab221549…d1c2b` | `therapy` |
+| `#/therapyGroup/{key}` | `#/therapyGroup/clinvar.therapygroup:df1d8467…9f05c` | `therapyGroup` |
 | `#/submitter/{key}` | `#/submitter/clinvar.submitter:500139` | `submitter` |
 | `#/varcond-proposition/{key}` | `#/varcond-proposition/SCV001234567-PATH` | `varcond-proposition` |
 | `#/vartumor-proposition/{key}` | `#/vartumor-proposition/SCV002345678-ONCO` | `vartumor-proposition` |
@@ -63,10 +67,12 @@ Objects reference each other using `#/{section}/{key}` strings. To resolve a ref
 | Variation | `constraints[].allele` | `#/allele/` |
 | Variation | `constraints[].location` | `#/location/` |
 | Variation | `extensions[].clinvarGeneList[].gene` | `#/gene/` |
-| Proposition (standard) | `subjectVariant` | `#/variation/` |
-| Proposition (standard) | `objectCondition` / `objectTumorType` | `#/condition/` or `#/conditionSet/` |
-| Proposition (custom) | `subject` | `#/variation/` |
-| Proposition (custom) | `object` | `#/condition/` or `#/conditionSet/` |
+| Proposition (all types) | `subject` | `#/variation/` |
+| Pathogenicity / Oncogenicity / Custom / Diagnostic / Prognostic | `object` | `#/condition/` or `#/conditionSet/` |
+| Therapeutic Response | `object` | `#/therapy/` or `#/therapyGroup/` |
+| Therapeutic Response | `conditionQualifier` | `#/condition/` or `#/conditionSet/` |
+| ConditionSet | `concepts[]` | `#/condition/` |
+| TherapyGroup | `concepts[]` | `#/therapy/` |
 | SCV Statement | `proposition` | `#/{varcond,vartumor,vartherapy,varcustom}-proposition/` |
 | SCV Statement | `contributions[].contributor` | `#/submitter/` |
 | VCV Statement | `proposition` | `#/{varcond,vartumor,vartherapy,varcustom}-proposition/` |
@@ -74,7 +80,7 @@ Objects reference each other using `#/{section}/{key}` strings. To resolve a ref
 | VCV Statement | `hasEvidenceLines[]` | `#/evidenceLine/` |
 | RCV Statement | `proposition` | `#/{varcond,vartumor,vartherapy,varcustom}-proposition/` |
 | RCV Statement | `hasEvidenceLines[]` | `#/evidenceLine/` |
-| EvidenceLine | `evidenceItems[]` | `#/scv/`, `#/vcv/`, or `#/rcv/` |
+| EvidenceLine | `hasEvidenceItems[]` | `#/scv/`, `#/vcv/`, or `#/rcv/` |
 
 ### Resolution Example
 
@@ -103,6 +109,11 @@ location = resolve(bundle, allele["location"])
 # Resolve the location's sequence reference
 seq_ref = resolve(bundle, location["sequenceReference"])
 ```
+
+!!! tip "Resolving references without writing code"
+    The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/tools/gkm-toolkit/getting-started/)
+    (`ga4gh.gkm`) loads a published bundle and follows `#/…` pointers for you — traversing and exporting
+    connected records without the manual `resolve()` above.
 
 ---
 

@@ -1,17 +1,17 @@
 ---
-description: Documentation conventions (MkDocs, terminology, roadmap generation)
+description: Documentation conventions (Zensical, terminology, roadmap generation)
 paths:
   - "docs/**"
-  - "mkdocs.yml"
+  - "zensical.toml"
 ---
 
 # Documentation conventions
 
-Docs are MkDocs + Material in `docs/`, deployed to GitHub Pages by `.github/workflows/deploy-docs.yml`.
+Docs are Zensical (Material theme) in `docs/`, deployed to GitHub Pages by `.github/workflows/deploy-docs.yml`.
 
-- Run `mkdocs build --strict` after **any** docs change and fix all warnings before committing (broken links
-  and other warnings fail the strict build).
-- Use the `write-docs` skill for creating/editing MkDocs pages.
+- Run `zensical build --strict` after **any** docs change and fix all warnings before committing (broken links
+  and other warnings fail the strict build). Config lives in `zensical.toml` (nav, theme, extensions).
+- Use the `write-docs` skill for creating/editing docs pages.
 
 ## Terminology
 

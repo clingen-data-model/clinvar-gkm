@@ -62,6 +62,9 @@ BEGIN
   DECLARE query_scv_condition_names STRING;
   DECLARE query_scv_citations STRING;
   DECLARE query_scv_method STRING;
+  DECLARE query_scv_therapy STRING;
+  DECLARE dict_therapy_query STRING;
+  DECLARE dict_therapygroup_query STRING;
   DECLARE dict_submitter_query STRING;
   DECLARE dict_proposition_query STRING;
   DECLARE dict_evidence_line_query STRING;
@@ -186,6 +189,7 @@ BEGIN
       CALL `clinvar_ingest.cleanup_temp_tables`(rec.schema_name, [
         'temp_gkm_scv', 'temp_gene_context_qualifiers', 'temp_moi_qualifiers',
         'temp_penetrance_qualifiers', 'temp_gkm_scv_proposition', 'temp_gkm_scv_target_proposition',
+        'temp_gkm_scv_therapy',
         'temp_scv_condition_names', 'temp_scv_citations', 'temp_scv_method',
         'stg_gkm_dict_evidence_line', 'stg_gkm_dict_scv'
       ]);
@@ -546,34 +550,92 @@ BEGIN
         SELECT
           scv_id,
           FORMAT('%s-%s', scv_id, UPPER(IFNULL(proposition_type_code, 'UNDEF'))) as id,
-          -- custom types collapse to CustomProposition + customPropositionType; standard keep their specific type
-          IF(is_custom, 'CustomProposition', p_type) as type,
-          IF(is_custom, p_type, CAST(NULL AS STRING)) as customPropositionType,
-          -- standard uses subjectVariant; custom uses subject (same variation pointer)
-          IF(is_custom, CAST(NULL AS STRING), FORMAT('#/variation/clinvar:%s', variation_id)) as subjectVariant,
-          IF(is_custom, FORMAT('#/variation/clinvar:%s', variation_id), CAST(NULL AS STRING)) as subject,
+          -- va-spec 2026-09: unified shape for all proposition types (standard + Clinvar* custom).
+          -- Clinvar* types are open subtypes of SubjectVariantProposition; the real type name is `type`.
+          p_type as type,
+          FORMAT('#/variation/clinvar:%s', variation_id) as subject,
           predicate,
-          -- object field is 3-way: custom->object, standard Oncogenicity->objectTumorType, other standard->objectCondition (same obj_ref value)
-          IF(is_custom OR p_type = 'VariantOncogenicityProposition', CAST(NULL AS STRING), obj_ref) as objectCondition,
-          IF((NOT is_custom) AND p_type = 'VariantOncogenicityProposition', obj_ref, CAST(NULL AS STRING)) as objectTumorType,
-          IF(is_custom, obj_ref, CAST(NULL AS STRING)) as object,
-          -- standard keeps typed qualifiers; custom nulls them (NULL typed by the struct branch)
-          IF(is_custom, NULL, gene_ctx) as geneContextQualifier,
-          IF(is_custom, NULL, moi_ctx) as modeOfInheritanceQualifier,
-          IF(is_custom, NULL, penetrance_ctx) as penetranceQualifier,
-          -- custom: generic qualifiers[] name/value (value carried as JSON to tolerate differing struct schemas)
-          IF(is_custom,
-            ARRAY_CONCAT(
-              IF(has_gene, [STRUCT('geneContext' AS name, TO_JSON(gene_ctx) AS value)], []),
-              IF(has_moi, [STRUCT('modeOfInheritance' AS name, TO_JSON(moi_ctx) AS value)], []),
-              IF(has_penetrance, [STRUCT('penetrance' AS name, TO_JSON(penetrance_ctx) AS value)], [])
-            ),
-            CAST(NULL AS ARRAY<STRUCT<name STRING, value JSON>>)) as qualifiers
+          obj_ref as object,
+          -- typed qualifiers for all germline props; struct-of-nulls stripped by JSON_STRIP_NULLS(remove_empty)
+          gene_ctx as geneContextQualifier,
+          moi_ctx as modeOfInheritanceQualifier,
+          penetrance_ctx as penetranceQualifier
         FROM base
     """, '{S}', rec.schema_name);
     SET query_scv_proposition = REPLACE(query_scv_proposition, '{CT}', temp_create);
     SET query_scv_proposition = REPLACE(query_scv_proposition, '{P}', IF(debug, rec.schema_name, '_SESSION'));
     EXECUTE IMMEDIATE query_scv_proposition;
+
+    ---------------------------------------------------------------------------
+    -- Step 5b: Therapy dictionaries source (temp) — GLOBAL. Per therapeutic SCV,
+    -- resolves each drug therapy to a content-addressed #/therapy/ reference, and a
+    -- compound (>=2 drug) TherapyGroup to a #/therapyGroup/ reference. Feeds the
+    -- globally-recomputed gkm_dict_therapy / gkm_dict_therapygroup AND the `object` of
+    -- the somatic target proposition (Step 6). Therapies carry no native ClinVar id, so
+    -- identity is the SHA-256 digest of the canonical Therapy / TherapyGroup JSON (the
+    -- group digest is taken over its ref-sorted concepts, so it is order-stable). Stays
+    -- UNFILTERED (global) like temp_gkm_scv, so no therapy is lost on unchanged SCVs.
+    ---------------------------------------------------------------------------
+    SET query_scv_therapy = REPLACE("""
+      {CT} {P}.temp_gkm_scv_therapy AS
+      WITH per_drug AS (
+        SELECT
+          scv.id AS scv_id,
+          STRUCT(drug AS name, 'MappableConcept' AS type, 'Drug' AS conceptType) AS therapy
+        FROM {P}.temp_gkm_scv scv
+        CROSS JOIN UNNEST(scv.drugTherapy) AS drug
+      ),
+      keyed AS (
+        SELECT
+          scv_id,
+          therapy,
+          TO_HEX(SHA256(TO_JSON_STRING(therapy))) AS digest
+        FROM per_drug
+      ),
+      per_scv AS (
+        SELECT
+          scv_id,
+          ARRAY_AGG(
+            STRUCT(
+              therapy AS value,
+              FORMAT('clinvar.therapy:%s', digest) AS key,
+              FORMAT('#/therapy/clinvar.therapy:%s', digest) AS ref
+            ) ORDER BY digest
+          ) AS therapies
+        FROM keyed
+        GROUP BY scv_id
+      ),
+      grouped AS (
+        SELECT
+          scv_id,
+          therapies,
+          IF(
+            ARRAY_LENGTH(therapies) > 1,
+            STRUCT(
+              'ConceptSet' AS type,
+              ARRAY(SELECT t.ref FROM UNNEST(therapies) AS t ORDER BY t.ref) AS concepts,
+              'AND' AS membershipOperator
+            ),
+            NULL
+          ) AS group_value
+        FROM per_scv
+      )
+      SELECT
+        scv_id,
+        therapies,
+        group_value,
+        IF(group_value IS NULL, NULL,
+           FORMAT('clinvar.therapygroup:%s', TO_HEX(SHA256(TO_JSON_STRING(group_value))))) AS group_key,
+        IF(
+          ARRAY_LENGTH(therapies) = 1,
+          therapies[OFFSET(0)].ref,
+          FORMAT('#/therapyGroup/clinvar.therapygroup:%s', TO_HEX(SHA256(TO_JSON_STRING(group_value))))
+        ) AS object_ref
+      FROM grouped
+    """, '{S}', rec.schema_name);
+    SET query_scv_therapy = REPLACE(query_scv_therapy, '{CT}', temp_create);
+    SET query_scv_therapy = REPLACE(query_scv_therapy, '{P}', IF(debug, rec.schema_name, '_SESSION'));
+    EXECUTE IMMEDIATE query_scv_therapy;
 
     ---------------------------------------------------------------------------
     -- Step 6: Create SCV target proposition table (temp) — GLOBAL. Feeds the globally
@@ -584,58 +646,26 @@ BEGIN
     SET query_scv_target_proposition = REPLACE("""
       {CT} {P}.temp_gkm_scv_target_proposition
       AS
-        WITH scv_drugs AS (
-          SELECT
-            scv_id,
-            ARRAY_AGG(STRUCT(drug.name, 'MappableConcept' AS type, 'Drug' as conceptType)) as therapies,
-            STRUCT(CAST(null as string) as name, CAST(null as string) as type, CAST(null as string) as conceptType) as therapy
-          FROM (
-            SELECT
-              scv.id as scv_id,
-              drug as name
-            FROM {P}.temp_gkm_scv scv
-            CROSS JOIN UNNEST(scv.drugTherapy) as drug
-          ) drug
-          GROUP BY
-            scv_id
-          HAVING COUNT(*) > 1
-          UNION ALL
-          SELECT
-            scv.id as scv_id,
-            [STRUCT(CAST(null as string) as name, CAST(null as string) as type, CAST(null as string) as conceptType)] as therapies,
-            STRUCT(
-              ARRAY_AGG(drug)[SAFE_OFFSET(0)] as name,
-              'MappableConcept' AS type, 'Drug' as conceptType
-            ) as therapy
-          FROM {P}.temp_gkm_scv scv
-          CROSS JOIN UNNEST(scv.drugTherapy) as drug
-          GROUP BY
-            scv.id
-          HAVING COUNT(*) = 1
-        )
         SELECT
           scv.id as scv_id,
           FORMAT('%s-%s', scv.id, UPPER(tp.code)) as id,
           scv.evidence_line_target_proposition.type as type,
-          FORMAT('#/variation/clinvar:%s', scv.variation_id) as subjectVariant,
+          FORMAT('#/variation/clinvar:%s', scv.variation_id) as subject,
           scv.evidence_line_target_proposition.pred as predicate,
+          -- va-spec 2026-09: single `object`, always a #/ pointer (JSON string):
+          --   therapeutic -> #/therapy/ (single) or #/therapyGroup/ (compound), from
+          --     temp_gkm_scv_therapy (deduped into gkm_dict_therapy / gkm_dict_therapygroup);
+          --   diagnostic/prognostic -> the Condition/ConditionSet pointer.
           IF(
-            scv.clinical_impact_assertion_type IS DISTINCT FROM 'therapeutic',
-            COALESCE(
+            scv.clinical_impact_assertion_type IS NOT DISTINCT FROM 'therapeutic',
+            TO_JSON(th.object_ref),
+            TO_JSON(COALESCE(
               scs.extensions.value_submitted_condition.condition,
               scs.extensions.value_submitted_condition.conditionSet,
               scs.extensions.value_submitted_condition_set.condition,
               scs.extensions.value_submitted_condition_set.conditionSet
-            ),
-            null
-          ) as objectCondition,
-          -- Single va-spec objectTherapy: a Therapy (MappableConcept) when one drug, else a TherapyGroup.
-          -- TherapyGroup is a ConceptSet: type='ConceptSet', membershipOperator, and concepts[] (>=2 Therapy).
-          IF(
-            ARRAY_LENGTH(sd.therapies) > 1,
-            TO_JSON(STRUCT('ConceptSet' AS type, sd.therapies AS concepts, 'AND' AS membershipOperator)),
-            TO_JSON(sd.therapy)
-          ) as objectTherapy,
+            ))
+          ) as object,
           IF(
             scv.clinical_impact_assertion_type IS NOT DISTINCT FROM 'therapeutic',
             COALESCE(
@@ -646,9 +676,9 @@ BEGIN
             ),
             null
           ) as conditionQualifier,
-          (SELECT AS STRUCT sgq.* EXCEPT(scv_id)) as geneContextQualifier,
-          (SELECT AS STRUCT smq.* EXCEPT(scv_id)) as modeOfInheritanceQualifier,
-          (SELECT AS STRUCT spq.* EXCEPT(scv_id)) as penetranceQualifier
+          -- geneContextQualifier is valid on all three somatic types; modeOfInheritance/penetrance are NOT
+          -- (germline-only) so they are intentionally not emitted here.
+          (SELECT AS STRUCT sgq.* EXCEPT(scv_id)) as geneContextQualifier
         FROM {P}.temp_gkm_scv scv
         LEFT JOIN {P}.temp_gene_context_qualifiers sgq
         ON
@@ -662,9 +692,9 @@ BEGIN
         LEFT JOIN `{S}.gkm_scv_condition_sets` scs
         ON
           scs.scv_id = scv.id
-        LEFT JOIN scv_drugs sd
+        LEFT JOIN {P}.temp_gkm_scv_therapy th
         ON
-          sd.scv_id = scv.id
+          th.scv_id = scv.id
         LEFT JOIN `clinvar_ingest.clinvar_proposition_types` tp
         ON
           tp.gks_type = scv.evidence_line_target_proposition.type
@@ -682,15 +712,25 @@ BEGIN
     SET query_scv_condition_names = REPLACE("""
       {CT} {P}.temp_scv_condition_names AS
       SELECT
-        scv_id,
+        cs.scv_id,
         CASE
-          WHEN extensions.value_submitted_condition.name IS NOT NULL
-            THEN extensions.value_submitted_condition.name
-          WHEN ARRAY_LENGTH(extensions.value_submitted_condition_set.concepts) >= 2
-            THEN FORMAT('%d conditions', ARRAY_LENGTH(extensions.value_submitted_condition_set.concepts))
+          WHEN cs.extensions.value_submitted_condition.name IS NOT NULL
+            THEN cs.extensions.value_submitted_condition.name
+          WHEN ARRAY_LENGTH(cs.extensions.value_submitted_condition_set.concepts) >= 2
+            THEN FORMAT('%d conditions', ARRAY_LENGTH(cs.extensions.value_submitted_condition_set.concepts))
+          -- Single submitted condition with no submitted name (e.g. a coded-only
+          -- submission): fall back to the normalized trait's name -- what ClinVar
+          -- renders -- before the generic 'unspecified condition'.
+          WHEN dc.name IS NOT NULL
+            THEN dc.name
           ELSE 'unspecified condition'
         END AS condition_name
-      FROM `{S}.gkm_scv_condition_sets`
+      FROM `{S}.gkm_scv_condition_sets` cs
+      LEFT JOIN `{S}.gkm_dict_condition` dc
+        ON dc.id = REPLACE(
+             COALESCE(cs.extensions.value_submitted_condition.condition,
+                      cs.extensions.value_submitted_condition.normalized_match),
+             '#/condition/', '')
       {VF_CN}
     """, '{S}', rec.schema_name);
     SET query_scv_condition_names = REPLACE(query_scv_condition_names, '{VF_CN}', vf_cn_where);
@@ -856,6 +896,41 @@ BEGIN
     EXECUTE IMMEDIATE dict_proposition_query;
 
     ---------------------------------------------------------------------------
+    -- Step 7f: Dictionary table - therapy — GLOBAL dedup (content-addressed, keyed
+    -- clinvar.therapy:{sha256}). Recomputed from the unfiltered temp_gkm_scv_therapy so
+    -- no therapy is lost when only unchanged SCVs reference it (like gkm_dict_submitter).
+    ---------------------------------------------------------------------------
+    SET dict_therapy_query = REPLACE("""
+      CREATE OR REPLACE TABLE `{S}.gkm_dict_therapy`
+      AS
+      SELECT
+        t.key AS key,
+        ANY_VALUE(JSON_STRIP_NULLS(TO_JSON(t.value), remove_empty => TRUE)) AS value
+      FROM {P}.temp_gkm_scv_therapy, UNNEST(therapies) AS t
+      GROUP BY t.key
+    """, '{S}', rec.schema_name);
+    SET dict_therapy_query = REPLACE(dict_therapy_query, '{P}', IF(debug, rec.schema_name, '_SESSION'));
+    EXECUTE IMMEDIATE dict_therapy_query;
+
+    ---------------------------------------------------------------------------
+    -- Step 7g: Dictionary table - therapyGroup — GLOBAL dedup (content-addressed, keyed
+    -- clinvar.therapygroup:{sha256}); its `concepts` are #/therapy/ references into
+    -- gkm_dict_therapy. Recomputed from the unfiltered temp_gkm_scv_therapy.
+    ---------------------------------------------------------------------------
+    SET dict_therapygroup_query = REPLACE("""
+      CREATE OR REPLACE TABLE `{S}.gkm_dict_therapygroup`
+      AS
+      SELECT
+        group_key AS key,
+        ANY_VALUE(JSON_STRIP_NULLS(TO_JSON(group_value), remove_empty => TRUE)) AS value
+      FROM {P}.temp_gkm_scv_therapy
+      WHERE group_key IS NOT NULL
+      GROUP BY group_key
+    """, '{S}', rec.schema_name);
+    SET dict_therapygroup_query = REPLACE(dict_therapygroup_query, '{P}', IF(debug, rec.schema_name, '_SESSION'));
+    EXECUTE IMMEDIATE dict_therapygroup_query;
+
+    ---------------------------------------------------------------------------
     -- Step 7f: Dictionary table - evidence lines — per-SCV ({DEL_HEAD} target;
     -- {VF_SCV} on the temp_gkm_scv alias). Trait-dependent (embeds the submitted-
     -- condition struct from gkm_scv_condition_sets); the trait cascade in
@@ -909,7 +984,7 @@ BEGIN
             WHEN stp.type IN ('VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
             ELSE ERROR(FORMAT('unmapped target proposition type: %t', stp.type))
           END,
-          stp.id) as proposition,
+          stp.id) as targetProposition,
         'supports' as directionOfEvidenceProvided,
         CASE scv.classification_code
           WHEN 'tier 1' THEN
@@ -986,17 +1061,17 @@ BEGIN
       SELECT
         FORMAT('clinvar.submission:%s.%i', scv.id, scv.version) as id,
         'Statement' as type,
-        -- Delivery-group-qualified proposition reference (Phase 2). Canonical group mapping keyed on the
-        -- raw gks type (custom rows carry it in customPropositionType, standard rows in type).
+        -- Delivery-group-qualified proposition reference (Phase 2). Group keyed on the proposition type
+        -- (custom + standard alike now carry the real type name in `type`).
         FORMAT('#/%s-proposition/%s',
           CASE
-            WHEN COALESCE(sp.customPropositionType, sp.type) LIKE 'Clinvar%' THEN 'varcustom'
-            WHEN COALESCE(sp.customPropositionType, sp.type) = 'VariantOncogenicityProposition' THEN 'vartumor'
-            WHEN COALESCE(sp.customPropositionType, sp.type) = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-            WHEN COALESCE(sp.customPropositionType, sp.type) IN (
+            WHEN sp.type LIKE 'Clinvar%' THEN 'varcustom'
+            WHEN sp.type = 'VariantOncogenicityProposition' THEN 'vartumor'
+            WHEN sp.type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
+            WHEN sp.type IN (
               'VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
               'VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', COALESCE(sp.customPropositionType, sp.type)))
+            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', sp.type))
           END,
           sp.id) as proposition,
         STRUCT(
@@ -1016,7 +1091,7 @@ BEGIN
             ) AS value_string
           )] AS extensions
         ) as classification,
-         STRUCT(
+         (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
           scv.strength_name as name,
           IF(
@@ -1024,9 +1099,9 @@ BEGIN
             STRUCT(scv.strength_code as code, scv.classif_and_strength_code_system as system),
             null
           ) as primaryCoding
-        ) as strength,
+        )]) s WHERE s.name IS NOT NULL OR s.primaryCoding IS NOT NULL) as strength,
         scv.direction,
-        STRUCT('MappableConcept' AS type, 'Confidence' AS conceptType, scv.submission_level_label AS name) as confidence,
+        STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, scv.submission_level_label AS name) as quality,
         scv.classification_comment as description,
         [
           STRUCT(
@@ -1049,8 +1124,6 @@ BEGIN
           )
         ] as contributions,
         sm.specifiedBy,
-        sm.specifiedBy.methodType as methodType,
-        sm.specifiedBy.name as methodName,
         scit.reportedIn,
         ARRAY_CONCAT(
           [
@@ -1132,7 +1205,7 @@ BEGIN
       SET query_merge = REPLACE("""
         CREATE OR REPLACE TABLE `{S}.gkm_dict_evidence_line` AS
         SELECT
-          b.id, b.type, b.proposition, b.directionOfEvidenceProvided,
+          b.id, b.type, b.targetProposition, b.directionOfEvidenceProvided,
           b.evidenceOutcome, b.extensions
         FROM `{BASE}.gkm_dict_evidence_line` b
         LEFT JOIN (
@@ -1143,7 +1216,7 @@ BEGIN
         WHERE x.scv_id IS NULL
         UNION ALL
         SELECT
-          id, type, proposition, directionOfEvidenceProvided,
+          id, type, targetProposition, directionOfEvidenceProvided,
           evidenceOutcome, extensions
         FROM {P}.stg_gkm_dict_evidence_line
       """, '{BASE}', baseline_schema);
@@ -1157,8 +1230,8 @@ BEGIN
         CREATE OR REPLACE TABLE `{S}.gkm_dict_scv` AS
         SELECT
           b.id, b.type, b.proposition, b.classification, b.strength, b.direction,
-          b.confidence, b.description, b.contributions, b.specifiedBy, b.methodType,
-          b.methodName, b.reportedIn, b.extensions, b.hasEvidenceLines
+          b.quality, b.description, b.contributions, b.specifiedBy,
+          b.reportedIn, b.extensions, b.hasEvidenceLines
         FROM `{BASE}.gkm_dict_scv` b
         LEFT JOIN (
           SELECT scv_id FROM `{S}.scv_changed_ids`
@@ -1169,8 +1242,8 @@ BEGIN
         UNION ALL
         SELECT
           id, type, proposition, classification, strength, direction,
-          confidence, description, contributions, specifiedBy, methodType,
-          methodName, reportedIn, extensions, hasEvidenceLines
+          quality, description, contributions, specifiedBy,
+          reportedIn, extensions, hasEvidenceLines
         FROM {P}.stg_gkm_dict_scv
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));

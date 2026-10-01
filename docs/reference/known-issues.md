@@ -3,12 +3,12 @@
 This page documents the current release status, data-coverage limitations, and transformation caveats of the
 ClinVar-GKM pipeline.
 
-## Release status — Release Candidate
+## Release status
 
-The current release is a **Release Candidate** (`1.0-rc3`). It will **not** become the first official version
-until the impending release of the **GKM (Genomic Knowledge Model)** suite — VRS, Cat-VRS, and VA-Spec — which
-is currently in **Ballot review** and expected to be released **before mid-September 2026**. Until those
-specifications are finalized, schema and output details may still change to track the approved standards.
+This is the **first official release** (`1.0`) of ClinVar-GKM, built on the finalized **GKM (Genomic
+Knowledge Model)** standards — VRS 2.1.1, Cat-VRS 1.1.1, VA-Spec 1.1.0, and GKM-Core 1.3.0. Earlier builds
+were release candidates that tracked these specifications while they were in ballot review; now that the
+standards are finalized, the 1.0 output validates against the released schemas.
 
 ## Data coverage
 

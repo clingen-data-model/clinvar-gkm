@@ -5,9 +5,9 @@ SELECT
   key AS id,
   JSON_VALUE(value, '$.type') AS type,
   JSON_VALUE(value, '$.predicate') AS predicate,
-  REGEXP_REPLACE(JSON_VALUE(value, '$.subjectVariant'), r'^#/[^/]+/', '') AS subject_variant_id,
+  REGEXP_REPLACE(JSON_VALUE(value, '$.subject'), r'^#/[^/]+/', '') AS subject_variant_id,
   REGEXP_REPLACE(JSON_VALUE(value, '$.conditionQualifier'), r'^#/[^/]+/', '') AS condition_qualifier_id,
-  TO_JSON_STRING(JSON_QUERY(value, '$.objectTherapy')) AS object_therapy,
+  TO_JSON_STRING(JSON_QUERY(value, '$.object')) AS object_therapy,
   JSON_VALUE(value, '$.geneContextQualifier.name') AS gene_context_name,
   collapse_ext_values(TO_JSON_STRING(value)) AS data
 FROM (
@@ -15,4 +15,4 @@ FROM (
   UNION ALL SELECT key, value FROM `{DATASET}.gkm_dict_rcv_proposition`
   UNION ALL SELECT key, value FROM `{DATASET}.gkm_dict_vcv_proposition`
 )
-WHERE COALESCE(JSON_VALUE(value, '$.customPropositionType'), JSON_VALUE(value, '$.type')) = 'VariantTherapeuticResponseProposition'
+WHERE JSON_VALUE(value, '$.type') = 'VariantTherapeuticResponseProposition'

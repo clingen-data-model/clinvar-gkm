@@ -1,6 +1,7 @@
-.. warning:: This data class is at a **draft** maturity level and may \
-    change significantly in future releases. Maturity \
-    levels are described in the :ref:`maturity-model`.
+.. admonition:: Draft
+    :class: warning
+
+    May change significantly in future releases. See |maturity-model|.
 
 **Computational Definition**
 
@@ -8,15 +9,21 @@ Any proposition type valid in ClinVar-GKM statements. Includes the GA4GH standar
 
 **Information Model**
 
+This class must match **one of** the following:
 
-.. list-table::
-   :class: clean-wrap
-   :header-rows: 1
-   :align: left
-   :widths: auto
+* :ref:`VariantPathogenicityProposition`
+* :ref:`VariantOncogenicityProposition`
+* :ref:`VariantClinicalSignificanceProposition`
+* :ref:`ClinvarRiskFactorProposition`
+* :ref:`ClinvarProtectiveProposition`
+* :ref:`ClinvarDrugResponseProposition`
+* :ref:`ClinvarAffectsProposition`
+* :ref:`ClinvarAssociationProposition`
+* :ref:`ClinvarConfersSensitivityProposition`
+* :ref:`ClinvarOtherProposition`
+* :ref:`ClinvarNotProvidedProposition`
+* :ref:`ClinvarConflictingDataFromSubmitterProposition`
+* :ref:`ClinvarUndefinedProposition`
 
-   *  - Field
-      - Flags
-      - Type
-      - Limits
-      - Description
+
+**Used in:** :ref:`ClinvarAggregateStatementProperties`, :ref:`ClinvarScvStatementProperties`

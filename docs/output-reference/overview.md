@@ -19,6 +19,8 @@ This design eliminates duplication (a sequence reference shared by thousands of 
   "variation":         { "<key>": { ... }, ... },
   "condition":         { "<key>": { ... }, ... },
   "conditionSet":      { "<key>": { ... }, ... },
+  "therapy":           { "<key>": { ... }, ... },
+  "therapyGroup":      { "<key>": { ... }, ... },
   "submitter":            { "<key>": { ... }, ... },
   "varcond-proposition":  { "<key>": { ... }, ... },
   "vartumor-proposition": { "<key>": { ... }, ... },
@@ -55,20 +57,24 @@ These sections contain the VRS and Cat-VRS variant data:
 
 ### Supporting Data Sections
 
-These sections contain the condition, submitter, and proposition reference data:
+These sections contain the condition, therapy, submitter, and proposition reference data:
 
 **`condition`** — Trait and disease concepts from ClinVar, with MedGen primary coding and cross-references to OMIM, MONDO, HPO, Orphanet, and MeSH. Keyed by `clinvar.trait:{trait_id}` (e.g., `clinvar.trait:9580`).
 
-**`conditionSet`** — Multi-condition groupings with member condition references and a membership operator (AND or OR). Keyed by `clinvar.traitset:{trait_set_id}` (e.g., `clinvar.traitset:1234`).
+**`conditionSet`** — Multi-condition groupings with member condition references (`concepts` → `#/condition/`) and a membership operator (AND or OR). Keyed by `clinvar.traitset:{trait_set_id}` (e.g., `clinvar.traitset:1234`).
+
+**`therapy`** — Individual drug therapies (Therapy MappableConcepts) referenced by therapeutic-response propositions. Content-addressed and deduplicated (therapies have no native ClinVar id). Keyed by `clinvar.therapy:{sha256}`.
+
+**`therapyGroup`** — Combination (multi-drug) therapies (TherapyGroup ConceptSets) whose `concepts` reference member therapies via `#/therapy/`, with a membership operator. Content-addressed and deduplicated. Keyed by `clinvar.therapygroup:{sha256}`.
 
 **`submitter`** — Submitting organizations with name and identifier. Keyed by `clinvar.submitter:{submitter_id}` (e.g., `clinvar.submitter:500139`).
 
 **`varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`** — Classification propositions defining what a statement asserts (proposition type, predicate, subject, object, qualifiers). Propositions are delivered in four datatype-homogeneous sections keyed by their (subject, object) signature so each is a fully-typed table:
 
-- **`varcond-proposition`** — variant×condition (standard): `VariantPathogenicity`, `VariantClinicalSignificance`, `VariantDiagnostic`, `VariantPrognostic`; `subjectVariant` → `objectCondition`.
-- **`vartumor-proposition`** — variant×tumorType (standard): `VariantOncogenicity`; `subjectVariant` → `objectTumorType`.
-- **`vartherapy-proposition`** — variant×therapy (standard): `VariantTherapeuticResponse`; `subjectVariant` → `objectTherapy` (+ `conditionQualifier`).
-- **`varcustom-proposition`** — custom variant×condition: the 10 `Clinvar*` `CustomProposition` types (specific type in `customPropositionType`); `subject` → `object` with a generic `qualifiers[]` array.
+- **`varcond-proposition`** — variant×condition (standard): `VariantPathogenicity`, `VariantClinicalSignificance`, `VariantDiagnostic`, `VariantPrognostic`; `subject` → `object`.
+- **`vartumor-proposition`** — variant×tumorType (standard): `VariantOncogenicity`; `subject` → `object`.
+- **`vartherapy-proposition`** — variant×therapy (standard): `VariantTherapeuticResponse`; `subject` → `object` where `object` references the therapy (`#/therapy/` single, or `#/therapyGroup/` combination), and the condition moves to `conditionQualifier` (`#/condition/` or `#/conditionSet/`).
+- **`varcustom-proposition`** — custom variant×condition: the 10 `Clinvar*` types (e.g. `ClinvarRiskFactorProposition`, `ClinvarDrugResponseProposition`) — open subtypes of the VA-Spec `SubjectVariantProposition` base, each carrying its own real `type` name; `subject` → `object` with typed qualifiers (`geneContextQualifier`, `modeOfInheritanceQualifier`, `penetranceQualifier`).
 
 Each contains SCV, VCV, and RCV propositions of that signature. Keyed by proposition ID (e.g., `SCV001234567-PATH` for SCVs, `VCV000012582.63-G-PATH-CP` for VCVs). A `#/{section}-proposition/{id}` pointer names the exact section a proposition lives in.
 
@@ -148,6 +154,62 @@ Fields that use this pattern:
 - **`strengthOfEvidenceProvided`** — the evidence line strength (`conceptType: "Strength"`)
 
 The `conceptType` identifies the kind of concept. The `name` is the human-readable display value. The `primaryCoding` provides a machine-readable code and system when available. Not all instances carry `primaryCoding` — aggregate VCV/RCV classifications, for example, may only have `conceptType` and `name`.
+
+---
+
+## Bundle Schema
+
+The bundle structure described above is formalized as a JSON Schema, authored to the
+[GKM Starter Kit](https://ga4gh.github.io/gkm-starter-kit/) bundle-schema conventions:
+
+**JSON Schema:** [clinvar-gkm-bundle.schema.json](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/clinvar-gkm-bundle.schema.json){ target=_blank }
+
+- **Draft 2020-12**, root `type: object` — each root property is one of the bundle sections, and
+  `additionalProperties: false` rejects unknown sections.
+- Each section is a keyed map whose keys are constrained by that section's id pattern
+  (`patternProperties`) and whose values `$ref` the appropriate GA4GH class schema by **versioned
+  [W3ID](https://w3id.org/) URI** — VRS, Cat-VRS, VA-Spec, and GKM-Core for the shared types, and the
+  ClinVar-GKM subtypes (`ClinvarScvStatement`, `ClinvarCategoricalVariant`, the `Clinvar*Proposition`
+  family, …) for the ClinVar-specific ones.
+- No section is individually required, so the **same schema validates a monthly full bundle, a weekly
+  delta, and a sub-bundle extract** — each carries only the sections it touches.
+
+The schema constrains the bundle's *shape* (which sections may appear, how their keys are formed, and
+what each value validates against). The starter-kit's companion invariant — that every `#/section/key`
+pointer resolves within the bundle — is a producer-side guarantee, not expressible in JSON Schema alone.
+
+### Validating with the GKM Toolkit
+
+The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) (`ga4gh.gkm`)
+validates a bundle against this schema directly. It
+[resolves](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-resolution/) the
+W3ID `$ref` URIs to the actual VRS / VA-Spec / GKM-Core class schemas and expands the bundle-local
+`#/…` pointers before [validating](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-validation/),
+so each section's objects are checked against their full class definition rather than their serialized
+pointer strings:
+
+```python
+import json
+from ga4gh.gkm.bundles.schema_validation import (
+    prepare_bundle_schema,
+    validate_bundle_schema,
+)
+
+schema = json.load(open("clinvar-gkm-bundle.schema.json"))
+
+# Validate one bundle — raises on any violation, returns None on success.
+bundle = json.load(open("clinvar-gkm_00-latest.json"))
+validate_bundle_schema(bundle, schema)
+
+# Or compile the validator once and reuse it across many bundles / deltas.
+validator = prepare_bundle_schema(schema)
+for path in ("clinvar-gkm_2026-06.json", "clinvar-gkm-delta_00-latest.json"):
+    validate_bundle_schema(json.load(open(path)), schema, validator=validator)
+```
+
+See the GKM Toolkit [schema-validation](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-validation/)
+and [schema-resolution](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-resolution/)
+API references for exact signatures and options.
 
 ---
 

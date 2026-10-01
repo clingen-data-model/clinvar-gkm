@@ -24,7 +24,7 @@ Each record is a VA-Spec `Statement` with the following top-level fields:
 | `classification` | object | MappableConcept — the submitter's classification. See [Classification](#classification) |
 | `strength` | object | MappableConcept — the evidence strength. See [Strength](#strength) |
 | `direction` | string | Whether the evidence `supports`, `disputes`, or is `neutral` toward the proposition |
-| `confidence` | object | Concept struct with `conceptType: "Confidence"` and `name` (the submission level label). See [Confidence](#confidence) |
+| `quality` | object | Concept struct with `conceptType: "Quality"` and `name` (the submission level label). See [Quality](#quality) |
 | `description` | string | Free-text interpretation summary (when provided by the submitter) |
 | `contributions` | array | Submitter and date information with `#/submitter/` references. See [Contributions](#contributions) |
 | `specifiedBy` | object | The classification method/guideline used |
@@ -80,20 +80,20 @@ The `primaryCoding` is present when the strength can be mapped to a specific cod
 
 ---
 
-## Confidence
+## Quality
 
-The `confidence` field is a Concept struct indicating the submission level:
+The `quality` field is a Concept struct indicating the submission level:
 
 ```json
 {
-  "conceptType": "Confidence",
+  "conceptType": "Quality",
   "name": "criteria provided"
 }
 ```
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `conceptType` | string | Always `"Confidence"` |
+| `conceptType` | string | Always `"Quality"` |
 | `name` | string | The submission level label (e.g., `criteria provided`, `practice guideline`, `expert panel`) |
 
 ---
@@ -142,8 +142,9 @@ A resolved proposition contains:
 | `id` | string | Proposition ID (e.g., `SCV001234567-PATH`) |
 | `type` | string | Proposition type (e.g., `VariantPathogenicityProposition`) |
 | `predicate` | string | The relationship asserted (e.g., `isCausalFor`) |
-| `subjectVariant` | string | `#/variation/clinvar:{id}` reference |
-| `objectCondition` | string | `#/condition/clinvar.trait:{id}` or `#/conditionSet/clinvar.traitset:{id}` reference |
+| `subject` | string | `#/variation/clinvar:{id}` reference |
+| `object` | string | The asserted object, as a reference. For most types: `#/condition/clinvar.trait:{id}` or `#/conditionSet/clinvar.traitset:{id}`. For `VariantTherapeuticResponseProposition`: `#/therapy/clinvar.therapy:{sha256}` (single) or `#/therapyGroup/clinvar.therapygroup:{sha256}` (combination) |
+| `conditionQualifier` | string | `#/condition/` or `#/conditionSet/` reference — present on `VariantTherapeuticResponseProposition` (where `object` carries the therapy, so the condition moves to this qualifier) |
 | `geneContextQualifier` | object | Gene context with NCBI Gene and HGNC identifiers (when applicable) |
 | `modeOfInheritanceQualifier` | object | Mode of inheritance with HPO coding (when submitted) |
 | `penetranceQualifier` | object | Penetrance qualifier (for low-penetrance/risk factor classifications) |
@@ -154,7 +155,7 @@ A resolved proposition contains:
 | --- | --- | --- | --- |
 | `VariantPathogenicityProposition` | `PATH` | `isCausalFor` | Germline pathogenicity/benignity |
 | `VariantOncogenicityProposition` | `ONCO` | `isOncogenicFor` | Oncogenicity |
-| `VariantClinicalSignificanceProposition` | `SCI` | `isClinicallySignificantFor` | Somatic clinical impact |
+| `VariantClinicalSignificanceProposition` | `SCI` | `hasClinicalSignificanceFor` | Somatic clinical impact |
 | `ClinvarAssociationProposition` | `ASSOC` | `isAssociatedWith` | Association |
 | `ClinvarRiskFactorProposition` | `RF` | `isRiskFactorFor` | Risk factor |
 | `ClinvarDrugResponseProposition` | `DR` | `hasDrugResponseFor` | Drug response |

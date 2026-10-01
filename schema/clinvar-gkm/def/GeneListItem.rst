@@ -1,6 +1,7 @@
-.. warning:: This data class is at a **draft** maturity level and may \
-    change significantly in future releases. Maturity \
-    levels are described in the :ref:`maturity-model`.
+.. admonition:: Draft
+    :class: warning
+
+    May change significantly in future releases. See |maturity-model|.
 
 **Computational Definition**
 
@@ -53,3 +54,5 @@ A complex structure for sharing individual Gene entries associated with Clinvar 
       - :ref:`iriReference`
       - 0..m
       - Identifier IRIs for the gene, including links to identifiers.org (HGNC and/or NCBI Gene) and NCBI Gene pages.
+
+**Used in:** :ref:`ExtensionClinvarGeneList`

@@ -64,7 +64,7 @@ src/
   gks-registry/     Python tool for GA4GH schema metadata
 examples/           Sample output organized by type (cat-vrs, scv, vcv)
 schemas/            VRS output JSON schemas
-docs/               MkDocs documentation source
+docs/               Zensical documentation source
 ```
 
 ## Citation

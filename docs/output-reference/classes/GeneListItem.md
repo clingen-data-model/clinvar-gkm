@@ -1,8 +1,8 @@
 # GeneListItem
 
-!!! info "Trial Use"
+!!! warning "Draft"
 
-    This data class is at a **trial use** maturity level and may change in future releases. Maturity levels are described in the [GKS Maturity Model](https://vrs.ga4gh.org/en/2.0/appendices/maturity_model.html#maturity-model).
+    This data class is at a **draft** maturity level and may change significantly in future releases.
 
 A complex structure for sharing individual Gene entries associated with Clinvar Variations including `entrez_gene_id`, `hgnc_id`, `symbol`, `relationship_type`, `source`, and `iris`.
 

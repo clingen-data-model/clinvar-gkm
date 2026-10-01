@@ -6,148 +6,24 @@ This page provides a visual overview of how the classes relate to each other, wi
 
 ---
 
-## Class Relationship Diagram
+## Bundle Section Map
 
-The diagram below shows how the bundle classes relate to each other in a UML-style view. Each class shows its key attributes. Lines indicate reference relationships — navigable from the class with the arrow. Multiplicity is shown on each end.
+The release bundle is a single JSON object of **named sections** — each section is a dictionary mapping a typed id to one object. Objects link across sections with `#/section/id` JSON pointers. The map below shows every section, its object type, an example id, and its outgoing references. See [ID References](../id-references.md) for the full pointer catalog.
 
-```mermaid
-classDiagram
-    direction TB
+<iframe src="../../assets/diagrams/bundle-section-map.html"
+        style="width:100%; height:660px; border:1px solid rgba(128,128,128,.25); border-radius:6px;"
+        title="ClinVar-GKM bundle section map"
+        loading="lazy"></iframe>
 
-    namespace Variation {
-        class SequenceReference {
-            refgetAccession : string
-            residueAlphabet : string
-            molecularType : string
-            extensions : Extension[0..*]
-        }
-        class Location {
-            id : ga4gh:SL.digest
-            start : integer
-            end : integer
-        }
-        class Allele {
-            id : ga4gh:VA.digest
-            state : object
-            expressions : Expression[0..*]
-        }
-        class Gene {
-            id : ncbigene:id
-            conceptType : gene
-            name : string
-            primaryCoding : Coding
-            mappings : Mapping[0..*]
-        }
-        class CategoricalVariant {
-            id : clinvar:id
-            type : string
-            name : string
-            constraints : Constraint[0..*]
-            mappings : Mapping[0..*]
-            extensions : Extension[0..*]
-        }
-    }
+The map renders at full size in a scrollable frame — scroll within it to follow the reference chain from statements down to VRS sequence references. Each drawer links to that section's class reference page.
 
-    namespace Supporting {
-        class Condition {
-            id : clinvar.trait:id
-            name : string
-            primaryCoding : Coding
-            mappings : Mapping[0..*]
-        }
-        class ConditionSet {
-            id : clinvar.traitset:id
-            operator : AND | OR
-        }
-        class Submitter {
-            id : clinvar.submitter:id
-            name : string
-        }
-        class Proposition {
-            id : string
-            type : string
-            predicate : string
-            geneContextQualifier : Concept[0..1]
-            modeOfInheritanceQualifier : Concept[0..1]
-            penetranceQualifier : Concept[0..1]
-        }
-    }
+**Reading the map:**
 
-    namespace Statements {
-        class ScvStatement {
-            id : clinvar.submission:id.ver
-            type : Statement
-            classification : MappableConcept
-            strength : MappableConcept
-            direction : string
-            confidence : Concept
-            contributions : Contribution[1..*]
-            specifiedBy : Method[0..1]
-            reportedIn : Publication[0..*]
-            extensions : Extension[0..*]
-        }
-        class VcvStatement {
-            id : VCV.ver-group-PROP-level
-            type : Statement
-            classification : MappableConcept
-            strength : MappableConcept
-            direction : string
-            confidence : Concept
-            extensions : Extension[0..*]
-        }
-        class RcvStatement {
-            id : RCV.ver-group-PROP-level
-            type : Statement
-            classification : MappableConcept
-            strength : MappableConcept
-            direction : string
-            confidence : Concept
-            extensions : Extension[0..*]
-        }
-        class EvidenceLine {
-            type : EvidenceLine
-            directionOfEvidenceProvided : string
-            strengthOfEvidenceProvided : MappableConcept
-        }
-    }
-
-    %% Variation relationships
-    Location "1" --> "1" SequenceReference : sequenceReference
-    Allele "1" --> "1" Location : location
-    CategoricalVariant "*" --> "0..*" Allele : members
-    CategoricalVariant "*" ..> "0..*" Gene : extensions.clinvarGeneList
-
-    %% Supporting relationships
-    ConditionSet "1" --> "1..*" Condition : members
-    Proposition "*" --> "1" CategoricalVariant : subjectVariant
-    Proposition "*" --> "0..1" Condition : objectCondition
-    Proposition "*" --> "0..1" ConditionSet : objectCondition
-
-    %% Statement → Proposition
-    ScvStatement "1" --> "1" Proposition : proposition
-    VcvStatement "1" --> "1" Proposition : proposition
-    RcvStatement "1" --> "1" Proposition : proposition
-
-    %% Statement → Submitter
-    ScvStatement "*" --> "1..*" Submitter : contributions
-
-    %% Evidence lines
-    ScvStatement "1" --> "0..*" EvidenceLine : hasEvidenceLines
-    VcvStatement "1" --> "1..*" EvidenceLine : hasEvidenceLines
-    RcvStatement "1" --> "1..*" EvidenceLine : hasEvidenceLines
-
-    %% Evidence items (what evidence lines reference)
-    EvidenceLine "*" --> "1..*" ScvStatement : evidenceItems
-    EvidenceLine "*" ..> "0..*" VcvStatement : evidenceItems
-    EvidenceLine "*" ..> "0..*" RcvStatement : evidenceItems
-```
-
-**Reading the diagram:**
-
-- **Solid lines** are primary associations — always present when the parent object exists
-- **Dashed lines** are optional or conditional associations (e.g., gene list from extensions, VCV/RCV self-referencing through evidence lines)
-- **Multiplicity** on each end indicates cardinality (e.g., `1` = exactly one, `0..*` = zero or more, `1..*` = one or more)
-- **Labels** on lines show the field name or JSON pointer path used for the reference
+- **`{ } key`** is the section name — the JSON key under which that section's dictionary of objects lives
+- **The pill** is an example object id (the dictionary key within the section)
+- **`field → #/section/`** lines are the outgoing cross-section references an object in that section carries
+- **Solid arrows** trace the primary reference flow between section clusters; **dashed** arrows are optional or back-references (e.g., evidence items pointing back at statements)
+- The four `*-proposition` sections are datatype-homogeneous **delivery groups** of the proposition content, keyed by proposition type
 
 ---
 
@@ -169,16 +45,21 @@ See [Variations](variations.md) for the full variant type hierarchy and extensio
 
 ## Supporting Classes
 
-These classes represent the conditions, submitters, and propositions that support classification statements. Conditions and submitters use upstream GA4GH types. ClinVar-specific proposition types are documented under [Propositions](propositions.md).
+These classes represent the conditions, submitters, and propositions that support classification statements. Conditions and submitters use upstream GA4GH types. Proposition content is delivered in **four datatype-homogeneous sections** keyed by proposition type — together they hold all 13 [ClinvarProposition](ClinvarProposition.md) types.
 
 | Class | Bundle Section | Key Pattern | Description |
 | --- | --- | --- | --- |
 | Condition | `condition` | `clinvar.trait:{id}` | Disease or phenotype with MedGen coding and cross-references |
 | ConditionSet | `conditionSet` | `clinvar.traitset:{id}` | Grouping of conditions with AND/OR membership operator |
+| Therapy | `therapy` | `clinvar.therapy:{sha256}` | Drug therapy (content-addressed); `object` of therapeutic propositions via `#/therapy/` |
+| TherapyGroup | `therapyGroup` | `clinvar.therapygroup:{sha256}` | Combination therapy whose `concepts` reference `#/therapy/` members |
 | Submitter | `submitter` | `clinvar.submitter:{id}` | Submitting organization |
-| [ClinvarProposition](ClinvarProposition.md) | `proposition` | `{scv_id}-{CODE}` | Classification proposition (12 types) |
+| [ClinvarProposition](ClinvarProposition.md) | `varcond-proposition` | `{scv_id}-{CODE}` | Variant–condition propositions: Pathogenicity, Clinical Significance, Diagnostic, Prognostic |
+| [ClinvarProposition](ClinvarProposition.md) | `vartumor-proposition` | `{scv_id}-ONCO` | Variant–tumor-type Oncogenicity propositions |
+| [ClinvarProposition](ClinvarProposition.md) | `vartherapy-proposition` | `{scv_id}-TR` | Variant–therapy Therapeutic Response propositions |
+| [ClinvarProposition](ClinvarProposition.md) | `varcustom-proposition` | `{scv_id}-{CODE}` | ClinVar-specific proposition types (Risk Factor, Protective, Drug Response, …) |
 
-See [Propositions](propositions.md) for the full type/code/predicate reference.
+See [Propositions](propositions.md) for the full type/code/predicate reference and [ID References](../id-references.md) for how the delivery groups are keyed.
 
 ---
 

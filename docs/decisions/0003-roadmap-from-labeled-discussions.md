@@ -14,7 +14,7 @@ hand-maintained list that goes stale. GitHub Discussions already provide proposa
 The Roadmap table (`docs/reference/roadmap.md`, between `<!-- ROADMAP:START/END -->` markers) is
 **auto-generated** from GitHub Discussions carrying the **`roadmap authorized`** label, ordered by upvote count
 (desc). `src/scripts/generate-roadmap.py` produces it; the `deploy-docs` workflow runs it on discussion
-events + a daily schedule + release/dispatch, then `mkdocs gh-deploy`.
+events + a daily schedule + release/dispatch, then builds with `zensical build` and publishes to GitHub Pages.
 
 - Governance: a community member opens an Ideas discussion; a maintainer **authorizes** it by adding the label
   (removing the label drops it). Status comes from an optional `status: <x>` label.

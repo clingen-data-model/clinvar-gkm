@@ -92,17 +92,17 @@ extract_parquet_typed() {
 }
 
 # Proposition delivery-group split (Phase 2): the 3 per-level proposition dicts are delivered as 4
-# datatype-homogeneous sections. Group is keyed on the raw gks type (custom rows carry it in
-# customPropositionType, standard rows in type) — the SAME canonical mapping the statement procs use.
+# datatype-homogeneous sections. Group is keyed on the proposition `type` (va-spec 2026-09: custom +
+# standard alike carry the real type name in `type`) — the SAME canonical mapping the statement procs use.
 # Quoted heredoc so nothing ($., single quotes) expands in bash.
 PROP_GROUP_CASE=$(cat <<'SQL'
 CASE
-  WHEN COALESCE(JSON_VALUE(value, '$.customPropositionType'), JSON_VALUE(value, '$.type')) LIKE 'Clinvar%' THEN 'varcustom'
-  WHEN COALESCE(JSON_VALUE(value, '$.customPropositionType'), JSON_VALUE(value, '$.type')) = 'VariantOncogenicityProposition' THEN 'vartumor'
-  WHEN COALESCE(JSON_VALUE(value, '$.customPropositionType'), JSON_VALUE(value, '$.type')) = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-  WHEN COALESCE(JSON_VALUE(value, '$.customPropositionType'), JSON_VALUE(value, '$.type')) IN
+  WHEN JSON_VALUE(value, '$.type') LIKE 'Clinvar%' THEN 'varcustom'
+  WHEN JSON_VALUE(value, '$.type') = 'VariantOncogenicityProposition' THEN 'vartumor'
+  WHEN JSON_VALUE(value, '$.type') = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
+  WHEN JSON_VALUE(value, '$.type') IN
     ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition','VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-  ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', COALESCE(JSON_VALUE(value, '$.customPropositionType'), JSON_VALUE(value, '$.type'))))
+  ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', JSON_VALUE(value, '$.type')))
 END
 SQL
 )
@@ -187,6 +187,11 @@ if ! $PARQUET_ONLY; then
   extract "$(src_table gkm_dict_condition)" condition.ndjson.gz
   extract "$(src_table gkm_dict_condition_set)" conditionSet.ndjson.gz
 
+  # Therapy dictionaries (from gkm_scv_statement_proc) — content-addressed dedup; the
+  # therapeutic proposition `object` references these via #/therapy/ and #/therapyGroup/.
+  extract "$(src_table gkm_dict_therapy)" therapy.ndjson.gz
+  extract "$(src_table gkm_dict_therapygroup)" therapyGroup.ndjson.gz
+
   # SCV dictionaries (from gkm_scv_statement_proc)
   extract "$(src_table gkm_dict_submitter)" submitter.ndjson.gz
   export_ndjson_ext_collapse "$(src_table gkm_dict_evidence_line)" evidenceLine.ndjson.gz
@@ -225,6 +230,10 @@ extract_parquet_typed variation.parquet variation.sql
 # Conditions
 extract_parquet "$(src_table gkm_dict_condition)" condition.parquet
 extract_parquet_typed conditionSet.parquet conditionSet.sql
+
+# Therapies (key/value JSON dicts -> two string columns key,value)
+extract_parquet "$(src_table gkm_dict_therapy)" therapy.parquet
+extract_parquet "$(src_table gkm_dict_therapygroup)" therapyGroup.parquet
 
 # SCV
 extract_parquet_typed submitter.parquet submitter.sql

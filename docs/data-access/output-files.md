@@ -115,6 +115,8 @@ Each release file contains the following bundle sections:
 | `variation` | Cat-VRS categorical variants |
 | `condition` | Trait and disease concepts |
 | `conditionSet` | Multi-condition groupings |
+| `therapy` | Drug therapies (content-addressed, referenced by therapeutic propositions) |
+| `therapyGroup` | Combination (multi-drug) therapy groups |
 | `submitter` | Submitting organizations |
 | `varcond-proposition` | Classification propositions, variant×condition (SCV, VCV, RCV) |
 | `vartumor-proposition` | Classification propositions, variant×tumorType (Oncogenicity) |
