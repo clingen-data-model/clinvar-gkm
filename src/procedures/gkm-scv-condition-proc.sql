@@ -424,6 +424,7 @@ BEGIN
       )
       SELECT
         FORMAT('clinvar.traitset:%s', tsi.rcv_trait_set_id) AS id,
+        'ConceptSet' AS type,
         tsi.rcv_trait_set_type AS conceptSetType,
         ARRAY_AGG(
           FORMAT('#/condition/clinvar.trait:%s', tst.rcv_trait_id)

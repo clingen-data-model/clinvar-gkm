@@ -633,6 +633,7 @@ BEGIN
       UNION ALL
       SELECT
         CONCAT('clinvar.conditionset:vcv-', id_digest) AS id,
+        'ConceptSet' AS type,
         CAST(NULL AS STRING) AS conceptSetType,
         ANY_VALUE(sc) AS concepts,
         'OR' AS membershipOperator
