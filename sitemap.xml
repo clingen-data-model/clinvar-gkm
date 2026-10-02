@@ -234,4 +234,13 @@
       <url>
         <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/glossary/</loc>
       </url>
+      <url>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/presentations/</loc>
+      </url>
+      <url>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/presentations/clinvar-gkm-primer/</loc>
+      </url>
+      <url>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/presentations/clinvar-gkm-unlocks/</loc>
+      </url>
 </urlset>
