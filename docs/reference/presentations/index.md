@@ -9,6 +9,7 @@ deck for the full list of shortcuts.
 | Presentation | Event | Audience | Length |
 | --- | --- | --- | --- |
 | [ClinVar-GKM Primer](clinvar-gkm-primer.md) | GA4GH Connect · Oct 2, 2026 | Technical teams familiar with ClinVar but new to VA-Spec / the GKM model | ~8 min (15 slides) |
+| [What It Unlocks](clinvar-gkm-unlocks.md) | GA4GH Connect · Oct 2, 2026 | Anyone weighing why to adopt — a visual, opportunity-focused brief | ~6 min (14 slides) |
 
 !!! tip "Presenting from a deck"
     Open a presentation, then use its fullscreen launch link for a clean, full-window view. Inside a deck,

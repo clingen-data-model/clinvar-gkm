@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClinVar-GKM — What It Unlocks</title>
+<style>
+  /* ---- Palette: shared with the ClinVar-GKM Primer deck / docs diagrams ---- */
+  :root {
+    --bg: #FFFFFF; --panel: #F7F6F2; --ink: #1B2430; --ink-soft: #5B6572;
+    --line: #B9C0C8; --line-strong: #8A939E; --box: #FFFFFF; --hdr: #F0EEE7;
+    --accent: #3E6B6B; --id: #7A4D9C;
+    --vrs: #2C6FB5; --catvrs: #3E8E7E; --vaspec: #8D5BB0; --core: #B8862F;
+    --warn: #B4542A;
+    --shadow: 0 8px 30px rgba(20,28,40,.12);
+  }
+  :root[data-theme="dark"] {
+    --bg: #11161C; --panel: #171D24; --ink: #E7E9EC; --ink-soft: #97A1AC;
+    --line: #3A434D; --line-strong: #4B5560; --box: #1B222A; --hdr: #232B34;
+    --accent: #7FC4C4; --id: #C6A0E0;
+    --vrs: #6BA8E0; --catvrs: #6FC4B2; --vaspec: #C6A0E0; --core: #E0BE73;
+    --warn: #E0916A;
+    --shadow: 0 10px 34px rgba(0,0,0,.45);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #11161C; --panel: #171D24; --ink: #E7E9EC; --ink-soft: #97A1AC;
+      --line: #3A434D; --line-strong: #4B5560; --box: #1B222A; --hdr: #232B34;
+      --accent: #7FC4C4; --id: #C6A0E0;
+      --vrs: #6BA8E0; --catvrs: #6FC4B2; --vaspec: #C6A0E0; --core: #E0BE73;
+      --warn: #E0916A;
+      --shadow: 0 10px 34px rgba(0,0,0,.45);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif; overflow: hidden; }
+  code, .mono { font-family: ui-monospace, "SF Mono", Consolas, monospace; }
+
+  /* ---------------- Stage scaling (shared engine) ---------------- */
+  #viewport { position: fixed; inset: 0; display: grid; place-items: center; overflow: hidden;
+    background: radial-gradient(1200px 700px at 50% -10%, color-mix(in srgb, var(--accent) 9%, var(--bg)), var(--bg)); }
+  #stage { position: relative; width: 1280px; height: 720px; transform: scale(var(--scale, 1));
+    transform-origin: center center; }
+
+  .slide { position: absolute; inset: 0; padding: 48px 64px 58px; display: flex; flex-direction: column;
+    opacity: 0; visibility: hidden; transition: opacity .35s ease; background: var(--bg);
+    border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+  .slide.active { opacity: 1; visibility: visible; }
+  @media (prefers-reduced-motion: reduce) { .slide { transition: none; } }
+  .slide::after { content: ""; position: absolute; right: 0; bottom: 0; width: 240px; height: 240px;
+    background: radial-gradient(circle at bottom right, color-mix(in srgb, var(--accent) 13%, transparent), transparent 70%);
+    pointer-events: none; }
+
+  .kicker { font-size: 13.5px; letter-spacing: .15em; text-transform: uppercase; color: var(--accent);
+    font-weight: 700; margin: 0 0 10px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .slide h2 { font-size: 40px; line-height: 1.08; margin: 0 0 8px; font-weight: 800; letter-spacing: -.015em; }
+  .slide h2 .q { color: var(--accent); }
+  .lede { font-size: 20px; line-height: 1.45; color: var(--ink-soft); margin: 4px 0 0; max-width: 1000px; }
+  .slide .body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+  .foot { position: absolute; left: 64px; right: 210px; bottom: 18px; font-size: 12px; color: var(--ink-soft);
+    letter-spacing: .02em; line-height: 1.5; }
+  .foot a { color: var(--accent); font-weight: 600; text-decoration: none; white-space: nowrap; }
+  .foot a:hover { text-decoration: underline; }
+  .foot .dl::before { content: "Docs → "; color: var(--ink-soft); font-weight: 400; }
+  a { color: var(--accent); }
+
+  /* ---------------- Status tags ---------------- */
+  .st { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700;
+    letter-spacing: .04em; text-transform: uppercase; padding: 2px 10px; border-radius: 999px; }
+  .st::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .st.now   { color: var(--catvrs); background: color-mix(in srgb, var(--catvrs) 13%, transparent); border: 1px solid color-mix(in srgb, var(--catvrs) 40%, transparent); }
+  .st.reach { color: var(--core);   background: color-mix(in srgb, var(--core) 15%, transparent);   border: 1px solid color-mix(in srgb, var(--core) 42%, transparent); }
+  .st.road  { color: var(--vaspec); background: color-mix(in srgb, var(--vaspec) 14%, transparent); border: 1px solid color-mix(in srgb, var(--vaspec) 42%, transparent); }
+
+  .tag-s { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
+
+  /* ---------------- Reusable figure bits ---------------- */
+  .cap { font-size: 18px; color: var(--ink-soft); line-height: 1.45; margin: 16px 0 0; max-width: 1040px; }
+  .cap b { color: var(--ink); }
+
+  /* before / after split */
+  .split { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: stretch; }
+  .panel { border-radius: 14px; padding: 20px 22px; border: 1px solid var(--line); background: var(--panel); }
+  .panel h3 { margin: 0 0 14px; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); }
+  .panel.before { border-style: dashed; }
+  .panel.after { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); background: color-mix(in srgb, var(--accent) 7%, var(--box)); }
+  .panel.after h3 { color: var(--accent); }
+  .stk { display: flex; flex-direction: column; gap: 9px; }
+  .stk .b { font-size: 16px; padding: 9px 13px; border-radius: 9px; background: var(--box); border: 1px solid var(--line); color: var(--ink); }
+  .panel.before .b { color: var(--ink-soft); border-style: dashed; }
+  .panel.after .b { border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
+  .panel.after .b.key { background: color-mix(in srgb, var(--accent) 14%, var(--box)); font-weight: 700; color: var(--ink); }
+  .vs { align-self: center; color: var(--accent); font-size: 30px; font-weight: 800; }
+
+  /* persona fan-out */
+  .fan { display: grid; grid-template-columns: 220px 1fr; gap: 34px; align-items: center; }
+  .hub { background: color-mix(in srgb, var(--accent) 12%, var(--box)); border: 2px solid var(--accent);
+    border-radius: 14px; padding: 20px; text-align: center; }
+  .hub .t { font-weight: 800; font-size: 20px; }
+  .hub .s { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+  .spokes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .persona { display: flex; align-items: center; gap: 12px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 11px; padding: 12px 14px; }
+  .persona svg { width: 28px; height: 28px; flex: 0 0 28px; color: var(--accent); }
+  .persona .pt { font-weight: 700; font-size: 15px; }
+  .persona .pd { font-size: 12.5px; color: var(--ink-soft); line-height: 1.3; }
+
+  /* generic step flow */
+  .flow { display: flex; align-items: stretch; }
+  .flow .step { flex: 1 1 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 15px 17px; }
+  .flow .step .n { font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+  .flow .step h3 { margin: 4px 0 4px; font-size: 18px; }
+  .flow .step p { margin: 0; font-size: 14px; color: var(--ink-soft); line-height: 1.4; }
+  .flow .ar { align-self: center; color: var(--accent); font-size: 28px; font-weight: 800; padding: 0 12px; }
+
+  /* query / result card */
+  .qcard { background: var(--box); border: 1px solid var(--line-strong); border-radius: 13px; overflow: hidden; }
+  .qcard .qh { background: var(--hdr); padding: 12px 18px; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; }
+  .qcard .qb { padding: 16px 18px; }
+  .qfilters { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 14px; }
+  .chipf { font-family: ui-monospace, monospace; font-size: 14px; padding: 6px 12px; border-radius: 8px;
+    background: var(--panel); border: 1px solid var(--line); }
+  .chipf b { color: var(--accent); }
+  .chipf.star { border-color: color-mix(in srgb, var(--core) 50%, var(--line)); background: color-mix(in srgb, var(--core) 12%, transparent); }
+  .qarrow { text-align: center; color: var(--accent); font-size: 20px; margin: 4px 0 12px; }
+  .qres { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .rcard { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .rcard .rn { font-size: 26px; font-weight: 800; color: var(--ink); letter-spacing: -.01em; }
+  .rcard .rl { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+
+  /* weekly deltas timeline */
+  .tl { display: flex; align-items: flex-end; gap: 10px; padding: 6px 0 0; }
+  .tl .wk { flex: 1 1 0; text-align: center; }
+  .tl .wk .bar { height: 22px; border-radius: 6px; background: color-mix(in srgb, var(--accent) 30%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); display: flex; align-items: center; justify-content: center;
+    font-family: ui-monospace, monospace; font-size: 10.5px; color: var(--accent); }
+  .tl .wk.full .bar { height: 40px; background: var(--accent); color: var(--bg); font-weight: 700; }
+  .tl .wk .lbl { font-size: 11px; color: var(--ink-soft); margin-top: 6px; }
+  .tl-arrow { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 10px; font-size: 13px; color: var(--accent); font-weight: 700; }
+
+  /* vcf builder */
+  .vcf { display: grid; grid-template-columns: 1fr auto 1.2fr auto 1fr; gap: 16px; align-items: center; }
+  .vbox { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; text-align: center; }
+  .vbox.src { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+  .vbox .vt { font-weight: 800; font-size: 17px; }
+  .vbox .vs2 { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+  .vfil { display: flex; flex-direction: column; gap: 8px; }
+  .vfil .f { font-family: ui-monospace, monospace; font-size: 13px; padding: 7px 12px; border-radius: 8px; background: var(--box);
+    border: 1px solid var(--line); text-align: left; }
+  .vfil .f b { color: var(--accent); }
+  .varrow { color: var(--accent); font-size: 26px; font-weight: 800; }
+
+  /* benefit grid */
+  .bgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .ben { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; border-left: 4px solid var(--accent); }
+  .ben svg { width: 24px; height: 24px; color: var(--accent); }
+  .ben h3 { margin: 6px 0 3px; font-size: 16px; }
+  .ben p { margin: 0; font-size: 13.5px; color: var(--ink-soft); line-height: 1.38; }
+
+  /* two mini-cards (locked data) */
+  .cards2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .lcard { background: var(--panel); border: 1px dashed var(--line-strong); border-radius: 13px; padding: 18px 20px; position: relative; }
+  .lcard .lk { position: absolute; top: 14px; right: 16px; color: var(--core); font-size: 20px; }
+  .lcard h3 { margin: 0 0 6px; font-size: 19px; }
+  .lcard p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.42; }
+  .lcard .soon { margin-top: 12px; }
+
+  /* schema-stability timelines */
+  .tlines { display: flex; flex-direction: column; gap: 22px; }
+  .tline { }
+  .tline .th { font-weight: 800; font-size: 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+  .track { position: relative; height: 34px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); }
+  .track .tick { position: absolute; top: -4px; width: 2px; height: 42px; }
+  .track .tick::after { content: ""; position: absolute; top: -5px; left: -4px; width: 10px; height: 10px; border-radius: 50%; }
+  .track.xml .tick { background: color-mix(in srgb, var(--warn) 60%, transparent); }
+  .track.xml .tick::after { background: var(--warn); }
+  .track.gkm .tick { background: color-mix(in srgb, var(--accent) 55%, transparent); }
+  .track.gkm .tick::after { background: var(--accent); }
+  .track .vlabel { position: absolute; top: 7px; font-family: ui-monospace, monospace; font-size: 11px; color: var(--accent); transform: translateX(-50%); }
+  .tnote { font-size: 12.5px; color: var(--ink-soft); margin-top: 7px; }
+
+  /* AI slide */
+  .aiflow { display: grid; grid-template-columns: 1.1fr auto 1fr; gap: 18px; align-items: center; }
+  .aibox { background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 16px 18px; }
+  .aibox.in { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+  .aibox .aih { font-weight: 800; font-size: 17px; margin-bottom: 8px; }
+  .triple { font-family: ui-monospace, monospace; font-size: 13.5px; line-height: 1.7; }
+  .triple .s { color: var(--vrs); } .triple .p { color: var(--accent); } .triple .o { color: var(--id); }
+  .aitargets { display: flex; flex-direction: column; gap: 9px; }
+  .aitargets .t { font-size: 15px; padding: 9px 13px; border-radius: 9px; background: var(--box); border: 1px solid var(--line); }
+
+  /* ---- chart (temporal) ---- */
+  .chartwrap { background: var(--box); border: 1px solid var(--line); border-radius: 13px; padding: 14px 18px 8px; }
+  .chartwrap .ct { font-size: 14px; color: var(--ink); font-weight: 700; margin-bottom: 2px; }
+  .chartwrap .cs { font-size: 12.5px; color: var(--ink-soft); margin-bottom: 6px; }
+  svg .grid { stroke: var(--line); stroke-width: 1; opacity: .5; }
+  svg .axis { stroke: var(--line-strong); stroke-width: 1; }
+  svg .lbl { fill: var(--ink-soft); font-size: 11px; font-family: -apple-system, system-ui, sans-serif; }
+  svg .series { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  svg .area { fill: var(--accent); opacity: .10; }
+  svg .dot { fill: var(--accent); }
+  svg .dlabel { fill: var(--ink); font-size: 12px; font-weight: 700; font-family: -apple-system, system-ui, sans-serif; }
+
+  /* title */
+  #s-title { justify-content: center; background: linear-gradient(140deg, color-mix(in srgb, var(--accent) 16%, var(--bg)), var(--bg) 62%); }
+  #s-title h1 { font-size: 62px; line-height: 1.03; margin: 0 0 14px; font-weight: 900; letter-spacing: -.02em; }
+  #s-title h1 .u { color: var(--accent); }
+  #s-title .sub { font-size: 23px; color: var(--ink-soft); max-width: 920px; line-height: 1.45; }
+  #s-title .meta { margin-top: 24px; display: flex; gap: 10px; flex-wrap: wrap; }
+  #s-title .legend { margin-top: 22px; display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--ink-soft); align-items: center; }
+
+  /* ---------------- Chrome (shared engine) ---------------- */
+  #prog { position: fixed; left: 0; top: 0; height: 4px; width: 100%; z-index: 30; }
+  #prog > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s ease; }
+  #counter { position: fixed; right: 16px; bottom: 12px; font-size: 13px; color: var(--ink-soft);
+    font-family: ui-monospace, monospace; z-index: 30; background: color-mix(in srgb, var(--bg) 80%, transparent);
+    padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); }
+  #navbtns { position: fixed; right: 16px; bottom: 44px; display: flex; gap: 6px; z-index: 30; }
+  .cbtn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--box);
+    color: var(--ink); font-size: 16px; cursor: pointer; display: grid; place-items: center; }
+  .cbtn:hover { border-color: var(--accent); color: var(--accent); }
+  #toolbar { position: fixed; right: 16px; top: 12px; display: flex; gap: 6px; z-index: 30; }
+  #notes { position: fixed; left: 0; right: 0; bottom: 0; max-height: 42vh; overflow: auto; z-index: 45;
+    background: var(--panel); border-top: 2px solid var(--accent); padding: 16px 22px 18px;
+    transform: translateY(100%); transition: transform .25s ease; box-shadow: 0 -8px 30px rgba(0,0,0,.25); }
+  #notes.open { transform: translateY(0); }
+  #notes h4 { margin: 0 0 8px; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  #notes .ncontent { font-size: 15px; line-height: 1.5; color: var(--ink); max-width: 1000px; }
+  #help { position: fixed; inset: 0; z-index: 60; display: none; place-items: center;
+    background: color-mix(in srgb, var(--bg) 70%, transparent); backdrop-filter: blur(3px); }
+  #help.open { display: grid; }
+  #help .panel2 { background: var(--box); border: 1px solid var(--line-strong); border-radius: 14px; padding: 24px 28px; width: 440px; box-shadow: var(--shadow); }
+  #help h3 { margin: 0 0 14px; font-size: 20px; }
+  #help table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  #help td { padding: 6px 4px; border-bottom: 1px solid var(--line); }
+  #help kbd { font-family: ui-monospace, monospace; background: var(--panel); border: 1px solid var(--line); border-radius: 5px; padding: 1px 7px; font-size: 13px; }
+  #help .close { margin-top: 16px; font-size: 13px; color: var(--ink-soft); }
+  @media (max-width: 700px) { #navbtns, #toolbar { display: none; } }
+</style>
+</head>
+<body>
+<div id="prog"><i></i></div>
+
+<div id="viewport">
+  <div id="stage">
+
+    <!-- 1. TITLE -->
+    <section class="slide" id="s-title">
+      <div>
+        <div class="kicker" style="color:var(--accent)">A ClinVar-GKM opportunity brief · ClinGen</div>
+        <h1>What ClinVar-GKM <span class="u">unlocks</span></h1>
+        <div class="sub">From a weekly XML archive to a <b>platform</b> — for analysis, developer tooling,
+          discovery, AI, and giving everyone access to data that was hard to reach.</div>
+        <div class="meta">
+          <span class="tag-s">GA4GH Connect · Oct 2, 2026</span>
+          <span class="tag-s">Visual brief</span>
+          <span class="tag-s">Companion to the Primer</span>
+        </div>
+        <div class="legend">
+          <span>What's realistic today vs. tomorrow:</span>
+          <span class="st now">Available now</span>
+          <span class="st reach">Now within reach</span>
+          <span class="st road">On the roadmap</span>
+        </div>
+      </div>
+      <div class="foot">Use <b>←</b> / <b>→</b> to navigate · press <b>?</b> for shortcuts</div>
+      <aside class="snotes" hidden><ul>
+        <li>This is the "so what" deck — the Primer explains the model; this one shows what it makes possible.</li>
+        <li>Be honest with the tags: some things you can do today, some are opportunities the standard enables, some are on the roadmap.</li>
+      </ul></aside>
+    </section>
+
+    <!-- 2. THE SHIFT -->
+    <section class="slide">
+      <div class="kicker">The shift</div>
+      <h2>From parsing pipelines to a <span class="q">queryable platform</span></h2>
+      <div class="body">
+        <div class="split">
+          <div class="panel before">
+            <h3>Today, to use ClinVar fully</h3>
+            <div class="stk">
+              <div class="b">Download the XML release</div>
+              <div class="b">Write &amp; maintain parsers</div>
+              <div class="b">Normalize variant identity yourself</div>
+              <div class="b">Track every schema change</div>
+              <div class="b">…repeat, every release</div>
+            </div>
+          </div>
+          <div class="vs">→</div>
+          <div class="panel after">
+            <h3>With ClinVar-GKM</h3>
+            <div class="stk">
+              <div class="b key">One standardized bundle (+ typed Parquet)</div>
+              <div class="b">Stable VRS identity, built in</div>
+              <div class="b">Query, build, and analyze directly</div>
+              <div class="b">Weekly deltas keep you current</div>
+              <div class="b">Shared tooling, not bespoke code</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="snotes" hidden><ul>
+        <li>The left column is the status quo for anyone who wants the FULL data (not just the VCF subset).</li>
+        <li>The right column is the whole value prop in one glance — everything after this is a concrete "unlock."</li>
+      </ul></aside>
+    </section>
+
+    <!-- 3. FREE THE DATA -->
+    <section class="slide">
+      <div class="kicker">Democratize <span class="st now">Available now</span></div>
+      <h2>Free the data</h2>
+      <p class="lede">One consistent, open source of truth — usable far beyond the XML engineers who can parse it today.</p>
+      <div class="body">
+        <div class="fan">
+          <div class="hub"><div class="t">ClinVar-GKM</div><div class="s">one standardized, CC0 bundle</div></div>
+          <div class="spokes">
+            <div class="persona">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg>
+              <div><div class="pt">Researchers</div><div class="pd">cohort &amp; gene-level analysis</div></div>
+            </div>
+            <div class="persona">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v7a4 4 0 008 0V7"/><circle cx="20" cy="6" r="1.6"/><path d="M12 3a3 3 0 00-3 3v4a6 6 0 0012 0"/></svg>
+              <div><div class="pt">Clinicians</div><div class="pd">consistent classifications</div></div>
+            </div>
+            <div class="persona">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></svg>
+              <div><div class="pt">Developers</div><div class="pd">drop-in, no XML parser</div></div>
+            </div>
+            <div class="persona">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V5M16 20v-8M22 20H2"/></svg>
+              <div><div class="pt">Data analysts</div><div class="pd">query Parquet directly</div></div>
+            </div>
+            <div class="persona">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4M12 4L8 8M12 4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+              <div><div class="pt">Submitters</div><div class="pd">see their footprint clearly</div></div>
+            </div>
+            <div class="persona">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>
+              <div><div class="pt">AI / tools</div><div class="pd">clean, semantic inputs</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/" target="_blank" rel="noopener">Home</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/download/" target="_blank" rel="noopener">Downloads</a></div>
+      <aside class="snotes" hidden><ul>
+        <li>Core theme of the deck: the same standardized data serves six very different audiences.</li>
+        <li>CC0 + no auth + no egress = genuinely "free" to use.</li>
+      </ul></aside>
+    </section>
+
+    <!-- 4. NON-PROGRAMMERS -->
+    <section class="slide">
+      <div class="kicker">Analysis for everyone <span class="st now">Parquet today</span> <span class="st reach">No-code: within reach</span></div>
+      <h2>Analyze your own data — without a parser</h2>
+      <div class="body">
+        <div class="flow">
+          <div class="step"><div class="n">Bring</div><h3>Your variant list</h3><p>A spreadsheet or VCF of variants you care about — your panel, your cohort.</p></div>
+          <div class="ar">→</div>
+          <div class="step"><div class="n">Match</div><h3>On VRS identity</h3><p>Join to ClinVar-GKM by computable variant id — no manual normalization.</p></div>
+          <div class="ar">→</div>
+          <div class="step"><div class="n">Get</div><h3>Answers</h3><p>Classification, condition, review status &amp; provenance — ready to read.</p></div>
+        </div>
+        <p class="cap">Most people would never download ClinVar and build a report. With typed Parquet (today) — and
+          friendly no-code tools the standard makes possible — <b>they won't have to.</b></p>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/download/#working-with-parquet-files" target="_blank" rel="noopener">Working with Parquet</a></span></div>
+      <aside class="snotes" hidden><ul>
+        <li>Honest tag: Parquet + DuckDB is real today; a GUI for non-programmers is an opportunity, not shipped.</li>
+        <li>The "match on VRS identity" step is the thing that's painful today and trivial here.</li>
+      </ul></aside>
+    </section>
+
+    <!-- 5. DISCOVERY -->
+    <section class="slide">
+      <div class="kicker">Discovery <span class="st now">Available now</span></div>
+      <h2>Ask better questions</h2>
+      <div class="body">
+        <div class="qcard">
+          <div class="qh">Example: pathogenic BRCA1 variants from trusted submitters — and the literature behind them</div>
+          <div class="qb">
+            <div class="qfilters">
+              <span class="chipf">gene = <b>BRCA1</b></span>
+              <span class="chipf">classification = <b>Pathogenic / Likely pathogenic</b></span>
+              <span class="chipf star">review status ≥ <b>1★</b> (criteria provided)</span>
+              <span class="chipf">has <b>citations</b></span>
+            </div>
+            <div class="qarrow">▼</div>
+            <div class="qres">
+              <div class="rcard"><div class="rn">1 query</div><div class="rl">typed Parquet join — no XML parsing</div></div>
+              <div class="rcard"><div class="rn">variants ↓</div><div class="rl">filtered to ≥1★ quality submitters</div></div>
+              <div class="rcard"><div class="rn">PubMed →</div><div class="rl">citations linked from each submission</div></div>
+            </div>
+          </div>
+        </div>
+        <p class="cap">Filter by <b>gene, significance, and review quality</b>, then follow the submitter-provided
+          citations to the <b>PubMed</b> evidence — the kind of discovery that's impractical against raw XML.</p>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/download/#example-queries" target="_blank" rel="noopener">Example Queries</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/profiles/review-status/" target="_blank" rel="noopener">Review Status</a></div>
+      <aside class="snotes" hidden><ul>
+        <li>Concrete, relatable scenario. Star-level filtering + citations is genuinely available via Parquet/JSON.</li>
+        <li>Point: the quality filter (≥1★) matters — you can trust-rank results, then chase the literature.</li>
+      </ul></aside>
+    </section>
+
+    <!-- 6. DEVELOPERS -->
+    <section class="slide">
+      <div class="kicker">For developers <span class="st now">Available now</span></div>
+      <h2>Delete your <span class="q">XML pipeline</span></h2>
+      <div class="body">
+        <div class="split">
+          <div class="panel before">
+            <h3>Maintain today</h3>
+            <div class="stk">
+              <div class="b">XML fetch &amp; unpack</div>
+              <div class="b">Bespoke parser (deeply nested)</div>
+              <div class="b">Variant-identity normalization</div>
+              <div class="b">Patch for every schema change</div>
+              <div class="b">Load &amp; reconcile</div>
+            </div>
+          </div>
+          <div class="vs">→</div>
+          <div class="panel after">
+            <h3>With ClinVar-GKM</h3>
+            <div class="stk">
+              <div class="b key">Fetch bundle or weekly delta</div>
+              <div class="b">Load typed Parquet / JSON</div>
+              <div class="b" style="opacity:.55; border-style:dashed">— that's it —</div>
+            </div>
+            <p style="margin:16px 0 0; font-size:14px; color:var(--ink-soft)">Reference Python libs parse records into <b>validated models</b> (vrs-python · cat-vrs-python · va-spec-python).</p>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/overview/" target="_blank" rel="noopener">Output Format</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/reference/gks-standards/" target="_blank" rel="noopener">GA4GH Standards</a></div>
+      <aside class="snotes" hidden><ul>
+        <li>Lead with the pain they feel: maintaining a ClinVar XML parser is real technical debt.</li>
+        <li>Shared, standard tooling means the whole community stops re-solving the same parsing problem.</li>
+      </ul></aside>
+    </section>
+
+    <!-- 7. STABLE SCHEMA -->
+    <section class="slide">
+      <div class="kicker">Stability &amp; maturity <span class="st now">Available now</span></div>
+      <h2>A schema that won't surprise you</h2>
+      <div class="body">
+        <div class="tlines">
+          <div class="tline">
+            <div class="th" style="color:var(--warn)">ClinVar XML &nbsp;<span style="font-weight:500; font-size:13px; color:var(--ink-soft)">— shape can change when you least expect it</span></div>
+            <div class="track xml">
+              <span class="tick" style="left:14%"></span><span class="tick" style="left:31%"></span>
+              <span class="tick" style="left:44%"></span><span class="tick" style="left:68%"></span><span class="tick" style="left:86%"></span>
+            </div>
+            <div class="tnote">Each ● is an XML structure change your parser must absorb — on ClinVar's schedule, not yours.</div>
+          </div>
+          <div class="tline">
+            <div class="th" style="color:var(--accent)">GKM &nbsp;<span style="font-weight:500; font-size:13px; color:var(--ink-soft)">— versioned, community-governed, maturing fast</span></div>
+            <div class="track gkm">
+              <span class="tick" style="left:20%"></span><span class="vlabel" style="left:20%">1.0</span>
+              <span class="tick" style="left:55%"></span><span class="vlabel" style="left:55%">1.1</span>
+              <span class="tick" style="left:85%"></span><span class="vlabel" style="left:85%">1.x</span>
+            </div>
+            <div class="tnote">Changes arrive as <b>semantic versions</b> through the GA4GH standards process — predictable, documented, and being hardened now as production adopters normalize the model.</div>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/reference/gks-standards/" target="_blank" rel="noopener">GA4GH Standards</a></span></div>
+      <aside class="snotes" hidden><ul>
+        <li>Be precise: GKM isn't "frozen" — it's maturing. The point is GOVERNED, versioned change vs. ad-hoc XML change.</li>
+        <li>Tie to the Primer's "consumers normalize the model" theme — adopters are hardening it now.</li>
+      </ul></aside>
+    </section>
+
+    <!-- 8. REALTIME -->
+    <section class="slide">
+      <div class="kicker">Realtime <span class="st now">Available now</span></div>
+      <h2>Always current — no re-parsing</h2>
+      <div class="body">
+        <div class="tl">
+          <div class="wk full"><div class="bar">FULL</div><div class="lbl">monthly</div></div>
+          <div class="wk"><div class="bar">Δ</div><div class="lbl">wk 1</div></div>
+          <div class="wk"><div class="bar">Δ</div><div class="lbl">wk 2</div></div>
+          <div class="wk"><div class="bar">Δ</div><div class="lbl">wk 3</div></div>
+          <div class="wk"><div class="bar">Δ</div><div class="lbl">wk 4</div></div>
+          <div class="wk full"><div class="bar">FULL</div><div class="lbl">monthly</div></div>
+          <div class="wk"><div class="bar">Δ</div><div class="lbl">wk 1</div></div>
+          <div class="wk"><div class="bar">Δ</div><div class="lbl">wk 2</div></div>
+        </div>
+        <div class="tl-arrow">replay deltas onto the latest full → always up to date →</div>
+        <p class="cap">A <b>weekly delta</b> ships for every ClinVar release — added, updated &amp; deleted records with a
+          manifest — typically within a day or two. Stay synced by applying deltas, <b>not re-downloading and re-parsing</b> the world.</p>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/download/#weekly-deltas" target="_blank" rel="noopener">Weekly Deltas</a></span></div>
+      <aside class="snotes" hidden><ul>
+        <li>The delta model is a real differentiator — incremental sync instead of full re-ingest.</li>
+        <li>Manifest carries adds/updates/deletes so consumers can maintain state cheaply.</li>
+      </ul></aside>
+    </section>
+
+    <!-- 9. VCF -->
+    <section class="slide">
+      <div class="kicker">Tailored outputs <span class="st reach">Now within reach</span></div>
+      <h2>Rebuild VCFs — your way</h2>
+      <div class="body">
+        <div class="vcf">
+          <div class="vbox src"><div class="vt">ClinVar-GKM</div><div class="vs2">standardized bundle</div></div>
+          <div class="varrow">→</div>
+          <div class="vfil">
+            <div class="f">filter: gene <b>in panel</b></div>
+            <div class="f">review status <b>≥ 2★</b></div>
+            <div class="f">significance <b>P / LP</b></div>
+          </div>
+          <div class="varrow">→</div>
+          <div class="vbox"><div class="vt">Your VCF</div><div class="vs2">full or partial — exactly what you need</div></div>
+        </div>
+        <p class="cap">ClinVar's own VCF sometimes carries <b>too much</b> or <b>too little</b> for a given use.
+          Regenerate <b>full or partial VCFs</b> from the standardized data — scoped to your gene panel, quality bar, or significance.</p>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/overview/" target="_blank" rel="noopener">Output Format</a></span></div>
+      <aside class="snotes" hidden><ul>
+        <li>"Within reach": the data supports building these VCFs; a packaged tool is the opportunity.</li>
+        <li>Key framing: tailored outputs vs. ClinVar's one-size-fits-all VCF.</li>
+      </ul></aside>
+    </section>
+
+    <!-- 10. TEMPORAL -->
+    <section class="slide">
+      <div class="kicker">Temporal analysis <span class="st road">On the roadmap</span></div>
+      <h2>See how knowledge changes over time</h2>
+      <div class="body">
+        <div class="chartwrap">
+          <div class="ct">Illustrative — variant reclassifications per release</div>
+          <div class="cs">VUS → Pathogenic / Likely pathogenic resolutions trending up as evidence accrues</div>
+          <svg viewBox="0 0 980 230" width="100%" height="230" role="img" aria-label="Illustrative line chart of reclassifications per release trending upward">
+            <!-- gridlines -->
+            <line class="grid" x1="60" y1="30"  x2="940" y2="30"/>
+            <line class="grid" x1="60" y1="80"  x2="940" y2="80"/>
+            <line class="grid" x1="60" y1="130" x2="940" y2="130"/>
+            <line class="grid" x1="60" y1="180" x2="940" y2="180"/>
+            <!-- axes -->
+            <line class="axis" x1="60" y1="20" x2="60" y2="180"/>
+            <line class="axis" x1="60" y1="180" x2="940" y2="180"/>
+            <!-- y labels -->
+            <text class="lbl" x="52" y="184" text-anchor="end">0</text>
+            <text class="lbl" x="52" y="134" text-anchor="end">250</text>
+            <text class="lbl" x="52" y="84"  text-anchor="end">500</text>
+            <text class="lbl" x="52" y="34"  text-anchor="end">750</text>
+            <!-- x labels -->
+            <text class="lbl" x="120" y="198" text-anchor="middle">2022</text>
+            <text class="lbl" x="325" y="198" text-anchor="middle">2023</text>
+            <text class="lbl" x="530" y="198" text-anchor="middle">2024</text>
+            <text class="lbl" x="735" y="198" text-anchor="middle">2025</text>
+            <text class="lbl" x="905" y="198" text-anchor="middle">2026</text>
+            <!-- area + series (single hue) -->
+            <path class="area" d="M120,160 L222,150 L325,138 L428,120 L530,104 L633,82 L735,66 L838,48 L905,40 L905,180 L120,180 Z"/>
+            <path class="series" d="M120,160 L222,150 L325,138 L428,120 L530,104 L633,82 L735,66 L838,48 L905,40"/>
+            <circle class="dot" cx="905" cy="40" r="4.5"/>
+            <text class="dlabel" x="896" y="30" text-anchor="end">rising</text>
+          </svg>
+        </div>
+        <p class="cap">Because each release is captured consistently, you can study <b>how classifications evolve</b> —
+          reclassification rates, emerging consensus, submitter trends — with friendly tools built on one stable shape.</p>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap</a></span> &middot; chart is illustrative, not live data</div>
+      <aside class="snotes" hidden><ul>
+        <li>Clearly flagged illustrative + roadmap (discussion #109). Don't present the numbers as real.</li>
+        <li>The enabler is consistency release-over-release — temporal analysis is impractical against shifting XML.</li>
+      </ul></aside>
+    </section>
+
+    <!-- 11. AI -->
+    <section class="slide">
+      <div class="kicker">AI-ready <span class="st reach">Now within reach</span></div>
+      <h2>Reliable ground truth for <span class="q">AI</span></h2>
+      <div class="body">
+        <div class="aiflow">
+          <div class="aibox in">
+            <div class="aih">Explicit, consistent semantics</div>
+            <div class="triple">
+              <span class="s">variant</span> — <span class="p">isCausalFor</span> → <span class="o">condition</span><br>
+              <span style="color:var(--ink-soft)">classification:</span> Pathogenic<br>
+              <span style="color:var(--ink-soft)">quality:</span> reviewed by expert panel<br>
+              <span style="color:var(--ink-soft)">id:</span> <span class="mono" style="font-size:12px">ga4gh:VA.&hellip;</span>
+            </div>
+          </div>
+          <div class="varrow">→</div>
+          <div class="aibox">
+            <div class="aih">Dependable inputs for</div>
+            <div class="aitargets">
+              <div class="t">RAG &amp; grounding for LLMs</div>
+              <div class="t">Agents &amp; decision-support tools</div>
+              <div class="t">Knowledge graphs</div>
+              <div class="t">Model training &amp; evaluation</div>
+            </div>
+          </div>
+        </div>
+        <p class="cap">A <b>semantically sound, uniform</b> representation — the same meaning, every record — is far better
+          AI input than inconsistent XML. Stable identifiers and explicit propositions mean models and agents can <b>trust what they read.</b></p>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/propositions/" target="_blank" rel="noopener">Propositions</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/reference/glossary/" target="_blank" rel="noopener">Glossary</a></div>
+      <aside class="snotes" hidden><ul>
+        <li>The win for AI isn't volume — it's consistency + explicit semantics (subject/predicate/object, typed classifications, stable ids).</li>
+        <li>"Within reach": the data is AI-ready; building the RAG/agent/KG apps is the opportunity.</li>
+      </ul></aside>
+    </section>
+
+    <!-- 12. FREE HARD DATA -->
+    <section class="slide">
+      <div class="kicker">Reach the unreachable <span class="st road">On the roadmap</span></div>
+      <h2>Unlock the data few can use today</h2>
+      <div class="body">
+        <div class="cards2">
+          <div class="lcard">
+            <div class="lk">▲</div>
+            <h3>Case-level observations</h3>
+            <p>Aggregate and individual case evidence that sits deep in submissions — rich signal that almost no one extracts today.</p>
+            <div class="soon"><span class="st road">Planned for GKM</span></div>
+          </div>
+          <div class="lcard">
+            <div class="lk">▲</div>
+            <h3>Functional data (incl. MaveDB)</h3>
+            <p>Functional evidence submitted alongside classifications — hard to access and reuse in its current form.</p>
+            <div class="soon"><span class="st road">Planned for GKM</span></div>
+          </div>
+        </div>
+        <p class="cap">Some of ClinVar's most valuable content is effectively <b>locked</b> by the effort it takes to extract.
+          Standardizing it in GKM puts it <b>within reach of everyone</b> — not just teams who can invest in bespoke parsing.</p>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/" target="_blank" rel="noopener">v1 coverage</a></div>
+      <aside class="snotes" hidden><ul>
+        <li>Accurate: case-level &amp; functional data are "Planned" in v1 (roadmap #104/#105). Frame as opportunity, not shipped.</li>
+        <li>"Free the data" = lowering the cost of access so the long tail of valuable evidence gets used.</li>
+      </ul></aside>
+    </section>
+
+    <!-- 13. SUBMISSIONS -->
+    <section class="slide">
+      <div class="kicker">Close the loop <span class="st reach">Now within reach</span></div>
+      <h2>Better submissions, in your workflow</h2>
+      <div class="body">
+        <div class="flow">
+          <div class="step"><div class="n">Your systems</div><h3>Apps &amp; LIMS</h3><p>Where variants and classifications already live in your workflow.</p></div>
+          <div class="ar">⇄</div>
+          <div class="step" style="border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); background:color-mix(in srgb,var(--accent) 7%,var(--box))"><div class="n" >Enabled by GKM</div><h3>Review &amp; submit tooling</h3><p>Validate, compare against current ClinVar, and prepare submissions — on a standard model.</p></div>
+          <div class="ar">⇄</div>
+          <div class="step"><div class="n">ClinVar</div><h3>Submit &amp; track</h3><p>Integrate submission &amp; status tracking without bespoke glue code.</p></div>
+        </div>
+        <p class="cap">A shared, standard representation makes it realistic to build an <b>enhanced submission reviewer</b> and
+          <b>submit/track tooling</b> that fits existing systems — lowering the barrier to contributing high-quality data back.</p>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap</a></span></div>
+      <aside class="snotes" hidden><ul>
+        <li>Opportunity framing: standardization makes submission tooling tractable; it's not a shipped product.</li>
+        <li>Closing the loop: better inputs → better ClinVar → better GKM for everyone.</li>
+      </ul></aside>
+    </section>
+
+    <!-- 14. WHO BENEFITS + CTA -->
+    <section class="slide">
+      <div class="kicker">The opportunity</div>
+      <h2>Built to be <span class="q">built on</span></h2>
+      <div class="body">
+        <div class="bgrid">
+          <div class="ben"><h3>Analysts &amp; researchers</h3><p>Query your own data and the literature — no parser, no normalization.</p></div>
+          <div class="ben"><h3>Developers</h3><p>Delete the XML pipeline; sync with weekly deltas and validated models.</p></div>
+          <div class="ben"><h3>Tool &amp; AI builders</h3><p>Consistent, semantic inputs for apps, agents, and knowledge graphs.</p></div>
+          <div class="ben"><h3>Clinical teams</h3><p>Tailored VCFs and trustworthy, quality-ranked classifications.</p></div>
+          <div class="ben"><h3>Submitters</h3><p>Review and submit in your workflow; see your footprint clearly.</p></div>
+          <div class="ben"><h3>The community</h3><p>Shared tooling, temporal insight, and data that was out of reach.</p></div>
+        </div>
+        <p class="cap" style="margin-top:18px"><b>Start here:</b>
+          <a href="https://clingen-data-model.github.io/clinvar-gkm/" target="_blank" rel="noopener">clingen-data-model.github.io/clinvar-gkm</a>
+          · <a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/download/" target="_blank" rel="noopener">Downloads</a>
+          · <a href="https://ga4gh.github.io/gkm-starter-kit/" target="_blank" rel="noopener">GKM Starter Kit</a>
+          · <a href="https://clingen-data-model.github.io/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap — upvote what you need</a></p>
+      </div>
+      <div class="foot">Thank you — what would <b>you</b> build on this? Press <b>?</b> for shortcuts.</div>
+      <aside class="snotes" hidden><ul>
+        <li>Close on the invitation: the roadmap is upvote-driven — tell us which unlock matters to you.</li>
+        <li>Leave the URL up for Q&amp;A.</li>
+      </ul></aside>
+    </section>
+
+  </div><!-- /stage -->
+</div><!-- /viewport -->
+
+<!-- chrome -->
+<div id="counter">1 / 14</div>
+<div id="navbtns">
+  <button class="cbtn" id="prev" title="Previous (←)" aria-label="Previous slide">‹</button>
+  <button class="cbtn" id="next" title="Next (→)" aria-label="Next slide">›</button>
+</div>
+<div id="toolbar">
+  <button class="cbtn" id="btn-notes" title="Speaker notes (S)" aria-label="Toggle speaker notes">✎</button>
+  <button class="cbtn" id="btn-theme" title="Toggle theme (T)" aria-label="Toggle light/dark theme">◐</button>
+  <button class="cbtn" id="btn-full" title="Fullscreen (F)" aria-label="Toggle fullscreen">⤢</button>
+  <button class="cbtn" id="btn-help" title="Shortcuts (?)" aria-label="Show keyboard shortcuts">?</button>
+</div>
+
+<aside id="notes" aria-live="polite"><h4>Speaker notes</h4><div class="ncontent"></div></aside>
+
+<div id="help" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+  <div class="panel2">
+    <h3>Keyboard shortcuts</h3>
+    <table>
+      <tr><td><kbd>→</kbd> <kbd>Space</kbd></td><td>Next slide</td></tr>
+      <tr><td><kbd>←</kbd></td><td>Previous slide</td></tr>
+      <tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td>First / last slide</td></tr>
+      <tr><td><kbd>S</kbd> or <kbd>N</kbd></td><td>Toggle speaker notes</td></tr>
+      <tr><td><kbd>T</kbd></td><td>Toggle light / dark theme</td></tr>
+      <tr><td><kbd>F</kbd></td><td>Toggle fullscreen</td></tr>
+      <tr><td><kbd>?</kbd></td><td>Show / hide this help</td></tr>
+    </table>
+    <div class="close">Status tags: <b>Available now</b> · <b>Now within reach</b> · <b>On the roadmap</b>.</div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var total = slides.length;
+  var i = 0;
+  var stage = document.getElementById("stage");
+  var counter = document.getElementById("counter");
+  var progbar = document.querySelector("#prog > i");
+  var notes = document.getElementById("notes");
+  var ncontent = notes.querySelector(".ncontent");
+  var help = document.getElementById("help");
+
+  function fromHash() { var n = parseInt((location.hash || "").replace("#", ""), 10); return (n >= 1 && n <= total) ? n - 1 : 0; }
+  function render() {
+    slides.forEach(function (s, n) { s.classList.toggle("active", n === i); });
+    counter.textContent = (i + 1) + " / " + total;
+    progbar.style.width = (i / (total - 1) * 100) + "%";
+    if (notes.classList.contains("open")) updateNotes();
+    if (location.hash !== "#" + (i + 1)) { try { history.replaceState(null, "", "#" + (i + 1)); } catch (e) { location.hash = i + 1; } }
+  }
+  function go(n) { i = Math.max(0, Math.min(total - 1, n)); render(); }
+  function next() { go(i + 1); } function prev() { go(i - 1); }
+  function updateNotes() { var src = slides[i].querySelector(".snotes"); ncontent.innerHTML = src ? src.innerHTML : "<p>(no notes)</p>"; }
+  function toggleNotes() { notes.classList.toggle("open"); if (notes.classList.contains("open")) updateNotes(); }
+
+  var THEME_KEY = "cgkm-unlocks-theme";
+  function applyTheme(t) { var r = document.documentElement; if (t === "light" || t === "dark") r.setAttribute("data-theme", t); else r.removeAttribute("data-theme"); }
+  function currentTheme() { var t = document.documentElement.getAttribute("data-theme"); if (t) return t; return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; }
+  function toggleTheme() { var t = currentTheme() === "dark" ? "light" : "dark"; applyTheme(t); try { localStorage.setItem(THEME_KEY, t); } catch (e) {} }
+  try { var saved = localStorage.getItem(THEME_KEY); if (saved) applyTheme(saved); } catch (e) {}
+
+  function toggleFull() { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+
+  function fit() { var pad = 24; stage.style.setProperty("--scale", Math.min((window.innerWidth - pad) / 1280, (window.innerHeight - pad) / 720)); }
+  window.addEventListener("resize", fit);
+
+  document.getElementById("viewport").addEventListener("click", function (e) {
+    if (e.target.closest("a, button, .chip")) return;
+    if (help.classList.contains("open")) return;
+    var x = e.clientX / window.innerWidth;
+    if (x < 0.25) prev(); else if (x > 0.5) next();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    var k = e.key;
+    if (k === "?" || (k === "/" && e.shiftKey)) { help.classList.toggle("open"); e.preventDefault(); return; }
+    if (k === "Escape") { if (help.classList.contains("open")) help.classList.remove("open"); else if (notes.classList.contains("open")) notes.classList.remove("open"); return; }
+    if (help.classList.contains("open")) return;
+    switch (k) {
+      case "ArrowRight": case " ": case "PageDown": case "j": next(); e.preventDefault(); break;
+      case "ArrowLeft": case "PageUp": case "k": prev(); e.preventDefault(); break;
+      case "Home": go(0); e.preventDefault(); break;
+      case "End": go(total - 1); e.preventDefault(); break;
+      case "s": case "S": case "n": case "N": toggleNotes(); break;
+      case "t": case "T": toggleTheme(); break;
+      case "f": case "F": toggleFull(); break;
+    }
+  });
+
+  document.getElementById("prev").addEventListener("click", prev);
+  document.getElementById("next").addEventListener("click", next);
+  document.getElementById("btn-notes").addEventListener("click", toggleNotes);
+  document.getElementById("btn-theme").addEventListener("click", toggleTheme);
+  document.getElementById("btn-full").addEventListener("click", toggleFull);
+  document.getElementById("btn-help").addEventListener("click", function () { help.classList.toggle("open"); });
+  help.addEventListener("click", function (e) { if (e.target === help) help.classList.remove("open"); });
+  window.addEventListener("hashchange", function () { var n = fromHash(); if (n !== i) go(n); });
+
+  i = fromHash(); fit(); render();
+})();
+</script>
+</body>
+</html>
