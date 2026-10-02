@@ -98,7 +98,12 @@ def main():
         f"WHERE cl.table_name IN ({prop_in}) AND cl.change_type IN ('A','U')"
     )
     if baseline:
-        base_ds = f"clinvar_{baseline.replace('-', '_')}_{version}"
+        # The baseline release may use a DIFFERENT dataset version than the current
+        # release (e.g. across a v2_5_0 -> v2_6_0 boundary), so resolve its actual
+        # dataset name via schema_on rather than reusing the current `version`.
+        bl = bq_json(f"SELECT schema_name AS ds FROM `clinvar_ingest.schema_on`(DATE '{baseline}')")
+        base_ds = (bl[0]["ds"] if bl and bl[0].get("ds")
+                   else f"clinvar_{baseline.replace('-', '_')}_{version}")
         base_union = " UNION ALL ".join(
             f"SELECT key, value FROM `{base_ds}.{t}`" for t in PROP_TABLES)
         prop_sql += (
