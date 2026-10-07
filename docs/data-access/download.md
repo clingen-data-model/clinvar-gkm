@@ -13,6 +13,9 @@ A consumer that wants the current state takes the latest monthly full and replay
 
 ## Latest Release
 
+!!! warning "The monthly full is a month-start baseline, not the current week"
+    `clinvar-gkm_00-latest.json.gz` reflects the **last release of the _previous_ month** — e.g. the `2026-10` full is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. It does **not** include the current month's weekly changes. To get the current weekly state, apply the latest delta on top of it — see the [Consumer Replay Model](#consumer-replay-model).
+
 Download the most recent full bundle and the most recent weekly delta using the stable URLs below:
 
 | Product | Download | Description |
