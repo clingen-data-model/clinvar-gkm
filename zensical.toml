@@ -7,7 +7,6 @@ repo_name = "clingen-data-model/clinvar-gkm"
 edit_uri = "edit/main/docs/"
 docs_dir = "docs"
 extra_css = ["stylesheets/extra.css"]
-extra_javascript = ["assets/js/keyboard-shortcuts.js"]
 strict = true
 nav = [
   { Home = "index.md" },
