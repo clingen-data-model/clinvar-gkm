@@ -63,12 +63,44 @@ r2_ls() {
 }
 
 r2_ls_with_size() {
-  # Returns "SIZE FILENAME" lines for .json.gz files under a prefix
+  # Returns "DATE SIZE FILENAME" lines for .json.gz files under a prefix
   local prefix="$1"
   aws s3 ls "s3://${R2_BUCKET}/${prefix}" \
     --endpoint-url "${R2_ENDPOINT}" \
     --profile "${R2_PROFILE}" \
-    2>/dev/null | awk '/\.json\.gz$/ {print $3, $4}' || true
+    2>/dev/null | awk '/\.json\.gz$/ {print $1, $3, $4}' || true
+}
+
+# Newest immediate-file date (YYYY-MM-DD) under a prefix, or empty.
+# Skips "PRE dir/" lines (they have no date in $1).
+r2_newest_date_under() {
+  local prefix="$1"
+  aws s3 ls "s3://${R2_BUCKET}/${prefix}" \
+    --endpoint-url "${R2_ENDPOINT}" \
+    --profile "${R2_PROFILE}" \
+    2>/dev/null \
+    | awk '$1 ~ /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/ {print $1}' \
+    | sort | tail -n1 || true
+}
+
+# JSON array of parquet section names (filename minus .parquet) under a prefix.
+r2_parquet_sections_under() {
+  local prefix="$1"
+  local first=true
+  local arr="["
+  while IFS= read -r section; do
+    [[ -z "$section" ]] && continue
+    if ! $first; then arr+=","; fi
+    first=false
+    arr+=$(printf '"%s"' "$section")
+  done < <(
+    aws s3 ls "s3://${R2_BUCKET}/${prefix}" \
+      --endpoint-url "${R2_ENDPOINT}" \
+      --profile "${R2_PROFILE}" \
+      2>/dev/null | awk '/\.parquet$/ {sub(/\.parquet$/, "", $NF); print $NF}' || true
+  )
+  arr+="]"
+  echo "$arr"
 }
 
 # Build a JSON array of file objects from "SIZE FILENAME" lines under a prefix.
@@ -79,7 +111,7 @@ build_file_array() {
   local first=true
   local arr="["
 
-  while IFS=' ' read -r size filename; do
+  while IFS=' ' read -r modified size filename; do
     [[ -z "$filename" ]] && continue
     if ! $first; then arr+=","; fi
     first=false
@@ -89,8 +121,8 @@ build_file_array() {
       is_latest="true"
     fi
 
-    arr+=$(printf '{"name":"%s","path":"%s%s","size":%s,"latest":%s}' \
-      "$filename" "$prefix" "$filename" "$size" "$is_latest")
+    arr+=$(printf '{"name":"%s","path":"%s%s","size":%s,"modified":"%s","latest":%s}' \
+      "$filename" "$prefix" "$filename" "$size" "$modified" "$is_latest")
   done < <(r2_ls_with_size "$prefix")
 
   arr+="]"
@@ -125,8 +157,11 @@ build_parquet_array() {
     if ! $first; then arr+=","; fi
     first=false
 
-    arr+=$(printf '{"release":"%s","path":"%s%s/","latest":%s}' \
-      "$release" "$prefix" "$dir" "$is_latest")
+    local modified
+    modified="$(r2_newest_date_under "${prefix}${dir}/")"
+
+    arr+=$(printf '{"release":"%s","path":"%s%s/","modified":"%s","latest":%s}' \
+      "$release" "$prefix" "$dir" "$modified" "$is_latest")
   done < <(r2_ls "$prefix")
 
   arr+="]"
@@ -157,8 +192,12 @@ build_deltas_array() {
     fi
     path="deltas/${dir}/"
 
-    arr+=$(printf '{"release":"%s","path":"%s","manifest":"%smanifest.json","latest":%s}' \
-      "$release" "$path" "$path" "$is_latest")
+    local modified parquet_sections
+    modified="$(r2_newest_date_under "deltas/${dir}/")"
+    parquet_sections="$(r2_parquet_sections_under "deltas/${dir}/parquet/")"
+
+    arr+=$(printf '{"release":"%s","path":"%s","manifest":"%smanifest.json","modified":"%s","parquet":%s,"latest":%s}' \
+      "$release" "$path" "$path" "$modified" "$parquet_sections" "$is_latest")
   done < <(r2_ls "deltas/" 2>/dev/null)
 
   arr+="]"
