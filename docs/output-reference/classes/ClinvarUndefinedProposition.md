@@ -1,8 +1,8 @@
 # ClinvarUndefinedProposition
 
-!!! warning "Draft"
+!!! note "Trial Use"
 
-    This data class is at a **draft** maturity level and may change significantly in future releases.
+    May change in future releases. See the [GKM Maturity Model](https://vrs.ga4gh.org/en/2.0/appendices/maturity_model.html){ target=_blank rel=noopener }.
 
 A fallback custom proposition for a ClinVar submission whose classification does not map to any defined ClinVar-GKM or GA4GH proposition type. Emitted only when the upstream classification-to-type mapping yields no gks_type.
 

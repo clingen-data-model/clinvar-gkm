@@ -4,7 +4,7 @@
    "title": "ClinvarNotProvidedProposition",
    "description": "A proposition for ClinVar submissions where the submitter did not provide a clinical classification. These submissions still carry variant-condition associations but lack a formal pathogenicity or clinical significance assessment.",
    "type": "object",
-   "maturity": "draft",
+   "maturity": "trial use",
    "allOf": [
       {
          "$ref": "/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarGermlineCustomProposition"

@@ -4,7 +4,7 @@
    "title": "ClinvarConflictingDataFromSubmitterProposition",
    "description": "A proposition for ClinVar submissions where the submitter's data conflicts with other submitters' data for the same variant-condition pair. Used for submissions classified as \"conflicting data from submitters\".",
    "type": "object",
-   "maturity": "draft",
+   "maturity": "trial use",
    "allOf": [
       {
          "$ref": "/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarGermlineCustomProposition"

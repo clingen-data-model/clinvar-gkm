@@ -4,7 +4,7 @@
    "title": "GeneListItem",
    "description": "A complex structure for sharing individual Gene entries associated with Clinvar Variations including `entrez_gene_id`, `hgnc_id`, `symbol`, `relationship_type`, `source`, and `iris`.",
    "type": "object",
-   "maturity": "draft",
+   "maturity": "trial use",
    "properties": {
       "entrez_gene_id": {
          "type": "string",

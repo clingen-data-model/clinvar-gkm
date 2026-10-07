@@ -4,7 +4,7 @@
    "title": "ClinvarConfersSensitivityProposition",
    "description": "A proposition describing a variant that confers sensitivity to a condition or environmental factor. Used for ClinVar submissions classified as \"confers sensitivity\". ClinVar has stopped accepting new submissions with this classification, but historical submissions remain.",
    "type": "object",
-   "maturity": "draft",
+   "maturity": "trial use",
    "allOf": [
       {
          "$ref": "/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarGermlineCustomProposition"
