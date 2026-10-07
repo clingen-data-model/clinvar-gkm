@@ -366,7 +366,7 @@
         <p class="cap">Most people would never download ClinVar and build a report. With typed Parquet (today) — and
           friendly no-code tools the standard makes possible — <b>they won't have to.</b></p>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/download/#working-with-parquet-files" target="_blank" rel="noopener">Working with Parquet</a></span></div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/parquet/#working-with-parquet-files" target="_blank" rel="noopener">Working with Parquet</a></span></div>
       <aside class="snotes" hidden><ul>
         <li>Honest tag: Parquet + DuckDB is real today; a GUI for non-programmers is an opportunity, not shipped.</li>
         <li>The "match on VRS identity" step is the thing that's painful today and trivial here.</li>
@@ -398,7 +398,7 @@
         <p class="cap">Filter by <b>gene, significance, and review quality</b>, then follow the submitter-provided
           citations to the <b>PubMed</b> evidence — the kind of discovery that's impractical against raw XML.</p>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/download/#example-queries" target="_blank" rel="noopener">Example Queries</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/profiles/review-status/" target="_blank" rel="noopener">Review Status</a></div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/parquet/#query" target="_blank" rel="noopener">Example Queries</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/profiles/review-status/" target="_blank" rel="noopener">Review Status</a></div>
       <aside class="snotes" hidden><ul>
         <li>Concrete, relatable scenario. Star-level filtering + citations is genuinely available via Parquet/JSON.</li>
         <li>Point: the quality filter (≥1★) matters — you can trust-rank results, then chase the literature.</li>
@@ -491,7 +491,7 @@
         <p class="cap">A <b>weekly delta</b> ships for every ClinVar release — added, updated &amp; deleted records with a
           manifest — typically within a day or two. Stay synced by applying deltas, <b>not re-downloading and re-parsing</b> the world.</p>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/download/#weekly-deltas" target="_blank" rel="noopener">Weekly Deltas</a></span></div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/weekly-deltas/#weekly-deltas" target="_blank" rel="noopener">Weekly Deltas</a></span></div>
       <aside class="snotes" hidden><ul>
         <li>The delta model is a real differentiator — incremental sync instead of full re-ingest.</li>
         <li>Manifest carries adds/updates/deletes so consumers can maintain state cheaply.</li>
