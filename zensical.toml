@@ -11,7 +11,13 @@ extra_javascript = ["assets/js/r2-browser.js"]
 strict = true
 nav = [
   { Home = "index.md" },
-  { Downloads = "data-access/download.md" },
+  { Downloads = [
+    "data-access/download.md",
+    { "Monthly Full Bundles" = "data-access/monthly-full.md" },
+    { "Weekly Deltas"        = "data-access/weekly-deltas.md" },
+    { "Parquet Files"        = "data-access/parquet.md" },
+    { "How Releases Work"    = "data-access/release-model.md" },
+  ] },
   { "User Stories" = [
     { "Harmonizing by VRS Identity" = "user-story.md" },
     { "Auditing a Submitter's Footprint" = "user-story-audit.md" },
