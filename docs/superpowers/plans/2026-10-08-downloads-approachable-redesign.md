@@ -247,40 +247,34 @@ This generalizes the inline script currently in `download.md` into a reusable, m
     var deltas = data.deltas || [];
     var mLatest = monthly.filter(function (f) { return f.latest; })[0];
     var dLatest = deltas.filter(function (d) { return d.latest; })[0];
-    var pLatest = parquet.filter(function (p) { return p.latest; })[0];
     var mDated = newestDated(monthly), dDated = newestDated(deltas), pDated = newestDated(parquet);
 
     function deltaDir(d) { return d.path.replace(/^deltas\//, "").replace(/\/$/, ""); }
 
+    // "Get" cells: monthly = one stable bundle; delta = bundle + manifest; parquet set is a
+    // directory (no single file) so link to the Parquet page. "../parquet/" is page-relative
+    // from the hub (/data-access/download/ -> /data-access/parquet/); verified in the serve test.
+    var monthlyGet = mLatest ? [el("a", { href: BASE_URL + "/" + mLatest.path, text: "bundle" })] : [];
+    var deltaGet = dLatest ? [
+      el("a", { href: BASE_URL + "/" + dLatest.path + "clinvar-gkm-delta_00-latest.json.gz", text: "bundle" }),
+      el("span", { text: " · " }),
+      el("a", { href: BASE_URL + "/" + dLatest.path + "manifest.json", text: "manifest" })
+    ] : [];
+    var parquetGet = [el("a", { href: "../parquet/", text: "browse sets →" })];
+
     var rows = [
-      ["Monthly full",
-       mDated ? mDated.name.replace(/^clinvar-gkm_|\.json\.gz$/g, "") : "",
-       mDated && mDated.modified,
-       mLatest ? BASE_URL + "/" + mLatest.path : null, "Browse all", "#monthly-full-bundles"],
-      ["Weekly delta",
-       dDated ? deltaDir(dDated).replace(/^(\d{4})-(\d{2})(\d{2})$/, "$1-$2-$3") : "",
-       dDated && dDated.modified,
-       dLatest ? BASE_URL + "/" + dLatest.path + "clinvar-gkm-delta_00-latest.json.gz" : null,
-       "Browse all", "#weekly-parquet-deltas-placeholder"],
-      ["Parquet (full)",
-       pDated ? pDated.release : "",
-       pDated && pDated.modified,
-       pLatest ? BASE_URL + "/" + pLatest.path : null, "Browse all", "#parquet-files"]
+      ["Monthly full", mDated ? mDated.name.replace(/^clinvar-gkm_|\.json\.gz$/g, "") : "", mDated && mDated.modified, monthlyGet],
+      ["Weekly delta", dDated ? deltaDir(dDated).replace(/^(\d{4})-(\d{2})(\d{2})$/, "$1-$2-$3") : "", dDated && dDated.modified, deltaGet],
+      ["Parquet (full)", pDated ? pDated.release : "", pDated && pDated.modified, parquetGet]
     ];
-    // NOTE: the "Browse all" targets are page links set in the hub markdown via
-    // data attributes; see Task 7. Here they are in-page anchors as a fallback.
 
     var table = el("table", { className: "r2-latest" });
-    var thead = el("thead", {}, [el("tr", {}, ["Type","Release","R2 available","Download"].map(
-      function (h) { return el("th", { text: h }); }))]);
-    table.appendChild(thead);
+    table.appendChild(el("thead", {}, [el("tr", {}, ["Type", "Release", "R2 available", "Get"].map(
+      function (h) { return el("th", { text: h }); }))]));
     var tbody = el("tbody");
     rows.forEach(function (r) {
       tbody.appendChild(el("tr", {}, [
-        el("td", { text: r[0] }),
-        el("td", { text: r[1] }),
-        el("td", { text: r[2] || "" }),
-        el("td", {}, [r[3] ? el("a", { href: r[3], text: "download" }) : null])
+        el("td", { text: r[0] }), el("td", { text: r[1] }), el("td", { text: r[2] || "" }), el("td", {}, r[3])
       ]));
     });
     table.appendChild(tbody);
@@ -392,7 +386,7 @@ extra_javascript = ["assets/js/keyboard-shortcuts.js", "assets/js/r2-browser.js"
 
 > Merge note: the search-fix PR #120 removes `keyboard-shortcuts.js` from this list. When both land on `1.0`, reconcile to `extra_javascript = ["assets/js/r2-browser.js"]`.
 
-- [ ] **Step 3: Add minimal styles** for `.r2-latest`, `.r2-date`, `.r2-error` to `docs/stylesheets/extra.css` (reuse existing `.r2-folder/.r2-file/.r2-size` rules from `download.md` by moving them into `extra.css` so all child pages share them).
+- [ ] **Step 3: Add styles** to `docs/stylesheets/extra.css`. These supersede the per-page `<style>` block in the old `download.md` (removed in Task 9) and are shared by all child pages. The new JS uses only `.r2-folder / .r2-file / .r2-size / .r2-date / .r2-latest / .r2-error`; the old page's `.r2-badge / .r2-group / .r2-section` classes are unused and dropped. Port the old disclosure-triangle (`.r2-folder > summary::before`) and `.r2-file a` link styling into the block below if you want visual parity.
 
 Add to `docs/stylesheets/extra.css`:
 
@@ -422,7 +416,7 @@ git commit -m "feat(docs): shared r2-browser.js with per-type mounts + date rend
 
 ## Chunk 3: Child pages, nav, link migration, hub
 
-Ordering keeps `--strict` green at each commit: (Task 3–6) create child pages **with** their anchors while `download.md` still holds its content → (Task 7) update nav → (Task 8) migrate inbound links → (Task 9) slim `download.md` to the hub.
+**Ordering note (keeps `--strict` green at every commit):** the four child pages all cross-link one another, and Zensical builds + validates every `.md` regardless of nav — so a build passes only once **all four exist**. Therefore Tasks 3–6 create the pages but **do not build or commit individually**; Task 6 builds `--strict` and commits all four **together**. After that: Task 7 nav → Task 8 migrate inbound links → Task 9 slim `download.md`. `download.md` keeps its content and anchors until Task 9, so inbound links stay valid until Task 8 migrates them.
 
 ### Task 3: Create `docs/data-access/release-model.md` (How Releases Work)
 
@@ -443,7 +437,7 @@ Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Deltas](weekly-deltas.
 
 The canonical `manifest.json` field table is NOT here — link to Weekly Deltas for it.
 
-- [ ] **Step 2:** `zensical build --strict` → "No issues found". Commit: `git add docs/data-access/release-model.md && git commit -m "docs: add How Releases Work page (release model + cadence)"`
+- [ ] **Step 2:** Do NOT build or commit yet — the sibling cross-links (`weekly-deltas.md`, `monthly-full.md`, `parquet.md`) resolve only once those pages exist; Task 6 builds + commits all four together.
 
 ### Task 4: Create `docs/data-access/weekly-deltas.md`
 
@@ -473,7 +467,7 @@ Links: [Monthly Full Bundles](monthly-full.md) · [Parquet Files](parquet.md) ·
     ```
 ```
 
-- [ ] **Step 2:** `zensical build --strict` → "No issues found" (note: `#consumer-replay-model` now exists on BOTH this page and download.md — fine; both resolve). Commit: `git add docs/data-access/weekly-deltas.md && git commit -m "docs: add Weekly Deltas page (browser + manifest + replay)"`
+- [ ] **Step 2:** Do NOT build or commit yet (Task 6 does). Note: `#consumer-replay-model` will exist on BOTH this page and `download.md` until Task 9 — that is fine; duplicate anchors across pages are legal and `--strict` doesn't check fragments.
 
 ### Task 5: Create `docs/data-access/monthly-full.md`
 
@@ -494,13 +488,13 @@ Links: [Weekly Deltas](weekly-deltas.md) · [Parquet Files](parquet.md) · [How 
     ```
 ```
 
-- [ ] **Step 2:** `zensical build --strict` → "No issues found". Commit.
+- [ ] **Step 2:** Do NOT build or commit yet (Task 6 does).
 
 ### Task 6: Create `docs/data-access/parquet.md`
 
 **Files:** Create `docs/data-access/parquet.md`
 
-- [ ] **Step 1:** Create the page with TWO browser mounts and the reconstitution reference. Move the Parquet content from download.md (~536–885). Preserve `Parquet Files` and `Applying Deltas (keeping a Parquet set current)` headings. Fix the stale "20 sections" → "22 sections". Collapse DuckDB/pandas query recipes and rebuild scripts; keep the reconstitution concept visible.
+- [ ] **Step 1:** Create the page with TWO browser mounts and the reconstitution reference. Move the Parquet content from download.md (~536–885). Preserve `Parquet Files` and `Applying Deltas (keeping a Parquet set current)` headings. Fix BOTH stale "20 sections" occurrences → "22" (the `Available Parquet files (20 sections)` heading and the `# Or download all 20 sections` comment in the bash loop). Collapse DuckDB/pandas query recipes and rebuild scripts; keep the reconstitution concept visible.
 
 ```markdown
 # Parquet Files
@@ -536,7 +530,12 @@ Changed-rows delta Parquet (not a full set) — one group per weekly release.
     ```
 ```
 
-- [ ] **Step 2:** `zensical build --strict` → "No issues found". Commit.
+- [ ] **Step 2:** All four child pages now exist, so their sibling cross-links resolve. `zensical build --strict` → "No issues found". Commit the four pages together:
+
+```bash
+git add docs/data-access/release-model.md docs/data-access/weekly-deltas.md docs/data-access/monthly-full.md docs/data-access/parquet.md
+git commit -m "docs: add Downloads child pages (release-model, weekly-deltas, monthly-full, parquet)"
+```
 
 ### Task 7: Convert the Downloads nav entry into a group
 
@@ -575,7 +574,7 @@ Changed-rows delta Parquet (not a full set) — one group per weekly release.
   - `user-story-audit.md:130` → `data-access/parquet.md`
   - `pipeline/export.md:170` → reword: per-type browsers on the child pages
 
-- [ ] **Step 3:** `grep -rnoE "download\.md" docs/` → confirm no stale references remain (only the hub file itself and this plan/spec may mention it). `zensical build --strict` → "No issues found". Commit.
+- [ ] **Step 3:** `grep -rnoE "download\.md" docs/ --exclude-dir=superpowers` → confirm no stale references remain outside the hub file `download.md` itself. `zensical build --strict` → "No issues found". Commit.
 
 ### Task 9: Slim `download.md` to the hub
 
@@ -614,16 +613,17 @@ Browse history and archives: [Monthly Full Bundles](monthly-full.md) ·
 
 - [ ] **Step 1: Build a local index.json with the new fields** to exercise date + weekly-Parquet rendering before any live R2 regen:
 
-Run `src/scripts/generate-r2-index.sh --dry-run` and copy `/tmp/clinvar-gkm-index.json` to `site/index.json` after a build, OR serve and temporarily point `INDEX_URL` at a local copy. (Simplest: `zensical build`, then `cp /tmp/clinvar-gkm-index.json site/index.json`, then `python3 -m http.server -d site 8001`.)
+`r2-browser.js` hard-codes `INDEX_URL` to the absolute R2 URL, so a local `site/index.json` is NOT fetched. To exercise the new `modified`/`parquet` fields, temporarily repoint `INDEX_URL`: run `src/scripts/generate-r2-index.sh --dry-run`, copy `/tmp/clinvar-gkm-index.json` to `docs/assets/local-index.json`, set `INDEX_URL` in `r2-browser.js` to that relative path, then `zensical serve`. **Revert the `INDEX_URL` edit and delete `local-index.json` before committing.**
 
 - [ ] **Step 2: Verify rendering**
 
 ```bash
-BASE=http://localhost:8001
-curl -sL "$BASE/clinvar-gkm/data-access/" | grep -oc 'r2-latest'            # hub table present
-curl -sL "$BASE/clinvar-gkm/data-access/parquet/" | grep -oc 'r2-browser'   # two mounts
+BASE=http://localhost:8000
+# Static HTML contains the mount divs, NOT the JS-rendered table — grep the mounts:
+curl -sL "$BASE/clinvar-gkm/data-access/download/" | grep -oc 'data-r2-type="latest"'  # hub mount = 1
+curl -sL "$BASE/clinvar-gkm/data-access/parquet/"  | grep -oc 'data-r2-type='           # parquet mounts = 2
 ```
-Expected: hub page has the `r2-latest` table; parquet page has 2 `r2-browser` mounts. In a browser: the Downloads group shows 4 children in the left nav; dates render on entries; the Weekly Parquet deltas browser lists per-delta sections; sibling cross-links work.
+Expected: hub page has 1 `latest` mount; parquet page has 2 mounts. (Adjust the hub path if the bare-index page resolves to `/data-access/` rather than `/data-access/download/`.) The JS-rendered `r2-latest` table + dates are verified **in a browser** (curl can't run JS): the Downloads group shows 4 children in the left nav; dates render on entries; the Weekly Parquet deltas browser lists per-delta sections; sibling cross-links and the hub's `../parquet/` "browse sets" link resolve.
 
 - [ ] **Step 3: Graceful fallback check** — point the browser at the *current* live index.json (no `modified`/`parquet`): dates are absent, weekly-Parquet groups are empty, nothing shows "undefined". Expected: no errors; behaves like today minus dates.
 
@@ -631,7 +631,7 @@ Expected: hub page has the `r2-latest` table; parquet page has 2 `r2-browser` mo
 
 ```bash
 zensical build --strict          # Expected: No issues found
-grep -rnoE "download\.md#" docs/  # Expected: no matches outside spec/plan
+grep -rnoE "download\.md#" docs/ --exclude-dir=superpowers  # Expected: no matches
 ```
 
 - [ ] **Step 5: Manual anchor check** — open `weekly-deltas.md#consumer-replay-model` and `weekly-deltas.md#weekly-deltas` in the served site; confirm they resolve (`--strict` does not validate fragments).
