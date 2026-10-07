@@ -41,27 +41,34 @@ _extension_parent: dict[str, str] = {}
 _published_classes: set[str] = set()
 
 # --- Upstream docs cross-reference resolution (Sphinx objects.inv) -----------
-# Each GA4GH docs site ships a Sphinx inventory; classes are keyed as lowercased
-# std:label entries (e.g. "sequencelocation" -> ".../SequenceLocation.html#$").
-# gkm-core classes are documented within the VRS site.
-_INVENTORY_BASES = {
-    "vrs": "https://vrs.ga4gh.org/en/2.0/",
-    "cat-vrs": "https://cat-vrs.ga4gh.org/en/latest/",
-    "va-spec": "https://va-spec.ga4gh.org/en/latest/",
+# Links to upstream classes point at the docs for the SAME release the schema
+# sources pin (via /ga4gh/schema/<spec>/<ver>/ $refs). Each GA4GH docs site is a
+# Sphinx build whose objects.inv keys classes as lowercased std:label entries
+# (e.g. "sequencelocation" -> ".../SequenceLocation.html#$"); gkm-core classes
+# are documented within the VRS site.
+_SPEC_SITES = {
+    "vrs": "https://vrs.ga4gh.org/en/",
+    "cat-vrs": "https://cat-vrs.ga4gh.org/en/",
+    "va-spec": "https://va-spec.ga4gh.org/en/",
 }
-# Resolution precedence when a class appears in more than one inventory: prefer
-# va-spec, then cat-vrs, then vrs (first hit wins). Several shared classes
-# (e.g. Allele) are documented in all three sites.
+# Precedence when a class appears in more than one inventory: va-spec, then
+# cat-vrs, then vrs (first hit wins). Shared classes (e.g. Allele) are in all.
 _INVENTORY_ORDER = ("va-spec", "cat-vrs", "vrs")
-# Lazily-loaded {inventory_name: {lowercased_label: absolute_url} | None(=fetch failed)}.
-_inventories: dict[str, dict | None] = {}
+
+_inventories: dict[str, dict | None] = {}   # {base_url: {label: url} | None}
+_doc_bases: dict[str, str] = {}              # {spec: resolved docs base URL}
+# vrs docs base for the maturity-model admonition link (overridden in main()).
+_maturity_base = "https://vrs.ga4gh.org/en/stable/"
 
 
-def _load_inventory(name: str) -> dict | None:
-    """Fetch + parse a Sphinx objects.inv; return {label: url}, or None on failure."""
-    if name in _inventories:
-        return _inventories[name]
-    base = _INVENTORY_BASES[name]
+def _load_inventory(base: str) -> dict | None:
+    """Fetch + parse the Sphinx objects.inv at `base`; cache by base URL.
+
+    Returns {lowercased_label: absolute_url}, or None if it can't be loaded.
+    """
+    if base in _inventories:
+        return _inventories[base]
+    result: dict | None = None
     try:
         req = urllib.request.Request(
             base + "objects.inv",
@@ -82,23 +89,66 @@ def _load_inventory(name: str) -> dict | None:
             label, role, _prio, uri, _disp = m.groups()
             if role == "std:label":
                 entries.setdefault(label, base + uri.replace("$", label))
-        _inventories[name] = entries
-    except Exception as exc:  # offline / 5xx / parse error -> no upstream links (not fatal)
-        print(f"  [y2md] WARNING: could not load {name} objects.inv ({exc}); "
-              f"upstream {name} types will render unlinked", file=sys.stderr)
-        _inventories[name] = None
-    return _inventories[name]
+        result = entries
+    except Exception:  # offline / 5xx / 404 candidate / parse error (not fatal)
+        result = None
+    _inventories[base] = result
+    return result
+
+
+def _pinned_versions(sources_dir: Path) -> dict[str, str]:
+    """Versions the schema sources pin per spec, from /ga4gh/schema/<spec>/<ver>/."""
+    pat = re.compile(r"/ga4gh/schema/(vrs|cat-vrs|va-spec)/([0-9][0-9.]*)/")
+    pins: dict[str, str] = {}
+    for src in sorted(sources_dir.glob("*-source.yaml")):
+        for spec, ver in pat.findall(src.read_text()):
+            pins[spec] = ver
+    return pins
+
+
+def _candidate_paths(version: str) -> list[str]:
+    """RTD path candidates for a pinned version: exact, major.minor, stable."""
+    cands = [version]
+    parts = version.split(".")
+    if len(parts) >= 2:
+        cands.append(f"{parts[0]}.{parts[1]}")
+    cands += ["stable", "latest"]
+    seen: set[str] = set()
+    return [c for c in cands if not (c in seen or seen.add(c))]
+
+
+def _resolve_doc_bases(sources_dir: Path) -> None:
+    """Resolve each spec's docs base to the first candidate (for its pinned
+    version) that publishes an objects.inv, and set the vrs maturity-link base."""
+    global _maturity_base
+    pins = _pinned_versions(sources_dir)
+    for spec, site in _SPEC_SITES.items():
+        version = pins.get(spec)
+        if not version:
+            continue
+        for cand in _candidate_paths(version):
+            base = f"{site}{cand}/"
+            if _load_inventory(base) is not None:
+                _doc_bases[spec] = base
+                break
+        if spec not in _doc_bases:
+            print(f"  [y2md] WARNING: no reachable docs for {spec} (pinned "
+                  f"{version}); its types will render unlinked", file=sys.stderr)
+    if "vrs" in _doc_bases:
+        _maturity_base = _doc_bases["vrs"]
 
 
 def _resolve_upstream(class_name: str) -> str | None:
-    """Resolve an upstream class to its deployed docs URL via objects.inv, or None.
+    """Resolve an upstream class to its pinned-release docs URL, or None.
 
-    When a class appears in more than one inventory, precedence is va-spec, then
-    cat-vrs, then vrs (first hit wins).
+    Precedence across sites is va-spec, then cat-vrs, then vrs (first hit wins).
     """
     key = class_name.lower()
-    for name in _INVENTORY_ORDER:
-        inv = _load_inventory(name)
+    for spec in _INVENTORY_ORDER:
+        base = _doc_bases.get(spec)
+        if not base:
+            continue
+        inv = _load_inventory(base)
         if inv and key in inv:
             return inv[key]
     return None
@@ -292,18 +342,16 @@ def write_class_md(class_name: str, class_def: dict, proc_schema, out_dir: Path,
 
         # Maturity admonition
         maturity = class_def.get("maturity", "")
+        maturity_link = (
+            f"[GKM Maturity Model]({_maturity_base}appendices/maturity_model.html)"
+            "{ target=_blank rel=noopener }")
         if maturity == "draft":
             f.write('!!! warning "Draft"\n\n')
-            f.write("    May change significantly in future releases. See the "
-                    "[GKM Maturity Model]"
-                    "(https://vrs.ga4gh.org/en/2.0/appendices/maturity_model.html)"
-                    "{ target=_blank rel=noopener }.\n\n")
+            f.write(f"    May change significantly in future releases. "
+                    f"See the {maturity_link}.\n\n")
         elif maturity == "trial use":
             f.write('!!! note "Trial Use"\n\n')
-            f.write("    May change in future releases. See the "
-                    "[GKM Maturity Model]"
-                    "(https://vrs.ga4gh.org/en/2.0/appendices/maturity_model.html)"
-                    "{ target=_blank rel=noopener }.\n\n")
+            f.write(f"    May change in future releases. See the {maturity_link}.\n\n")
 
         # Computational definition
         description = class_def.get("description", "")
@@ -380,6 +428,9 @@ def main(proc_schema):
     # Load all local class names for link resolution
     build_dir = proc_schema.def_fp.parent / "build"
     _load_local_classes(build_dir)
+
+    # Resolve upstream docs bases to the release the sources pin.
+    _resolve_doc_bases(md_dir.parent)
 
     # Cache the main processor
     _processor_cache[str(proc_schema.schema_fp.resolve())] = proc_schema

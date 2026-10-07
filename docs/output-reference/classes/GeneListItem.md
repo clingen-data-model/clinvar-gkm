@@ -2,7 +2,7 @@
 
 !!! note "Trial Use"
 
-    May change in future releases. See the [GKM Maturity Model](https://vrs.ga4gh.org/en/2.0/appendices/maturity_model.html){ target=_blank rel=noopener }.
+    May change in future releases. See the [GKM Maturity Model](https://vrs.ga4gh.org/en/2.1/appendices/maturity_model.html){ target=_blank rel=noopener }.
 
 A complex structure for sharing individual Gene entries associated with Clinvar Variations including `entrez_gene_id`, `hgnc_id`, `symbol`, `relationship_type`, `source`, and `iris`.
 
@@ -17,5 +17,5 @@ A complex structure for sharing individual Gene entries associated with Clinvar 
 | `symbol` | `string` | 0..1 | The gene symbol (e.g., `BRCA1`, `MTOR`). |
 | `relationship_type` | `string` | 0..1 | The relationship between the variation and the gene as reported by ClinVar (e.g.,  `within single gene`, `genes overlapped by variant`). |
 | `source` | `string` | 0..1 | The source of the gene association (e.g., `submitted`, `calculated`). |
-| `iris` | [iriReference](https://va-spec.ga4gh.org/en/latest/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }[] (unordered) | 0..m | Identifier IRIs for the gene, including links to identifiers.org (HGNC and/or NCBI Gene) and NCBI Gene pages.         |
+| `iris` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }[] (unordered) | 0..m | Identifier IRIs for the gene, including links to identifiers.org (HGNC and/or NCBI Gene) and NCBI Gene pages.         |
 
