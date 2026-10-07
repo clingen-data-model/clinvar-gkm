@@ -16,7 +16,7 @@ wrong?" into a query that produces a fresh report each time ClinVar updates.
 - **Products** — VA-Spec, Cat-VRS, VRS, GKM-Core
 - **Pattern** — Submitter self-audit / QC across releases
 - **Tools** — [DuckDB](https://duckdb.org/) or pandas over the published
-  [Parquet](data-access/download.md#parquet-files); the [sub-bundle](pipeline/sub-bundle.md) extract;
+  [Parquet](data-access/parquet.md); the [sub-bundle](pipeline/sub-bundle.md) extract;
   optionally [va-spec-python](https://github.com/ga4gh/va-spec-python)
 - **Status** — Release candidate
 
@@ -118,7 +118,7 @@ and newly odd conditions surface on their own.
 
 - **[DuckDB](https://duckdb.org/) / pandas** — query the published Parquet locally and build the audit
   report; DuckDB reads the `.parquet` files directly with no load step.
-- **The clinvar-gkm [Parquet](data-access/download.md#parquet-files)** — one typed file per bundle
+- **The clinvar-gkm [Parquet](data-access/parquet.md)** — one typed file per bundle
   section, refreshed every release.
 - **The [sub-bundle](pipeline/sub-bundle.md) tool** (maintainers) — `--submitter <id>` extracts one
   submitter's entire footprint into a single portable bundle, as with `nch-igm-bundle.json.gz`.
@@ -127,7 +127,7 @@ and newly odd conditions surface on their own.
 
 ## How to explore this
 
-- **Get the data** — [Downloads](data-access/download.md) (the Parquet section under
+- **Get the data** — [Parquet Files](data-access/parquet.md) (the Parquet section under
   `datasets/parquet/00-latest/`).
 - **See one submitter's whole footprint** — open
   [`nch-igm-bundle.json.gz`](https://github.com/clingen-data-model/clinvar-gkm/blob/main/nch-igm-bundle.json.gz)
