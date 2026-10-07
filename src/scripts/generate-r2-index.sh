@@ -103,7 +103,8 @@ r2_parquet_sections_under() {
   echo "$arr"
 }
 
-# Build a JSON array of file objects from "SIZE FILENAME" lines under a prefix.
+# Build a JSON array of file objects from "DATE SIZE FILENAME" lines under a prefix.
+# Each entry: {name, path, size, modified, latest}.
 # Args: prefix (R2 path like "datasets/" or "archives/2025/")
 #       latest_name (filename to mark "latest": true, or "" for none)
 build_file_array() {
@@ -130,9 +131,9 @@ build_file_array() {
 }
 
 # Build a JSON array of Parquet month-set objects under a prefix.
-# Each entry: {release, path, latest}. A dir named 00-latest is marked latest;
-# a dir named YYYY-MM becomes release=YYYY-MM. Consumers compose per-section URLs
-# as <path><section>.parquet.
+# Each entry: {release, path, modified, latest}. A dir named 00-latest is marked
+# latest; a dir named YYYY-MM becomes release=YYYY-MM. Consumers compose
+# per-section URLs as <path><section>.parquet.
 # Args: prefix (e.g. "datasets/parquet/" or "archives/2025/parquet/")
 build_parquet_array() {
   local prefix="$1"
@@ -169,7 +170,9 @@ build_parquet_array() {
 }
 
 # Build the deltas JSON array — one object per release dir under deltas/.
-# Each entry: {release, path, manifest, latest}. deltas/00-latest is marked latest.
+# Each entry: {release, path, manifest, modified, parquet, latest}, where
+# `modified` is the newest file date under the delta dir and `parquet` is the
+# array of section names under its parquet/ subdir. deltas/00-latest is marked latest.
 build_deltas_array() {
   local first=true
   local arr="["
