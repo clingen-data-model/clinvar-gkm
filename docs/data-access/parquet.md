@@ -282,7 +282,7 @@ When to use each access path:
 
 ## Reconstitute a full Parquet view for any week in a month
 
-The monthly full Parquet set is a month-start baseline. To get a complete Parquet view as of any **week** in a month, bootstrap from the checkpoint monthly full set, then apply each weekly delta in order — up to the week you want. Each weekly delta Parquet carries only the **added and updated** rows for a section; that week's `manifest.json` carries the `sections.<section>.deleted` ids. Applying one week is, per section: **drop every row whose `id` appears in the delta or in that section's `deleted` list, then append the delta rows.** Apply the weeks oldest→newest until you reach the target week, verifying `baseline_release == prior compare_release` at each step; if the chain breaks, re-bootstrap from the monthly full rather than applying a partial chain.
+The monthly full Parquet set is a month-start baseline. To get a complete Parquet view as of any **week** in a month, bootstrap from the checkpoint monthly full set that **the target week's own `manifest.json` names** — its `checkpoint_full` records the monthly full that was current when that week was uploaded — then apply each weekly delta in order, up to the week you want. (Read the checkpoint from the target week's manifest, not from `deltas/00-latest/manifest.json`: the `00-latest` checkpoint advances as new monthly fulls publish, so it reflects today's month, not the target week's era.) Each weekly delta Parquet carries only the **added and updated** rows for a section; that week's `manifest.json` carries the `sections.<section>.deleted` ids. Applying one week is, per section: **drop every row whose `id` appears in the delta or in that section's `deleted` list, then append the delta rows.** Apply the weeks oldest→newest until you reach the target week, verifying `baseline_release == prior compare_release` at each step; if the chain breaks, re-bootstrap from the monthly full rather than applying a partial chain.
 
 This is the same contiguity rule as the [JSON replay](weekly-deltas.md#consumer-replay-model) — only the per-section apply differs (a keyed Parquet upsert instead of a dict merge).
 
@@ -382,18 +382,26 @@ Every section Parquet — full and delta alike — exposes an `id` column, and t
             return json.load(r)
 
 
-    # 1. The latest manifest names the checkpoint monthly full to bootstrap from.
-    checkpoint = fetch_json(f"{BASE}/deltas/00-latest/manifest.json")["checkpoint_full"]
+    # 1. Read the checkpoint from the TARGET_WEEK's OWN manifest — its `checkpoint_full` records the
+    #    monthly full that was current when that week was uploaded. Do NOT use deltas/00-latest here:
+    #    its checkpoint advances as new monthly fulls publish, so it reflects today's month, not this
+    #    week's era, and the delta filter below would then match nothing for an older target week.
+    y, mo, day = TARGET_WEEK.split("-")
+    target_dir = f"{y}-{mo}{day}"                # "2026-07-20" -> "2026-0720"
+    checkpoint = fetch_json(f"{BASE}/deltas/{target_dir}/manifest.json")["checkpoint_full"]
     checkpoint_month = checkpoint["release"]     # "2026-06"
 
-    # 2. Download the checkpoint full Parquet set into updated/ as the starting state.
+    # 2. Download that checkpoint's full Parquet set into updated/ as the starting state.
+    #    Prior-year checkpoints live under archives/<YYYY>/parquet/<release>/.
+    if checkpoint["path"].startswith("archives/"):
+        year = checkpoint["path"].split("/")[1]
+        parquet_base = f"{BASE}/archives/{year}/parquet/{checkpoint_month}"
+    else:
+        parquet_base = f"{BASE}/datasets/parquet/{checkpoint_month}"
     os.makedirs("updated", exist_ok=True)
     for section in SECTIONS:
         try:
-            urllib.request.urlretrieve(
-                f"{BASE}/datasets/parquet/{checkpoint_month}/{section}.parquet",
-                f"updated/{section}.parquet",
-            )
+            urllib.request.urlretrieve(f"{parquet_base}/{section}.parquet", f"updated/{section}.parquet")
         except Exception:
             pass   # a section absent from the checkpoint first appears when a delta introduces it
 
