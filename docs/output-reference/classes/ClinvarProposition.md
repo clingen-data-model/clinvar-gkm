@@ -10,9 +10,9 @@ Any proposition type valid in ClinVar-GKM statements. Includes the GA4GH standar
 
 **One of:**
 
-- `VariantPathogenicityProposition`
-- `VariantOncogenicityProposition`
-- `VariantClinicalSignificanceProposition`
+- [VariantPathogenicityProposition](https://va-spec.ga4gh.org/en/latest/va-standard-profiles/base-profiles/proposition-profiles.html#variantpathogenicityproposition){ target=_blank rel=noopener }
+- [VariantOncogenicityProposition](https://va-spec.ga4gh.org/en/latest/va-standard-profiles/base-profiles/proposition-profiles.html#variantoncogenicityproposition){ target=_blank rel=noopener }
+- [VariantClinicalSignificanceProposition](https://va-spec.ga4gh.org/en/latest/va-standard-profiles/base-profiles/proposition-profiles.html#variantclinicalsignificanceproposition){ target=_blank rel=noopener }
 - [ClinvarRiskFactorProposition](ClinvarRiskFactorProposition.md)
 - [ClinvarProtectiveProposition](ClinvarProtectiveProposition.md)
 - [ClinvarDrugResponseProposition](ClinvarDrugResponseProposition.md)

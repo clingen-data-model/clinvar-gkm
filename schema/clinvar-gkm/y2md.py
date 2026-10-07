@@ -16,7 +16,10 @@ resolved and included in the information model table.
 
 import os
 import pathlib
+import re
 import sys
+import urllib.request
+import zlib
 from pathlib import Path
 
 from ga4gh.gkm.metaschema.tools.source_proc import YamlSchemaProcessor
@@ -26,6 +29,79 @@ _processor_cache: dict[str, YamlSchemaProcessor] = {}
 
 # Set of class names that have local pages (populated at build time)
 _local_classes: set[str] = set()
+
+# Extension* class name -> its protectedClassOf parent class (built per source
+# run in main()). Extension classes are rendered as sub-sections on their
+# parent's page rather than as standalone pages.
+_extension_parent: dict[str, str] = {}
+
+# Class names that have a published docs page (loaded in main() from the docs
+# classes dir). Used to avoid emitting links to pages that are not published —
+# e.g. an extension whose protectedClassOf parent is an abstract/undefined class.
+_published_classes: set[str] = set()
+
+# --- Upstream docs cross-reference resolution (Sphinx objects.inv) -----------
+# Each GA4GH docs site ships a Sphinx inventory; classes are keyed as lowercased
+# std:label entries (e.g. "sequencelocation" -> ".../SequenceLocation.html#$").
+# gkm-core classes are documented within the VRS site.
+_INVENTORY_BASES = {
+    "vrs": "https://vrs.ga4gh.org/en/2.0/",
+    "cat-vrs": "https://cat-vrs.ga4gh.org/en/latest/",
+    "va-spec": "https://va-spec.ga4gh.org/en/latest/",
+}
+# Resolution precedence when a class appears in more than one inventory: prefer
+# va-spec, then cat-vrs, then vrs (first hit wins). Several shared classes
+# (e.g. Allele) are documented in all three sites.
+_INVENTORY_ORDER = ("va-spec", "cat-vrs", "vrs")
+# Lazily-loaded {inventory_name: {lowercased_label: absolute_url} | None(=fetch failed)}.
+_inventories: dict[str, dict | None] = {}
+
+
+def _load_inventory(name: str) -> dict | None:
+    """Fetch + parse a Sphinx objects.inv; return {label: url}, or None on failure."""
+    if name in _inventories:
+        return _inventories[name]
+    base = _INVENTORY_BASES[name]
+    try:
+        req = urllib.request.Request(
+            base + "objects.inv",
+            headers={"User-Agent": "Mozilla/5.0 (clinvar-gkm docs generator)"})
+        raw = urllib.request.urlopen(req, timeout=20).read()
+        # Header = 4 text lines, then a zlib-compressed block of
+        # "name domain:role priority uri dispname" lines.
+        nl = idx = 0
+        while nl < 4:
+            if raw[idx:idx + 1] == b"\n":
+                nl += 1
+            idx += 1
+        entries: dict[str, str] = {}
+        for line in zlib.decompress(raw[idx:]).decode("utf-8", "replace").splitlines():
+            m = re.match(r"(.+?)\s+(\S+)\s+(-?\d+)\s+(\S+)\s+(.*)", line)
+            if not m:
+                continue
+            label, role, _prio, uri, _disp = m.groups()
+            if role == "std:label":
+                entries.setdefault(label, base + uri.replace("$", label))
+        _inventories[name] = entries
+    except Exception as exc:  # offline / 5xx / parse error -> no upstream links (not fatal)
+        print(f"  [y2md] WARNING: could not load {name} objects.inv ({exc}); "
+              f"upstream {name} types will render unlinked", file=sys.stderr)
+        _inventories[name] = None
+    return _inventories[name]
+
+
+def _resolve_upstream(class_name: str) -> str | None:
+    """Resolve an upstream class to its deployed docs URL via objects.inv, or None.
+
+    When a class appears in more than one inventory, precedence is va-spec, then
+    cat-vrs, then vrs (first hit wins).
+    """
+    key = class_name.lower()
+    for name in _INVENTORY_ORDER:
+        inv = _load_inventory(name)
+        if inv and key in inv:
+            return inv[key]
+    return None
 
 
 def _get_processor(source_path: Path) -> YamlSchemaProcessor:
@@ -37,9 +113,28 @@ def _get_processor(source_path: Path) -> YamlSchemaProcessor:
 
 
 def _format_type_ref(identifier: str) -> str:
-    """Format a type reference — linked if local, plain code if external."""
-    if identifier in _local_classes:
+    """Link a non-primitive type: extension anchor, local page, or upstream docs.
+
+    Precedence:
+      1. Extension* class -> anchor on its protectedClassOf parent page (no own page).
+      2. Local class with its own page -> relative .md link.
+      3. Upstream class (vrs/cat-vrs/gkm-core/va-spec) -> deployed docs URL (new tab).
+      4. Otherwise -> plain code (never a broken link).
+    """
+    parent = _extension_parent.get(identifier)
+    if parent:
+        if parent in _published_classes:
+            return f"[{identifier}]({parent}.md#{identifier.lower()})"
+        # Parent has no published page (abstract/undefined protectedClassOf) —
+        # render plain so we never emit a broken link.
+        return f"`{identifier}`"
+    # Local classes get their own page — but Extension* pages are dropped (they
+    # render as parent sub-sections), so never link an extension to `<name>.md`.
+    if identifier in _local_classes and not identifier.startswith("Extension"):
         return f"[{identifier}]({identifier}.md)"
+    url = _resolve_upstream(identifier)
+    if url:
+        return f"[{identifier}]({url}){{ target=_blank rel=noopener }}"
     return f"`{identifier}`"
 
 
@@ -54,7 +149,7 @@ def resolve_type(prop_def: dict) -> str:
         identifier = prop_def["$ref"].split("/")[-1]
         return _format_type_ref(identifier)
     elif "$refCurie" in prop_def:
-        identifier = prop_def["$refCurie"].split(":")[-1]
+        identifier = prop_def["$refCurie"].rpartition(":")[2]
         return _format_type_ref(identifier)
     elif "oneOf" in prop_def or "anyOf" in prop_def:
         kw = "oneOf" if "oneOf" in prop_def else "anyOf"
@@ -151,6 +246,41 @@ def _get_class_properties(class_name: str, proc_schema) -> dict:
     return props
 
 
+def _write_props_table(f, props: dict, owner_def: dict):
+    """Write a Field/Type/Limits/Description table for a set of properties."""
+    f.write("| Field | Type | Limits | Description |\n")
+    f.write("| --- | --- | --- | --- |\n")
+    for prop_name, prop_attrs in props.items():
+        prop_type = resolve_type(prop_attrs)
+        cardinality = resolve_cardinality(prop_name, prop_attrs, owner_def)
+        desc = prop_attrs.get("description", "").replace("\n", " ").replace("|", "\\|")
+        flags = resolve_flags(prop_attrs)
+        if flags:
+            prop_type = f"{prop_type} ({flags})"
+        f.write(f"| `{prop_name}` | {prop_type} | {cardinality} | {desc} |\n")
+    f.write("\n")
+
+
+def _write_extension_sections(f, class_name: str, proc_schema):
+    """Render Extension* classes whose protectedClassOf is `class_name` as
+    sub-sections (they have no standalone page). The `### <Extension>` heading
+    yields the anchor that references elsewhere link to."""
+    extensions = sorted(e for e, p in _extension_parent.items() if p == class_name)
+    if not extensions:
+        return
+    f.write("## Extensions\n\n")
+    f.write(f"These extensions are defined for `{class_name}`.\n\n")
+    for ext in extensions:
+        ext_def = _find_class_in_processors(ext, proc_schema) or {}
+        f.write(f"### {ext}\n\n")
+        desc = ext_def.get("description", "")
+        if desc:
+            f.write(f"{desc}\n\n")
+        ext_props = _get_class_properties(ext, proc_schema)
+        if ext_props:
+            _write_props_table(f, ext_props, ext_def)
+
+
 def write_class_md(class_name: str, class_def: dict, proc_schema, out_dir: Path,
                    json_schema_base: str):
     """Write a single class Markdown file."""
@@ -185,10 +315,8 @@ def write_class_md(class_name: str, class_def: dict, proc_schema, out_dir: Path,
                 f"{{ target=_blank }}\n\n")
 
         # Show oneOf/anyOf members if present
-        has_union = False
         for kw in ("oneOf", "anyOf"):
             if kw in class_def:
-                has_union = True
                 f.write("**One of:**\n\n")
                 for item in class_def[kw]:
                     item_type = resolve_type(item)
@@ -206,10 +334,9 @@ def write_class_md(class_name: str, class_def: dict, proc_schema, out_dir: Path,
                 allof_parents.append(parent_name)
 
         if not all_props:
-            if has_union or allof_parents:
-                return
-            if proc_schema.class_is_primitive(class_name):
-                return
+            # No own fields (union, allOf-only, or primitive). Still render any
+            # extension sub-sections this class parents, then stop.
+            _write_extension_sections(f, class_name, proc_schema)
             return
 
         # Inheritance note
@@ -228,19 +355,10 @@ def write_class_md(class_name: str, class_def: dict, proc_schema, out_dir: Path,
 
         # Information model table
         f.write("## Information Model\n\n")
-        f.write("| Field | Type | Limits | Description |\n")
-        f.write("| --- | --- | --- | --- |\n")
+        _write_props_table(f, all_props, class_def)
 
-        for prop_name, prop_attrs in all_props.items():
-            prop_type = resolve_type(prop_attrs)
-            cardinality = resolve_cardinality(prop_name, prop_attrs, class_def)
-            desc = prop_attrs.get("description", "").replace("\n", " ").replace("|", "\\|")
-            flags = resolve_flags(prop_attrs)
-            if flags:
-                prop_type = f"{prop_type} ({flags})"
-            f.write(f"| `{prop_name}` | {prop_type} | {cardinality} | {desc} |\n")
-
-        f.write("\n")
+        # Extension sub-sections (Extension* classes protectedClassOf this class)
+        _write_extension_sections(f, class_name, proc_schema)
 
 
 def _load_local_classes(build_dir: Path):
@@ -266,6 +384,23 @@ def main(proc_schema):
     # Cache the main processor
     _processor_cache[str(proc_schema.schema_fp.resolve())] = proc_schema
 
+    # Map Extension* classes to their protectedClassOf parent. These render as
+    # sub-sections on the parent's page, not as standalone pages, so references
+    # to them resolve to `<parent>.md#<extension-lowercased>`.
+    for cname in proc_schema.defs:
+        pco = proc_schema.raw_defs.get(cname, {}).get("protectedClassOf")
+        if cname.startswith("Extension") and pco:
+            _extension_parent[cname] = pco
+
+    # Classes with a published docs page (the sync only updates existing pages).
+    # Used so we never link to a page that will not exist (e.g. an extension
+    # whose protectedClassOf parent is abstract/undefined).
+    docs_classes = (md_dir.parent.parent.parent
+                    / "docs" / "output-reference" / "classes")
+    if docs_classes.is_dir():
+        for page in docs_classes.glob("*.md"):
+            _published_classes.add(page.stem)
+
     # Base URL for JSON schema links (relative from docs site)
     json_schema_base = (
         "https://github.com/clingen-data-model/clinvar-gkm/blob/main"
@@ -273,6 +408,8 @@ def main(proc_schema):
     )
 
     for class_name, class_def in proc_schema.defs.items():
+        if class_name in _extension_parent:
+            continue  # rendered as a sub-section on its protectedClassOf parent
         write_class_md(class_name, class_def, proc_schema, out_dir=md_dir,
                        json_schema_base=json_schema_base)
 
