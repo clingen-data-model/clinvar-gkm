@@ -60,6 +60,10 @@ R2_BUCKET="clinvar-gkm"
 R2_ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
 R2_PROFILE="r2"
 R2_PUBLIC_URL="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
+# Per-major release prefix (ADR 0004). Everything this script publishes lives under
+# it (v1/deltas/…). Env-overridable; the r2_* helpers below prepend it, so call sites
+# still pass bare deltas/… paths.
+R2_PREFIX="${R2_PREFIX:-v1/}"
 
 # --- Derived date components ---
 YEAR="${EXPORT_DATE:0:4}"
@@ -79,7 +83,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # =====================================================================
 
 r2_upload() {
-  local src="$1" dest="$2" content_type="${3:-application/gzip}"
+  local src="$1" dest="${R2_PREFIX}$2" content_type="${3:-application/gzip}"
   if $DRY_RUN; then
     echo "  [dry-run] upload: ${dest}"
     return
@@ -100,7 +104,7 @@ r2_copy() {
   # everything smaller via `aws s3api copy-object` (single CopyObject, no tag calls).
   # Delta artifacts are usually small (this hits the s3api path), but a large delta bundle
   # is handled correctly too.
-  local src="$1" dest="$2"
+  local src="${R2_PREFIX}$1" dest="${R2_PREFIX}$2"
   if $DRY_RUN; then
     echo "  [dry-run] copy: ${src} -> ${dest}"
     return
@@ -120,7 +124,7 @@ r2_copy() {
 }
 
 r2_ls() {
-  local prefix="$1"
+  local prefix="${R2_PREFIX}$1"
   aws s3 ls "s3://${R2_BUCKET}/${prefix}" \
     --endpoint-url "${R2_ENDPOINT}" \
     --profile "${R2_PROFILE}" \
@@ -164,7 +168,9 @@ while IFS= read -r f; do
 done < <(r2_ls "datasets/clinvar-gkm_")
 
 if [[ -n "$CHECKPOINT_FILE" ]]; then
-  CHECKPOINT_PATH="datasets/${CHECKPOINT_FILE}"
+  # Path is written into the manifest and resolved by consumers as base_url + path,
+  # so it must carry the same ${R2_PREFIX} the full bundle is published under.
+  CHECKPOINT_PATH="${R2_PREFIX}datasets/${CHECKPOINT_FILE}"
   CHECKPOINT_RELEASE="${CHECKPOINT_FILE#clinvar-gkm_}"   # 2026-06.json.gz
   CHECKPOINT_RELEASE="${CHECKPOINT_RELEASE%.json.gz}"     # 2026-06
   echo "  checkpoint_full = ${CHECKPOINT_PATH} (release ${CHECKPOINT_RELEASE})"
@@ -204,7 +210,7 @@ if [[ -n "${PARQUET_DIR}" && -d "${PARQUET_DIR}" ]]; then
   done
   echo "  ${#PARQUET_SECTIONS[@]} Parquet sections uploaded."
 elif $DRY_RUN; then
-  echo "  [dry-run] (no local Parquet dir; would upload ${PREFIX}/parquet/<section>.parquet)"
+  echo "  [dry-run] (no local Parquet dir; would upload ${R2_PREFIX}${PREFIX}/parquet/<section>.parquet)"
 else
   echo "  (no Parquet dir found, skipping)"
 fi
@@ -220,9 +226,9 @@ r2_copy "${PREFIX}/manifest.json" "${LATEST_PREFIX}/manifest.json"
 # alongside the current sections and misrepresent the latest delta. The bundle + manifest are
 # single files (cleanly overwritten by r2_copy above), so only parquet/ needs this.
 if $DRY_RUN; then
-  echo "  [dry-run] clear ${LATEST_PREFIX}/parquet/ (drop stale prior-release sections)"
+  echo "  [dry-run] clear ${R2_PREFIX}${LATEST_PREFIX}/parquet/ (drop stale prior-release sections)"
 else
-  aws s3 rm "s3://${R2_BUCKET}/${LATEST_PREFIX}/parquet/" --recursive \
+  aws s3 rm "s3://${R2_BUCKET}/${R2_PREFIX}${LATEST_PREFIX}/parquet/" --recursive \
     --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" --quiet 2>/dev/null || true
 fi
 if [[ ${#PARQUET_SECTIONS[@]} -gt 0 ]]; then
@@ -230,7 +236,7 @@ if [[ ${#PARQUET_SECTIONS[@]} -gt 0 ]]; then
     r2_copy "${PREFIX}/parquet/${section}.parquet" "${LATEST_PREFIX}/parquet/${section}.parquet"
   done
 elif $DRY_RUN; then
-  echo "  [dry-run] (would copy ${PREFIX}/parquet/<section>.parquet -> ${LATEST_PREFIX}/parquet/)"
+  echo "  [dry-run] (would copy ${R2_PREFIX}${PREFIX}/parquet/<section>.parquet -> ${R2_PREFIX}${LATEST_PREFIX}/parquet/)"
 fi
 echo ""
 
@@ -242,7 +248,7 @@ $DRY_RUN && INDEX_ARGS+=("--dry-run")
 # --- Summary --------------------------------------------------------------------------
 echo ""
 echo "=== Delta Upload Complete ==="
-echo "  Delta:   ${R2_PUBLIC_URL}/${PREFIX}/${DELTA_NAME}"
-echo "  Manifest:${R2_PUBLIC_URL}/${PREFIX}/manifest.json"
-echo "  Latest:  ${R2_PUBLIC_URL}/${LATEST_PREFIX}/${LATEST_DELTA_NAME}"
+echo "  Delta:   ${R2_PUBLIC_URL}/${R2_PREFIX}${PREFIX}/${DELTA_NAME}"
+echo "  Manifest:${R2_PUBLIC_URL}/${R2_PREFIX}${PREFIX}/manifest.json"
+echo "  Latest:  ${R2_PUBLIC_URL}/${R2_PREFIX}${LATEST_PREFIX}/${LATEST_DELTA_NAME}"
 echo "  Index:   ${R2_PUBLIC_URL}/index.json"
