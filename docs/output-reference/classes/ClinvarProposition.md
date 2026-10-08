@@ -1,8 +1,8 @@
 # ClinvarProposition
 
-!!! warning "Draft"
+!!! note "Trial Use"
 
-    This data class is at a **draft** maturity level and may change significantly in future releases.
+    May change in future releases. See the [GKM Maturity Model](https://vrs.ga4gh.org/en/2.0/appendices/maturity_model.html){ target=_blank rel=noopener }.
 
 Any proposition type valid in ClinVar-GKM statements. Includes the GA4GH standard proposition types (pathogenicity, oncogenicity, clinical significance) and ClinVar-specific proposition types for submission categories not covered by the GA4GH specifications.
 

@@ -3,7 +3,7 @@
    "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarProposition",
    "title": "ClinvarProposition",
    "description": "Any proposition type valid in ClinVar-GKM statements. Includes the GA4GH standard proposition types (pathogenicity, oncogenicity, clinical significance) and ClinVar-specific proposition types for submission categories not covered by the GA4GH specifications.",
-   "maturity": "draft",
+   "maturity": "trial use",
    "oneOf": [
       {
          "$ref": "/ga4gh/schema/va-spec/1.1.0/json/VariantPathogenicityProposition"

@@ -164,12 +164,16 @@ def write_class_md(class_name: str, class_def: dict, proc_schema, out_dir: Path,
         maturity = class_def.get("maturity", "")
         if maturity == "draft":
             f.write('!!! warning "Draft"\n\n')
-            f.write("    This data class is at a **draft** maturity level and may "
-                    "change significantly in future releases.\n\n")
+            f.write("    May change significantly in future releases. See the "
+                    "[GKM Maturity Model]"
+                    "(https://vrs.ga4gh.org/en/2.0/appendices/maturity_model.html)"
+                    "{ target=_blank rel=noopener }.\n\n")
         elif maturity == "trial use":
             f.write('!!! note "Trial Use"\n\n')
-            f.write("    This data class is at a **trial use** maturity level and may "
-                    "change in future releases.\n\n")
+            f.write("    May change in future releases. See the "
+                    "[GKM Maturity Model]"
+                    "(https://vrs.ga4gh.org/en/2.0/appendices/maturity_model.html)"
+                    "{ target=_blank rel=noopener }.\n\n")
 
         # Computational definition
         description = class_def.get("description", "")

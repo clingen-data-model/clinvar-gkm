@@ -4,7 +4,7 @@
    "title": "ClinvarAffectsProposition",
    "description": "A proposition describing a variant that affects a condition without implying causality. Used for ClinVar submissions classified as \"affects\". ClinVar has stopped accepting new submissions with this classification, but historical submissions remain.",
    "type": "object",
-   "maturity": "draft",
+   "maturity": "trial use",
    "allOf": [
       {
          "$ref": "/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarGermlineCustomProposition"

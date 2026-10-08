@@ -1,8 +1,8 @@
 # HgvsListItem
 
-!!! warning "Draft"
+!!! note "Trial Use"
 
-    This data class is at a **draft** maturity level and may change significantly in future releases.
+    May change in future releases. See the [GKM Maturity Model](https://vrs.ga4gh.org/en/2.0/appendices/maturity_model.html){ target=_blank rel=noopener }.
 
 A complex structure for sharing individual HGVS entries associated with Clinvar Variations including nucleotide expressions, protein expressions, molecular consequence and mane select/plus settings for the specific aligned and projected forms of the clinvar variant.
 

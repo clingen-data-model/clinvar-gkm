@@ -29,7 +29,7 @@ $defs:
 
   ExtensionClinvarScvId:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       The SCV accession identifier without version (e.g., SCV001571657).
     protectedClassOf: ClinvarScvStatement
@@ -44,7 +44,7 @@ $defs:
 
   ExtensionClinvarScvVersion:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       The version number of the SCV submission (e.g., "2").
     protectedClassOf: ClinvarScvStatement
@@ -59,7 +59,7 @@ $defs:
 
   ExtensionClinvarScvReviewStatus:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       The review status of the individual SCV submission as reported by ClinVar
       (e.g., "criteria provided, single submitter", "no assertion criteria provided").
@@ -85,7 +85,7 @@ $defs:
 
   ExtensionSubmittedScvLocalKey:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       The local key submitted by the submitter for this SCV, typically a combination
       of variant and condition identifiers used internally by the submitting lab.
@@ -101,7 +101,7 @@ $defs:
 
   ExtensionSubmissionLevel:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       The submission level category based on review status. Determines the
       aggregation tier when building VCV and RCV aggregate statements.
@@ -124,7 +124,7 @@ $defs:
 
   ExtensionSubmittedScvClassification:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       The original classification label as submitted by the submitter, before
       any normalization. Present when the submitted classification differs
@@ -146,7 +146,7 @@ $defs:
 
   SubmittedConditionMapping:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       The submitter's original condition details and how they were mapped to
       a ClinVar canonical condition. Includes the submitted name, type, MedGen
@@ -220,7 +220,7 @@ $defs:
 
   ExtensionSubmittedCondition:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       The submitter's original condition for single-condition submissions.
       Contains the submitted condition details and how they were mapped to
@@ -252,7 +252,7 @@ $defs:
 
   ExtensionSubmittedConditionSet:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       The submitter's original conditions for multi-condition submissions.
       Contains the submitted condition set details, the multiple condition
@@ -299,7 +299,7 @@ $defs:
 
   ExtensionClinvarReviewStatus:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       The aggregate review status for a VCV or RCV statement. Reflects the
       highest review status among contributing submissions (e.g., "practice
@@ -328,7 +328,7 @@ $defs:
 
   ClinvarScvStatementProperties:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       ClinVar-specific properties for SCV (submission-level) statements.
     protectedClassOf: ClinvarScvStatement
@@ -377,7 +377,7 @@ $defs:
     additionalProperties: true
 
   ClinvarScvStatement:
-    maturity: draft
+    maturity: trial use
     description: >-
       A ClinVar SCV (submitted clinical variant) statement. Represents a single
       submitter's assertion about a variant-condition relationship, including
@@ -404,7 +404,7 @@ $defs:
 
   ClinvarAggregateStatementProperties:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       ClinVar-specific properties for aggregate (VCV and RCV) statements.
     protectedClassOf: ClinvarAggregateStatement
@@ -442,7 +442,7 @@ $defs:
     additionalProperties: true
 
   ClinvarVcvStatement:
-    maturity: draft
+    maturity: trial use
     description: >-
       A ClinVar VCV (variant classification variant) statement. Represents an
       aggregate classification for a variant across all submissions sharing
@@ -460,7 +460,7 @@ $defs:
       - $ref: "#/$defs/ClinvarAggregateStatementProperties"
 
   ClinvarRcvStatement:
-    maturity: draft
+    maturity: trial use
     description: >-
       A ClinVar RCV (reference clinical variant) statement. Represents an
       aggregate classification for a specific variant-condition pair across
@@ -477,7 +477,7 @@ $defs:
       - $ref: "#/$defs/ClinvarAggregateStatementProperties"
 
   ClinvarStatement:
-    maturity: draft
+    maturity: trial use
     description: >-
       Any ClinVar statement, at either the submission (SCV) or aggregate
       (VCV, RCV) level.

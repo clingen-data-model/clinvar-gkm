@@ -1,8 +1,8 @@
 # ClinvarGermlineCustomProposition
 
-!!! warning "Draft"
+!!! note "Trial Use"
 
-    This data class is at a **draft** maturity level and may change significantly in future releases.
+    May change in future releases. See the [GKM Maturity Model](https://vrs.ga4gh.org/en/2.0/appendices/maturity_model.html){ target=_blank rel=noopener }.
 
 A custom proposition type for ClinVar germline submissions that do not have a corresponding GA4GH VA-Spec proposition type. Includes ClinVar submission categories such as "risk factor", "protective", "drug response", "affects", "association", "confers sensitivity", "other", "not provided", and "conflicting data from submitters". These custom proposition types are used to represent variant-condition associations in Clin
 
