@@ -522,10 +522,10 @@ BEGIN
             scv.proposition.pred as predicate,
             -- obj_ref = the 4-source objectCondition COALESCE, computed once (a Condition/ConditionSet pointer)
             COALESCE(
-              scs.extensions.value_submitted_condition.condition,
-              scs.extensions.value_submitted_condition.conditionSet,
-              scs.extensions.value_submitted_condition_set.condition,
-              scs.extensions.value_submitted_condition_set.conditionSet
+              IF(scs.extensions.value_submitted_condition.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition.condition), NULL),
+              IF(scs.extensions.value_submitted_condition.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition.conditionSet), NULL),
+              IF(scs.extensions.value_submitted_condition_set.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition_set.condition), NULL),
+              IF(scs.extensions.value_submitted_condition_set.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition_set.conditionSet), NULL)
             ) as obj_ref,
             (SELECT AS STRUCT sgq.* EXCEPT(scv_id)) as gene_ctx,
             (SELECT AS STRUCT smq.* EXCEPT(scv_id)) as moi_ctx,
@@ -660,19 +660,19 @@ BEGIN
             scv.clinical_impact_assertion_type IS NOT DISTINCT FROM 'therapeutic',
             TO_JSON(th.object_ref),
             TO_JSON(COALESCE(
-              scs.extensions.value_submitted_condition.condition,
-              scs.extensions.value_submitted_condition.conditionSet,
-              scs.extensions.value_submitted_condition_set.condition,
-              scs.extensions.value_submitted_condition_set.conditionSet
+              IF(scs.extensions.value_submitted_condition.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition.condition), NULL),
+              IF(scs.extensions.value_submitted_condition.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition.conditionSet), NULL),
+              IF(scs.extensions.value_submitted_condition_set.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition_set.condition), NULL),
+              IF(scs.extensions.value_submitted_condition_set.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition_set.conditionSet), NULL)
             ))
           ) as object,
           IF(
             scv.clinical_impact_assertion_type IS NOT DISTINCT FROM 'therapeutic',
             COALESCE(
-              scs.extensions.value_submitted_condition.condition,
-              scs.extensions.value_submitted_condition.conditionSet,
-              scs.extensions.value_submitted_condition_set.condition,
-              scs.extensions.value_submitted_condition_set.conditionSet
+              IF(scs.extensions.value_submitted_condition.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition.condition), NULL),
+              IF(scs.extensions.value_submitted_condition.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition.conditionSet), NULL),
+              IF(scs.extensions.value_submitted_condition_set.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition_set.condition), NULL),
+              IF(scs.extensions.value_submitted_condition_set.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition_set.conditionSet), NULL)
             ),
             null
           ) as conditionQualifier,
@@ -727,6 +727,8 @@ BEGIN
         END AS condition_name
       FROM `{S}.gkm_scv_condition_sets` cs
       LEFT JOIN `{S}.gkm_dict_condition` dc
+        -- condition / normalized_match are now bare CURIEs (clinvar.trait:N); the REPLACE is a
+        -- defensive no-op kept for safety (dc.id is also the bare CURIE).
         ON dc.id = REPLACE(
              COALESCE(cs.extensions.value_submitted_condition.condition,
                       cs.extensions.value_submitted_condition.normalized_match),
