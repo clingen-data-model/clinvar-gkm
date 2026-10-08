@@ -17,3 +17,4 @@ importing them so they don't bloat every session's context.
 - [0001 — Incremental pipeline with carry-forward + delta publishing](0001-incremental-pipeline-and-deltas.md)
 - [0002 — Monthly full bundle anchored to ClinVar's monthly index](0002-monthly-full-anchored-to-clinvar-index.md)
 - [0003 — Roadmap generated from label-authorized discussions](0003-roadmap-from-labeled-discussions.md)
+- [0004 — Schema versioning & release change-management](0004-schema-versioning-and-release-management.md)

@@ -122,6 +122,7 @@ nav = [
   ] },
   { Reference = [
     { Roadmap = "reference/roadmap.md" },
+    { "Versioning & Releases" = "reference/versioning.md" },
     { "GA4GH Standards" = "reference/gks-standards.md" },
     { "Known Issues" = "reference/known-issues.md" },
     { Glossary = "reference/glossary.md" },
