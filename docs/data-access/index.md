@@ -7,7 +7,7 @@ ClinVar-GKM is distributed as a **monthly full bundle** plus **weekly deltas**, 
 ## Latest Release
 
 !!! warning "The monthly full is a month-start baseline, not the current week"
-    `clinvar-gkm_00-latest.json.gz` reflects the **last release of the _previous_ month** — e.g. the `2026-10` full is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. It does **not** include the current month's weekly changes. To get the current weekly state, apply the latest delta on top of it — see the [Consumer Replay Model](download.md#consumer-replay-model).
+    `clinvar-gkm_00-latest.json.gz` reflects the **last release of the _previous_ month** — e.g. the `2026-10` full is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. It does **not** include the current month's weekly changes. To get the current weekly state, apply the latest delta on top of it — see the [Consumer Replay Model](weekly-deltas.md#consumer-replay-model).
 
 Download the most recent monthly full bundle:
 
@@ -22,7 +22,7 @@ curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/cli
 curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/manifest.json
 ```
 
-The full bundle is a single JSON object containing all bundle sections — variations, statements, propositions, conditions, and supporting reference data. A delta uses the same section structure but carries only the records added or updated since its baseline release. Typed Parquet files (one per section) accompany both — dated monthly full sets at `datasets/parquet/<yyyy-mm>/` (with a stable `datasets/parquet/00-latest/`) and weekly delta sets at `deltas/<yyyy-mmdd>/parquet/`. See [Output Format](../output-reference/overview.md) for the complete structure and [Downloads](download.md) for the consumer replay model and the full Parquet list.
+The full bundle is a single JSON object containing all bundle sections — variations, statements, propositions, conditions, and supporting reference data. A delta uses the same section structure but carries only the records added or updated since its baseline release. Typed Parquet files (one per section) accompany both — dated monthly full sets at `datasets/parquet/<yyyy-mm>/` (with a stable `datasets/parquet/00-latest/`) and weekly delta sets at `deltas/<yyyy-mmdd>/parquet/`. See [Output Format](../output-reference/overview.md) for the complete structure, [Weekly Deltas](weekly-deltas.md) for the consumer replay model, and [Parquet Files](parquet.md) for the full Parquet list.
 
 ---
 

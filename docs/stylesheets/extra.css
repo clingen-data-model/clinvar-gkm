@@ -88,3 +88,11 @@
   width: auto;
   filter: brightness(0) invert(1);
 }
+
+.r2-browser { font-family: var(--md-code-font-family); font-size: 0.82rem; line-height: 1.6; }
+.r2-folder > summary { cursor: pointer; font-weight: 600; padding: 0.15rem 0; }
+.r2-file { padding: 0.1rem 0 0.1rem 0.4rem; }
+.r2-size, .r2-date { color: var(--md-default-fg-color--light); font-size: 0.75rem; margin-left: 0.5rem; }
+.r2-latest { width: 100%; border-collapse: collapse; }
+.r2-latest th, .r2-latest td { text-align: left; padding: 0.3rem 0.6rem; border-bottom: 1px solid var(--md-default-fg-color--lightest); }
+.r2-error { padding: 0.8rem; border-left: 3px solid var(--md-accent-fg-color); margin: 1rem 0; }
