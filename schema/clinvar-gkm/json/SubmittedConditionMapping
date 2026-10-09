@@ -45,11 +45,11 @@
       },
       "direct_match": {
          "type": "string",
-         "description": "JSON pointer reference to the directly matched condition (e.g., \"#/condition/clinvar.trait:123\"). Present only when the direct match differs from the normalized match."
+         "description": "The CURIE of the directly matched condition (e.g., \"clinvar.trait:123\"; the key of the corresponding #/condition/ bundle entry). Present only when the direct match differs from the normalized match."
       },
       "normalized_match": {
          "type": "string",
-         "description": "JSON pointer reference to the final normalized condition (e.g., \"#/condition/clinvar.trait:456\")."
+         "description": "The CURIE of the final normalized condition (e.g., \"clinvar.trait:456\"; the key of the corresponding #/condition/ bundle entry)."
       },
       "normalized_resolution": {
          "type": "string",

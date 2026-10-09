@@ -21,11 +21,11 @@
                "properties": {
                   "condition": {
                      "type": "string",
-                     "description": "JSON pointer reference to the resolved condition (e.g., \"#/condition/clinvar.trait:123\")."
+                     "description": "The CURIE of the resolved condition (e.g., \"clinvar.trait:123\"; the key of the corresponding #/condition/ bundle entry)."
                   },
                   "conditionSet": {
                      "type": "string",
-                     "description": "Always null for single-condition submissions. Present for structural consistency with submittedConditionSet."
+                     "description": "Usually null for single-condition submissions; when a single-trait submission maps to a multi-trait RCV it holds the CURIE of that condition set (e.g., "clinvar.traitset:123")."
                   }
                },
                "additionalProperties": true
@@ -145,7 +145,7 @@
                "properties": {
                   "conditionSet": {
                      "type": "string",
-                     "description": "JSON pointer reference to the resolved condition set (e.g., \"#/conditionSet/clinvar.traitset:123\")."
+                     "description": "The CURIE of the resolved condition set (e.g., \"clinvar.traitset:123\"; the key of the corresponding #/conditionSet/ bundle entry)."
                   },
                   "condition": {
                      "type": "string",

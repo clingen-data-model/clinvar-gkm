@@ -1029,8 +1029,11 @@ BEGIN
           -- This keeps the network shuffle tiny (just counting the scv_id partition).
           SELECT
             scm.scv_id,
-            IF(scm.rcv_trait_count > 1, FORMAT('#/conditionSet/%s', ts.id), NULL) AS conditionSet,
-            IF(scm.rcv_trait_count = 1, ts.concepts[SAFE_OFFSET(0)], NULL) AS condition,
+            -- submittedCondition/Set emit BARE CURIEs (clinvar.traitset:N / clinvar.trait:N), not #/ JSON
+            -- pointers: this extension conveys the submitter's trait + how it resolved, not strict object refs.
+            -- Consumers (gkm-scv/rcv-statement) re-wrap these into #/ pointers for proposition.object.
+            IF(scm.rcv_trait_count > 1, ts.id, NULL) AS conditionSet,
+            IF(scm.rcv_trait_count = 1, REGEXP_REPLACE(ts.concepts[SAFE_OFFSET(0)], r'^#/condition/', ''), NULL) AS condition,
             scm.multiple_condition_explanation,
             scm.cats_trait_count as scv_trait_count,
             STRUCT(
@@ -1046,11 +1049,11 @@ BEGIN
               ) AS original_medgen_match,
 
               IF(scm.mapped_trait_id IS DISTINCT FROM scm.normalized_trait_id,
-                FORMAT('#/condition/clinvar.trait:%s', scm.mapped_trait_id),
+                FORMAT('clinvar.trait:%s', scm.mapped_trait_id),
                 NULL
               ) AS direct_match,
 
-              FORMAT('#/condition/clinvar.trait:%s', scm.normalized_trait_id) AS normalized_match,
+              FORMAT('clinvar.trait:%s', scm.normalized_trait_id) AS normalized_match,
               scm.normalized_resolution_type AS normalized_resolution,
               STRUCT(scm.mapping_type AS type, scm.mapping_ref AS ref, scm.mapping_value AS value) AS mapping
             ) AS condition_struct

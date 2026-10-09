@@ -200,10 +200,10 @@ BEGIN
       SELECT
         rsl.rcv_accession,
         COALESCE(
-          scs.extensions.value_submitted_condition.condition,
-          scs.extensions.value_submitted_condition.conditionSet,
-          scs.extensions.value_submitted_condition_set.condition,
-          scs.extensions.value_submitted_condition_set.conditionSet
+          IF(scs.extensions.value_submitted_condition.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition.condition), NULL),
+          IF(scs.extensions.value_submitted_condition.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition.conditionSet), NULL),
+          IF(scs.extensions.value_submitted_condition_set.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition_set.condition), NULL),
+          IF(scs.extensions.value_submitted_condition_set.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition_set.conditionSet), NULL)
         ) AS condition_concept
       FROM rcv_scv_link rsl
       JOIN `{S}.gkm_scv_condition_sets` scs ON scs.scv_id = rsl.scv_id
