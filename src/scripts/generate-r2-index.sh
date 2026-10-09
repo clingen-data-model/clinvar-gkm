@@ -34,6 +34,11 @@ R2_BUCKET="clinvar-gkm"
 R2_ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
 R2_PROFILE="r2"
 R2_PUBLIC_URL="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
+# Per-major release prefix (ADR 0004). The per-line index + feed live under it
+# (v1/index.json, v1/feed.xml) and every entry path it emits is prefixed with it, so
+# consumers composing base_url + "/" + path land under v1/. The thin ROOT manifest
+# (index.json) is the one object published at the bucket root — see Main below.
+R2_PREFIX="${R2_PREFIX:-v1/}"
 
 LATEST_MONTHLY="clinvar-gkm_00-latest.json.gz"
 
@@ -101,6 +106,16 @@ r2_parquet_sections_under() {
   )
   arr+="]"
   echo "$arr"
+}
+
+# Minimal XML escaping for Atom feed text + attribute values.
+xml_escape() {
+  local s="$1"
+  s="${s//&/&amp;}"
+  s="${s//</&lt;}"
+  s="${s//>/&gt;}"
+  s="${s//\"/&quot;}"
+  printf '%s' "$s"
 }
 
 # Build a JSON array of file objects from "DATE SIZE FILENAME" lines under a prefix.
@@ -193,15 +208,15 @@ build_deltas_array() {
       release="${dir:0:4}-${dir:5:2}-${dir:7:2}"
       is_latest="false"
     fi
-    path="deltas/${dir}/"
+    path="${R2_PREFIX}deltas/${dir}/"
 
     local modified parquet_sections
-    modified="$(r2_newest_date_under "deltas/${dir}/")"
-    parquet_sections="$(r2_parquet_sections_under "deltas/${dir}/parquet/")"
+    modified="$(r2_newest_date_under "${R2_PREFIX}deltas/${dir}/")"
+    parquet_sections="$(r2_parquet_sections_under "${R2_PREFIX}deltas/${dir}/parquet/")"
 
     arr+=$(printf '{"release":"%s","path":"%s","manifest":"%smanifest.json","modified":"%s","parquet":%s,"latest":%s}' \
       "$release" "$path" "$path" "$modified" "$parquet_sections" "$is_latest")
-  done < <(r2_ls "deltas/" 2>/dev/null)
+  done < <(r2_ls "${R2_PREFIX}deltas/" 2>/dev/null)
 
   arr+="]"
   echo "$arr"
@@ -211,15 +226,15 @@ build_deltas_array() {
 # Main
 # =====================================================================
 
-echo "--- Generating index.json ---"
+echo "--- Generating ${R2_PREFIX}index.json + root manifest + ${R2_PREFIX}feed.xml ---"
 
 INDEX_TMP="/tmp/clinvar-gkm-index.json"
 
 # datasets.monthly (weekly section dropped — full is month-end only now)
-DS_MONTHLY=$(build_file_array "datasets/" "${LATEST_MONTHLY}")
+DS_MONTHLY=$(build_file_array "${R2_PREFIX}datasets/" "${LATEST_MONTHLY}")
 
 # datasets.parquet — dated month sets + 00-latest under datasets/parquet/
-DS_PARQUET=$(build_parquet_array "datasets/parquet/")
+DS_PARQUET=$(build_parquet_array "${R2_PREFIX}datasets/parquet/")
 
 # archives — per-year discovery (monthly bundles + dated parquet month sets)
 ARCHIVES_JSON="{"
@@ -231,16 +246,20 @@ while IFS= read -r year_dir; do
   if ! $FIRST_YEAR; then ARCHIVES_JSON+=","; fi
   FIRST_YEAR=false
 
-  ARCH_MONTHLY=$(build_file_array "archives/${year_dir}/")
-  ARCH_PARQUET=$(build_parquet_array "archives/${year_dir}/parquet/")
+  ARCH_MONTHLY=$(build_file_array "${R2_PREFIX}archives/${year_dir}/")
+  ARCH_PARQUET=$(build_parquet_array "${R2_PREFIX}archives/${year_dir}/parquet/")
   ARCHIVES_JSON+=$(printf '"%s":{"monthly":%s,"parquet":%s}' \
     "$year_dir" "$ARCH_MONTHLY" "$ARCH_PARQUET")
-done < <(r2_ls "archives/" 2>/dev/null)
+done < <(r2_ls "${R2_PREFIX}archives/" 2>/dev/null)
 ARCHIVES_JSON+="}"
 
 # deltas — per-release dirs
 DELTAS_JSON=$(build_deltas_array)
 
+# ---------------------------------------------------------------------
+# Output 1: per-line index -> ${R2_PREFIX}index.json
+# Today's index shape, but every entry path is now under ${R2_PREFIX}.
+# ---------------------------------------------------------------------
 cat > "$INDEX_TMP" <<INDEXEOF
 {
   "description": "ClinVar-GKM release index",
@@ -255,8 +274,93 @@ cat > "$INDEX_TMP" <<INDEXEOF
 }
 INDEXEOF
 
-r2_upload "$INDEX_TMP" "index.json" "application/json"
+r2_upload "$INDEX_TMP" "${R2_PREFIX}index.json" "application/json"
+echo "  ${R2_PREFIX}index.json uploaded."
+
+# ---------------------------------------------------------------------
+# Output 2: thin ROOT manifest -> index.json (bucket root, ADR 0004)
+# Lists the active major lines; each points at its own per-line index.
+# The major / schema / index are hardcoded for the single v1 line today;
+# a future major adds entries here.
+# ---------------------------------------------------------------------
+MANIFEST_TMP="/tmp/clinvar-gkm-manifest.json"
+cat > "$MANIFEST_TMP" <<MANIFESTEOF
+{
+  "manifest_version": 1,
+  "updated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "base_url": "${R2_PUBLIC_URL}",
+  "active": ["1"],
+  "versions": {
+    "1": {"schema": "1.0.0", "status": "current", "eol": null, "index": "v1/index.json"}
+  }
+}
+MANIFESTEOF
+
+r2_upload "$MANIFEST_TMP" "index.json" "application/json"
+echo "  index.json (root manifest) uploaded."
+
+# ---------------------------------------------------------------------
+# Output 3: minimal Atom 1.0 feed -> ${R2_PREFIX}feed.xml
+# Entries = monthly fulls (datasets/) + dated deltas (deltas/), newest
+# first, capped at 25. Derived from the same read-only R2 listings above.
+# ---------------------------------------------------------------------
+FEED_TMP="/tmp/clinvar-gkm-feed.xml"
+FEED_NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+FEED_SELF="${R2_PUBLIC_URL}/${R2_PREFIX}feed.xml"
+
+# "MODIFIED<tab>TYPE<tab>LABEL<tab>PATH" records, newest first (lexical desc on the
+# leading YYYY-MM-DD date), capped at 25.
+FEED_RECORDS="$(
+  {
+    # monthly fulls (skip the 00-latest pointer)
+    while IFS=' ' read -r m_date _ m_file; do
+      [[ -z "$m_file" ]] && continue
+      [[ "$m_file" == *"00-latest"* ]] && continue
+      m_label="${m_file#clinvar-gkm_}"
+      m_label="${m_label%.json.gz}"
+      printf '%s\tmonthly\t%s\t%sdatasets/%s\n' \
+        "$m_date" "$m_label" "$R2_PREFIX" "$m_file"
+    done < <(r2_ls_with_size "${R2_PREFIX}datasets/")
+
+    # dated deltas (skip the 00-latest pointer); dir is YYYY-MMDD
+    while IFS= read -r d_dir; do
+      d_dir="${d_dir%/}"
+      [[ -z "$d_dir" ]] && continue
+      [[ "$d_dir" == "00-latest" ]] && continue
+      [[ "$d_dir" =~ ^[0-9]{4}-[0-9]{4}$ ]] || continue
+      d_rel="${d_dir:0:4}-${d_dir:5:2}-${d_dir:7:2}"
+      d_date="$(r2_newest_date_under "${R2_PREFIX}deltas/${d_dir}/")"
+      [[ -z "$d_date" ]] && d_date="$d_rel"
+      printf '%s\tdelta\t%s\t%sdeltas/%s/clinvar-gkm-delta_%s.json.gz\n' \
+        "$d_date" "$d_rel" "$R2_PREFIX" "$d_dir" "$d_dir"
+    done < <(r2_ls "${R2_PREFIX}deltas/")
+  } | sort -r | head -n 25
+)"
+
+{
+  echo '<?xml version="1.0" encoding="UTF-8"?>'
+  echo '<feed xmlns="http://www.w3.org/2005/Atom">'
+  echo '  <title>ClinVar-GKM Releases</title>'
+  echo "  <id>$(xml_escape "${FEED_SELF}")</id>"
+  echo "  <updated>${FEED_NOW}</updated>"
+  echo "  <link rel=\"self\" href=\"$(xml_escape "${FEED_SELF}")\"/>"
+  echo "  <link rel=\"alternate\" href=\"$(xml_escape "${R2_PUBLIC_URL}/${R2_PREFIX}index.json")\"/>"
+  while IFS=$'\t' read -r f_date f_type f_label f_path; do
+    [[ -z "$f_date" ]] && continue
+    f_href="${R2_PUBLIC_URL}/${f_path}"
+    echo '  <entry>'
+    echo "    <title>$(xml_escape "ClinVar-GKM ${f_type} ${f_label}")</title>"
+    echo "    <id>$(xml_escape "${f_href}")</id>"
+    echo "    <updated>${f_date}T00:00:00Z</updated>"
+    echo "    <link href=\"$(xml_escape "${f_href}")\"/>"
+    echo '  </entry>'
+  done <<< "${FEED_RECORDS}"
+  echo '</feed>'
+} > "$FEED_TMP"
+
+r2_upload "$FEED_TMP" "${R2_PREFIX}feed.xml" "application/atom+xml"
+echo "  ${R2_PREFIX}feed.xml uploaded."
+
 if ! $DRY_RUN; then
-  rm -f "$INDEX_TMP"
+  rm -f "$INDEX_TMP" "$MANIFEST_TMP" "$FEED_TMP"
 fi
-echo "  index.json uploaded."

@@ -80,6 +80,10 @@ R2_BUCKET="clinvar-gkm"
 R2_ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
 R2_PROFILE="r2"
 R2_PUBLIC_URL="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
+# Per-major release prefix (ADR 0004). Everything this script publishes lives under
+# it (v1/datasets/…, v1/archives/…, v1/datasets/parquet/…). Env-overridable; the
+# r2_* helpers below prepend it, so call sites still pass bare datasets/… paths.
+R2_PREFIX="${R2_PREFIX:-v1/}"
 
 # --- Derived date components (month label overrides the source date's month) ---
 if [[ -n "${MONTH_LABEL}" ]]; then
@@ -102,7 +106,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # =====================================================================
 
 r2_upload() {
-  local src="$1" dest="$2" content_type="${3:-application/gzip}"
+  local src="$1" dest="${R2_PREFIX}$2" content_type="${3:-application/gzip}"
   if $DRY_RUN; then
     echo "  [dry-run] upload: ${dest}"
     return
@@ -124,7 +128,7 @@ r2_copy() {
   # everything smaller via `aws s3api copy-object` (a single CopyObject that sends
   # neither tag header — verified on small + ~1GB parquet; it is slow/capped near 5GB,
   # which is why bundles use the cp path instead).
-  local src="$1" dest="$2"
+  local src="${R2_PREFIX}$1" dest="${R2_PREFIX}$2"
   if $DRY_RUN; then
     echo "  [dry-run] copy: ${src} -> ${dest}"
     return
@@ -144,7 +148,7 @@ r2_copy() {
 }
 
 r2_ls() {
-  local prefix="$1"
+  local prefix="${R2_PREFIX}$1"
   aws s3 ls "s3://${R2_BUCKET}/${prefix}" \
     --endpoint-url "${R2_ENDPOINT}" \
     --profile "${R2_PROFILE}" \
@@ -152,7 +156,7 @@ r2_ls() {
 }
 
 r2_rm() {
-  local key="$1"
+  local key="${R2_PREFIX}$1"
   if $DRY_RUN; then
     echo "  [dry-run] delete: ${key}"
     return
@@ -278,9 +282,9 @@ upload_parquet() {
   # 00-latest/ and misrepresent the newest full. Same idiom as the delta uploader.
   echo "--- Refreshing ${latest_prefix}/ ---"
   if $DRY_RUN; then
-    echo "  [dry-run] clear ${latest_prefix}/ then copy each ${month_prefix}/<section> -> ${latest_prefix}/"
+    echo "  [dry-run] clear ${R2_PREFIX}${latest_prefix}/ then copy each ${R2_PREFIX}${month_prefix}/<section> -> ${R2_PREFIX}${latest_prefix}/"
   else
-    aws s3 rm "s3://${R2_BUCKET}/${latest_prefix}/" --recursive \
+    aws s3 rm "s3://${R2_BUCKET}/${R2_PREFIX}${latest_prefix}/" --recursive \
       --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" --quiet 2>/dev/null || true
     # Per-file server-side copy (r2_copy picks the size-appropriate method); a recursive
     # `aws s3 cp` can't: it needs one --copy-props mode that R2 lacks for mixed sizes.
@@ -365,9 +369,9 @@ $DRY_RUN && INDEX_ARGS+=("--dry-run")
 # --- Summary ---
 echo ""
 echo "=== Upload Complete ==="
-echo "  Monthly: ${R2_PUBLIC_URL}/datasets/${MONTHLY_FILE}"
-echo "  Latest:  ${R2_PUBLIC_URL}/datasets/${LATEST_MONTHLY}"
+echo "  Monthly: ${R2_PUBLIC_URL}/${R2_PREFIX}datasets/${MONTHLY_FILE}"
+echo "  Latest:  ${R2_PUBLIC_URL}/${R2_PREFIX}datasets/${LATEST_MONTHLY}"
 if [[ -n "${PARQUET_DIR}" && -d "${PARQUET_DIR}" ]]; then
-  echo "  Parquet: ${R2_PUBLIC_URL}/datasets/parquet/${YEAR}-${MM}/ (+ 00-latest/)"
+  echo "  Parquet: ${R2_PUBLIC_URL}/${R2_PREFIX}datasets/parquet/${YEAR}-${MM}/ (+ 00-latest/)"
 fi
 echo "  Index:   ${R2_PUBLIC_URL}/index.json"
