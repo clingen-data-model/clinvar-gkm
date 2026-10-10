@@ -1,14 +1,20 @@
 {
   "classification": {
     "conceptType": "Classification",
-    "name": "Pathogenic",
+    "extensions": [
+      {
+        "name": "conflictingExplanation",
+        "value": "Uncertain significance(1); Likely benign(1)"
+      }
+    ],
+    "name": "Conflicting classifications of pathogenicity",
     "type": "MappableConcept"
   },
-  "direction": "supports",
+  "direction": "neutral",
   "extensions": [
     {
       "name": "clinvarReviewStatus",
-      "value": "criteria provided, multiple submitters, no conflicts"
+      "value": "criteria provided, conflicting classifications"
     }
   ],
   "hasEvidenceLines": [
@@ -18,24 +24,30 @@
         {
           "classification": {
             "conceptType": "Classification",
-            "name": "Pathogenic",
+            "extensions": [
+              {
+                "name": "conflictingExplanation",
+                "value": "Uncertain significance(1); Likely benign(1)"
+              }
+            ],
+            "name": "Conflicting classifications of pathogenicity",
             "type": "MappableConcept"
           },
-          "direction": "supports",
+          "direction": "neutral",
           "extensions": [
             {
               "name": "clinvarReviewStatus",
-              "value": "criteria provided, multiple submitters, no conflicts"
+              "value": "criteria provided, conflicting classifications"
             }
           ],
           "hasEvidenceLines": [
             {
               "directionOfEvidenceProvided": "supports",
               "hasEvidenceItems": [
-                "#/scv/clinvar.submission:SCV002601600.1",
-                "#/scv/clinvar.submission:SCV000659085.3"
+                "#/scv/clinvar.submission:SCV001524786.1",
+                "#/scv/clinvar.submission:SCV000397270.3"
               ],
-              "id": "RCV000548006.14-G-PATH-CP.contributing",
+              "id": "RCV001781420.15-G-PATH-CP.contributing",
               "strengthOfEvidenceProvided": {
                 "conceptType": "Strength",
                 "name": "Contributing",
@@ -44,12 +56,12 @@
               "type": "EvidenceLine"
             }
           ],
-          "id": "RCV000548006.14-G-PATH-CP",
+          "id": "RCV001781420.15-G-PATH-CP",
           "proposition": {
-            "id": "RCV000548006-G-PATH-CP",
-            "object": "#/condition/clinvar.trait:17678",
+            "id": "RCV001781420-G-PATH-CP",
+            "object": "#/condition/clinvar.trait:42004",
             "predicate": "isCausalFor",
-            "subject": "#/variation/clinvar:12582",
+            "subject": "#/variation/clinvar:97850",
             "type": "VariantPathogenicityProposition"
           },
           "quality": {
@@ -57,15 +69,10 @@
             "name": "criteria provided",
             "type": "MappableConcept"
           },
-          "strength": {
-            "conceptType": "Strength",
-            "name": "Definitive",
-            "type": "MappableConcept"
-          },
           "type": "Statement"
         }
       ],
-      "id": "RCV000548006.14-G-PATH.contributing",
+      "id": "RCV001781420.15-G-PATH.contributing",
       "strengthOfEvidenceProvided": {
         "conceptType": "Strength",
         "name": "Contributing",
@@ -74,65 +81,60 @@
       "type": "EvidenceLine"
     }
   ],
-  "id": "RCV000548006.14-G-PATH",
+  "id": "RCV001781420.15-G-PATH",
   "proposition": {
-    "id": "RCV000548006-G-PATH",
+    "id": "RCV001781420-G-PATH",
     "object": {
       "aliases": [
-        "rasopathies",
-        "Noonan spectrum disorder"
+        "INFLAMMATORY BOWEL DISEASE (CROHN DISEASE) 1",
+        "Inflammatory bowel disease 1, Crohn disease"
       ],
       "conceptType": "Disease",
-      "id": "clinvar.trait:17678",
+      "id": "clinvar.trait:42004",
       "mappings": [
         {
           "coding": {
-            "code": "536391",
+            "code": "0009960",
             "iris": [
-              "https://identifiers.org/orphanet:536391",
-              "http://www.orpha.net/ORDO/Orphanet_536391"
+              "https://identifiers.org/mondo:0009960",
+              "http://purl.obolibrary.org/obo/MONDO_0009960"
             ],
-            "system": "https://www.orpha.net/"
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "code": "0021060",
+            "code": "266600",
             "iris": [
-              "https://identifiers.org/mondo:0021060",
-              "http://purl.obolibrary.org/obo/MONDO_0021060"
+              "https://www.omim.org/entry/266600",
+              "https://identifiers.org/mim:266600"
             ],
-            "system": "https://mondo.monarchinitiative.org/"
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         }
       ],
-      "name": "RASopathy",
+      "name": "Inflammatory bowel disease 1",
       "primaryCoding": {
-        "code": "C5555857",
+        "code": "CN260071",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C5555857",
-          "https://identifiers.org/medgen:C5555857"
+          "https://www.ncbi.nlm.nih.gov/medgen/CN260071",
+          "https://identifiers.org/medgen:CN260071"
         ],
-        "name": "RASopathy",
+        "name": "Inflammatory bowel disease 1",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "17678",
+      "trait_id": "42004",
       "type": "MappableConcept"
     },
     "predicate": "isCausalFor",
-    "subject": "#/variation/clinvar:12582",
+    "subject": "#/variation/clinvar:97850",
     "type": "VariantPathogenicityProposition"
   },
   "quality": {
     "conceptType": "Quality",
     "name": "criteria provided",
-    "type": "MappableConcept"
-  },
-  "strength": {
-    "conceptType": "Strength",
-    "name": "Definitive",
     "type": "MappableConcept"
   },
   "type": "Statement"

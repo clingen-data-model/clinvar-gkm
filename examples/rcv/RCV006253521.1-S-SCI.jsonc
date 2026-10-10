@@ -1,213 +1,131 @@
 {
   "classification": {
     "conceptType": "Classification",
-    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+    "type": "MappableConcept"
   },
   "direction": "supports",
-  "evidenceLines": [
+  "hasEvidenceLines": [
     {
       "directionOfEvidenceProvided": "supports",
-      "evidenceItems": [
+      "hasEvidenceItems": [
         {
           "classification": {
             "conceptType": "Classification",
-            "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+            "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+            "type": "MappableConcept"
           },
           "direction": "supports",
-          "evidenceLines": [
+          "hasEvidenceLines": [
             {
               "directionOfEvidenceProvided": "supports",
-              "evidenceItems": [
+              "hasEvidenceItems": [
                 {
                   "classification": {
                     "conceptType": "Classification",
-                    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+                    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+                    "type": "MappableConcept"
                   },
-                  "confidence": "criteria provided",
                   "direction": "supports",
-                  "evidenceLines": [
-                    {
-                      "directionOfEvidenceProvided": "supports",
-                      "evidenceItems": [
-                        {
-                          "id": "clinvar.submission:SCV007105432.1"
-                        }
-                      ],
-                      "strengthOfEvidenceProvided": "contributing",
-                      "type": "EvidenceLine"
-                    }
-                  ],
                   "extensions": [
                     {
                       "name": "clinvarReviewStatus",
                       "value": "criteria provided, single submitter"
                     }
                   ],
+                  "hasEvidenceLines": [
+                    {
+                      "directionOfEvidenceProvided": "supports",
+                      "hasEvidenceItems": [
+                        "#/scv/clinvar.submission:SCV007105432.1"
+                      ],
+                      "id": "RCV006253521.1-S-SCI-CP-T1.contributing",
+                      "strengthOfEvidenceProvided": {
+                        "conceptType": "Strength",
+                        "name": "Contributing",
+                        "type": "MappableConcept"
+                      },
+                      "type": "EvidenceLine"
+                    }
+                  ],
                   "id": "RCV006253521.1-S-SCI-CP-T1",
                   "proposition": {
                     "id": "RCV006253521-S-SCI-CP-T1",
-                    "objectCondition": {
-                      "conceptType": "Disease",
-                      "id": "SCV007105432.0",
-                      "mappings": [
-                        {
-                          "coding": {
-                            "code": "182067",
-                            "iris": [
-                              "https://identifiers.org/orphanet.ordo:Orphanet_182067",
-                              "http://www.orpha.net/ORDO/Orphanet_182067"
-                            ],
-                            "system": "Orphanet"
-                          },
-                          "relation": "relatedMatch"
-                        },
-                        {
-                          "coding": {
-                            "code": "D005910",
-                            "iris": [
-                              "https://identifiers.org/mesh:D005910",
-                              "https://www.ncbi.nlm.nih.gov/mesh/?term=D005910"
-                            ],
-                            "system": "MeSH"
-                          },
-                          "relation": "relatedMatch"
-                        },
-                        {
-                          "coding": {
-                            "code": "MONDO:0021042",
-                            "iris": [
-                              "http://purl.obolibrary.org/obo/MONDO_0021042",
-                              "https://identifiers.org/mondo:0021042"
-                            ],
-                            "system": "MONDO"
-                          },
-                          "relation": "relatedMatch"
-                        },
-                        {
-                          "coding": {
-                            "code": "HP:0009733",
-                            "iris": [
-                              "https://identifiers.org/HP:0009733",
-                              "https://hpo.jax.org/browse/term/HP:0009733"
-                            ],
-                            "system": "Human Phenotype Ontology"
-                          },
-                          "relation": "relatedMatch"
-                        }
-                      ],
-                      "name": "Glioma",
-                      "primaryCoding": {
-                        "code": "C0017638",
-                        "iris": [
-                          "https://identifiers.org/medgen:C0017638",
-                          "https://www.ncbi.nlm.nih.gov/medgen/C0017638"
-                        ],
-                        "name": "Glioma",
-                        "system": "MedGen"
-                      }
-                    },
-                    "predicate": "hasSignificanceFor",
-                    "subjectVariant": "clinvar:12582",
+                    "object": "#/condition/clinvar.trait:18479",
+                    "predicate": "hasClinicalSignificanceFor",
+                    "subject": "#/variation/clinvar:12582",
                     "type": "VariantClinicalSignificanceProposition"
                   },
-                  "strength": "definitive",
+                  "quality": {
+                    "conceptType": "Quality",
+                    "name": "criteria provided",
+                    "type": "MappableConcept"
+                  },
+                  "strength": {
+                    "conceptType": "Strength",
+                    "name": "Strong",
+                    "type": "MappableConcept"
+                  },
                   "type": "Statement"
                 }
               ],
-              "strengthOfEvidenceProvided": "contributing",
+              "id": "RCV006253521.1-S-SCI-CP.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
               "type": "EvidenceLine"
             }
           ],
           "id": "RCV006253521.1-S-SCI-CP",
           "proposition": {
             "id": "RCV006253521-S-SCI-CP",
-            "objectCondition": {
-              "conceptType": "Disease",
-              "id": "SCV007105432.0",
-              "mappings": [
-                {
-                  "coding": {
-                    "code": "182067",
-                    "iris": [
-                      "https://identifiers.org/orphanet.ordo:Orphanet_182067",
-                      "http://www.orpha.net/ORDO/Orphanet_182067"
-                    ],
-                    "system": "Orphanet"
-                  },
-                  "relation": "relatedMatch"
-                },
-                {
-                  "coding": {
-                    "code": "D005910",
-                    "iris": [
-                      "https://identifiers.org/mesh:D005910",
-                      "https://www.ncbi.nlm.nih.gov/mesh/?term=D005910"
-                    ],
-                    "system": "MeSH"
-                  },
-                  "relation": "relatedMatch"
-                },
-                {
-                  "coding": {
-                    "code": "MONDO:0021042",
-                    "iris": [
-                      "http://purl.obolibrary.org/obo/MONDO_0021042",
-                      "https://identifiers.org/mondo:0021042"
-                    ],
-                    "system": "MONDO"
-                  },
-                  "relation": "relatedMatch"
-                },
-                {
-                  "coding": {
-                    "code": "HP:0009733",
-                    "iris": [
-                      "https://identifiers.org/HP:0009733",
-                      "https://hpo.jax.org/browse/term/HP:0009733"
-                    ],
-                    "system": "Human Phenotype Ontology"
-                  },
-                  "relation": "relatedMatch"
-                }
-              ],
-              "name": "Glioma",
-              "primaryCoding": {
-                "code": "C0017638",
-                "iris": [
-                  "https://identifiers.org/medgen:C0017638",
-                  "https://www.ncbi.nlm.nih.gov/medgen/C0017638"
-                ],
-                "name": "Glioma",
-                "system": "MedGen"
-              }
-            },
-            "predicate": "hasSignificanceFor",
-            "subjectVariant": "clinvar:12582",
+            "object": "#/condition/clinvar.trait:18479",
+            "predicate": "hasClinicalSignificanceFor",
+            "subject": "#/variation/clinvar:12582",
             "type": "VariantClinicalSignificanceProposition"
           },
-          "strength": "definitive",
+          "quality": {
+            "conceptType": "Quality",
+            "name": "criteria provided",
+            "type": "MappableConcept"
+          },
+          "strength": {
+            "conceptType": "Strength",
+            "name": "Strong",
+            "type": "MappableConcept"
+          },
           "type": "Statement"
         }
       ],
-      "strengthOfEvidenceProvided": "contributing",
+      "id": "RCV006253521.1-S-SCI.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
       "type": "EvidenceLine"
     }
   ],
   "id": "RCV006253521.1-S-SCI",
   "proposition": {
     "id": "RCV006253521-S-SCI",
-    "objectCondition": {
+    "object": {
+      "aliases": [
+        "Neuroglial tumor"
+      ],
       "conceptType": "Disease",
-      "id": "SCV007105432.0",
+      "id": "clinvar.trait:18479",
       "mappings": [
         {
           "coding": {
             "code": "182067",
             "iris": [
-              "https://identifiers.org/orphanet.ordo:Orphanet_182067",
+              "https://identifiers.org/orphanet:182067",
               "http://www.orpha.net/ORDO/Orphanet_182067"
             ],
-            "system": "Orphanet"
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
@@ -218,29 +136,49 @@
               "https://identifiers.org/mesh:D005910",
               "https://www.ncbi.nlm.nih.gov/mesh/?term=D005910"
             ],
-            "system": "MeSH"
+            "system": "https://id.nlm.nih.gov/mesh/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "code": "MONDO:0021042",
+            "code": "0021042",
             "iris": [
-              "http://purl.obolibrary.org/obo/MONDO_0021042",
-              "https://identifiers.org/mondo:0021042"
+              "https://identifiers.org/mondo:0021042",
+              "http://purl.obolibrary.org/obo/MONDO_0021042"
             ],
-            "system": "MONDO"
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "code": "HP:0009733",
+            "code": "0009733",
             "iris": [
               "https://identifiers.org/HP:0009733",
-              "https://hpo.jax.org/browse/term/HP:0009733"
+              "http://purl.obolibrary.org/obo/HP_0009733"
             ],
-            "system": "Human Phenotype Ontology"
+            "system": "https://hpo.jax.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "PS137800",
+            "iris": [
+              "https://www.omim.org/phenotypicSeries/PS137800"
+            ],
+            "system": "https://www.omim.org/phenotypicSeries/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "393564001",
+            "iris": [
+              "https://identifiers.org/snomedct:393564001"
+            ],
+            "system": "https://www.snomed.org/"
           },
           "relation": "relatedMatch"
         }
@@ -249,17 +187,28 @@
       "primaryCoding": {
         "code": "C0017638",
         "iris": [
-          "https://identifiers.org/medgen:C0017638",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0017638"
+          "https://www.ncbi.nlm.nih.gov/medgen/C0017638",
+          "https://identifiers.org/medgen:C0017638"
         ],
         "name": "Glioma",
-        "system": "MedGen"
-      }
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "trait_id": "18479",
+      "type": "MappableConcept"
     },
-    "predicate": "hasSignificanceFor",
-    "subjectVariant": "clinvar:12582",
+    "predicate": "hasClinicalSignificanceFor",
+    "subject": "#/variation/clinvar:12582",
     "type": "VariantClinicalSignificanceProposition"
   },
-  "strength": "definitive",
+  "quality": {
+    "conceptType": "Quality",
+    "name": "criteria provided",
+    "type": "MappableConcept"
+  },
+  "strength": {
+    "conceptType": "Strength",
+    "name": "Strong",
+    "type": "MappableConcept"
+  },
   "type": "Statement"
 }

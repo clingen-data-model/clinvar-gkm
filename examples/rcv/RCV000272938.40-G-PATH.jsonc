@@ -8,7 +8,7 @@
   "extensions": [
     {
       "name": "clinvarReviewStatus",
-      "value": "criteria provided, single submitter"
+      "value": "criteria provided, multiple submitters, no conflicts"
     }
   ],
   "hasEvidenceLines": [
@@ -25,16 +25,19 @@
           "extensions": [
             {
               "name": "clinvarReviewStatus",
-              "value": "criteria provided, single submitter"
+              "value": "criteria provided, multiple submitters, no conflicts"
             }
           ],
           "hasEvidenceLines": [
             {
               "directionOfEvidenceProvided": "supports",
               "hasEvidenceItems": [
-                "#/scv/clinvar.submission:SCV004176950.1"
+                "#/scv/clinvar.submission:SCV002525678.1",
+                "#/scv/clinvar.submission:SCV000329383.7",
+                "#/scv/clinvar.submission:SCV005414064.1",
+                "#/scv/clinvar.submission:SCV002821689.27"
               ],
-              "id": "RCV000585796.12-G-PATH-CP.contributing",
+              "id": "RCV000272938.40-G-PATH-CP.contributing",
               "strengthOfEvidenceProvided": {
                 "conceptType": "Strength",
                 "name": "Contributing",
@@ -43,10 +46,10 @@
               "type": "EvidenceLine"
             }
           ],
-          "id": "RCV000585796.12-G-PATH-CP",
+          "id": "RCV000272938.40-G-PATH-CP",
           "proposition": {
-            "id": "RCV000585796-G-PATH-CP",
-            "object": "#/condition/clinvar.trait:4617",
+            "id": "RCV000272938-G-PATH-CP",
+            "object": "#/condition/clinvar.trait:17556",
             "predicate": "isCausalFor",
             "subject": "#/variation/clinvar:12582",
             "type": "VariantPathogenicityProposition"
@@ -64,7 +67,7 @@
           "type": "Statement"
         }
       ],
-      "id": "RCV000585796.12-G-PATH.contributing",
+      "id": "RCV000272938.40-G-PATH.contributing",
       "strengthOfEvidenceProvided": {
         "conceptType": "Strength",
         "name": "Contributing",
@@ -92,10 +95,9 @@
             {
               "directionOfEvidenceProvided": "supports",
               "hasEvidenceItems": [
-                "#/scv/clinvar.submission:SCV000693723.1",
-                "#/scv/clinvar.submission:SCV000992585.2"
+                "#/scv/clinvar.submission:SCV001550138.2"
               ],
-              "id": "RCV000585796.12-G-PATH-NOCP.contributing",
+              "id": "RCV000272938.40-G-PATH-NOCP.contributing",
               "strengthOfEvidenceProvided": {
                 "conceptType": "Strength",
                 "name": "Contributing",
@@ -104,10 +106,10 @@
               "type": "EvidenceLine"
             }
           ],
-          "id": "RCV000585796.12-G-PATH-NOCP",
+          "id": "RCV000272938.40-G-PATH-NOCP",
           "proposition": {
-            "id": "RCV000585796-G-PATH-NOCP",
-            "object": "#/condition/clinvar.trait:4617",
+            "id": "RCV000272938-G-PATH-NOCP",
+            "object": "#/condition/clinvar.trait:17556",
             "predicate": "isCausalFor",
             "subject": "#/variation/clinvar:12582",
             "type": "VariantPathogenicityProposition"
@@ -125,7 +127,7 @@
           "type": "Statement"
         }
       ],
-      "id": "RCV000585796.12-G-PATH.non-contributing",
+      "id": "RCV000272938.40-G-PATH.non-contributing",
       "strengthOfEvidenceProvided": {
         "conceptType": "Strength",
         "name": "Non-contributing",
@@ -134,83 +136,26 @@
       "type": "EvidenceLine"
     }
   ],
-  "id": "RCV000585796.12-G-PATH",
+  "id": "RCV000272938.40-G-PATH",
   "proposition": {
-    "id": "RCV000585796-G-PATH",
+    "id": "RCV000272938-G-PATH",
     "object": {
       "aliases": [
-        "CEREBRAL ARTERIOVENOUS MALFORMATIONS",
-        "Arteriovenous malformations of the brain"
+        "none provided"
       ],
       "conceptType": "Disease",
-      "id": "clinvar.trait:4617",
-      "mappings": [
-        {
-          "coding": {
-            "code": "46724",
-            "iris": [
-              "https://identifiers.org/orphanet:46724",
-              "http://www.orpha.net/ORDO/Orphanet_46724"
-            ],
-            "system": "https://www.orpha.net/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "0007154",
-            "iris": [
-              "https://identifiers.org/mondo:0007154",
-              "http://purl.obolibrary.org/obo/MONDO_0007154"
-            ],
-            "system": "https://mondo.monarchinitiative.org/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "108010",
-            "iris": [
-              "https://www.omim.org/entry/108010",
-              "https://identifiers.org/mim:108010"
-            ],
-            "system": "https://www.omim.org/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "0002408",
-            "iris": [
-              "https://identifiers.org/HP:0002408",
-              "http://purl.obolibrary.org/obo/HP_0002408"
-            ],
-            "system": "https://hpo.jax.org/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "234142008",
-            "iris": [
-              "https://identifiers.org/snomedct:234142008"
-            ],
-            "system": "https://www.snomed.org/"
-          },
-          "relation": "relatedMatch"
-        }
-      ],
-      "name": "Cerebral arteriovenous malformation",
+      "id": "clinvar.trait:17556",
+      "name": "not provided",
       "primaryCoding": {
-        "code": "C0917804",
+        "code": "C3661900",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C0917804",
-          "https://identifiers.org/medgen:C0917804"
+          "https://www.ncbi.nlm.nih.gov/medgen/C3661900",
+          "https://identifiers.org/medgen:C3661900"
         ],
-        "name": "Cerebral arteriovenous malformation",
+        "name": "not provided",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "4617",
+      "trait_id": "17556",
       "type": "MappableConcept"
     },
     "predicate": "isCausalFor",

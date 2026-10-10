@@ -1,134 +1,99 @@
 {
   "classification": {
     "conceptType": "Classification",
-    "name": "not provided"
+    "name": "not provided",
+    "type": "MappableConcept"
   },
   "direction": "supports",
-  "evidenceLines": [
-    {
-      "directionOfEvidenceProvided": "supports",
-      "evidenceItems": [
-        {
-          "classification": {
-            "conceptType": "Classification",
-            "name": "not provided"
-          },
-          "confidence": "no classification",
-          "direction": "supports",
-          "evidenceLines": [
-            {
-              "directionOfEvidenceProvided": "supports",
-              "evidenceItems": [
-                {
-                  "id": "clinvar.submission:SCV002099547.2"
-                }
-              ],
-              "strengthOfEvidenceProvided": "contributing",
-              "type": "EvidenceLine"
-            }
-          ],
-          "extensions": [
-            {
-              "name": "clinvarReviewStatus",
-              "value": "no classification provided"
-            }
-          ],
-          "id": "RCV001839445.10-G-NP-NOCL",
-          "proposition": {
-            "id": "RCV001839445-G-NP-NOCL",
-            "objectCondition": {
-              "conceptType": "Disease",
-              "id": "SCV002099547.0",
-              "mappings": [
-                {
-                  "coding": {
-                    "code": "2396",
-                    "iris": [
-                      "https://identifiers.org/orphanet.ordo:Orphanet_2396",
-                      "http://www.orpha.net/ORDO/Orphanet_2396"
-                    ],
-                    "system": "Orphanet"
-                  },
-                  "relation": "relatedMatch"
-                },
-                {
-                  "coding": {
-                    "code": "MONDO:0013074",
-                    "iris": [
-                      "http://purl.obolibrary.org/obo/MONDO_0013074",
-                      "https://identifiers.org/mondo:0013074"
-                    ],
-                    "system": "MONDO"
-                  },
-                  "relation": "relatedMatch"
-                },
-                {
-                  "coding": {
-                    "code": "613001",
-                    "iris": [
-                      "https://www.omim.org/entry/613001",
-                      "https://identifiers.org/mim:613001"
-                    ],
-                    "system": "OMIM"
-                  },
-                  "relation": "relatedMatch"
-                }
-              ],
-              "name": "Encephalocraniocutaneous lipomatosis",
-              "primaryCoding": {
-                "code": "C0406612",
-                "iris": [
-                  "https://identifiers.org/medgen:C0406612",
-                  "https://www.ncbi.nlm.nih.gov/medgen/C0406612"
-                ],
-                "name": "Encephalocraniocutaneous lipomatosis",
-                "system": "MedGen"
-              }
-            },
-            "predicate": "isCausalFor",
-            "subjectVariant": "clinvar:12582",
-            "type": "VariantPathogenicityProposition"
-          },
-          "strength": "definitive",
-          "type": "Statement"
-        }
-      ],
-      "strengthOfEvidenceProvided": "contributing",
-      "type": "EvidenceLine"
-    }
-  ],
   "extensions": [
     {
       "name": "clinvarReviewStatus",
       "value": "no classification provided"
     }
   ],
+  "hasEvidenceLines": [
+    {
+      "directionOfEvidenceProvided": "supports",
+      "hasEvidenceItems": [
+        {
+          "classification": {
+            "conceptType": "Classification",
+            "name": "not provided",
+            "type": "MappableConcept"
+          },
+          "direction": "supports",
+          "extensions": [
+            {
+              "name": "clinvarReviewStatus",
+              "value": "no classification provided"
+            }
+          ],
+          "hasEvidenceLines": [
+            {
+              "directionOfEvidenceProvided": "supports",
+              "hasEvidenceItems": [
+                "#/scv/clinvar.submission:SCV002099547.2"
+              ],
+              "id": "RCV001839445.10-G-NP-NOCL.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
+              "type": "EvidenceLine"
+            }
+          ],
+          "id": "RCV001839445.10-G-NP-NOCL",
+          "proposition": {
+            "id": "RCV001839445-G-NP-NOCL",
+            "object": "#/condition/clinvar.trait:6752",
+            "predicate": "hasNoProvidedClassificationFor",
+            "subject": "#/variation/clinvar:12582",
+            "type": "ClinvarNotProvidedProposition"
+          },
+          "quality": {
+            "conceptType": "Quality",
+            "name": "no classification",
+            "type": "MappableConcept"
+          },
+          "type": "Statement"
+        }
+      ],
+      "id": "RCV001839445.10-G-NP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
+    }
+  ],
   "id": "RCV001839445.10-G-NP",
   "proposition": {
     "id": "RCV001839445-G-NP",
-    "objectCondition": {
+    "object": {
       "conceptType": "Disease",
-      "id": "SCV002099547.0",
+      "id": "clinvar.trait:6752",
       "mappings": [
         {
           "coding": {
             "code": "2396",
             "iris": [
-              "https://identifiers.org/orphanet.ordo:Orphanet_2396",
+              "https://identifiers.org/orphanet:2396",
               "http://www.orpha.net/ORDO/Orphanet_2396"
             ],
-            "system": "Orphanet"
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "code": "MONDO:0013074",
+            "code": "0013074",
             "iris": [
-              "http://purl.obolibrary.org/obo/MONDO_0013074",
-              "https://identifiers.org/mondo:0013074"
+              "https://identifiers.org/mondo:0013074",
+              "http://purl.obolibrary.org/obo/MONDO_0013074"
             ],
-            "system": "MONDO"
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
@@ -139,7 +104,27 @@
               "https://www.omim.org/entry/613001",
               "https://identifiers.org/mim:613001"
             ],
-            "system": "OMIM"
+            "system": "https://www.omim.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "238905009",
+            "iris": [
+              "https://identifiers.org/snomedct:238905009"
+            ],
+            "system": "https://www.snomed.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "NBK576966",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/books/NBK576966"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/books/"
           },
           "relation": "relatedMatch"
         }
@@ -148,17 +133,23 @@
       "primaryCoding": {
         "code": "C0406612",
         "iris": [
-          "https://identifiers.org/medgen:C0406612",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0406612"
+          "https://www.ncbi.nlm.nih.gov/medgen/C0406612",
+          "https://identifiers.org/medgen:C0406612"
         ],
         "name": "Encephalocraniocutaneous lipomatosis",
-        "system": "MedGen"
-      }
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "trait_id": "6752",
+      "type": "MappableConcept"
     },
-    "predicate": "isCausalFor",
-    "subjectVariant": "clinvar:12582",
-    "type": "VariantPathogenicityProposition"
+    "predicate": "hasNoProvidedClassificationFor",
+    "subject": "#/variation/clinvar:12582",
+    "type": "ClinvarNotProvidedProposition"
   },
-  "strength": "definitive",
+  "quality": {
+    "conceptType": "Quality",
+    "name": "no classification",
+    "type": "MappableConcept"
+  },
   "type": "Statement"
 }

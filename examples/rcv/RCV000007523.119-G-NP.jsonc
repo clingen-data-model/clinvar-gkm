@@ -1,0 +1,439 @@
+{
+  "classification": {
+    "conceptType": "Classification",
+    "name": "not provided",
+    "type": "MappableConcept"
+  },
+  "direction": "supports",
+  "extensions": [
+    {
+      "name": "clinvarReviewStatus",
+      "value": "no classification provided"
+    }
+  ],
+  "hasEvidenceLines": [
+    {
+      "directionOfEvidenceProvided": "supports",
+      "hasEvidenceItems": [
+        {
+          "classification": {
+            "conceptType": "Classification",
+            "name": "not provided",
+            "type": "MappableConcept"
+          },
+          "direction": "supports",
+          "extensions": [
+            {
+              "name": "clinvarReviewStatus",
+              "value": "no classification provided"
+            }
+          ],
+          "hasEvidenceLines": [
+            {
+              "directionOfEvidenceProvided": "supports",
+              "hasEvidenceItems": [
+                "#/scv/clinvar.submission:SCV001622798.2",
+                "#/scv/clinvar.submission:SCV000607274.4"
+              ],
+              "id": "RCV000007523.119-G-NP-NOCL.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
+              "type": "EvidenceLine"
+            }
+          ],
+          "id": "RCV000007523.119-G-NP-NOCL",
+          "proposition": {
+            "id": "RCV000007523-G-NP-NOCL",
+            "object": "#/condition/clinvar.trait:1695",
+            "predicate": "hasNoProvidedClassificationFor",
+            "subject": "#/variation/clinvar:7105",
+            "type": "ClinvarNotProvidedProposition"
+          },
+          "quality": {
+            "conceptType": "Quality",
+            "name": "no classification",
+            "type": "MappableConcept"
+          },
+          "type": "Statement"
+        }
+      ],
+      "id": "RCV000007523.119-G-NP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
+    }
+  ],
+  "id": "RCV000007523.119-G-NP",
+  "proposition": {
+    "id": "RCV000007523-G-NP",
+    "object": {
+      "aliases": [
+        "MUCOVISCIDOSIS"
+      ],
+      "conceptType": "Disease",
+      "id": "clinvar.trait:1695",
+      "mappings": [
+        {
+          "coding": {
+            "code": "586",
+            "iris": [
+              "https://identifiers.org/orphanet:586",
+              "http://www.orpha.net/ORDO/Orphanet_586"
+            ],
+            "system": "https://www.orpha.net/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "0009061",
+            "iris": [
+              "https://identifiers.org/mondo:0009061",
+              "http://purl.obolibrary.org/obo/MONDO_0009061"
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "219700",
+            "iris": [
+              "https://www.omim.org/entry/219700",
+              "https://identifiers.org/mim:219700"
+            ],
+            "system": "https://www.omim.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "190905008",
+            "iris": [
+              "https://identifiers.org/snomedct:190905008"
+            ],
+            "system": "https://www.snomed.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "NBK1250",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/books/NBK1250"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/books/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000558928",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000558928"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000226639",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000226639"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000507003",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000507003"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000556536",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000556536"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000328569",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000328569"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000569791",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000569791"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000569946",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000569946"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000074114",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000074114"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000028916",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000028916"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000521905",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000521905"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000568279",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000568279"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000004176",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000004176"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000569960",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000569960"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000556535",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000556535"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000522527",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000522527"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000569602",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000569602"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000507010",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000507010"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000514611",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000514611"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000558875",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000558875"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000330969",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000330969"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000332363",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000332363"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000591289",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000591289"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000025280",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000025280"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000569790",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000569790"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000508782",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000508782"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000570317",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000570317"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000246717",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000246717"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000508889",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000508889"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+          },
+          "relation": "relatedMatch"
+        }
+      ],
+      "name": "Cystic fibrosis",
+      "primaryCoding": {
+        "code": "C0010674",
+        "iris": [
+          "https://www.ncbi.nlm.nih.gov/medgen/C0010674",
+          "https://identifiers.org/medgen:C0010674"
+        ],
+        "name": "Cystic fibrosis",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "trait_id": "1695",
+      "type": "MappableConcept"
+    },
+    "predicate": "hasNoProvidedClassificationFor",
+    "subject": "#/variation/clinvar:7105",
+    "type": "ClinvarNotProvidedProposition"
+  },
+  "quality": {
+    "conceptType": "Quality",
+    "name": "no classification",
+    "type": "MappableConcept"
+  },
+  "type": "Statement"
+}

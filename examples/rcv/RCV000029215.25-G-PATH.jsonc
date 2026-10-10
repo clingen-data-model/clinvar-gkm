@@ -1,14 +1,14 @@
 {
   "classification": {
     "conceptType": "Classification",
-    "name": "Pathogenic",
+    "name": "Pathogenic/Likely pathogenic",
     "type": "MappableConcept"
   },
   "direction": "supports",
   "extensions": [
     {
       "name": "clinvarReviewStatus",
-      "value": "criteria provided, single submitter"
+      "value": "criteria provided, multiple submitters, no conflicts"
     }
   ],
   "hasEvidenceLines": [
@@ -18,23 +18,26 @@
         {
           "classification": {
             "conceptType": "Classification",
-            "name": "Pathogenic",
+            "name": "Pathogenic/Likely pathogenic",
             "type": "MappableConcept"
           },
           "direction": "supports",
           "extensions": [
             {
               "name": "clinvarReviewStatus",
-              "value": "criteria provided, single submitter"
+              "value": "criteria provided, multiple submitters, no conflicts"
             }
           ],
           "hasEvidenceLines": [
             {
               "directionOfEvidenceProvided": "supports",
               "hasEvidenceItems": [
-                "#/scv/clinvar.submission:SCV004176950.1"
+                "#/scv/clinvar.submission:SCV006304919.1",
+                "#/scv/clinvar.submission:SCV007538136.1",
+                "#/scv/clinvar.submission:SCV002318898.4",
+                "#/scv/clinvar.submission:SCV001736991.1"
               ],
-              "id": "RCV000585796.12-G-PATH-CP.contributing",
+              "id": "RCV000029215.25-G-PATH-CP.contributing",
               "strengthOfEvidenceProvided": {
                 "conceptType": "Strength",
                 "name": "Contributing",
@@ -43,10 +46,10 @@
               "type": "EvidenceLine"
             }
           ],
-          "id": "RCV000585796.12-G-PATH-CP",
+          "id": "RCV000029215.25-G-PATH-CP",
           "proposition": {
-            "id": "RCV000585796-G-PATH-CP",
-            "object": "#/condition/clinvar.trait:4617",
+            "id": "RCV000029215-G-PATH-CP",
+            "object": "#/condition/clinvar.trait:4371",
             "predicate": "isCausalFor",
             "subject": "#/variation/clinvar:12582",
             "type": "VariantPathogenicityProposition"
@@ -56,15 +59,10 @@
             "name": "criteria provided",
             "type": "MappableConcept"
           },
-          "strength": {
-            "conceptType": "Strength",
-            "name": "Definitive",
-            "type": "MappableConcept"
-          },
           "type": "Statement"
         }
       ],
-      "id": "RCV000585796.12-G-PATH.contributing",
+      "id": "RCV000029215.25-G-PATH.contributing",
       "strengthOfEvidenceProvided": {
         "conceptType": "Strength",
         "name": "Contributing",
@@ -92,10 +90,9 @@
             {
               "directionOfEvidenceProvided": "supports",
               "hasEvidenceItems": [
-                "#/scv/clinvar.submission:SCV000693723.1",
-                "#/scv/clinvar.submission:SCV000992585.2"
+                "#/scv/clinvar.submission:SCV000051861.6"
               ],
-              "id": "RCV000585796.12-G-PATH-NOCP.contributing",
+              "id": "RCV000029215.25-G-PATH-NOCP.contributing",
               "strengthOfEvidenceProvided": {
                 "conceptType": "Strength",
                 "name": "Contributing",
@@ -104,10 +101,10 @@
               "type": "EvidenceLine"
             }
           ],
-          "id": "RCV000585796.12-G-PATH-NOCP",
+          "id": "RCV000029215.25-G-PATH-NOCP",
           "proposition": {
-            "id": "RCV000585796-G-PATH-NOCP",
-            "object": "#/condition/clinvar.trait:4617",
+            "id": "RCV000029215-G-PATH-NOCP",
+            "object": "#/condition/clinvar.trait:4371",
             "predicate": "isCausalFor",
             "subject": "#/variation/clinvar:12582",
             "type": "VariantPathogenicityProposition"
@@ -125,7 +122,7 @@
           "type": "Statement"
         }
       ],
-      "id": "RCV000585796.12-G-PATH.non-contributing",
+      "id": "RCV000029215.25-G-PATH.non-contributing",
       "strengthOfEvidenceProvided": {
         "conceptType": "Strength",
         "name": "Non-contributing",
@@ -134,23 +131,30 @@
       "type": "EvidenceLine"
     }
   ],
-  "id": "RCV000585796.12-G-PATH",
+  "id": "RCV000029215.25-G-PATH",
   "proposition": {
-    "id": "RCV000585796-G-PATH",
+    "id": "RCV000029215-G-PATH",
     "object": {
       "aliases": [
-        "CEREBRAL ARTERIOVENOUS MALFORMATIONS",
-        "Arteriovenous malformations of the brain"
+        "Linear nevus sebaceous",
+        "Linear sebaceous nevus sequence",
+        "Sebaceous nevus syndrome and hemimegalencephaly",
+        "Nevus, Sebaceous of Jadassohn",
+        "JADASSOHN NEVUS PHAKOMATOSIS",
+        "NEVUS SEBACEUS OF JADASSOHN",
+        "ORGANOID NEVUS PHAKOMATOSIS",
+        "SFM SYNDROME",
+        "SCHIMMELPENNING-FEUERSTEIN-MIMS SYNDROME, SOMATIC MOSAIC"
       ],
       "conceptType": "Disease",
-      "id": "clinvar.trait:4617",
+      "id": "clinvar.trait:4371",
       "mappings": [
         {
           "coding": {
-            "code": "46724",
+            "code": "2612",
             "iris": [
-              "https://identifiers.org/orphanet:46724",
-              "http://www.orpha.net/ORDO/Orphanet_46724"
+              "https://identifiers.org/orphanet:2612",
+              "http://www.orpha.net/ORDO/Orphanet_2612"
             ],
             "system": "https://www.orpha.net/"
           },
@@ -158,10 +162,10 @@
         },
         {
           "coding": {
-            "code": "0007154",
+            "code": "0008097",
             "iris": [
-              "https://identifiers.org/mondo:0007154",
-              "http://purl.obolibrary.org/obo/MONDO_0007154"
+              "https://identifiers.org/mondo:0008097",
+              "http://purl.obolibrary.org/obo/MONDO_0008097"
             ],
             "system": "https://mondo.monarchinitiative.org/"
           },
@@ -169,10 +173,10 @@
         },
         {
           "coding": {
-            "code": "108010",
+            "code": "163200",
             "iris": [
-              "https://www.omim.org/entry/108010",
-              "https://identifiers.org/mim:108010"
+              "https://www.omim.org/entry/163200",
+              "https://identifiers.org/mim:163200"
             ],
             "system": "https://www.omim.org/"
           },
@@ -180,10 +184,10 @@
         },
         {
           "coding": {
-            "code": "0002408",
+            "code": "0010817",
             "iris": [
-              "https://identifiers.org/HP:0002408",
-              "http://purl.obolibrary.org/obo/HP_0002408"
+              "https://identifiers.org/HP:0010817",
+              "http://purl.obolibrary.org/obo/HP_0010817"
             ],
             "system": "https://hpo.jax.org/"
           },
@@ -191,26 +195,26 @@
         },
         {
           "coding": {
-            "code": "234142008",
+            "code": "52298009",
             "iris": [
-              "https://identifiers.org/snomedct:234142008"
+              "https://identifiers.org/snomedct:52298009"
             ],
             "system": "https://www.snomed.org/"
           },
           "relation": "relatedMatch"
         }
       ],
-      "name": "Cerebral arteriovenous malformation",
+      "name": "Linear nevus sebaceous syndrome",
       "primaryCoding": {
-        "code": "C0917804",
+        "code": "C4552097",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C0917804",
-          "https://identifiers.org/medgen:C0917804"
+          "https://www.ncbi.nlm.nih.gov/medgen/C4552097",
+          "https://identifiers.org/medgen:C4552097"
         ],
-        "name": "Cerebral arteriovenous malformation",
+        "name": "Linear nevus sebaceous syndrome",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "4617",
+      "trait_id": "4371",
       "type": "MappableConcept"
     },
     "predicate": "isCausalFor",
@@ -220,11 +224,6 @@
   "quality": {
     "conceptType": "Quality",
     "name": "criteria provided",
-    "type": "MappableConcept"
-  },
-  "strength": {
-    "conceptType": "Strength",
-    "name": "Definitive",
     "type": "MappableConcept"
   },
   "type": "Statement"

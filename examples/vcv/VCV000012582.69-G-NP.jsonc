@@ -1,14 +1,14 @@
 {
   "classification": {
     "conceptType": "Classification",
-    "name": "Oncogenic",
+    "name": "not provided",
     "type": "MappableConcept"
   },
   "direction": "supports",
   "extensions": [
     {
       "name": "clinvarReviewStatus",
-      "value": "criteria provided, single submitter"
+      "value": "no classification provided"
     }
   ],
   "hasEvidenceLines": [
@@ -18,23 +18,23 @@
         {
           "classification": {
             "conceptType": "Classification",
-            "name": "Oncogenic",
+            "name": "not provided",
             "type": "MappableConcept"
           },
           "direction": "supports",
           "extensions": [
             {
               "name": "clinvarReviewStatus",
-              "value": "criteria provided, single submitter"
+              "value": "no classification provided"
             }
           ],
           "hasEvidenceLines": [
             {
               "directionOfEvidenceProvided": "supports",
               "hasEvidenceItems": [
-                "#/scv/clinvar.submission:SCV005094257.2"
+                "#/scv/clinvar.submission:SCV002099547.2"
               ],
-              "id": "RCV004668724.2-S-ONCO-CP.contributing",
+              "id": "VCV000012582.69-G-NP-NOCL.contributing",
               "strengthOfEvidenceProvided": {
                 "conceptType": "Strength",
                 "name": "Contributing",
@@ -43,28 +43,23 @@
               "type": "EvidenceLine"
             }
           ],
-          "id": "RCV004668724.2-S-ONCO-CP",
+          "id": "VCV000012582.69-G-NP-NOCL",
           "proposition": {
-            "id": "RCV004668724-S-ONCO-CP",
-            "object": "#/condition/clinvar.trait:32759",
-            "predicate": "isOncogenicFor",
+            "id": "VCV000012582-G-NP-NOCL",
+            "object": "#/condition/clinvar.trait:6752",
+            "predicate": "hasNoProvidedClassificationFor",
             "subject": "#/variation/clinvar:12582",
-            "type": "VariantOncogenicityProposition"
+            "type": "ClinvarNotProvidedProposition"
           },
           "quality": {
             "conceptType": "Quality",
-            "name": "criteria provided",
-            "type": "MappableConcept"
-          },
-          "strength": {
-            "conceptType": "Strength",
-            "name": "Definitive",
+            "name": "no classification",
             "type": "MappableConcept"
           },
           "type": "Statement"
         }
       ],
-      "id": "RCV004668724.2-S-ONCO.contributing",
+      "id": "VCV000012582.69-G-NP.contributing",
       "strengthOfEvidenceProvided": {
         "conceptType": "Strength",
         "name": "Contributing",
@@ -73,35 +68,30 @@
       "type": "EvidenceLine"
     }
   ],
-  "id": "RCV004668724.2-S-ONCO",
+  "id": "VCV000012582.69-G-NP",
   "proposition": {
-    "id": "RCV004668724-S-ONCO",
+    "id": "VCV000012582-G-NP",
     "object": {
-      "aliases": [
-        "tumor",
-        "Neoplasms",
-        "Neoplasm (disease)"
-      ],
       "conceptType": "Disease",
-      "id": "clinvar.trait:32759",
+      "id": "clinvar.trait:6752",
       "mappings": [
         {
           "coding": {
-            "code": "D009369",
+            "code": "2396",
             "iris": [
-              "https://identifiers.org/mesh:D009369",
-              "https://www.ncbi.nlm.nih.gov/mesh/?term=D009369"
+              "https://identifiers.org/orphanet:2396",
+              "http://www.orpha.net/ORDO/Orphanet_2396"
             ],
-            "system": "https://id.nlm.nih.gov/mesh/"
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "code": "0005070",
+            "code": "0013074",
             "iris": [
-              "https://identifiers.org/mondo:0005070",
-              "http://purl.obolibrary.org/obo/MONDO_0005070"
+              "https://identifiers.org/mondo:0013074",
+              "http://purl.obolibrary.org/obo/MONDO_0013074"
             ],
             "system": "https://mondo.monarchinitiative.org/"
           },
@@ -109,51 +99,56 @@
         },
         {
           "coding": {
-            "code": "0002664",
+            "code": "613001",
             "iris": [
-              "https://identifiers.org/HP:0002664",
-              "http://purl.obolibrary.org/obo/HP_0002664"
+              "https://www.omim.org/entry/613001",
+              "https://identifiers.org/mim:613001"
             ],
-            "system": "https://hpo.jax.org/"
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "code": "108369006",
+            "code": "238905009",
             "iris": [
-              "https://identifiers.org/snomedct:108369006"
+              "https://identifiers.org/snomedct:238905009"
             ],
             "system": "https://www.snomed.org/"
           },
           "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "NBK576966",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/books/NBK576966"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/books/"
+          },
+          "relation": "relatedMatch"
         }
       ],
-      "name": "Neoplasm",
+      "name": "Encephalocraniocutaneous lipomatosis",
       "primaryCoding": {
-        "code": "C0027651",
+        "code": "C0406612",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C0027651",
-          "https://identifiers.org/medgen:C0027651"
+          "https://www.ncbi.nlm.nih.gov/medgen/C0406612",
+          "https://identifiers.org/medgen:C0406612"
         ],
-        "name": "Neoplasm",
+        "name": "Encephalocraniocutaneous lipomatosis",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "32759",
+      "trait_id": "6752",
       "type": "MappableConcept"
     },
-    "predicate": "isOncogenicFor",
+    "predicate": "hasNoProvidedClassificationFor",
     "subject": "#/variation/clinvar:12582",
-    "type": "VariantOncogenicityProposition"
+    "type": "ClinvarNotProvidedProposition"
   },
   "quality": {
     "conceptType": "Quality",
-    "name": "criteria provided",
-    "type": "MappableConcept"
-  },
-  "strength": {
-    "conceptType": "Strength",
-    "name": "Definitive",
+    "name": "no classification",
     "type": "MappableConcept"
   },
   "type": "Statement"
