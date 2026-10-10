@@ -1,0 +1,230 @@
+{
+  "classification": {
+    "conceptType": "Classification",
+    "name": "Pathogenic/Likely pathogenic",
+    "type": "MappableConcept"
+  },
+  "direction": "supports",
+  "extensions": [
+    {
+      "name": "clinvarReviewStatus",
+      "value": "criteria provided, multiple submitters, no conflicts"
+    }
+  ],
+  "hasEvidenceLines": [
+    {
+      "directionOfEvidenceProvided": "supports",
+      "hasEvidenceItems": [
+        {
+          "classification": {
+            "conceptType": "Classification",
+            "name": "Pathogenic/Likely pathogenic",
+            "type": "MappableConcept"
+          },
+          "direction": "supports",
+          "extensions": [
+            {
+              "name": "clinvarReviewStatus",
+              "value": "criteria provided, multiple submitters, no conflicts"
+            }
+          ],
+          "hasEvidenceLines": [
+            {
+              "directionOfEvidenceProvided": "supports",
+              "hasEvidenceItems": [
+                "#/scv/clinvar.submission:SCV006304919.1",
+                "#/scv/clinvar.submission:SCV007538136.1",
+                "#/scv/clinvar.submission:SCV002318898.4",
+                "#/scv/clinvar.submission:SCV001736991.1"
+              ],
+              "id": "RCV000029215.25-G-PATH-CP.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
+              "type": "EvidenceLine"
+            }
+          ],
+          "id": "RCV000029215.25-G-PATH-CP",
+          "proposition": {
+            "id": "RCV000029215-G-PATH-CP",
+            "object": "#/condition/clinvar.trait:4371",
+            "predicate": "isCausalFor",
+            "subject": "#/variation/clinvar:12582",
+            "type": "VariantPathogenicityProposition"
+          },
+          "quality": {
+            "conceptType": "Quality",
+            "name": "criteria provided",
+            "type": "MappableConcept"
+          },
+          "type": "Statement"
+        }
+      ],
+      "id": "RCV000029215.25-G-PATH.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
+    },
+    {
+      "directionOfEvidenceProvided": "neutral",
+      "hasEvidenceItems": [
+        {
+          "classification": {
+            "conceptType": "Classification",
+            "name": "Pathogenic",
+            "type": "MappableConcept"
+          },
+          "direction": "supports",
+          "extensions": [
+            {
+              "name": "clinvarReviewStatus",
+              "value": "no assertion criteria provided"
+            }
+          ],
+          "hasEvidenceLines": [
+            {
+              "directionOfEvidenceProvided": "supports",
+              "hasEvidenceItems": [
+                "#/scv/clinvar.submission:SCV000051861.6"
+              ],
+              "id": "RCV000029215.25-G-PATH-NOCP.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
+              "type": "EvidenceLine"
+            }
+          ],
+          "id": "RCV000029215.25-G-PATH-NOCP",
+          "proposition": {
+            "id": "RCV000029215-G-PATH-NOCP",
+            "object": "#/condition/clinvar.trait:4371",
+            "predicate": "isCausalFor",
+            "subject": "#/variation/clinvar:12582",
+            "type": "VariantPathogenicityProposition"
+          },
+          "quality": {
+            "conceptType": "Quality",
+            "name": "no assertion criteria provided",
+            "type": "MappableConcept"
+          },
+          "strength": {
+            "conceptType": "Strength",
+            "name": "Definitive",
+            "type": "MappableConcept"
+          },
+          "type": "Statement"
+        }
+      ],
+      "id": "RCV000029215.25-G-PATH.non-contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Non-contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
+    }
+  ],
+  "id": "RCV000029215.25-G-PATH",
+  "proposition": {
+    "id": "RCV000029215-G-PATH",
+    "object": {
+      "aliases": [
+        "Linear nevus sebaceous",
+        "Linear sebaceous nevus sequence",
+        "Sebaceous nevus syndrome and hemimegalencephaly",
+        "Nevus, Sebaceous of Jadassohn",
+        "JADASSOHN NEVUS PHAKOMATOSIS",
+        "NEVUS SEBACEUS OF JADASSOHN",
+        "ORGANOID NEVUS PHAKOMATOSIS",
+        "SFM SYNDROME",
+        "SCHIMMELPENNING-FEUERSTEIN-MIMS SYNDROME, SOMATIC MOSAIC"
+      ],
+      "conceptType": "Disease",
+      "id": "clinvar.trait:4371",
+      "mappings": [
+        {
+          "coding": {
+            "code": "2612",
+            "iris": [
+              "https://identifiers.org/orphanet:2612",
+              "http://www.orpha.net/ORDO/Orphanet_2612"
+            ],
+            "system": "https://www.orpha.net/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "0008097",
+            "iris": [
+              "https://identifiers.org/mondo:0008097",
+              "http://purl.obolibrary.org/obo/MONDO_0008097"
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "163200",
+            "iris": [
+              "https://www.omim.org/entry/163200",
+              "https://identifiers.org/mim:163200"
+            ],
+            "system": "https://www.omim.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "0010817",
+            "iris": [
+              "https://identifiers.org/HP:0010817",
+              "http://purl.obolibrary.org/obo/HP_0010817"
+            ],
+            "system": "https://hpo.jax.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "52298009",
+            "iris": [
+              "https://identifiers.org/snomedct:52298009"
+            ],
+            "system": "https://www.snomed.org/"
+          },
+          "relation": "relatedMatch"
+        }
+      ],
+      "name": "Linear nevus sebaceous syndrome",
+      "primaryCoding": {
+        "code": "C4552097",
+        "iris": [
+          "https://www.ncbi.nlm.nih.gov/medgen/C4552097",
+          "https://identifiers.org/medgen:C4552097"
+        ],
+        "name": "Linear nevus sebaceous syndrome",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "trait_id": "4371",
+      "type": "MappableConcept"
+    },
+    "predicate": "isCausalFor",
+    "subject": "#/variation/clinvar:12582",
+    "type": "VariantPathogenicityProposition"
+  },
+  "quality": {
+    "conceptType": "Quality",
+    "name": "criteria provided",
+    "type": "MappableConcept"
+  },
+  "type": "Statement"
+}

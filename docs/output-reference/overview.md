@@ -221,6 +221,12 @@ See [Export & Distribute](../pipeline/export.md#parquet-output) for the full lis
 
 ---
 
-## Future: Inlining Tool
+## Inlining References
 
-The bundle format is designed to support a community tool that converts the single compressed file into **inlined output** at various levels of detail — from complete (all references resolved inline) to minimal (references only). This tool is under development and will be documented here when available.
+The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) (`ga4gh.gkm`) converts the bundle's `#/…` references into **inlined output** at the level of detail you need. Load the bundle, then call [`Bundle.export()`](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/containers/):
+
+- `export(item, deep=True)` — **complete**: every reachable reference resolved inline, producing a standalone object (a reference that closes a cycle is kept as a pointer, since JSON cannot represent a cyclic value).
+- `export(item)` (`deep=False`) — **minimal**: the object's local `#/…` pointers are preserved as-is.
+- `export()` with no argument exports the whole bundle at the chosen depth.
+
+See the GKM Toolkit's [schema resolution](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-resolution/) and [containers](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/containers/) API for details.

@@ -1,0 +1,155 @@
+{
+  "classification": {
+    "conceptType": "Classification",
+    "name": "not provided",
+    "type": "MappableConcept"
+  },
+  "direction": "supports",
+  "extensions": [
+    {
+      "name": "clinvarReviewStatus",
+      "value": "no classification provided"
+    }
+  ],
+  "hasEvidenceLines": [
+    {
+      "directionOfEvidenceProvided": "supports",
+      "hasEvidenceItems": [
+        {
+          "classification": {
+            "conceptType": "Classification",
+            "name": "not provided",
+            "type": "MappableConcept"
+          },
+          "direction": "supports",
+          "extensions": [
+            {
+              "name": "clinvarReviewStatus",
+              "value": "no classification provided"
+            }
+          ],
+          "hasEvidenceLines": [
+            {
+              "directionOfEvidenceProvided": "supports",
+              "hasEvidenceItems": [
+                "#/scv/clinvar.submission:SCV002099547.2"
+              ],
+              "id": "VCV000012582.69-G-NP-NOCL.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
+              "type": "EvidenceLine"
+            }
+          ],
+          "id": "VCV000012582.69-G-NP-NOCL",
+          "proposition": {
+            "id": "VCV000012582-G-NP-NOCL",
+            "object": "#/condition/clinvar.trait:6752",
+            "predicate": "hasNoProvidedClassificationFor",
+            "subject": "#/variation/clinvar:12582",
+            "type": "ClinvarNotProvidedProposition"
+          },
+          "quality": {
+            "conceptType": "Quality",
+            "name": "no classification",
+            "type": "MappableConcept"
+          },
+          "type": "Statement"
+        }
+      ],
+      "id": "VCV000012582.69-G-NP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
+    }
+  ],
+  "id": "VCV000012582.69-G-NP",
+  "proposition": {
+    "id": "VCV000012582-G-NP",
+    "object": {
+      "conceptType": "Disease",
+      "id": "clinvar.trait:6752",
+      "mappings": [
+        {
+          "coding": {
+            "code": "2396",
+            "iris": [
+              "https://identifiers.org/orphanet:2396",
+              "http://www.orpha.net/ORDO/Orphanet_2396"
+            ],
+            "system": "https://www.orpha.net/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "0013074",
+            "iris": [
+              "https://identifiers.org/mondo:0013074",
+              "http://purl.obolibrary.org/obo/MONDO_0013074"
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "613001",
+            "iris": [
+              "https://www.omim.org/entry/613001",
+              "https://identifiers.org/mim:613001"
+            ],
+            "system": "https://www.omim.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "238905009",
+            "iris": [
+              "https://identifiers.org/snomedct:238905009"
+            ],
+            "system": "https://www.snomed.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "NBK576966",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/books/NBK576966"
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/books/"
+          },
+          "relation": "relatedMatch"
+        }
+      ],
+      "name": "Encephalocraniocutaneous lipomatosis",
+      "primaryCoding": {
+        "code": "C0406612",
+        "iris": [
+          "https://www.ncbi.nlm.nih.gov/medgen/C0406612",
+          "https://identifiers.org/medgen:C0406612"
+        ],
+        "name": "Encephalocraniocutaneous lipomatosis",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "trait_id": "6752",
+      "type": "MappableConcept"
+    },
+    "predicate": "hasNoProvidedClassificationFor",
+    "subject": "#/variation/clinvar:12582",
+    "type": "ClinvarNotProvidedProposition"
+  },
+  "quality": {
+    "conceptType": "Quality",
+    "name": "no classification",
+    "type": "MappableConcept"
+  },
+  "type": "Statement"
+}

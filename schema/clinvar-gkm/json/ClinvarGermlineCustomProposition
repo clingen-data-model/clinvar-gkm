@@ -6,7 +6,7 @@
    "$defs": {
       "ClinvarGermlineCustomPropositionProperties": {
          "type": "object",
-         "maturity": "draft",
+         "maturity": "trial use",
          "description": "ClinVar-specific properties for germline custom propositions.",
          "protectedClassOf": "ClinvarGermlineCustomProposition",
          "properties": {
@@ -75,7 +75,7 @@
          "additionalProperties": false
       }
    },
-   "maturity": "draft",
+   "maturity": "trial use",
    "allOf": [
       {
          "$ref": "/ga4gh/schema/va-spec/1.1.0/json/SubjectVariantProposition"

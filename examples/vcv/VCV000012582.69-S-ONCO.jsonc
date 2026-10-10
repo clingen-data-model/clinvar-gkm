@@ -1,0 +1,160 @@
+{
+  "classification": {
+    "conceptType": "Classification",
+    "name": "Oncogenic",
+    "type": "MappableConcept"
+  },
+  "direction": "supports",
+  "extensions": [
+    {
+      "name": "clinvarReviewStatus",
+      "value": "criteria provided, single submitter"
+    }
+  ],
+  "hasEvidenceLines": [
+    {
+      "directionOfEvidenceProvided": "supports",
+      "hasEvidenceItems": [
+        {
+          "classification": {
+            "conceptType": "Classification",
+            "name": "Oncogenic",
+            "type": "MappableConcept"
+          },
+          "direction": "supports",
+          "extensions": [
+            {
+              "name": "clinvarReviewStatus",
+              "value": "criteria provided, single submitter"
+            }
+          ],
+          "hasEvidenceLines": [
+            {
+              "directionOfEvidenceProvided": "supports",
+              "hasEvidenceItems": [
+                "#/scv/clinvar.submission:SCV005094257.2"
+              ],
+              "id": "VCV000012582.69-S-ONCO-CP.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
+              "type": "EvidenceLine"
+            }
+          ],
+          "id": "VCV000012582.69-S-ONCO-CP",
+          "proposition": {
+            "id": "VCV000012582-S-ONCO-CP",
+            "object": "#/condition/clinvar.trait:32759",
+            "predicate": "isOncogenicFor",
+            "subject": "#/variation/clinvar:12582",
+            "type": "VariantOncogenicityProposition"
+          },
+          "quality": {
+            "conceptType": "Quality",
+            "name": "criteria provided",
+            "type": "MappableConcept"
+          },
+          "strength": {
+            "conceptType": "Strength",
+            "name": "Definitive",
+            "type": "MappableConcept"
+          },
+          "type": "Statement"
+        }
+      ],
+      "id": "VCV000012582.69-S-ONCO.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
+    }
+  ],
+  "id": "VCV000012582.69-S-ONCO",
+  "proposition": {
+    "id": "VCV000012582-S-ONCO",
+    "object": {
+      "aliases": [
+        "tumor",
+        "Neoplasms",
+        "Neoplasm (disease)"
+      ],
+      "conceptType": "Disease",
+      "id": "clinvar.trait:32759",
+      "mappings": [
+        {
+          "coding": {
+            "code": "D009369",
+            "iris": [
+              "https://identifiers.org/mesh:D009369",
+              "https://www.ncbi.nlm.nih.gov/mesh/?term=D009369"
+            ],
+            "system": "https://id.nlm.nih.gov/mesh/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "0005070",
+            "iris": [
+              "https://identifiers.org/mondo:0005070",
+              "http://purl.obolibrary.org/obo/MONDO_0005070"
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "0002664",
+            "iris": [
+              "https://identifiers.org/HP:0002664",
+              "http://purl.obolibrary.org/obo/HP_0002664"
+            ],
+            "system": "https://hpo.jax.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "108369006",
+            "iris": [
+              "https://identifiers.org/snomedct:108369006"
+            ],
+            "system": "https://www.snomed.org/"
+          },
+          "relation": "relatedMatch"
+        }
+      ],
+      "name": "Neoplasm",
+      "primaryCoding": {
+        "code": "C0027651",
+        "iris": [
+          "https://www.ncbi.nlm.nih.gov/medgen/C0027651",
+          "https://identifiers.org/medgen:C0027651"
+        ],
+        "name": "Neoplasm",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "trait_id": "32759",
+      "type": "MappableConcept"
+    },
+    "predicate": "isOncogenicFor",
+    "subject": "#/variation/clinvar:12582",
+    "type": "VariantOncogenicityProposition"
+  },
+  "quality": {
+    "conceptType": "Quality",
+    "name": "criteria provided",
+    "type": "MappableConcept"
+  },
+  "strength": {
+    "conceptType": "Strength",
+    "name": "Definitive",
+    "type": "MappableConcept"
+  },
+  "type": "Statement"
+}

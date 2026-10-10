@@ -1,0 +1,115 @@
+{
+  "classification": {
+    "conceptType": "Classification",
+    "name": "drug response",
+    "type": "MappableConcept"
+  },
+  "direction": "supports",
+  "extensions": [
+    {
+      "name": "clinvarReviewStatus",
+      "value": "reviewed by expert panel"
+    }
+  ],
+  "hasEvidenceLines": [
+    {
+      "directionOfEvidenceProvided": "supports",
+      "hasEvidenceItems": [
+        {
+          "classification": {
+            "conceptType": "Classification",
+            "name": "drug response",
+            "type": "MappableConcept"
+          },
+          "direction": "supports",
+          "extensions": [
+            {
+              "name": "clinvarReviewStatus",
+              "value": "reviewed by expert panel"
+            }
+          ],
+          "hasEvidenceLines": [
+            {
+              "directionOfEvidenceProvided": "supports",
+              "hasEvidenceItems": [
+                "#/scv/clinvar.submission:SCV002031251.1",
+                "#/scv/clinvar.submission:SCV002031250.1"
+              ],
+              "id": "VCV000007105.213-G-DR-EP.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
+              "type": "EvidenceLine"
+            }
+          ],
+          "id": "VCV000007105.213-G-DR-EP",
+          "proposition": {
+            "id": "VCV000007105-G-DR-EP",
+            "object": "#/conditionSet/clinvar.conditionset:vcv-b5e44624e6c47865c689745af799870e",
+            "predicate": "hasDrugResponseFor",
+            "subject": "#/variation/clinvar:7105",
+            "type": "ClinvarDrugResponseProposition"
+          },
+          "quality": {
+            "conceptType": "Quality",
+            "name": "expert panel",
+            "type": "MappableConcept"
+          },
+          "type": "Statement"
+        }
+      ],
+      "id": "VCV000007105.213-G-DR.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
+    }
+  ],
+  "id": "VCV000007105.213-G-DR",
+  "proposition": {
+    "id": "VCV000007105-G-DR",
+    "object": {
+      "concepts": [
+        {
+          "conceptType": "Condition",
+          "id": "clinvar.trait:36871",
+          "name": "ivacaftor / lumacaftor response - Efficacy",
+          "primaryCoding": {
+            "code": "CN322746",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/medgen/CN322746",
+              "https://identifiers.org/medgen:CN322746"
+            ],
+            "name": "ivacaftor / lumacaftor response - Efficacy",
+            "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+          },
+          "trait_id": "36871",
+          "type": "MappableConcept"
+        },
+        {
+          "conceptType": "Condition",
+          "id": "clinvar.trait:61004",
+          "name": "ivacaftor / tezacaftor response - Efficacy",
+          "trait_id": "61004",
+          "type": "MappableConcept"
+        }
+      ],
+      "id": "clinvar.conditionset:vcv-b5e44624e6c47865c689745af799870e",
+      "membershipOperator": "OR",
+      "type": "ConceptSet"
+    },
+    "predicate": "hasDrugResponseFor",
+    "subject": "#/variation/clinvar:7105",
+    "type": "ClinvarDrugResponseProposition"
+  },
+  "quality": {
+    "conceptType": "Quality",
+    "name": "expert panel",
+    "type": "MappableConcept"
+  },
+  "type": "Statement"
+}

@@ -1,8 +1,8 @@
 # ClinvarProposition
 
-!!! warning "Draft"
+!!! note "Trial Use"
 
-    This data class is at a **draft** maturity level and may change significantly in future releases.
+    May change in future releases. See the [GKM Maturity Model](https://vrs.ga4gh.org/en/2.1/appendices/maturity_model.html){ target=_blank rel=noopener }.
 
 Any proposition type valid in ClinVar-GKM statements. Includes the GA4GH standard proposition types (pathogenicity, oncogenicity, clinical significance) and ClinVar-specific proposition types for submission categories not covered by the GA4GH specifications.
 
@@ -10,9 +10,9 @@ Any proposition type valid in ClinVar-GKM statements. Includes the GA4GH standar
 
 **One of:**
 
-- `VariantPathogenicityProposition`
-- `VariantOncogenicityProposition`
-- `VariantClinicalSignificanceProposition`
+- [VariantPathogenicityProposition](https://va-spec.ga4gh.org/en/1.1.0/va-standard-profiles/base-profiles/proposition-profiles.html#variantpathogenicityproposition){ target=_blank rel=noopener }
+- [VariantOncogenicityProposition](https://va-spec.ga4gh.org/en/1.1.0/va-standard-profiles/base-profiles/proposition-profiles.html#variantoncogenicityproposition){ target=_blank rel=noopener }
+- [VariantClinicalSignificanceProposition](https://va-spec.ga4gh.org/en/1.1.0/va-standard-profiles/base-profiles/proposition-profiles.html#variantclinicalsignificanceproposition){ target=_blank rel=noopener }
 - [ClinvarRiskFactorProposition](ClinvarRiskFactorProposition.md)
 - [ClinvarProtectiveProposition](ClinvarProtectiveProposition.md)
 - [ClinvarDrugResponseProposition](ClinvarDrugResponseProposition.md)

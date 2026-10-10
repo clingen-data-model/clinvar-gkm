@@ -1,0 +1,141 @@
+{
+  "classification": {
+    "conceptType": "Classification",
+    "extensions": [
+      {
+        "name": "conflictingExplanation",
+        "value": "Uncertain significance(1); Likely benign(1)"
+      }
+    ],
+    "name": "Conflicting classifications of pathogenicity",
+    "type": "MappableConcept"
+  },
+  "direction": "neutral",
+  "extensions": [
+    {
+      "name": "clinvarReviewStatus",
+      "value": "criteria provided, conflicting classifications"
+    }
+  ],
+  "hasEvidenceLines": [
+    {
+      "directionOfEvidenceProvided": "supports",
+      "hasEvidenceItems": [
+        {
+          "classification": {
+            "conceptType": "Classification",
+            "extensions": [
+              {
+                "name": "conflictingExplanation",
+                "value": "Uncertain significance(1); Likely benign(1)"
+              }
+            ],
+            "name": "Conflicting classifications of pathogenicity",
+            "type": "MappableConcept"
+          },
+          "direction": "neutral",
+          "extensions": [
+            {
+              "name": "clinvarReviewStatus",
+              "value": "criteria provided, conflicting classifications"
+            }
+          ],
+          "hasEvidenceLines": [
+            {
+              "directionOfEvidenceProvided": "supports",
+              "hasEvidenceItems": [
+                "#/scv/clinvar.submission:SCV001524786.1",
+                "#/scv/clinvar.submission:SCV000397270.3"
+              ],
+              "id": "RCV001781420.15-G-PATH-CP.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
+              "type": "EvidenceLine"
+            }
+          ],
+          "id": "RCV001781420.15-G-PATH-CP",
+          "proposition": {
+            "id": "RCV001781420-G-PATH-CP",
+            "object": "#/condition/clinvar.trait:42004",
+            "predicate": "isCausalFor",
+            "subject": "#/variation/clinvar:97850",
+            "type": "VariantPathogenicityProposition"
+          },
+          "quality": {
+            "conceptType": "Quality",
+            "name": "criteria provided",
+            "type": "MappableConcept"
+          },
+          "type": "Statement"
+        }
+      ],
+      "id": "RCV001781420.15-G-PATH.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
+    }
+  ],
+  "id": "RCV001781420.15-G-PATH",
+  "proposition": {
+    "id": "RCV001781420-G-PATH",
+    "object": {
+      "aliases": [
+        "INFLAMMATORY BOWEL DISEASE (CROHN DISEASE) 1",
+        "Inflammatory bowel disease 1, Crohn disease"
+      ],
+      "conceptType": "Disease",
+      "id": "clinvar.trait:42004",
+      "mappings": [
+        {
+          "coding": {
+            "code": "0009960",
+            "iris": [
+              "https://identifiers.org/mondo:0009960",
+              "http://purl.obolibrary.org/obo/MONDO_0009960"
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "266600",
+            "iris": [
+              "https://www.omim.org/entry/266600",
+              "https://identifiers.org/mim:266600"
+            ],
+            "system": "https://www.omim.org/"
+          },
+          "relation": "relatedMatch"
+        }
+      ],
+      "name": "Inflammatory bowel disease 1",
+      "primaryCoding": {
+        "code": "CN260071",
+        "iris": [
+          "https://www.ncbi.nlm.nih.gov/medgen/CN260071",
+          "https://identifiers.org/medgen:CN260071"
+        ],
+        "name": "Inflammatory bowel disease 1",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "trait_id": "42004",
+      "type": "MappableConcept"
+    },
+    "predicate": "isCausalFor",
+    "subject": "#/variation/clinvar:97850",
+    "type": "VariantPathogenicityProposition"
+  },
+  "quality": {
+    "conceptType": "Quality",
+    "name": "criteria provided",
+    "type": "MappableConcept"
+  },
+  "type": "Statement"
+}

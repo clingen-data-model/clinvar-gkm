@@ -1,7 +1,7 @@
-.. admonition:: Draft
-    :class: warning
+.. admonition:: Trial Use
+    :class: note
 
-    May change significantly in future releases. See |maturity-model|.
+    May change in future releases. See |maturity-model|.
 
 **Computational Definition**
 
@@ -58,12 +58,12 @@ The submitter's original condition details and how they were mapped to a ClinVar
       -
       - string
       - 0..1
-      - JSON pointer reference to the directly matched condition (e.g., "#/condition/clinvar.trait:123"). Present only when the direct match differs from the normalized match.
+      - The CURIE of the directly matched condition (e.g., "clinvar.trait:123"; the key of the corresponding #/condition/ bundle entry). Present only when the direct match differs from the normalized match.
    *  - normalized_match
       -
       - string
       - 0..1
-      - JSON pointer reference to the final normalized condition (e.g., "#/condition/clinvar.trait:456").
+      - The CURIE of the final normalized condition (e.g., "clinvar.trait:456"; the key of the corresponding #/condition/ bundle entry).
    *  - normalized_resolution
       -
       - string

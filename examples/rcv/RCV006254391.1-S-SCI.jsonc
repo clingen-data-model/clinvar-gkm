@@ -1,147 +1,128 @@
 {
   "classification": {
     "conceptType": "Classification",
-    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+    "type": "MappableConcept"
   },
   "direction": "supports",
-  "evidenceLines": [
+  "hasEvidenceLines": [
     {
       "directionOfEvidenceProvided": "supports",
-      "evidenceItems": [
+      "hasEvidenceItems": [
         {
           "classification": {
             "conceptType": "Classification",
-            "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+            "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+            "type": "MappableConcept"
           },
           "direction": "supports",
-          "evidenceLines": [
+          "hasEvidenceLines": [
             {
               "directionOfEvidenceProvided": "supports",
-              "evidenceItems": [
+              "hasEvidenceItems": [
                 {
                   "classification": {
                     "conceptType": "Classification",
-                    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+                    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+                    "type": "MappableConcept"
                   },
-                  "confidence": "criteria provided",
                   "direction": "supports",
-                  "evidenceLines": [
-                    {
-                      "directionOfEvidenceProvided": "supports",
-                      "evidenceItems": [
-                        {
-                          "id": "clinvar.submission:SCV007105704.1"
-                        }
-                      ],
-                      "strengthOfEvidenceProvided": "contributing",
-                      "type": "EvidenceLine"
-                    }
-                  ],
                   "extensions": [
                     {
                       "name": "clinvarReviewStatus",
                       "value": "criteria provided, single submitter"
                     }
                   ],
+                  "hasEvidenceLines": [
+                    {
+                      "directionOfEvidenceProvided": "supports",
+                      "hasEvidenceItems": [
+                        "#/scv/clinvar.submission:SCV007105704.1"
+                      ],
+                      "id": "RCV006254391.1-S-SCI-CP-T1.contributing",
+                      "strengthOfEvidenceProvided": {
+                        "conceptType": "Strength",
+                        "name": "Contributing",
+                        "type": "MappableConcept"
+                      },
+                      "type": "EvidenceLine"
+                    }
+                  ],
                   "id": "RCV006254391.1-S-SCI-CP-T1",
                   "proposition": {
                     "id": "RCV006254391-S-SCI-CP-T1",
-                    "objectCondition": {
-                      "conceptType": "Disease",
-                      "id": "SCV007105704.0",
-                      "mappings": [
-                        {
-                          "coding": {
-                            "code": "MONDO:0850196",
-                            "iris": [
-                              "http://purl.obolibrary.org/obo/MONDO_0850196",
-                              "https://identifiers.org/mondo:0850196"
-                            ],
-                            "system": "MONDO"
-                          },
-                          "relation": "relatedMatch"
-                        }
-                      ],
-                      "name": "Medulloblastoma WNT activated",
-                      "primaryCoding": {
-                        "code": "C4331965",
-                        "iris": [
-                          "https://identifiers.org/medgen:C4331965",
-                          "https://www.ncbi.nlm.nih.gov/medgen/C4331965"
-                        ],
-                        "name": "Medulloblastoma WNT activated",
-                        "system": "MedGen"
-                      }
-                    },
-                    "predicate": "hasSignificanceFor",
-                    "subjectVariant": "clinvar:2758242",
+                    "object": "#/condition/clinvar.trait:67944",
+                    "predicate": "hasClinicalSignificanceFor",
+                    "subject": "#/variation/clinvar:2758242",
                     "type": "VariantClinicalSignificanceProposition"
                   },
-                  "strength": "definitive",
+                  "quality": {
+                    "conceptType": "Quality",
+                    "name": "criteria provided",
+                    "type": "MappableConcept"
+                  },
+                  "strength": {
+                    "conceptType": "Strength",
+                    "name": "Strong",
+                    "type": "MappableConcept"
+                  },
                   "type": "Statement"
                 }
               ],
-              "strengthOfEvidenceProvided": "contributing",
+              "id": "RCV006254391.1-S-SCI-CP.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
               "type": "EvidenceLine"
             }
           ],
           "id": "RCV006254391.1-S-SCI-CP",
           "proposition": {
             "id": "RCV006254391-S-SCI-CP",
-            "objectCondition": {
-              "conceptType": "Disease",
-              "id": "SCV007105704.0",
-              "mappings": [
-                {
-                  "coding": {
-                    "code": "MONDO:0850196",
-                    "iris": [
-                      "http://purl.obolibrary.org/obo/MONDO_0850196",
-                      "https://identifiers.org/mondo:0850196"
-                    ],
-                    "system": "MONDO"
-                  },
-                  "relation": "relatedMatch"
-                }
-              ],
-              "name": "Medulloblastoma WNT activated",
-              "primaryCoding": {
-                "code": "C4331965",
-                "iris": [
-                  "https://identifiers.org/medgen:C4331965",
-                  "https://www.ncbi.nlm.nih.gov/medgen/C4331965"
-                ],
-                "name": "Medulloblastoma WNT activated",
-                "system": "MedGen"
-              }
-            },
-            "predicate": "hasSignificanceFor",
-            "subjectVariant": "clinvar:2758242",
+            "object": "#/condition/clinvar.trait:67944",
+            "predicate": "hasClinicalSignificanceFor",
+            "subject": "#/variation/clinvar:2758242",
             "type": "VariantClinicalSignificanceProposition"
           },
-          "strength": "definitive",
+          "quality": {
+            "conceptType": "Quality",
+            "name": "criteria provided",
+            "type": "MappableConcept"
+          },
+          "strength": {
+            "conceptType": "Strength",
+            "name": "Strong",
+            "type": "MappableConcept"
+          },
           "type": "Statement"
         }
       ],
-      "strengthOfEvidenceProvided": "contributing",
+      "id": "RCV006254391.1-S-SCI.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
       "type": "EvidenceLine"
     }
   ],
   "id": "RCV006254391.1-S-SCI",
   "proposition": {
     "id": "RCV006254391-S-SCI",
-    "objectCondition": {
+    "object": {
       "conceptType": "Disease",
-      "id": "SCV007105704.0",
+      "id": "clinvar.trait:67944",
       "mappings": [
         {
           "coding": {
-            "code": "MONDO:0850196",
+            "code": "0850196",
             "iris": [
-              "http://purl.obolibrary.org/obo/MONDO_0850196",
-              "https://identifiers.org/mondo:0850196"
+              "https://identifiers.org/mondo:0850196",
+              "http://purl.obolibrary.org/obo/MONDO_0850196"
             ],
-            "system": "MONDO"
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         }
@@ -150,17 +131,28 @@
       "primaryCoding": {
         "code": "C4331965",
         "iris": [
-          "https://identifiers.org/medgen:C4331965",
-          "https://www.ncbi.nlm.nih.gov/medgen/C4331965"
+          "https://www.ncbi.nlm.nih.gov/medgen/C4331965",
+          "https://identifiers.org/medgen:C4331965"
         ],
         "name": "Medulloblastoma WNT activated",
-        "system": "MedGen"
-      }
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "trait_id": "67944",
+      "type": "MappableConcept"
     },
-    "predicate": "hasSignificanceFor",
-    "subjectVariant": "clinvar:2758242",
+    "predicate": "hasClinicalSignificanceFor",
+    "subject": "#/variation/clinvar:2758242",
     "type": "VariantClinicalSignificanceProposition"
   },
-  "strength": "definitive",
+  "quality": {
+    "conceptType": "Quality",
+    "name": "criteria provided",
+    "type": "MappableConcept"
+  },
+  "strength": {
+    "conceptType": "Strength",
+    "name": "Strong",
+    "type": "MappableConcept"
+  },
   "type": "Statement"
 }

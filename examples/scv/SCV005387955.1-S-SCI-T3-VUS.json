@@ -1,5 +1,6 @@
 {
   "classification": {
+    "conceptType": "Classification",
     "extensions": [
       {
         "name": "description",
@@ -10,7 +11,8 @@
     "primaryCoding": {
       "code": "tier 3",
       "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
-    }
+    },
+    "type": "MappableConcept"
   },
   "contributions": [
     {
@@ -55,6 +57,28 @@
       "value": "1"
     },
     {
+      "name": "submittedCondition",
+      "value": {
+        "condition": "clinvar.trait:3902",
+        "id": "SCV005387955.0",
+        "mapping": {
+          "ref": "omim",
+          "type": "XRef",
+          "value": "605642"
+        },
+        "medgen_id": "C1854104",
+        "normalized_match": "clinvar.trait:3902",
+        "normalized_resolution": "tm reftype xref omim",
+        "type": "Disease",
+        "xrefs": [
+          {
+            "code": "605642",
+            "system": "OMIM"
+          }
+        ]
+      }
+    },
+    {
       "name": "clinvarScvReviewStatus",
       "value": "no assertion criteria provided"
     },
@@ -97,115 +121,47 @@
         ],
         "name": "TG",
         "system": "https://www.ncbi.nlm.nih.gov/gene/"
-      }
+      },
+      "type": "MappableConcept"
     },
-    "id": "clinvar.submission:SCV005387955",
-    "objectCondition": {
-      "conceptType": "Disease",
-      "extensions": [
-        {
-          "name": "clinvarTraitId",
-          "value": "3902"
-        },
-        {
-          "name": "clinvarTraitType",
-          "value": "Disease"
-        },
-        {
-          "name": "aliases",
-          "value": "Thyroid carcinoma, papillary, with papillary renal neoplasia"
-        },
-        {
-          "name": "submittedScvXrefs",
-          "value": [
-            {
-              "code": "605642",
-              "system": "OMIM"
-            }
-          ]
-        },
-        {
-          "name": "submittedScvTraitAssignment",
-          "value": "scv trait: omim id '605642'"
-        },
-        {
-          "name": "clinvarScvTraitAssignment",
-          "value": "rcv-tm medgen id"
-        },
-        {
-          "name": "clinvarScvTraitMappingType:ref(val)",
-          "value": "xref:omim(605642)"
-        },
-        {
-          "name": "clinvarTraitSetType",
-          "value": "Disease"
-        },
-        {
-          "name": "clinvarTraitSetId",
-          "value": "7074"
-        }
+    "id": "SCV005387955-SCI",
+    "object": {
+      "aliases": [
+        "Thyroid carcinoma, papillary, with papillary renal neoplasia"
       ],
-      "id": "SCV005387955.0",
+      "conceptType": "Disease",
+      "id": "clinvar.trait:3902",
       "mappings": [
         {
           "coding": {
             "code": "97290",
             "iris": [
-              "https://identifiers.org/orphanet.ordo:Orphanet_97290",
+              "https://identifiers.org/orphanet:97290",
               "http://www.orpha.net/ORDO/Orphanet_97290"
             ],
-            "system": "Orphanet"
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "code": "MONDO:0011578",
-            "extensions": [
-              {
-                "name": "mappingRefFields",
-                "value": "name"
-              }
-            ],
+            "code": "0011578",
             "iris": [
-              "http://purl.obolibrary.org/obo/MONDO_0011578",
-              "https://identifiers.org/mondo:0011578"
+              "https://identifiers.org/mondo:0011578",
+              "http://purl.obolibrary.org/obo/MONDO_0011578"
             ],
-            "system": "MONDO"
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "605642",
-            "extensions": [
-              {
-                "name": "mappingType",
-                "value": "MIM"
-              },
-              {
-                "name": "mappingRefFields",
-                "value": "alternate_symbols"
-              }
-            ],
             "iris": [
               "https://www.omim.org/entry/605642",
               "https://identifiers.org/mim:605642"
             ],
-            "system": "OMIM"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "16853",
-            "extensions": [
-              {
-                "name": "mappingRefFields",
-                "value": "gard_id"
-              }
-            ],
-            "system": "Office of Rare Diseases"
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         }
@@ -214,195 +170,23 @@
       "primaryCoding": {
         "code": "C1854104",
         "iris": [
-          "https://identifiers.org/medgen:C1854104",
-          "https://www.ncbi.nlm.nih.gov/medgen/C1854104"
+          "https://www.ncbi.nlm.nih.gov/medgen/C1854104",
+          "https://identifiers.org/medgen:C1854104"
         ],
         "name": "Familial papillary thyroid carcinoma with renal papillary neoplasia",
-        "system": "MedGen"
-      }
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "trait_id": "3902",
+      "type": "MappableConcept"
     },
-    "predicate": "isClinicallySignificantFor",
-    "subjectVariant": {
-      "constraints": [
-        {
-          "allele": "2/members/0/",
-          "relations": [
-            {
-              "primaryCoding": {
-                "code": "liftover_to",
-                "system": "ga4gh-gks-term:allele-relation"
-              }
-            },
-            {
-              "primaryCoding": {
-                "code": "transcribed_to",
-                "iris": [
-                  "http://www.sequenceontology.org/browser/current_release/term/transcribed_to"
-                ],
-                "system": "http://www.sequenceontology.org"
-              }
-            }
-          ],
-          "type": "DefiningAlleleConstraint"
-        }
-      ],
-      "extensions": [
-        {
-          "name": "clinvarVariationType",
-          "value": "single nucleotide variant"
-        },
-        {
-          "name": "clinvarSubclassType",
-          "value": "SimpleAllele"
-        },
-        {
-          "name": "definingVrsVariationType",
-          "value": "Allele"
-        },
-        {
-          "name": "clinvarCytogeneticLocation",
-          "value": "8q24.22"
-        },
-        {
-          "name": "clinvarGeneList",
-          "value": [
-            {
-              "entrez_gene_id": "7038",
-              "hgnc_id": "HGNC:11764",
-              "iris": [
-                "https://identifiers.org/hgnc:11764",
-                "https://identifiers.org/ncbigene:7038",
-                "https://www.ncbi.nlm.nih.gov/gene/7038"
-              ],
-              "relationship_type": "within single gene",
-              "source": "calculated",
-              "symbol": "TG"
-            }
-          ]
-        },
-        {
-          "name": "categoricalVariationType",
-          "value": "CanonicalAllele"
-        },
-        {
-          "name": "clinvarHgvsList",
-          "value": [
-            {
-              "nucleotideExpression": {
-                "syntax": "hgvs.g",
-                "value": "NC_000008.11:g.132923419G>A"
-              },
-              "nucleotideType": "genomic, top-level"
-            },
-            {
-              "nucleotideExpression": {
-                "syntax": "hgvs.g",
-                "value": "NG_015832.1:g.61460G>A"
-              },
-              "nucleotideType": "genomic"
-            },
-            {
-              "nucleotideExpression": {
-                "syntax": "hgvs.g",
-                "value": "NC_000008.10:g.133935664G>A"
-              },
-              "nucleotideType": "genomic, top-level"
-            },
-            {
-              "nucleotideExpression": {
-                "syntax": "hgvs.g",
-                "value": "NG_015832.2:g.61463G>A"
-              },
-              "nucleotideType": "genomic"
-            },
-            {
-              "maneSelect": true,
-              "molecularConsequence": [
-                {
-                  "code": "SO:0001583",
-                  "iris": [
-                    "https://identifiers.org/SO:0001583"
-                  ],
-                  "name": "missense_variant",
-                  "system": "http://www.sequenceontology.org/"
-                }
-              ],
-              "nucleotideExpression": {
-                "syntax": "hgvs.c",
-                "value": "NM_003235.5:c.4610G>A"
-              },
-              "nucleotideType": "coding",
-              "proteinExpression": {
-                "syntax": "hgvs.p",
-                "value": "NP_003226.4:p.Gly1537Asp"
-              }
-            }
-          ]
-        }
-      ],
-      "id": "clinvar:3376511",
-      "mappings": [
-        {
-          "coding": {
-            "code": "3376511",
-            "iris": [
-              "https://identifiers.org/clinvar:3376511"
-            ],
-            "system": "ClinVar"
-          },
-          "relation": "exactMatch"
-        }
-      ],
-      "members": [
-        {
-          "digest": "5DKayVXuzzcTYJUxuaUopnt9jZgpX4aB",
-          "expressions": [
-            {
-              "syntax": "spdi",
-              "value": "NC_000008.11:132923418:G:A"
-            },
-            {
-              "syntax": "hgvs.g",
-              "value": "NC_000008.11:g.132923419G>A"
-            },
-            {
-              "syntax": "gnomad",
-              "value": "8-132923419-G-A"
-            }
-          ],
-          "id": "ga4gh:VA.5DKayVXuzzcTYJUxuaUopnt9jZgpX4aB",
-          "location": {
-            "digest": "iXS7BEYB7vn81r63O4J_7A8UI6bdgKKM",
-            "end": 132923419,
-            "id": "ga4gh:SL.iXS7BEYB7vn81r63O4J_7A8UI6bdgKKM",
-            "sequenceReference": {
-              "extensions": [
-                {
-                  "name": "assembly",
-                  "value": "GRCh38"
-                }
-              ],
-              "moleculeType": "genomic",
-              "name": "NC_000008.11",
-              "refgetAccession": "SQ.209Z7zJ-mFypBEWLk4rNC6S_OxY5p7bs",
-              "residueAlphabet": "na",
-              "type": "SequenceReference"
-            },
-            "start": 132923418,
-            "type": "SequenceLocation"
-          },
-          "name": "NC_000008.11:g.132923419G>A",
-          "state": {
-            "sequence": "A",
-            "type": "LiteralSequenceExpression"
-          },
-          "type": "Allele"
-        }
-      ],
-      "name": "NM_003235.5(TG):c.4610G>A (p.Gly1537Asp)",
-      "type": "CategoricalVariant"
-    },
+    "predicate": "hasClinicalSignificanceFor",
+    "subject": "#/variation/clinvar:3376511",
     "type": "VariantClinicalSignificanceProposition"
+  },
+  "quality": {
+    "conceptType": "Quality",
+    "name": "no assertion criteria provided",
+    "type": "MappableConcept"
   },
   "reportedIn": [
     {

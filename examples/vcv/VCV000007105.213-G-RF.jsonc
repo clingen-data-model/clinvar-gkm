@@ -1,0 +1,100 @@
+{
+  "classification": {
+    "conceptType": "Classification",
+    "name": "risk factor",
+    "type": "MappableConcept"
+  },
+  "direction": "supports",
+  "extensions": [
+    {
+      "name": "clinvarReviewStatus",
+      "value": "no assertion criteria provided"
+    }
+  ],
+  "hasEvidenceLines": [
+    {
+      "directionOfEvidenceProvided": "supports",
+      "hasEvidenceItems": [
+        {
+          "classification": {
+            "conceptType": "Classification",
+            "name": "risk factor",
+            "type": "MappableConcept"
+          },
+          "direction": "supports",
+          "extensions": [
+            {
+              "name": "clinvarReviewStatus",
+              "value": "no assertion criteria provided"
+            }
+          ],
+          "hasEvidenceLines": [
+            {
+              "directionOfEvidenceProvided": "supports",
+              "hasEvidenceItems": [
+                "#/scv/clinvar.submission:SCV000053487.10"
+              ],
+              "id": "VCV000007105.213-G-RF-NOCP.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
+              "type": "EvidenceLine"
+            }
+          ],
+          "id": "VCV000007105.213-G-RF-NOCP",
+          "proposition": {
+            "id": "VCV000007105-G-RF-NOCP",
+            "object": "#/condition/clinvar.trait:10302",
+            "predicate": "isRiskFactorFor",
+            "subject": "#/variation/clinvar:7105",
+            "type": "ClinvarRiskFactorProposition"
+          },
+          "quality": {
+            "conceptType": "Quality",
+            "name": "no assertion criteria provided",
+            "type": "MappableConcept"
+          },
+          "type": "Statement"
+        }
+      ],
+      "id": "VCV000007105.213-G-RF.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
+    }
+  ],
+  "id": "VCV000007105.213-G-RF",
+  "proposition": {
+    "id": "VCV000007105-G-RF",
+    "object": {
+      "conceptType": "Disease",
+      "id": "clinvar.trait:10302",
+      "name": "BRONCHIECTASIS WITH OR WITHOUT ELEVATED SWEAT CHLORIDE 1, MODIFIER OF",
+      "primaryCoding": {
+        "code": "C4017631",
+        "iris": [
+          "https://www.ncbi.nlm.nih.gov/medgen/C4017631",
+          "https://identifiers.org/medgen:C4017631"
+        ],
+        "name": "BRONCHIECTASIS WITH OR WITHOUT ELEVATED SWEAT CHLORIDE 1, MODIFIER OF",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "trait_id": "10302",
+      "type": "MappableConcept"
+    },
+    "predicate": "isRiskFactorFor",
+    "subject": "#/variation/clinvar:7105",
+    "type": "ClinvarRiskFactorProposition"
+  },
+  "quality": {
+    "conceptType": "Quality",
+    "name": "no assertion criteria provided",
+    "type": "MappableConcept"
+  },
+  "type": "Statement"
+}

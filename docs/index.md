@@ -156,7 +156,7 @@ curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/cli
 curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/manifest.json
 ```
 
-See [Downloads](data-access/download.md) for the full directory layout, the manifest shape, and the consumer replay model.
+See [How Releases Work](data-access/release-model.md) for the release model and manifest, and [Weekly Deltas](data-access/weekly-deltas.md) for the consumer replay model.
 
 ### Directory Structure
 

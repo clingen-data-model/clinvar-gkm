@@ -1,76 +1,91 @@
 {
   "classification": {
     "conceptType": "Classification",
-    "name": "drug response"
+    "name": "drug response",
+    "type": "MappableConcept"
   },
   "direction": "supports",
-  "evidenceLines": [
-    {
-      "directionOfEvidenceProvided": "supports",
-      "evidenceItems": [
-        {
-          "classification": {
-            "conceptType": "Classification",
-            "name": "drug response"
-          },
-          "confidence": "expert panel",
-          "direction": "supports",
-          "evidenceLines": [
-            {
-              "directionOfEvidenceProvided": "supports",
-              "evidenceItems": [
-                {
-                  "id": "clinvar.submission:SCV002031251.1"
-                }
-              ],
-              "strengthOfEvidenceProvided": "contributing",
-              "type": "EvidenceLine"
-            }
-          ],
-          "extensions": [
-            {
-              "name": "clinvarReviewStatus",
-              "value": "reviewed by expert panel"
-            }
-          ],
-          "id": "RCV001787371.11-G-DR-EP",
-          "proposition": {
-            "id": "RCV001787371-G-DR-EP",
-            "objectCondition": {
-              "conceptType": "DrugResponse",
-              "id": "SCV002031251.0",
-              "name": "ivacaftor / tezacaftor response - Efficacy"
-            },
-            "predicate": "isCausalFor",
-            "subjectVariant": "clinvar:7105",
-            "type": "VariantPathogenicityProposition"
-          },
-          "strength": "definitive",
-          "type": "Statement"
-        }
-      ],
-      "strengthOfEvidenceProvided": "contributing",
-      "type": "EvidenceLine"
-    }
-  ],
   "extensions": [
     {
       "name": "clinvarReviewStatus",
       "value": "reviewed by expert panel"
     }
   ],
+  "hasEvidenceLines": [
+    {
+      "directionOfEvidenceProvided": "supports",
+      "hasEvidenceItems": [
+        {
+          "classification": {
+            "conceptType": "Classification",
+            "name": "drug response",
+            "type": "MappableConcept"
+          },
+          "direction": "supports",
+          "extensions": [
+            {
+              "name": "clinvarReviewStatus",
+              "value": "reviewed by expert panel"
+            }
+          ],
+          "hasEvidenceLines": [
+            {
+              "directionOfEvidenceProvided": "supports",
+              "hasEvidenceItems": [
+                "#/scv/clinvar.submission:SCV002031251.1"
+              ],
+              "id": "RCV001787371.11-G-DR-EP.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
+              "type": "EvidenceLine"
+            }
+          ],
+          "id": "RCV001787371.11-G-DR-EP",
+          "proposition": {
+            "id": "RCV001787371-G-DR-EP",
+            "object": "#/condition/clinvar.trait:61004",
+            "predicate": "hasDrugResponseFor",
+            "subject": "#/variation/clinvar:7105",
+            "type": "ClinvarDrugResponseProposition"
+          },
+          "quality": {
+            "conceptType": "Quality",
+            "name": "expert panel",
+            "type": "MappableConcept"
+          },
+          "type": "Statement"
+        }
+      ],
+      "id": "RCV001787371.11-G-DR.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
+    }
+  ],
   "id": "RCV001787371.11-G-DR",
   "proposition": {
     "id": "RCV001787371-G-DR",
-    "objectCondition": {
-      "conceptType": "DrugResponse",
-      "id": "SCV002031251.0",
-      "name": "ivacaftor / tezacaftor response - Efficacy"
+    "object": {
+      "conceptType": "Condition",
+      "id": "clinvar.trait:61004",
+      "name": "ivacaftor / tezacaftor response - Efficacy",
+      "trait_id": "61004",
+      "type": "MappableConcept"
     },
-    "predicate": "isCausalFor",
-    "subjectVariant": "clinvar:7105",
-    "type": "VariantPathogenicityProposition"
+    "predicate": "hasDrugResponseFor",
+    "subject": "#/variation/clinvar:7105",
+    "type": "ClinvarDrugResponseProposition"
   },
-  "strength": "definitive",
+  "quality": {
+    "conceptType": "Quality",
+    "name": "expert panel",
+    "type": "MappableConcept"
+  },
   "type": "Statement"
 }

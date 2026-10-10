@@ -7,11 +7,17 @@ repo_name = "clingen-data-model/clinvar-gkm"
 edit_uri = "edit/main/docs/"
 docs_dir = "docs"
 extra_css = ["stylesheets/extra.css"]
-extra_javascript = ["assets/js/keyboard-shortcuts.js"]
+extra_javascript = ["assets/js/r2-browser.js"]
 strict = true
 nav = [
   { Home = "index.md" },
-  { Downloads = "data-access/download.md" },
+  { Downloads = [
+    "data-access/download.md",
+    { "Monthly Full Bundles" = "data-access/monthly-full.md" },
+    { "Weekly Deltas"        = "data-access/weekly-deltas.md" },
+    { "Parquet Files"        = "data-access/parquet.md" },
+    { "How Releases Work"    = "data-access/release-model.md" },
+  ] },
   { "User Stories" = [
     { "Harmonizing by VRS Identity" = "user-story.md" },
     { "Auditing a Submitter's Footprint" = "user-story-audit.md" },
@@ -116,6 +122,7 @@ nav = [
   ] },
   { Reference = [
     { Roadmap = "reference/roadmap.md" },
+    { "Versioning & Releases" = "reference/versioning.md" },
     { "GA4GH Standards" = "reference/gks-standards.md" },
     { "Known Issues" = "reference/known-issues.md" },
     { Glossary = "reference/glossary.md" },

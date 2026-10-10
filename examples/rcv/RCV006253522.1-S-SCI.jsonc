@@ -1,213 +1,154 @@
 {
   "classification": {
     "conceptType": "Classification",
-    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+    "type": "MappableConcept"
   },
   "direction": "supports",
-  "evidenceLines": [
+  "hasEvidenceLines": [
     {
       "directionOfEvidenceProvided": "supports",
-      "evidenceItems": [
+      "hasEvidenceItems": [
         {
           "classification": {
             "conceptType": "Classification",
-            "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+            "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+            "type": "MappableConcept"
           },
           "direction": "supports",
-          "evidenceLines": [
+          "hasEvidenceLines": [
             {
               "directionOfEvidenceProvided": "supports",
-              "evidenceItems": [
+              "hasEvidenceItems": [
                 {
                   "classification": {
                     "conceptType": "Classification",
-                    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+                    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+                    "type": "MappableConcept"
                   },
-                  "confidence": "criteria provided",
                   "direction": "supports",
-                  "evidenceLines": [
-                    {
-                      "directionOfEvidenceProvided": "supports",
-                      "evidenceItems": [
-                        {
-                          "id": "clinvar.submission:SCV007105520.1"
-                        }
-                      ],
-                      "strengthOfEvidenceProvided": "contributing",
-                      "type": "EvidenceLine"
-                    }
-                  ],
                   "extensions": [
                     {
                       "name": "clinvarReviewStatus",
                       "value": "criteria provided, single submitter"
                     }
                   ],
+                  "hasEvidenceLines": [
+                    {
+                      "directionOfEvidenceProvided": "supports",
+                      "hasEvidenceItems": [
+                        "#/scv/clinvar.submission:SCV007105520.1"
+                      ],
+                      "id": "RCV006253522.1-S-SCI-CP-T1.contributing",
+                      "strengthOfEvidenceProvided": {
+                        "conceptType": "Strength",
+                        "name": "Contributing",
+                        "type": "MappableConcept"
+                      },
+                      "type": "EvidenceLine"
+                    }
+                  ],
                   "id": "RCV006253522.1-S-SCI-CP-T1",
                   "proposition": {
                     "id": "RCV006253522-S-SCI-CP-T1",
-                    "objectCondition": {
-                      "conceptType": "Disease",
-                      "id": "SCV007105520.0",
-                      "mappings": [
-                        {
-                          "coding": {
-                            "code": "99757",
-                            "iris": [
-                              "https://identifiers.org/orphanet.ordo:Orphanet_99757",
-                              "http://www.orpha.net/ORDO/Orphanet_99757"
-                            ],
-                            "system": "Orphanet"
-                          },
-                          "relation": "relatedMatch"
-                        },
-                        {
-                          "coding": {
-                            "code": "MONDO:0009993",
-                            "iris": [
-                              "http://purl.obolibrary.org/obo/MONDO_0009993",
-                              "https://identifiers.org/mondo:0009993"
-                            ],
-                            "system": "MONDO"
-                          },
-                          "relation": "relatedMatch"
-                        },
-                        {
-                          "coding": {
-                            "code": "HP:0006743",
-                            "iris": [
-                              "https://identifiers.org/HP:0006743",
-                              "https://hpo.jax.org/browse/term/HP:0006743"
-                            ],
-                            "system": "Human Phenotype Ontology"
-                          },
-                          "relation": "relatedMatch"
-                        }
-                      ],
-                      "name": "Embryonal rhabdomyosarcoma",
-                      "primaryCoding": {
-                        "code": "C0206656",
-                        "iris": [
-                          "https://identifiers.org/medgen:C0206656",
-                          "https://www.ncbi.nlm.nih.gov/medgen/C0206656"
-                        ],
-                        "name": "Embryonal rhabdomyosarcoma",
-                        "system": "MedGen"
-                      }
-                    },
-                    "predicate": "hasSignificanceFor",
-                    "subjectVariant": "clinvar:12582",
+                    "object": "#/condition/clinvar.trait:25813",
+                    "predicate": "hasClinicalSignificanceFor",
+                    "subject": "#/variation/clinvar:12582",
                     "type": "VariantClinicalSignificanceProposition"
                   },
-                  "strength": "definitive",
+                  "quality": {
+                    "conceptType": "Quality",
+                    "name": "criteria provided",
+                    "type": "MappableConcept"
+                  },
+                  "strength": {
+                    "conceptType": "Strength",
+                    "name": "Strong",
+                    "type": "MappableConcept"
+                  },
                   "type": "Statement"
                 }
               ],
-              "strengthOfEvidenceProvided": "contributing",
+              "id": "RCV006253522.1-S-SCI-CP.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
               "type": "EvidenceLine"
             }
           ],
           "id": "RCV006253522.1-S-SCI-CP",
           "proposition": {
             "id": "RCV006253522-S-SCI-CP",
-            "objectCondition": {
-              "conceptType": "Disease",
-              "id": "SCV007105520.0",
-              "mappings": [
-                {
-                  "coding": {
-                    "code": "99757",
-                    "iris": [
-                      "https://identifiers.org/orphanet.ordo:Orphanet_99757",
-                      "http://www.orpha.net/ORDO/Orphanet_99757"
-                    ],
-                    "system": "Orphanet"
-                  },
-                  "relation": "relatedMatch"
-                },
-                {
-                  "coding": {
-                    "code": "MONDO:0009993",
-                    "iris": [
-                      "http://purl.obolibrary.org/obo/MONDO_0009993",
-                      "https://identifiers.org/mondo:0009993"
-                    ],
-                    "system": "MONDO"
-                  },
-                  "relation": "relatedMatch"
-                },
-                {
-                  "coding": {
-                    "code": "HP:0006743",
-                    "iris": [
-                      "https://identifiers.org/HP:0006743",
-                      "https://hpo.jax.org/browse/term/HP:0006743"
-                    ],
-                    "system": "Human Phenotype Ontology"
-                  },
-                  "relation": "relatedMatch"
-                }
-              ],
-              "name": "Embryonal rhabdomyosarcoma",
-              "primaryCoding": {
-                "code": "C0206656",
-                "iris": [
-                  "https://identifiers.org/medgen:C0206656",
-                  "https://www.ncbi.nlm.nih.gov/medgen/C0206656"
-                ],
-                "name": "Embryonal rhabdomyosarcoma",
-                "system": "MedGen"
-              }
-            },
-            "predicate": "hasSignificanceFor",
-            "subjectVariant": "clinvar:12582",
+            "object": "#/condition/clinvar.trait:25813",
+            "predicate": "hasClinicalSignificanceFor",
+            "subject": "#/variation/clinvar:12582",
             "type": "VariantClinicalSignificanceProposition"
           },
-          "strength": "definitive",
+          "quality": {
+            "conceptType": "Quality",
+            "name": "criteria provided",
+            "type": "MappableConcept"
+          },
+          "strength": {
+            "conceptType": "Strength",
+            "name": "Strong",
+            "type": "MappableConcept"
+          },
           "type": "Statement"
         }
       ],
-      "strengthOfEvidenceProvided": "contributing",
+      "id": "RCV006253522.1-S-SCI.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
       "type": "EvidenceLine"
     }
   ],
   "id": "RCV006253522.1-S-SCI",
   "proposition": {
     "id": "RCV006253522-S-SCI",
-    "objectCondition": {
+    "object": {
+      "aliases": [
+        "Botryoid rhabdomyosarcoma (type of ERMS)",
+        "Spindle cell rhabdomyosarcomas (type of ERMS)"
+      ],
       "conceptType": "Disease",
-      "id": "SCV007105520.0",
+      "id": "clinvar.trait:25813",
       "mappings": [
         {
           "coding": {
             "code": "99757",
             "iris": [
-              "https://identifiers.org/orphanet.ordo:Orphanet_99757",
+              "https://identifiers.org/orphanet:99757",
               "http://www.orpha.net/ORDO/Orphanet_99757"
             ],
-            "system": "Orphanet"
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "code": "MONDO:0009993",
+            "code": "0009993",
             "iris": [
-              "http://purl.obolibrary.org/obo/MONDO_0009993",
-              "https://identifiers.org/mondo:0009993"
+              "https://identifiers.org/mondo:0009993",
+              "http://purl.obolibrary.org/obo/MONDO_0009993"
             ],
-            "system": "MONDO"
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "code": "HP:0006743",
+            "code": "0006743",
             "iris": [
               "https://identifiers.org/HP:0006743",
-              "https://hpo.jax.org/browse/term/HP:0006743"
+              "http://purl.obolibrary.org/obo/HP_0006743"
             ],
-            "system": "Human Phenotype Ontology"
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         }
@@ -216,17 +157,28 @@
       "primaryCoding": {
         "code": "C0206656",
         "iris": [
-          "https://identifiers.org/medgen:C0206656",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0206656"
+          "https://www.ncbi.nlm.nih.gov/medgen/C0206656",
+          "https://identifiers.org/medgen:C0206656"
         ],
         "name": "Embryonal rhabdomyosarcoma",
-        "system": "MedGen"
-      }
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "trait_id": "25813",
+      "type": "MappableConcept"
     },
-    "predicate": "hasSignificanceFor",
-    "subjectVariant": "clinvar:12582",
+    "predicate": "hasClinicalSignificanceFor",
+    "subject": "#/variation/clinvar:12582",
     "type": "VariantClinicalSignificanceProposition"
   },
-  "strength": "definitive",
+  "quality": {
+    "conceptType": "Quality",
+    "name": "criteria provided",
+    "type": "MappableConcept"
+  },
+  "strength": {
+    "conceptType": "Strength",
+    "name": "Strong",
+    "type": "MappableConcept"
+  },
   "type": "Statement"
 }

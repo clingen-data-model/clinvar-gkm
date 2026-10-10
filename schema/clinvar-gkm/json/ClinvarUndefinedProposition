@@ -4,7 +4,7 @@
    "title": "ClinvarUndefinedProposition",
    "description": "A fallback custom proposition for a ClinVar submission whose classification does not map to any defined ClinVar-GKM or GA4GH proposition type. Emitted only when the upstream classification-to-type mapping yields no gks_type.",
    "type": "object",
-   "maturity": "draft",
+   "maturity": "trial use",
    "allOf": [
       {
          "$ref": "/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarGermlineCustomProposition"

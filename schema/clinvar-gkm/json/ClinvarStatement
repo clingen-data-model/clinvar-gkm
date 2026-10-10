@@ -3,7 +3,7 @@
    "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarStatement",
    "title": "ClinvarStatement",
    "description": "Any ClinVar statement, at either the submission (SCV) or aggregate (VCV, RCV) level.",
-   "maturity": "draft",
+   "maturity": "trial use",
    "oneOf": [
       {
          "$ref": "/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarScvStatement"

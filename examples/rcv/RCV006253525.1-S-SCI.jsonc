@@ -1,180 +1,139 @@
 {
   "classification": {
     "conceptType": "Classification",
-    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+    "type": "MappableConcept"
   },
   "direction": "supports",
-  "evidenceLines": [
+  "hasEvidenceLines": [
     {
       "directionOfEvidenceProvided": "supports",
-      "evidenceItems": [
+      "hasEvidenceItems": [
         {
           "classification": {
             "conceptType": "Classification",
-            "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+            "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+            "type": "MappableConcept"
           },
           "direction": "supports",
-          "evidenceLines": [
+          "hasEvidenceLines": [
             {
               "directionOfEvidenceProvided": "supports",
-              "evidenceItems": [
+              "hasEvidenceItems": [
                 {
                   "classification": {
                     "conceptType": "Classification",
-                    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+                    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+                    "type": "MappableConcept"
                   },
-                  "confidence": "criteria provided",
                   "direction": "supports",
-                  "evidenceLines": [
-                    {
-                      "directionOfEvidenceProvided": "supports",
-                      "evidenceItems": [
-                        {
-                          "id": "clinvar.submission:SCV007105409.1"
-                        }
-                      ],
-                      "strengthOfEvidenceProvided": "contributing",
-                      "type": "EvidenceLine"
-                    }
-                  ],
                   "extensions": [
                     {
                       "name": "clinvarReviewStatus",
                       "value": "criteria provided, single submitter"
                     }
                   ],
+                  "hasEvidenceLines": [
+                    {
+                      "directionOfEvidenceProvided": "supports",
+                      "hasEvidenceItems": [
+                        "#/scv/clinvar.submission:SCV007105409.1"
+                      ],
+                      "id": "RCV006253525.1-S-SCI-CP-T1.contributing",
+                      "strengthOfEvidenceProvided": {
+                        "conceptType": "Strength",
+                        "name": "Contributing",
+                        "type": "MappableConcept"
+                      },
+                      "type": "EvidenceLine"
+                    }
+                  ],
                   "id": "RCV006253525.1-S-SCI-CP-T1",
                   "proposition": {
                     "id": "RCV006253525-S-SCI-CP-T1",
-                    "objectCondition": {
-                      "conceptType": "Disease",
-                      "id": "SCV007105409.0",
-                      "mappings": [
-                        {
-                          "coding": {
-                            "code": "MONDO:0005008",
-                            "iris": [
-                              "http://purl.obolibrary.org/obo/MONDO_0005008",
-                              "https://identifiers.org/mondo:0005008"
-                            ],
-                            "system": "MONDO"
-                          },
-                          "relation": "relatedMatch"
-                        },
-                        {
-                          "coding": {
-                            "code": "HP:0040275",
-                            "iris": [
-                              "https://identifiers.org/HP:0040275",
-                              "https://hpo.jax.org/browse/term/HP:0040275"
-                            ],
-                            "system": "Human Phenotype Ontology"
-                          },
-                          "relation": "relatedMatch"
-                        }
-                      ],
-                      "name": "Adenocarcinoma of the large intestine",
-                      "primaryCoding": {
-                        "code": "C1319315",
-                        "iris": [
-                          "https://identifiers.org/medgen:C1319315",
-                          "https://www.ncbi.nlm.nih.gov/medgen/C1319315"
-                        ],
-                        "name": "Adenocarcinoma of the large intestine",
-                        "system": "MedGen"
-                      }
-                    },
-                    "predicate": "hasSignificanceFor",
-                    "subjectVariant": "clinvar:12582",
+                    "object": "#/condition/clinvar.trait:37720",
+                    "predicate": "hasClinicalSignificanceFor",
+                    "subject": "#/variation/clinvar:12582",
                     "type": "VariantClinicalSignificanceProposition"
                   },
-                  "strength": "definitive",
+                  "quality": {
+                    "conceptType": "Quality",
+                    "name": "criteria provided",
+                    "type": "MappableConcept"
+                  },
+                  "strength": {
+                    "conceptType": "Strength",
+                    "name": "Strong",
+                    "type": "MappableConcept"
+                  },
                   "type": "Statement"
                 }
               ],
-              "strengthOfEvidenceProvided": "contributing",
+              "id": "RCV006253525.1-S-SCI-CP.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
               "type": "EvidenceLine"
             }
           ],
           "id": "RCV006253525.1-S-SCI-CP",
           "proposition": {
             "id": "RCV006253525-S-SCI-CP",
-            "objectCondition": {
-              "conceptType": "Disease",
-              "id": "SCV007105409.0",
-              "mappings": [
-                {
-                  "coding": {
-                    "code": "MONDO:0005008",
-                    "iris": [
-                      "http://purl.obolibrary.org/obo/MONDO_0005008",
-                      "https://identifiers.org/mondo:0005008"
-                    ],
-                    "system": "MONDO"
-                  },
-                  "relation": "relatedMatch"
-                },
-                {
-                  "coding": {
-                    "code": "HP:0040275",
-                    "iris": [
-                      "https://identifiers.org/HP:0040275",
-                      "https://hpo.jax.org/browse/term/HP:0040275"
-                    ],
-                    "system": "Human Phenotype Ontology"
-                  },
-                  "relation": "relatedMatch"
-                }
-              ],
-              "name": "Adenocarcinoma of the large intestine",
-              "primaryCoding": {
-                "code": "C1319315",
-                "iris": [
-                  "https://identifiers.org/medgen:C1319315",
-                  "https://www.ncbi.nlm.nih.gov/medgen/C1319315"
-                ],
-                "name": "Adenocarcinoma of the large intestine",
-                "system": "MedGen"
-              }
-            },
-            "predicate": "hasSignificanceFor",
-            "subjectVariant": "clinvar:12582",
+            "object": "#/condition/clinvar.trait:37720",
+            "predicate": "hasClinicalSignificanceFor",
+            "subject": "#/variation/clinvar:12582",
             "type": "VariantClinicalSignificanceProposition"
           },
-          "strength": "definitive",
+          "quality": {
+            "conceptType": "Quality",
+            "name": "criteria provided",
+            "type": "MappableConcept"
+          },
+          "strength": {
+            "conceptType": "Strength",
+            "name": "Strong",
+            "type": "MappableConcept"
+          },
           "type": "Statement"
         }
       ],
-      "strengthOfEvidenceProvided": "contributing",
+      "id": "RCV006253525.1-S-SCI.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
       "type": "EvidenceLine"
     }
   ],
   "id": "RCV006253525.1-S-SCI",
   "proposition": {
     "id": "RCV006253525-S-SCI",
-    "objectCondition": {
-      "conceptType": "Disease",
-      "id": "SCV007105409.0",
+    "object": {
+      "conceptType": "Phenotype",
+      "id": "clinvar.trait:37720",
       "mappings": [
         {
           "coding": {
-            "code": "MONDO:0005008",
+            "code": "0005008",
             "iris": [
-              "http://purl.obolibrary.org/obo/MONDO_0005008",
-              "https://identifiers.org/mondo:0005008"
+              "https://identifiers.org/mondo:0005008",
+              "http://purl.obolibrary.org/obo/MONDO_0005008"
             ],
-            "system": "MONDO"
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "code": "HP:0040275",
+            "code": "0040275",
             "iris": [
               "https://identifiers.org/HP:0040275",
-              "https://hpo.jax.org/browse/term/HP:0040275"
+              "http://purl.obolibrary.org/obo/HP_0040275"
             ],
-            "system": "Human Phenotype Ontology"
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         }
@@ -183,17 +142,28 @@
       "primaryCoding": {
         "code": "C1319315",
         "iris": [
-          "https://identifiers.org/medgen:C1319315",
-          "https://www.ncbi.nlm.nih.gov/medgen/C1319315"
+          "https://www.ncbi.nlm.nih.gov/medgen/C1319315",
+          "https://identifiers.org/medgen:C1319315"
         ],
         "name": "Adenocarcinoma of the large intestine",
-        "system": "MedGen"
-      }
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "trait_id": "37720",
+      "type": "MappableConcept"
     },
-    "predicate": "hasSignificanceFor",
-    "subjectVariant": "clinvar:12582",
+    "predicate": "hasClinicalSignificanceFor",
+    "subject": "#/variation/clinvar:12582",
     "type": "VariantClinicalSignificanceProposition"
   },
-  "strength": "definitive",
+  "quality": {
+    "conceptType": "Quality",
+    "name": "criteria provided",
+    "type": "MappableConcept"
+  },
+  "strength": {
+    "conceptType": "Strength",
+    "name": "Strong",
+    "type": "MappableConcept"
+  },
   "type": "Statement"
 }

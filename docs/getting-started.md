@@ -4,6 +4,9 @@
 
 The latest ClinVar-GKM release is available as a compressed JSON file (with Parquet files also available for analytical use):
 
+!!! warning "The monthly full is a month-start baseline, not the current week"
+    `clinvar-gkm_00-latest.json.gz` reflects the **last release of the _previous_ month** — e.g. the `2026-10` full is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. It does **not** include the current month's weekly changes. To get the current weekly state, apply the latest delta on top of it — see the [Consumer Replay Model](data-access/weekly-deltas.md#consumer-replay-model).
+
 ```text
 https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/
 ```

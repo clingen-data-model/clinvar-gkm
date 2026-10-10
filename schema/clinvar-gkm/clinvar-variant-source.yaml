@@ -27,7 +27,7 @@ $defs:
       molecular consequence and mane select/plus settings for the specific aligned and
       projected forms of the clinvar variant.
     type: object
-    maturity: draft
+    maturity: trial use
     properties:
       nucleotideExpression:
         $refCurie: vrs:Expression
@@ -75,7 +75,7 @@ $defs:
       Variations including `entrez_gene_id`, `hgnc_id`, `symbol`, `relationship_type`,
       `source`, and `iris`.
     type: object
-    maturity: draft
+    maturity: trial use
     properties:
       entrez_gene_id:
         type: string
@@ -120,7 +120,7 @@ $defs:
       designations.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
-    maturity: draft
+    maturity: trial use
     properties:
       name:
         type: string
@@ -143,7 +143,7 @@ $defs:
       gene symbols, relationship types, and identifier IRIs.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
-    maturity: draft
+    maturity: trial use
     properties:
       name:
         type: string
@@ -164,7 +164,7 @@ $defs:
       `CategoricalCnvCount`, or `Undefined`. Determines which constraint types are generated.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
-    maturity: draft
+    maturity: trial use
     properties:
       name:
         type: string
@@ -189,7 +189,7 @@ $defs:
       variant through VRS processing.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
-    maturity: draft
+    maturity: trial use
     properties:
       name:
         type: string
@@ -215,7 +215,7 @@ $defs:
       Duplication, Indel). Present when ClinVar provides a variation type.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
-    maturity: draft
+    maturity: trial use
     properties:
       name:
         type: string
@@ -260,7 +260,7 @@ $defs:
       CompoundHeterozygote). Present when ClinVar provides a subclass type.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
-    maturity: draft
+    maturity: trial use
     properties:
       name:
         type: string
@@ -282,7 +282,7 @@ $defs:
   #     An extension item for the single chromosome associated with a Clinvar variant.
   #   protectedClassOf: ClinvarCategoricalVariant
   #   type: object
-  #   maturity: draft
+  #   maturity: trial use
   #   properties:
   #     name:
   #       type: string
@@ -303,7 +303,7 @@ $defs:
       ClinVar provides a cytogenetic location.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
-    maturity: draft
+    maturity: trial use
     properties:
       name:
         type: string
@@ -320,7 +320,7 @@ $defs:
       An extension item for the assembly associated with a Clinvar variant.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
-    maturity: draft
+    maturity: trial use
     properties:
       name:
         type: string
@@ -336,7 +336,7 @@ $defs:
 
   # ExtensionClinvarVcf:
   #   type: object
-  #   maturity: draft
+  #   maturity: trial use
   #   description: >-
   #     An extension item for the Clinvar VCF value associated with a Clinvar variant.
   #   protectedClassOf: ClinvarCategoricalVariant
@@ -353,7 +353,7 @@ $defs:
 
   # ExtensionClinvarHgvsType:
   #   type: object
-  #   maturity: draft
+  #   maturity: trial use
   #   description: >-
   #     An extension item for the Clinvar HGVS type associated with a Clinvar variant.
   #   protectedClassOf: ClinvarCategoricalVariant
@@ -372,7 +372,7 @@ $defs:
 
   ExtensionVrsPreProcessingIssue:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       Issues detected during VRS pre-processing of the variation's input expressions. Present only 
       when issues exist. May contain multiple issues separated by newlines
@@ -390,7 +390,7 @@ $defs:
 
   ExtensionsVrsProcessingException:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       Errors returned by the external VRS Python processing service. Present only when 
       errors occurred during VRS resolution.
@@ -408,10 +408,10 @@ $defs:
 
   ClinvarSequenceReferenceProperties:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >
       The GA4GH Sequence Reference Representation(SR) profile specific to Clinvar.
-    protectedClassOf: ClinvarCategoricalVariation
+    protectedClassOf: ClinvarCategoricalVariant
     properties:
       extensions:
         type: array
@@ -422,20 +422,20 @@ $defs:
     additionalProperties: true
 
   ClinvarSequenceReference:
-    maturity: draft
+    maturity: trial use
     description: >
       The GA4GH Sequence Reference Representation(SR) profile specific to Clinvar.
-    protectedClassOf: ClinvarCategoricalVariation
+    protectedClassOf: ClinvarCategoricalVariant
     allOf:
       - $refCurie: vrs:SequenceReference
       - $ref: "#/$defs/ClinvarSequenceReferenceProperties"
 
   ClinvarSequenceLocationProperties:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       The GA4GH Sequence Location Representation(SL) profile specific to Clinvar.
-    protectedClassOf: ClinvarCategoricalVariation
+    protectedClassOf: ClinvarCategoricalVariant
     properties:
       sequenceReference:
         oneOf:
@@ -452,10 +452,10 @@ $defs:
     additionalProperties: true
 
   ClinvarSequenceLocation:
-    maturity: draft
+    maturity: trial use
     description: >
       The GA4GH Sequence Location Representation(SL) profile specific to Clinvar.
-    protectedClassOf: ClinvarCategoricalVariation
+    protectedClassOf: ClinvarCategoricalVariant
     allOf:
       - $refCurie: vrs:SequenceLocation
       - $ref: "#/$defs/ClinvarSequenceLocationProperties"
@@ -463,9 +463,9 @@ $defs:
   ClinvarAlleleProperties:
     description: >-
       The GA4GH Allele Representation(AR) profile specific to Clinvar.
-    protectedClassOf: ClinvarCategoricalVariation
+    protectedClassOf: ClinvarCategoricalVariant
     type: object
-    maturity: draft
+    maturity: trial use
     properties:
       location:
         oneOf:
@@ -486,20 +486,20 @@ $defs:
     additionalProperties: true
 
   ClinvarAllele:
-    maturity: draft
+    maturity: trial use
     description: >-
       The GA4GH Allele Representation(AR) profile specific to Clinvar.
-    protectedClassOf: ClinvarCategoricalVariation
+    protectedClassOf: ClinvarCategoricalVariant
     allOf:
       - $refCurie: vrs:Allele
       - $ref: "#/$defs/ClinvarAlleleProperties"
 
   ClinvarCanonicalAlleleProperties:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       The GA4GH Canonical Allele Representation profile specific to Clinvar.
-    protectedClassOf: ClinvarCategoricalVariation
+    protectedClassOf: ClinvarCategoricalVariant
     properties:
       definingContext:
         oneOf:
@@ -522,7 +522,7 @@ $defs:
       A variant in Clinvar, which may be associated with multiple statements.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
-    maturity: draft
+    maturity: trial use
     properties:
       extensions:
         type: array
@@ -544,7 +544,7 @@ $defs:
     additionalProperties: true
 
   ClinvarCanonicalAllele:
-    maturity: draft
+    maturity: trial use
     description: >-
       A ClinVar canonical allele — the most common variant type. ClinVar
       identifies each variation by mapping submitted attributes to a GRCh38
@@ -557,7 +557,7 @@ $defs:
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
 
   ClinvarCategoricalCnvChange:
-    maturity: draft
+    maturity: trial use
     description: >-
       A ClinVar copy number variant with a qualitative change indication
       (gain or loss). Uses a DefiningLocationConstraint with a
@@ -568,7 +568,7 @@ $defs:
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
 
   ClinvarCategoricalCnvCount:
-    maturity: draft
+    maturity: trial use
     description: >-
       A ClinVar copy number variant with an absolute copy count. Uses a
       DefiningLocationConstraint with a CopyCountConstraint from Cat-VRS
@@ -579,7 +579,7 @@ $defs:
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
 
   ClinvarNonConstrainedVariant:
-    maturity: draft
+    maturity: trial use
     description: >-
       A ClinVar variant that cannot be mapped to a specific VRS allele or
       location — haplotypes, genotypes, and other complex or ambiguously
@@ -591,7 +591,7 @@ $defs:
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
 
   ClinvarCategoricalVariant:
-    maturity: draft
+    maturity: trial use
     description: >-
       The Clinvar specific representations of categorical variants.
     oneOf:

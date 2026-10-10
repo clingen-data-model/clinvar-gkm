@@ -23,7 +23,7 @@ namespaces:
 $defs:
   ClinvarSomaticEvidenceLineProperties:
     type: object
-    maturity: draft
+    maturity: trial use
     description: >-
       ClinVar-specific properties for somatic clinical impact evidence lines.
     protectedClassOf: ClinvarSomaticEvidenceLine
@@ -55,7 +55,7 @@ $defs:
       via additionalProperties.
 
   ClinvarSomaticEvidenceLine:
-    maturity: draft
+    maturity: trial use
     description: >-
       An evidence line for ClinVar somatic clinical impact (SCI) statements.
       Carries a target proposition (therapeutic response, diagnostic, or

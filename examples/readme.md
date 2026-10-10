@@ -1,24 +1,27 @@
 # Examples
 
-The `jsonc` examples provide a target model for the variety of cat-vrs and va-spec statements that are going to be generated from this project. It is provided here for discussion and to assist early adopters so they can provide feedback and ask for clarity where some portions may not be well understood.
+Annotated, self-contained example records illustrating the Cat-VRS and VA-Spec structures this
+project produces. They assist early adopters and serve as reference targets for validating output.
 
-The names of the files should provide some guidance to what they contain. We will try to keep to the following file naming convention.
+Each file is regenerated from a single fixed release via
+[`src/scripts/extract-example.py`](../src/scripts/extract-example.py): it pulls one record from the
+release's BigQuery tables using the repo's own object-construction SQL (so a record equals what the
+release ships) and resolves its `#/…` references inline. By policy the **top** statement's direct
+references are inlined, while **nested** statements and the `variation` / `scv` subjects are kept as
+`#/…` pointers into the full bundle (to avoid unbounded expansion).
 
-ClinVar Variation records - matching clinvar unique `variationId`s.
-- cat-vrs-[canonical-allele|categorical-cnv-[chg|cnt]|described-var]-ex##.jsonc<br/>
-  where,<br/>
-  * `canonical-allele` contain cat-vrs CanonicalAllele Recipe examples<br/>
-  *  `categorical-cnv-cnt` contain cat-vrs CategoricalCNV CopyCount Recipe examples<br/>
-  *  `categorical-cnv-chg` contain cat-vrs CategoricalCNV CopyChange Recipe examples<br/>
-  *  `described-var` contain cat-vrs No Constraint Categorical Variant examples for variants that are not yet supported by this project, VRS 2.0 or Cat-VRS 1.0.<br/>
+## Layout and naming
 
-- va-spec-var-path-scv-ex##.jsonc<br/>
-  where,<br/>
-  *  `var-path-scv` contain va-spec Variant Pathogenicity SCV examples <br/>
-    NOTE: RCV|VCV aggregate germline disease pathogenicity statements are forthcoming as well as Oncogenicity and Somatic Clinical Impact statements.<br/>
+Files are keyed by their ClinVar accession so they map directly back to the bundle:
 
-- custom-[drug-resp|other]-scv-ex##.jsonc<br/>
-  where,<br/>
-  *  `drug-resp-scv` contain custom profiles for Drug Response SCVs.<br/>
-  *  `other-scv` contain custom profiles for all other germline disease SCVs that are not variant pathogenicity or drug response.<br/>
+- **`cat-vrs/clinvar:{variationId}.jsonc`** — `CategoricalVariant` records (resolved VRS).
+- **`scv/{SCV}.{version}-{code}.jsonc|.json`** — VA-Spec `Statement` for one submission.
+- **`vcv/{VCV}.{version}-{group}-{code}.jsonc`** — aggregate VCV `Statement`.
+- **`rcv/{RCV}.{version}-{group}-{code}.jsonc`** — RCV `Statement`.
 
+Suffix codes: `G` / `S` = germline / somatic context; statement type is `PATH` (pathogenicity),
+`NP` (not provided), `ASSOC` (association), `DR` (drug response), `RF` (risk factor),
+`ONCO` (oncogenicity), or `SCI` (somatic clinical impact). Somatic clinical-impact files add a tier
+and scenario, e.g. `-S-SCI-T1-TR` (Tier I, therapeutic response), `-T2-DIAG`, `-T3-VUS`, `-T4-BLB`.
+
+See the [Examples](../docs/data-access/examples.md) docs page for a curated, described subset.

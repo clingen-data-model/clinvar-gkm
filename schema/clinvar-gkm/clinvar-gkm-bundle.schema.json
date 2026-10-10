@@ -7,6 +7,11 @@
   "minProperties": 1,
   "additionalProperties": false,
   "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "The clinvar-gkm bundle schema version this bundle conforms to (semver; matches this schema's $id version). Lets a consumer identify the version from the bundle alone. See ADR 0004. Optional so sub-bundle extracts may omit it; full and delta releases always emit it."
+    },
     "sequenceReference": {
       "type": "object",
       "title": "sequenceReference",

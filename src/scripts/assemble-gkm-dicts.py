@@ -62,6 +62,12 @@ except ImportError:
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gkm_json_cleanup import strip_empty
 
+# The clinvar-gkm bundle schema version this assembler emits (ADR 0004). Written as the
+# bundle's first top-level key so a consumer can identify the version from the file alone.
+# Tracks the schema $id version (w3id.org/clingen/schema/clinvar-gkm/<version>/); bump in
+# lockstep with any MAJOR/MINOR/PATCH schema change.
+SCHEMA_VERSION = "1.0.0"
+
 
 # Dictionary sections in output order.
 # Each tuple is (section_name, glob_pattern, key_field, value_field).
@@ -198,7 +204,10 @@ def assemble(source, output_path, is_gcs):
 
     try:
         buf.extend(b"{\n")
-        first_section = True
+        # Bundle self-identifies its schema version (ADR 0004) as the first top-level key.
+        # first_section starts False so the first section gets its leading comma after this.
+        buf.extend(f'  "schema_version": "{SCHEMA_VERSION}"'.encode())
+        first_section = False
 
         for section_name, glob_pattern, key_field, value_field in SECTIONS:
             section_tmp = None
