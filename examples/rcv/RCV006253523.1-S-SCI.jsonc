@@ -1,147 +1,128 @@
 {
   "classification": {
     "conceptType": "Classification",
-    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+    "type": "MappableConcept"
   },
   "direction": "supports",
-  "evidenceLines": [
+  "hasEvidenceLines": [
     {
       "directionOfEvidenceProvided": "supports",
-      "evidenceItems": [
+      "hasEvidenceItems": [
         {
           "classification": {
             "conceptType": "Classification",
-            "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+            "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+            "type": "MappableConcept"
           },
           "direction": "supports",
-          "evidenceLines": [
+          "hasEvidenceLines": [
             {
               "directionOfEvidenceProvided": "supports",
-              "evidenceItems": [
+              "hasEvidenceItems": [
                 {
                   "classification": {
                     "conceptType": "Classification",
-                    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+                    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+                    "type": "MappableConcept"
                   },
-                  "confidence": "criteria provided",
                   "direction": "supports",
-                  "evidenceLines": [
-                    {
-                      "directionOfEvidenceProvided": "supports",
-                      "evidenceItems": [
-                        {
-                          "id": "clinvar.submission:SCV007105405.1"
-                        }
-                      ],
-                      "strengthOfEvidenceProvided": "contributing",
-                      "type": "EvidenceLine"
-                    }
-                  ],
                   "extensions": [
                     {
                       "name": "clinvarReviewStatus",
                       "value": "criteria provided, single submitter"
                     }
                   ],
+                  "hasEvidenceLines": [
+                    {
+                      "directionOfEvidenceProvided": "supports",
+                      "hasEvidenceItems": [
+                        "#/scv/clinvar.submission:SCV007105405.1"
+                      ],
+                      "id": "RCV006253523.1-S-SCI-CP-T1.contributing",
+                      "strengthOfEvidenceProvided": {
+                        "conceptType": "Strength",
+                        "name": "Contributing",
+                        "type": "MappableConcept"
+                      },
+                      "type": "EvidenceLine"
+                    }
+                  ],
                   "id": "RCV006253523.1-S-SCI-CP-T1",
                   "proposition": {
                     "id": "RCV006253523-S-SCI-CP-T1",
-                    "objectCondition": {
-                      "conceptType": "Disease",
-                      "id": "SCV007105405.0",
-                      "mappings": [
-                        {
-                          "coding": {
-                            "code": "MONDO:0858939",
-                            "iris": [
-                              "http://purl.obolibrary.org/obo/MONDO_0858939",
-                              "https://identifiers.org/mondo:0858939"
-                            ],
-                            "system": "MONDO"
-                          },
-                          "relation": "relatedMatch"
-                        }
-                      ],
-                      "name": "Diffuse pediatric-type high-grade glioma, H3-wildtype and IDH-wildtype",
-                      "primaryCoding": {
-                        "code": "C5669918",
-                        "iris": [
-                          "https://identifiers.org/medgen:C5669918",
-                          "https://www.ncbi.nlm.nih.gov/medgen/C5669918"
-                        ],
-                        "name": "Diffuse pediatric-type high-grade glioma, H3-wildtype and IDH-wildtype",
-                        "system": "MedGen"
-                      }
-                    },
-                    "predicate": "hasSignificanceFor",
-                    "subjectVariant": "clinvar:12582",
+                    "object": "#/condition/clinvar.trait:67996",
+                    "predicate": "hasClinicalSignificanceFor",
+                    "subject": "#/variation/clinvar:12582",
                     "type": "VariantClinicalSignificanceProposition"
                   },
-                  "strength": "definitive",
+                  "quality": {
+                    "conceptType": "Quality",
+                    "name": "criteria provided",
+                    "type": "MappableConcept"
+                  },
+                  "strength": {
+                    "conceptType": "Strength",
+                    "name": "Strong",
+                    "type": "MappableConcept"
+                  },
                   "type": "Statement"
                 }
               ],
-              "strengthOfEvidenceProvided": "contributing",
+              "id": "RCV006253523.1-S-SCI-CP.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
               "type": "EvidenceLine"
             }
           ],
           "id": "RCV006253523.1-S-SCI-CP",
           "proposition": {
             "id": "RCV006253523-S-SCI-CP",
-            "objectCondition": {
-              "conceptType": "Disease",
-              "id": "SCV007105405.0",
-              "mappings": [
-                {
-                  "coding": {
-                    "code": "MONDO:0858939",
-                    "iris": [
-                      "http://purl.obolibrary.org/obo/MONDO_0858939",
-                      "https://identifiers.org/mondo:0858939"
-                    ],
-                    "system": "MONDO"
-                  },
-                  "relation": "relatedMatch"
-                }
-              ],
-              "name": "Diffuse pediatric-type high-grade glioma, H3-wildtype and IDH-wildtype",
-              "primaryCoding": {
-                "code": "C5669918",
-                "iris": [
-                  "https://identifiers.org/medgen:C5669918",
-                  "https://www.ncbi.nlm.nih.gov/medgen/C5669918"
-                ],
-                "name": "Diffuse pediatric-type high-grade glioma, H3-wildtype and IDH-wildtype",
-                "system": "MedGen"
-              }
-            },
-            "predicate": "hasSignificanceFor",
-            "subjectVariant": "clinvar:12582",
+            "object": "#/condition/clinvar.trait:67996",
+            "predicate": "hasClinicalSignificanceFor",
+            "subject": "#/variation/clinvar:12582",
             "type": "VariantClinicalSignificanceProposition"
           },
-          "strength": "definitive",
+          "quality": {
+            "conceptType": "Quality",
+            "name": "criteria provided",
+            "type": "MappableConcept"
+          },
+          "strength": {
+            "conceptType": "Strength",
+            "name": "Strong",
+            "type": "MappableConcept"
+          },
           "type": "Statement"
         }
       ],
-      "strengthOfEvidenceProvided": "contributing",
+      "id": "RCV006253523.1-S-SCI.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
       "type": "EvidenceLine"
     }
   ],
   "id": "RCV006253523.1-S-SCI",
   "proposition": {
     "id": "RCV006253523-S-SCI",
-    "objectCondition": {
+    "object": {
       "conceptType": "Disease",
-      "id": "SCV007105405.0",
+      "id": "clinvar.trait:67996",
       "mappings": [
         {
           "coding": {
-            "code": "MONDO:0858939",
+            "code": "0858939",
             "iris": [
-              "http://purl.obolibrary.org/obo/MONDO_0858939",
-              "https://identifiers.org/mondo:0858939"
+              "https://identifiers.org/mondo:0858939",
+              "http://purl.obolibrary.org/obo/MONDO_0858939"
             ],
-            "system": "MONDO"
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         }
@@ -150,17 +131,28 @@
       "primaryCoding": {
         "code": "C5669918",
         "iris": [
-          "https://identifiers.org/medgen:C5669918",
-          "https://www.ncbi.nlm.nih.gov/medgen/C5669918"
+          "https://www.ncbi.nlm.nih.gov/medgen/C5669918",
+          "https://identifiers.org/medgen:C5669918"
         ],
         "name": "Diffuse pediatric-type high-grade glioma, H3-wildtype and IDH-wildtype",
-        "system": "MedGen"
-      }
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "trait_id": "67996",
+      "type": "MappableConcept"
     },
-    "predicate": "hasSignificanceFor",
-    "subjectVariant": "clinvar:12582",
+    "predicate": "hasClinicalSignificanceFor",
+    "subject": "#/variation/clinvar:12582",
     "type": "VariantClinicalSignificanceProposition"
   },
-  "strength": "definitive",
+  "quality": {
+    "conceptType": "Quality",
+    "name": "criteria provided",
+    "type": "MappableConcept"
+  },
+  "strength": {
+    "conceptType": "Strength",
+    "name": "Strong",
+    "type": "MappableConcept"
+  },
   "type": "Statement"
 }

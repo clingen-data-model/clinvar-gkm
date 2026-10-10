@@ -34,7 +34,7 @@
               "hasEvidenceItems": [
                 "#/scv/clinvar.submission:SCV005094257.2"
               ],
-              "id": "RCV004668724.2-S-ONCO-CP.contributing",
+              "id": "VCV000012582.69-S-ONCO-CP.contributing",
               "strengthOfEvidenceProvided": {
                 "conceptType": "Strength",
                 "name": "Contributing",
@@ -43,9 +43,9 @@
               "type": "EvidenceLine"
             }
           ],
-          "id": "RCV004668724.2-S-ONCO-CP",
+          "id": "VCV000012582.69-S-ONCO-CP",
           "proposition": {
-            "id": "RCV004668724-S-ONCO-CP",
+            "id": "VCV000012582-S-ONCO-CP",
             "object": "#/condition/clinvar.trait:32759",
             "predicate": "isOncogenicFor",
             "subject": "#/variation/clinvar:12582",
@@ -64,7 +64,7 @@
           "type": "Statement"
         }
       ],
-      "id": "RCV004668724.2-S-ONCO.contributing",
+      "id": "VCV000012582.69-S-ONCO.contributing",
       "strengthOfEvidenceProvided": {
         "conceptType": "Strength",
         "name": "Contributing",
@@ -73,9 +73,9 @@
       "type": "EvidenceLine"
     }
   ],
-  "id": "RCV004668724.2-S-ONCO",
+  "id": "VCV000012582.69-S-ONCO",
   "proposition": {
-    "id": "RCV004668724-S-ONCO",
+    "id": "VCV000012582-S-ONCO",
     "object": {
       "aliases": [
         "tumor",

@@ -1,23 +1,25 @@
 {
   "classification": {
+    "conceptType": "Classification",
     "extensions": [
       {
         "name": "description",
-        "value": "for Diffuse Midline Glioma, H3 K27M-mutant\nClassification is based on the criteria provided submission\nOct 2018 by CIViC knowledgebase, Washington University School of Medicine"
+        "value": "for Diffuse Midline Glioma, H3 K27M-mutant\nClassification is based on the criteria provided submission\nOct 2018 by CIViC Knowledgebase, Washington University School of Medicine"
       }
     ],
     "name": "Tier II - Potential",
     "primaryCoding": {
       "code": "tier 2",
       "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
-    }
+    },
+    "type": "MappableConcept"
   },
   "contributions": [
     {
       "activityType": "submitted",
       "contributor": {
         "id": "clinvar.submitter:506594",
-        "name": "CIViC knowledgebase, Washington University School of Medicine",
+        "name": "CIViC Knowledgebase, Washington University School of Medicine",
         "type": "Agent"
       },
       "date": "2024-02-20",
@@ -27,7 +29,7 @@
       "activityType": "created",
       "contributor": {
         "id": "clinvar.submitter:506594",
-        "name": "CIViC knowledgebase, Washington University School of Medicine",
+        "name": "CIViC Knowledgebase, Washington University School of Medicine",
         "type": "Agent"
       },
       "date": "2024-02-20",
@@ -37,7 +39,7 @@
       "activityType": "evaluated",
       "contributor": {
         "id": "clinvar.submitter:506594",
-        "name": "CIViC knowledgebase, Washington University School of Medicine",
+        "name": "CIViC Knowledgebase, Washington University School of Medicine",
         "type": "Agent"
       },
       "date": "2018-10-16",
@@ -54,6 +56,23 @@
     {
       "name": "clinvarScvVersion",
       "value": "1"
+    },
+    {
+      "name": "submittedCondition",
+      "value": {
+        "condition": "clinvar.trait:73010",
+        "id": "SCV004565361.0",
+        "mapping": {
+          "ref": "preferred",
+          "type": "Name",
+          "value": "Diffuse Midline Glioma, H3 K27M-mutant"
+        },
+        "medgen_id": "C4289688",
+        "name": "Diffuse Midline Glioma, H3 K27M-mutant",
+        "normalized_match": "clinvar.trait:73010",
+        "normalized_resolution": "tm reftype preferred name",
+        "type": "Disease"
+      }
     },
     {
       "name": "clinvarScvReviewStatus",
@@ -76,10 +95,31 @@
     {
       "directionOfEvidenceProvided": "supports",
       "evidenceOutcome": {
-        "name": "Level C/D"
+        "conceptType": "Outcome",
+        "name": "Level C/D",
+        "type": "MappableConcept"
       },
+      "extensions": [
+        {
+          "name": "submittedCondition",
+          "value": {
+            "condition": "clinvar.trait:73010",
+            "id": "SCV004565361.0",
+            "mapping": {
+              "ref": "preferred",
+              "type": "Name",
+              "value": "Diffuse Midline Glioma, H3 K27M-mutant"
+            },
+            "medgen_id": "C4289688",
+            "name": "Diffuse Midline Glioma, H3 K27M-mutant",
+            "normalized_match": "clinvar.trait:73010",
+            "normalized_resolution": "tm reftype preferred name",
+            "type": "Disease"
+          }
+        }
+      ],
       "id": "clinvar.submission:SCV004565361.1",
-      "proposition": {
+      "targetProposition": {
         "geneContextQualifier": {
           "conceptType": "gene",
           "extensions": [
@@ -112,87 +152,41 @@
             ],
             "name": "ACVR1",
             "system": "https://www.ncbi.nlm.nih.gov/gene/"
-          }
+          },
+          "type": "MappableConcept"
         },
-        "id": "clinvar.submission:SCV004565361",
-        "objectCondition": {
+        "id": "SCV004565361-DIAG",
+        "object": {
           "conceptType": "Disease",
-          "extensions": [
-            {
-              "name": "clinvarTraitId",
-              "value": "73010"
-            },
-            {
-              "name": "clinvarTraitType",
-              "value": "Disease"
-            },
-            {
-              "name": "submittedScvTraitAssignment",
-              "value": "scv trait: preferred name 'diffuse midline glioma, h3 k27m-mutant'"
-            },
-            {
-              "name": "clinvarScvTraitAssignment",
-              "value": "rcv-tm medgen id"
-            },
-            {
-              "name": "clinvarScvTraitMappingType:ref(val)",
-              "value": "name:preferred(diffuse midline glioma, h3 k27m-mutant)"
-            },
-            {
-              "name": "clinvarTraitSetType",
-              "value": "Disease"
-            },
-            {
-              "name": "clinvarTraitSetId",
-              "value": "93559"
-            }
-          ],
-          "id": "SCV004565361.0",
+          "id": "clinvar.trait:73010",
           "mappings": [
             {
               "coding": {
-                "code": "MONDO:0957196",
-                "extensions": [
-                  {
-                    "name": "mappingRefFields",
-                    "value": "name"
-                  }
-                ],
+                "code": "0957196",
                 "iris": [
-                  "http://purl.obolibrary.org/obo/MONDO_0957196",
-                  "https://identifiers.org/mondo:0957196"
+                  "https://identifiers.org/mondo:0957196",
+                  "http://purl.obolibrary.org/obo/MONDO_0957196"
                 ],
-                "system": "MONDO"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "26785",
-                "extensions": [
-                  {
-                    "name": "mappingRefFields",
-                    "value": "gard_id"
-                  }
-                ],
-                "system": "Office of Rare Diseases"
+                "system": "https://mondo.monarchinitiative.org/"
               },
               "relation": "relatedMatch"
             }
           ],
-          "name": "Diffuse Midline Glioma, H3 K27M-mutant",
+          "name": "Diffuse midline glioma, H3 K27M-mutant",
           "primaryCoding": {
             "code": "C4289688",
             "iris": [
-              "https://identifiers.org/medgen:C4289688",
-              "https://www.ncbi.nlm.nih.gov/medgen/C4289688"
+              "https://www.ncbi.nlm.nih.gov/medgen/C4289688",
+              "https://identifiers.org/medgen:C4289688"
             ],
             "name": "Diffuse midline glioma, H3 K27M-mutant",
-            "system": "MedGen"
-          }
+            "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+          },
+          "trait_id": "73010",
+          "type": "MappableConcept"
         },
         "predicate": "isDiagnosticInclusionCriterionFor",
-        "subjectVariant": "4/proposition/subjectVariant",
+        "subject": "#/variation/clinvar:376363",
         "type": "VariantDiagnosticProposition"
       },
       "type": "EvidenceLine"
@@ -232,406 +226,47 @@
         ],
         "name": "ACVR1",
         "system": "https://www.ncbi.nlm.nih.gov/gene/"
-      }
+      },
+      "type": "MappableConcept"
     },
-    "id": "clinvar.submission:SCV004565361",
-    "objectCondition": {
+    "id": "SCV004565361-SCI",
+    "object": {
       "conceptType": "Disease",
-      "extensions": [
-        {
-          "name": "clinvarTraitId",
-          "value": "73010"
-        },
-        {
-          "name": "clinvarTraitType",
-          "value": "Disease"
-        },
-        {
-          "name": "submittedScvTraitAssignment",
-          "value": "scv trait: preferred name 'diffuse midline glioma, h3 k27m-mutant'"
-        },
-        {
-          "name": "clinvarScvTraitAssignment",
-          "value": "rcv-tm medgen id"
-        },
-        {
-          "name": "clinvarScvTraitMappingType:ref(val)",
-          "value": "name:preferred(diffuse midline glioma, h3 k27m-mutant)"
-        },
-        {
-          "name": "clinvarTraitSetType",
-          "value": "Disease"
-        },
-        {
-          "name": "clinvarTraitSetId",
-          "value": "93559"
-        }
-      ],
-      "id": "SCV004565361.0",
+      "id": "clinvar.trait:73010",
       "mappings": [
         {
           "coding": {
-            "code": "MONDO:0957196",
-            "extensions": [
-              {
-                "name": "mappingRefFields",
-                "value": "name"
-              }
-            ],
+            "code": "0957196",
             "iris": [
-              "http://purl.obolibrary.org/obo/MONDO_0957196",
-              "https://identifiers.org/mondo:0957196"
+              "https://identifiers.org/mondo:0957196",
+              "http://purl.obolibrary.org/obo/MONDO_0957196"
             ],
-            "system": "MONDO"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "26785",
-            "extensions": [
-              {
-                "name": "mappingRefFields",
-                "value": "gard_id"
-              }
-            ],
-            "system": "Office of Rare Diseases"
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         }
       ],
-      "name": "Diffuse Midline Glioma, H3 K27M-mutant",
+      "name": "Diffuse midline glioma, H3 K27M-mutant",
       "primaryCoding": {
         "code": "C4289688",
         "iris": [
-          "https://identifiers.org/medgen:C4289688",
-          "https://www.ncbi.nlm.nih.gov/medgen/C4289688"
+          "https://www.ncbi.nlm.nih.gov/medgen/C4289688",
+          "https://identifiers.org/medgen:C4289688"
         ],
         "name": "Diffuse midline glioma, H3 K27M-mutant",
-        "system": "MedGen"
-      }
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "trait_id": "73010",
+      "type": "MappableConcept"
     },
-    "predicate": "isClinicallySignificantFor",
-    "subjectVariant": {
-      "constraints": [
-        {
-          "allele": "2/members/0/",
-          "relations": [
-            {
-              "primaryCoding": {
-                "code": "liftover_to",
-                "system": "ga4gh-gks-term:allele-relation"
-              }
-            },
-            {
-              "primaryCoding": {
-                "code": "transcribed_to",
-                "iris": [
-                  "http://www.sequenceontology.org/browser/current_release/term/transcribed_to"
-                ],
-                "system": "http://www.sequenceontology.org"
-              }
-            }
-          ],
-          "type": "DefiningAlleleConstraint"
-        }
-      ],
-      "extensions": [
-        {
-          "name": "categoricalVariationType",
-          "value": "CanonicalAllele"
-        },
-        {
-          "name": "definingVrsVariationType",
-          "value": "Allele"
-        },
-        {
-          "name": "clinvarGeneList",
-          "value": [
-            {
-              "entrez_gene_id": "90",
-              "hgnc_id": "HGNC:171",
-              "iris": [
-                "https://identifiers.org/hgnc:171",
-                "https://identifiers.org/ncbigene:90",
-                "https://www.ncbi.nlm.nih.gov/gene/90"
-              ],
-              "relationship_type": "within single gene",
-              "source": "submitted",
-              "symbol": "ACVR1"
-            }
-          ]
-        },
-        {
-          "name": "clinvarVariationType",
-          "value": "single nucleotide variant"
-        },
-        {
-          "name": "clinvarCytogeneticLocation",
-          "value": "2q24.1"
-        },
-        {
-          "name": "clinvarHgvsList",
-          "value": [
-            {
-              "nucleotideExpression": {
-                "syntax": "hgvs.g",
-                "value": "NC_000002.11:g.158622516C>A"
-              },
-              "nucleotideType": "genomic, top-level"
-            },
-            {
-              "molecularConsequence": [
-                {
-                  "code": "SO:0001583",
-                  "iris": [
-                    "https://identifiers.org/SO:0001583"
-                  ],
-                  "name": "missense_variant",
-                  "system": "http://www.sequenceontology.org/"
-                }
-              ],
-              "nucleotideExpression": {
-                "syntax": "hgvs.c",
-                "value": "NM_001347665.1:c.983G>T"
-              },
-              "nucleotideType": "coding",
-              "proteinExpression": {
-                "syntax": "hgvs.p",
-                "value": "NP_001334594.1:p.Gly328Val"
-              }
-            },
-            {
-              "nucleotideExpression": {
-                "syntax": "hgvs.g",
-                "value": "NG_008004.1:g.114108G>T"
-              },
-              "nucleotideType": "genomic"
-            },
-            {
-              "molecularConsequence": [
-                {
-                  "code": "SO:0001583",
-                  "iris": [
-                    "https://identifiers.org/SO:0001583"
-                  ],
-                  "name": "missense_variant",
-                  "system": "http://www.sequenceontology.org/"
-                }
-              ],
-              "nucleotideExpression": {
-                "syntax": "hgvs.c",
-                "value": "NM_001347666.1:c.983G>T"
-              },
-              "nucleotideType": "coding",
-              "proteinExpression": {
-                "syntax": "hgvs.p",
-                "value": "NP_001334595.1:p.Gly328Val"
-              }
-            },
-            {
-              "molecularConsequence": [
-                {
-                  "code": "SO:0001583",
-                  "iris": [
-                    "https://identifiers.org/SO:0001583"
-                  ],
-                  "name": "missense_variant",
-                  "system": "http://www.sequenceontology.org/"
-                }
-              ],
-              "nucleotideExpression": {
-                "syntax": "hgvs.c",
-                "value": "NM_001105.5:c.983G>T"
-              },
-              "nucleotideType": "coding",
-              "proteinExpression": {
-                "syntax": "hgvs.p",
-                "value": "NP_001096.1:p.Gly328Val"
-              }
-            },
-            {
-              "nucleotideExpression": {
-                "syntax": "hgvs.g",
-                "value": "NC_000002.12:g.157766004C>A"
-              },
-              "nucleotideType": "genomic, top-level"
-            },
-            {
-              "molecularConsequence": [
-                {
-                  "code": "SO:0001583",
-                  "iris": [
-                    "https://identifiers.org/SO:0001583"
-                  ],
-                  "name": "missense_variant",
-                  "system": "http://www.sequenceontology.org/"
-                }
-              ],
-              "nucleotideExpression": {
-                "syntax": "hgvs.c",
-                "value": "NM_001347667.2:c.983G>T"
-              },
-              "nucleotideType": "coding",
-              "proteinExpression": {
-                "syntax": "hgvs.p",
-                "value": "NP_001334596.1:p.Gly328Val"
-              }
-            },
-            {
-              "maneSelect": true,
-              "molecularConsequence": [
-                {
-                  "code": "SO:0001583",
-                  "iris": [
-                    "https://identifiers.org/SO:0001583"
-                  ],
-                  "name": "missense_variant",
-                  "system": "http://www.sequenceontology.org/"
-                }
-              ],
-              "nucleotideExpression": {
-                "syntax": "hgvs.c",
-                "value": "NM_001111067.4:c.983G>T"
-              },
-              "nucleotideType": "coding",
-              "proteinExpression": {
-                "syntax": "hgvs.p",
-                "value": "NP_001104537.1:p.Gly328Val"
-              }
-            },
-            {
-              "molecularConsequence": [
-                {
-                  "code": "SO:0001583",
-                  "iris": [
-                    "https://identifiers.org/SO:0001583"
-                  ],
-                  "name": "missense_variant",
-                  "system": "http://www.sequenceontology.org/"
-                }
-              ],
-              "nucleotideExpression": {
-                "syntax": "hgvs.c",
-                "value": "NM_001347664.1:c.983G>T"
-              },
-              "nucleotideType": "coding",
-              "proteinExpression": {
-                "syntax": "hgvs.p",
-                "value": "NP_001334593.1:p.Gly328Val"
-              }
-            },
-            {
-              "molecularConsequence": [
-                {
-                  "code": "SO:0001583",
-                  "iris": [
-                    "https://identifiers.org/SO:0001583"
-                  ],
-                  "name": "missense_variant",
-                  "system": "http://www.sequenceontology.org/"
-                }
-              ],
-              "nucleotideExpression": {
-                "syntax": "hgvs.c",
-                "value": "NM_001347663.1:c.983G>T"
-              },
-              "nucleotideType": "coding",
-              "proteinExpression": {
-                "syntax": "hgvs.p",
-                "value": "NP_001334592.1:p.Gly328Val"
-              }
-            }
-          ]
-        },
-        {
-          "name": "clinvarSubclassType",
-          "value": "SimpleAllele"
-        }
-      ],
-      "id": "clinvar:376363",
-      "mappings": [
-        {
-          "coding": {
-            "code": "376363",
-            "iris": [
-              "https://identifiers.org/clinvar:376363"
-            ],
-            "system": "ClinVar"
-          },
-          "relation": "exactMatch"
-        },
-        {
-          "coding": {
-            "code": "387906589",
-            "iris": [
-              "https://identifiers.org/dbsnp:rs387906589"
-            ],
-            "system": "dbSNP"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "CA16602802",
-            "iris": [
-              "https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_caid?caid=CA16602802"
-            ],
-            "system": "ClinGen"
-          },
-          "relation": "closeMatch"
-        }
-      ],
-      "members": [
-        {
-          "digest": "affc26OivYhQEhNjs0NS2f3-2BYoEsey",
-          "expressions": [
-            {
-              "syntax": "spdi",
-              "value": "NC_000002.12:157766003:C:A"
-            },
-            {
-              "syntax": "hgvs.g",
-              "value": "NC_000002.12:g.157766004C>A"
-            },
-            {
-              "syntax": "gnomad",
-              "value": "2-157766004-C-A"
-            }
-          ],
-          "id": "ga4gh:VA.affc26OivYhQEhNjs0NS2f3-2BYoEsey",
-          "location": {
-            "digest": "ET6dAkJ468aUfP3iLEWuG_Yfl_gFMDq0",
-            "end": 157766004,
-            "id": "ga4gh:SL.ET6dAkJ468aUfP3iLEWuG_Yfl_gFMDq0",
-            "sequenceReference": {
-              "extensions": [
-                {
-                  "name": "assembly",
-                  "value": "GRCh38"
-                }
-              ],
-              "moleculeType": "genomic",
-              "name": "NC_000002.12",
-              "refgetAccession": "SQ.pnAqCRBrTsUoBghSD1yp_jXWSmlbdh4g",
-              "residueAlphabet": "na",
-              "type": "SequenceReference"
-            },
-            "start": 157766003,
-            "type": "SequenceLocation"
-          },
-          "name": "NC_000002.12:g.157766004C>A",
-          "state": {
-            "sequence": "A",
-            "type": "LiteralSequenceExpression"
-          },
-          "type": "Allele"
-        }
-      ],
-      "name": "NM_001111067.4(ACVR1):c.983G>T (p.Gly328Val)",
-      "type": "CategoricalVariant"
-    },
+    "predicate": "hasClinicalSignificanceFor",
+    "subject": "#/variation/clinvar:376363",
     "type": "VariantClinicalSignificanceProposition"
+  },
+  "quality": {
+    "conceptType": "Quality",
+    "name": "criteria provided",
+    "type": "MappableConcept"
   },
   "reportedIn": [
     {
@@ -662,11 +297,13 @@
     "type": "Method"
   },
   "strength": {
+    "conceptType": "Strength",
     "name": "Potential",
     "primaryCoding": {
       "code": "potential",
       "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
-    }
+    },
+    "type": "MappableConcept"
   },
   "type": "Statement"
 }

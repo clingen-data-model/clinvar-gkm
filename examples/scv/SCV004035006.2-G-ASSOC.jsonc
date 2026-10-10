@@ -1,5 +1,6 @@
 {
   "classification": {
+    "conceptType": "Classification",
     "extensions": [
       {
         "name": "description",
@@ -10,7 +11,8 @@
     "primaryCoding": {
       "code": "association",
       "system": "ClinVar"
-    }
+    },
+    "type": "MappableConcept"
   },
   "contributions": [
     {
@@ -54,6 +56,51 @@
       "value": "2"
     },
     {
+      "name": "submittedConditionSet",
+      "value": {
+        "concepts": [
+          {
+            "id": "SCV004035006.0",
+            "mapping": {
+              "ref": "mondo",
+              "type": "XRef",
+              "value": "0006096"
+            },
+            "medgen_id": "C0349579",
+            "normalized_match": "clinvar.trait:51063",
+            "normalized_resolution": "tm reftype xref mondo",
+            "type": "Disease",
+            "xrefs": [
+              {
+                "code": "MONDO:0006096",
+                "system": "MONDO"
+              }
+            ]
+          },
+          {
+            "id": "SCV004035006.1",
+            "mapping": {
+              "ref": "mondo",
+              "type": "XRef",
+              "value": "0006193"
+            },
+            "medgen_id": "C1516855",
+            "normalized_match": "clinvar.trait:44717",
+            "normalized_resolution": "tm reftype xref mondo",
+            "type": "Disease",
+            "xrefs": [
+              {
+                "code": "MONDO:0006193",
+                "system": "MONDO"
+              }
+            ]
+          }
+        ],
+        "conditionSet": "clinvar.traitset:86754",
+        "multiple_condition_explanation": "Uncertain"
+      }
+    },
+    {
       "name": "clinvarScvReviewStatus",
       "value": "no assertion criteria provided"
     },
@@ -92,124 +139,25 @@
         ],
         "name": "KRAS",
         "system": "https://www.ncbi.nlm.nih.gov/gene/"
-      }
+      },
+      "type": "MappableConcept"
     },
-    "id": "clinvar.submission:SCV004035006",
-    "objectCondition": {
-      "conditions": [
+    "id": "SCV004035006-ASSOC",
+    "object": {
+      "conceptSetType": "Disease",
+      "concepts": [
         {
           "conceptType": "Disease",
-          "extensions": [
-            {
-              "name": "clinvarTraitId",
-              "value": "51063"
-            },
-            {
-              "name": "clinvarTraitType",
-              "value": "Disease"
-            },
-            {
-              "name": "submittedScvXrefs",
-              "value": [
-                {
-                  "code": "MONDO:0006096",
-                  "system": "MONDO"
-                }
-              ]
-            },
-            {
-              "name": "submittedScvTraitAssignment",
-              "value": "scv trait: mondo id 'mondo:0006096'"
-            },
-            {
-              "name": "clinvarScvTraitAssignment",
-              "value": "rcv-tm medgen id"
-            },
-            {
-              "name": "clinvarScvTraitMappingType:ref(val)",
-              "value": "xref:mondo(mondo:0006096)"
-            }
-          ],
-          "id": "SCV004035006.0",
+          "id": "clinvar.trait:44717",
           "mappings": [
             {
               "coding": {
-                "code": "MONDO:0006096",
-                "extensions": [
-                  {
-                    "name": "mappingRefFields",
-                    "value": "name"
-                  }
-                ],
+                "code": "0006193",
                 "iris": [
-                  "http://purl.obolibrary.org/obo/MONDO_0006096",
-                  "https://identifiers.org/mondo:0006096"
+                  "https://identifiers.org/mondo:0006193",
+                  "http://purl.obolibrary.org/obo/MONDO_0006193"
                 ],
-                "system": "MONDO"
-              },
-              "relation": "relatedMatch"
-            }
-          ],
-          "name": "Atypical endometrial hyperplasia",
-          "primaryCoding": {
-            "code": "C0349579",
-            "iris": [
-              "https://identifiers.org/medgen:C0349579",
-              "https://www.ncbi.nlm.nih.gov/medgen/C0349579"
-            ],
-            "name": "Atypical endometrial hyperplasia",
-            "system": "MedGen"
-          }
-        },
-        {
-          "conceptType": "Disease",
-          "extensions": [
-            {
-              "name": "clinvarTraitId",
-              "value": "44717"
-            },
-            {
-              "name": "clinvarTraitType",
-              "value": "Disease"
-            },
-            {
-              "name": "submittedScvXrefs",
-              "value": [
-                {
-                  "code": "MONDO:0006193",
-                  "system": "MONDO"
-                }
-              ]
-            },
-            {
-              "name": "submittedScvTraitAssignment",
-              "value": "scv trait: mondo id 'mondo:0006193'"
-            },
-            {
-              "name": "clinvarScvTraitAssignment",
-              "value": "rcv-tm medgen id"
-            },
-            {
-              "name": "clinvarScvTraitMappingType:ref(val)",
-              "value": "xref:mondo(mondo:0006193)"
-            }
-          ],
-          "id": "SCV004035006.1",
-          "mappings": [
-            {
-              "coding": {
-                "code": "MONDO:0006193",
-                "extensions": [
-                  {
-                    "name": "mappingRefFields",
-                    "value": "name"
-                  }
-                ],
-                "iris": [
-                  "http://purl.obolibrary.org/obo/MONDO_0006193",
-                  "https://identifiers.org/mondo:0006193"
-                ],
-                "system": "MONDO"
+                "system": "https://mondo.monarchinitiative.org/"
               },
               "relation": "relatedMatch"
             }
@@ -218,345 +166,57 @@
           "primaryCoding": {
             "code": "C1516855",
             "iris": [
-              "https://identifiers.org/medgen:C1516855",
-              "https://www.ncbi.nlm.nih.gov/medgen/C1516855"
+              "https://www.ncbi.nlm.nih.gov/medgen/C1516855",
+              "https://identifiers.org/medgen:C1516855"
             ],
             "name": "Endometrial hyperplasia without atypia",
-            "system": "MedGen"
-          }
-        }
-      ],
-      "extensions": [
-        {
-          "name": "clinvarTraitSetType",
-          "value": "Disease"
+            "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+          },
+          "trait_id": "44717",
+          "type": "MappableConcept"
         },
         {
-          "name": "clinvarTraitSetId",
-          "value": "86754"
+          "conceptType": "Disease",
+          "id": "clinvar.trait:51063",
+          "mappings": [
+            {
+              "coding": {
+                "code": "0006096",
+                "iris": [
+                  "https://identifiers.org/mondo:0006096",
+                  "http://purl.obolibrary.org/obo/MONDO_0006096"
+                ],
+                "system": "https://mondo.monarchinitiative.org/"
+              },
+              "relation": "relatedMatch"
+            }
+          ],
+          "name": "Atypical endometrial hyperplasia",
+          "primaryCoding": {
+            "code": "C0349579",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/medgen/C0349579",
+              "https://identifiers.org/medgen:C0349579"
+            ],
+            "name": "Atypical endometrial hyperplasia",
+            "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+          },
+          "trait_id": "51063",
+          "type": "MappableConcept"
         }
       ],
-      "id": "SCV004035006",
-      "membershipOperator": "AND"
+      "id": "clinvar.traitset:86754",
+      "membershipOperator": "AND",
+      "type": "ConceptSet"
     },
     "predicate": "isAssociatedWith",
-    "subjectVariant": {
-      "constraints": [
-        {
-          "allele": "2/members/0/",
-          "relations": [
-            {
-              "primaryCoding": {
-                "code": "liftover_to",
-                "system": "ga4gh-gks-term:allele-relation"
-              }
-            },
-            {
-              "primaryCoding": {
-                "code": "transcribed_to",
-                "iris": [
-                  "http://www.sequenceontology.org/browser/current_release/term/transcribed_to"
-                ],
-                "system": "http://www.sequenceontology.org"
-              }
-            }
-          ],
-          "type": "DefiningAlleleConstraint"
-        }
-      ],
-      "extensions": [
-        {
-          "name": "clinvarGeneList",
-          "value": [
-            {
-              "entrez_gene_id": "3845",
-              "hgnc_id": "HGNC:6407",
-              "iris": [
-                "https://identifiers.org/hgnc:6407",
-                "https://identifiers.org/ncbigene:3845",
-                "https://www.ncbi.nlm.nih.gov/gene/3845"
-              ],
-              "relationship_type": "within single gene",
-              "source": "submitted",
-              "symbol": "KRAS"
-            }
-          ]
-        },
-        {
-          "name": "categoricalVariationType",
-          "value": "CanonicalAllele"
-        },
-        {
-          "name": "definingVrsVariationType",
-          "value": "Allele"
-        },
-        {
-          "name": "clinvarCytogeneticLocation",
-          "value": "12p12.1"
-        },
-        {
-          "name": "clinvarSubclassType",
-          "value": "SimpleAllele"
-        },
-        {
-          "name": "clinvarVariationType",
-          "value": "single nucleotide variant"
-        },
-        {
-          "name": "clinvarHgvsList",
-          "value": [
-            {
-              "maneSelect": true,
-              "molecularConsequence": [
-                {
-                  "code": "SO:0001583",
-                  "iris": [
-                    "https://identifiers.org/SO:0001583"
-                  ],
-                  "name": "missense_variant",
-                  "system": "http://www.sequenceontology.org/"
-                }
-              ],
-              "nucleotideExpression": {
-                "syntax": "hgvs.c",
-                "value": "NM_004985.5:c.35G>A"
-              },
-              "nucleotideType": "coding",
-              "proteinExpression": {
-                "syntax": "hgvs.p",
-                "value": "NP_004976.2:p.Gly12Asp"
-              }
-            },
-            {
-              "nucleotideExpression": {
-                "syntax": "hgvs.c",
-                "value": "LRG_344t2:c.35G>A"
-              },
-              "nucleotideType": "coding",
-              "proteinExpression": {
-                "syntax": "hgvs.p",
-                "value": "LRG_344p2:p.Gly12Asp"
-              }
-            },
-            {
-              "nucleotideExpression": {
-                "syntax": "hgvs.g",
-                "value": "NC_000012.12:g.25245350C>T"
-              },
-              "nucleotideType": "genomic, top-level"
-            },
-            {
-              "nucleotideExpression": {
-                "syntax": "hgvs.g",
-                "value": "LRG_344:g.10654G>A"
-              },
-              "nucleotideType": "genomic"
-            },
-            {
-              "manePlus": true,
-              "molecularConsequence": [
-                {
-                  "code": "SO:0001583",
-                  "iris": [
-                    "https://identifiers.org/SO:0001583"
-                  ],
-                  "name": "missense_variant",
-                  "system": "http://www.sequenceontology.org/"
-                }
-              ],
-              "nucleotideExpression": {
-                "syntax": "hgvs.c",
-                "value": "NM_033360.4:c.35G>A"
-              },
-              "nucleotideType": "coding",
-              "proteinExpression": {
-                "syntax": "hgvs.p",
-                "value": "NP_203524.1:p.Gly12Asp"
-              }
-            },
-            {
-              "nucleotideExpression": {
-                "syntax": "hgvs.g",
-                "value": "NC_000012.11:g.25398284C>T"
-              },
-              "nucleotideType": "genomic, top-level"
-            },
-            {
-              "molecularConsequence": [
-                {
-                  "code": "SO:0001583",
-                  "iris": [
-                    "https://identifiers.org/SO:0001583"
-                  ],
-                  "name": "missense_variant",
-                  "system": "http://www.sequenceontology.org/"
-                }
-              ],
-              "nucleotideExpression": {
-                "syntax": "hgvs.c",
-                "value": "NM_001369787.1:c.35G>A"
-              },
-              "nucleotideType": "coding",
-              "proteinExpression": {
-                "syntax": "hgvs.p",
-                "value": "NP_001356716.1:p.Gly12Asp"
-              }
-            },
-            {
-              "nucleotideExpression": {
-                "syntax": "hgvs.c",
-                "value": "LRG_344t1:c.35G>A"
-              },
-              "nucleotideType": "coding",
-              "proteinExpression": {
-                "syntax": "hgvs.p",
-                "value": "LRG_344p1:p.Gly12Asp"
-              }
-            },
-            {
-              "nucleotideExpression": {
-                "syntax": "hgvs.g",
-                "value": "NG_007524.2:g.10654G>A"
-              },
-              "nucleotideType": "genomic"
-            },
-            {
-              "molecularConsequence": [
-                {
-                  "code": "SO:0001583",
-                  "iris": [
-                    "https://identifiers.org/SO:0001583"
-                  ],
-                  "name": "missense_variant",
-                  "system": "http://www.sequenceontology.org/"
-                }
-              ],
-              "nucleotideExpression": {
-                "syntax": "hgvs.c",
-                "value": "NM_001369786.1:c.35G>A"
-              },
-              "nucleotideType": "coding",
-              "proteinExpression": {
-                "syntax": "hgvs.p",
-                "value": "NP_001356715.1:p.Gly12Asp"
-              }
-            }
-          ]
-        }
-      ],
-      "id": "clinvar:12582",
-      "mappings": [
-        {
-          "coding": {
-            "code": "12582",
-            "iris": [
-              "https://identifiers.org/clinvar:12582"
-            ],
-            "system": "ClinVar"
-          },
-          "relation": "exactMatch"
-        },
-        {
-          "coding": {
-            "code": "190070.0005",
-            "iris": [
-              "http://www.omim.org/entry/190070#0005"
-            ],
-            "system": "OMIM"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "CA122538",
-            "iris": [
-              "https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_caid?caid=CA122538"
-            ],
-            "system": "ClinGen"
-          },
-          "relation": "closeMatch"
-        },
-        {
-          "coding": {
-            "code": "121913529",
-            "iris": [
-              "https://identifiers.org/dbsnp:rs121913529"
-            ],
-            "system": "dbSNP"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "190070.0025",
-            "iris": [
-              "http://www.omim.org/entry/190070#0025"
-            ],
-            "system": "OMIM"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "P01116#VAR_016026",
-            "iris": [
-              "https://www.uniprot.org/uniprot/P01116#VAR_016026"
-            ],
-            "system": "UniProtKB"
-          },
-          "relation": "relatedMatch"
-        }
-      ],
-      "members": [
-        {
-          "digest": "LDaqvF3c3y1IG8wF4mORiRfB--9Jjfzp",
-          "expressions": [
-            {
-              "syntax": "spdi",
-              "value": "NC_000012.12:25245349:C:T"
-            },
-            {
-              "syntax": "hgvs.g",
-              "value": "NC_000012.12:g.25245350C>T"
-            },
-            {
-              "syntax": "gnomad",
-              "value": "12-25245350-C-T"
-            }
-          ],
-          "id": "ga4gh:VA.LDaqvF3c3y1IG8wF4mORiRfB--9Jjfzp",
-          "location": {
-            "digest": "qaHcVvdl8j0lpLRt49hE-bFI81128Mk9",
-            "end": 25245350,
-            "id": "ga4gh:SL.qaHcVvdl8j0lpLRt49hE-bFI81128Mk9",
-            "sequenceReference": {
-              "extensions": [
-                {
-                  "name": "assembly",
-                  "value": "GRCh38"
-                }
-              ],
-              "moleculeType": "genomic",
-              "name": "NC_000012.12",
-              "refgetAccession": "SQ.6wlJpONE3oNb4D69ULmEXhqyDZ4vwNfl",
-              "residueAlphabet": "na",
-              "type": "SequenceReference"
-            },
-            "start": 25245349,
-            "type": "SequenceLocation"
-          },
-          "name": "NC_000012.12:g.25245350C>T",
-          "state": {
-            "sequence": "T",
-            "type": "LiteralSequenceExpression"
-          },
-          "type": "Allele"
-        }
-      ],
-      "name": "NM_004985.5(KRAS):c.35G>A (p.Gly12Asp)",
-      "type": "CategoricalVariant"
-    },
+    "subject": "#/variation/clinvar:12582",
     "type": "ClinvarAssociationProposition"
+  },
+  "quality": {
+    "conceptType": "Quality",
+    "name": "no assertion criteria provided",
+    "type": "MappableConcept"
   },
   "type": "Statement"
 }

@@ -1,14 +1,14 @@
 {
   "classification": {
     "conceptType": "Classification",
-    "name": "drug response",
+    "name": "risk factor",
     "type": "MappableConcept"
   },
   "direction": "supports",
   "extensions": [
     {
       "name": "clinvarReviewStatus",
-      "value": "reviewed by expert panel"
+      "value": "no assertion criteria provided"
     }
   ],
   "hasEvidenceLines": [
@@ -18,23 +18,23 @@
         {
           "classification": {
             "conceptType": "Classification",
-            "name": "drug response",
+            "name": "risk factor",
             "type": "MappableConcept"
           },
           "direction": "supports",
           "extensions": [
             {
               "name": "clinvarReviewStatus",
-              "value": "reviewed by expert panel"
+              "value": "no assertion criteria provided"
             }
           ],
           "hasEvidenceLines": [
             {
               "directionOfEvidenceProvided": "supports",
               "hasEvidenceItems": [
-                "#/scv/clinvar.submission:SCV002031250.1"
+                "#/scv/clinvar.submission:SCV000053487.10"
               ],
-              "id": "RCV001787370.11-G-DR-EP.contributing",
+              "id": "VCV000007105.213-G-RF-NOCP.contributing",
               "strengthOfEvidenceProvided": {
                 "conceptType": "Strength",
                 "name": "Contributing",
@@ -43,23 +43,23 @@
               "type": "EvidenceLine"
             }
           ],
-          "id": "RCV001787370.11-G-DR-EP",
+          "id": "VCV000007105.213-G-RF-NOCP",
           "proposition": {
-            "id": "RCV001787370-G-DR-EP",
-            "object": "#/condition/clinvar.trait:36871",
-            "predicate": "hasDrugResponseFor",
+            "id": "VCV000007105-G-RF-NOCP",
+            "object": "#/condition/clinvar.trait:10302",
+            "predicate": "isRiskFactorFor",
             "subject": "#/variation/clinvar:7105",
-            "type": "ClinvarDrugResponseProposition"
+            "type": "ClinvarRiskFactorProposition"
           },
           "quality": {
             "conceptType": "Quality",
-            "name": "expert panel",
+            "name": "no assertion criteria provided",
             "type": "MappableConcept"
           },
           "type": "Statement"
         }
       ],
-      "id": "RCV001787370.11-G-DR.contributing",
+      "id": "VCV000007105.213-G-RF.contributing",
       "strengthOfEvidenceProvided": {
         "conceptType": "Strength",
         "name": "Contributing",
@@ -68,32 +68,32 @@
       "type": "EvidenceLine"
     }
   ],
-  "id": "RCV001787370.11-G-DR",
+  "id": "VCV000007105.213-G-RF",
   "proposition": {
-    "id": "RCV001787370-G-DR",
+    "id": "VCV000007105-G-RF",
     "object": {
-      "conceptType": "Condition",
-      "id": "clinvar.trait:36871",
-      "name": "ivacaftor / lumacaftor response - Efficacy",
+      "conceptType": "Disease",
+      "id": "clinvar.trait:10302",
+      "name": "BRONCHIECTASIS WITH OR WITHOUT ELEVATED SWEAT CHLORIDE 1, MODIFIER OF",
       "primaryCoding": {
-        "code": "CN322746",
+        "code": "C4017631",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/CN322746",
-          "https://identifiers.org/medgen:CN322746"
+          "https://www.ncbi.nlm.nih.gov/medgen/C4017631",
+          "https://identifiers.org/medgen:C4017631"
         ],
-        "name": "ivacaftor / lumacaftor response - Efficacy",
+        "name": "BRONCHIECTASIS WITH OR WITHOUT ELEVATED SWEAT CHLORIDE 1, MODIFIER OF",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "36871",
+      "trait_id": "10302",
       "type": "MappableConcept"
     },
-    "predicate": "hasDrugResponseFor",
+    "predicate": "isRiskFactorFor",
     "subject": "#/variation/clinvar:7105",
-    "type": "ClinvarDrugResponseProposition"
+    "type": "ClinvarRiskFactorProposition"
   },
   "quality": {
     "conceptType": "Quality",
-    "name": "expert panel",
+    "name": "no assertion criteria provided",
     "type": "MappableConcept"
   },
   "type": "Statement"

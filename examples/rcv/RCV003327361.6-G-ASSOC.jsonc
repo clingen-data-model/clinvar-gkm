@@ -1,0 +1,150 @@
+{
+  "classification": {
+    "conceptType": "Classification",
+    "name": "association",
+    "type": "MappableConcept"
+  },
+  "direction": "supports",
+  "extensions": [
+    {
+      "name": "clinvarReviewStatus",
+      "value": "no assertion criteria provided"
+    }
+  ],
+  "hasEvidenceLines": [
+    {
+      "directionOfEvidenceProvided": "supports",
+      "hasEvidenceItems": [
+        {
+          "classification": {
+            "conceptType": "Classification",
+            "name": "association",
+            "type": "MappableConcept"
+          },
+          "direction": "supports",
+          "extensions": [
+            {
+              "name": "clinvarReviewStatus",
+              "value": "no assertion criteria provided"
+            }
+          ],
+          "hasEvidenceLines": [
+            {
+              "directionOfEvidenceProvided": "supports",
+              "hasEvidenceItems": [
+                "#/scv/clinvar.submission:SCV004035006.2"
+              ],
+              "id": "RCV003327361.6-G-ASSOC-NOCP.contributing",
+              "strengthOfEvidenceProvided": {
+                "conceptType": "Strength",
+                "name": "Contributing",
+                "type": "MappableConcept"
+              },
+              "type": "EvidenceLine"
+            }
+          ],
+          "id": "RCV003327361.6-G-ASSOC-NOCP",
+          "proposition": {
+            "id": "RCV003327361-G-ASSOC-NOCP",
+            "object": "#/conditionSet/clinvar.traitset:86754",
+            "predicate": "isAssociatedWith",
+            "subject": "#/variation/clinvar:12582",
+            "type": "ClinvarAssociationProposition"
+          },
+          "quality": {
+            "conceptType": "Quality",
+            "name": "no assertion criteria provided",
+            "type": "MappableConcept"
+          },
+          "type": "Statement"
+        }
+      ],
+      "id": "RCV003327361.6-G-ASSOC.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
+    }
+  ],
+  "id": "RCV003327361.6-G-ASSOC",
+  "proposition": {
+    "id": "RCV003327361-G-ASSOC",
+    "object": {
+      "conceptSetType": "Disease",
+      "concepts": [
+        {
+          "conceptType": "Disease",
+          "id": "clinvar.trait:44717",
+          "mappings": [
+            {
+              "coding": {
+                "code": "0006193",
+                "iris": [
+                  "https://identifiers.org/mondo:0006193",
+                  "http://purl.obolibrary.org/obo/MONDO_0006193"
+                ],
+                "system": "https://mondo.monarchinitiative.org/"
+              },
+              "relation": "relatedMatch"
+            }
+          ],
+          "name": "Endometrial hyperplasia without atypia",
+          "primaryCoding": {
+            "code": "C1516855",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/medgen/C1516855",
+              "https://identifiers.org/medgen:C1516855"
+            ],
+            "name": "Endometrial hyperplasia without atypia",
+            "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+          },
+          "trait_id": "44717",
+          "type": "MappableConcept"
+        },
+        {
+          "conceptType": "Disease",
+          "id": "clinvar.trait:51063",
+          "mappings": [
+            {
+              "coding": {
+                "code": "0006096",
+                "iris": [
+                  "https://identifiers.org/mondo:0006096",
+                  "http://purl.obolibrary.org/obo/MONDO_0006096"
+                ],
+                "system": "https://mondo.monarchinitiative.org/"
+              },
+              "relation": "relatedMatch"
+            }
+          ],
+          "name": "Atypical endometrial hyperplasia",
+          "primaryCoding": {
+            "code": "C0349579",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/medgen/C0349579",
+              "https://identifiers.org/medgen:C0349579"
+            ],
+            "name": "Atypical endometrial hyperplasia",
+            "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+          },
+          "trait_id": "51063",
+          "type": "MappableConcept"
+        }
+      ],
+      "id": "clinvar.traitset:86754",
+      "membershipOperator": "AND",
+      "type": "ConceptSet"
+    },
+    "predicate": "isAssociatedWith",
+    "subject": "#/variation/clinvar:12582",
+    "type": "ClinvarAssociationProposition"
+  },
+  "quality": {
+    "conceptType": "Quality",
+    "name": "no assertion criteria provided",
+    "type": "MappableConcept"
+  },
+  "type": "Statement"
+}
