@@ -169,6 +169,19 @@
     
     
     
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
     
       <div class="md-header__source">
         <a href="https://github.com/clingen-data-model/clinvar-gkm" title="Go to repository" class="md-source" data-md-component="source">
@@ -211,14 +224,32 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../../../data-access/download/" class="md-tabs__link">
+    
+      
+      
         
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../data-access/download/" class="md-tabs__link">
+          
   
   Downloads
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -392,6 +423,8 @@
       
         
       
+        
+      
     
     
     
@@ -490,6 +523,68 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Downloads
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Downloads
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../../../data-access/download/" class="md-nav__link">
         
@@ -506,6 +601,122 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../data-access/monthly-full/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Monthly Full Bundles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../data-access/weekly-deltas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Weekly Deltas
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../data-access/parquet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Parquet Files
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../data-access/release-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How Releases Work
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1902,6 +2113,111 @@
       </span>
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Extensions
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extensions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#extensionclinvarscvid" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionClinvarScvId
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extensionclinvarscvreviewstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionClinvarScvReviewStatus
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extensionclinvarscvversion" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionClinvarScvVersion
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extensionsubmissionlevel" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionSubmissionLevel
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extensionsubmittedcondition" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionSubmittedCondition
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extensionsubmittedconditionset" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionSubmittedConditionSet
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extensionsubmittedscvclassification" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionSubmittedScvClassification
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extensionsubmittedscvlocalkey" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionSubmittedScvLocalKey
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -3473,6 +3789,8 @@
       
         
       
+        
+      
     
     
     
@@ -3531,6 +3849,33 @@
     
   
   Roadmap
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/versioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Versioning & Releases
 
     
   </span>
@@ -3654,7 +3999,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_6" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -3675,14 +4020,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_7_5" id="__nav_7_5_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_7_6" id="__nav_7_6_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_5">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -3801,6 +4146,111 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#extensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Extensions
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extensions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#extensionclinvarscvid" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionClinvarScvId
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extensionclinvarscvreviewstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionClinvarScvReviewStatus
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extensionclinvarscvversion" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionClinvarScvVersion
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extensionsubmissionlevel" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionSubmissionLevel
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extensionsubmittedcondition" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionSubmittedCondition
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extensionsubmittedconditionset" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionSubmittedConditionSet
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extensionsubmittedscvclassification" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionSubmittedScvClassification
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extensionsubmittedscvlocalkey" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ExtensionSubmittedScvLocalKey
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3820,9 +4270,9 @@
 
 
 <h1 id="clinvarscvstatement">ClinvarScvStatement<a class="headerlink" href="#clinvarscvstatement" title="Permanent link">&para;</a></h1>
-<div class="admonition warning">
-<p class="admonition-title">Draft</p>
-<p>This data class is at a <strong>draft</strong> maturity level and may change significantly in future releases.</p>
+<div class="admonition note">
+<p class="admonition-title">Trial Use</p>
+<p>May change in future releases. See the <a href="https://vrs.ga4gh.org/en/2.1/appendices/maturity_model.html" rel="noopener" target="_blank">GKM Maturity Model</a>.</p>
 </div>
 <p>A ClinVar SCV (submitted clinical variant) statement. Represents a single submitter's assertion about a variant-condition relationship, including their classification, direction, strength, method, and contributions.
 Allowable proposition types at SCV level:
@@ -3831,7 +4281,7 @@ Oncogenicity (1 type): VariantOncogenicityProposition.
 Somatic clinical impact (1 type): VariantClinicalSignificanceProposition with evidence lines carrying VariantTherapeuticResponseProposition, VariantDiagnosticProposition, or VariantPrognosticProposition.
 Conflicting data (1 type): ClinvarConflictingDataFromSubmitterProposition.</p>
 <p><strong>JSON Schema:</strong> <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarScvStatement" target="_blank">ClinvarScvStatement</a></p>
-<p>Some ClinvarScvStatement attributes are inherited from <code>Statement</code>, <code>ClinvarScvStatementProperties</code>.</p>
+<p>Some ClinvarScvStatement attributes are inherited from <a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/entities/information-entities/statement.html#statement" rel="noopener" target="_blank">Statement</a>, <code>ClinvarScvStatementProperties</code>.</p>
 <h2 id="information-model">Information Model<a class="headerlink" href="#information-model" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -3875,31 +4325,31 @@ Conflicting data (1 type): ClinvarConflictingDataFromSubmitterProposition.</p>
 </tr>
 <tr>
 <td><code>extensions</code></td>
-<td><code>ExtensionClinvarScvId</code> | <code>ExtensionClinvarScvVersion</code> | <code>ExtensionClinvarScvReviewStatus</code> | <code>ExtensionSubmittedScvLocalKey</code> | <code>ExtensionSubmissionLevel</code> | <code>ExtensionSubmittedScvClassification</code> | <code>ExtensionSubmittedCondition</code> | <code>ExtensionSubmittedConditionSet</code>[] (unordered)</td>
+<td><a href="../ClinvarScvStatement/#extensionclinvarscvid">ExtensionClinvarScvId</a> | <a href="../ClinvarScvStatement/#extensionclinvarscvversion">ExtensionClinvarScvVersion</a> | <a href="../ClinvarScvStatement/#extensionclinvarscvreviewstatus">ExtensionClinvarScvReviewStatus</a> | <a href="../ClinvarScvStatement/#extensionsubmittedscvlocalkey">ExtensionSubmittedScvLocalKey</a> | <a href="../ClinvarScvStatement/#extensionsubmissionlevel">ExtensionSubmissionLevel</a> | <a href="../ClinvarScvStatement/#extensionsubmittedscvclassification">ExtensionSubmittedScvClassification</a> | <a href="../ClinvarScvStatement/#extensionsubmittedcondition">ExtensionSubmittedCondition</a> | <a href="../ClinvarScvStatement/#extensionsubmittedconditionset">ExtensionSubmittedConditionSet</a>[] (unordered)</td>
 <td>0..m</td>
 <td>SCV-level extensions including submission metadata, review status, and the submitter's original condition mapping.</td>
 </tr>
 <tr>
 <td><code>specifiedBy</code></td>
-<td><code>Method</code> | <code>iriReference</code></td>
+<td><a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/entities/information-entities/method.html#method" rel="noopener" target="_blank">Method</a> | <a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference" rel="noopener" target="_blank">iriReference</a></td>
 <td>0..1</td>
 <td>A specification that describes all or part of the process that led to creation of the Information Entity</td>
 </tr>
 <tr>
 <td><code>contributions</code></td>
-<td><code>Contribution</code>[] (ordered)</td>
+<td><a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/entities/contribution.html#contribution" rel="noopener" target="_blank">Contribution</a>[] (ordered)</td>
 <td>0..m</td>
 <td>Specific actions taken by an Agent toward the creation, modification, validation, or deprecation of an Information Entity.</td>
 </tr>
 <tr>
 <td><code>reportedIn</code></td>
-<td><code>Document</code> | <code>iriReference</code>[] (unordered)</td>
+<td><a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/entities/information-entities/document.html#document" rel="noopener" target="_blank">Document</a> | <a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference" rel="noopener" target="_blank">iriReference</a>[] (unordered)</td>
 <td>0..m</td>
 <td>A document in which the the Information Entity is reported.</td>
 </tr>
 <tr>
 <td><code>proposition</code></td>
-<td><a href="../ClinvarProposition/">ClinvarProposition</a> | <code>iriReference</code></td>
+<td><a href="../ClinvarProposition/">ClinvarProposition</a> | <a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference" rel="noopener" target="_blank">iriReference</a></td>
 <td>0..1</td>
 <td>The proposition assessed by this SCV statement. Must be one of the GA4GH standard proposition types (pathogenicity, oncogenicity, clinical significance) or a ClinVar-specific proposition type (risk factor, protective, drug response, affects, association, confers sensitivity, other, not provided, conflicting data).</td>
 </tr>
@@ -3911,13 +4361,13 @@ Conflicting data (1 type): ClinvarConflictingDataFromSubmitterProposition.</p>
 </tr>
 <tr>
 <td><code>strength</code></td>
-<td><code>MappableConcept</code> | <code>iriReference</code></td>
+<td><a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/elements/mappable-concept.html#mappableconcept" rel="noopener" target="_blank">MappableConcept</a> | <a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference" rel="noopener" target="_blank">iriReference</a></td>
 <td>0..1</td>
 <td>A term used to report the strength of a Proposition's assessment in the direction indicated (i.e. how strongly supported or disputed the Proposition is believed to be).  Implementers may choose to frame a strength assessment in terms of how <em>confident</em> an agent is that the Proposition is true or false, or in terms of the <em>strength of all evidence</em> they believe supports or disputes it.</td>
 </tr>
 <tr>
 <td><code>quality</code></td>
-<td><code>MappableConcept</code> | <code>iriReference</code> (draft)</td>
+<td><a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/elements/mappable-concept.html#mappableconcept" rel="noopener" target="_blank">MappableConcept</a> | <a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference" rel="noopener" target="_blank">iriReference</a> (draft)</td>
 <td>0..1</td>
 <td>A term used to report the quality of the assessment of a Proposition taking into consideration the reliability of the method, the contributor's self-reporting of the rigor of the evaluation, and the overall robustness of the supporting or disputing evidence. This is useful when there is a consistent policy and authority that manages and a governing framework for evaluating the quality of evidence. Also known as trust rating, review status or ranking.</td>
 </tr>
@@ -3929,21 +4379,231 @@ Conflicting data (1 type): ClinvarConflictingDataFromSubmitterProposition.</p>
 </tr>
 <tr>
 <td><code>classification</code></td>
-<td><code>MappableConcept</code> | <code>iriReference</code></td>
+<td><a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/elements/mappable-concept.html#mappableconcept" rel="noopener" target="_blank">MappableConcept</a> | <a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference" rel="noopener" target="_blank">iriReference</a></td>
 <td>0..1</td>
 <td>A single term or phrase summarizing the result of direction and strength assessments of a Statement's Proposition, in terms of a classification of its subject.</td>
 </tr>
 <tr>
 <td><code>hasEvidence</code></td>
-<td><code>Statement</code> | <code>StudyResult</code> | <code>DataItem</code> | <code>iriReference</code>[] (unordered)</td>
+<td><a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/entities/information-entities/statement.html#statement" rel="noopener" target="_blank">Statement</a> | <a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/entities/information-entities/study-result.html#studyresult" rel="noopener" target="_blank">StudyResult</a> | <a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/entities/information-entities/data-item.html#dataitem" rel="noopener" target="_blank">DataItem</a> | <a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference" rel="noopener" target="_blank">iriReference</a>[] (unordered)</td>
 <td>0..m</td>
 <td>An individual piece of information that was evaluated as evidence in assessing the validity of the Proposition put forth by the Statement.</td>
 </tr>
 <tr>
 <td><code>hasEvidenceLines</code></td>
-<td><a href="../ClinvarSomaticEvidenceLine/">ClinvarSomaticEvidenceLine</a> | <code>EvidenceLine</code> | <code>iriReference</code>[] (unordered)</td>
+<td><a href="../ClinvarSomaticEvidenceLine/">ClinvarSomaticEvidenceLine</a> | <a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/entities/information-entities/evidence-line.html#evidenceline" rel="noopener" target="_blank">EvidenceLine</a> | <a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference" rel="noopener" target="_blank">iriReference</a>[] (unordered)</td>
 <td>0..m</td>
 <td>Evidence lines for this SCV statement. For somatic clinical impact (SCI) statements, evidence lines carry target propositions (VariantTherapeuticResponseProposition, VariantDiagnosticProposition, or VariantPrognosticProposition) and an evidence outcome reflecting the AMP/ASCO/CAP tier. Germline and oncogenicity SCVs typically do not have evidence lines.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="extensions">Extensions<a class="headerlink" href="#extensions" title="Permanent link">&para;</a></h2>
+<p>These extensions are defined for <code>ClinvarScvStatement</code>.</p>
+<h3 id="extensionclinvarscvid">ExtensionClinvarScvId<a class="headerlink" href="#extensionclinvarscvid" title="Permanent link">&para;</a></h3>
+<p>The SCV accession identifier without version (e.g., SCV001571657).</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Limits</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td><code>string</code></td>
+<td>0..1</td>
+<td>Must be 'clinvarScvId'.</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>string</code></td>
+<td>0..1</td>
+<td>The SCV accession identifier without version suffix.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="extensionclinvarscvreviewstatus">ExtensionClinvarScvReviewStatus<a class="headerlink" href="#extensionclinvarscvreviewstatus" title="Permanent link">&para;</a></h3>
+<p>The review status of the individual SCV submission as reported by ClinVar (e.g., "criteria provided, single submitter", "no assertion criteria provided").</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Limits</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td><code>string</code></td>
+<td>0..1</td>
+<td>Must be 'clinvarScvReviewStatus'.</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>string</code></td>
+<td>0..1</td>
+<td>The ClinVar review status for the submission.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="extensionclinvarscvversion">ExtensionClinvarScvVersion<a class="headerlink" href="#extensionclinvarscvversion" title="Permanent link">&para;</a></h3>
+<p>The version number of the SCV submission (e.g., "2").</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Limits</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td><code>string</code></td>
+<td>0..1</td>
+<td>Must be 'clinvarScvVersion'.</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>string</code></td>
+<td>0..1</td>
+<td>The version number as a string.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="extensionsubmissionlevel">ExtensionSubmissionLevel<a class="headerlink" href="#extensionsubmissionlevel" title="Permanent link">&para;</a></h3>
+<p>The submission level category based on review status. Determines the aggregation tier when building VCV and RCV aggregate statements.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Limits</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td><code>string</code></td>
+<td>0..1</td>
+<td>Must be 'submissionLevel'.</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>string</code></td>
+<td>0..1</td>
+<td>Practice Guideline (PG), Expert Panel (EP), Criteria Provided (CP), or No Criteria Provided (NOCP).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="extensionsubmittedcondition">ExtensionSubmittedCondition<a class="headerlink" href="#extensionsubmittedcondition" title="Permanent link">&para;</a></h3>
+<p>The submitter's original condition for single-condition submissions. Contains the submitted condition details and how they were mapped to the ClinVar canonical condition. Present on SCV statements and somatic evidence lines when the submission has exactly one condition.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Limits</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td><code>string</code></td>
+<td>0..1</td>
+<td>Must be 'submittedCondition'.</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>object</code></td>
+<td>0..1</td>
+<td>The submitted condition mapping details. Includes a reference to the resolved condition and the full mapping provenance.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="extensionsubmittedconditionset">ExtensionSubmittedConditionSet<a class="headerlink" href="#extensionsubmittedconditionset" title="Permanent link">&para;</a></h3>
+<p>The submitter's original conditions for multi-condition submissions. Contains the submitted condition set details, the multiple condition explanation (AND/OR), and an array of individual condition mappings. Present on SCV statements and somatic evidence lines when the submission has two or more conditions.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Limits</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td><code>string</code></td>
+<td>0..1</td>
+<td>Must be 'submittedConditionSet'.</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>object</code></td>
+<td>0..1</td>
+<td>The submitted condition set with mapping details for each condition.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="extensionsubmittedscvclassification">ExtensionSubmittedScvClassification<a class="headerlink" href="#extensionsubmittedscvclassification" title="Permanent link">&para;</a></h3>
+<p>The original classification label as submitted by the submitter, before any normalization. Present when the submitted classification differs from the normalized classification.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Limits</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td><code>string</code></td>
+<td>0..1</td>
+<td>Must be 'submittedScvClassification'.</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>string</code></td>
+<td>0..1</td>
+<td>The original submitted classification string.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="extensionsubmittedscvlocalkey">ExtensionSubmittedScvLocalKey<a class="headerlink" href="#extensionsubmittedscvlocalkey" title="Permanent link">&para;</a></h3>
+<p>The local key submitted by the submitter for this SCV, typically a combination of variant and condition identifiers used internally by the submitting lab.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Limits</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td><code>string</code></td>
+<td>0..1</td>
+<td>Must be 'submittedScvLocalKey'.</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>string</code></td>
+<td>0..1</td>
+<td>The submitter's local key string.</td>
 </tr>
 </tbody>
 </table>
@@ -4009,7 +4669,7 @@ Conflicting data (1 type): ClinvarConflictingDataFromSubmitterProposition.</p>
     
       <script src="../../../assets/javascripts/bundle.6970bfe9.min.js"></script>
       
-        <script src="../../../assets/js/keyboard-shortcuts.js"></script>
+        <script src="../../../assets/js/r2-browser.js"></script>
       
     
   </body>

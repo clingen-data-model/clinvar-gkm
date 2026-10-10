@@ -7,6 +7,18 @@
         <loc>https://clingen-data-model.github.io/clinvar-gkm/data-access/download/</loc>
       </url>
       <url>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/data-access/monthly-full/</loc>
+      </url>
+      <url>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/data-access/weekly-deltas/</loc>
+      </url>
+      <url>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/data-access/parquet/</loc>
+      </url>
+      <url>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/data-access/release-model/</loc>
+      </url>
+      <url>
         <loc>https://clingen-data-model.github.io/clinvar-gkm/user-story/</loc>
       </url>
       <url>
@@ -224,6 +236,9 @@
       </url>
       <url>
         <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/roadmap/</loc>
+      </url>
+      <url>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/versioning/</loc>
       </url>
       <url>
         <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/gks-standards/</loc>
