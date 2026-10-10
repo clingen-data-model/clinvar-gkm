@@ -25,7 +25,7 @@
                   },
                   "conditionSet": {
                      "type": "string",
-                     "description": "Usually null for single-condition submissions; when a single-trait submission maps to a multi-trait RCV it holds the CURIE of that condition set (e.g., "clinvar.traitset:123")."
+                     "description": "Usually null for single-condition submissions; when a single-trait submission maps to a multi-trait RCV it holds the CURIE of that condition set (e.g., clinvar.traitset:123)."
                   }
                },
                "additionalProperties": true
