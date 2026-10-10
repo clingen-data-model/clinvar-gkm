@@ -26,6 +26,7 @@ Exit code is non-zero if any record fails validation.
 import argparse
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -92,7 +93,16 @@ def load_registry(schema_root: Path, relax: bool = True):
                 continue
             if relax:
                 relax_additional_properties(doc)
-            resources.append((sid, Resource.from_contents(doc, default_specification=DRAFT202012)))
+            resource = Resource.from_contents(doc, default_specification=DRAFT202012)
+            resources.append((sid, resource))
+            # Also register the resource under the root-relative form of its $id (scheme+host
+            # stripped). The clinvar-gkm schemas emit root-relative cross-schema $refs
+            # (/ga4gh/..., /clingen/...) — valid JSON Schema (resolve against the $id base),
+            # but the `referencing` registry looks them up verbatim. Registering the
+            # root-relative key makes those $refs resolve. (See issue #132.)
+            m = re.match(r"https?://[^/]+(/.*)$", sid)
+            if m:
+                resources.append((m.group(1), resource))
             # first one wins on name collision; clinvar-gkm names are unique vs va-spec
             name2contents.setdefault(fn, doc)
     registry = Registry().with_resources(resources)
