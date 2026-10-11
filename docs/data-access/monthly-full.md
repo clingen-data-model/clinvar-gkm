@@ -12,10 +12,10 @@ The monthly full bundle is a gzip-compressed JSON file containing every variatio
 ??? example "Download a monthly full with curl"
     ```bash
     # Latest monthly full bundle (stable URL)
-    curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/clinvar-gkm_00-latest.json.gz
+    curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/datasets/clinvar-gkm_00-latest.json.gz
 
     # Or a specific month (dated, checkpoint-addressable)
-    curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/clinvar-gkm_2026-06.json.gz
+    curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/datasets/clinvar-gkm_2026-06.json.gz
 
     # Decompress
     gunzip clinvar-gkm_00-latest.json.gz
@@ -29,19 +29,19 @@ The monthly full bundle is a gzip-compressed JSON file containing every variatio
 
     # Download latest monthly full bundle
     urllib.request.urlretrieve(
-        f"{BASE}/datasets/clinvar-gkm_00-latest.json.gz",
+        f"{BASE}/v1/datasets/clinvar-gkm_00-latest.json.gz",
         "clinvar-gkm_00-latest.json.gz"
     )
 
     # Download a specific monthly full bundle
     urllib.request.urlretrieve(
-        f"{BASE}/datasets/clinvar-gkm_2026-06.json.gz",
+        f"{BASE}/v1/datasets/clinvar-gkm_2026-06.json.gz",
         "clinvar-gkm_2026-06.json.gz"
     )
 
     # Download an archived full bundle from a prior year
     urllib.request.urlretrieve(
-        f"{BASE}/archives/2025/clinvar-gkm_2025-03.json.gz",
+        f"{BASE}/v1/archives/2025/clinvar-gkm_2025-03.json.gz",
         "clinvar-gkm_2025-03.json.gz"
     )
     ```

@@ -13,9 +13,9 @@ ClinVar-GKM is distributed as a monthly full bundle plus weekly deltas (JSON + t
 
 <noscript>
 The interactive release table needs JavaScript. Without it, fetch the release index directly:
-<code>curl -s https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/index.json | python3 -m json.tool</code>
+<code>curl -s https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/index.json | python3 -m json.tool</code>
 — or grab the latest full and delta:
-<code>curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/clinvar-gkm_00-latest.json.gz</code>
+<code>curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/datasets/clinvar-gkm_00-latest.json.gz</code>
 </noscript>
 
 Browse history and archives: [Monthly Full Bundles](monthly-full.md) · [Weekly Deltas](weekly-deltas.md) · [Parquet Files](parquet.md).
@@ -24,32 +24,31 @@ Browse history and archives: [Monthly Full Bundles](monthly-full.md) · [Weekly 
 
 ## Directory Structure
 
+!!! note "Versioned layout"
+    The root `index.json` is a thin **version manifest** that lists the active major schema lines and points to each line's index. The current line is **`1`**, served under **`/v1/`** — its release index is `v1/index.json`. Pin a major line by using its `/vN/` prefix; the manifest tells you which lines are current. All bundle, delta, and Parquet objects live under that prefix.
+
 ```text
-datasets/
-  clinvar-gkm_00-latest.json.gz              latest monthly full bundle (stable URL)
-  clinvar-gkm_YYYY-MM.json.gz                monthly full bundles (current year)
-
-datasets/parquet/00-latest/
-  {section}.parquet                          typed Parquet for the latest monthly full (stable URL)
-
-datasets/parquet/YYYY-MM/
-  {section}.parquet                          typed Parquet for a specific monthly full (current year)
-
-deltas/00-latest/
-  clinvar-gkm-delta_00-latest.json.gz        latest weekly delta bundle (stable URL)
-  manifest.json                              latest delta manifest
-  parquet/{section}.parquet                  typed Parquet for the latest delta
-
-deltas/YYYY-MMDD/
-  clinvar-gkm-delta_YYYY-MMDD.json.gz        weekly delta bundle (added + updated records)
-  manifest.json                              per-release change manifest
-  parquet/{section}.parquet                  typed Parquet for the changed records
-
-archives/{YYYY}/
-  clinvar-gkm_YYYY-MM.json.gz                monthly full bundles from prior years
-  parquet/YYYY-MM/{section}.parquet          typed Parquet month sets from prior years
-
-index.json                                   release index (datasets, archives, deltas)
+index.json                                   version manifest (active major lines -> each line's index)
+v1/
+  index.json                                 release index for v1 (datasets, archives, deltas)
+  datasets/
+    clinvar-gkm_00-latest.json.gz            latest monthly full bundle (stable URL)
+    clinvar-gkm_YYYY-MM.json.gz              monthly full bundles (current year)
+  datasets/parquet/00-latest/
+    {section}.parquet                        typed Parquet for the latest monthly full (stable URL)
+  datasets/parquet/YYYY-MM/
+    {section}.parquet                        typed Parquet for a specific monthly full (current year)
+  deltas/00-latest/
+    clinvar-gkm-delta_00-latest.json.gz      latest weekly delta bundle (stable URL)
+    manifest.json                            latest delta manifest
+    parquet/{section}.parquet                typed Parquet for the latest delta
+  deltas/YYYY-MMDD/
+    clinvar-gkm-delta_YYYY-MMDD.json.gz      weekly delta bundle (added + updated records)
+    manifest.json                            per-release change manifest
+    parquet/{section}.parquet                typed Parquet for the changed records
+  archives/{YYYY}/
+    clinvar-gkm_YYYY-MM.json.gz              monthly full bundles from prior years
+    parquet/YYYY-MM/{section}.parquet        typed Parquet month sets from prior years
 ```
 
 ---
