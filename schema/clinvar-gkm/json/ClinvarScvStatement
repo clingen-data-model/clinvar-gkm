@@ -50,9 +50,11 @@
                   "PG",
                   "EP",
                   "CP",
-                  "NOCP"
+                  "NOCP",
+                  "NOCL",
+                  "FLAG"
                ],
-               "description": "Practice Guideline (PG), Expert Panel (EP), Criteria Provided (CP), or No Criteria Provided (NOCP)."
+               "description": "Practice Guideline (PG), Expert Panel (EP), Criteria Provided (CP), No Criteria Provided (NOCP), No Classification Provided (NOCL), or Flagged Submission (FLAG). Ranked PG > EP > CP > NOCP > NOCL > FLAG."
             }
          },
          "additionalProperties": false

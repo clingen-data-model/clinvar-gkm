@@ -118,9 +118,12 @@ $defs:
           - "EP"
           - "CP"
           - "NOCP"
+          - "NOCL"
+          - "FLAG"
         description: >-
           Practice Guideline (PG), Expert Panel (EP), Criteria Provided (CP),
-          or No Criteria Provided (NOCP).
+          No Criteria Provided (NOCP), No Classification Provided (NOCL), or
+          Flagged Submission (FLAG). Ranked PG > EP > CP > NOCP > NOCL > FLAG.
 
   ExtensionSubmittedScvClassification:
     type: object
@@ -431,7 +434,8 @@ $defs:
           priority tier. Each evidence line contains nested sub-statements
           (classification layer) or SCV references (aggregate contribution
           layer). Tiers are: practice guideline (PG), expert panel (EP),
-          criteria provided (CP), and no criteria provided (NOCP).
+          criteria provided (CP), no criteria provided (NOCP), no
+          classification provided (NOCL), and flagged submission (FLAG).
       extensions:
         type: array
         ordered: false
@@ -441,6 +445,19 @@ $defs:
         description: >-
           Aggregate-level extensions including the overall review status.
     additionalProperties: true
+
+  ClinvarAggregateStatement:
+    maturity: trial use
+    description: >-
+      A ClinVar aggregate statement — the shared base for VCV and RCV
+      statements. Represents an aggregate classification across contributing
+      submissions, grouping them into evidence lines by review status priority
+      tier. Concrete aggregate statements are ClinvarVcvStatement (across all
+      conditions for a variant) and ClinvarRcvStatement (scoped to a single
+      condition or condition set).
+    allOf:
+      - $refCurie: va-spec:Statement
+      - $ref: "#/$defs/ClinvarAggregateStatementProperties"
 
   ClinvarVcvStatement:
     maturity: trial use
