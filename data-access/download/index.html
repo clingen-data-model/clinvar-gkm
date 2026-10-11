@@ -4098,39 +4098,39 @@
 
 <noscript>
 The interactive release table needs JavaScript. Without it, fetch the release index directly:
-<code>curl -s https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/index.json | python3 -m json.tool</code>
+<code>curl -s https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/index.json | python3 -m json.tool</code>
 — or grab the latest full and delta:
-<code>curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/clinvar-gkm_00-latest.json.gz</code>
+<code>curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/datasets/clinvar-gkm_00-latest.json.gz</code>
 </noscript>
 
 <p>Browse history and archives: <a href="../monthly-full/">Monthly Full Bundles</a> · <a href="../weekly-deltas/">Weekly Deltas</a> · <a href="../parquet/">Parquet Files</a>.</p>
 <hr />
 <h2 id="directory-structure">Directory Structure<a class="headerlink" href="#directory-structure" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>datasets/
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  clinvar-gkm_00-latest.json.gz              latest monthly full bundle (stable URL)
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  clinvar-gkm_YYYY-MM.json.gz                monthly full bundles (current year)
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>datasets/parquet/00-latest/
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  {section}.parquet                          typed Parquet for the latest monthly full (stable URL)
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>datasets/parquet/YYYY-MM/
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  {section}.parquet                          typed Parquet for a specific monthly full (current year)
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>deltas/00-latest/
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  clinvar-gkm-delta_00-latest.json.gz        latest weekly delta bundle (stable URL)
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>  manifest.json                              latest delta manifest
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>  parquet/{section}.parquet                  typed Parquet for the latest delta
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>deltas/YYYY-MMDD/
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>  clinvar-gkm-delta_YYYY-MMDD.json.gz        weekly delta bundle (added + updated records)
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>  manifest.json                              per-release change manifest
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>  parquet/{section}.parquet                  typed Parquet for the changed records
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>archives/{YYYY}/
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>  clinvar-gkm_YYYY-MM.json.gz                monthly full bundles from prior years
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>  parquet/YYYY-MM/{section}.parquet          typed Parquet month sets from prior years
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>index.json                                   release index (datasets, archives, deltas)
+<div class="admonition note">
+<p class="admonition-title">Versioned layout</p>
+<p>The root <code>index.json</code> is a thin <strong>version manifest</strong> that lists the active major schema lines and points to each line's index. The current line is <strong><code>1</code></strong>, served under <strong><code>/v1/</code></strong> — its release index is <code>v1/index.json</code>. Pin a major line by using its <code>/vN/</code> prefix; the manifest tells you which lines are current. All bundle, delta, and Parquet objects live under that prefix.</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>index.json                                   version manifest (active major lines -&gt; each line's index)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>v1/
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  index.json                                 release index for v1 (datasets, archives, deltas)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  datasets/
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    clinvar-gkm_00-latest.json.gz            latest monthly full bundle (stable URL)
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    clinvar-gkm_YYYY-MM.json.gz              monthly full bundles (current year)
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  datasets/parquet/00-latest/
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    {section}.parquet                        typed Parquet for the latest monthly full (stable URL)
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  datasets/parquet/YYYY-MM/
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    {section}.parquet                        typed Parquet for a specific monthly full (current year)
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>  deltas/00-latest/
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    clinvar-gkm-delta_00-latest.json.gz      latest weekly delta bundle (stable URL)
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    manifest.json                            latest delta manifest
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    parquet/{section}.parquet                typed Parquet for the latest delta
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>  deltas/YYYY-MMDD/
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    clinvar-gkm-delta_YYYY-MMDD.json.gz      weekly delta bundle (added + updated records)
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    manifest.json                            per-release change manifest
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    parquet/{section}.parquet                typed Parquet for the changed records
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>  archives/{YYYY}/
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    clinvar-gkm_YYYY-MM.json.gz              monthly full bundles from prior years
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    parquet/YYYY-MM/{section}.parquet        typed Parquet month sets from prior years
 </code></pre></div>
 <hr />
 <h2 id="feedback">Feedback<a class="headerlink" href="#feedback" title="Permanent link">&para;</a></h2>

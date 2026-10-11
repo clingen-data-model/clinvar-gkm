@@ -1,14 +1,15 @@
 /* Shared R2 release browser. Each mount element:
      <div class="r2-browser" data-r2-type="TYPE"></div>
    TYPE ∈ latest | monthly | deltas | parquet-monthly | parquet-weekly
-   Fetches index.json once per page; renders each mount by its type.
-   No-ops when no mount is present. CSP-safe (no external requests besides index.json). */
+   Reads the root version manifest (/index.json), follows it to the current major
+   line's index (e.g. /v1/index.json), then renders each mount by its type.
+   No-ops when no mount is present. CSP-safe (only same-host index fetches). */
 (function () {
   var mounts = document.querySelectorAll(".r2-browser");
   if (!mounts.length) return;
 
   var BASE_URL = "https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev";
-  var INDEX_URL = BASE_URL + "/index.json";
+  var ROOT_INDEX_URL = BASE_URL + "/index.json";   // root version manifest
 
   // Stable section order for composing Parquet URLs (full sets always carry all 22).
   var PARQUET_SECTIONS = [
@@ -194,14 +195,47 @@
     });
   }
 
-  fetch(INDEX_URL)
-    .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+  function fetchJSON(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    });
+  }
+
+  // Resolve the current major line from the root manifest: prefer the line marked
+  // status "current", else the highest active (then any) major. Returns its index
+  // path (e.g. "v1/index.json"), or null if the manifest carries no versions.
+  function versionIndexPath(root) {
+    var versions = root.versions || {};
+    var keys = Object.keys(versions);
+    if (!keys.length) return null;
+    var current = keys.filter(function (k) { return versions[k].status === "current"; });
+    var pool = current.length ? current
+             : (root.active && root.active.length ? root.active.slice() : keys);
+    pool.sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); });
+    var chosen = versions[pool[pool.length - 1]];
+    return (chosen && chosen.index) ? chosen.index : null;
+  }
+
+  // Load the release index. The root /index.json is a thin version manifest; follow
+  // it to the current major line's index. If the root doc is itself a full index
+  // (pre-/v1 flat layout), use it directly.
+  function loadIndex() {
+    return fetchJSON(ROOT_INDEX_URL).then(function (root) {
+      if (root.datasets || root.deltas) return root;      // full index served at root
+      var rel = versionIndexPath(root);
+      if (!rel) throw new Error("no active version in root manifest");
+      return fetchJSON(BASE_URL + "/" + rel);
+    });
+  }
+
+  loadIndex()
     .then(function (data) { mounts.forEach(function (m) { render(m, data); }); })
     .catch(function (err) {
       var isNetwork = (err instanceof TypeError) ||
         /failed to fetch|networkerror|load failed/i.test(err.message || "");
       fail(isNetwork
-        ? "Couldn't load the release index (network/CORS). Fetch it directly: curl -s " + INDEX_URL
+        ? "Couldn't load the release index (network/CORS). Fetch it directly: curl -s " + ROOT_INDEX_URL
         : "Unable to load the release index (" + err.message + ").");
     });
 })();
