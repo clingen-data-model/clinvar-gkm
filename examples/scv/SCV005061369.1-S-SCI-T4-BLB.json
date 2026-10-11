@@ -199,7 +199,6 @@
         "name": "Chronic myeloid leukemia",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "2683",
       "type": "MappableConcept"
     },
     "predicate": "hasClinicalSignificanceFor",

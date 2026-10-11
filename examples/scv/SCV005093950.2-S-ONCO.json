@@ -192,7 +192,6 @@
         "name": "Neoplasm",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "32759",
       "type": "MappableConcept"
     },
     "predicate": "isOncogenicFor",

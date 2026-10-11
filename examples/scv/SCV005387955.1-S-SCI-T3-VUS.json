@@ -176,7 +176,6 @@
         "name": "Familial papillary thyroid carcinoma with renal papillary neoplasia",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "3902",
       "type": "MappableConcept"
     },
     "predicate": "hasClinicalSignificanceFor",

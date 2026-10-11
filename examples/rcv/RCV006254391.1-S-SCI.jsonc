@@ -137,7 +137,6 @@
         "name": "Medulloblastoma WNT activated",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "67944",
       "type": "MappableConcept"
     },
     "predicate": "hasClinicalSignificanceFor",

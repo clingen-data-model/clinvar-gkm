@@ -32,8 +32,8 @@
             {
               "directionOfEvidenceProvided": "supports",
               "hasEvidenceItems": [
-                "#/scv/clinvar.submission:SCV002601600.1",
-                "#/scv/clinvar.submission:SCV000659085.3"
+                "#/scv/clinvar.submission:SCV000659085.3",
+                "#/scv/clinvar.submission:SCV002601600.1"
               ],
               "id": "RCV000548006.14-G-PATH-CP.contributing",
               "strengthOfEvidenceProvided": {
@@ -118,7 +118,6 @@
         "name": "RASopathy",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "17678",
       "type": "MappableConcept"
     },
     "predicate": "isCausalFor",

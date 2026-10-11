@@ -89,7 +89,6 @@
         "name": "Cardiovascular phenotype",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "33389",
       "type": "MappableConcept"
     },
     "predicate": "isCausalFor",

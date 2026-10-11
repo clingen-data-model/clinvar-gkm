@@ -210,7 +210,6 @@
         "name": "Cerebral arteriovenous malformation",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "4617",
       "type": "MappableConcept"
     },
     "predicate": "isCausalFor",

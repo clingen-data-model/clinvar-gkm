@@ -20,7 +20,7 @@
         "id": "ga4gh:VA.LDaqvF3c3y1IG8wF4mORiRfB--9Jjfzp",
         "location": {
           "digest": "qaHcVvdl8j0lpLRt49hE-bFI81128Mk9",
-          "end": "25245350",
+          "end": 25245350,
           "id": "ga4gh:SL.qaHcVvdl8j0lpLRt49hE-bFI81128Mk9",
           "sequenceReference": {
             "extensions": [
@@ -35,7 +35,7 @@
             "residueAlphabet": "na",
             "type": "SequenceReference"
           },
-          "start": "25245349",
+          "start": 25245349,
           "type": "SequenceLocation"
         },
         "name": "NC_000012.12:g.25245350C>T",
@@ -50,7 +50,8 @@
           "primaryCoding": {
             "code": "liftover_to",
             "system": "ga4gh-gks-term:allele-relation"
-          }
+          },
+          "type": "MappableConcept"
         },
         {
           "primaryCoding": {
@@ -59,7 +60,8 @@
               "http://www.sequenceontology.org/browser/current_release/term/transcribed_to"
             ],
             "system": "http://www.sequenceontology.org/"
-          }
+          },
+          "type": "MappableConcept"
         }
       ],
       "type": "DefiningAlleleConstraint"
@@ -134,18 +136,25 @@
           }
         },
         {
+          "molecularConsequence": [
+            {
+              "code": "SO:0001583",
+              "iris": [
+                "https://identifiers.org/SO:0001583"
+              ],
+              "name": "missense_variant",
+              "system": "http://www.sequenceontology.org/"
+            }
+          ],
           "nucleotideExpression": {
-            "syntax": "hgvs.g",
-            "value": "NG_007524.2:g.10654G>A"
+            "syntax": "hgvs.c",
+            "value": "NM_001369786.1:c.35G>A"
           },
-          "nucleotideType": "genomic"
-        },
-        {
-          "nucleotideExpression": {
-            "syntax": "hgvs.g",
-            "value": "LRG_344:g.10654G>A"
-          },
-          "nucleotideType": "genomic"
+          "nucleotideType": "coding",
+          "proteinExpression": {
+            "syntax": "hgvs.p",
+            "value": "NP_001356715.1:p.Gly12Asp"
+          }
         },
         {
           "maneSelect": true,
@@ -170,30 +179,9 @@
           }
         },
         {
-          "molecularConsequence": [
-            {
-              "code": "SO:0001583",
-              "iris": [
-                "https://identifiers.org/SO:0001583"
-              ],
-              "name": "missense_variant",
-              "system": "http://www.sequenceontology.org/"
-            }
-          ],
-          "nucleotideExpression": {
-            "syntax": "hgvs.c",
-            "value": "NM_001369786.1:c.35G>A"
-          },
-          "nucleotideType": "coding",
-          "proteinExpression": {
-            "syntax": "hgvs.p",
-            "value": "NP_001356715.1:p.Gly12Asp"
-          }
-        },
-        {
           "nucleotideExpression": {
             "syntax": "hgvs.g",
-            "value": "NC_000012.12:g.25245350C>T"
+            "value": "NC_000012.11:g.25398284C>T"
           },
           "nucleotideType": "genomic, top-level"
         },
@@ -207,6 +195,20 @@
             "syntax": "hgvs.p",
             "value": "LRG_344p1:p.Gly12Asp"
           }
+        },
+        {
+          "nucleotideExpression": {
+            "syntax": "hgvs.g",
+            "value": "LRG_344:g.10654G>A"
+          },
+          "nucleotideType": "genomic"
+        },
+        {
+          "nucleotideExpression": {
+            "syntax": "hgvs.g",
+            "value": "NG_007524.2:g.10654G>A"
+          },
+          "nucleotideType": "genomic"
         },
         {
           "manePlus": true,
@@ -233,7 +235,7 @@
         {
           "nucleotideExpression": {
             "syntax": "hgvs.g",
-            "value": "NC_000012.11:g.25398284C>T"
+            "value": "NC_000012.12:g.25245350C>T"
           },
           "nucleotideType": "genomic, top-level"
         },
@@ -289,26 +291,6 @@
     },
     {
       "coding": {
-        "code": "190070.0005",
-        "iris": [
-          "http://www.omim.org/entry/190070#0005"
-        ],
-        "system": "https://www.omim.org/"
-      },
-      "relation": "relatedMatch"
-    },
-    {
-      "coding": {
-        "code": "121913529",
-        "iris": [
-          "https://identifiers.org/dbsnp:rs121913529"
-        ],
-        "system": "https://www.ncbi.nlm.nih.gov/snp/"
-      },
-      "relation": "relatedMatch"
-    },
-    {
-      "coding": {
         "code": "190070.0025",
         "iris": [
           "http://www.omim.org/entry/190070#0025"
@@ -326,6 +308,26 @@
         "system": "https://reg.clinicalgenome.org/"
       },
       "relation": "closeMatch"
+    },
+    {
+      "coding": {
+        "code": "190070.0005",
+        "iris": [
+          "http://www.omim.org/entry/190070#0005"
+        ],
+        "system": "https://www.omim.org/"
+      },
+      "relation": "relatedMatch"
+    },
+    {
+      "coding": {
+        "code": "121913529",
+        "iris": [
+          "https://identifiers.org/dbsnp:rs121913529"
+        ],
+        "system": "https://www.ncbi.nlm.nih.gov/snp/"
+      },
+      "relation": "relatedMatch"
     }
   ],
   "members": [
@@ -348,7 +350,7 @@
       "id": "ga4gh:VA.LDaqvF3c3y1IG8wF4mORiRfB--9Jjfzp",
       "location": {
         "digest": "qaHcVvdl8j0lpLRt49hE-bFI81128Mk9",
-        "end": "25245350",
+        "end": 25245350,
         "id": "ga4gh:SL.qaHcVvdl8j0lpLRt49hE-bFI81128Mk9",
         "sequenceReference": {
           "extensions": [
@@ -363,7 +365,7 @@
           "residueAlphabet": "na",
           "type": "SequenceReference"
         },
-        "start": "25245349",
+        "start": 25245349,
         "type": "SequenceLocation"
       },
       "name": "NC_000012.12:g.25245350C>T",

@@ -148,7 +148,6 @@
         "name": "Adenocarcinoma of the large intestine",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "37720",
       "type": "MappableConcept"
     },
     "predicate": "hasClinicalSignificanceFor",

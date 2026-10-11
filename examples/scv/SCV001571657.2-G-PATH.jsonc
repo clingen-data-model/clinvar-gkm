@@ -214,7 +214,6 @@
         "name": "Acute myeloid leukemia",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "15736",
       "type": "MappableConcept"
     },
     "predicate": "isCausalFor",

@@ -163,7 +163,6 @@
         "name": "Embryonal rhabdomyosarcoma",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "25813",
       "type": "MappableConcept"
     },
     "predicate": "hasClinicalSignificanceFor",
