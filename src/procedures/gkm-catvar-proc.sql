@@ -282,21 +282,26 @@ BEGIN
         x.type,
         x.start,
         x.end,
+        -- VRS Range: [int|null, int|null]. BigQuery arrays cannot hold NULL, so build
+        -- the JSON array literally (PARSE_JSON) to preserve null endpoints. Element order
+        -- matches the original vrs-python Range (start: [outer,inner]; end: [inner,outer]).
         IF(
           x.start_outer IS NULL AND x.start_inner IS NULL,
-          null,
-          [
-            IFNULL(x.start_outer,'null'),
-            IFNULL(x.start_inner,'null')
-          ]
+          NULL,
+          SAFE.PARSE_JSON(FORMAT(
+            '[%s,%s]',
+            IFNULL(CAST(x.start_outer AS STRING), 'null'),
+            IFNULL(CAST(x.start_inner AS STRING), 'null')
+          ))
         ) as start_range,
         IF(
           x.end_outer IS NULL AND x.end_inner IS NULL,
-          null,
-          [
-            IFNULL(x.end_inner, 'null'),
-            IFNULL(x.end_outer, 'null')
-          ]
+          NULL,
+          SAFE.PARSE_JSON(FORMAT(
+            '[%s,%s]',
+            IFNULL(CAST(x.end_inner AS STRING), 'null'),
+            IFNULL(CAST(x.end_outer AS STRING), 'null')
+          ))
         ) as end_range,
         (SELECT AS STRUCT sq.*) AS sequenceReference
       FROM x
@@ -342,10 +347,11 @@ BEGIN
           sl.id,
           sl.type,
           sl.digest,
-          sl.start,
-          sl.end,
-          sl.start_range,
-          sl.end_range,
+          -- VRS SequenceLocation.start/end are `oneOf [integer, Range]`: emit the scalar
+          -- integer for a precise coordinate, otherwise the Range JSON array. (There is no
+          -- VRS `start_range`/`end_range` field — the Range goes in `start`/`end` itself.)
+          IF(sl.start IS NOT NULL, TO_JSON(sl.start), sl.start_range) AS start,
+          IF(sl.end IS NOT NULL, TO_JSON(sl.end), sl.end_range) AS end,
           FORMAT('#/sequenceReference/%s', sl.sequenceReference.refgetAccession) as sequenceReference
         )), remove_empty => TRUE) as value
       FROM {P}.temp_seqloc sl
@@ -1021,6 +1027,7 @@ BEGIN
           null as location,
           null as matchCharacteristic,
           [ STRUCT(
+              'MappableConcept' as type,
               STRUCT(
                 'liftover_to' as code,
                 'ga4gh-gks-term:allele-relation' as system,
@@ -1028,6 +1035,7 @@ BEGIN
               ) as primaryCoding
             ),
             STRUCT(
+              'MappableConcept' as type,
               STRUCT(
                 'transcribed_to' as code,
                 'http://www.sequenceontology.org/' as system,
@@ -1048,6 +1056,7 @@ BEGIN
           null as allele,
           FORMAT('#/location/%s', ctx.vrs_location_id) as location,
           STRUCT(
+            'MappableConcept' as type,
             STRUCT(
               'is_within' as code,
               'ga4gh-gks-term:location-match' as system,
@@ -1055,6 +1064,7 @@ BEGIN
             ) as primaryCoding
           ) as matchCharacteristic,
           [ STRUCT(
+              'MappableConcept' as type,
               STRUCT(
                 'liftover_to' as code,
                 'ga4gh-gks-term:allele-relation' as system,
