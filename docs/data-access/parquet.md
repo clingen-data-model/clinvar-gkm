@@ -59,7 +59,7 @@ Download individual sections or all files at once:
 ??? example "Download sections with curl"
     ```bash
     # 00-latest = the newest monthly full; swap for a dated month (e.g. .../parquet/2026-06) to pin a release.
-    BASE="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/parquet/00-latest"
+    BASE="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/datasets/parquet/00-latest"
     mkdir -p clinvar-gkm-parquet && cd clinvar-gkm-parquet
 
     # Download specific sections
@@ -302,7 +302,7 @@ Every section Parquet — full and delta alike — exposes an `id` column, and t
     BASE="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
 
     # 1. The checkpoint monthly full named by the delta's manifest (e.g. 2026-06).
-    curl -s "${BASE}/deltas/00-latest/manifest.json" -o manifest.json
+    curl -s "${BASE}/v1/deltas/00-latest/manifest.json" -o manifest.json
     CKPT=$(python3 -c "import json;print(json.load(open('manifest.json'))['checkpoint_full']['release'])")
 
     # 2. The checkpoint full Parquet set -> full/, and the delta set -> delta/.
@@ -311,8 +311,8 @@ Every section Parquet — full and delta alike — exposes an `id` column, and t
                    gene variation condition conditionSet therapy therapyGroup submitter \
                    varcond-proposition vartumor-proposition vartherapy-proposition varcustom-proposition \
                    evidenceLine vcv_evidenceLine rcv_evidenceLine scv vcv rcv; do
-      curl -sf "${BASE}/datasets/parquet/${CKPT}/${section}.parquet" -o "full/${section}.parquet"  || true
-      curl -sf "${BASE}/deltas/00-latest/parquet/${section}.parquet" -o "delta/${section}.parquet" || true
+      curl -sf "${BASE}/v1/datasets/parquet/${CKPT}/${section}.parquet" -o "full/${section}.parquet"  || true
+      curl -sf "${BASE}/v1/deltas/00-latest/parquet/${section}.parquet" -o "delta/${section}.parquet" || true
     done
     ```
 
@@ -388,16 +388,15 @@ Every section Parquet — full and delta alike — exposes an `id` column, and t
     #    week's era, and the delta filter below would then match nothing for an older target week.
     y, mo, day = TARGET_WEEK.split("-")
     target_dir = f"{y}-{mo}{day}"                # "2026-07-20" -> "2026-0720"
-    checkpoint = fetch_json(f"{BASE}/deltas/{target_dir}/manifest.json")["checkpoint_full"]
+    checkpoint = fetch_json(f"{BASE}/v1/deltas/{target_dir}/manifest.json")["checkpoint_full"]
     checkpoint_month = checkpoint["release"]     # "2026-06"
 
     # 2. Download that checkpoint's full Parquet set into updated/ as the starting state.
-    #    Prior-year checkpoints live under archives/<YYYY>/parquet/<release>/.
-    if checkpoint["path"].startswith("archives/"):
-        year = checkpoint["path"].split("/")[1]
-        parquet_base = f"{BASE}/archives/{year}/parquet/{checkpoint_month}"
-    else:
-        parquet_base = f"{BASE}/datasets/parquet/{checkpoint_month}"
+    #    The Parquet set sits in a `parquet/<month>/` dir beside the checkpoint bundle;
+    #    checkpoint["path"] is v1/-prefixed (datasets/ for the current year, archives/<YYYY>/ older),
+    #    so derive the Parquet dir from it directly.
+    ckpt_dir = checkpoint["path"].rsplit("/", 1)[0]   # drop the bundle filename
+    parquet_base = f"{BASE}/{ckpt_dir}/parquet/{checkpoint_month}"
     os.makedirs("updated", exist_ok=True)
     for section in SECTIONS:
         try:
@@ -407,7 +406,7 @@ Every section Parquet — full and delta alike — exposes an `id` column, and t
 
     # 3. From the index, take the dated weekly deltas AFTER the checkpoint month, oldest -> newest,
     #    up to and including TARGET_WEEK.
-    index = fetch_json(f"{BASE}/index.json")
+    index = fetch_json(f"{BASE}/v1/index.json")
     deltas = sorted(
         (d for d in index["deltas"]
          if d["release"] != "latest"

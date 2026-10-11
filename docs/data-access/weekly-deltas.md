@@ -13,13 +13,13 @@ deltas/2026-0706/
   parquet/<section>.parquet             typed Parquet for the changed records only
 ```
 
-The most recent delta is mirrored at `deltas/00-latest/` under stable filenames (`clinvar-gkm-delta_00-latest.json.gz`, `manifest.json`, `parquet/<section>.parquet`).
+The most recent delta is mirrored at `v1/deltas/00-latest/` under stable filenames (`clinvar-gkm-delta_00-latest.json.gz`, `manifest.json`, `parquet/<section>.parquet`).
 
 ??? example "Download a weekly delta with curl / Python"
     ```bash
     # Latest weekly delta + its manifest (stable URLs)
-    curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
-    curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/manifest.json
+    curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
+    curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/deltas/00-latest/manifest.json
     ```
 
     ```python
@@ -29,17 +29,17 @@ The most recent delta is mirrored at `deltas/00-latest/` under stable filenames 
 
     # Latest weekly delta + manifest
     urllib.request.urlretrieve(
-        f"{BASE}/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz",
+        f"{BASE}/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz",
         "clinvar-gkm-delta_00-latest.json.gz"
     )
     urllib.request.urlretrieve(
-        f"{BASE}/deltas/00-latest/manifest.json",
+        f"{BASE}/v1/deltas/00-latest/manifest.json",
         "manifest.json"
     )
 
     # A specific weekly delta (release 2026-07-06 -> dir 2026-0706)
     urllib.request.urlretrieve(
-        f"{BASE}/deltas/2026-0706/clinvar-gkm-delta_2026-0706.json.gz",
+        f"{BASE}/v1/deltas/2026-0706/clinvar-gkm-delta_2026-0706.json.gz",
         "clinvar-gkm-delta_2026-0706.json.gz"
     )
     ```
@@ -106,8 +106,8 @@ To reconstruct the current state, bootstrap from the monthly full that the lates
 
 
     # 1. The latest delta's manifest names the monthly full to bootstrap from.
-    latest = fetch_json(f"{BASE}/deltas/00-latest/manifest.json")
-    checkpoint = latest["checkpoint_full"]        # {"path": "datasets/clinvar-gkm_2026-06.json.gz",
+    latest = fetch_json(f"{BASE}/v1/deltas/00-latest/manifest.json")
+    checkpoint = latest["checkpoint_full"]        # {"path": "v1/datasets/clinvar-gkm_2026-06.json.gz",
                                                   #  "release": "2026-06"}  (None on initial rollout,
                                                   #  before any monthly full exists)
 
@@ -119,7 +119,7 @@ To reconstruct the current state, bootstrap from the monthly full that the lates
     #    oldest -> newest. (A delta dir is named YYYY-MMDD packed as "2026-0706", so the first
     #    7 chars are its YYYY-MM.) Skip the "latest" mirror and any delta in the checkpoint
     #    month or earlier — those are already folded into the monthly full.
-    index = fetch_json(f"{BASE}/index.json")
+    index = fetch_json(f"{BASE}/v1/index.json")
     deltas = sorted(
         (d for d in index["deltas"]
          if d["release"] != "latest" and d["release"][:7] > checkpoint_month),
