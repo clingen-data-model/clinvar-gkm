@@ -282,27 +282,13 @@ BEGIN
         x.type,
         x.start,
         x.end,
-        -- VRS Range: [int|null, int|null]. BigQuery arrays cannot hold NULL, so build
-        -- the JSON array literally (PARSE_JSON) to preserve null endpoints. Element order
-        -- matches the original vrs-python Range (start: [outer,inner]; end: [inner,outer]).
-        IF(
-          x.start_outer IS NULL AND x.start_inner IS NULL,
-          NULL,
-          SAFE.PARSE_JSON(FORMAT(
-            '[%s,%s]',
-            IFNULL(CAST(x.start_outer AS STRING), 'null'),
-            IFNULL(CAST(x.start_inner AS STRING), 'null')
-          ))
-        ) as start_range,
-        IF(
-          x.end_outer IS NULL AND x.end_inner IS NULL,
-          NULL,
-          SAFE.PARSE_JSON(FORMAT(
-            '[%s,%s]',
-            IFNULL(CAST(x.end_inner AS STRING), 'null'),
-            IFNULL(CAST(x.end_outer AS STRING), 'null')
-          ))
-        ) as end_range,
+        -- Range endpoints stay scalar INT64 here (not yet assembled into a VRS Range array):
+        -- temp_ctxvar embeds this whole location struct under SELECT DISTINCT, and BigQuery
+        -- cannot DISTINCT a JSON column. The Range JSON is assembled in gkm_dict_location.
+        x.start_outer,
+        x.start_inner,
+        x.end_outer,
+        x.end_inner,
         (SELECT AS STRUCT sq.*) AS sequenceReference
       FROM x
       JOIN {P}.temp_seqref sq
@@ -359,8 +345,14 @@ BEGIN
       FROM (
         SELECT
           sl.id AS key,
-          sl.start_range,
-          sl.end_range,
+          -- Assemble the VRS Range (JSON array) HERE, not in temp_seqloc (which is embedded
+          -- in a SELECT DISTINCT upstream — JSON is not DISTINCT-able). BigQuery arrays
+          -- cannot hold NULL, so build the array literally to keep half-open null endpoints.
+          -- Order matches vrs-python: start=[outer,inner], end=[inner,outer].
+          IF(sl.start_outer IS NULL AND sl.start_inner IS NULL, NULL,
+             SAFE.PARSE_JSON(FORMAT('[%s,%s]', IFNULL(CAST(sl.start_outer AS STRING), 'null'), IFNULL(CAST(sl.start_inner AS STRING), 'null')))) AS start_range,
+          IF(sl.end_outer IS NULL AND sl.end_inner IS NULL, NULL,
+             SAFE.PARSE_JSON(FORMAT('[%s,%s]', IFNULL(CAST(sl.end_inner AS STRING), 'null'), IFNULL(CAST(sl.end_outer AS STRING), 'null')))) AS end_range,
           -- Precise scalars only; for range rows sl.start/sl.end are NULL and get stripped,
           -- then re-added as arrays above. Every location has start+end+digest (0 absent,
           -- verified), so JSON_STRIP_NULLS only drops the scalar that a Range replaces.
