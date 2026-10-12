@@ -75,7 +75,6 @@
       "conceptType": "Condition",
       "id": "clinvar.trait:61004",
       "name": "ivacaftor / tezacaftor response - Efficacy",
-      "trait_id": "61004",
       "type": "MappableConcept"
     },
     "predicate": "hasDrugResponseFor",

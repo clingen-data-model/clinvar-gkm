@@ -20,7 +20,7 @@
         "id": "ga4gh:VA.kL06ErFmanQt9ZsXkcdpd7qSbJ8sXmj7",
         "location": {
           "digest": "nQGBuvRQOLEboA5TYtcz975fp_GulxbZ",
-          "end": "40819446",
+          "end": 40819446,
           "id": "ga4gh:SL.nQGBuvRQOLEboA5TYtcz975fp_GulxbZ",
           "sequenceReference": {
             "extensions": [
@@ -35,7 +35,7 @@
             "residueAlphabet": "na",
             "type": "SequenceReference"
           },
-          "start": "40819438",
+          "start": 40819438,
           "type": "SequenceLocation"
         },
         "name": "NC_000001.11:g.40819441CCT[1]",
@@ -52,7 +52,8 @@
           "primaryCoding": {
             "code": "liftover_to",
             "system": "ga4gh-gks-term:allele-relation"
-          }
+          },
+          "type": "MappableConcept"
         },
         {
           "primaryCoding": {
@@ -61,21 +62,14 @@
               "http://www.sequenceontology.org/browser/current_release/term/transcribed_to"
             ],
             "system": "http://www.sequenceontology.org/"
-          }
+          },
+          "type": "MappableConcept"
         }
       ],
       "type": "DefiningAlleleConstraint"
     }
   ],
   "extensions": [
-    {
-      "name": "vrsPreProcessingIssue",
-      "value": "repeat expressions are not supported."
-    },
-    {
-      "name": "categoricalVariationType",
-      "value": "CanonicalAllele"
-    },
     {
       "name": "clinvarGeneList",
       "value": [
@@ -114,8 +108,16 @@
       ]
     },
     {
+      "name": "vrsPreProcessingIssue",
+      "value": "repeat expressions are not supported."
+    },
+    {
       "name": "definingVrsVariationType",
       "value": "Allele"
+    },
+    {
+      "name": "categoricalVariationType",
+      "value": "CanonicalAllele"
     },
     {
       "name": "clinvarCytogeneticLocation",
@@ -132,6 +134,63 @@
     {
       "name": "clinvarHgvsList",
       "value": [
+        {
+          "nucleotideExpression": {
+            "syntax": "hgvs.g",
+            "value": "NC_000001.10:g.41285113CCT[1]"
+          },
+          "nucleotideType": "genomic, top-level"
+        },
+        {
+          "maneSelect": true,
+          "molecularConsequence": [
+            {
+              "code": "SO:0001822",
+              "iris": [
+                "https://identifiers.org/SO:0001822"
+              ],
+              "name": "inframe_deletion",
+              "system": "http://www.sequenceontology.org/"
+            }
+          ],
+          "nucleotideExpression": {
+            "syntax": "hgvs.c",
+            "value": "NM_004700.4:c.806_808del"
+          },
+          "nucleotideType": "coding"
+        },
+        {
+          "nucleotideExpression": {
+            "syntax": "hgvs.g",
+            "value": "NC_000001.11:g.40819441CCT[1]"
+          },
+          "nucleotideType": "genomic, top-level"
+        },
+        {
+          "nucleotideExpression": {
+            "syntax": "hgvs.g",
+            "value": "NG_008139.3:g.40655CCT[1]"
+          },
+          "nucleotideType": "genomic"
+        },
+        {
+          "nucleotideExpression": {
+            "syntax": "hgvs.c",
+            "value": "LRG_1378t1:c.803CCT[1]"
+          },
+          "nucleotideType": "coding",
+          "proteinExpression": {
+            "syntax": "hgvs.p",
+            "value": "LRG_1378p1:p.Ser269del"
+          }
+        },
+        {
+          "nucleotideExpression": {
+            "syntax": "hgvs.g",
+            "value": "LRG_1378:g.40655CCT[1]"
+          },
+          "nucleotideType": "genomic"
+        },
         {
           "maneSelect": true,
           "molecularConsequence": [
@@ -155,45 +214,6 @@
           }
         },
         {
-          "nucleotideExpression": {
-            "syntax": "hgvs.g",
-            "value": "NG_008139.3:g.40655CCT[1]"
-          },
-          "nucleotideType": "genomic"
-        },
-        {
-          "nucleotideExpression": {
-            "syntax": "hgvs.g",
-            "value": "LRG_1378:g.40655CCT[1]"
-          },
-          "nucleotideType": "genomic"
-        },
-        {
-          "nucleotideExpression": {
-            "syntax": "hgvs.c",
-            "value": "NM_004700.3:c.806_808delCCT"
-          },
-          "nucleotideType": "coding"
-        },
-        {
-          "maneSelect": true,
-          "molecularConsequence": [
-            {
-              "code": "SO:0001822",
-              "iris": [
-                "https://identifiers.org/SO:0001822"
-              ],
-              "name": "inframe_deletion",
-              "system": "http://www.sequenceontology.org/"
-            }
-          ],
-          "nucleotideExpression": {
-            "syntax": "hgvs.c",
-            "value": "NM_004700.4(KCNQ4):c.803_805CCT[1]"
-          },
-          "nucleotideType": "coding"
-        },
-        {
           "molecularConsequence": [
             {
               "code": "SO:0001822",
@@ -215,24 +235,6 @@
           }
         },
         {
-          "nucleotideExpression": {
-            "syntax": "hgvs.g",
-            "value": "NC_000001.11:g.40819441CCT[1]"
-          },
-          "nucleotideType": "genomic, top-level"
-        },
-        {
-          "nucleotideExpression": {
-            "syntax": "hgvs.c",
-            "value": "LRG_1378t1:c.803CCT[1]"
-          },
-          "nucleotideType": "coding",
-          "proteinExpression": {
-            "syntax": "hgvs.p",
-            "value": "LRG_1378p1:p.Ser269del"
-          }
-        },
-        {
           "maneSelect": true,
           "molecularConsequence": [
             {
@@ -246,16 +248,16 @@
           ],
           "nucleotideExpression": {
             "syntax": "hgvs.c",
-            "value": "NM_004700.4:c.806_808del"
+            "value": "NM_004700.4(KCNQ4):c.803_805CCT[1]"
           },
           "nucleotideType": "coding"
         },
         {
           "nucleotideExpression": {
-            "syntax": "hgvs.g",
-            "value": "NC_000001.10:g.41285113CCT[1]"
+            "syntax": "hgvs.c",
+            "value": "NM_004700.3:c.806_808delCCT"
           },
-          "nucleotideType": "genomic, top-level"
+          "nucleotideType": "coding"
         }
       ]
     }
@@ -274,16 +276,6 @@
     },
     {
       "coding": {
-        "code": "797044966",
-        "iris": [
-          "https://identifiers.org/dbsnp:rs797044966"
-        ],
-        "system": "https://www.ncbi.nlm.nih.gov/snp/"
-      },
-      "relation": "relatedMatch"
-    },
-    {
-      "coding": {
         "code": "CA347424",
         "iris": [
           "https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_caid?caid=CA347424"
@@ -291,6 +283,16 @@
         "system": "https://reg.clinicalgenome.org/"
       },
       "relation": "closeMatch"
+    },
+    {
+      "coding": {
+        "code": "797044966",
+        "iris": [
+          "https://identifiers.org/dbsnp:rs797044966"
+        ],
+        "system": "https://www.ncbi.nlm.nih.gov/snp/"
+      },
+      "relation": "relatedMatch"
     }
   ],
   "members": [
@@ -313,7 +315,7 @@
       "id": "ga4gh:VA.kL06ErFmanQt9ZsXkcdpd7qSbJ8sXmj7",
       "location": {
         "digest": "nQGBuvRQOLEboA5TYtcz975fp_GulxbZ",
-        "end": "40819446",
+        "end": 40819446,
         "id": "ga4gh:SL.nQGBuvRQOLEboA5TYtcz975fp_GulxbZ",
         "sequenceReference": {
           "extensions": [
@@ -328,7 +330,7 @@
           "residueAlphabet": "na",
           "type": "SequenceReference"
         },
-        "start": "40819438",
+        "start": 40819438,
         "type": "SequenceLocation"
       },
       "name": "NC_000001.11:g.40819441CCT[1]",

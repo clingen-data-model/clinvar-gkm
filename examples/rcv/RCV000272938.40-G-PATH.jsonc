@@ -32,10 +32,10 @@
             {
               "directionOfEvidenceProvided": "supports",
               "hasEvidenceItems": [
+                "#/scv/clinvar.submission:SCV002821689.27",
                 "#/scv/clinvar.submission:SCV002525678.1",
                 "#/scv/clinvar.submission:SCV000329383.7",
-                "#/scv/clinvar.submission:SCV005414064.1",
-                "#/scv/clinvar.submission:SCV002821689.27"
+                "#/scv/clinvar.submission:SCV005414064.1"
               ],
               "id": "RCV000272938.40-G-PATH-CP.contributing",
               "strengthOfEvidenceProvided": {
@@ -155,7 +155,6 @@
         "name": "not provided",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "17556",
       "type": "MappableConcept"
     },
     "predicate": "isCausalFor",

@@ -148,7 +148,6 @@
         "name": "Ovarian mucinous adenocarcinoma",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "44673",
       "type": "MappableConcept"
     },
     "predicate": "hasClinicalSignificanceFor",

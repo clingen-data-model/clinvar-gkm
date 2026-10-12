@@ -80,7 +80,6 @@
       "conceptType": "Disease",
       "id": "clinvar.trait:76385",
       "name": "Congenital Pulmonary Airway Malformations",
-      "trait_id": "76385",
       "type": "MappableConcept"
     },
     "predicate": "isCausalFor",

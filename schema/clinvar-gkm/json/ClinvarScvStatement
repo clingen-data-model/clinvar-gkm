@@ -25,7 +25,7 @@
                   },
                   "conditionSet": {
                      "type": "string",
-                     "description": "Usually null for single-condition submissions; when a single-trait submission maps to a multi-trait RCV it holds the CURIE of that condition set (e.g., "clinvar.traitset:123")."
+                     "description": "Usually null for single-condition submissions; when a single-trait submission maps to a multi-trait RCV it holds the CURIE of that condition set (e.g., clinvar.traitset:123)."
                   }
                },
                "additionalProperties": true
@@ -50,9 +50,11 @@
                   "PG",
                   "EP",
                   "CP",
-                  "NOCP"
+                  "NOCP",
+                  "NOCL",
+                  "FLAG"
                ],
-               "description": "Practice Guideline (PG), Expert Panel (EP), Criteria Provided (CP), or No Criteria Provided (NOCP)."
+               "description": "Practice Guideline (PG), Expert Panel (EP), Criteria Provided (CP), No Criteria Provided (NOCP), No Classification Provided (NOCL), or Flagged Submission (FLAG). Ranked PG > EP > CP > NOCP > NOCL > FLAG."
             }
          },
          "additionalProperties": false

@@ -137,7 +137,6 @@
         "name": "Diffuse pediatric-type high-grade glioma, H3-wildtype and IDH-wildtype",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "67996",
       "type": "MappableConcept"
     },
     "predicate": "hasClinicalSignificanceFor",

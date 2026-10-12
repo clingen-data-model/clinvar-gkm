@@ -205,7 +205,6 @@ BEGIN
       )
       SELECT
         FORMAT('clinvar.trait:%s', t.id) AS id,
-        t.id as trait_id,
         'MappableConcept' as type,
         CASE t.type
           WHEN 'Disease' THEN 'Disease'
@@ -763,11 +762,14 @@ BEGIN
             mst.cats_trait_count,
             mst.rcv_trait_count,
             mst.multiple_condition_explanation,
-            gt.trait_id AS mapped_trait_id,
+            -- raw trait id; gkm_dict_condition no longer carries a trait_id column
+            -- (removed so the exported row is a clean MappableConcept, #133) — recover
+            -- it from the id CURIE 'clinvar.trait:{raw}'.
+            SUBSTR(gt.id, LENGTH('clinvar.trait:') + 1) AS mapped_trait_id,
             gt.name AS mapped_trait_name,
             gt.conceptType AS mapped_trait_type,
             gt.primaryCoding.code AS mapped_medgen_id,
-            IF(gt.trait_id IS NOT NULL, 'trait-mapping-then-submitted-medgen-id', NULL) AS mapped_resolution_type
+            IF(gt.id IS NOT NULL, 'trait-mapping-then-submitted-medgen-id', NULL) AS mapped_resolution_type
           FROM medgen_scv_traits mst
           LEFT JOIN `{S}.gkm_dict_condition` gt
             ON gt.primaryCoding.code = mst.lookup_medgen_id

@@ -188,7 +188,6 @@
         "name": "Encephalocraniocutaneous lipomatosis",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "6752",
       "type": "MappableConcept"
     },
     "predicate": "hasNoProvidedClassificationFor",
