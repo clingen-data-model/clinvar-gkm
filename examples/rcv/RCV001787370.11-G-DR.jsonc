@@ -84,7 +84,6 @@
         "name": "ivacaftor / lumacaftor response - Efficacy",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "36871",
       "type": "MappableConcept"
     },
     "predicate": "hasDrugResponseFor",

@@ -182,7 +182,6 @@
             "name": "Diffuse midline glioma, H3 K27M-mutant",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "73010",
           "type": "MappableConcept"
         },
         "predicate": "isDiagnosticInclusionCriterionFor",
@@ -256,7 +255,6 @@
         "name": "Diffuse midline glioma, H3 K27M-mutant",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "73010",
       "type": "MappableConcept"
     },
     "predicate": "hasClinicalSignificanceFor",

@@ -196,7 +196,6 @@
         "name": "Papillary thyroid carcinoma",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "4269",
       "type": "MappableConcept"
     },
     "predicate": "hasClinicalSignificanceFor",

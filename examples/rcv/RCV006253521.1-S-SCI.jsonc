@@ -193,7 +193,6 @@
         "name": "Glioma",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "18479",
       "type": "MappableConcept"
     },
     "predicate": "hasClinicalSignificanceFor",

@@ -211,7 +211,6 @@
             "name": "Non-small cell lung carcinoma",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "7728",
           "type": "MappableConcept"
         },
         "geneContextQualifier": {
@@ -391,7 +390,6 @@
         "name": "Non-small cell lung carcinoma",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "7728",
       "type": "MappableConcept"
     },
     "predicate": "hasClinicalSignificanceFor",

@@ -44,8 +44,8 @@
             {
               "directionOfEvidenceProvided": "supports",
               "hasEvidenceItems": [
-                "#/scv/clinvar.submission:SCV001524786.1",
-                "#/scv/clinvar.submission:SCV000397270.3"
+                "#/scv/clinvar.submission:SCV000397270.3",
+                "#/scv/clinvar.submission:SCV001524786.1"
               ],
               "id": "RCV001781420.15-G-PATH-CP.contributing",
               "strengthOfEvidenceProvided": {
@@ -125,7 +125,6 @@
         "name": "Inflammatory bowel disease 1",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "42004",
       "type": "MappableConcept"
     },
     "predicate": "isCausalFor",

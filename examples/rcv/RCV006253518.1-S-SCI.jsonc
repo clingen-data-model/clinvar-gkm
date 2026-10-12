@@ -173,7 +173,6 @@
         "name": "Precursor B-cell acute lymphoblastic leukemia",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "10532",
       "type": "MappableConcept"
     },
     "predicate": "hasClinicalSignificanceFor",

@@ -131,7 +131,6 @@
             "name": "Autoimmune lymphoproliferative syndrome type 4",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "11277",
           "type": "MappableConcept"
         },
         {
@@ -232,7 +231,6 @@
             "name": "Acute myeloid leukemia",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "15736",
           "type": "MappableConcept"
         },
         {
@@ -296,7 +294,6 @@
             "name": "Cardiofaciocutaneous syndrome 2",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "17942",
           "type": "MappableConcept"
         },
         {
@@ -347,7 +344,6 @@
             "name": "Familial pancreatic carcinoma",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "18481",
           "type": "MappableConcept"
         },
         {
@@ -423,7 +419,6 @@
             "name": "Gastric cancer",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "30012",
           "type": "MappableConcept"
         },
         {
@@ -487,7 +482,6 @@
             "name": "Noonan syndrome 3",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "3187",
           "type": "MappableConcept"
         },
         {
@@ -570,7 +564,6 @@
             "name": "Linear nevus sebaceous syndrome",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "4371",
           "type": "MappableConcept"
         },
         {
@@ -621,7 +614,6 @@
             "name": "Toriello-Lacassie-Droste syndrome",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "4602",
           "type": "MappableConcept"
         },
         {
@@ -697,7 +689,6 @@
             "name": "Cerebral arteriovenous malformation",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "4617",
           "type": "MappableConcept"
         },
         {
@@ -763,7 +754,6 @@
             "name": "Malignant tumor of urinary bladder",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "4675",
           "type": "MappableConcept"
         },
         {
@@ -879,7 +869,6 @@
             "name": "Familial cancer of breast",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "536",
           "type": "MappableConcept"
         },
         {
@@ -933,7 +922,6 @@
             "name": "Lung cancer",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "54641",
           "type": "MappableConcept"
         }
       ],

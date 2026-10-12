@@ -32,10 +32,10 @@
             {
               "directionOfEvidenceProvided": "supports",
               "hasEvidenceItems": [
-                "#/scv/clinvar.submission:SCV006304919.1",
+                "#/scv/clinvar.submission:SCV001736991.1",
                 "#/scv/clinvar.submission:SCV007538136.1",
-                "#/scv/clinvar.submission:SCV002318898.4",
-                "#/scv/clinvar.submission:SCV001736991.1"
+                "#/scv/clinvar.submission:SCV006304919.1",
+                "#/scv/clinvar.submission:SCV002318898.4"
               ],
               "id": "RCV000029215.25-G-PATH-CP.contributing",
               "strengthOfEvidenceProvided": {
@@ -214,7 +214,6 @@
         "name": "Linear nevus sebaceous syndrome",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
       },
-      "trait_id": "4371",
       "type": "MappableConcept"
     },
     "predicate": "isCausalFor",

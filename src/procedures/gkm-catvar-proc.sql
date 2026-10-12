@@ -282,22 +282,13 @@ BEGIN
         x.type,
         x.start,
         x.end,
-        IF(
-          x.start_outer IS NULL AND x.start_inner IS NULL,
-          null,
-          [
-            IFNULL(x.start_outer,'null'),
-            IFNULL(x.start_inner,'null')
-          ]
-        ) as start_range,
-        IF(
-          x.end_outer IS NULL AND x.end_inner IS NULL,
-          null,
-          [
-            IFNULL(x.end_inner, 'null'),
-            IFNULL(x.end_outer, 'null')
-          ]
-        ) as end_range,
+        -- Range endpoints stay scalar INT64 here (not yet assembled into a VRS Range array):
+        -- temp_ctxvar embeds this whole location struct under SELECT DISTINCT, and BigQuery
+        -- cannot DISTINCT a JSON column. The Range JSON is assembled in gkm_dict_location.
+        x.start_outer,
+        x.start_inner,
+        x.end_outer,
+        x.end_inner,
         (SELECT AS STRUCT sq.*) AS sequenceReference
       FROM x
       JOIN {P}.temp_seqref sq
@@ -337,18 +328,44 @@ BEGIN
       CREATE OR REPLACE TABLE `{S}.gkm_dict_location`
       AS
       SELECT
-        sl.id as key,
-        JSON_STRIP_NULLS(TO_JSON(STRUCT(
-          sl.id,
-          sl.type,
-          sl.digest,
-          sl.start,
-          sl.end,
-          sl.start_range,
-          sl.end_range,
-          FORMAT('#/sequenceReference/%s', sl.sequenceReference.refgetAccession) as sequenceReference
-        )), remove_empty => TRUE) as value
-      FROM {P}.temp_seqloc sl
+        key,
+        -- VRS SequenceLocation.start/end are `oneOf [integer, Range]`. A precise coordinate
+        -- is the scalar integer (already in `base`). A Range is injected here via JSON_SET
+        -- AFTER JSON_STRIP_NULLS, because stripping would drop the null endpoint of a
+        -- half-open range (collapsing [n,null] -> [n], an invalid 1-element Range) and shift
+        -- element positions. (There is no VRS `start_range`/`end_range` field — the Range
+        -- goes in `start`/`end` itself.)
+        CASE
+          WHEN start_range IS NOT NULL AND end_range IS NOT NULL
+            THEN JSON_SET(base, '$.start', start_range, '$.end', end_range)
+          WHEN start_range IS NOT NULL THEN JSON_SET(base, '$.start', start_range)
+          WHEN end_range   IS NOT NULL THEN JSON_SET(base, '$.end',   end_range)
+          ELSE base
+        END AS value
+      FROM (
+        SELECT
+          sl.id AS key,
+          -- Assemble the VRS Range (JSON array) HERE, not in temp_seqloc (which is embedded
+          -- in a SELECT DISTINCT upstream — JSON is not DISTINCT-able). BigQuery arrays
+          -- cannot hold NULL, so build the array literally to keep half-open null endpoints.
+          -- Order matches vrs-python: start=[outer,inner], end=[inner,outer].
+          IF(sl.start_outer IS NULL AND sl.start_inner IS NULL, NULL,
+             SAFE.PARSE_JSON(FORMAT('[%s,%s]', IFNULL(CAST(sl.start_outer AS STRING), 'null'), IFNULL(CAST(sl.start_inner AS STRING), 'null')))) AS start_range,
+          IF(sl.end_outer IS NULL AND sl.end_inner IS NULL, NULL,
+             SAFE.PARSE_JSON(FORMAT('[%s,%s]', IFNULL(CAST(sl.end_inner AS STRING), 'null'), IFNULL(CAST(sl.end_outer AS STRING), 'null')))) AS end_range,
+          -- Precise scalars only; for range rows sl.start/sl.end are NULL and get stripped,
+          -- then re-added as arrays above. Every location has start+end+digest (0 absent,
+          -- verified), so JSON_STRIP_NULLS only drops the scalar that a Range replaces.
+          JSON_STRIP_NULLS(TO_JSON(STRUCT(
+            sl.id,
+            sl.type,
+            sl.digest,
+            sl.start,
+            sl.end,
+            FORMAT('#/sequenceReference/%s', sl.sequenceReference.refgetAccession) AS sequenceReference
+          )), remove_empty => TRUE) AS base
+        FROM {P}.temp_seqloc sl
+      )
     """, '{S}', rec.schema_name);
     SET dict_location_query = REPLACE(dict_location_query, '{P}', IF(debug, rec.schema_name, '_SESSION'));
     EXECUTE IMMEDIATE dict_location_query;
@@ -1021,6 +1038,7 @@ BEGIN
           null as location,
           null as matchCharacteristic,
           [ STRUCT(
+              'MappableConcept' as type,
               STRUCT(
                 'liftover_to' as code,
                 'ga4gh-gks-term:allele-relation' as system,
@@ -1028,6 +1046,7 @@ BEGIN
               ) as primaryCoding
             ),
             STRUCT(
+              'MappableConcept' as type,
               STRUCT(
                 'transcribed_to' as code,
                 'http://www.sequenceontology.org/' as system,
@@ -1048,6 +1067,7 @@ BEGIN
           null as allele,
           FORMAT('#/location/%s', ctx.vrs_location_id) as location,
           STRUCT(
+            'MappableConcept' as type,
             STRUCT(
               'is_within' as code,
               'ga4gh-gks-term:location-match' as system,
@@ -1055,6 +1075,7 @@ BEGIN
             ) as primaryCoding
           ) as matchCharacteristic,
           [ STRUCT(
+              'MappableConcept' as type,
               STRUCT(
                 'liftover_to' as code,
                 'ga4gh-gks-term:allele-relation' as system,

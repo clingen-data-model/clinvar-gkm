@@ -100,7 +100,6 @@
             "name": "Endometrial hyperplasia without atypia",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "44717",
           "type": "MappableConcept"
         },
         {
@@ -129,7 +128,6 @@
             "name": "Atypical endometrial hyperplasia",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
           },
-          "trait_id": "51063",
           "type": "MappableConcept"
         }
       ],
