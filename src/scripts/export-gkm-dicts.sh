@@ -63,6 +63,27 @@ extract_ndjson_where() {
     SELECT * FROM \`${DATASET}.${table}\` WHERE ${where}"
 }
 
+export_variation_ndjson() {
+  # variation is the only passthrough dict with native INT64 columns (constraints.copies and
+  # extensions.value_coding). Both `bq extract` and `EXPORT DATA` serialize INT64 as a QUOTED
+  # STRING in JSON (precision-safety), which makes copies a string and breaks cat-vrs
+  # CopyCountConstraint (oneOf[integer, Range]). Render those two columns via TO_JSON so INT64
+  # emits as a JSON number; the assembler's strip_empty (runs before the value_* collapse)
+  # still drops the null value_<type> variants. No other section has native INT64.
+  local table="$1"
+  local sharded="variation-*.ndjson.gz"
+  echo "  Exporting ${table} -> ${sharded} (NDJSON via EXPORT DATA, TO_JSON int-safe)"
+  bq query --use_legacy_sql=false --nouse_cache \
+    "EXPORT DATA OPTIONS(
+      uri='${GCS_PATH}/${sharded}',
+      format='JSON',
+      compression='GZIP',
+      overwrite=true
+    ) AS
+    SELECT * REPLACE(TO_JSON(constraints) AS constraints, TO_JSON(extensions) AS extensions)
+    FROM \`${DATASET}.${table}\`"
+}
+
 extract_parquet() {
   # Raw Parquet export via bq extract — for tables with no FK columns to clean.
   local table="$1"
@@ -199,7 +220,7 @@ if ! $PARQUET_ONLY; then
   extract "$(src_table gkm_dict_copy_number_count)" copyNumberCount.ndjson.gz
   extract "$(src_table gkm_dict_copy_number_change)" copyNumberChange.ndjson.gz
   extract "$(src_table gkm_dict_gene)" gene.ndjson.gz
-  extract "$(src_table gkm_dict_variation)" variation.ndjson.gz
+  export_variation_ndjson "$(src_table gkm_dict_variation)"
 
   # Condition dictionaries (from gkm_scv_condition_proc)
   extract "$(src_table gkm_dict_condition)" condition.ndjson.gz
