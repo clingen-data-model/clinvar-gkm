@@ -60,13 +60,13 @@ except ImportError:
 
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from gkm_json_cleanup import strip_empty
+from gkm_json_cleanup import collapse_ext_values, strip_empty
 
 # The clinvar-gkm bundle schema version this assembler emits (ADR 0004). Written as the
 # bundle's first top-level key so a consumer can identify the version from the file alone.
 # Tracks the schema $id version (w3id.org/clingen/schema/clinvar-gkm/<version>/); bump in
 # lockstep with any MAJOR/MINOR/PATCH schema change.
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.0.1"
 
 
 # Dictionary sections in output order.
@@ -151,14 +151,15 @@ def open_local_file(path):
 
 def stream_passthrough(filepath, key_field):
     """Yield (key_json, value_json) pairs; the value is the record with null/empty
-    values stripped (remove_empty parity)."""
+    values stripped (remove_empty parity) and typed extension value_<type> keys
+    collapsed to the polymorphic `value` at any depth."""
     with open_local_file(filepath) as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
             rec = json_loads(line)
-            cleaned = strip_empty(rec)
+            cleaned = collapse_ext_values(strip_empty(rec))
             yield json_dumps_key(rec[key_field]), json_dumps_key(cleaned)
 
 
@@ -176,7 +177,7 @@ def stream_kv(filepath, key_field, value_field):
             key_json = json_dumps_key(rec[key_field])
             raw = rec[value_field]
             obj = json_loads(raw) if isinstance(raw, str) else raw
-            value_json = json_dumps_key(strip_empty(obj))
+            value_json = json_dumps_key(collapse_ext_values(strip_empty(obj)))
             yield key_json, value_json
 
 
@@ -225,19 +226,15 @@ def assemble(source, output_path, is_gcs):
                         print(f"  Skipping {section_name} (no files matching {glob_pattern})")
                         continue
 
-                if not first_section:
-                    buf.extend(b",\n")
-                first_section = False
-
                 section_start = time.time()
                 print(
                     f"  Assembling {section_name} from {len(local_files)} file(s)...",
                     end="", flush=True,
                 )
-                buf.extend(f'  "{section_name}": {{\n'.encode())
 
                 entry_count = 0
                 first_entry = True
+                header_written = False
 
                 for filepath in local_files:
                     if value_field is None:
@@ -245,6 +242,18 @@ def assemble(source, output_path, is_gcs):
                     else:
                         pairs = stream_kv(filepath, key_field, value_field)
                     for key_json, value_json in pairs:
+                        if not header_written:
+                            # Open the section lazily, on its first real entry, so a
+                            # delta section with zero changed records is omitted
+                            # entirely rather than emitted as "{}" — an empty section
+                            # map violates the bundle schema's per-section
+                            # minProperties:1. (schema_version is always written first,
+                            # so a leading comma is always correct here.)
+                            if not first_section:
+                                buf.extend(b",\n")
+                            first_section = False
+                            buf.extend(f'  "{section_name}": {{\n'.encode())
+                            header_written = True
                         if not first_entry:
                             buf.extend(b",\n")
                         first_entry = False
@@ -254,11 +263,13 @@ def assemble(source, output_path, is_gcs):
                             out.write(bytes(buf))
                             buf.clear()
 
-                buf.extend(b"\n  }")
-                section_count += 1
+                if header_written:
+                    buf.extend(b"\n  }")
+                    section_count += 1
                 total_entries += entry_count
                 elapsed = time.time() - section_start
-                print(f" {entry_count:,} entries ({elapsed:.1f}s)")
+                suffix = "" if header_written else " — omitted (empty)"
+                print(f" {entry_count:,} entries ({elapsed:.1f}s){suffix}")
 
             finally:
                 # Delete section shards immediately after processing

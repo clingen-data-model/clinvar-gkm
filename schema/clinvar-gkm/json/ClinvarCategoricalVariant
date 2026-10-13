@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarCategoricalVariant",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarCategoricalVariant",
    "title": "ClinvarCategoricalVariant",
    "description": "The Clinvar specific representations of categorical variants.",
    "$defs": {
@@ -202,7 +202,7 @@
             "value": {
                "type": "array",
                "items": {
-                  "$ref": "/clingen/schema/clinvar-gkm/1.0.0/json/HgvsListItem"
+                  "$ref": "/clingen/schema/clinvar-gkm/1.0.1/json/HgvsListItem"
                },
                "ordered": false,
                "description": "Clinvar's data structure for representing the HGVS expressions, mane select/plus settings and  molecular consequence for dervied genomic/transcript sequence alignmnents and protein sequence projections originating from the definining allele or location for CNVs."
@@ -244,7 +244,7 @@
             "value": {
                "type": "array",
                "items": {
-                  "$ref": "/clingen/schema/clinvar-gkm/1.0.0/json/GeneListItem"
+                  "$ref": "/clingen/schema/clinvar-gkm/1.0.1/json/GeneListItem"
                },
                "ordered": false,
                "description": "Clinvar's data structure for representing genes associated with a clinvar variant.          "
@@ -435,16 +435,16 @@
    "maturity": "trial use",
    "oneOf": [
       {
-         "$ref": "/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarCanonicalAllele"
+         "$ref": "/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarCanonicalAllele"
       },
       {
-         "$ref": "/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarCategoricalCnvChange"
+         "$ref": "/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarCategoricalCnvChange"
       },
       {
-         "$ref": "/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarCategoricalCnvCount"
+         "$ref": "/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarCategoricalCnvCount"
       },
       {
-         "$ref": "/clingen/schema/clinvar-gkm/1.0.0/json/ClinvarNonConstrainedVariant"
+         "$ref": "/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarNonConstrainedVariant"
       }
    ],
    "type": "object",
