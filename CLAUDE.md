@@ -21,6 +21,12 @@ VA-Spec — curated by the GA4GH GKS (Genomic Knowledge Standards) workstream. B
 `src/procedures/` do the heavy lifting; release orchestration is in `src/scripts/`. Output is a JSON bundle plus
 typed Parquet, distributed via Cloudflare R2. Documentation lives in `docs/` (Zensical, Material theme).
 
+Published bundles (full AND delta) MUST validate against the `schema/clinvar-gkm/` schemas — verify with the
+official GA4GH gkm-toolkit on the REAL published bundles, not a hand-built sub-bundle (it masks export bugs).
+Record cleanup is centralized in the assembler (`assemble-gkm-dicts.py` / `gkm_json_cleanup.py`); cat-vrs
+constraint shapes are set in `gkm-catvar-proc.sql`. Conformance invariants that must not regress live in
+[`sql-procedures.md`](.claude/rules/sql-procedures.md) and [`scripts.md`](.claude/rules/scripts.md).
+
 ## Git Conventions
 
 - Default branch is `main`. Do work on a branch; land changes via PR review.
