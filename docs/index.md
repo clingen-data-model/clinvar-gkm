@@ -55,7 +55,7 @@ The latest ClinVar-GKM release is available as a single compressed JSON file:
 
 ```bash
 # Download the latest monthly release
-curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/clinvar-gkm_00-latest.json.gz
+curl -O https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz
 
 # Decompress
 gunzip clinvar-gkm_00-latest.json.gz
@@ -146,14 +146,14 @@ The stable filenames `clinvar-gkm_00-latest.json.gz` (monthly full) and `clinvar
 Download the most recent monthly full bundle:
 
 ```bash
-curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/clinvar-gkm_00-latest.json.gz
+curl -O https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz
 ```
 
 Download the most recent weekly delta and its manifest:
 
 ```bash
-curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
-curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/manifest.json
+curl -O https://data.clinvar-gkm.org/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
+curl -O https://data.clinvar-gkm.org/v1/deltas/00-latest/manifest.json
 ```
 
 See [How Releases Work](data-access/release-model.md) for the release model and manifest, and [Weekly Deltas](data-access/weekly-deltas.md) for the consumer replay model.

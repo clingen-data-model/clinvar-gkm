@@ -5,10 +5,11 @@ ClinVar-GKM pipeline.
 
 ## Release status
 
-This is the **first official release** (`1.0.0`) of ClinVar-GKM, built on the finalized **GKM (Genomic
-Knowledge Model)** standards — VRS 2.1.1, Cat-VRS 1.1.1, VA-Spec 1.1.0, and GKM-Core 1.3.0. Earlier builds
-were release candidates that tracked these specifications while they were in ballot review; now that the
-standards are finalized, the 1.0 output validates against the released schemas.
+The current release is **`1.0.1`** — a schema-conformance patch over the first official release (`1.0.0`) of
+ClinVar-GKM, built on the finalized **GKM (Genomic Knowledge Model)** standards — VRS 2.1.1, Cat-VRS 1.1.1,
+VA-Spec 1.1.0, and GKM-Core 1.3.0. Earlier builds were release candidates that tracked these specifications
+while they were in ballot review; now that the standards are finalized, the output validates against the
+released schemas. See the [Changelog](changelog.md) for what 1.0.1 corrected.
 
 ## Data coverage
 
@@ -27,6 +28,16 @@ If data that exists in ClinVar is missing here and would be useful to you, it ca
 functional data are already tracked as roadmap items
 ([case data](https://github.com/clingen-data-model/clinvar-gkm/discussions/104),
 [functional data](https://github.com/clingen-data-model/clinvar-gkm/discussions/105)).
+
+## Delta reconstruction — VRS allele records
+
+Reconstructing a release's full `allele` set from a prior release plus a weekly delta is exact for every
+section **except a small number of VRS `allele` records** — roughly a dozen, concentrated at the 2026-08-29
+release (where the VRS line advanced and some allele/SPDI digests shifted) plus a handful elsewhere from a
+non-deterministic ordering in allele assembly. The affected alleles' **keys are unchanged**, so every
+`#/allele/…` reference still resolves and the **monthly full bundles are complete and correct**; only the
+pairwise delta-reconstruction of those few records is imperfect. Pre-existing and tracked for a fix
+(deterministic allele ordering).
 
 ---
 

@@ -15,13 +15,17 @@
 # full bundle this delta chain replays onto. Then regenerates index.json.
 #
 # Usage:
-#   ./upload-gkm-delta-to-r2.sh <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run]
+#   ./upload-gkm-delta-to-r2.sh <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run] [--purge]
+#
+# --purge: after upload, purge the CDN cache for this release's dated prefix. Only needed
+# when RE-publishing an existing date (overwrite); requires CF_ZONE_ID + CF_PURGE_TOKEN
+# (a zone-scoped token with Cache Purge). See ADR 0005.
 
 set -e
 
 # --- Positional arguments ---
 if [[ $# -lt 3 ]]; then
-  echo "Usage: $0 <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run]"
+  echo "Usage: $0 <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run] [--purge]"
   echo "  export_date    ClinVar release date (YYYY-MM-DD)"
   echo "  delta_bundle   Local path to the assembled delta bundle (.json.gz)"
   echo "  manifest_file  Local path to manifest.json"
@@ -42,13 +46,15 @@ fi
 # --- Parse flags ---
 DRY_RUN=false
 PARQUET_DIR=""
+PURGE=false
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=true ;;
+    --purge) PURGE=true ;;
     --parquet-dir=*) PARQUET_DIR="${arg#--parquet-dir=}" ;;
     *)
       echo "ERROR: Unknown argument '${arg}'"
-      echo "Usage: $0 <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run]"
+      echo "Usage: $0 <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run] [--purge]"
       exit 1
       ;;
   esac
@@ -59,11 +65,21 @@ R2_ACCOUNT_ID="09208aa33790838db213a21f630c33e7"
 R2_BUCKET="clinvar-gkm"
 R2_ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
 R2_PROFILE="r2"
-R2_PUBLIC_URL="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
+R2_PUBLIC_URL="${R2_PUBLIC_URL:-https://data.clinvar-gkm.org}"
 # Per-major release prefix (ADR 0004). Everything this script publishes lives under
 # it (v1/deltas/…). Env-overridable; the r2_* helpers below prepend it, so call sites
 # still pass bare deltas/… paths.
 R2_PREFIX="${R2_PREFIX:-v1/}"
+
+# --- CDN cache purge (optional; see ADR 0005) -----------------------------------------
+# Routine releases write NEW dated keys, which aren't cached yet — no purge needed. Pass
+# --purge ONLY when re-publishing/overwriting an already-cached dated prefix, so Cloudflare
+# edge caches don't serve stale bytes until the (long) immutable Edge TTL expires. Requires
+# a ZONE-scoped Cloudflare token with Cache Purge (the object-scoped r2 token cannot purge):
+#   export CF_ZONE_ID=...  CF_PURGE_TOKEN=...
+CF_PUBLIC_HOST="${CF_PUBLIC_HOST:-data.clinvar-gkm.org}"
+CF_ZONE_ID="${CF_ZONE_ID:-}"
+CF_PURGE_TOKEN="${CF_PURGE_TOKEN:-}"
 
 # --- Derived date components ---
 YEAR="${EXPORT_DATE:0:4}"
@@ -129,6 +145,37 @@ r2_ls() {
     --endpoint-url "${R2_ENDPOINT}" \
     --profile "${R2_PROFILE}" \
     2>/dev/null | awk '{print $NF}' || true
+}
+
+cf_purge() {
+  # Purge CDN-cached copies of the given host-relative prefixes (args: "host/path" each).
+  # No-op unless --purge was passed; honors DRY_RUN; never fatal (always returns 0).
+  $PURGE || return 0
+  if $DRY_RUN; then
+    local p
+    for p in "$@"; do echo "  [dry-run] purge: ${p}"; done
+    return 0
+  fi
+  if [[ -z "$CF_ZONE_ID" || -z "$CF_PURGE_TOKEN" ]]; then
+    echo "  WARNING: --purge set but CF_ZONE_ID/CF_PURGE_TOKEN not set — skipping CDN purge."
+    echo "           Overwritten paths may serve stale from cache until Edge TTL expiry."
+    return 0
+  fi
+  local prefixes="" p
+  for p in "$@"; do
+    [[ -n "$prefixes" ]] && prefixes+=","
+    prefixes+="\"${p}\""
+  done
+  echo "  Purging CDN cache: $*"
+  if curl -fsS -X POST \
+      "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+      -H "Authorization: Bearer ${CF_PURGE_TOKEN}" \
+      -H "Content-Type: application/json" \
+      --data "{\"prefixes\":[${prefixes}]}" >/dev/null 2>&1; then
+    echo "  Purge requested."
+  else
+    echo "  WARNING: CDN purge request failed (continuing)."
+  fi
 }
 
 # =====================================================================
@@ -244,6 +291,11 @@ echo ""
 INDEX_ARGS=()
 $DRY_RUN && INDEX_ARGS+=("--dry-run")
 "${SCRIPT_DIR}/generate-r2-index.sh" "${INDEX_ARGS[@]}"
+
+# --- (e) Purge CDN cache for the re-published dated prefix (--purge only) --------------
+# index.json + deltas/00-latest/ are on a short Edge TTL (they self-refresh), so only the
+# immutable dated prefix needs purging when a same-date delta is re-published.
+cf_purge "${CF_PUBLIC_HOST}/${R2_PREFIX}${PREFIX}/"
 
 # --- Summary --------------------------------------------------------------------------
 echo ""

@@ -45,6 +45,45 @@ extract() {
     "${DATASET}.${table}" "${GCS_PATH}/${sharded}"
 }
 
+extract_ndjson_where() {
+  # NDJSON export of a dict table filtered by a WHERE predicate. `bq extract` cannot
+  # filter, so this uses EXPORT DATA; the sharded output shape matches extract().
+  local table="$1"
+  local basename="$2"
+  local where="$3"
+  local sharded="${basename%.ndjson.gz}-*.ndjson.gz"
+  echo "  Exporting ${table} -> ${sharded} (NDJSON via EXPORT DATA, WHERE ${where})"
+  bq query --use_legacy_sql=false --nouse_cache \
+    "EXPORT DATA OPTIONS(
+      uri='${GCS_PATH}/${sharded}',
+      format='JSON',
+      compression='GZIP',
+      overwrite=true
+    ) AS
+    SELECT * FROM \`${DATASET}.${table}\` WHERE ${where}"
+}
+
+export_variation_ndjson() {
+  # variation is the only passthrough dict with native INT64 columns (constraints.copies and
+  # extensions.value_coding). Both `bq extract` and `EXPORT DATA` serialize INT64 as a QUOTED
+  # STRING in JSON (precision-safety), which makes copies a string and breaks cat-vrs
+  # CopyCountConstraint (oneOf[integer, Range]). Render those two columns via TO_JSON so INT64
+  # emits as a JSON number; the assembler's strip_empty (runs before the value_* collapse)
+  # still drops the null value_<type> variants. No other section has native INT64.
+  local table="$1"
+  local sharded="variation-*.ndjson.gz"
+  echo "  Exporting ${table} -> ${sharded} (NDJSON via EXPORT DATA, TO_JSON int-safe)"
+  bq query --use_legacy_sql=false --nouse_cache \
+    "EXPORT DATA OPTIONS(
+      uri='${GCS_PATH}/${sharded}',
+      format='JSON',
+      compression='GZIP',
+      overwrite=true
+    ) AS
+    SELECT * REPLACE(TO_JSON(constraints) AS constraints, TO_JSON(extensions) AS extensions)
+    FROM \`${DATASET}.${table}\`"
+}
+
 extract_parquet() {
   # Raw Parquet export via bq extract — for tables with no FK columns to clean.
   local table="$1"
@@ -181,11 +220,15 @@ if ! $PARQUET_ONLY; then
   extract "$(src_table gkm_dict_copy_number_count)" copyNumberCount.ndjson.gz
   extract "$(src_table gkm_dict_copy_number_change)" copyNumberChange.ndjson.gz
   extract "$(src_table gkm_dict_gene)" gene.ndjson.gz
-  extract "$(src_table gkm_dict_variation)" variation.ndjson.gz
+  export_variation_ndjson "$(src_table gkm_dict_variation)"
 
   # Condition dictionaries (from gkm_scv_condition_proc)
   extract "$(src_table gkm_dict_condition)" condition.ndjson.gz
-  extract "$(src_table gkm_dict_condition_set)" conditionSet.ndjson.gz
+  # conditionSet: drop single-member sets (va-spec ConceptSet minItems:2). A one-concept
+  # set is just that condition — every producer references the lone member directly as
+  # #/condition/, never the set (0 of ~2.96M proposition.object refs point at a
+  # <=1-concept set), so single-member sets are unreferenced orphans. Mirrors conditionSet.sql.
+  extract_ndjson_where "$(src_table gkm_dict_condition_set)" conditionSet.ndjson.gz "ARRAY_LENGTH(concepts) > 1"
 
   # Therapy dictionaries (from gkm_scv_statement_proc) — content-addressed dedup; the
   # therapeutic proposition `object` references these via #/therapy/ and #/therapyGroup/.

@@ -33,7 +33,7 @@ R2_ACCOUNT_ID="09208aa33790838db213a21f630c33e7"
 R2_BUCKET="clinvar-gkm"
 R2_ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
 R2_PROFILE="r2"
-R2_PUBLIC_URL="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
+R2_PUBLIC_URL="${R2_PUBLIC_URL:-https://data.clinvar-gkm.org}"
 # Per-major release prefix (ADR 0004). The per-line index + feed live under it
 # (v1/index.json, v1/feed.xml) and every entry path it emits is prefixed with it, so
 # consumers composing base_url + "/" + path land under v1/. The thin ROOT manifest

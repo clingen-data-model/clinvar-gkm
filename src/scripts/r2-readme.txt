@@ -56,10 +56,10 @@ Quick Start
 -----------
 
 Download the latest monthly full:
-  curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/clinvar-gkm_00-latest.json.gz
+  curl -O https://data.clinvar-gkm.org/datasets/clinvar-gkm_00-latest.json.gz
 
 Fetch the latest weekly delta + its manifest:
-  curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/manifest.json
+  curl -O https://data.clinvar-gkm.org/deltas/00-latest/manifest.json
 
 Documentation: https://clingen-data-model.github.io/clinvar-gkm/
 Source: https://github.com/clingen-data-model/clinvar-gkm
