@@ -35,11 +35,13 @@ A consumer reconstructs current state by taking the latest monthly full and repl
 
 Releases are hosted on **Cloudflare R2** — free, no authentication, no egress fees. The stable "latest" URLs always point at the newest release:
 
-- **Latest monthly full (JSON):** <https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/datasets/clinvar-gkm_00-latest.json.gz>
-- **Latest weekly delta (JSON):** <https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz>
-- **Release index:** <https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/index.json>
+- **Latest monthly full (JSON):** <https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz>
+- **Latest weekly delta (JSON):** <https://data.clinvar-gkm.org/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz>
+- **Release index:** <https://data.clinvar-gkm.org/index.json>
 
 See the [Downloads guide](https://clingen-data-model.github.io/clinvar-gkm/data-access/download/) for Parquet, dated releases, the delta replay model, and curl / Python / DuckDB examples. Sample records for each section are in the [`examples/`](examples/) directory.
+
+> **Operators:** the distribution domain (`data.clinvar-gkm.org`), CDN cache rules, rate-limiting, cost controls, and the cache-purge workflow are documented in [ADR 0005](docs/decisions/0005-r2-custom-domain-and-cdn.md).
 
 ## Pipeline Overview
 

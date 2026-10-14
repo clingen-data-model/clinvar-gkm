@@ -18,14 +18,14 @@ The most recent delta is mirrored at `v1/deltas/00-latest/` under stable filenam
 ??? example "Download a weekly delta with curl / Python"
     ```bash
     # Latest weekly delta + its manifest (stable URLs)
-    curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
-    curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/deltas/00-latest/manifest.json
+    curl -O https://data.clinvar-gkm.org/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
+    curl -O https://data.clinvar-gkm.org/v1/deltas/00-latest/manifest.json
     ```
 
     ```python
     import urllib.request
 
-    BASE = "https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
+    BASE = "https://data.clinvar-gkm.org"
 
     # Latest weekly delta + manifest
     urllib.request.urlretrieve(
@@ -92,7 +92,7 @@ To reconstruct the current state, bootstrap from the monthly full that the lates
     import json
     import urllib.request
 
-    BASE = "https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
+    BASE = "https://data.clinvar-gkm.org"
 
 
     def fetch_json(url):

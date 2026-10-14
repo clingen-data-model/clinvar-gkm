@@ -18,3 +18,4 @@ importing them so they don't bloat every session's context.
 - [0002 — Monthly full bundle anchored to ClinVar's monthly index](0002-monthly-full-anchored-to-clinvar-index.md)
 - [0003 — Roadmap generated from label-authorized discussions](0003-roadmap-from-labeled-discussions.md)
 - [0004 — Schema versioning & release change-management](0004-schema-versioning-and-release-management.md)
+- [0005 — R2 distribution domain, CDN caching, and fee protection](0005-r2-custom-domain-and-cdn.md)
