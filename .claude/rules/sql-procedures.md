@@ -58,3 +58,20 @@ EXECUTE IMMEDIATE query;
   rather than `ANY_VALUE` for attributes not determined by the group key.
 - BQ-touching changes are **oracle-gated**: a full-vs-incremental oracle and the delta-reconstruction oracle
   (`oracle-delta-reconstruction.sh`) must both report `0,0,0` before publishing.
+
+## Cat-VRS variant/constraint shapes (schema conformance — learned in 1.0.1)
+
+These are emitted by `gkm-catvar-proc.sql` and must match the cat-vrs schemas, or the bundle's `variation`
+`anyOf` rejects the record. Validate the produced data, not just that the SQL runs.
+
+- **Empty constraints must be NULL, never an all-NULL STRUCT.** `ARRAY_AGG(STRUCT(...))` over a LEFT JOIN that
+  missed produces one all-NULL element → serializes to `constraints: [{}]`, which matches no `anyOf` branch.
+  Guard it: `IF(COUNTIF(cci.type IS NOT NULL)=0, NULL, ARRAY_AGG(IF(cci.type IS NULL, NULL, STRUCT(...)) IGNORE
+  NULLS))`. A NULL array is coerced to `[]` on table write, which the assembler's `strip_empty` then drops →
+  the attribute is omitted entirely → the variant validates as `ClinvarNonConstrainedVariant`
+  (haplotypes/genotypes). Never emit `[{}]` or `[]` expecting the schema to accept it.
+- **Numeric constraint fields are integers/Ranges, never strings.** cat-vrs `CopyCountConstraint.copies` is
+  `oneOf[integer, Range]`; coordinates likewise. Cast to `INT64` (or build a VRS `Range`) in the proc — a
+  string `"3"` fails `oneOf`. The copies/coords STRING→INTEGER fix landed in #132/1.0.1; keep new numeric
+  constraint fields typed. (The UNION arms set the STRUCT field type, e.g. `CAST(null as INTEGER) as copies`,
+  so the populated arm MUST also be INTEGER or the UNION won't type-unify — a built-in guard, don't defeat it.)

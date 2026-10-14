@@ -28,3 +28,33 @@ def strip_empty(value):
     if isinstance(value, list):
         return [strip_empty(v) for v in value]
     return value
+
+
+def collapse_ext_values(value):
+    """Rename a typed extension value key (``value_<type>``) to the polymorphic
+    ``value`` in every object that has a ``name`` sibling, at any depth.
+
+    The pipeline stores extension values as value_string / value_boolean /
+    value_submitted_condition / ... so gkm_json_proc can nullify-by-type and drop
+    the unused variants; the va-spec Extension shape wants a single ``value``. This
+    is the publish-layer parity of the BQ ``collapse_ext_values`` UDF and of
+    scv.sql's Parquet ``data`` collapse — applied here so EVERY section (and every
+    nested ``extensions`` array, e.g. classification.extensions) is collapsed, not
+    just the handful the BQ NDJSON export reaches.
+
+    Mutates ``value`` in place and returns it. Idempotent — a record with no
+    ``value_*`` keys is unchanged — so it is safe over sections the BQ export has
+    already collapsed. Run AFTER strip_empty so any null ``value_*`` is gone and a
+    single populated variant remains.
+    """
+    if isinstance(value, dict):
+        if "name" in value:
+            for k in list(value.keys()):
+                if k.startswith("value_"):
+                    value["value"] = value.pop(k)
+        for v in value.values():
+            collapse_ext_values(v)
+    elif isinstance(value, list):
+        for v in value:
+            collapse_ext_values(v)
+    return value

@@ -1118,17 +1118,29 @@ BEGIN
           ctx.catvar_type = 'CategoricalCnvChange'
       ),
       cv_constraints AS (
+        -- Unmappable variants (haplotypes, genotypes, …) have no cv_constraint_item
+        -- row, so the LEFT JOIN yields a single all-NULL cci. Previously that
+        -- ARRAY_AGG'd to constraints:[{}], which matches no variation anyOf branch.
+        -- Guard the STRUCT and return NULL (not [] — a NULL column is omitted from
+        -- the exported JSON, an empty array is not) so these variants serialize with
+        -- no `constraints` attribute and validate as ClinvarNonConstrainedVariant.
         SELECT
           cv.variation_id,
-          ARRAY_AGG(
-            STRUCT(
-              cci.type,
-              cci.allele,
-              cci.location,
-              cci.copies,
-              cci.copyChange,
-              cci.matchCharacteristic,
-              cci.relations
+          IF(
+            COUNTIF(cci.type IS NOT NULL) = 0,
+            NULL,
+            ARRAY_AGG(
+              IF(cci.type IS NULL, NULL,
+                STRUCT(
+                  cci.type,
+                  cci.allele,
+                  cci.location,
+                  cci.copies,
+                  cci.copyChange,
+                  cci.matchCharacteristic,
+                  cci.relations
+                )
+              ) IGNORE NULLS
             )
           ) as constraints
         FROM catvar cv
