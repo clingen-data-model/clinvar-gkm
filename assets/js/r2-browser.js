@@ -8,7 +8,7 @@
   var mounts = document.querySelectorAll(".r2-browser");
   if (!mounts.length) return;
 
-  var BASE_URL = "https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev";
+  var BASE_URL = "https://data.clinvar-gkm.org";
   var ROOT_INDEX_URL = BASE_URL + "/index.json";   // root version manifest
 
   // Stable section order for composing Parquet URLs (full sets always carry all 22).

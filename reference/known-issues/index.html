@@ -425,6 +425,8 @@
       
         
       
+        
+      
     
     
     
@@ -3606,6 +3608,8 @@
       
         
       
+        
+      
     
     
     
@@ -3694,6 +3698,33 @@
     
   
   Versioning & Releases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Changelog
 
     
   </span>
@@ -3822,6 +3853,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#delta-reconstruction-vrs-allele-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Delta reconstruction — VRS allele records
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3891,7 +3933,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_7" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -3912,14 +3954,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_7_6" id="__nav_7_6_label" tabindex="">
+              <label class="md-nav__link " for="__nav_7_7" id="__nav_7_7_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4049,6 +4091,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#delta-reconstruction-vrs-allele-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Delta reconstruction — VRS allele records
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -4071,10 +4124,11 @@
 <p>This page documents the current release status, data-coverage limitations, and transformation caveats of the
 ClinVar-GKM pipeline.</p>
 <h2 id="release-status">Release status<a class="headerlink" href="#release-status" title="Permanent link">&para;</a></h2>
-<p>This is the <strong>first official release</strong> (<code>1.0.0</code>) of ClinVar-GKM, built on the finalized <strong>GKM (Genomic
-Knowledge Model)</strong> standards — VRS 2.1.1, Cat-VRS 1.1.1, VA-Spec 1.1.0, and GKM-Core 1.3.0. Earlier builds
-were release candidates that tracked these specifications while they were in ballot review; now that the
-standards are finalized, the 1.0 output validates against the released schemas.</p>
+<p>The current release is <strong><code>1.0.1</code></strong> — a schema-conformance patch over the first official release (<code>1.0.0</code>) of
+ClinVar-GKM, built on the finalized <strong>GKM (Genomic Knowledge Model)</strong> standards — VRS 2.1.1, Cat-VRS 1.1.1,
+VA-Spec 1.1.0, and GKM-Core 1.3.0. Earlier builds were release candidates that tracked these specifications
+while they were in ballot review; now that the standards are finalized, the output validates against the
+released schemas. See the <a href="../changelog/">Changelog</a> for what 1.0.1 corrected.</p>
 <h2 id="data-coverage">Data coverage<a class="headerlink" href="#data-coverage" title="Permanent link">&para;</a></h2>
 <p>Each release includes <strong>100% of the Germline and Somatic submission (SCV) records</strong> from the corresponding
 ClinVar XML release, and their classification content is carried through <strong>without modification</strong> to what
@@ -4091,6 +4145,14 @@ ClinVar provides. However, the pipeline does <strong>not</strong> yet extract 10
 functional data are already tracked as roadmap items
 (<a href="https://github.com/clingen-data-model/clinvar-gkm/discussions/104">case data</a>,
 <a href="https://github.com/clingen-data-model/clinvar-gkm/discussions/105">functional data</a>).</p>
+<h2 id="delta-reconstruction-vrs-allele-records">Delta reconstruction — VRS allele records<a class="headerlink" href="#delta-reconstruction-vrs-allele-records" title="Permanent link">&para;</a></h2>
+<p>Reconstructing a release's full <code>allele</code> set from a prior release plus a weekly delta is exact for every
+section <strong>except a small number of VRS <code>allele</code> records</strong> — roughly a dozen, concentrated at the 2026-08-29
+release (where the VRS line advanced and some allele/SPDI digests shifted) plus a handful elsewhere from a
+non-deterministic ordering in allele assembly. The affected alleles' <strong>keys are unchanged</strong>, so every
+<code>#/allele/…</code> reference still resolves and the <strong>monthly full bundles are complete and correct</strong>; only the
+pairwise delta-reconstruction of those few records is imperfect. Pre-existing and tracked for a fix
+(deterministic allele ordering).</p>
 <hr />
 <p>Additional edge cases, transformation caveats, and specific limitations will be documented here as they are
 identified.</p>

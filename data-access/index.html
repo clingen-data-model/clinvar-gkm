@@ -419,6 +419,8 @@
       
         
       
+        
+      
     
     
     
@@ -3598,6 +3600,8 @@
       
         
       
+        
+      
     
     
     
@@ -3683,6 +3687,33 @@
     
   
   Versioning & Releases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Changelog
 
     
   </span>
@@ -3806,7 +3837,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_7" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -3827,14 +3858,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_7_6" id="__nav_7_6_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_7_7" id="__nav_7_7_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4035,11 +4066,11 @@
 <p><code>clinvar-gkm_00-latest.json.gz</code> reflects the <strong>last release of the <em>previous</em> month</strong> — e.g. the <code>2026-10</code> full is built from the <code>2026-09-28</code> release, the last one before ClinVar's October monthly cut. It does <strong>not</strong> include the current month's weekly changes. To get the current weekly state, apply the latest delta on top of it — see the <a href="weekly-deltas/#consumer-replay-model">Consumer Replay Model</a>.</p>
 </div>
 <p>Download the most recent monthly full bundle:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/datasets/clinvar-gkm_00-latest.json.gz
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz
 </code></pre></div>
 <p>Download the most recent weekly delta and its manifest:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/deltas/00-latest/manifest.json
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/deltas/00-latest/manifest.json
 </code></pre></div>
 <p>The full bundle is a single JSON object containing all bundle sections — variations, statements, propositions, conditions, and supporting reference data. A delta uses the same section structure but carries only the records added or updated since its baseline release. Typed Parquet files (one per section) accompany both — dated monthly full sets at <code>v1/datasets/parquet/&lt;yyyy-mm&gt;/</code> (with a stable <code>v1/datasets/parquet/00-latest/</code>) and weekly delta sets at <code>v1/deltas/&lt;yyyy-mmdd&gt;/parquet/</code>. See <a href="../output-reference/overview/">Output Format</a> for the complete structure, <a href="weekly-deltas/">Weekly Deltas</a> for the consumer replay model, and <a href="parquet/">Parquet Files</a> for the full Parquet list.</p>
 <hr />

@@ -425,6 +425,8 @@
       
         
       
+        
+      
     
     
     
@@ -3769,6 +3771,8 @@
       
         
       
+        
+      
     
     
     
@@ -3854,6 +3858,33 @@
     
   
   Versioning & Releases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Changelog
 
     
   </span>
@@ -3977,7 +4008,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_7" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -3998,14 +4029,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_7_6" id="__nav_7_6_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_7_7" id="__nav_7_7_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4364,7 +4395,7 @@
 <details class="example">
 <summary>Download sections with curl</summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># 00-latest = the newest monthly full; swap for a dated month (e.g. .../parquet/2026-06) to pin a release.</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nv">BASE</span><span class="o">=</span><span class="s2">"https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/datasets/parquet/00-latest"</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nv">BASE</span><span class="o">=</span><span class="s2">"https://data.clinvar-gkm.org/v1/datasets/parquet/00-latest"</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>clinvar-gkm-parquet<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>clinvar-gkm-parquet
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># Download specific sections</span>
@@ -4630,7 +4661,7 @@
 <p>Every section Parquet — full and delta alike — exposes an <code>id</code> column, and the manifest's <code>deleted</code> keys are those same <code>id</code> values, so applying a delta is: <strong>drop from the full every row whose <code>id</code> appears in the delta or in the delete list, then append the delta rows.</strong> Because the full and delta Parquet for a section are produced by the identical schema, their columns line up exactly (<code>UNION ALL BY NAME</code>).</p>
 <details class="example">
 <summary>Download the checkpoint full + delta pieces</summary>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nv">BASE</span><span class="o">=</span><span class="s2">"https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nv">BASE</span><span class="o">=</span><span class="s2">"https://data.clinvar-gkm.org"</span>
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
 <a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="c1"># 1. The checkpoint monthly full named by the delta's manifest (e.g. 2026-06).</span>
 <a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/v1/deltas/00-latest/manifest.json"</span><span class="w"> </span>-o<span class="w"> </span>manifest.json
@@ -4695,7 +4726,7 @@
 <summary>Chain to a specific week (Python)</summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span><span class="o">,</span><span class="w"> </span><span class="nn">json</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">urllib.request</span>
 <a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="n">BASE</span> <span class="o">=</span> <span class="s2">"https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="n">BASE</span> <span class="o">=</span> <span class="s2">"https://data.clinvar-gkm.org"</span>
 <a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="n">TARGET_WEEK</span> <span class="o">=</span> <span class="s2">"2026-07-20"</span>   <span class="c1"># ClinVar release date (YYYY-MM-DD) to reconstruct up to (inclusive)</span>
 <a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
 <a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="n">SECTIONS</span> <span class="o">=</span> <span class="p">[</span>
