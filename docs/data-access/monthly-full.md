@@ -12,10 +12,10 @@ The monthly full bundle is a gzip-compressed JSON file containing every variatio
 ??? example "Download a monthly full with curl"
     ```bash
     # Latest monthly full bundle (stable URL)
-    curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/datasets/clinvar-gkm_00-latest.json.gz
+    curl -O https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz
 
     # Or a specific month (dated, checkpoint-addressable)
-    curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/datasets/clinvar-gkm_2026-06.json.gz
+    curl -O https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_2026-06.json.gz
 
     # Decompress
     gunzip clinvar-gkm_00-latest.json.gz
@@ -25,7 +25,7 @@ The monthly full bundle is a gzip-compressed JSON file containing every variatio
     ```python
     import urllib.request
 
-    BASE = "https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
+    BASE = "https://data.clinvar-gkm.org"
 
     # Download latest monthly full bundle
     urllib.request.urlretrieve(

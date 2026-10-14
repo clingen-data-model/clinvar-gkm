@@ -18,7 +18,13 @@ arrays and "key val" pair lists.
 ## Cloudflare R2
 
 - Public bucket `clinvar-gkm`, S3 endpoint `https://09208aa33790838db213a21f630c33e7.r2.cloudflarestorage.com`,
-  `--profile r2`; public read URL `https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev`.
+  `--profile r2`; public read URL `https://data.clinvar-gkm.org`.
+- **Reads go through Cloudflare's CDN** at `data.clinvar-gkm.org` (dedicated zone `clinvar-gkm.org` —
+  ClinGen's `clinicalgenome.org` can't host it). Cache Rules + a rate-limit rule give fee protection;
+  immutable dated artifacts are cached hard, so **never overwrite a published dated path** without purging.
+  The uploaders take `--purge` (needs a zone-scoped `CF_PURGE_TOKEN` + `CF_ZONE_ID`) for that case. `R2_PUBLIC_URL`
+  is env-overridable in the uploaders + `generate-r2-index.sh` (it sets the index `base_url`). Full runbook:
+  [ADR 0005](../../docs/decisions/0005-r2-custom-domain-and-cdn.md).
 - R2 does **not** implement `GetObjectTagging` (breaks multipart server-side copy) nor
   `x-amz-tagging-directive` (breaks single-part copy with `--copy-props none`). Use a **size-aware copy**:
   objects ≥2 GB via `aws s3 cp --copy-props none`; smaller via `aws s3api copy-object`.

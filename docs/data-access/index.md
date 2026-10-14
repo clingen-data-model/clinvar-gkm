@@ -12,14 +12,14 @@ ClinVar-GKM is distributed as a **monthly full bundle** plus **weekly deltas**, 
 Download the most recent monthly full bundle:
 
 ```bash
-curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/datasets/clinvar-gkm_00-latest.json.gz
+curl -O https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz
 ```
 
 Download the most recent weekly delta and its manifest:
 
 ```bash
-curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
-curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/deltas/00-latest/manifest.json
+curl -O https://data.clinvar-gkm.org/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
+curl -O https://data.clinvar-gkm.org/v1/deltas/00-latest/manifest.json
 ```
 
 The full bundle is a single JSON object containing all bundle sections — variations, statements, propositions, conditions, and supporting reference data. A delta uses the same section structure but carries only the records added or updated since its baseline release. Typed Parquet files (one per section) accompany both — dated monthly full sets at `v1/datasets/parquet/<yyyy-mm>/` (with a stable `v1/datasets/parquet/00-latest/`) and weekly delta sets at `v1/deltas/<yyyy-mmdd>/parquet/`. See [Output Format](../output-reference/overview.md) for the complete structure, [Weekly Deltas](weekly-deltas.md) for the consumer replay model, and [Parquet Files](parquet.md) for the full Parquet list.

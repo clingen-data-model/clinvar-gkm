@@ -59,7 +59,7 @@ Download individual sections or all files at once:
 ??? example "Download sections with curl"
     ```bash
     # 00-latest = the newest monthly full; swap for a dated month (e.g. .../parquet/2026-06) to pin a release.
-    BASE="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/datasets/parquet/00-latest"
+    BASE="https://data.clinvar-gkm.org/v1/datasets/parquet/00-latest"
     mkdir -p clinvar-gkm-parquet && cd clinvar-gkm-parquet
 
     # Download specific sections
@@ -299,7 +299,7 @@ Every section Parquet — full and delta alike — exposes an `id` column, and t
 
 ??? example "Download the checkpoint full + delta pieces"
     ```bash
-    BASE="https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
+    BASE="https://data.clinvar-gkm.org"
 
     # 1. The checkpoint monthly full named by the delta's manifest (e.g. 2026-06).
     curl -s "${BASE}/v1/deltas/00-latest/manifest.json" -o manifest.json
@@ -364,7 +364,7 @@ Every section Parquet — full and delta alike — exposes an `id` column, and t
     ```python
     import duckdb, json, os, urllib.request
 
-    BASE = "https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev"
+    BASE = "https://data.clinvar-gkm.org"
     TARGET_WEEK = "2026-07-20"   # ClinVar release date (YYYY-MM-DD) to reconstruct up to (inclusive)
 
     SECTIONS = [

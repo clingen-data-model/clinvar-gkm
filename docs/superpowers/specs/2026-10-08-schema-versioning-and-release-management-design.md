@@ -69,7 +69,7 @@ any field we emit is a MINOR (or PATCH) for us; it is MAJOR for us only if our e
   {
     "manifest_version": 1,
     "updated_at": "2026-10-08T00:00:00Z",
-    "base_url": "https://pub-….r2.dev",
+    "base_url": "https://data.clinvar-gkm.org",
     "active": ["1", "2"],
     "versions": {
       "1": {"schema": "1.4.2", "status": "deprecated", "eol": "2027-04-01", "index": "/v1/index.json"},

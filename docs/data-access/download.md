@@ -13,9 +13,9 @@ ClinVar-GKM is distributed as a monthly full bundle plus weekly deltas (JSON + t
 
 <noscript>
 The interactive release table needs JavaScript. Without it, fetch the release index directly:
-<code>curl -s https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/index.json | python3 -m json.tool</code>
+<code>curl -s https://data.clinvar-gkm.org/v1/index.json | python3 -m json.tool</code>
 — or grab the latest full and delta:
-<code>curl -O https://pub-f0ad0e0dac0345408dcc95bda20beb42.r2.dev/v1/datasets/clinvar-gkm_00-latest.json.gz</code>
+<code>curl -O https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz</code>
 </noscript>
 
 Browse history and archives: [Monthly Full Bundles](monthly-full.md) · [Weekly Deltas](weekly-deltas.md) · [Parquet Files](parquet.md).
