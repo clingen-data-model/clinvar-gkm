@@ -20,7 +20,7 @@ that. Three of the five join seams cannot be guessed from column names.
 Parquet consumers need a *relational* model (tables, keys, prefix-dispatched foreign keys). They are different
 mental models, so a Parquet reader cannot simply be redirected to the Data Guide.
 
-**Architecture:** A new top-level nav tab **Parquet**, sibling to Data Guide, with seven pages ordered by
+**Architecture:** A new top-level nav tab **Query the Data**, sibling to Data Guide, with seven pages ordered by
 difficulty. `data-access/parquet.md` **stays exactly where it is** and keeps all its anchors — it becomes the
 *distribution* page (release browsers, file table, stable URLs, deltas) and gains a pointer into the new track.
 Two new self-contained HTML diagrams live in `docs/assets/diagrams/` and are embedded with `<iframe>`, following
@@ -46,10 +46,13 @@ CSP-safe), DuckDB CLI as the teaching tool.
   prior planning docs reference them.
 - Terminology per `.claude/rules/docs.md`: **GKM** = the schema set, **GKS** = the workstream; say **bundle**,
   not dictionary; **Variant/Variation** in headers.
-- **R2 is a download host, not a query endpoint.** `data-access/parquet.md` already says so. Do **not** teach
-  `httpfs` / `SELECT ... FROM 'https://...'` anywhere in this track. (It works for footer/metadata reads, which
-  is how this plan's structural analysis was done, but it is the wrong thing to put in front of readers who
-  will point it at a 4 GB file.)
+- **Remote querying is taught — within a boundary.** `data.clinvar-gkm.org/v1` serves HTTP range requests with
+  CORS open, so DuckDB (`httpfs` autoloads) queries `https://.../00-latest/<section>.parquet` directly. Use it as
+  the default for **light** work (Start Here, single-table, targeted / `LIMIT` reads); it is zero-friction and
+  ~0.5 s. For **heavy** work (joins, full scans on big sections) **download once and query local files** — a
+  parallel full-column scan over a big file bursts range requests and trips Cloudflare's rate limiter (HTTP 429).
+  Teach that boundary and the `SET threads=1` + `http_retries` throttle as the reason, not a footnote. Never
+  teach pointing a query at the old `pub-*.r2.dev` host.
 
 ---
 
@@ -323,7 +326,7 @@ One short, runnable section per tool, each doing the *same* small task so they a
   repo's bare-index pattern (first entry a plain string, as the Data Model group does):
 
   ```toml
-    { Parquet = [
+    { "Query the Data" = [
       "parquet/index.md",
       { "One Section at a Time" = "parquet/first-queries.md" },
       { "The 22 Sections"       = "parquet/section-map.md" },
@@ -401,18 +404,66 @@ problem, and the existing content is good. The track cross-links it.
 That is a real finding from this survey but it is a separate concern, and `CLAUDE.md` says touch only what the
 request covers — worth raising as its own issue.
 
-## Open questions for review
+## Open questions — resolved at review (2026-10-14)
 
-1. **Nav label** — "Parquet" is shortest and matches the existing "Parquet Files" wording. Alternative: "Query
-   the Data", which describes the reader's intent rather than the file format and would also cover future
-   non-Parquet query paths.
-2. **Is the DuckDB Web Shell path real?** Task 3 Step 3 depends on dropping a local file into
-   <https://shell.duckdb.org>. If that does not work, the genuinely no-install beginner path disappears and the
-   page opens with "install DuckDB" instead — a materially worse first screen for the non-technical reader this
-   track is meant to serve. Worth testing before the track's shape is fixed.
-3. **Recipe list** — Task 7's seven recipes are inferred from the two existing user stories and the shape of the
-   data, not from user requests. The roadmap Discussions are the better source; confirm the list there first.
-4. **Release-figure drift** — every count in the track is release-dependent, and the 14 Oct release moved
-   `conditionSet` by +241 %. Options: (a) state the release date per page and accept staleness, (b) round
-   everything to two significant figures, (c) generate the figures at build time from a committed metrics JSON.
-   This plan assumes (a); (c) is more work but ends the drift.
+1. **Nav label → "Query the Data".** Chosen over "Parquet" to describe the reader's intent rather than the file
+   format, and to cover future non-Parquet query paths. The tab label is **Query the Data**; the page directory
+   stays `docs/parquet/` (URLs unchanged) and the content remains Parquet-specific. Task 10's TOML group key is
+   `"Query the Data"`.
+2. **The no-install beginner path is real.** The DuckDB Web Shell (<https://shell.duckdb.org>) loads a local
+   file by drag-and-drop or the **Import** button / `.pick` command; the file registers in browser-local memory
+   and the filename-without-extension becomes a view (`condition.parquet` → `FROM condition`). Because the CDN
+   sets `access-control-allow-origin: *` (verified), the browser shell can **also query the `https://` URL
+   directly** — no download, no drag. Task 3 Step 3 ships; the exact in-shell wording is pinned when Task 3 is
+   written.
+3. **Recipe list stays as inferred.** The 11 `roadmap authorized` GitHub Discussions are *feature* ideas
+   (temporal analytics, submitter tooling, weekly Parquet, functional-data capture) — none is a query recipe.
+   Task 7's seven recipes stand as the working set, refined at review rather than blocking on a Discussions source.
+4. **Release-figure drift → release-date banner per page (option a).** Each page states "figures reflect the
+   YYYY-MM-DD release" once; hard counts are kept minimal because the *structure* (polymorphic FKs, prefix
+   dispatch, 1:1 proposition) is release-independent. Monthly refresh is accepted manual toil. Build-time
+   generation from a committed metrics JSON (option c) is a possible follow-up, not done here.
+
+### Added at review: remote querying is now taught (reverses convention #5)
+
+The custom domain **`data.clinvar-gkm.org/v1`** (PR #138, CDN) serves **HTTP range requests**
+(`accept-ranges: bytes`) with **CORS open** (`access-control-allow-origin: *`), and DuckDB **autoloads httpfs**
+for `https://` paths. Verified against the 14 Oct release:
+
+| Operation (remote) | Result |
+| --- | --- |
+| `count(*)`, `DESCRIBE`, schema | footer-only, ~0.5 s even on 3 GB `scv.parquet` |
+| Small sections; targeted / `LIMIT` reads on big files | fast (~0.5 s) |
+| Full-column scan / `GROUP BY` on a big file, default threads | **HTTP 429** — burst of parallel range requests (scv = 55 row groups, varcond = 223) trips Cloudflare's limiter |
+| Same scan with `SET threads=1` + retry/backoff | completes (~18.5 s for the scv classification rollup) |
+
+**Resolution — hybrid presentation.** Remote (`FROM 'https://data.clinvar-gkm.org/v1/datasets/parquet/00-latest/<section>.parquet'`)
+is the default for **light** work — Start Here, single-table, targeted lookups — where it is zero-friction and
+genuinely fast. **Heavy** work — the joins on *Joining Sections*, the big scans in *Recipes* — downloads once and
+queries local files. The range-request model, the **429 boundary**, and the `SET threads=1` + `http_retries`
+throttle are taught explicitly (in *The 22 Sections* / *Working at Scale*) as the *reason* for the split, not
+hidden. Base URL path: `v1/datasets/parquet/00-latest/` (stable "latest"); dated pins at `v1/datasets/parquet/<YYYY-MM>/`.
+
+### Added at review: a live in-browser query console
+
+Because the CDN sets `access-control-allow-origin: *`, a **DuckDB-Wasm** console embedded in the docs runs a
+reader's SQL against `data.clinvar-gkm.org` directly — no install, no download. It is built and lives at
+`docs/assets/duckdb-console.html` (theme-aware, same palette as the diagrams), embedded by `<iframe>` as the
+**centerpiece of Start Here** (Task 3): a reader queries real ClinVar data in their first 30 seconds. Guardrails:
+`SET threads=1`, a client-side **one-query-per-10 s** cooldown (greyed Run button + countdown), and example
+queries chosen to be light/reliable (the heavy full-scan lesson stays in prose). Errors are humanized
+(plain-language headline + what-to-do hint + collapsible raw details).
+
+**Runtime is vendored, not CDN-loaded** (review decision). The `eh` bundle lives in `docs/assets/vendor/duckdb/`
+(~35 MB: `duckdb-eh.wasm` + the eh worker verbatim, plus an esbuild-bundled `duckdb-browser.bundled.js` with
+apache-arrow inlined — the package ESM has an unresolvable bare `import "apache-arrow"`). Plain committed files
+(Git LFS can't be used — GitHub Pages serves the LFS pointer, not the file). The bundle is named `.js` not `.mjs`
+(GitHub Pages has served `.mjs` with a MIME type that breaks ESM imports). Provenance + the reproducible rebuild
+command are in that directory's `README.md`.
+
+**Cost (verified against the 14 Oct release):** this is cheap by design — R2 egress is $0; the only
+query-driven cost is Class B reads ($0.36 / million, 10 M/month free), fenced by the console cooldown and the
+WAF rate-limit rule in ADR 0005. Big sections (>512 MB) never cache (`BYPASS`); `00-latest` is set to bypass
+cache while **dated** paths cache (`MISS`→`HIT`) — a possible follow-up is to default the console to the newest
+dated release so small-section reads serve from the edge. No native hard spend cap exists, so a usage alert is
+the safety net (Cloudflare has no dedicated R2-ops alert type on the Free plan — a Custom Alert is the route).
