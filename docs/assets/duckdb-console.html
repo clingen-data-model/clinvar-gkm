@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<meta charset="utf-8">
 <title>ClinVar-GKM — live query console</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
@@ -264,8 +265,11 @@
     if (/conversion error|could not convert|cast/i.test(m))
       return { headline: 'A value couldn’t be converted to the expected type.',
         hint: 'A column may be text where a number was expected, or vice-versa. Cast explicitly, e.g. <code>CAST(col AS INTEGER)</code>.' };
+    if (!m.trim() || /^error\.?$/i.test(m.trim()) || /out of memory|oom\b|failed to allocate|cannot allocate|abort|unreachable|runtimeerror|memory access/i.test(m))
+      return { headline: 'The query may be too large to run in the browser.',
+        hint: 'Large sections like <code>variation</code>, <code>scv</code>, <code>allele</code>, <code>rcv</code> and <code>vcv</code> run to several GB. Avoid <code>SELECT *</code> and the big <code>data</code> column — name just the columns you need, and add a <code>LIMIT</code> or a selective <code>WHERE</code>. For a full scan, download the section and query it locally, where there is far more memory than a browser tab.' };
     return { headline: 'The query couldn’t be completed.',
-      hint: 'The technical message below has the details.' };
+      hint: 'The technical message below has the details — if it is blank, the browser tab likely ran out of memory on a large section.' };
   }
 
   const COOLDOWN_MS = 10000;   // one query per 10s — a courtesy guardrail for the shared CDN
@@ -316,12 +320,13 @@
       renderTable(last);
       setStatus(`done in ${ms.toLocaleString()} ms`);
     } catch (e) {
-      const raw = (e && e.message) ? e.message : String(e);
+      const raw = (e && (e.message || e.name)) ? (e.message || e.name) : String(e);
+      const technical = (e && e.stack) ? String(e.stack) : raw;
       const info = humanizeError(raw);
       outEl.innerHTML = '<div class="errbox">' +
           '<div class="eh">&#9888; ' + escapeHtml(info.headline) + '</div>' +
           '<div class="ehint">' + info.hint + '</div>' +
-          '<details><summary>Technical details</summary><pre>' + escapeHtml(raw) + '</pre></details>' +
+          '<details><summary>Technical details</summary><pre>' + escapeHtml(technical) + '</pre></details>' +
         '</div>';
       setStatus(/429|too many requests/i.test(raw) ? 'rate-limited (429)' : 'error', true);
     } finally {
