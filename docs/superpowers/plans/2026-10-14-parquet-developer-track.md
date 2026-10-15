@@ -467,3 +467,17 @@ WAF rate-limit rule in ADR 0005. Big sections (>512 MB) never cache (`BYPASS`); 
 cache while **dated** paths cache (`MISS`→`HIT`) — a possible follow-up is to default the console to the newest
 dated release so small-section reads serve from the edge. No native hard spend cap exists, so a usage alert is
 the safety net (Cloudflare has no dedicated R2-ops alert type on the Free plan — a Custom Alert is the route).
+
+### Added at review: per-table column reference + linkable diagram boxes
+
+- **Complete per-table column reference.** Today's docs only partially cover Parquet columns — the distribution
+  page's "Column Reference" does statements + propositions; the Data Model class pages describe the schema
+  *classes*, not the flattened Parquet columns. Fold a complete reference into *One Section at a Time* /
+  *The 22 Sections*: for each of the 22 tables, **definition + every column + type + description**. Generate
+  name+type from `DESCRIBE` on the real release, carry over the descriptions that already exist, and give each
+  table a **stable anchor** (e.g. `#variation`) so diagrams can link to it.
+- **Linkable diagram table-boxes (sequenced AFTER the reference exists).** Each SVG box that names a Parquet
+  table/section (`variation`, `allele`, `condition`, `conditionSet`, `scv`, …) becomes
+  `<a href="../../parquet/<page>/#<table>" target="_top">` wrapping its `rect`+`text`, navigating to that table's
+  reference section — the `bundle-section-map.html` linkable-box precedent (`target="_top"` to escape the iframe).
+  Applies to all three diagrams; re-run svgcheck + the viewBox-bounds check after.

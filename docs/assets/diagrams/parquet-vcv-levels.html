@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>ClinVar-GKM parquet — reading a variant's statements</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #FFFFFF; --panel: #FFFFFF; --ink: #1B2430; --muted: #5B6572; --faint: #8A939E;
+    --line: #B9C0C8; --rule: #E2E6EA; --poly: #3E6B6B; --dang: #B23B3B; --ok: #7A4D9C;
+    --tint: #F0EEE7;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #171D24; --panel: #1B222A; --ink: #E7E9EC; --muted: #97A1AC; --faint: #707A85;
+      --line: #3A434D; --rule: #2A323B; --poly: #7FC4C4; --dang: #E08A8A; --ok: #C6A0E0;
+      --tint: #232B34;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #171D24; --panel: #1B222A; --ink: #E7E9EC; --muted: #97A1AC; --faint: #707A85;
+    --line: #3A434D; --rule: #2A323B; --poly: #7FC4C4; --dang: #E08A8A; --ok: #C6A0E0;
+    --tint: #232B34;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 14px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 24px 20px 40px; }
+
+  h1 { font-size: 20px; line-height: 1.2; margin: 0 0 6px; letter-spacing: -.01em; font-weight: 650; }
+  .lede { color: var(--muted); max-width: 76ch; margin: 0 0 8px; font-size: 13px; }
+  code { font-family: var(--mono); font-size: .89em; }
+  .subhd { font-size: 14px; font-weight: 640; letter-spacing: -.01em; margin: 34px 0 2px;
+    padding-left: 11px; border-left: 3px solid var(--poly); }
+  .subsub { color: var(--muted); font-size: 12.5px; margin: 0 0 12px; padding-left: 11px; max-width: 84ch; }
+  .note { font-size: 12.5px; color: var(--muted); margin: 13px 0 0; padding-left: 11px; border-left: 2px solid var(--line); max-width: 84ch; }
+  .note b { color: var(--ink); font-weight: 620; }
+
+  figure { margin: 0; }
+  .frame { overflow-x: auto; margin: 0 -4px; }
+  svg.d { display: block; width: 100%; height: auto; color: var(--ink); }
+  svg.d.w820 { min-width: 660px; }
+  figcaption { color: var(--muted); font-size: 12.5px; margin-top: 11px; max-width: 84ch; }
+  figcaption code { color: var(--ink); }
+
+  .b { fill: var(--panel); stroke: var(--line); stroke-width: 1.3; }
+  .b.g { fill: var(--tint); }
+  .nm { font-size: 12.5px; font-weight: 610; fill: var(--ink); }
+  .ct { font-size: 9.5px; fill: var(--faint); font-family: var(--mono); }
+  .sl { font-size: 11px; fill: var(--ink); font-family: var(--mono); }
+  .mn { font-size: 10px; fill: var(--muted); }
+  .hd { font-size: 11.5px; font-weight: 680; fill: var(--ink); letter-spacing: .04em; }
+  .e { fill: none; stroke: currentColor; stroke-width: 1.2; opacity: .5; }
+  .e.poly { stroke: var(--poly); stroke-width: 1.7; opacity: .95; }
+  .lb { font-size: 9.5px; fill: var(--muted); font-family: var(--mono); }
+  .lb.p { fill: var(--poly); }
+  .lb.n { fill: var(--ok); }
+  .zn { font-size: 9.5px; font-weight: 680; letter-spacing: .1em; fill: var(--faint); text-transform: uppercase; }
+
+  .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; margin-top: 14px; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; min-width: 540px; }
+  th, td { text-align: left; padding: 6px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); font-weight: 650; white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.m { font-family: var(--mono); font-size: 11.5px; }
+  td.num { text-align: right; font-family: var(--mono); font-size: 11.5px; white-space: nowrap; color: var(--muted); }
+  .lane-g { color: var(--poly); font-weight: 650; } .lane-s { color: var(--ok); font-weight: 650; }
+
+  pre { margin: 13px 0 0; background: var(--tint); border-radius: 8px; padding: 11px 13px;
+    overflow-x: auto; font-family: var(--mono); font-size: 11.5px; line-height: 1.55; color: var(--ink); }
+  pre .c { color: var(--faint); }
+  .out { margin: 7px 0 0; font-family: var(--mono); font-size: 10.5px; color: var(--muted);
+    white-space: pre; overflow-x: auto; padding-left: 11px; }
+  details.q { margin-top: 14px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  details.q > summary { cursor: pointer; padding: 8px 12px; font-size: 10.5px; letter-spacing: .05em;
+    text-transform: uppercase; color: var(--muted); font-weight: 650; list-style: none; background: var(--tint); }
+  details.q > summary::-webkit-details-marker { display: none; }
+  details.q > summary::before { content: "\25B8\00a0"; color: var(--faint); }
+  details.q[open] > summary::before { content: "\25BE\00a0"; }
+  details.q > summary:hover { color: var(--ink); }
+  details.q pre { margin: 0; border-radius: 0; }
+  details.q .out { margin: 0; padding: 10px 13px; border-top: 1px dashed var(--line); background: var(--bg); }
+  .foot { margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--rule); color: var(--faint);
+    font-size: 11.5px; line-height: 1.5; max-width: 86ch; }
+  .foot b { color: var(--muted); } .foot a { color: var(--poly); }
+</style>
+<div class="wrap">
+
+<h1>Reading a variant's statements</h1>
+<p class="lede">
+  One VCV (or RCV) statement id carries three axes at once — <b>Germline vs Somatic</b>, the
+  <b>classification / proposition type</b>, and the <b>aggregate level</b>. Each maps to a concrete field, so you
+  can segment a variant's records without guessing. Every query below is runnable against the published Parquet;
+  figures are from the 14&nbsp;Oct&nbsp;2026 release.
+</p>
+
+<!-- ============ 1. ID DECOMPOSITION ============ -->
+<div class="subhd">1 · The statement id decodes all three axes</div>
+<p class="subsub">Read the suffix left to right. Each segment answers a different question and points at the field
+  that carries it.</p>
+<figure>
+  <div class="frame">
+  <svg class="d w820" viewBox="0 0 820 216" role="img" aria-label="A VCV statement id, VCV000012871.93-G-PATH-CP, decomposed into four parts: the accession-and-version is the record, G means germline, PATH is the classification, CP is the aggregate level. Each part lists the fields that carry it.">
+    <rect class="b g" x="24" y="14" width="300" height="30" rx="7"/>
+    <text class="sl" x="40" y="34">VCV000012871.93-G-PATH-CP</text>
+    <text class="mn" x="344" y="33">one statement id, read left to right</text>
+
+    <rect class="b" x="24" y="64" width="160" height="26" rx="5"/>
+    <text class="sl" x="34" y="81">VCV000012871.93</text>
+    <text class="mn" x="200" y="81">accession . version</text>
+    <text class="sl" x="430" y="81">→ the VCV / RCV record</text>
+
+    <rect class="b" x="24" y="100" width="60" height="26" rx="5" style="stroke:var(--poly)"/>
+    <text class="sl" x="34" y="117" style="fill:var(--poly)">G · S</text>
+    <text class="mn" x="200" y="117">Germline vs Somatic</text>
+    <text class="sl" x="430" y="117">id -G- / -S-  ·  proposition.type</text>
+
+    <rect class="b" x="24" y="136" width="90" height="26" rx="5"/>
+    <text class="sl" x="34" y="153">PATH</text>
+    <text class="mn" x="200" y="153">classification = prop. type</text>
+    <text class="sl" x="430" y="153">classification.name  ·  proposition.type + .predicate</text>
+
+    <rect class="b" x="24" y="172" width="60" height="26" rx="5" style="stroke:var(--ok)"/>
+    <text class="sl" x="34" y="189" style="fill:var(--ok)">CP</text>
+    <text class="mn" x="200" y="189">aggregate level</text>
+    <text class="sl" x="430" y="189">scv.quality.name  ·  vcv / rcv id suffix</text>
+  </svg>
+  </div>
+  <figcaption>
+    The same four-part shape applies to RCV ids (<code>RCV…-G-PATH-CP</code>). The accession groups the whole
+    variant; the three suffix segments are the axes you filter on.
+  </figcaption>
+</figure>
+
+<p class="note"><b>The classification code <em>is</em> the proposition type, abbreviated.</b> Each code is a
+  shorthand enumeration of one proposition type — including the custom ones. The mapping is 1:1 and deterministic:</p>
+<div class="scroll">
+  <table>
+    <thead><tr><th>Lane</th><th>Code</th><th>Proposition type</th><th class="num">Roots</th></tr></thead>
+    <tbody>
+      <tr><td class="lane-g">G</td><td class="m">PATH</td><td class="m">VariantPathogenicityProposition</td><td class="num">4,390,392</td></tr>
+      <tr><td class="lane-g">G</td><td class="m">NP</td><td class="m">ClinvarNotProvidedProposition</td><td class="num">27,920</td></tr>
+      <tr><td class="lane-g">G</td><td class="m">DR</td><td class="m">ClinvarDrugResponseProposition</td><td class="num">2,760</td></tr>
+      <tr><td class="lane-g">G</td><td class="m">OTH</td><td class="m">ClinvarOtherProposition</td><td class="num">2,171</td></tr>
+      <tr><td class="lane-g">G</td><td class="m">RF</td><td class="m">ClinvarRiskFactorProposition</td><td class="num">1,072</td></tr>
+      <tr><td class="lane-g">G</td><td class="m">ASSOC</td><td class="m">ClinvarAssociationProposition</td><td class="num">525</td></tr>
+      <tr><td class="lane-g">G</td><td class="m">AFF</td><td class="m">ClinvarAffectsProposition</td><td class="num">331</td></tr>
+      <tr><td class="lane-g">G</td><td class="m">CDFS</td><td class="m">ClinvarConflictingDataFromSubmitterProposition</td><td class="num">192</td></tr>
+      <tr><td class="lane-g">G</td><td class="m">PROTECT</td><td class="m">ClinvarProtectiveProposition</td><td class="num">99</td></tr>
+      <tr><td class="lane-g">G</td><td class="m">CS</td><td class="m">ClinvarConfersSensitivityProposition</td><td class="num">20</td></tr>
+      <tr><td class="lane-s">S</td><td class="m">ONCO</td><td class="m">VariantOncogenicityProposition</td><td class="num">1,905</td></tr>
+      <tr><td class="lane-s">S</td><td class="m">SCI</td><td class="m">VariantClinicalSignificanceProposition</td><td class="num">1,317</td></tr>
+    </tbody>
+  </table>
+</div>
+<details class="q"><summary>Query — decode a variant's statement ids, with proposition type, quality, and classification</summary>
+<pre><span class="c">-- the axes fall out of the id; join the proposition for its type, read quality + classification</span>
+WITH prop AS (
+    SELECT id, type FROM 'varcond-proposition.parquet'
+    UNION ALL SELECT id, type FROM 'vartumor-proposition.parquet'
+    UNION ALL SELECT id, type FROM 'varcustom-proposition.parquet'
+)
+SELECT regexp_extract(v.id, '-([GS])-', 1)                                      AS lane,
+       regexp_extract(v.id, '-[GS]-([A-Z]+)', 1)                                AS class_code,
+       coalesce(nullif(regexp_extract(v.id,'-[GS]-[A-Z]+-?(.*)$',1),''),'root') AS level,
+       p.type                AS proposition_type,
+       v.quality.name        AS quality,
+       v.classification.name AS classification
+FROM 'vcv.parquet' v
+LEFT JOIN prop p ON p.id = v.proposition_id
+WHERE v.id LIKE 'VCV000012871.%' ORDER BY level;</pre>
+<div class="out">lane  class_code  level  proposition_type                 quality                         classification
+G     PATH        CP     VariantPathogenicityProposition  criteria provided               Pathogenic
+G     PATH        EP     VariantPathogenicityProposition  expert panel                    Pathogenic
+G     PATH        NOCP   VariantPathogenicityProposition  no assertion criteria provided  Pathogenic
+G     PATH        root   VariantPathogenicityProposition  expert panel                    Pathogenic</div>
+</details>
+
+<!-- ============ 2. LANES + SCI ============ -->
+<div class="subhd">2 · Two lanes — and the extra layer under Somatic</div>
+<p class="subsub">99.9 % of statements are germline, and germline is <em>direct</em>:
+  variant → proposition → statement. Somatic is tiny (0.09 %) but one somatic kind — <b>clinical impact (SCI)</b>
+  — has an extra layer worth knowing.</p>
+<figure>
+  <div class="frame">
+  <svg class="d w820" viewBox="0 0 820 128" role="img" aria-label="Two lanes. Germline, 99.9 percent, is direct: variation to proposition to statement. Somatic, 0.09 percent, is oncogenicity (direct) plus somatic clinical impact, which adds evidence lines.">
+    <rect class="b g" x="24" y="20" width="372" height="88" rx="8"/>
+    <text class="hd" x="40" y="42">GERMLINE</text><text class="ct" x="150" y="42">9,071,578 · 99.9 %</text>
+    <text class="sl" x="40" y="66">variation → proposition → statement</text>
+    <text class="ct" x="40" y="84">direct: PATH + the custom types (see table above)</text>
+    <text class="ct" x="40" y="98">classification.name carries the call</text>
+
+    <rect class="b g" x="432" y="20" width="364" height="88" rx="8"/>
+    <text class="hd" x="448" y="42">SOMATIC</text><text class="ct" x="548" y="42">7,871 · 0.09 %</text>
+    <text class="sl" x="448" y="66">ONCO — direct, like germline</text>
+    <text class="sl" x="448" y="84">SCI — adds evidence lines ↓</text>
+    <text class="ct" x="448" y="98">the only lane with an extra layer</text>
+  </svg>
+  </div>
+</figure>
+<p class="note"><b>Somatic clinical impact (SCI) has a parent claim plus specific-impact evidence lines.</b>
+  The SCI statement's own proposition is a <code>VariantClinicalSignificanceProposition</code> (the general
+  "has clinical significance" claim). Each of its evidence lines — the shared-PK <code>evidenceLine</code> table
+  (<code>ClinvarSomaticEvidenceLine</code>) — carries a <code>target_proposition_id</code> pointing at the
+  <em>specific</em> impact (therapeutic response / diagnostic / prognostic), and an <code>evidenceOutcome</code>
+  holding the AMP/ASCO/CAP tier (<code>Level A/B</code> = Tier I, <code>Level C/D</code> = Tier II; the
+  <code>-T1/-T2</code> in the id).</p>
+<figure>
+  <div class="frame">
+  <svg class="d w820" viewBox="0 0 820 212" role="img" aria-label="Somatic clinical impact linkage: an SCV SCI statement has a proposition_id to a VariantClinicalSignificanceProposition parent, and has_evidence_lines to an evidenceLine (ClinvarSomaticEvidenceLine) whose target_proposition_id points to a VariantTherapeuticResponse, Diagnostic or Prognostic proposition, with an evidenceOutcome tier.">
+    <defs>
+      <marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,1.2 L8.6,5 L0,8.8 z" fill="currentColor"/></marker>
+      <marker id="ap" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,1.2 L8.6,5 L0,8.8 z" fill="var(--poly)"/></marker>
+    </defs>
+    <rect class="b g" x="24" y="24" width="180" height="54" rx="8"/>
+    <text class="nm" x="38" y="46">scv</text>
+    <text class="ct" x="38" y="62">SCI statement + tier</text>
+
+    <rect class="b" x="320" y="24" width="320" height="54" rx="7"/>
+    <text class="nm" x="334" y="46">VariantClinicalSignificance…</text>
+    <text class="ct" x="334" y="62">parent proposition · the SCI claim</text>
+
+    <rect class="b" x="24" y="136" width="290" height="54" rx="7"/>
+    <text class="nm" x="38" y="158">evidenceLine</text>
+    <text class="ct" x="38" y="174">ClinvarSomaticEvidenceLine</text>
+
+    <rect class="b" x="450" y="136" width="230" height="54" rx="7"/>
+    <text class="nm" x="464" y="158">TR · DIAG · PROG</text>
+    <text class="ct" x="464" y="174">specific impact · tier A/B · C/D</text>
+
+    <text class="lb p" x="260" y="42" text-anchor="middle">proposition_id</text>
+    <text class="lb" x="122" y="110">has_evidence_lines[]</text>
+    <text class="lb p" x="382" y="157" text-anchor="middle">target_proposition_id</text>
+
+    <path class="e poly" d="M204,51 H316" marker-end="url(#ap)"/>
+    <path class="e" d="M114,78 V132" marker-end="url(#a)"/>
+    <path class="e poly" d="M314,163 H442" marker-end="url(#ap)"/>
+  </svg>
+  </div>
+  <figcaption>
+    So Diagnostic, Prognostic and Therapeutic-response are not separate statement kinds under SCI — they are the
+    <em>targets</em> of the SCI statement's evidence lines, naming which clinical impact each line is about. The
+    tier lives on the evidence line, not the statement body.
+  </figcaption>
+</figure>
+<details class="q"><summary>Query — a somatic clinical-impact statement's specific impacts and tiers</summary>
+<pre><span class="c">-- every SCI evidence line, its specific-impact target proposition, and its tier</span>
+SELECT tp.type AS evidence_target_proposition, tp.predicate,
+       e.evidenceOutcome.name AS tier, count(*) n
+FROM 'evidenceLine.parquet' e
+JOIN (
+    SELECT id, type, predicate FROM 'varcond-proposition.parquet'
+    UNION ALL
+    SELECT id, type, predicate FROM 'vartherapy-proposition.parquet'
+) tp ON tp.id = e.target_proposition_id
+GROUP BY 1, 2, 3 ORDER BY n DESC;</pre>
+<div class="out">evidence_target_proposition            predicate                           tier       n
+VariantDiagnosticProposition           isDiagnosticInclusionCriterionFor   Level A/B  987
+VariantDiagnosticProposition           isDiagnosticInclusionCriterionFor   Level C/D  534
+VariantPrognosticProposition           associatedWithBetterOutcomeFor      Level C/D   19
+VariantTherapeuticResponseProposition  predictsSensitivityTo               Level A/B    8
+… 6 more rows</div>
+</details>
+
+<!-- ============ 3. LEVELS ============ -->
+<div class="subhd">3 · Aggregate levels — the highest present contributes</div>
+<p class="subsub">Within one lane + classification, the VCV is a small tree: a <b>root</b> carries the overall
+  call, and its children split the submissions by level. The aggregate adopts the classification of the
+  <b>highest level present</b> — so which level contributes is relative to the variant, not a fixed set. Level ←
+  <code>scv.quality.name</code>.</p>
+<figure>
+  <div class="frame">
+  <svg class="d w820" viewBox="0 0 820 348" role="img" aria-label="The aggregate level ladder. A root statement cites children at various review levels. Ranked highest to lowest: PG practice guidelines, EP expert panel, CP criteria provided, NOCP no assertion criteria, NOCL no classification. The aggregate adopts the highest present. Flagged submissions are set apart.">
+    <defs>
+      <marker id="a2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,1.2 L8.6,5 L0,8.8 z" fill="currentColor"/></marker>
+      <marker id="ap2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,1.2 L8.6,5 L0,8.8 z" fill="var(--poly)"/></marker>
+    </defs>
+    <rect class="b g" x="24" y="142" width="188" height="74" rx="8"/>
+    <text class="nm" x="38" y="168">VCV…-G-PATH</text>
+    <text class="ct" x="38" y="185">root · overall call</text>
+    <text class="ct" x="38" y="199">= highest level present</text>
+
+    <text class="zn" x="300" y="22">Precedence ↓ — highest present contributes</text>
+    <rect class="b" x="300" y="28" width="300" height="40" rx="7"/>
+    <text class="nm" x="314" y="46">-PG</text><text class="ct" x="360" y="46">practice guidelines · 4★</text>
+    <text class="ct" x="314" y="61">scv.quality.name = 'practice guidelines'</text>
+    <rect class="b" x="300" y="76" width="300" height="40" rx="7"/>
+    <text class="nm" x="314" y="94">-EP</text><text class="ct" x="360" y="94">expert panel · 3★</text>
+    <text class="ct" x="314" y="109">= 'expert panel'</text>
+    <rect class="b" x="300" y="124" width="300" height="40" rx="7"/>
+    <text class="nm" x="314" y="142">-CP</text><text class="ct" x="360" y="142">criteria provided · 1–2★</text>
+    <text class="ct" x="314" y="157">= 'criteria provided'</text>
+    <rect class="b" x="300" y="172" width="300" height="40" rx="7"/>
+    <text class="nm" x="314" y="190">-NOCP</text><text class="ct" x="376" y="190">no assertion criteria · 0★</text>
+    <text class="ct" x="314" y="205">= 'no assertion criteria provided'</text>
+    <rect class="b" x="300" y="220" width="300" height="40" rx="7"/>
+    <text class="nm" x="314" y="238">-NOCL</text><text class="ct" x="376" y="238">no classification · 0★</text>
+    <text class="ct" x="314" y="253">= 'no classification'</text>
+
+    <text class="zn" x="300" y="284">Set apart — excluded from the main aggregate</text>
+    <rect class="b" x="300" y="290" width="300" height="40" rx="7" style="stroke-dasharray:4 3; fill:none"/>
+    <text class="nm" x="314" y="308" style="fill:var(--muted)">-FLAG</text><text class="ct" x="376" y="308">flagged</text>
+    <text class="ct" x="314" y="323">= 'flagged'</text>
+
+    <path class="e" d="M600,32 H608 V114 H600"/>
+    <text class="lb" x="614" y="68">PG &amp; EP</text>
+    <text class="lb" x="614" y="82">co-contribute</text>
+
+    <path class="e poly" d="M212,176 C256,176 262,48 296,48" marker-end="url(#ap2)"/>
+    <path class="e poly" d="M212,178 C256,178 262,96 296,96" marker-end="url(#ap2)"/>
+    <path class="e poly" d="M212,180 C256,180 262,144 296,144" marker-end="url(#ap2)"/>
+    <path class="e poly" d="M212,182 C256,182 262,192 296,192" marker-end="url(#ap2)"/>
+    <path class="e poly" d="M212,184 C256,184 262,240 296,240" marker-end="url(#ap2)"/>
+    <path class="e poly" d="M212,186 C256,186 262,310 296,310" marker-end="url(#ap2)"/>
+  </svg>
+  </div>
+  <figcaption>
+    The root cites every child through <code>has_evidence_lines[] → evidence_items[]</code>, and each child cites
+    its SCVs the same way; the root cites <strong>zero</strong> SCVs. The call comes from the highest level that
+    has submissions: a variant whose best are criteria-provided contributes <code>CP</code> and ignores the
+    <code>NOCP</code> below it — but a variant whose best submissions are <code>NOCP</code> contributes
+    <code>NOCP</code>. 138,188 variants top out at <code>NOCP</code>; 7,578 at <code>NOCL</code>. Flagged
+    submissions are set apart.
+  </figcaption>
+</figure>
+<p class="note"><b>PG and EP co-contribute.</b> When a variant carries both a practice-guideline and an
+  expert-panel submission (23 variants do), both are retained and contribute — the practice guideline is higher
+  quality but does <em>not</em> mask or override the expert panel. The strict highest-present-wins masking applies
+  <em>below</em> them: CP over NOCP over NOCL.</p>
+<details class="q"><summary>Query — rank submissions by review level (the aggregate adopts the highest present)</summary>
+<pre><span class="c">-- scv.quality.name IS the level; rank it to find each aggregate's contributing tier</span>
+SELECT s.quality.name AS review_status,
+  CASE s.quality.name
+    WHEN 'practice guidelines'            THEN 5  WHEN 'expert panel' THEN 4
+    WHEN 'criteria provided'              THEN 3  WHEN 'no assertion criteria provided' THEN 2
+    WHEN 'no classification'              THEN 1  ELSE 0 END AS precedence,
+  count(*) n
+FROM 'scv.parquet' s GROUP BY 1, 2 ORDER BY precedence DESC;</pre>
+<div class="out">review_status                     precedence   n
+practice guidelines                    5         2,503
+expert panel                           4        22,876
+criteria provided                      3     6,255,083
+no assertion criteria provided         2       422,249
+no classification                      1        28,992
+flagged                                0         3,308</div>
+</details>
+
+<p class="foot">Every count, table, and query output here — including the id examples and the mapping table — is
+  from the ClinVar-GKM <b>2026-10-14</b> monthly release. Figures change between releases, so don't assume they
+  are the latest. See <a href="../../data-access/parquet/" target="_top">Downloads &rarr; Parquet Files</a> for
+  current releases.</p>
+</div>
