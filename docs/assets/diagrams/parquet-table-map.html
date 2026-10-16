@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<title>ClinVar-GKM parquet — section map</title>
+<title>ClinVar-GKM parquet — table map</title>
 <meta charset="utf8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
@@ -87,17 +87,44 @@
   .foot b { color: var(--muted); } .foot a { color: var(--poly); }
   .out a, figcaption a, .note a { color: var(--poly); text-decoration: none; }
   .out a:hover, figcaption a:hover, .note a:hover { text-decoration: underline; }
+
+  /* table boxes link to the column reference on The 22 Tables */
+  a.tl { cursor: pointer; }
+  a.tl:hover .b, a.tl:focus .b { stroke: var(--poly); stroke-width: 2; }
+  a.tl:hover .nm, a.tl:hover .sl { text-decoration: underline; }
+
+  /* pinned title + description + mini list of the diagrams on this page */
+  .top { position: sticky; top: 0; z-index: 10; background: var(--bg);
+    margin: -24px -20px 0; padding: 14px 20px 8px; border-bottom: 1px solid var(--rule); }
+  .top .lede { margin-bottom: 0; }
+  .mini ol { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 2px 16px;
+    font-size: 12px; }
+  .mini a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: baseline; gap: 3px; }
+  .mini a:hover { color: var(--ink); }
+  .mini .arr { color: var(--poly); visibility: hidden; font-size: 13px; line-height: 1; }
+  .mini a.on { color: var(--ink); font-weight: 650; }
+  .mini a.on .arr { visibility: visible; }
+  @media (max-width: 520px) { .top .lede { font-size: 12px; } }
 </style>
 <div class="wrap">
 
-<h1>ClinVar-GKM parquet — section map</h1>
+<header class="top">
+<h1>ClinVar-GKM parquet — table map</h1>
 <p class="lede">
   22 tables, 90.2&nbsp;M rows (14&nbsp;Oct&nbsp;2026 monthly release). Six small areas you can hold in your head
-  one at a time; the joins between them are on the <a href="../../parquet/joining/" target="_top">Joining Sections</a> page.
+  one at a time; the joins between them are on the <a href="../../parquet/joining/" target="_top">Joining Tables</a> page.
 </p>
+<nav class="mini" aria-label="Diagrams in this frame"><ol>
+  <li><a href="#d-1"><span class="arr" aria-hidden="true">▸</span>Overview</a></li>
+  <li><a href="#d-2"><span class="arr" aria-hidden="true">▸</span>1 · Variant</a></li>
+  <li><a href="#d-3"><span class="arr" aria-hidden="true">▸</span>2 · Condition &amp; therapy</a></li>
+  <li><a href="#d-4"><span class="arr" aria-hidden="true">▸</span>3 · Proposition</a></li>
+  <li><a href="#d-5"><span class="arr" aria-hidden="true">▸</span>4 · SCV</a></li>
+</ol></nav>
+</header>
 
 <!-- ============ OVERVIEW ============ -->
-<div class="sec">The six areas</div>
+<div class="sec" id="d-1">The six areas</div>
 <figure>
   <div class="frame">
   <svg class="d w900" viewBox="0 0 900 352" role="img" aria-label="Overview: a variant area and a condition-and-therapy area both feed the proposition area; the proposition area is referenced by three separate statement areas, SCV, RCV and VCV, which themselves nest SCV inside RCV and VCV through evidence items.">
@@ -111,19 +138,19 @@
     <text class="lb p" x="300" y="250" text-anchor="middle">evidence_items[]</text>
     <text class="lb p" x="432" y="340" text-anchor="middle">evidence_items[]</text>
 
-    <rect class="b g" x="24" y="48" width="204" height="58" rx="9"/>
-    <text class="nm" x="40" y="72">1 · Variant</text><text class="ct" x="40" y="88">4.65 M + 4 VRS tables</text>
-    <rect class="b g" x="348" y="48" width="204" height="58" rx="9"/>
-    <text class="nm" x="364" y="72">3 · Proposition</text><text class="ct" x="364" y="88">27.7 M · 4 tables, one shape</text>
-    <rect class="b g" x="672" y="48" width="204" height="58" rx="9"/>
-    <text class="nm" x="688" y="72">2 · Condition &amp; therapy</text><text class="ct" x="688" y="88">4 tables, 2 of them leaves</text>
+    <a class="tl" href="../../parquet/tables/#1-variant" target="_top"><title>Column reference: 1 · Variant</title><rect class="b g" x="24" y="48" width="204" height="58" rx="9"/>
+    <text class="nm" x="40" y="72">1 · Variant</text><text class="ct" x="40" y="88">4.65 M + 4 VRS tables</text></a>
+    <a class="tl" href="../../parquet/tables/#3-proposition" target="_top"><title>Column reference: 3 · Proposition</title><rect class="b g" x="348" y="48" width="204" height="58" rx="9"/>
+    <text class="nm" x="364" y="72">3 · Proposition</text><text class="ct" x="364" y="88">27.7 M · 4 tables, one shape</text></a>
+    <a class="tl" href="../../parquet/tables/#2-condition-therapy" target="_top"><title>Column reference: 2 · Condition &amp; therapy</title><rect class="b g" x="672" y="48" width="204" height="58" rx="9"/>
+    <text class="nm" x="688" y="72">2 · Condition &amp; therapy</text><text class="ct" x="688" y="88">4 tables, 2 of them leaves</text></a>
 
-    <rect class="b g" x="60" y="232" width="180" height="58" rx="9"/>
-    <text class="nm" x="76" y="256">4 · SCV</text><text class="ct" x="76" y="272">6.74 M submissions</text>
-    <rect class="b g" x="360" y="232" width="180" height="58" rx="9"/>
-    <text class="nm" x="376" y="256">5 · RCV</text><text class="ct" x="376" y="272">11.84 M aggregates</text>
-    <rect class="b g" x="660" y="232" width="180" height="58" rx="9"/>
-    <text class="nm" x="676" y="256">6 · VCV</text><text class="ct" x="676" y="272">9.08 M aggregates</text>
+    <a class="tl" href="../../parquet/tables/#4-scv" target="_top"><title>Column reference: 4 · SCV</title><rect class="b g" x="60" y="232" width="180" height="58" rx="9"/>
+    <text class="nm" x="76" y="256">4 · SCV</text><text class="ct" x="76" y="272">6.74 M submissions</text></a>
+    <a class="tl" href="../../parquet/tables/#5-rcv" target="_top"><title>Column reference: 5 · RCV</title><rect class="b g" x="360" y="232" width="180" height="58" rx="9"/>
+    <text class="nm" x="376" y="256">5 · RCV</text><text class="ct" x="376" y="272">11.84 M aggregates</text></a>
+    <a class="tl" href="../../parquet/tables/#6-vcv" target="_top"><title>Column reference: 6 · VCV</title><rect class="b g" x="660" y="232" width="180" height="58" rx="9"/>
+    <text class="nm" x="676" y="256">6 · VCV</text><text class="ct" x="676" y="272">9.08 M aggregates</text></a>
 
     <path class="e" d="M228,77 H344" marker-end="url(#a)"/>
     <path class="e poly" d="M672,77 H556" marker-end="url(#ap)"/>
@@ -164,31 +191,31 @@ vcv                   9,079,449</div>
 </details>
 
 <!-- ============ AREA 1 ============ -->
-<div class="sec">Area 1 — Variant, the subject of every proposition</div>
+<div class="sec" id="d-2">Area 1 — Variant, the subject of every proposition</div>
 <figure>
   <div class="frame">
   <svg class="d w820" viewBox="0 0 884 330" role="img" aria-label="The variant area: variation, copyNumberCount and location share one horizontal centre line. variation references allele, copyNumberCount and copyNumberChange selected by VRS prefix; each of those references a location; location references sequenceReference directly beneath it. variation also references gene by NCBI gene CURIE inside a JSON extension.">
     <text class="lb p" x="262" y="26" text-anchor="middle">members[] · constraints[] · by VRS prefix</text>
     <text class="lb" x="575" y="26" text-anchor="middle">location_id</text>
 
-    <rect class="b g" x="24" y="120" width="170" height="46" rx="7"/>
-    <text class="nm" x="38" y="142">variation</text><text class="ct" x="38" y="157">4,647,675</text>
+    <a class="tl" href="../../parquet/tables/#variation" target="_top"><title>Column reference: variation</title><rect class="b g" x="24" y="120" width="170" height="46" rx="7"/>
+    <text class="nm" x="38" y="142">variation</text><text class="ct" x="38" y="157">4,647,675</text></a>
 
-    <rect class="b" x="330" y="48" width="180" height="46" rx="7"/>
-    <text class="nm" x="344" y="70">allele</text><text class="ct" x="344" y="85">4,554,562 · VA.</text>
-    <rect class="b" x="330" y="120" width="180" height="46" rx="7"/>
-    <text class="nm" x="344" y="142">copyNumberCount</text><text class="ct" x="344" y="157">47,453 · CN.</text>
-    <rect class="b" x="330" y="192" width="180" height="46" rx="7"/>
-    <text class="nm" x="344" y="214">copyNumberChange</text><text class="ct" x="344" y="229">31,717 · CX.</text>
+    <a class="tl" href="../../parquet/tables/#allele" target="_top"><title>Column reference: allele</title><rect class="b" x="330" y="48" width="180" height="46" rx="7"/>
+    <text class="nm" x="344" y="70">allele</text><text class="ct" x="344" y="85">4,554,562 · VA.</text></a>
+    <a class="tl" href="../../parquet/tables/#copyNumberCount" target="_top"><title>Column reference: copyNumberCount</title><rect class="b" x="330" y="120" width="180" height="46" rx="7"/>
+    <text class="nm" x="344" y="142">copyNumberCount</text><text class="ct" x="344" y="157">47,453 · CN.</text></a>
+    <a class="tl" href="../../parquet/tables/#copyNumberChange" target="_top"><title>Column reference: copyNumberChange</title><rect class="b" x="330" y="192" width="180" height="46" rx="7"/>
+    <text class="nm" x="344" y="214">copyNumberChange</text><text class="ct" x="344" y="229">31,717 · CX.</text></a>
 
-    <rect class="b" x="640" y="120" width="180" height="46" rx="7"/>
-    <text class="nm" x="654" y="142">location</text><text class="ct" x="654" y="157">4,177,664</text>
-    <rect class="b" x="640" y="224" width="180" height="46" rx="7"/>
-    <text class="nm" x="654" y="246">sequenceReference</text><text class="ct" x="654" y="261">215</text>
+    <a class="tl" href="../../parquet/tables/#location" target="_top"><title>Column reference: location</title><rect class="b" x="640" y="120" width="180" height="46" rx="7"/>
+    <text class="nm" x="654" y="142">location</text><text class="ct" x="654" y="157">4,177,664</text></a>
+    <a class="tl" href="../../parquet/tables/#sequenceReference" target="_top"><title>Column reference: sequenceReference</title><rect class="b" x="640" y="224" width="180" height="46" rx="7"/>
+    <text class="nm" x="654" y="246">sequenceReference</text><text class="ct" x="654" y="261">215</text></a>
     <text class="lb" x="742" y="196">sequence_reference_id</text>
 
-    <rect class="b" x="24" y="258" width="170" height="46" rx="7"/>
-    <text class="nm" x="38" y="280">gene</text><text class="ct" x="38" y="295">92,972</text>
+    <a class="tl" href="../../parquet/tables/#gene" target="_top"><title>Column reference: gene</title><rect class="b" x="24" y="258" width="170" height="46" rx="7"/>
+    <text class="nm" x="38" y="280">gene</text><text class="ct" x="38" y="295">92,972</text></a>
     <text class="lb n" x="212" y="272">extensions[].value_gene_array[]</text>
     <text class="lb n" x="212" y="284">.gene · 7.35 M refs · 100 %</text>
 
@@ -223,7 +250,7 @@ WHERE v.id = 'clinvar:51592';</pre>
 </details>
 
 <!-- ============ AREA 2 ============ -->
-<div class="sec">Area 2 — Condition &amp; therapy, the object</div>
+<div class="sec" id="d-3">Area 2 — Condition &amp; therapy, the object</div>
 <figure>
   <div class="frame">
   <svg class="d w820" viewBox="0 0 860 246" role="img" aria-label="The condition and therapy area: conditionSet references condition through a concepts array, and therapyGroup references therapy the same way. Both resolve fully.">
@@ -231,16 +258,16 @@ WHERE v.id = 'clinvar:51592';</pre>
     <text class="lb p" x="261" y="128" text-anchor="middle">30,032 nested set members</text>
     <text class="lb n" x="556" y="128" text-anchor="middle">concepts[] · 56 refs · 100 %</text>
 
-    <rect class="b g" x="24" y="62" width="190" height="46" rx="7"/>
-    <text class="nm" x="38" y="84">condition</text><text class="ct" x="38" y="99">23,162 · clinvar.trait:</text>
+    <a class="tl" href="../../parquet/tables/#condition" target="_top"><title>Column reference: condition</title><rect class="b g" x="24" y="62" width="190" height="46" rx="7"/>
+    <text class="nm" x="38" y="84">condition</text><text class="ct" x="38" y="99">23,162 · clinvar.trait:</text></a>
 
-    <rect class="b" x="308" y="62" width="190" height="46" rx="7"/>
-    <text class="nm" x="322" y="84">conditionSet</text><text class="ct" x="322" y="99">88,883 total</text>
+    <a class="tl" href="../../parquet/tables/#conditionSet" target="_top"><title>Column reference: conditionSet</title><rect class="b" x="308" y="62" width="190" height="46" rx="7"/>
+    <text class="nm" x="322" y="84">conditionSet</text><text class="ct" x="322" y="99">88,883 total</text></a>
 
-    <rect class="b" x="592" y="20" width="200" height="46" rx="7"/>
-    <text class="nm" x="606" y="42">therapy</text><text class="ct" x="606" y="57">38 · clinvar.therapy:</text>
-    <rect class="b" x="592" y="150" width="200" height="46" rx="7"/>
-    <text class="nm" x="606" y="172">therapyGroup</text><text class="ct" x="606" y="187">10 · therapygroup:</text>
+    <a class="tl" href="../../parquet/tables/#therapy" target="_top"><title>Column reference: therapy</title><rect class="b" x="592" y="20" width="200" height="46" rx="7"/>
+    <text class="nm" x="606" y="42">therapy</text><text class="ct" x="606" y="57">38 · clinvar.therapy:</text></a>
+    <a class="tl" href="../../parquet/tables/#therapyGroup" target="_top"><title>Column reference: therapyGroup</title><rect class="b" x="592" y="150" width="200" height="46" rx="7"/>
+    <text class="nm" x="606" y="172">therapyGroup</text><text class="ct" x="606" y="187">10 · therapygroup:</text></a>
 
     <rect class="b" x="308" y="150" width="190" height="60" rx="7"/>
     <text class="ct" x="322" y="170">5,345 accessioned traitset:</text>
@@ -271,7 +298,7 @@ clinvar.conditionset:vcv-50aae75…  OR   Charcot-Marie-Tooth disease type 2; no
 </details>
 
 <!-- ============ AREA 3 ============ -->
-<div class="sec">Area 3 — Proposition, what is being claimed</div>
+<div class="sec" id="d-4">Area 3 — Proposition, what is being claimed</div>
 <figure>
   <div class="frame">
   <svg class="d w820" viewBox="0 0 840 320" role="img" aria-label="The proposition shape: a record with subject, predicate, object and qualifier slots. The subject slot points to variation; the object slot points by id prefix to condition or conditionSet; the qualifier slot points to gene by name.">
@@ -291,14 +318,14 @@ clinvar.conditionset:vcv-50aae75…  OR   Charcot-Marie-Tooth disease type 2; no
     <text class="sl q" x="266" y="220">penetrance</text>
     <text class="ct" x="432" y="188">qualifiers</text>
 
-    <rect class="b" x="24" y="82" width="162" height="46" rx="7"/>
-    <text class="nm" x="38" y="104">variation</text><text class="ct" x="38" y="119">4,647,675</text>
+    <a class="tl" href="../../parquet/tables/#variation" target="_top"><title>Column reference: variation</title><rect class="b" x="24" y="82" width="162" height="46" rx="7"/>
+    <text class="nm" x="38" y="104">variation</text><text class="ct" x="38" y="119">4,647,675</text></a>
     <path class="e" d="M248,105 H190" marker-end="url(#a)"/>
 
-    <rect class="b" x="588" y="44" width="212" height="42" rx="7"/>
-    <text class="nm" x="602" y="65">condition</text><text class="ct" x="602" y="78">24.75 M refs · trait:</text>
-    <rect class="b" x="588" y="98" width="212" height="56" rx="7"/>
-    <text class="nm" x="602" y="119">conditionSet</text>
+    <a class="tl" href="../../parquet/tables/#condition" target="_top"><title>Column reference: condition</title><rect class="b" x="588" y="44" width="212" height="42" rx="7"/>
+    <text class="nm" x="602" y="65">condition</text><text class="ct" x="602" y="78">24.75 M refs · trait:</text></a>
+    <a class="tl" href="../../parquet/tables/#conditionSet" target="_top"><title>Column reference: conditionSet</title><rect class="b" x="588" y="98" width="212" height="56" rx="7"/>
+    <text class="nm" x="602" y="119">conditionSet</text></a>
     <text class="ct" x="602" y="132">1.27 M refs · traitset:</text>
     <text class="ct" x="602" y="145">1.63 M refs · conditionset:</text>
     <rect class="b" x="588" y="166" width="212" height="42" rx="7"/>
@@ -308,8 +335,8 @@ clinvar.conditionset:vcv-50aae75…  OR   Charcot-Marie-Tooth disease type 2; no
     <path class="e poly" d="M504,158 C548,158 552,126 584,126" marker-end="url(#ap)"/>
     <path class="e poly" d="M504,164 C548,164 552,187 584,187" marker-end="url(#ap)"/>
 
-    <rect class="b" x="252" y="256" width="162" height="46" rx="7"/>
-    <text class="nm" x="266" y="278">gene</text><text class="ct" x="266" y="293">by name · 24.2 % of rows</text>
+    <a class="tl" href="../../parquet/tables/#gene" target="_top"><title>Column reference: gene</title><rect class="b" x="252" y="256" width="162" height="46" rx="7"/>
+    <text class="nm" x="266" y="278">gene</text><text class="ct" x="266" y="293">by name · 24.2 % of rows</text></a>
     <path class="e nat" d="M300,238 V252" marker-end="url(#a)"/>
   </svg>
   </div>
@@ -348,7 +375,7 @@ clinvar.trait:16789                not specified</div>
 </details>
 
 <!-- ============ AREA 4 ============ -->
-<div class="sec">Area 4 — SCV, one submitter's assertion</div>
+<div class="sec" id="d-5">Area 4 — SCV, one submitter's assertion</div>
 <figure>
   <div class="frame">
   <svg class="d w820" viewBox="0 0 860 284" role="img" aria-label="The SCV area: scv references a proposition, a submitter through contributions, an evidenceLine through has_evidence_lines, and the submitted condition or condition set through a typed extension struct.">
@@ -360,13 +387,13 @@ clinvar.trait:16789                not specified</div>
     <rect class="b" x="24" y="110" width="170" height="46" rx="7" style="stroke-dasharray:4 4;fill:none;stroke:var(--faint)"/>
     <text class="ct" x="38" y="132">proposition</text><text class="ct" x="38" y="147">area 3 · seam C</text>
 
-    <rect class="b g" x="266" y="110" width="180" height="46" rx="7"/>
-    <text class="nm" x="280" y="132">scv</text><text class="ct" x="280" y="147">6,735,011</text>
+    <a class="tl" href="../../parquet/tables/#scv" target="_top"><title>Column reference: scv</title><rect class="b g" x="266" y="110" width="180" height="46" rx="7"/>
+    <text class="nm" x="280" y="132">scv</text><text class="ct" x="280" y="147">6,735,011</text></a>
 
-    <rect class="b" x="604" y="40" width="210" height="46" rx="7"/>
-    <text class="nm" x="618" y="62">submitter</text><text class="ct" x="618" y="77">3,532 · 20.2 M refs</text>
-    <rect class="b" x="604" y="144" width="210" height="46" rx="7"/>
-    <text class="nm" x="618" y="166">evidenceLine</text><text class="ct" x="618" y="181">1,568 · shared PK</text>
+    <a class="tl" href="../../parquet/tables/#submitter" target="_top"><title>Column reference: submitter</title><rect class="b" x="604" y="40" width="210" height="46" rx="7"/>
+    <text class="nm" x="618" y="62">submitter</text><text class="ct" x="618" y="77">3,532 · 20.2 M refs</text></a>
+    <a class="tl" href="../../parquet/tables/#evidenceLine" target="_top"><title>Column reference: evidenceLine</title><rect class="b" x="604" y="144" width="210" height="46" rx="7"/>
+    <text class="nm" x="618" y="166">evidenceLine</text><text class="ct" x="618" y="181">1,568 · shared PK</text></a>
     <rect class="b" x="604" y="212" width="210" height="46" rx="7"/>
     <text class="nm" x="618" y="234">condition / conditionSet</text><text class="ct" x="618" y="249">trait: or traitset: ref</text>
 
@@ -407,3 +434,36 @@ Uncertain significance   Breast Cancer Information Core (BIC) (BRCA2)
   release — figures change between releases, so don't assume they are the latest. See
   <a href="../../data-access/parquet/" target="_top">Downloads &rarr; Parquet Files</a> for current releases.</p>
 </div>
+
+<script>
+/* Mini list: click scrolls to a diagram; the ▸ arrow tracks which diagram is at the top of the frame. */
+(() => {
+  const top = document.querySelector('.top');
+  const links = [...document.querySelectorAll('.mini a')];
+  const targets = links.map(a => document.getElementById(a.hash.slice(1)));
+  let raf = 0;
+  function update() {
+    raf = 0;
+    const hb = top.getBoundingClientRect().bottom;
+    const line = hb + (window.innerHeight - hb) / 3;   // a diagram is current once its heading reaches the upper third
+    let cur = 0;
+    targets.forEach((t, k) => { if (t.getBoundingClientRect().top <= line) cur = k; });
+    const doc = document.documentElement;
+    if (window.scrollY > 0 && window.innerHeight + window.scrollY >= doc.scrollHeight - 2) cur = targets.length - 1;
+    links.forEach((a, k) => {
+      a.classList.toggle('on', k === cur);
+      if (k === cur) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+    });
+  }
+  const queue = () => { if (!raf) raf = requestAnimationFrame(update); };
+  links.forEach((a, k) => a.addEventListener('click', e => {
+    e.preventDefault();                       // no hash change, so the parent page's history is untouched
+    // scroll only this frame (scrollIntoView would also scroll the docs page around the iframe)
+    const y = targets[k].getBoundingClientRect().top + window.scrollY - top.offsetHeight - 10;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }));
+  addEventListener('scroll', queue, { passive: true });
+  addEventListener('resize', queue);
+  update();
+})();
+</script>

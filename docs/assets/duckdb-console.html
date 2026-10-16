@@ -79,6 +79,7 @@
     border-radius: 6px; padding: 10px 12px; font-size: 12px; line-height: 1.5; }
   .errbox .eh { font-weight: 700; color: var(--err); margin-bottom: 3px; }
   .errbox .ehint { color: var(--ink); }
+  .errbox a, p.note a { color: var(--accent); text-decoration: underline; }
   .errbox .ehint code { font-family: ui-monospace, monospace; font-size: 11px; color: var(--ink); }
   .errbox details { margin-top: 7px; }
   .errbox summary { cursor: pointer; color: var(--ink-soft); font-size: 10.5px; font-family: ui-monospace, monospace; }
@@ -96,10 +97,10 @@
     <h1>Live query console</h1>
     <span class="live">DuckDB-Wasm · no install</span>
   </div>
-  <p class="caption">Runs SQL <b>in your browser</b> against the published ClinVar-GKM Parquet sections over
+  <p class="caption">Runs SQL <b>in your browser</b> against the published ClinVar-GKM Parquet tables over
     <code>data.clinvar-gkm.org</code> &mdash; nothing is downloaded to disk and no server runs the query. Best for
     exploration: counts, schema, single-table and targeted lookups return in about a second. Full scans over the
-    big sections are slow over the network and may rate-limit; for those, download and query locally.</p>
+    big tables are slow over the network and may rate-limit; for those, download and query locally.</p>
 
   <div class="bar">
     <label>Release
@@ -115,7 +116,7 @@
       <select id="examples">
         <option value="count">How many conditions are there?</option>
         <option value="marfan">Find a disease by name (Marfan)</option>
-        <option value="describe">Schema of the scv section (DESCRIBE)</option>
+        <option value="describe">Schema of the scv table (DESCRIBE)</option>
         <option value="scvcount">Count SCV statements (3&nbsp;GB, footer only)</option>
         <option value="therapy">List drug therapies (name is inside JSON)</option>
         <option value="bytype">Count conditions by type (GROUP BY)</option>
@@ -141,7 +142,7 @@
     <code>DESCRIBE</code> fetch only the file footer.
     <code>{BASE}</code> in a query is replaced with the selected release path.
     The connection runs with <code>SET threads=1</code> to stay gentle on the CDN; a parallel full scan of a big
-    section can trip rate limiting (<code>HTTP 429</code>). To keep load on the shared service light, the console
+    table can trip rate limiting (<code>HTTP 429</code>); joins across the big tables belong on your machine, <a href="../parquet/performance/#materialize-join-tables" target="_top">materialized once</a>. To keep load on the shared service light, the console
     runs <b>at most one query every 10&nbsp;seconds</b> &mdash; the Run button greys out and a countdown beside it
     shows when the next query is available. Multiple statements separated by <code>;</code> run in order and the
     last result is shown. Output is capped at 500 rows.
@@ -235,6 +236,10 @@
 
   // Map a raw DuckDB / DuckDB-Wasm error to a plain-language headline + what-to-do hint.
   // The raw message is always shown too (under "Technical details"), so a miss is never fatal.
+  const MATERIALIZE_LINK = ' For questions you ask repeatedly &mdash; statements by variant, condition, or qualifier &mdash; '
+    + '<a href="../parquet/performance/#materialize-join-tables" target="_top">materialize the statement&ndash;proposition join locally</a>'
+    + ' and each lookup takes milliseconds.';
+
   function humanizeError(raw) {
     const m = raw || '';
     const cand = (m.match(/Candidate bindings?:\s*([^\n]+)/i) || [])[1];
@@ -244,20 +249,20 @@
 
     if (/429|too many requests/i.test(m))
       return { headline: 'The data server is rate-limiting this query.',
-        hint: 'This looks like a large scan over the network, which fires many requests at once. Add a <code>WHERE</code> filter or a <code>LIMIT</code>, pick a smaller section, or download the section and query it locally.' };
+        hint: 'This looks like a large scan over the network, which fires many requests at once. Add a <code>WHERE</code> filter or a <code>LIMIT</code>, pick a smaller table, or download the table and query it locally.' + MATERIALIZE_LINK };
     if (/failed to fetch|networkerror|net::|err_internet|err_connection/i.test(m))
       return { headline: 'Could not reach the data server.',
         hint: 'Check your internet connection and try again. The data is served from <code>data.clinvar-gkm.org</code>.' };
     if (/\b40[34]\b|no files found|could not open file|http error/i.test(m))
-      return { headline: 'That section or release could not be found.',
-        hint: 'Check the section name (<code>condition</code>, <code>scv</code>, <code>varcond-proposition</code>, …) and the release selected in the dropdowns.' };
+      return { headline: 'That table or release could not be found.',
+        hint: 'Check the table name (<code>condition</code>, <code>scv</code>, <code>varcond-proposition</code>, …) and the release selected in the dropdowns.' };
     if (col || /not found in from clause|referenced column|index is out of bounds|out of bounds/i.test(m))
-      return { headline: col ? `There’s no column named “${col}” in this section.`
-                             : 'A column in your query doesn’t exist in this section.',
+      return { headline: col ? `There’s no column named “${col}” in this table.`
+                             : 'A column in your query doesn’t exist in this table.',
         hint: (cand ? `The columns here are: <code>${escapeHtml(cand)}</code>. ` : 'Run <code>DESCRIBE SELECT * FROM \'…\'</code> to list the real columns. ')
              + 'Values like a drug name or a classification often live inside the JSON <code>value</code>/<code>data</code> column or a <code>STRUCT</code>, not as a top-level column.' };
     if (/table with name .* does not exist|catalog error/i.test(m))
-      return { headline: 'That table or section name wasn’t recognised.',
+      return { headline: 'That table name wasn’t recognised.',
         hint: 'Query a Parquet file directly by its URL or path, e.g. <code>FROM \'…/condition.parquet\'</code>.' };
     if (syn || /parser error|syntax error/i.test(m))
       return { headline: syn ? `SQL syntax error near “${syn}”.` : 'SQL syntax error.',
@@ -267,9 +272,9 @@
         hint: 'A column may be text where a number was expected, or vice-versa. Cast explicitly, e.g. <code>CAST(col AS INTEGER)</code>.' };
     if (!m.trim() || /^error\.?$/i.test(m.trim()) || /out of memory|oom\b|failed to allocate|cannot allocate|abort|unreachable|runtimeerror|memory access/i.test(m))
       return { headline: 'The query may be too large to run in the browser.',
-        hint: 'Large sections like <code>variation</code>, <code>scv</code>, <code>allele</code>, <code>rcv</code> and <code>vcv</code> run to several GB. Avoid <code>SELECT *</code> and the big <code>data</code> column — name just the columns you need, and add a <code>LIMIT</code> or a selective <code>WHERE</code>. For a full scan, download the section and query it locally, where there is far more memory than a browser tab.' };
+        hint: 'Large tables like <code>variation</code>, <code>scv</code>, <code>allele</code>, <code>rcv</code> and <code>vcv</code> run to several GB. Avoid <code>SELECT *</code> and the big <code>data</code> column — name just the columns you need, and add a <code>LIMIT</code> or a selective <code>WHERE</code>. For a full scan, download the section and query it locally, where there is far more memory than a browser tab.' + MATERIALIZE_LINK };
     return { headline: 'The query couldn’t be completed.',
-      hint: 'The technical message below has the details — if it is blank, the browser tab likely ran out of memory on a large section.' };
+      hint: 'The technical message below has the details — if it is blank, the browser tab likely ran out of memory on a large table.' };
   }
 
   const COOLDOWN_MS = 10000;   // one query per 10s — a courtesy guardrail for the shared CDN
