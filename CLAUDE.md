@@ -40,7 +40,8 @@ constraint shapes are set in `gkm-catvar-proc.sql`. Conformance invariants that 
     oracle-gating (`src/procedures/**`)
   - [`scripts.md`](.claude/rules/scripts.md) — bash 3.2, R2/Cloudflare, `bq`/`gh` gotchas
     (`src/scripts/**`, `src/vrsify/**`)
-  - [`docs.md`](.claude/rules/docs.md) — Zensical `--strict`, terminology, roadmap generation (`docs/**`)
+  - [`docs.md`](.claude/rules/docs.md) — Zensical `--strict`, terminology, roadmap generation, when the site
+    deploys (`docs/**`)
 - **Architectural decisions** — [`docs/decisions/`](docs/decisions/) (ADRs, one per decision). Fuller design
   specs are in `docs/superpowers/specs/`.
 - **What changed since you last looked** — run `/catchup` (`.claude/commands/catchup.md`): it diffs `git log`,
