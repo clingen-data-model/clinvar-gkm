@@ -1,5 +1,38 @@
 # Parquet Developer Track Implementation Plan
 
+> **Status: implemented (2026-10-15), PR #139.** The checkboxes below are ticked; where the build departed
+> from a step, the difference is recorded here rather than by leaving the box open.
+>
+> **Renamed during review:** "section" became "table" throughout the track. Each bundle section is exactly one
+> Parquet table.
+>
+> | Planned | As built |
+> | --- | --- |
+> | One Section at a Time · `first-queries.md` | **Anatomy of a Table** · `table-anatomy.md` |
+> | The 22 Sections · `section-map.md` | **The 22 Tables** · `tables.md` |
+> | Joining Sections · `joining.md` | **Joining Tables** · `joining.md` |
+> | `parquet-section-map.html` | `parquet-table-map.html` |
+>
+> **Added beyond the plan:** a live DuckDB-Wasm console on Start Here (vendored runtime); a third diagram,
+> `parquet-vcv-levels.html` (reading a variant's statements); a complete per-table column reference on The 22
+> Tables; diagram table boxes linked to that reference; a pinned header with a scroll-tracking mini list of the
+> diagrams in each frame; the "Materialize the joins you repeat" section on Working at Scale; R in Beyond DuckDB.
+>
+> **Departures from the steps as written:**
+>
+> - **Remote querying (Conventions):** `SET threads=1` + `http_retries` no longer gets a big-table scan through.
+>   The CDN returns HTTP 429 after ~55 requests in ~10 s, even single-threaded. The pages teach "explore
+>   remotely (footer, `LIMIT`, small tables), download to analyze", and drop the throttle as a workaround.
+> - **Task 4, step 5:** the `classification.name` leaf is well under 1 MB on disk, not ~140 MB. The page uses
+>   the measured figure, and also teaches grouping by the normalized `classification.primaryCoding.code` (44
+>   submitted spellings → 34 code–guideline pairs).
+> - **Task 8, step 2 (row-group targeting):** the published files are not sorted by any lookup key, so a filter
+>   can't skip row groups. The page explains that, and points to materialized, sorted tables as the way to get
+>   row-group pruning.
+> - **Task 11:** besides the pointer, `data-access/parquet.md` got two corrections: not every table has
+>   `id`/`data`, and two listed `varcustom` columns don't exist.
+> - **Also found:** the repo `.gitignore`'s bare `parquet/` rule hid `docs/parquet/`; `!docs/parquet/` added.
+
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or
 > superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 > Use the repo's `write-docs` skill for every page created or edited here.
@@ -93,7 +126,7 @@ files, not as a drop-in asset (it carries its own palette; see Task 2).
 `@media (prefers-color-scheme: dark)` guarded by `:root:not([data-theme="light"])` — so it follows the docs
 theme toggle. Match that structure exactly.
 
-- [ ] **Step 1: Reuse the repo palette, not the source artifact's**
+- [x] **Step 1: Reuse the repo palette, not the source artifact's**
 
   Copy the `:root` / `:root[data-theme="dark"]` / `@media (prefers-color-scheme: dark)` token block verbatim from
   `bundle-section-map.html` (`--bg --ink --ink-soft --line --line-strong --box --hdr --accent --id`). Map the
@@ -106,12 +139,12 @@ theme toggle. Match that structure exactly.
   | natural-key join (not a PK) | `--line`, dotted |
   | id / key text | `--id` |
 
-- [ ] **Step 2: Draw the six areas and the seams**
+- [x] **Step 2: Draw the six areas and the seams**
 
   Content: the overview map (Variant · Condition & therapy → Proposition → SCV / RCV / VCV) plus the per-area
   detail for Areas 1–4. Keep each area readable on its own; this file is the "map", Task 2 is the "joins".
 
-- [ ] **Step 3: Verify geometry before committing**
+- [x] **Step 3: Verify geometry before committing**
 
   Diagrams drawn by hand drift: labels land on top of boxes and arrows terminate 1 px off an edge. Run a
   collision check rather than eyeballing — flatten every path to sampled points, bound every `<text>` from its
@@ -127,11 +160,11 @@ collision check reports zero issues.
 
 Same structure and palette as Task 1. Content: the five join seams, one strip each —
 
-- [ ] **Step 1:** Seam A · Variant → Proposition (four tables, one target, 100 %)
-- [ ] **Step 2:** Seam B · Proposition → Condition / ConditionSet (three prefixes, two target tables)
-- [ ] **Step 3:** Seam C · Proposition → Statements (the `proposition_id` fan; label it **1:1**)
-- [ ] **Step 4:** Seam D · Aggregate nesting (root → child → SCV leaves; mark SCV as terminal)
-- [ ] **Step 5:** Seam E · SCV ↔ aggregate accession (the single-pass mapping)
+- [x] **Step 1:** Seam A · Variant → Proposition (four tables, one target, 100 %)
+- [x] **Step 2:** Seam B · Proposition → Condition / ConditionSet (three prefixes, two target tables)
+- [x] **Step 3:** Seam C · Proposition → Statements (the `proposition_id` fan; label it **1:1**)
+- [x] **Step 4:** Seam D · Aggregate nesting (root → child → SCV leaves; mark SCV as terminal)
+- [x] **Step 5:** Seam E · SCV ↔ aggregate accession (the single-pass mapping)
 
 **Verification:** as Task 1.
 
@@ -149,13 +182,13 @@ validates every `.md` whether or not it is in the nav.
 **Audience:** someone who has never opened a Parquet file and may not write code. This page must produce a
 real answer from real ClinVar data in about five minutes, with **no joins and no genomics knowledge**.
 
-- [ ] **Step 1: One small file, chosen deliberately**
+- [x] **Step 1: One small file, chosen deliberately**
 
   Use `condition.parquet` — ~2 MB, 23,162 rows, and its `name` column holds plain disease names. It is the only
   section that is simultaneously tiny, human-readable, and free of VRS identifiers. Do not open with `scv` or
   `variation`.
 
-- [ ] **Step 2: Three queries, in this order**
+- [x] **Step 2: Three queries, in this order**
 
   ```sql
   -- 1. How many conditions are there?
@@ -168,14 +201,14 @@ real answer from real ClinVar data in about five minutes, with **no joins and no
   SELECT id, name FROM 'condition.parquet' WHERE name ILIKE '%marfan%';
   ```
 
-- [ ] **Step 3: A no-install option — VERIFY BEFORE PUBLISHING**
+- [x] **Step 3: A no-install option — VERIFY BEFORE PUBLISHING**
 
   Offer the DuckDB Web Shell (<https://shell.duckdb.org>) with the downloaded file dragged in, so a reader needs
   no terminal at all. **This is unverified.** Before writing it as instructions, confirm by hand that a local
   `condition.parquet` can be dropped into the shell and queried. If it cannot, cut the step — do not ship a
   guess. Do not instead point the shell at the R2 URL; R2 is not a query endpoint.
 
-- [ ] **Step 4: An escape hatch to a spreadsheet**
+- [x] **Step 4: An escape hatch to a spreadsheet**
 
   Many non-technical readers want the answer in Excel or Sheets, which cannot open Parquet. One line:
 
@@ -183,7 +216,7 @@ real answer from real ClinVar data in about five minutes, with **no joins and no
   duckdb -c "COPY (SELECT id, name FROM 'condition.parquet') TO 'conditions.csv' (HEADER)"
   ```
 
-- [ ] **Step 5: Close with a map, not a lecture** — one paragraph on what the other 21 files are, linking to
+- [x] **Step 5: Close with a map, not a lecture** — one paragraph on what the other 21 files are, linking to
   the section map, and a "where to next" list pointing at the remaining pages by the question each answers.
 
 **Verification:** `zensical build --strict`; run all three queries plus the CSV export against a fresh download.
@@ -194,17 +227,17 @@ real answer from real ClinVar data in about five minutes, with **no joins and no
 
 Still single-table — no joins. Teach the shape of a GKM Parquet section.
 
-- [ ] **Step 1:** `DESCRIBE SELECT * FROM '<file>'` as the primary way to read a schema; show it on
+- [x] **Step 1:** `DESCRIBE SELECT * FROM '<file>'` as the primary way to read a schema; show it on
   `condition.parquet` (flat) and on `scv.parquet` (nested `STRUCT`s).
-- [ ] **Step 2:** The two columns every section has — `id` and `data` — and that `data` is the full JSON object
+- [x] **Step 2:** The two columns every section has — `id` and `data` — and that `data` is the full JSON object
   as a string. Introduce `json_extract` / `->>` for reaching into it.
-- [ ] **Step 3:** Reading a `STRUCT` column with dotted access (`classification.name`), which is the single most
+- [x] **Step 3:** Reading a `STRUCT` column with dotted access (`classification.name`), which is the single most
   common first stumble: `classification` is a MappableConcept, not a string.
-- [ ] **Step 4: The one hard warning, early** — never `SELECT *` on a large section and never load one whole into
+- [x] **Step 4: The one hard warning, early** — never `SELECT *` on a large section and never load one whole into
   pandas. Give the arithmetic: `scv.parquet` is ~3 GB on disk and ~20 GB uncompressed, of which the `data`
   column alone is ~15 GB. Name the symptom (machine swaps or the process is killed) and the fix (name your
   columns).
-- [ ] **Step 5:** A worked single-table analysis — classification counts on `scv.parquet` reading only the
+- [x] **Step 5:** A worked single-table analysis — classification counts on `scv.parquet` reading only the
   `classification.name` leaf. Note that this leaf costs ~140 MB where the whole table costs ~20 GB, and that
   the values are not case-normalised (44 distinct, including `pathogenic` alongside `Pathogenic`).
 
@@ -215,14 +248,14 @@ Still single-table — no joins. Teach the shape of a GKM Parquet section.
 
 **Files:** Create `docs/parquet/section-map.md`
 
-- [ ] **Step 1:** Embed `parquet-section-map.html` by `<iframe>`, matching the attributes used at
+- [x] **Step 1:** Embed `parquet-section-map.html` by `<iframe>`, matching the attributes used at
   `docs/output-reference/classes/index.md:13`.
-- [ ] **Step 2:** Group the 22 sections into the six areas with one line each on *what question it answers*.
+- [x] **Step 2:** Group the 22 sections into the six areas with one line each on *what question it answers*.
   Do **not** duplicate the file-description table from `data-access/parquet.md`; link to it.
-- [ ] **Step 3:** The id shapes, as a table — `clinvar:<n>`, `ga4gh:VA.*` / `CN.*` / `CX.*`, `clinvar.trait:<n>`,
+- [x] **Step 3:** The id shapes, as a table — `clinvar:<n>`, `ga4gh:VA.*` / `CN.*` / `CX.*`, `clinvar.trait:<n>`,
   `clinvar.traitset:<n>`, `clinvar.conditionset:vcv-<md5>`, `ncbigene:<n>`, `clinvar.submission:SCV*`,
   `RCV*-<stmt>`, `VCV*-<stmt>`, `SQ.*`. Readers meet these before any join, and the prefix *is* the dispatch key.
-- [ ] **Step 4:** State which sections are leaves (`condition`, `therapy`, `submitter`, `sequenceReference`) so
+- [x] **Step 4:** State which sections are leaves (`condition`, `therapy`, `submitter`, `sequenceReference`) so
   readers know where a traversal ends.
 
 **Verification:** `zensical build --strict`; the iframe renders in both themes; every id shape confirmed present
@@ -235,23 +268,23 @@ in the current release.
 The core technical page. Embed `parquet-join-seams.html`, then one section per seam: the diagram strip, the
 runnable join, and the trap.
 
-- [ ] **Step 1:** Seam A — Variant → Proposition. Four tables spell the subject column differently
+- [x] **Step 1:** Seam A — Variant → Proposition. Four tables spell the subject column differently
   (`subject_variant_id` vs `subject_id`); `UNION ALL` them once into a `prop` CTE and reuse it.
-- [ ] **Step 2:** Seam B — Proposition → Condition / ConditionSet. Branch on prefix: `clinvar.trait:` →
+- [x] **Step 2:** Seam B — Proposition → Condition / ConditionSet. Branch on prefix: `clinvar.trait:` →
   `condition`, and **both** `clinvar.traitset:` and `clinvar.conditionset:` → `conditionSet`. `LEFT JOIN` both
   and keep a `resolved_via` flag so losses are visible rather than silent.
-- [ ] **Step 3:** Expanding a set to member *names* — the trap worth its own callout. `conditionSet.concepts[]`
+- [x] **Step 3:** Expanding a set to member *names* — the trap worth its own callout. `conditionSet.concepts[]`
   holds **ids**, so `array_to_string(concepts, …)` prints `clinvar.trait:2965`, not a disease name. `unnest` and
   re-join to `condition`. Two further points: `membershipOperator` (`AND`/`OR`) changes what the set asserts and
   must travel as its own column, because `array_to_string` requires a **constant** separator; and a minted set
   can nest a `clinvar.traitset:` member, so expansion is one level deeper than it looks.
-- [ ] **Step 4:** Seam C — Proposition → Statements. Label it **1:1** explicitly and show the three-table
+- [x] **Step 4:** Seam C — Proposition → Statements. Label it **1:1** explicitly and show the three-table
   `UNION ALL`, noting each tier's shares sum to its exact row count.
-- [ ] **Step 5:** Seam D — the aggregate group. Root cites children, children cite SCVs, SCVs are leaves.
-- [ ] **Step 6:** Seam E — the efficient SCV ↔ aggregate mapping. The accession in the citing statement's own id
+- [x] **Step 5:** Seam D — the aggregate group. Root cites children, children cite SCVs, SCVs are leaves.
+- [x] **Step 6:** Seam E — the efficient SCV ↔ aggregate mapping. The accession in the citing statement's own id
   names the group, so one pass over `has_evidence_lines` ⋈ `evidence_items` yields every pair with no recursion.
   Keep `statement_id` as well as the accession — it is what distinguishes `-CP` from `-NOCP` from `-EP`.
-- [ ] **Step 7: A "joins that lie" summary box** — the four prefix-dispatched columns, `gene_context_name` on a
+- [x] **Step 7: A "joins that lie" summary box** — the four prefix-dispatched columns, `gene_context_name` on a
   non-unique natural key, and `object_therapy` needing `trim(…, '"')` plus prefix stripping.
 
 **Verification:** `zensical build --strict`; every join run with its real output pasted; each "trap" demonstrated
@@ -264,14 +297,14 @@ by showing the wrong result next to the right one.
 Task-indexed, not table-indexed. Each recipe: the question in plain language, the query, the real output, and
 one line on cost. Seed set — confirm against the roadmap and GitHub Discussions before fixing the list:
 
-- [ ] **Step 1:** Everything ClinVar says about one variant (by `clinvar:<n>`, and by HGVS via `allele`).
-- [ ] **Step 2:** All variants asserted for one condition, with classification counts.
-- [ ] **Step 3:** One submitter's whole footprint — cross-link `user-story-audit.md`, which already tells this
+- [x] **Step 1:** Everything ClinVar says about one variant (by `clinvar:<n>`, and by HGVS via `allele`).
+- [x] **Step 2:** All variants asserted for one condition, with classification counts.
+- [x] **Step 3:** One submitter's whole footprint — cross-link `user-story-audit.md`, which already tells this
   story for the bundle.
-- [ ] **Step 4:** Conflicting classifications for a variant across submitters (uses Seam E).
-- [ ] **Step 5:** Variants in a genomic window (`location.loc_start` / `loc_end` + `sequence_reference_id`).
-- [ ] **Step 6:** Gene-level rollup — using the reliable gene-id edge, *not* `gene_context_name`.
-- [ ] **Step 7:** Export a filtered slice to CSV/Parquet for another tool.
+- [x] **Step 4:** Conflicting classifications for a variant across submitters (uses Seam E).
+- [x] **Step 5:** Variants in a genomic window (`location.loc_start` / `loc_end` + `sequence_reference_id`).
+- [x] **Step 6:** Gene-level rollup — using the reliable gene-id edge, *not* `gene_context_name`.
+- [x] **Step 7:** Export a filtered slice to CSV/Parquet for another tool.
 
 **Verification:** `zensical build --strict`; every recipe run end to end; each one's wall-clock and peak memory
 noted so a reader knows what to expect.
@@ -280,19 +313,19 @@ noted so a reader knows what to expect.
 
 **Files:** Create `docs/parquet/performance.md`
 
-- [ ] **Step 1:** Column pruning as the one idea that matters, with the `scv.parquet` per-column byte table from
+- [x] **Step 1:** Column pruning as the one idea that matters, with the `scv.parquet` per-column byte table from
   `parquet_metadata` showing `data` dominating.
-- [ ] **Step 2:** Row-group targeting — read one row group rather than a whole column when you need a single
+- [x] **Step 2:** Row-group targeting — read one row group rather than a whole column when you need a single
   record.
-- [ ] **Step 3:** DuckDB settings that matter on a laptop: `threads`, `memory_limit`,
+- [x] **Step 3:** DuckDB settings that matter on a laptop: `threads`, `memory_limit`,
   `preserve_insertion_order=false`, and what the spill-to-disk error looks like when a `GROUP BY` on
   high-cardinality strings exhausts temp space.
-- [ ] **Step 4:** Reserved words that bite in real queries — `rows`, `target`, `role`, `type`, `order`, `end`
+- [x] **Step 4:** Reserved words that bite in real queries — `rows`, `target`, `role`, `type`, `order`, `end`
   all fail as bare column aliases. This is a frequent, confusing first error.
-- [ ] **Step 5:** `duckbox` escapes control characters, so an embedded newline prints as `\n`. The data is fine;
+- [x] **Step 5:** `duckbox` escapes control characters, so an embedded newline prints as `\n`. The data is fine;
   use `.mode line`, or emit one row per member. Worth stating because the natural fix (a newline-joined label)
   looks broken in the CLI.
-- [ ] **Step 6:** Persisting a `.duckdb` database with materialised join tables when you will query repeatedly.
+- [x] **Step 6:** Persisting a `.duckdb` database with materialised join tables when you will query repeatedly.
 
 **Verification:** `zensical build --strict`; reproduce each error message quoted.
 
@@ -302,15 +335,15 @@ noted so a reader knows what to expect.
 
 One short, runnable section per tool, each doing the *same* small task so they are comparable.
 
-- [ ] **Step 1:** Python — `pyarrow` for schema/metadata and column-pruned reads; `pandas` with an explicit
+- [x] **Step 1:** Python — `pyarrow` for schema/metadata and column-pruned reads; `pandas` with an explicit
   `columns=` and the warning that omitting it loads everything; `polars` `scan_parquet` for lazy predicate
   pushdown.
-- [ ] **Step 2:** R — `arrow::open_dataset()` with `dplyr` verbs.
-- [ ] **Step 3:** Spark / cloud warehouses — Parquet reads directly; BigQuery external tables and Athena over a
+- [x] **Step 2:** R — `arrow::open_dataset()` with `dplyr` verbs.
+- [x] **Step 3:** Spark / cloud warehouses — Parquet reads directly; BigQuery external tables and Athena over a
   bucket copy. Note that `STRUCT` and `LIST` columns survive, and the `data` column is a string everywhere.
-- [ ] **Step 4:** GUI and spreadsheet users — convert a filtered slice to CSV first; do not suggest opening a
+- [x] **Step 4:** GUI and spreadsheet users — convert a filtered slice to CSV first; do not suggest opening a
   multi-GB section in a spreadsheet.
-- [ ] **Step 5:** A one-paragraph "which tool when" close.
+- [x] **Step 5:** A one-paragraph "which tool when" close.
 
 **Verification:** `zensical build --strict`; run at least the Python, polars and R snippets.
 
@@ -322,7 +355,7 @@ One short, runnable section per tool, each doing the *same* small task so they a
 
 **Files:** Modify `zensical.toml`
 
-- [ ] **Step 1:** Insert a new top-level group **after** `Downloads` and **before** `User Stories`, using the
+- [x] **Step 1:** Insert a new top-level group **after** `Downloads` and **before** `User Stories`, using the
   repo's bare-index pattern (first entry a plain string, as the Data Model group does):
 
   ```toml
@@ -337,7 +370,7 @@ One short, runnable section per tool, each doing the *same* small task so they a
     ] },
   ```
 
-- [ ] **Step 2:** Confirm `navigation.indexes` is already in `theme.features` so the bare index entry renders as
+- [x] **Step 2:** Confirm `navigation.indexes` is already in `theme.features` so the bare index entry renders as
   the group's landing page. It is — do not add it again.
 
 **Verification:** `zensical build --strict`; the tab appears between Downloads and User Stories; the group lands
@@ -347,11 +380,11 @@ on `parquet/index.md`.
 
 **Files:** Modify `docs/data-access/parquet.md`
 
-- [ ] **Step 1:** Add a pointer near the top — one admonition, directing readers who want to *query* rather than
+- [x] **Step 1:** Add a pointer near the top — one admonition, directing readers who want to *query* rather than
   *download* into `../parquet/index.md`.
-- [ ] **Step 2:** Leave every existing heading and anchor intact. Do **not** move the delta reconstruction
+- [x] **Step 2:** Leave every existing heading and anchor intact. Do **not** move the delta reconstruction
   content; it is distribution mechanics and at least ten inbound links and two planning docs point at it.
-- [ ] **Step 3:** Decide the fate of the `### Query` / `### Column Reference` / cross-section example blocks,
+- [x] **Step 3:** Decide the fate of the `### Query` / `### Column Reference` / cross-section example blocks,
   which the new track supersedes. Default: **keep them in place** and add a line pointing to the fuller
   treatment. Removing them breaks anchors for no benefit.
 
@@ -361,11 +394,11 @@ on `parquet/index.md`.
 
 **Files:** Modify `docs/index.md`, `docs/output-reference/overview.md`
 
-- [ ] **Step 1:** `docs/index.md` — add Parquet to whatever "where to start" routing the home page offers, so a
+- [x] **Step 1:** `docs/index.md` — add Parquet to whatever "where to start" routing the home page offers, so a
   reader who wants tables rather than JSON is sent down the right path from the first screen.
-- [ ] **Step 2:** `docs/output-reference/overview.md` already has a `## Parquet Output` section — point it at the
+- [x] **Step 2:** `docs/output-reference/overview.md` already has a `## Parquet Output` section — point it at the
   new track.
-- [ ] **Step 3:** Do **not** touch `docs/reference/roadmap.md`'s generated region.
+- [x] **Step 3:** Do **not** touch `docs/reference/roadmap.md`'s generated region.
 
 **Verification:** `zensical build --strict`.
 
@@ -375,13 +408,13 @@ on `parquet/index.md`.
 
 ### Task 13: Full verification pass
 
-- [ ] **Step 1:** `zensical build --strict` clean from a clean tree.
-- [ ] **Step 2:** `zensical serve` and walk the track start to finish as a new reader: every code block
+- [x] **Step 1:** `zensical build --strict` clean from a clean tree.
+- [x] **Step 2:** `zensical serve` and walk the track start to finish as a new reader: every code block
   copy-pasteable, every link live, both diagrams rendering in light, dark and system theme.
-- [ ] **Step 3:** Re-run every query in the track against a freshly downloaded monthly set and diff the pasted
+- [x] **Step 3:** Re-run every query in the track against a freshly downloaded monthly set and diff the pasted
   outputs. Any figure that moved is release drift — fix the page and note the release date it reflects.
-- [ ] **Step 4:** Check the track at 400 px width; the two iframes must not clip.
-- [ ] **Step 5:** Open the PR. Per `CLAUDE.md`, no Claude attribution in the commit messages.
+- [x] **Step 4:** Check the track at 400 px width; the two iframes must not clip.
+- [x] **Step 5:** Open the PR. Per `CLAUDE.md`, no Claude attribution in the commit messages.
 
 ---
 

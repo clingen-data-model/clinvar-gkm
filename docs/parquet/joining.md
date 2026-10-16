@@ -44,15 +44,15 @@ clinvar:10  NM_000410.4(HFE):c.187C>G (p.His63Asp)  varcustom   ClinvarOtherProp
 
 ## Seam B · Proposition → Condition or ConditionSet
 
-The object of a variant–condition proposition (`varcond-proposition.object_condition_id`, `varcustom-proposition.object_id`) points at one of two tables, and the prefix says which:
+The condition column of every proposition table points at one of two tables, and the prefix says which. The columns are `varcond-proposition.object_condition_id`, `varcustom-proposition.object_id`, `vartumor-proposition.object_tumor_type_id` and `vartherapy-proposition.condition_qualifier_id`. Across all four:
 
 | Prefix | Joins to | References |
 | --- | --- | ---: |
-| `clinvar.trait:<n>` | [`condition`](tables.md#condition).`id` | 24,742,147 |
+| `clinvar.trait:<n>` | [`condition`](tables.md#condition).`id` | 24,751,743 |
 | `clinvar.traitset:<n>` | [`conditionSet`](tables.md#conditionSet).`id` (an accessioned ClinVar TraitSet) | 1,271,961 |
-| `clinvar.conditionset:vcv-<md5>` | [`conditionSet`](tables.md#conditionSet).`id` (a set minted for a VCV aggregate) | 1,631,740 |
+| `clinvar.conditionset:vcv-<md5>` | [`conditionSet`](tables.md#conditionSet).`id` (a set minted for a VCV aggregate) | 1,631,752 |
 
-Every reference resolves, and no id matches both tables. `LEFT JOIN` both and record which one matched, so a lost row shows up as `UNRESOLVED` instead of vanishing:
+Every reference resolves, and no id matches both tables. Even the tumor-type column is not always a single condition: 12 `vartumor` propositions name a minted condition set. `LEFT JOIN` both and record which one matched, so a lost row shows up as `UNRESOLVED` instead of vanishing:
 
 ```sql
 -- Resolve an object id to a name: condition.name, or the set's members joined by ';'
@@ -253,7 +253,7 @@ Every one of these returns a plausible answer with no error. Check them first wh
 !!! danger "Columns that point at more than one table"
     | Column | Points at | Dispatch on |
     | --- | --- | --- |
-    | `varcond-proposition.object_condition_id`, `varcustom-proposition.object_id` | `condition` or `conditionSet` | `clinvar.trait:` vs `clinvar.traitset:` / `clinvar.conditionset:` |
+    | `varcond-proposition.object_condition_id`, `varcustom-proposition.object_id`, `vartumor-proposition.object_tumor_type_id` | `condition` or `conditionSet` | `clinvar.trait:` vs `clinvar.traitset:` / `clinvar.conditionset:` |
     | `variation.members[]` | `allele`, `copyNumberCount`, or `copyNumberChange` | `ga4gh:VA.` / `ga4gh:CN.` / `ga4gh:CX.` |
     | `vartherapy-proposition.object_therapy` | `therapy` or `therapyGroup` | `#/therapy/` vs `#/therapyGroup/` |
     | `vcv_evidenceLine.evidence_items[]`, `rcv_evidenceLine.evidence_items[]` | an SCV, or another statement in the same table | `clinvar.submission:` vs `VCV`/`RCV` |

@@ -332,7 +332,7 @@ Variant × tumor-type propositions — somatic **oncogenicity** claims.
 | `type` | `VARCHAR` | Always `VariantOncogenicityProposition`. |
 | `predicate` | `VARCHAR` | `isOncogenicFor`. |
 | `subject_variant_id` | `VARCHAR` | `clinvar:<n>` → `variation.id`. |
-| `object_tumor_type_id` | `VARCHAR` | The tumor type — a `clinvar.trait:` → `condition.id`. |
+| `object_tumor_type_id` | `VARCHAR` | The tumor type. **Prefix-dispatched**: almost always a `clinvar.trait:` → `condition.id`, but 12 rows name a `clinvar.conditionset:` → `conditionSet.id`. |
 | `gene_context_name` | `VARCHAR` | Gene symbol the submitter named as context for the claim (e.g. `EGFR`), or NULL. A natural key, not an id — symbols are not unique; join genes by `ncbigene:` id instead. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
 

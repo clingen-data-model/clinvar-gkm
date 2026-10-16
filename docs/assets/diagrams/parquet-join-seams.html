@@ -155,14 +155,16 @@ WHERE v.id = 'clinvar:51592';</pre>
 
 <!-- ============ SEAM B ============ -->
 <div class="seamhd" id="d-2">Seam B · Proposition → Condition or ConditionSet</div>
-<p class="seamsub">Polymorphic, deterministic, and complete. All three prefixes resolve; two of them land in
+<p class="seamsub">The condition column of every proposition table (<code>object_condition_id</code>,
+  <code>object_id</code>, <code>object_tumor_type_id</code>, <code>condition_qualifier_id</code>) is polymorphic,
+  deterministic, and complete. All three prefixes resolve; two of them land in
   <code>conditionSet</code> — one accessioned, one minted — so dispatch on the prefix to know which kind of set
   you have, but join both to the same table.</p>
 <figure>
   <div class="frame">
-  <svg class="d w820" viewBox="0 0 860 176" role="img" aria-label="Seam B: the object id splits three ways by prefix - clinvar.trait to condition, clinvar.traitset and clinvar.conditionset to conditionSet - and all three now resolve.">
+  <svg class="d w820" viewBox="0 0 860 176" role="img" aria-label="Seam B: the condition-id columns of the four proposition tables split three ways by prefix - clinvar.trait to condition, clinvar.traitset and clinvar.conditionset to conditionSet - and all three now resolve.">
     <rect class="b g" x="24" y="62" width="210" height="46" rx="7"/>
-    <text class="nm" x="38" y="84">object_condition_id</text><text class="ct" x="38" y="99">27,655,456 refs</text>
+    <text class="nm" x="38" y="84">condition-id columns</text><text class="ct" x="38" y="99">27,655,456 refs · 4 tables</text>
     <circle cx="300" cy="85" r="13" fill="none" stroke="var(--poly)" stroke-width="1.6"/>
     <text class="lb p" x="300" y="89" text-anchor="middle">?</text>
     <text class="lb p" x="300" y="56" text-anchor="middle">prefix</text>
