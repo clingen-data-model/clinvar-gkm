@@ -18,6 +18,15 @@ nav = [
     { "Parquet Files"        = "data-access/parquet.md" },
     { "How Releases Work"    = "data-access/release-model.md" },
   ] },
+  { "Query the Data" = [
+    "parquet/index.md",
+    { "Anatomy of a Table"    = "parquet/table-anatomy.md" },
+    { "The 22 Tables"         = "parquet/tables.md" },
+    { "Joining Tables"        = "parquet/joining.md" },
+    { Recipes                 = "parquet/recipes.md" },
+    { "Working at Scale"      = "parquet/performance.md" },
+    { "Beyond DuckDB"         = "parquet/other-tools.md" },
+  ] },
   { "User Stories" = [
     { "Harmonizing by VRS Identity" = "user-story.md" },
     { "Auditing a Submitter's Footprint" = "user-story-audit.md" },

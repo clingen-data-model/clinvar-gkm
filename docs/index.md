@@ -49,6 +49,9 @@ New releases are produced within a day or two after ClinVar's XML releases and a
 
 ## Getting Started
 
+!!! tip "Prefer tables to JSON?"
+    Every release is also published as **22 typed Parquet tables** you can query with SQL, with no database and no data loading. [**Query the Data**](parquet/index.md) starts with a live query console in your browser and works up to joins, recipes and large-scale analysis.
+
 ### Download the Latest Release
 
 The latest ClinVar-GKM release is available as a single compressed JSON file:

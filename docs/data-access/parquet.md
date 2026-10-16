@@ -2,6 +2,9 @@
 
 Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Deltas](weekly-deltas.md) · [How Releases Work](release-model.md)
 
+!!! tip "Want to query the files, not just download them?"
+    This page covers where the Parquet files live and how to keep a set current. [**Query the Data**](../parquet/index.md) teaches querying them: a live in-browser console, every table's columns, how the tables join, and runnable recipes.
+
 Typed Parquet files are produced for each monthly full and organized by month, mirroring the JSON bundle lifecycle. Each monthly full lands in a dated directory `datasets/parquet/YYYY-MM/`, and `datasets/parquet/00-latest/` always points at the newest monthly full (stable URL). At year boundaries, prior-year month sets move to `archives/{YYYY}/parquet/YYYY-MM/` and are retained indefinitely. Because each month set is preserved, a delta chain's `checkpoint_full` monthly Parquet stays available for [reconstruction](#applying-deltas-keeping-a-parquet-set-current) after later months publish. The weekly delta Parquet (changed records only) lives separately under `deltas/<YYYY-MMDD>/parquet/`.
 
 ## Monthly full sets
@@ -16,7 +19,7 @@ Changed-rows delta Parquet (not a full set) — one group per weekly release, ca
 
 ## Available Parquet files
 
-Each Parquet file contains one bundle section with typed, query-friendly columns extracted from the JSON objects. Every section includes an `id` column (the object identifier) and a `data` column (the full JSON object as a string), plus additional typed columns for key fields — enabling efficient filtering and aggregation without parsing JSON.
+Each Parquet file contains one bundle section with typed, query-friendly columns extracted from the JSON objects. Nearly every section includes an `id` column (the object identifier) and a `data` column (the full JSON object as a string), plus additional typed columns for key fields — enabling efficient filtering and aggregation without parsing JSON. The exceptions: `condition` has no `data` column, and `therapy` / `therapyGroup` have only `key` (the id) and `value` (the JSON object). The [column reference](../parquet/tables.md#column-reference) lists every column of every section.
 
 Available Parquet files (22 sections):
 
@@ -160,6 +163,8 @@ Download individual sections or all files at once:
 
 ### Column Reference
 
+The complete per-table reference — every column, type and description for all 22 sections — is in [Query the Data → The 22 Tables](../parquet/tables.md#column-reference). A summary:
+
 Statement sections (`scv`, `vcv`, `rcv`) share a common set of typed columns:
 
 | Column | Type | Description |
@@ -177,11 +182,13 @@ Statement sections (`scv`, `vcv`, `rcv`) share a common set of typed columns:
 
 SCV statements include additional columns: `description`, `contributions`, `reported_in`, `specified_by`.
 
-The four proposition sections are typed per datatype: `varcond-proposition` (`subject_variant_id`, `predicate`, `object_condition_id`, `type`, `gene_context_name`, `mode_of_inheritance`, `penetrance`), `vartumor-proposition` (`object_tumor_type_id`, …), `vartherapy-proposition` (`object_therapy`, `condition_qualifier_id`, …), and `varcustom-proposition` (`custom_proposition_type`, `subject_id`, `object_id`, `qualifiers`) — enabling JOINs across statements, variants, and conditions without parsing JSON.
+The four proposition sections are typed per datatype: `varcond-proposition` (`subject_variant_id`, `predicate`, `object_condition_id`, `type`, `gene_context_name`, `mode_of_inheritance`, `penetrance`), `vartumor-proposition` (`object_tumor_type_id`, …), `vartherapy-proposition` (`object_therapy`, `condition_qualifier_id`, …), and `varcustom-proposition` (`subject_id`, `object_id`, `gene_context_name`, `mode_of_inheritance`, `penetrance`) — enabling JOINs across statements, variants, and conditions without parsing JSON.
 
-Every section includes `id` and `data` at minimum. Run `DESCRIBE` in DuckDB to see the full schema for any section.
+Run `DESCRIBE` in DuckDB to see the full schema for any section.
 
 These examples demonstrate cross-section JOINs using typed columns. Most analytical queries can be answered without parsing JSON — the varcond proposition's `gene_context_name` column carries the gene symbol directly, and the condition's `primaryCoding` struct carries the MedGen code. (These queries join `scv.parquet` to `varcond-proposition.parquet`, the variant×condition group that holds pathogenicity and clinical-significance propositions; the other three proposition groups — `vartumor`, `vartherapy`, `varcustom` — have their own typed columns.)
+
+For how the sections join — including the prefix-dispatched columns where a single-table join silently drops rows — see [Joining Tables](../parquet/joining.md); for task-oriented queries, see [Recipes](../parquet/recipes.md).
 
 ??? example "Example cross-section queries (SQL)"
     **All SCVs for a gene — detailed view:**
