@@ -139,7 +139,7 @@ That set's members are two traits and `clinvar.traitset:55931`, whose own member
 
 Each statement table (`scv`, `rcv`, `vcv`) has a `proposition_id`, and a proposition has **at most one** statement: 27,653,888 references, 27,653,888 distinct ids. Treat the proposition as a side table of its statement.
 
-The proposition id does not say which proposition table holds it, so join the same four-table union:
+A proposition id's classification code names its table (`PATH` → `varcond-proposition`, `ONCO` → `vartumor-proposition`, and so on; see the [code table](tables.md#reading-a-variants-statements)). A query over every statement spans all four, so join the same four-table union:
 
 ```sql
 -- Where every statement's proposition lives

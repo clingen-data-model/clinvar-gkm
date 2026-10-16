@@ -51,7 +51,7 @@ Every row has an id, and the id's shape names its table. Learn these shapes befo
 Two details are easy to miss:
 
 - **A proposition id is its statement's id without the version.** `VCV000051592-G-PATH-CP` is the proposition, and `VCV000051592.122-G-PATH-CP` is the statement about it.
-- **The proposition id doesn't say which of the four proposition tables holds it.** The code (`PATH`, `ONCO`, `RF`, …) does, as [Reading a variant's statements](#reading-a-variants-statements) shows. In practice it is simpler to `UNION ALL` the four tables once.
+- **A proposition id's classification code names its table.** `PATH`, `SCI`, `DIAG` and `PROG` are in `varcond-proposition`, `ONCO` in `vartumor-proposition`, `TR` in `vartherapy-proposition`, and every other code in `varcustom-proposition` (see the code table under [Reading a variant's statements](#reading-a-variants-statements)). A query that spans several codes is still simplest with one `UNION ALL` of the four tables.
 
 ## Where a traversal ends
 
@@ -70,6 +70,40 @@ Five tables are **leaves**: they reference no other table, so a chain of joins s
 A single variant usually has several VCV statements: one per classification type and aggregate level, in a germline lane and sometimes a somatic lane. The statement id encodes all three, as the diagram below shows. It also shows how somatic clinical-impact statements add an evidence-line layer, and which levels contribute to the aggregate call.
 
 <iframe src="../assets/diagrams/parquet-vcv-levels.html" style="width:100%; height:760px; border:1px solid rgba(128,128,128,.25); border-radius:6px;" title="Reading a variant's statements" loading="lazy"></iframe>
+
+The same facts as text. A statement id reads `<accession>.<version>-<lane>-<code>[-<level>]`, for example `VCV000012871.93-G-PATH-CP`.
+
+**Lane and classification code.** The lane is `G` (germline) or `S` (somatic). The code is shorthand for the proposition type, and says which proposition table holds the proposition:
+
+| Lane | Code | Proposition type | Proposition table | Root statements |
+| --- | --- | --- | --- | ---: |
+| G | `PATH` | `VariantPathogenicityProposition` | `varcond-proposition` | 4,390,392 |
+| G | `NP` | `ClinvarNotProvidedProposition` | `varcustom-proposition` | 27,920 |
+| G | `DR` | `ClinvarDrugResponseProposition` | `varcustom-proposition` | 2,760 |
+| G | `OTH` | `ClinvarOtherProposition` | `varcustom-proposition` | 2,171 |
+| G | `RF` | `ClinvarRiskFactorProposition` | `varcustom-proposition` | 1,072 |
+| G | `ASSOC` | `ClinvarAssociationProposition` | `varcustom-proposition` | 525 |
+| G | `AFF` | `ClinvarAffectsProposition` | `varcustom-proposition` | 331 |
+| G | `CDFS` | `ClinvarConflictingDataFromSubmitterProposition` | `varcustom-proposition` | 192 |
+| G | `PROTECT` | `ClinvarProtectiveProposition` | `varcustom-proposition` | 99 |
+| G | `CS` | `ClinvarConfersSensitivityProposition` | `varcustom-proposition` | 20 |
+| S | `ONCO` | `VariantOncogenicityProposition` | `vartumor-proposition` | 1,905 |
+| S | `SCI` | `VariantClinicalSignificanceProposition` | `varcond-proposition` | 1,317 |
+
+Root statement counts are VCV roots. An SCV's proposition id uses the same codes without a lane (`SCV000056982-ASSOC`). Somatic clinical impact (`SCI`) also has evidence lines whose `target_proposition_id` names the specific impact: `-TR` (therapeutic response, in `vartherapy-proposition`), `-DIAG` or `-PROG` (in `varcond-proposition`). Their tier is in `evidenceOutcome`: `Level A/B` is Tier I, `Level C/D` is Tier II.
+
+**Aggregate level.** The level suffix matches the `quality.name` of the submissions it groups:
+
+| Level | `quality.name` | Precedence |
+| --- | --- | ---: |
+| `PG` | practice guidelines | 5 |
+| `EP` | expert panel | 4 |
+| `CP` | criteria provided | 3 |
+| `NOCP` | no assertion criteria provided | 2 |
+| `NOCL` | no classification | 1 |
+| `FLAG` | flagged | set apart |
+
+A root statement takes its call from the **highest level present**, and the levels below it are marked non-contributing. Which level contributes therefore depends on the variant: a variant whose best submissions are `NOCP` contributes `NOCP`. Two exceptions: `PG` and `EP` **both** contribute when both are present (the practice guideline doesn't mask the expert panel), and flagged submissions never contribute.
 
 ## The `data` column { #the-data-column }
 
@@ -373,7 +407,7 @@ Variant × therapy propositions — somatic **therapeutic response**. These are 
 | `specifiedBy` | `STRUCT(type, methodType, name, reportedIn)` | The method: `methodType` (ClinVar collection method — `clinical testing`, `curation`, `research`, …), `name` (the assertion criteria, e.g. ACMG guidelines), and `reportedIn` (the criteria document). |
 | `reportedIn` | `STRUCT(type, pmid, doi, urls)[]` | Citations supporting the submission — each `{pmid, doi, urls}`. |
 | `extensions` | `STRUCT(name, value_string, value_submitted_condition_set, value_submitted_condition)[]` | Named ClinVar attributes: `clinvarScvId`, `clinvarScvVersion`, `clinvarScvReviewStatus`, `submissionLevel`, `submittedScvLocalKey`, `submittedScvClassification`, and the submitter's original condition (`submittedCondition` → `value_submitted_condition`, or `submittedConditionSet` → `value_submitted_condition_set`) with its MedGen mapping. |
-| `proposition_id` | `VARCHAR` | The proposition this statement classifies. Look it up in whichever of the four proposition tables holds it (see [Joining → Seam C](joining.md)); the id carries no table prefix. One statement per proposition. |
+| `proposition_id` | `VARCHAR` | The proposition this statement classifies. Its classification code names the proposition table (see [Reading a variant's statements](#reading-a-variants-statements)); to cover every code, join the four-table union ([Joining → Seam C](joining.md#seam-c-proposition-statements-1-1)). One statement per proposition. |
 | `contributions` | `STRUCT(type, contributor, date, activityType)[]` | `{contributor, date, activityType}` — `contributor` is a `clinvar.submitter:` id → `submitter.id`; `activityType` is `submitted`, `created`, or `evaluated`. |
 | `has_evidence_lines` | `VARCHAR[]` | Ids of this statement's evidence lines in `evidenceLine`. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
@@ -441,7 +475,7 @@ The organizations that submit to ClinVar. A **leaf**, referenced from `scv.contr
 | `quality` | `STRUCT(type, conceptType, name)` | MappableConcept; `quality.name` is the aggregate level — `practice guidelines`, `expert panel`, `criteria provided`, `no assertion criteria provided`, `no classification`, or `flagged`. |
 | `classification` | `STRUCT(type, conceptType, name, extensions)` | MappableConcept; `classification.name` is the aggregate call (e.g. `Pathogenic`, `Benign/Likely benign`, `Conflicting classifications of pathogenicity`). `classification.extensions` carries `conflictingExplanation` when the call is a conflict. |
 | `extensions` | `STRUCT(name, value)[]` | `{name, value}` pairs; today one: `clinvarReviewStatus` — ClinVar's review-status text (e.g. `criteria provided, multiple submitters, no conflicts`). |
-| `proposition_id` | `VARCHAR` | The proposition this statement classifies. Look it up in whichever of the four proposition tables holds it (see [Joining → Seam C](joining.md)); the id carries no table prefix. One statement per proposition. |
+| `proposition_id` | `VARCHAR` | The proposition this statement classifies. Its classification code names the proposition table (see [Reading a variant's statements](#reading-a-variants-statements)); to cover every code, join the four-table union ([Joining → Seam C](joining.md#seam-c-proposition-statements-1-1)). One statement per proposition. |
 | `has_evidence_lines` | `VARCHAR[]` | Ids of this statement's evidence lines in `rcv_evidenceLine`. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
 
@@ -490,7 +524,7 @@ Evidence lines of RCV statements: which statements each RCV statement cites, and
 | `quality` | `STRUCT(type, conceptType, name)` | MappableConcept; `quality.name` is the aggregate level — `practice guidelines`, `expert panel`, `criteria provided`, `no assertion criteria provided`, `no classification`, or `flagged`. |
 | `classification` | `STRUCT(type, conceptType, name, extensions)` | MappableConcept; `classification.name` is the aggregate call (e.g. `Pathogenic`, `Benign/Likely benign`, `Conflicting classifications of pathogenicity`). `classification.extensions` carries `conflictingExplanation` when the call is a conflict. |
 | `extensions` | `STRUCT(name, value)[]` | `{name, value}` pairs; today one: `clinvarReviewStatus` — ClinVar's review-status text (e.g. `criteria provided, multiple submitters, no conflicts`). |
-| `proposition_id` | `VARCHAR` | The proposition this statement classifies. Look it up in whichever of the four proposition tables holds it (see [Joining → Seam C](joining.md)); the id carries no table prefix. One statement per proposition. |
+| `proposition_id` | `VARCHAR` | The proposition this statement classifies. Its classification code names the proposition table (see [Reading a variant's statements](#reading-a-variants-statements)); to cover every code, join the four-table union ([Joining → Seam C](joining.md#seam-c-proposition-statements-1-1)). One statement per proposition. |
 | `has_evidence_lines` | `VARCHAR[]` | Ids of this statement's evidence lines in `vcv_evidenceLine`. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
 
