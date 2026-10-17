@@ -10,6 +10,13 @@
       },
       {
          "$ref": "/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarCategoricalVariant#/$defs/ClinvarCategoricalVariantProperties"
+      },
+      {
+         "not": {
+            "required": [
+               "constraints"
+            ]
+         }
       }
    ],
    "type": "object",

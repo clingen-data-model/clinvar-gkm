@@ -13,6 +13,26 @@
       },
       {
          "$ref": "/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarCategoricalVariant#/$defs/ClinvarCategoricalVariantProperties"
+      },
+      {
+         "required": [
+            "constraints"
+         ],
+         "properties": {
+            "constraints": {
+               "contains": {
+                  "type": "object",
+                  "required": [
+                     "type"
+                  ],
+                  "properties": {
+                     "type": {
+                        "const": "DefiningAlleleConstraint"
+                     }
+                  }
+               }
+            }
+         }
       }
    ],
    "type": "object",

@@ -555,6 +555,17 @@ $defs:
       - $refCurie: cat-vrs:CanonicalAllele
       - $ref: "#/$defs/ClinvarCanonicalAlleleProperties"
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
+      # Discriminator: ClinvarCategoricalVariant is a oneOf, so each branch must match only its own
+      # records. This branch requires a DefiningAlleleConstraint (#132).
+      - required: [constraints]
+        properties:
+          constraints:
+            contains:
+              type: object
+              required: [type]
+              properties:
+                type:
+                  const: DefiningAlleleConstraint
 
   ClinvarCategoricalCnvChange:
     maturity: trial use
@@ -566,6 +577,17 @@ $defs:
       - $refCurie: cat-vrs:CategoricalCnv
       # - $ref: "#/$defs/ClinvarCategoricalCnvProperties"
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
+      # Discriminator: ClinvarCategoricalVariant is a oneOf, so each branch must match only its own
+      # records. This branch requires a CopyChangeConstraint (#132).
+      - required: [constraints]
+        properties:
+          constraints:
+            contains:
+              type: object
+              required: [type]
+              properties:
+                type:
+                  const: CopyChangeConstraint
 
   ClinvarCategoricalCnvCount:
     maturity: trial use
@@ -577,6 +599,17 @@ $defs:
       - $refCurie: cat-vrs:CategoricalCnv
       # - $ref: "#/$defs/ClinvarCategoricalCnvProperties"
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
+      # Discriminator: ClinvarCategoricalVariant is a oneOf, so each branch must match only its own
+      # records. This branch requires a CopyCountConstraint (#132).
+      - required: [constraints]
+        properties:
+          constraints:
+            contains:
+              type: object
+              required: [type]
+              properties:
+                type:
+                  const: CopyCountConstraint
 
   ClinvarNonConstrainedVariant:
     maturity: trial use
@@ -589,6 +622,10 @@ $defs:
       - $refCurie: cat-vrs:CategoricalVariant
       # - $ref: "#/$defs/ClinvarDescribedVariationProperties"
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
+      # Discriminator (#132): a non-constrained variant carries no constraints, so constrained
+      # records can't also match this branch of ClinvarCategoricalVariant's oneOf.
+      - not:
+          required: [constraints]
 
   ClinvarCategoricalVariant:
     maturity: trial use
