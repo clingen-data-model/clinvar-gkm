@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarAggregateStatement",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.2/json/ClinvarAggregateStatement",
    "title": "ClinvarAggregateStatement",
    "description": "A ClinVar aggregate statement \u2014 the shared base for VCV and RCV statements. Represents an aggregate classification across contributing submissions, grouping them into evidence lines by review status priority tier. Concrete aggregate statements are ClinvarVcvStatement (across all conditions for a variant) and ClinvarRcvStatement (scoped to a single condition or condition set).",
    "$defs": {
@@ -43,7 +43,7 @@
                "description": "The aggregate proposition assessed by this VCV or RCV statement. Uses the same proposition types as SCV statements. The proposition at the aggregate level represents the consensus or highest-priority classification across contributing submissions.",
                "oneOf": [
                   {
-                     "$ref": "/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarProposition"
+                     "$ref": "/clingen/schema/clinvar-gkm/1.0.2/json/ClinvarProposition"
                   },
                   {
                      "$ref": "/ga4gh/schema/gkm-core/1.3.0/json/iriReference"
