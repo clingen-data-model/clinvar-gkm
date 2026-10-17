@@ -5354,7 +5354,7 @@
 <p>Two details are easy to miss:</p>
 <ul>
 <li><strong>A proposition id is its statement's id without the version.</strong> <code>VCV000051592-G-PATH-CP</code> is the proposition, and <code>VCV000051592.122-G-PATH-CP</code> is the statement about it.</li>
-<li><strong>The proposition id doesn't say which of the four proposition tables holds it.</strong> The code (<code>PATH</code>, <code>ONCO</code>, <code>RF</code>, …) does, as <a href="#reading-a-variants-statements">Reading a variant's statements</a> shows. In practice it is simpler to <code>UNION ALL</code> the four tables once.</li>
+<li><strong>A proposition id's classification code names its table.</strong> <code>PATH</code>, <code>SCI</code>, <code>DIAG</code> and <code>PROG</code> are in <code>varcond-proposition</code>, <code>ONCO</code> in <code>vartumor-proposition</code>, <code>TR</code> in <code>vartherapy-proposition</code>, and every other code in <code>varcustom-proposition</code> (see the code table under <a href="#reading-a-variants-statements">Reading a variant's statements</a>). A query that spans several codes is still simplest with one <code>UNION ALL</code> of the four tables.</li>
 </ul>
 <h2 id="where-a-traversal-ends">Where a traversal ends<a class="headerlink" href="#where-a-traversal-ends" title="Permanent link">&para;</a></h2>
 <p>Five tables are <strong>leaves</strong>: they reference no other table, so a chain of joins stops there.</p>
@@ -5370,6 +5370,149 @@
 <p>A single variant usually has several VCV statements: one per classification type and aggregate level, in a germline lane and sometimes a somatic lane. The statement id encodes all three, as the diagram below shows. It also shows how somatic clinical-impact statements add an evidence-line layer, and which levels contribute to the aggregate call.</p>
 <iframe src="../../assets/diagrams/parquet-vcv-levels.html" style="width:100%; height:760px; border:1px solid rgba(128,128,128,.25); border-radius:6px;" title="Reading a variant's statements" loading="lazy"></iframe>
 
+<p>The same facts as text. A statement id reads <code>&lt;accession&gt;.&lt;version&gt;-&lt;lane&gt;-&lt;code&gt;[-&lt;level&gt;]</code>, for example <code>VCV000012871.93-G-PATH-CP</code>.</p>
+<p><strong>Lane and classification code.</strong> The lane is <code>G</code> (germline) or <code>S</code> (somatic). The code is shorthand for the proposition type, and says which proposition table holds the proposition:</p>
+<table>
+<thead>
+<tr>
+<th>Lane</th>
+<th>Code</th>
+<th>Proposition type</th>
+<th>Proposition table</th>
+<th style="text-align: right;">Root statements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G</td>
+<td><code>PATH</code></td>
+<td><code>VariantPathogenicityProposition</code></td>
+<td><code>varcond-proposition</code></td>
+<td style="text-align: right;">4,390,392</td>
+</tr>
+<tr>
+<td>G</td>
+<td><code>NP</code></td>
+<td><code>ClinvarNotProvidedProposition</code></td>
+<td><code>varcustom-proposition</code></td>
+<td style="text-align: right;">27,920</td>
+</tr>
+<tr>
+<td>G</td>
+<td><code>DR</code></td>
+<td><code>ClinvarDrugResponseProposition</code></td>
+<td><code>varcustom-proposition</code></td>
+<td style="text-align: right;">2,760</td>
+</tr>
+<tr>
+<td>G</td>
+<td><code>OTH</code></td>
+<td><code>ClinvarOtherProposition</code></td>
+<td><code>varcustom-proposition</code></td>
+<td style="text-align: right;">2,171</td>
+</tr>
+<tr>
+<td>G</td>
+<td><code>RF</code></td>
+<td><code>ClinvarRiskFactorProposition</code></td>
+<td><code>varcustom-proposition</code></td>
+<td style="text-align: right;">1,072</td>
+</tr>
+<tr>
+<td>G</td>
+<td><code>ASSOC</code></td>
+<td><code>ClinvarAssociationProposition</code></td>
+<td><code>varcustom-proposition</code></td>
+<td style="text-align: right;">525</td>
+</tr>
+<tr>
+<td>G</td>
+<td><code>AFF</code></td>
+<td><code>ClinvarAffectsProposition</code></td>
+<td><code>varcustom-proposition</code></td>
+<td style="text-align: right;">331</td>
+</tr>
+<tr>
+<td>G</td>
+<td><code>CDFS</code></td>
+<td><code>ClinvarConflictingDataFromSubmitterProposition</code></td>
+<td><code>varcustom-proposition</code></td>
+<td style="text-align: right;">192</td>
+</tr>
+<tr>
+<td>G</td>
+<td><code>PROTECT</code></td>
+<td><code>ClinvarProtectiveProposition</code></td>
+<td><code>varcustom-proposition</code></td>
+<td style="text-align: right;">99</td>
+</tr>
+<tr>
+<td>G</td>
+<td><code>CS</code></td>
+<td><code>ClinvarConfersSensitivityProposition</code></td>
+<td><code>varcustom-proposition</code></td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr>
+<td>S</td>
+<td><code>ONCO</code></td>
+<td><code>VariantOncogenicityProposition</code></td>
+<td><code>vartumor-proposition</code></td>
+<td style="text-align: right;">1,905</td>
+</tr>
+<tr>
+<td>S</td>
+<td><code>SCI</code></td>
+<td><code>VariantClinicalSignificanceProposition</code></td>
+<td><code>varcond-proposition</code></td>
+<td style="text-align: right;">1,317</td>
+</tr>
+</tbody>
+</table>
+<p>Root statement counts are VCV roots. An SCV's proposition id uses the same codes without a lane (<code>SCV000056982-ASSOC</code>). Somatic clinical impact (<code>SCI</code>) also has evidence lines whose <code>target_proposition_id</code> names the specific impact: <code>-TR</code> (therapeutic response, in <code>vartherapy-proposition</code>), <code>-DIAG</code> or <code>-PROG</code> (in <code>varcond-proposition</code>). Their tier is in <code>evidenceOutcome</code>: <code>Level A/B</code> is Tier I, <code>Level C/D</code> is Tier II.</p>
+<p><strong>Aggregate level.</strong> The level suffix matches the <code>quality.name</code> of the submissions it groups:</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th><code>quality.name</code></th>
+<th style="text-align: right;">Precedence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PG</code></td>
+<td>practice guidelines</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr>
+<td><code>EP</code></td>
+<td>expert panel</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td><code>CP</code></td>
+<td>criteria provided</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><code>NOCP</code></td>
+<td>no assertion criteria provided</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><code>NOCL</code></td>
+<td>no classification</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>FLAG</code></td>
+<td>flagged</td>
+<td style="text-align: right;">set apart</td>
+</tr>
+</tbody>
+</table>
+<p>A root statement takes its call from the <strong>highest level present</strong>, and the levels below it are marked non-contributing. Which level contributes therefore depends on the variant: a variant whose best submissions are <code>NOCP</code> contributes <code>NOCP</code>. Two exceptions: <code>PG</code> and <code>EP</code> <strong>both</strong> contribute when both are present (the practice guideline doesn't mask the expert panel), and flagged submissions never contribute.</p>
 <h2 id="the-data-column">The <code>data</code> column<a class="headerlink" href="#the-data-column" title="Permanent link">&para;</a></h2>
 <p>Almost every table has a <code>data</code> column holding the row's <strong>complete JSON object as a string</strong>, exactly as it appears in the JSON bundle. The typed columns are a convenient, fast subset of it. When a field has no typed column, reach into <code>data</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span>
@@ -6156,7 +6299,7 @@
 <tr>
 <td><code>proposition_id</code></td>
 <td><code>VARCHAR</code></td>
-<td>The proposition this statement classifies. Look it up in whichever of the four proposition tables holds it (see <a href="../joining/">Joining → Seam C</a>); the id carries no table prefix. One statement per proposition.</td>
+<td>The proposition this statement classifies. Its classification code names the proposition table (see <a href="#reading-a-variants-statements">Reading a variant's statements</a>); to cover every code, join the four-table union (<a href="../joining/#seam-c-proposition-statements-1-1">Joining → Seam C</a>). One statement per proposition.</td>
 </tr>
 <tr>
 <td><code>contributions</code></td>
@@ -6326,7 +6469,7 @@
 <tr>
 <td><code>proposition_id</code></td>
 <td><code>VARCHAR</code></td>
-<td>The proposition this statement classifies. Look it up in whichever of the four proposition tables holds it (see <a href="../joining/">Joining → Seam C</a>); the id carries no table prefix. One statement per proposition.</td>
+<td>The proposition this statement classifies. Its classification code names the proposition table (see <a href="#reading-a-variants-statements">Reading a variant's statements</a>); to cover every code, join the four-table union (<a href="../joining/#seam-c-proposition-statements-1-1">Joining → Seam C</a>). One statement per proposition.</td>
 </tr>
 <tr>
 <td><code>has_evidence_lines</code></td>
@@ -6448,7 +6591,7 @@
 <tr>
 <td><code>proposition_id</code></td>
 <td><code>VARCHAR</code></td>
-<td>The proposition this statement classifies. Look it up in whichever of the four proposition tables holds it (see <a href="../joining/">Joining → Seam C</a>); the id carries no table prefix. One statement per proposition.</td>
+<td>The proposition this statement classifies. Its classification code names the proposition table (see <a href="#reading-a-variants-statements">Reading a variant's statements</a>); to cover every code, join the four-table union (<a href="../joining/#seam-c-proposition-statements-1-1">Joining → Seam C</a>). One statement per proposition.</td>
 </tr>
 <tr>
 <td><code>has_evidence_lines</code></td>
