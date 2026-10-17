@@ -84,16 +84,6 @@ export_variation_ndjson() {
     FROM \`${DATASET}.${table}\`"
 }
 
-extract_parquet() {
-  # Raw Parquet export via bq extract — for tables with no FK columns to clean.
-  local table="$1"
-  local basename="$2"
-  local sharded="${basename%.parquet}-*.parquet"
-  echo "  Exporting ${table} -> ${sharded} (Parquet)"
-  bq extract --destination_format PARQUET --compression SNAPPY \
-    "${DATASET}.${table}" "${GCS_PARQUET_PATH}/${sharded}"
-}
-
 extract_parquet_typed() {
   # Export via EXPORT DATA using a SQL schema file from parquet-schemas/.
   # Schema files define typed columns, FK cleanup, and data column.
@@ -271,7 +261,7 @@ extract_parquet_typed gene.parquet gene.sql
 extract_parquet_typed variation.parquet variation.sql
 
 # Conditions
-extract_parquet "$(src_table gkm_dict_condition)" condition.parquet
+extract_parquet_typed condition.parquet condition.sql
 extract_parquet_typed conditionSet.parquet conditionSet.sql
 
 # Therapies (key/value JSON dicts -> two string columns key,value). Typed export casts the

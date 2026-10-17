@@ -1,4 +1,15 @@
-SELECT * EXCEPT(constraints, members),
+SELECT * EXCEPT(constraints, members) REPLACE (
+    -- typed FK columns carry bare ids: strip the #/gene/ pointer from each gene-list entry,
+    -- keeping extension and entry order, and leaving non-gene-list extensions untouched
+    ARRAY(
+      SELECT AS STRUCT e.* REPLACE (
+        IF(e.value_gene_array IS NULL, NULL, ARRAY(
+          SELECT AS STRUCT g.* REPLACE (REGEXP_REPLACE(g.gene, r'^#/[^/]+/', '') AS gene)
+          FROM UNNEST(e.value_gene_array) AS g WITH OFFSET go ORDER BY go
+        )) AS value_gene_array)
+      FROM UNNEST(extensions) AS e WITH OFFSET eo ORDER BY eo
+    ) AS extensions
+  ),
   ARRAY(SELECT REGEXP_REPLACE(m, r'^#/[^/]+/', '') FROM UNNEST(members) AS m) AS members,
   ARRAY(
     SELECT AS STRUCT
