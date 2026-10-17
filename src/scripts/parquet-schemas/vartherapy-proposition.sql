@@ -7,7 +7,8 @@ SELECT
   JSON_VALUE(value, '$.predicate') AS predicate,
   REGEXP_REPLACE(JSON_VALUE(value, '$.subject'), r'^#/[^/]+/', '') AS subject_variant_id,
   REGEXP_REPLACE(JSON_VALUE(value, '$.conditionQualifier'), r'^#/[^/]+/', '') AS condition_qualifier_id,
-  TO_JSON_STRING(JSON_QUERY(value, '$.object')) AS object_therapy,
+  -- bare id like every other FK column (was a JSON-quoted '#/therapy/...' pointer)
+  REGEXP_REPLACE(JSON_VALUE(value, '$.object'), r'^#/[^/]+/', '') AS object_therapy,
   JSON_VALUE(value, '$.geneContextQualifier.name') AS gene_context_name,
   collapse_ext_values(TO_JSON_STRING(value)) AS data
 FROM (
