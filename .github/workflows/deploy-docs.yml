@@ -3,6 +3,14 @@ name: Deploy Documentation
 on:
   release:
     types: [published]
+  # Docs-only merges to main deploy immediately instead of waiting for the daily
+  # schedule. Merges that touch none of these paths don't trigger a deploy.
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'zensical.toml'
+      - '.github/workflows/deploy-docs.yml'
   # Roadmap membership/status changes fire discussion events; upvote-based
   # re-ordering is picked up by the daily schedule (upvotes don't fire events).
   discussion:
@@ -14,6 +22,12 @@ on:
 permissions:
   contents: write
   discussions: read
+
+# One deploy at a time; a newer run supersedes one still in progress, so
+# back-to-back merges can't publish out of order.
+concurrency:
+  group: deploy-docs
+  cancel-in-progress: true
 
 jobs:
   deploy:

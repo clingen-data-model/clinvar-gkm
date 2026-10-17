@@ -9,6 +9,25 @@ paths:
 
 Docs are Zensical (Material theme) in `docs/`, deployed to GitHub Pages by `.github/workflows/deploy-docs.yml`.
 
+## When the site deploys
+
+`deploy-docs.yml` builds and publishes on five triggers. The site shows whichever ref the **latest** run built:
+
+| Trigger | Builds |
+| --- | --- |
+| `push` to `main` touching `docs/**`, `zensical.toml`, or the workflow | `main`, within minutes of the merge |
+| `release: published` | the release tag (the `1.0` line) |
+| daily `schedule` (13:17 UTC) and `discussion` events | `main` |
+| `workflow_dispatch` (`gh workflow run deploy-docs.yml --ref main`) | the ref you pass |
+
+- A docs-only merge to `main` needs no release; it deploys itself. Merges that touch none of those paths don't
+  deploy until the next scheduled run.
+- The live site therefore tracks `main` (the dev line), including docs for unreleased changes. A release deploy
+  shows the tag's docs only until the next `main` run. Serving released-only or versioned docs would mean
+  changing these triggers; see the open docs-link branch-awareness follow-up.
+- `concurrency: deploy-docs` lets a newer run supersede one in progress, so back-to-back merges can't publish
+  out of order.
+
 - Run `zensical build --strict` after **any** docs change and fix all warnings before committing (broken links
   and other warnings fail the strict build). Config lives in `zensical.toml` (nav, theme, extensions).
 - Use the `write-docs` skill for creating/editing docs pages.
