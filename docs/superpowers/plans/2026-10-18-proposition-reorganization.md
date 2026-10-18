@@ -46,7 +46,7 @@ record) with DuckDB, calibrated against the published files (§5).
 | 3 | Ship in 1.x now, one rebuild | decided | full rebuild of 16 datasets (§6) |
 | A | Gene-context qualifier design | **resolved** (2026-10-18) | (a) + (b) in this release (#159), (c) deferred; unaffected by the reorg (§3.A) |
 | B | Content-shared propositions | open | **defer** (§3.B) |
-| C | Version label | open | **1.1.0**, in place under `/v1/` (§3.C) |
+| C | Version label | **decided** (2026-10-18): **1.1.0** | in place under `/v1/` (§3.C); ADR 0006 |
 | D | Normalize VCV `object` and `vcv-` set members to `#/` pointers | **decided** (2026-10-18) | (i), in this rebuild, as its own PR: #160, branch `fix/uniform-condition-pointers` (§3.D) |
 | E | `proposition_section` column on statement Parquet | new, open | optional; recommended (§4.4) |
 
@@ -248,6 +248,17 @@ line until GA, announced rather than RFC'd. #142, #145 and #153 already bump the
 | 2.0.0 under `/v2/` | the post-GA machinery: parallel 1.x line for 6 months, RFC | strictly correct | contradicts the decision to ship in place now; doubles pipeline and storage for 6 months |
 
 **Recommendation: 1.1.0, in place under `/v1/`.**
+
+**Decided (user, 2026-10-18): 1.1.0, in place under `/v1/`.** Done so far:
+
+- #142's `1.0.2` strings are relabelled `1.1.0` by a follow-up commit (`0895f15`), not an amend, because #145 and
+  #153 had already merged #142. #145 and #153 merged it in, and `fix/scv-citations` had one comment relabelled.
+  PR 2 no longer needs to bump the `$id`s, the const or `SCHEMA_VERSION`.
+- ADR 0006 (`docs/decisions/0006-ship-1.1.0-in-place-under-v1.md`) and the 1.1.0 changelog are on #146.
+- The advance and completion notices are drafted in `2026-10-18-1.1.0-announcements.md` (not posted).
+
+The original analysis follows.
+
 
 - No `1.0.2` tag is cut; the consolidated release is one tag, `1.1.0`, on the `1.0` release branch (the branch
   name stays; it carries the 1.x line).
@@ -496,7 +507,7 @@ proven #132 / 1.0.1 path.
 1. **Settle every data decision:** C (label), 3.A (a)/(b)/(c) or defer, 3.D, E, and any other decision in the
    master plan that changes data (§9).
 2. **Merge into `1.0`, in this order** (each rebased on the previous; see §9 for conflicts):
-   1. #142: oneOf fix + B2 + A3; amend its version commit to **1.1.0** if C = 1.1.0
+   1. #142: oneOf fix + B2 + A3; its version strings are already **1.1.0** (C decided)
    2. #145 (A1 `hgvs.?`)
    3. #153 (B1 strict; retarget from `fix/hgvs-invalid-expressions` to `1.0`)
    4. `fix/allele-duplicate-key` (one duplicate allele key in 10-04 / 10-11) — ideally with total-order
@@ -777,7 +788,7 @@ Each `1.0` PR's description names its paired `main` PR.
 
 | PR / branch | Base | Overlap | Action |
 | --- | --- | --- | --- |
-| #142 oneOf + 1.0.2 | `1.0` | bundle schema, 4 source YAMLs, `json/`, `SCHEMA_VERSION` | merge first; amend version to 1.1.0 (if C); PR 2 rebases |
+| #142 oneOf + 1.0.2 | `1.0` | bundle schema, 4 source YAMLs, `json/`, `SCHEMA_VERSION` | merge first; version relabelled to 1.1.0 (`0895f15`); PR 2 rebases |
 | #145 A1 | `1.0` | same version strings (contains #142); catvar proc (no overlap) | merge before PR 1–3; rebase conflicts are version-only |
 | #153 B1 strict | `fix/hgvs-invalid-expressions` | source YAMLs, `json/`, custom-proposition mixins | retarget to `1.0` after #145; coordinate dropping `ClinvarGermlineCustomProposition` from the bundle `anyOf` |
 | #143 Parquet ids | `1.0` | **the four `var*-proposition.sql` files PR 3 deletes**; `export-gkm-dicts.sh` | merge first; PR 3 carries its `gene_context_id` / `submitted_gene_symbols` / bare `object_therapy` logic into the template (direct conflict, resolved by PR 3) |
@@ -814,12 +825,12 @@ Each `1.0` PR's description names its paired `main` PR.
    rewritten. The advance announcement and §7 are the mitigation; the stabilization window is the justification.
 7. **Schema-invalid records already published.** The 4 object-less RCV propositions in the 2026-10-04 delta
    (§3.D). The all-bundles toolkit gate catches this class; fix the cause before the rebuild.
-8. **Version label churn.** If C = 1.1.0, three open PRs carry `1.0.2`; a missed string makes `$id`s or
+8. **Version label churn.** C = 1.1.0, and three open PRs carried `1.0.2` (now relabelled); a missed string makes `$id`s or
    `schema_version` disagree. Gate: `grep -r 1.0.2 schema src` = 0 before tagging.
 
 **Open questions**
 
-1. C: 1.1.0 (recommended) or 1.0.2?
+1. ~~C: 1.1.0 (recommended) or 1.0.2?~~ Decided: 1.1.0 (§3.C).
 2. ~~3.A: decide (a)/(b)/(c) before the rebuild, or defer them as forward-only?~~ Resolved: (a) + (b) in this
    release (#159), (c) deferred.
 3. ~~3.D: normalize VCV objects and `vcv-` set members now (recommended)?~~ Resolved: (i), PR #160
