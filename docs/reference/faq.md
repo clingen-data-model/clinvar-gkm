@@ -8,7 +8,8 @@ behavior comes from in the pipeline and how to see it in the data.
 ## Where does an SCV proposition's gene context come from?
 
 The gene in an SCV proposition's `geneContextQualifier` always comes from the **variant**, never from the
-submitter. The submitter's own gene symbols are kept alongside it, in the `submittedGeneSymbols` extension.
+submitter. The submitter's own gene symbols are kept alongside it, in the `submittedGeneSymbols` extension. From
+this release, a `geneContextSource` extension says where the gene came from.
 
 ### How the qualifier is built
 
@@ -29,16 +30,26 @@ qualifier as follows:
 - **The gene sets** the qualifier's `name` (the gene symbol), its `primaryCoding` (the NCBI Gene id) and its
   HGNC `mappings`.
 - **The submitter's genes** are the symbols the submitter gave in their submitted variant record. They are
-  attached to the qualifier as the `submittedGeneSymbols` extension, verbatim. They never choose the gene.
+  attached to the qualifier as the `submittedGeneSymbols` extension, verbatim and in submitted order. They never
+  choose the gene.
+- **The source** is the `geneContextSource` extension, on every qualifier from this release:
+    - `submittedSymbolMatches`: the submitter's symbols include the qualifier's symbol
+    - `submittedSymbolDiffers`: the submitter gave symbols, but none equals the qualifier's symbol
+    - `inferredFromVariant`: the submitter gave no symbols
+    - `submittedNotNormalized`: the placeholder (next item)
+
+  Symbols are compared after trimming spaces and ignoring case, so `C19ORF12` matches `C19orf12`.
 - **The placeholder** applies when the variant has no single representative gene but the submitter named one.
-  The qualifier's `name` is then the literal text `submitted genes were not normalized`, with no
-  `primaryCoding`, and the submitter's symbols are in `submittedGeneSymbols`.
+  From this release, the qualifier's `name` is the submitter's symbol, verbatim; several symbols are joined with
+  `, ` in submitted order. It has no `primaryCoding`, the submitter's symbols are in `submittedGeneSymbols`, and
+  `geneContextSource` is `submittedNotNormalized`. Earlier releases name it with the literal text
+  `submitted genes were not normalized`.
 - **When neither source has a gene**, the proposition has no `geneContextQualifier`.
 
 VCV and RCV propositions carry no gene context qualifier.
 
 For example, `SCV000024718-PATH` has a qualifier gene of `GBA1` (NCBI Gene `2629`), while the submitter
-wrote `GBA`, the gene's previous symbol:
+wrote `GBA`, the gene's previous symbol. The symbols differ, but the gene is the same:
 
 ```json
 "geneContextQualifier": {
@@ -61,13 +72,17 @@ wrote `GBA`, the gene's previous symbol:
       "relation": "exactMatch"
     }
   ],
-  "extensions": [ { "name": "submittedGeneSymbols", "value": ["GBA"] } ]
+  "extensions": [
+    { "name": "submittedGeneSymbols", "value": ["GBA"] },
+    { "name": "geneContextSource", "value": "submittedSymbolDiffers" }
+  ]
 }
 ```
 
 ### How the two sources compare
 
-Across the 6.74 million SCV propositions in the 2026-10 monthly release:
+Across the 6.74 million SCV propositions in the 2026-10 monthly release, the last release before
+`geneContextSource`, with symbols compared exactly:
 
 | Case | Propositions | Share |
 | --- | --- | --- |
@@ -86,17 +101,27 @@ The 27,817 differing cases break down as follows:
 | The submitted gene is another gene ClinVar associates with the variant | 2,541 | `SCV000425435-PATH`: `ITGA4` vs submitted `CERKL` |
 | The submitted gene is a gene ClinVar does not associate with the variant | 731 | `SCV004053541-PATH`: `PRAMEF18` vs submitted `PRAMEF22` |
 
-The two sources therefore agree almost everywhere. Three gaps remain:
+The two sources therefore agree almost everywhere. In the 2026-10 release, three gaps remained:
 
-- **Inferred genes are not marked.** For 881,325 propositions the qualifier states a gene the submitter never
-  stated, and nothing in the record distinguishes an inferred gene from a submitted one. Compare `name` with
-  `submittedGeneSymbols`: when the extension is absent, the gene is inferred.
-- **Placeholder names are not genes.** For the 4,814 placeholder propositions, the submitter's gene is only in
-  `submittedGeneSymbols`. Grouping or filtering on the qualifier `name` treats `submitted genes were not
+- **Inferred genes were not marked.** For 881,325 propositions the qualifier states a gene the submitter never
+  stated, and nothing in the record distinguished an inferred gene from a submitted one. You had to compare
+  `name` with `submittedGeneSymbols`: when the extension is absent, the gene is inferred.
+- **Placeholder names were not genes.** For the 4,814 placeholder propositions, the submitter's gene was only
+  in `submittedGeneSymbols`. Grouping or filtering on the qualifier `name` treated `submitted genes were not
   normalized` as if it were a gene.
 - **A differing symbol is usually a renamed gene.** Matching the submitter's symbol to the qualifier's symbol
   by string comparison over-reports disagreement. Only the last two rows of the table above are different
   genes.
+
+From this release, the first two gaps are closed and the third is labeled:
+
+- Inferred genes are marked `geneContextSource` = `inferredFromVariant`.
+- Placeholder names carry the submitter's symbol and are marked `submittedNotNormalized`. A placeholder is still
+  not a normalized gene, so filter on `primaryCoding` (or the Parquet `gene_context_id`) when you need one.
+  Filtering on `name` alone now also matches placeholders: 29 `TP53` placeholders in 2026-09-28, for example.
+- `submittedSymbolDiffers` says only that the symbols differ, not that the genes do. With the case-insensitive
+  comparison it covers 27,671 propositions in 2026-09-28. The other 146 of the 27,817 differ only by case and
+  are now `submittedSymbolMatches`.
 
 ### How to see it in the data
 
@@ -104,23 +129,34 @@ The qualifier is part of each SCV proposition in the bundle and in the `data` co
 tables:
 
 ```sql
+-- Extensions are picked by name: the qualifier can carry two. (`lambda e:` needs DuckDB 1.3 or later.)
 SELECT id,
        data->>'$.geneContextQualifier.name'               AS qualifier_gene,
        data->>'$.geneContextQualifier.primaryCoding.code' AS ncbi_gene,
-       data->'$.geneContextQualifier.extensions[0].value' AS submitted_gene_symbols
+       list_filter(CAST(data->'$.geneContextQualifier.extensions' AS JSON[]),
+                   lambda e: e->>'$.name' = 'submittedGeneSymbols')[1]->'$.value' AS submitted_gene_symbols,
+       list_filter(CAST(data->'$.geneContextQualifier.extensions' AS JSON[]),
+                   lambda e: e->>'$.name' = 'geneContextSource')[1]->>'$.value'  AS gene_context_source
 FROM 'varcond-proposition.parquet'
-WHERE id IN ('SCV001494816-PATH', 'SCV000024718-PATH', 'SCV005419060-PATH');
+WHERE id IN ('SCV001494816-PATH', 'SCV000024718-PATH', 'SCV005419060-PATH', 'SCV000039919-PATH');
 ```
+
+With this release's data:
 
 ```text
-id                 qualifier_gene                       ncbi_gene  submitted_gene_symbols
-SCV005419060-PATH  TTN                                  7273       ["TTN","TTN-AS1"]
-SCV001494816-PATH  submitted genes were not normalized  NULL       ["KCNT1"]
-SCV000024718-PATH  GBA1                                 2629       ["GBA"]
+id                 qualifier_gene  ncbi_gene  submitted_gene_symbols  gene_context_source
+SCV005419060-PATH  TTN             7273       ["TTN","TTN-AS1"]       submittedSymbolMatches
+SCV001494816-PATH  KCNT1           NULL       ["KCNT1"]               submittedNotNormalized
+SCV000024718-PATH  GBA1            2629       ["GBA"]                 submittedSymbolDiffers
+SCV000039919-PATH  SERPINC1        462        NULL                    inferredFromVariant
 ```
 
+In the 2026-10 release, `SCV001494816-PATH` is named `submitted genes were not normalized` and
+`gene_context_source` is NULL.
+
 From release 1.0.2, the four proposition Parquet tables also carry typed `gene_context_id` (the qualifier's
-`ncbigene:` id, NULL for the placeholder) and `submitted_gene_symbols` columns.
+`ncbigene:` id, NULL for the placeholder) and `submitted_gene_symbols` columns. From this release they also
+carry `gene_context_source`.
 
 ### Gene context is not the variant's gene list
 
