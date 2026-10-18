@@ -500,7 +500,10 @@ BEGIN
     -- Dictionary table - VCV propositions (global, keyed by proposition id)
     -- Collects propositions from all 3 layers (classification, priority, agg).
     -- {PROP_HEAD}: real table in full mode, {P}.stg_* in incremental. {PFILTER} restricts
-    -- each arm to impacted VCVs; objectCondition is the inline agg.unique_conditions array.
+    -- each arm to impacted VCVs. object is always a '#/' pointer: unique_conditions holds the
+    -- bare CURIEs of the SCV submittedCondition extension, so a single condition is re-wrapped
+    -- as #/condition/ (clinvar.trait:) or #/conditionSet/ (clinvar.traitset:), as the SCV and
+    -- RCV procs do; several conditions point at the synthetic vcv- ConditionSet below.
     -------------------------------------------------------------------------
     SET dict_vcv_proposition_query = REPLACE("""
       {PROP_HEAD}
@@ -531,7 +534,8 @@ BEGIN
       FROM (
         SELECT a.*,
           IF(ARRAY_LENGTH(a.unique_conditions) = 0, CAST(NULL AS STRING),
-            IF(ARRAY_LENGTH(a.unique_conditions) = 1, a.unique_conditions[OFFSET(0)],
+            IF(ARRAY_LENGTH(a.unique_conditions) = 1,
+              FORMAT(IF(STARTS_WITH(a.unique_conditions[OFFSET(0)], 'clinvar.traitset:'), '#/conditionSet/%s', '#/condition/%s'), a.unique_conditions[OFFSET(0)]),
               CONCAT('#/conditionSet/clinvar.conditionset:vcv-', TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(a.unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|')))))) AS obj_ref
         FROM `{S}.gkm_vcv_classification_agg` a
       ) agg
@@ -565,7 +569,8 @@ BEGIN
       FROM (
         SELECT a.*,
           IF(ARRAY_LENGTH(a.unique_conditions) = 0, CAST(NULL AS STRING),
-            IF(ARRAY_LENGTH(a.unique_conditions) = 1, a.unique_conditions[OFFSET(0)],
+            IF(ARRAY_LENGTH(a.unique_conditions) = 1,
+              FORMAT(IF(STARTS_WITH(a.unique_conditions[OFFSET(0)], 'clinvar.traitset:'), '#/conditionSet/%s', '#/condition/%s'), a.unique_conditions[OFFSET(0)]),
               CONCAT('#/conditionSet/clinvar.conditionset:vcv-', TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(a.unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|')))))) AS obj_ref
         FROM `{S}.gkm_vcv_priority_agg` a
       ) agg
@@ -599,7 +604,8 @@ BEGIN
       FROM (
         SELECT a.*,
           IF(ARRAY_LENGTH(a.unique_conditions) = 0, CAST(NULL AS STRING),
-            IF(ARRAY_LENGTH(a.unique_conditions) = 1, a.unique_conditions[OFFSET(0)],
+            IF(ARRAY_LENGTH(a.unique_conditions) = 1,
+              FORMAT(IF(STARTS_WITH(a.unique_conditions[OFFSET(0)], 'clinvar.traitset:'), '#/conditionSet/%s', '#/condition/%s'), a.unique_conditions[OFFSET(0)]),
               CONCAT('#/conditionSet/clinvar.conditionset:vcv-', TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(a.unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|')))))) AS obj_ref
         FROM `{S}.gkm_vcv_aggregate_contribution` a
       ) agg
@@ -619,7 +625,10 @@ BEGIN
     -- object/objectCondition is a SINGLE Condition|ConditionSet|iriReference, so a
     -- multi-condition VCV references ONE content-keyed ConditionSet (membershipOperator
     -- 'OR'; concepts may themselves be #/conditionSet/ pointers — nesting is allowed).
-    -- The id digest here MUST match the obj_ref computed in the proposition build above.
+    -- The id digest here MUST match the obj_ref computed in the proposition build above. It is
+    -- taken over the sorted BARE CURIEs (keeps vcv- ids stable across releases); the stored
+    -- concepts are the same members, in the same (bare-CURIE) order, re-wrapped as
+    -- #/condition/ or #/conditionSet/ pointers.
     -- Rebuild the dict as (trait-set rows) UNION (synthetic vcv- rows) so it is idempotent
     -- across re-runs. NOTE: reads the three gkm_vcv_*_agg tables — in incremental mode those
     -- are carried-forward GLOBAL (impacted recomputed ∪ unimpacted carried forward), so this
@@ -639,7 +648,10 @@ BEGIN
         'OR' AS membershipOperator
       FROM (
         SELECT
-          ARRAY(SELECT c FROM UNNEST(unique_conditions) c WHERE c IS NOT NULL ORDER BY c) AS sc,
+          ARRAY(
+            SELECT FORMAT(IF(STARTS_WITH(c, 'clinvar.traitset:'), '#/conditionSet/%s', '#/condition/%s'), c)
+            FROM UNNEST(unique_conditions) c WHERE c IS NOT NULL ORDER BY c
+          ) AS sc,
           TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|'))) AS id_digest
         FROM (
           SELECT unique_conditions FROM `{S}.gkm_vcv_classification_agg`
