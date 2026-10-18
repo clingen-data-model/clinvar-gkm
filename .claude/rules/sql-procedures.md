@@ -56,6 +56,10 @@ EXECUTE IMMEDIATE query;
 - Incremental procs must be **byte-identical** to a full rebuild (the carry-forward invariant). Use total-order
   `ORDER BY` in `ARRAY_AGG`/`STRING_AGG` and pick from ONE deterministic representative (smallest `full_scv_id`)
   rather than `ANY_VALUE` for attributes not determined by the group key.
+- **One row per bundle key.** A `gkm_dict_*` table keyed by a VRS id must be built per id, never per ClinVar
+  variation: distinct variations can normalize to the same allele, and a per-variation join emits a duplicate
+  JSON key (the reader keeps whichever copy comes last). Merge such inputs per key (see `gkm_dict_allele`) and
+  check `GROUP BY key HAVING COUNT(*) > 1` returns nothing.
 - BQ-touching changes are **oracle-gated**: a full-vs-incremental oracle and the delta-reconstruction oracle
   (`oracle-delta-reconstruction.sh`) must both report `0,0,0` before publishing.
 
