@@ -135,6 +135,7 @@ nav = [
     { Changelog = "reference/changelog.md" },
     { "GA4GH Standards" = "reference/gks-standards.md" },
     { "Known Issues" = "reference/known-issues.md" },
+    { FAQ = "reference/faq.md" },
     { Glossary = "reference/glossary.md" },
     { Presentations = [
       "reference/presentations/index.md",
