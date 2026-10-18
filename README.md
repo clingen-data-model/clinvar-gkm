@@ -41,6 +41,8 @@ Releases are hosted on **Cloudflare R2** — free, no authentication, no egress 
 
 See the [Downloads guide](https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/download/) for Parquet, dated releases, the delta replay model, and curl / Python / DuckDB examples. Sample records for each section are in the [`examples/`](examples/) directory.
 
+**Stay informed:** join the email list [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm) for release announcements and change notices, or watch this repository's Releases and Discussions.
+
 > **Operators:** the distribution domain (`data.clinvar-gkm.org`), CDN cache rules, rate-limiting, cost controls, and the cache-purge workflow are documented in [ADR 0005](docs/decisions/0005-r2-custom-domain-and-cdn.md).
 
 ## Pipeline Overview
