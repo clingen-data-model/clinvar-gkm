@@ -120,8 +120,8 @@ Two things differ inside `data`. References are bundle pointers (`#/submitter/cl
 
 Three tables break the pattern:
 
-- **[`condition`](#condition)** has camelCase columns (`conceptType`, `primaryCoding`), not snake_case. Its `data` column is new in 1.0.2; earlier releases don't have one.
-- **[`therapy`](#therapy)** and **[`therapyGroup`](#therapyGroup)** name the id column `key` and hold the JSON object in `value`, not `id` and `data`. From 1.0.2 they also have typed columns (`name`, `members`, …). On earlier releases, read a therapy's name with `value->>'name'`.
+- **[`condition`](#condition)** has camelCase columns (`conceptType`, `primaryCoding`), not snake_case. Its `data` column is new in 1.1.0; earlier releases don't have one.
+- **[`therapy`](#therapy)** and **[`therapyGroup`](#therapyGroup)** name the id column `key` and hold the JSON object in `value`, not `id` and `data`. From 1.1.0 they also have typed columns (`name`, `members`, …). On earlier releases, read a therapy's name with `value->>'name'`.
 
 ## Reading a table remotely
 
@@ -135,7 +135,7 @@ The sizes in the reference below tell you which category a table is in.
 
 ## Column reference { #column-reference }
 
-<!-- regenerate after 1.0.2 export -->
+<!-- regenerate after 1.1.0 export -->
 
 Every column of every table, from `DESCRIBE` on the release. Types are shown compactly: `STRUCT(a, b)` lists only the top-level fields, and `[]` marks a list. Expand **Full nested types** under a table for the complete DuckDB type, or run `DESCRIBE SELECT * FROM '<table>.parquet'` yourself.
 
@@ -227,10 +227,10 @@ VRS **SequenceLocation** records — a span on a reference sequence, shared by a
 | `loc_end` | `BIGINT` | End coordinate (interbase). NULL when the end is an uncertain range; use `loc_end_min` / `loc_end_max` instead. |
 | `sequence_reference_id` | `VARCHAR` | `SQ.…` → `sequenceReference.id`. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
-| `loc_start_min` | `BIGINT` | Lower bound of the start. Equals `loc_start` for a definite start. For an uncertain range it is the range's `min`, or NULL when the range is open (`[null, max]`, unbounded below). *From 1.0.2.* |
-| `loc_start_max` | `BIGINT` | Upper bound of the start. Equals `loc_start` for a definite start, otherwise the range's `max`. Never NULL. *From 1.0.2.* |
-| `loc_end_min` | `BIGINT` | Lower bound of the end. Equals `loc_end` for a definite end, otherwise the range's `min`. Never NULL. *From 1.0.2.* |
-| `loc_end_max` | `BIGINT` | Upper bound of the end. Equals `loc_end` for a definite end. For an uncertain range it is the range's `max`, or NULL when the range is open (`[min, null]`, unbounded above). *From 1.0.2.* |
+| `loc_start_min` | `BIGINT` | Lower bound of the start. Equals `loc_start` for a definite start. For an uncertain range it is the range's `min`, or NULL when the range is open (`[null, max]`, unbounded below). *From 1.1.0.* |
+| `loc_start_max` | `BIGINT` | Upper bound of the start. Equals `loc_start` for a definite start, otherwise the range's `max`. Never NULL. *From 1.1.0.* |
+| `loc_end_min` | `BIGINT` | Lower bound of the end. Equals `loc_end` for a definite end, otherwise the range's `min`. Never NULL. *From 1.1.0.* |
+| `loc_end_max` | `BIGINT` | Upper bound of the end. Equals `loc_end` for a definite end. For an uncertain range it is the range's `max`, or NULL when the range is open (`[min, null]`, unbounded above). *From 1.1.0.* |
 
 `loc_start_max` and `loc_end_min` bound the span the variant certainly covers, and are set on every row, so window queries can use them without skipping uncertain-range locations (about 72,000 rows, mostly copy-number variants). `loc_start_min` and `loc_end_max` bound the widest span it may cover.
 
@@ -287,7 +287,7 @@ ClinVar's conditions (traits) — diseases, phenotypes, findings — one row per
 | `aliases` | `VARCHAR[]` | Alternate names. |
 | `primaryCoding` | `STRUCT(name, code, system, iris)` | The MedGen coding: `{name, code, system, iris}`; `primaryCoding.code` is the MedGen CUI (e.g. `C3150901`). |
 | `mappings` | `STRUCT(coding, relation)[]` | Cross-references `{coding{name, code, system, iris}, relation}` — MONDO, Orphanet, OMIM, HPO, and others. |
-| `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). New in 1.0.2. |
+| `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). New in 1.1.0. |
 
 ??? note "Full nested types — `condition`"
     ```text
@@ -320,8 +320,8 @@ Drug therapies named by therapeutic-response propositions. A **leaf**. **The id 
 | --- | --- | --- |
 | `key` | `VARCHAR` | The therapy id, `clinvar.therapy:<sha256>` (content-addressed). |
 | `value` | `VARCHAR` | The JSON object as a string: `{conceptType: "Drug", name, type}`. |
-| `name` | `VARCHAR` | The therapy name. New in 1.0.2; on earlier releases use `value->>'name'`. |
-| `concept_type` | `VARCHAR` | Always `Drug`. New in 1.0.2. |
+| `name` | `VARCHAR` | The therapy name. New in 1.1.0; on earlier releases use `value->>'name'`. |
+| `concept_type` | `VARCHAR` | Always `Drug`. New in 1.1.0. |
 
 #### `therapyGroup` { #therapyGroup }
 
@@ -333,8 +333,8 @@ Combination therapies — a set of `therapy` members. Same `key`/`value` shape a
 | --- | --- | --- |
 | `key` | `VARCHAR` | The group id, `clinvar.therapygroup:<sha256>`. |
 | `value` | `VARCHAR` | The JSON object as a string: `{type, membershipOperator, concepts}`, where `concepts` is a list of `#/therapy/clinvar.therapy:…` pointers. |
-| `membership_operator` | `VARCHAR` | Always `AND`: the members are given together. New in 1.0.2. |
-| `members` | `VARCHAR[]` | Member **ids**, `clinvar.therapy:…` → `therapy.key`. New in 1.0.2; on earlier releases the members are only in `value`. |
+| `membership_operator` | `VARCHAR` | Always `AND`: the members are given together. New in 1.1.0. |
+| `members` | `VARCHAR[]` | Member **ids**, `clinvar.therapy:…` → `therapy.key`. New in 1.1.0; on earlier releases the members are only in `value`. |
 
 ### 3 · Proposition
 
@@ -355,8 +355,8 @@ Variant × condition propositions — the claim a germline or somatic classifica
 | `mode_of_inheritance` | `VARCHAR` | Mode-of-inheritance qualifier (e.g. `Autosomal dominant inheritance`), or NULL. |
 | `penetrance` | `VARCHAR` | Penetrance qualifier, or NULL. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
-| `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.0.2.* |
-| `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.0.2.* |
+| `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.1.0.* |
+| `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.1.0.* |
 | `gene_context_source` | `VARCHAR` | Where the gene-context gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`. NULL on VCV and RCV propositions, and where there is no qualifier. See [Gene context](#gene-context). *From this release.* |
 
 #### `varcustom-proposition` { #varcustom-proposition }
@@ -376,8 +376,8 @@ Variant × condition propositions for ClinVar's **non-pathogenicity germline** c
 | `mode_of_inheritance` | `VARCHAR` | Mode-of-inheritance qualifier (e.g. `Autosomal dominant inheritance`), or NULL. |
 | `penetrance` | `VARCHAR` | Penetrance qualifier, or NULL. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
-| `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.0.2.* |
-| `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.0.2.* |
+| `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.1.0.* |
+| `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.1.0.* |
 | `gene_context_source` | `VARCHAR` | Where the gene-context gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`. NULL on VCV and RCV propositions, and where there is no qualifier. See [Gene context](#gene-context). *From this release.* |
 
 #### `vartumor-proposition` { #vartumor-proposition }
@@ -395,8 +395,8 @@ Variant × tumor-type propositions — somatic **oncogenicity** claims.
 | `object_tumor_type_id` | `VARCHAR` | The tumor type. **Prefix-dispatched**: almost always a `clinvar.trait:` → `condition.id`, but 12 rows name a `clinvar.conditionset:` → `conditionSet.id`. |
 | `gene_context_name` | `VARCHAR` | Symbol of the proposition's gene-context gene (e.g. `EGFR`), or NULL. SCV propositions only. **One representative gene per variant**, not the submitter's genes; see [Gene context](#gene-context). For the placeholder (`gene_context_source` = `submittedNotNormalized`) it is the submitter's symbol; releases before this one hold the literal `submitted genes were not normalized`. A symbol, not an id: join on `gene_context_id`. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
-| `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.0.2.* |
-| `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.0.2.* |
+| `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.1.0.* |
+| `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.1.0.* |
 | `gene_context_source` | `VARCHAR` | Where the gene-context gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`. NULL on VCV and RCV propositions, and where there is no qualifier. See [Gene context](#gene-context). *From this release.* |
 
 #### `vartherapy-proposition` { #vartherapy-proposition }
@@ -412,11 +412,11 @@ Variant × therapy propositions — somatic **therapeutic response**. These are 
 | `predicate` | `VARCHAR` | `predictsSensitivityTo` or `predictsResistanceTo`. |
 | `subject_variant_id` | `VARCHAR` | `clinvar:<n>` → `variation.id`. |
 | `condition_qualifier_id` | `VARCHAR` | The tumor/condition context, `clinvar.trait:` → `condition.id`. |
-| `object_therapy` | `VARCHAR` | `clinvar.therapy:<sha256>` → `therapy.key`, or `clinvar.therapygroup:<sha256>` → `therapyGroup.key`. Releases before 1.0.2 held a JSON-quoted pointer instead; see [Joins that lie](joining.md#joins-that-lie). |
+| `object_therapy` | `VARCHAR` | `clinvar.therapy:<sha256>` → `therapy.key`, or `clinvar.therapygroup:<sha256>` → `therapyGroup.key`. Releases before 1.1.0 held a JSON-quoted pointer instead; see [Joins that lie](joining.md#joins-that-lie). |
 | `gene_context_name` | `VARCHAR` | Symbol of the proposition's gene-context gene (e.g. `EGFR`), or NULL. SCV propositions only. **One representative gene per variant**, not the submitter's genes; see [Gene context](#gene-context). For the placeholder (`gene_context_source` = `submittedNotNormalized`) it is the submitter's symbol; releases before this one hold the literal `submitted genes were not normalized`. A symbol, not an id: join on `gene_context_id`. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
-| `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.0.2.* |
-| `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.0.2.* |
+| `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.1.0.* |
+| `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.1.0.* |
 | `gene_context_source` | `VARCHAR` | Where the gene-context gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`. NULL on VCV and RCV propositions, and where there is no qualifier. See [Gene context](#gene-context). *From this release.* |
 
 #### Gene context { #gene-context }
@@ -440,7 +440,7 @@ Variant × therapy propositions — somatic **therapeutic response**. These are 
 
     Because a placeholder's name is now a submitted symbol, a filter such as `gene_context_name = 'TP53'` also matches placeholders. In 2026-09-28 that is 29 `TP53` rows (78 for `BRCA1`, `BRCA2`, `TP53` and `MLH1` together). To get only normalized genes, filter on `gene_context_id`, or exclude `gene_context_source = 'submittedNotNormalized'`.
 
-Releases before 1.0.2 have only `gene_context_name`; the id and symbols are in `data` (`geneContextQualifier.primaryCoding.code`, and the `submittedGeneSymbols` extension). `gene_context_source` and its `geneContextSource` extension start with this release.
+Releases before 1.1.0 have only `gene_context_name`; the id and symbols are in `data` (`geneContextQualifier.primaryCoding.code`, and the `submittedGeneSymbols` extension). `gene_context_source` and its `geneContextSource` extension start with this release.
 
 This is **not** the variant's gene list. The gene list (`clinvarGeneList` in `variation.extensions`) relates a variant to every gene ClinVar associates with it: many genes per variant, including genes a large copy-number variant merely overlaps. Use the gene list to find a gene's variants, as in the [gene rollup recipe](recipes.md#gene-rollup); use `gene_context_id` for the one gene a submission's proposition is framed around. A planned `variant-gene` lookup file will publish the gene list as a gene × variant crosswalk; it carries the gene list, not the gene context.
 
@@ -462,8 +462,8 @@ This is **not** the variant's gene list. The gene list (`clinvarGeneList` in `va
 | `quality` | `STRUCT(type, conceptType, name)` | MappableConcept; `quality.name` is the submission level — `practice guidelines`, `expert panel`, `criteria provided`, `no assertion criteria provided`, `no classification`, or `flagged`. |
 | `description` | `VARCHAR` | The submitter's free-text comment on the classification, or NULL. |
 | `specifiedBy` | `STRUCT(type, methodType, name, reportedIn, extensions)` | The method: `methodType` (ClinVar collection method — `clinical testing`, `curation`, `research`, …), `name` (the assertion criteria, e.g. ACMG guidelines), `reportedIn` (the criteria document, one Document shaped like a `reportedIn` element) and `extensions`. When ClinVar lists more than one citation for the method, the others are in the extension `additionalClinvarMethodCitations` (`value_document_array`, from 1.1.0; 6 SCVs). |
-| `reportedIn` | `STRUCT(type, pmid, doi, urls, name, documentType, extensions)[]` | Citations supporting the submission, **one Document per ClinVar citation** (from 1.0.2): `pmid`, `doi`, `urls` (every resolvable URL for the citation), `name` (ClinVar's label, e.g. `ACMG, 2015`) and `documentType` (ClinVar's citation type, e.g. `general`, `practice guideline`). `extensions` (`name`, `value_string`, `value_boolean`) keep ClinVar's citation text (`clinvarCitationText`) and any repaired or unusable id; see [citation Documents](../pipeline/scv-statements/final-statements.md#temp_scv_citation_docs). A Document may have no `pmid`, `doi` or `urls`: a text-only citation carries only `clinvarCitationText`. Before 1.1.0, a citation with several ids was split into one Document per id, and URL-only and text-only citations were dropped. |
-| `extensions` | `STRUCT(name, value_string, value_submitted_condition_set, value_submitted_condition)[]` | Named ClinVar attributes: `clinvarScvId`, `clinvarScvVersion`, `clinvarScvReviewStatus`, `submissionLevel`, `submittedScvLocalKey`, `submittedScvClassification`, and the submitter's original condition (`submittedCondition` → `value_submitted_condition`, or `submittedConditionSet` → `value_submitted_condition_set`) with its MedGen mapping. Each element sets only the `value_*` field that matches its name; the others are NULL, as the bundle omits them. Files exported before 1.0.2 filled the unused ones with all-null structs, including empty `concepts[]` and `xrefs[]` elements. |
+| `reportedIn` | `STRUCT(type, pmid, doi, urls, name, documentType, extensions)[]` | Citations supporting the submission, **one Document per ClinVar citation** (from 1.1.0): `pmid`, `doi`, `urls` (every resolvable URL for the citation), `name` (ClinVar's label, e.g. `ACMG, 2015`) and `documentType` (ClinVar's citation type, e.g. `general`, `practice guideline`). `extensions` (`name`, `value_string`, `value_boolean`) keep ClinVar's citation text (`clinvarCitationText`) and any repaired or unusable id; see [citation Documents](../pipeline/scv-statements/final-statements.md#temp_scv_citation_docs). A Document may have no `pmid`, `doi` or `urls`: a text-only citation carries only `clinvarCitationText`. Before 1.1.0, a citation with several ids was split into one Document per id, and URL-only and text-only citations were dropped. |
+| `extensions` | `STRUCT(name, value_string, value_submitted_condition_set, value_submitted_condition)[]` | Named ClinVar attributes: `clinvarScvId`, `clinvarScvVersion`, `clinvarScvReviewStatus`, `submissionLevel`, `submittedScvLocalKey`, `submittedScvClassification`, and the submitter's original condition (`submittedCondition` → `value_submitted_condition`, or `submittedConditionSet` → `value_submitted_condition_set`) with its MedGen mapping. Each element sets only the `value_*` field that matches its name; the others are NULL, as the bundle omits them. Files exported before 1.1.0 filled the unused ones with all-null structs, including empty `concepts[]` and `xrefs[]` elements. |
 | `proposition_id` | `VARCHAR` | The proposition this statement classifies. Its classification code names the proposition table (see [Reading a variant's statements](#reading-a-variants-statements)); to cover every code, join the four-table union ([Joining → Seam C](joining.md#seam-c-proposition-statements-1-1)). One statement per proposition. |
 | `contributions` | `STRUCT(type, contributor, date, activityType)[]` | `{contributor, date, activityType}` — `contributor` is a `clinvar.submitter:` id → `submitter.id`; `activityType` is `submitted`, `created`, or `evaluated`. |
 | `has_evidence_lines` | `VARCHAR[]` | Ids of this statement's evidence lines in `evidenceLine`. |
@@ -492,7 +492,7 @@ SCV-level evidence lines — used only by somatic **clinical impact (SCI)** subm
 | `type` | `VARCHAR` | Always `EvidenceLine`. |
 | `directionOfEvidenceProvided` | `VARCHAR` | `supports` / `disputes` / `neutral`. |
 | `evidenceOutcome` | `STRUCT(type, conceptType, name)` | MappableConcept; `.name` is `Level A/B` (Tier I) or `Level C/D` (Tier II). |
-| `extensions` | `STRUCT(name, value_submitted_condition_set, value_submitted_condition)[]` | The submitter's original condition (`submittedCondition`), same shape as on `scv`: only the matching `value_*` field is set, and, from 1.0.2, there are no empty placeholder elements. |
+| `extensions` | `STRUCT(name, value_submitted_condition_set, value_submitted_condition)[]` | The submitter's original condition (`submittedCondition`), same shape as on `scv`: only the matching `value_*` field is set, and, from 1.1.0, there are no empty placeholder elements. |
 | `target_proposition_id` | `VARCHAR` | The specific-impact proposition: `…-DIAG` / `…-PROG` → `varcond-proposition`, `…-TR` → `vartherapy-proposition`. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
 

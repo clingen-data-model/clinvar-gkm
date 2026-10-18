@@ -69,7 +69,7 @@ ga4gh:VA.E8L_Ltq8nC8OPjbEk1jasgkF9SXDKEkf  NC_000017.11:g.8173472G>A    A    17-
 …
 ```
 
-`->>` returns text, and `->` returns JSON that you can `CAST` to a typed list or struct, as `expressions` is here. In `therapy` and `therapyGroup` the same JSON is in `value`. Before 1.0.2, `condition` had no `data` column.
+`->>` returns text, and `->` returns JSON that you can `CAST` to a typed list or struct, as `expressions` is here. In `therapy` and `therapyGroup` the same JSON is in `value`. Before 1.1.0, `condition` had no `data` column.
 
 ## Reading a `STRUCT` column
 

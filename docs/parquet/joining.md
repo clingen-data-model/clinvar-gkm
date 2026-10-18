@@ -262,8 +262,8 @@ Every one of these returns a plausible answer with no error. Check them first wh
 
     Join every branch, or at least count the rows that matched nothing.
 
-!!! note "Releases before 1.0.2 stored pointers, not ids"
-    In releases before 1.0.2, `vartherapy-proposition.object_therapy` held a JSON-quoted pointer (`"#/therapy/clinvar.therapy:…"`), and each variant gene-list entry held a `#/gene/ncbigene:…` pointer. Both now hold bare ids, and the backfill rewrote the published Parquet for past releases. Parquet downloaded before the backfill still has the old form. These expressions return the bare id from either form:
+!!! note "Releases before 1.1.0 stored pointers, not ids"
+    In releases before 1.1.0, `vartherapy-proposition.object_therapy` held a JSON-quoted pointer (`"#/therapy/clinvar.therapy:…"`), and each variant gene-list entry held a `#/gene/ncbigene:…` pointer. Both now hold bare ids, and the backfill rewrote the published Parquet for past releases. Parquet downloaded before the backfill still has the old form. These expressions return the bare id from either form:
 
     ```sql
     regexp_replace(trim(p.object_therapy, '"'), '^#/[A-Za-z]+/', '')   -- -> clinvar.therapy:…
@@ -271,6 +271,6 @@ Every one of these returns a plausible answer with no error. Check them first wh
     ```
 
 !!! danger "The gene context is not the variant's genes"
-    `gene_context_name` is a gene **symbol**, and symbols are not unique (`BTBD8` names two NCBI genes), so join on `gene_context_id`, its `ncbigene:` id (from 1.0.2). Both are filled in only on SCV propositions (6,655,967 of them) and are **NULL on every VCV and RCV proposition**, so filtering aggregates by them returns nothing. Both name **one representative gene per variant**, chosen upstream, not the genes the submitter named (those are in `submitted_gene_symbols`); see [Gene context](tables.md#gene-context). To find a gene's variants, use the variant's gene list, which carries `ncbigene:` ids, as in the [PubMed-ids-for-a-gene recipe](recipes.md#pubmed-ids-for-a-gene).
+    `gene_context_name` is a gene **symbol**, and symbols are not unique (`BTBD8` names two NCBI genes), so join on `gene_context_id`, its `ncbigene:` id (from 1.1.0). Both are filled in only on SCV propositions (6,655,967 of them) and are **NULL on every VCV and RCV proposition**, so filtering aggregates by them returns nothing. Both name **one representative gene per variant**, chosen upstream, not the genes the submitter named (those are in `submitted_gene_symbols`); see [Gene context](tables.md#gene-context). To find a gene's variants, use the variant's gene list, which carries `ncbigene:` ids, as in the [PubMed-ids-for-a-gene recipe](recipes.md#pubmed-ids-for-a-gene).
 
 Next: [Recipes](recipes.md) puts these joins to work on real questions.

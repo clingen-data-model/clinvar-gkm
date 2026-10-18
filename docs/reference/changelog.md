@@ -5,12 +5,30 @@ A running record of every schema change and data re-release on the 1.x line. See
 [GitHub Releases](https://github.com/clingen-data-model/clinvar-gkm/releases) page for the
 tagged source of each.
 
-## 1.0.2
+## 1.1.0
 
-<!-- set the release date when 1.0.2 is tagged -->
+<!-- set the release date when 1.1.0 is tagged -->
 
-A conformance and Parquet-consistency release, shipped with one rebuild and one backfill of the published
-releases.
+A **breaking** release, shipped in place under `/v1/` during the
+[initial-stabilization period](versioning.md); see
+[ADR 0006](../decisions/0006-ship-1.1.0-in-place-under-v1.md). It reorganizes the proposition sections and
+carries a set of corrections, all delivered through one full rebuild that rewrites every published file.
+
+- **Breaking: propositions are grouped by meaning.** The four proposition sections and Parquet tables, which
+  were grouped by the shape of their object (`varcond-proposition`, `varcustom-proposition`,
+  `vartumor-proposition`, `vartherapy-proposition`), are replaced by four grouped by meaning:
+  `propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact` and
+  `propositionClinvarCustom`. Proposition ids don't change, but every statement and evidence-line pointer
+  names the new section (`#/varcond-proposition/SCV…-PATH` becomes `#/propositionPathogenicity/SCV…-PATH`).
+  The four Parquet tables share one column schema, so `read_parquet('proposition*.parquet')` reads them all.
+  `object_condition_id`, `object_tumor_type_id` and `object_therapy` become `object_id`, and
+  `varcustom-proposition.subject_id` becomes `subject_variant_id`. The Parquet entries below name the
+  pre-1.1.0 tables.
+- **Breaking: version.** The schema `$id` version and the bundle `schema_version` move `1.0.1 → 1.1.0`.
+- **Corrective**: everything else below. The schema change to `ClinvarCategoricalVariant` accepts every valid
+  record; the data corrections fix HGVS syntax, duplicate allele keys, RCV propositions without an object,
+  condition pointers, citations and gene context; and the Parquet changes add bare-id and typed columns and
+  make every Parquet value match the bundle.
 
 **Schema change** — no change to valid instances:
 
@@ -18,7 +36,6 @@ releases.
   (`DefiningAlleleConstraint`, `CopyCountConstraint`, `CopyChangeConstraint`, or no `constraints`). Before, real
   variants matched more than one branch and failed the `oneOf`. The bundle schema now validates the
   `variation` section through `ClinvarCategoricalVariant`.
-- The schema `$id` version and the bundle `schema_version` move `1.0.1 → 1.0.2`.
 
 **Data-shape correction** — 14 variants (16 HGVS expressions) had `clinvarHgvsList` entries with syntax
 `hgvs.?`, which VRS doesn't allow. ClinVar's submitted text had no HGVS type letter. It is now kept as an
@@ -150,10 +167,13 @@ References inside the JSON bundle and the `data` columns still use `#/<section>/
 - `conditionSet.data` is null-stripped like every other `data` column: a set with no `conceptSetType`
   omits the key instead of carrying `"conceptSetType": null`.
 
-**Backfill**: the 14 corrected `variation` records were patched into the published monthly full bundles, and
-the `variation` and `vartherapy-proposition` Parquet files were re-exported for every published release, so
-fulls and deltas carry the same forms. The new columns start with the 1.0.2 export and are not backfilled. The
-[Query the Data](../parquet/index.md) queries run on both the old and new forms.
+**Republish**: 1.1.0 is not a patch. All 16 BigQuery datasets behind the published releases were rebuilt in
+full. Then the 4 monthly full bundles (2026-07 … 2026-10, and `00-latest`) and the 15 weekly deltas
+(2026-07-06 … 2026-10-11) were re-assembled, and every Parquet set was re-exported, in place under `/v1/`. Every
+published file therefore carries every change above, including the new proposition sections and the new
+Parquet columns, and the old `var*-proposition` files are gone. File contents and checksums change, so
+re-download anything fetched before 1.1.0. Copies downloaded earlier keep the old forms; the
+[Query the Data](../parquet/index.md) pages note where they differ.
 
 ## 1.0.1 — 2026-10-13
 

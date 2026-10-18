@@ -167,7 +167,7 @@
     marfan:   `SELECT id, name\nFROM '{BASE}/condition.parquet'\nWHERE name ILIKE '%marfan%';`,
     describe: `DESCRIBE SELECT * FROM '{BASE}/scv.parquet';`,
     scvcount: `SELECT count(*) AS n_scv FROM '{BASE}/scv.parquet';`,
-    therapy:  `-- therapy is content-addressed: the id column is key. value->>'name' works on every release (1.0.2+ also has a name column)\nSELECT key, value->>'name' AS name\nFROM '{BASE}/therapy.parquet'\nLIMIT 25;`,
+    therapy:  `-- therapy is content-addressed: the id column is key. value->>'name' works on every release (1.1.0+ also has a name column)\nSELECT key, value->>'name' AS name\nFROM '{BASE}/therapy.parquet'\nLIMIT 25;`,
     bytype:   `SELECT conceptType, count(*) AS n\nFROM '{BASE}/condition.parquet'\nGROUP BY 1 ORDER BY n DESC;`,
   };
 

@@ -338,8 +338,8 @@ clinvar:59851   GRCh38/hg38 13q11-34(chr13:18565048-114327173)x3  NULL          
 
 The query matches on the span each variant **certainly** covers. To include every variant that **may** reach the window, match on the outer bounds instead, treating NULL as unbounded: `coalesce(loc_start_min, 0) < 32338500 AND coalesce(loc_end_max, 9e9) > 32338400` (638 variants here).
 
-!!! note "From release 1.0.2"
-    The `loc_start_min` … `loc_end_max` columns exist in `location.parquet` from release 1.0.2. On earlier releases, filter on `loc_start` and `loc_end` instead (`loc_start < 32338500 AND loc_end > 32338400`); that finds 208 variants here, because it skips every location whose start or end is an uncertain range (their range is only in `location.data`).
+!!! note "From release 1.1.0"
+    The `loc_start_min` … `loc_end_max` columns exist in `location.parquet` from release 1.1.0. On earlier releases, filter on `loc_start` and `loc_end` instead (`loc_start < 32338500 AND loc_end > 32338400`); that finds 208 variants here, because it skips every location whose start or end is an uncertain range (their range is only in `location.data`).
 
 ## Gene rollup of ClinVar's calls { #gene-rollup }
 
@@ -375,7 +375,7 @@ Pathogenic                                       96
 …
 ```
 
-About **5 s** and **1.6 GB**, nearly all of it reading the gene lists in the 4 GB `variation.parquet`. The `relationship_type` filter drops large copy-number variants that merely overlap the gene and variants near it; remove it to include them. The `replace(…, '#/gene/', '')` lets the query run on any release: before 1.0.2 each gene was a `#/gene/ncbigene:…` pointer, and on the bare `ncbigene:` ids from 1.0.2 on it changes nothing.
+About **5 s** and **1.6 GB**, nearly all of it reading the gene lists in the 4 GB `variation.parquet`. The `relationship_type` filter drops large copy-number variants that merely overlap the gene and variants near it; remove it to include them. The `replace(…, '#/gene/', '')` lets the query run on any release: before 1.1.0 each gene was a `#/gene/ncbigene:…` pointer, and on the bare `ncbigene:` ids from 1.1.0 on it changes nothing.
 
 !!! tip "Reach into nested lists with `[… FOR … IN …]`, not `unnest`"
     The gene filter above uses a list comprehension. Written instead with `unnest(extensions)` and `unnest(value_gene_array)`, the same filter returns the same 5,942 variants but takes about **37 s** and **2.5 GB**, because `unnest` expands every variant's whole extension list into rows first.
