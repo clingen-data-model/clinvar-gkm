@@ -299,14 +299,15 @@ The pipeline trusts its upstream inputs. In 1.1.0 four input problems reached th
 The `rcv_mapping` difference is not a bug: it is a faithful parse of ClinVar's RCV XML, which runs out of sync
 with the VCV XML. Consumers must join `rcv_mapping` SCVs to the VCV-side data.
 
-Upstream issues being filed (titles only):
+Upstream issues (tracked together in
+[clingen-data-model/clinvar-gkm#164](https://github.com/clingen-data-model/clinvar-gkm/issues/164)):
 
-- clinvar-ingest-bq-tools: "`single_gene_variation`: haplotypes/genotypes whose alleles share one gene are
-  rejected (`COUNT` vs `COUNT DISTINCT`)"
-- clinvar-ingest-bq-tools: "`clinvar_ingest.entrez_gene` is missing 64,854 gene ids, so `single_gene_variation`
-  drops them"
-- ClinVar (NCBI), by email, tracked in this repo: "16 malformed HGVS expressions in the VCV XML (missing type
-  letter)"
+- [clingen-data-model/clinvar-ingest-bq-tools#38](https://github.com/clingen-data-model/clinvar-ingest-bq-tools/issues/38):
+  `single_gene_variation` counts gene rows instead of distinct genes (`COUNT` vs `COUNT DISTINCT`)
+- [clingen-data-model/clinvar-ingest-bq-tools#39](https://github.com/clingen-data-model/clinvar-ingest-bq-tools/issues/39):
+  `clinvar_ingest.entrez_gene` is stale; 64,854 gene ids are missing
+- [clingen-data-model/clinvar-gkm#163](https://github.com/clingen-data-model/clinvar-gkm/issues/163): report to
+  ClinVar (by email) of the 16 malformed HGVS expressions in the VCV XML
 
 ### Approach
 
