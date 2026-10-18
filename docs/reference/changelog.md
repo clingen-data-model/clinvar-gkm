@@ -44,6 +44,13 @@ since merged. Each allele now has exactly one record:
 Expression order and the `name` are now fully deterministic. Ties are broken by value, which changes the name of
 2 alleles that had tied expressions.
 
+**RCV propositions without an object** — in the 2026-10-04 and 2026-10-11 releases, the 4 propositions of
+`RCV000001117` (`-G-PATH`, `-G-PATH-CP`, `-G-NP`, `-G-NP-NOCL`) had no `object` and failed validation. This
+also made the 2026-10-04 delta fail. An RCV's condition comes from one of its member SCVs. ClinVar's RCV-to-SCV
+mapping still listed an SCV that ClinVar had removed (`SCV000021267`), and that SCV was picked even though it
+no longer had a condition. The SCV is now picked from the members that have a condition. The propositions point
+to `#/condition/clinvar.trait:2478` again, as they did through 2026-09-28. No other RCV changes.
+
 **Citations** — SCV `reportedIn` and `specifiedBy.reportedIn` now hold **one Document per ClinVar citation**,
 with no citation dropped and no ClinVar value changed silently. Counts are for the 2026-09-28 release:
 
