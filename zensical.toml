@@ -1,7 +1,7 @@
 [project]
 site_name = "ClinVar-GKM"
 site_description = "ClinVar data transformation pipeline to GA4GH GKS format"
-site_url = "https://clingen-data-model.github.io/clinvar-gkm/"
+site_url = "https://dataexchange.clinicalgenome.org/clinvar-gkm/"
 repo_url = "https://github.com/clingen-data-model/clinvar-gkm"
 repo_name = "clingen-data-model/clinvar-gkm"
 edit_uri = "edit/main/docs/"

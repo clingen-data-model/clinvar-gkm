@@ -39,7 +39,7 @@ Releases are hosted on **Cloudflare R2** — free, no authentication, no egress 
 - **Latest weekly delta (JSON):** <https://data.clinvar-gkm.org/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz>
 - **Release index:** <https://data.clinvar-gkm.org/index.json>
 
-See the [Downloads guide](https://clingen-data-model.github.io/clinvar-gkm/data-access/download/) for Parquet, dated releases, the delta replay model, and curl / Python / DuckDB examples. Sample records for each section are in the [`examples/`](examples/) directory.
+See the [Downloads guide](https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/download/) for Parquet, dated releases, the delta replay model, and curl / Python / DuckDB examples. Sample records for each section are in the [`examples/`](examples/) directory.
 
 > **Operators:** the distribution domain (`data.clinvar-gkm.org`), CDN cache rules, rate-limiting, cost controls, and the cache-purge workflow are documented in [ADR 0005](docs/decisions/0005-r2-custom-domain-and-cdn.md).
 
@@ -57,7 +57,7 @@ The pipeline runs on **Google BigQuery** using SQL stored procedures, with an ex
 
 ## Documentation
 
-Full documentation is available at **[clingen-data-model.github.io/clinvar-gkm](https://clingen-data-model.github.io/clinvar-gkm/)**, including pipeline details, GA4GH profile definitions, data access guides, and a schema registry.
+Full documentation is available at **[dataexchange.clinicalgenome.org/clinvar-gkm](https://dataexchange.clinicalgenome.org/clinvar-gkm/)**, including pipeline details, GA4GH profile definitions, data access guides, and a schema registry.
 
 The site is built from `docs/` by [`deploy-docs.yml`](.github/workflows/deploy-docs.yml). Any merge to `main` that changes `docs/`, `zensical.toml`, or that workflow redeploys it automatically; releases and a daily schedule also deploy. To deploy by hand: `gh workflow run deploy-docs.yml --ref main`.
 

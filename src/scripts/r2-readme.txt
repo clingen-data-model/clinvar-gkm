@@ -61,5 +61,5 @@ Download the latest monthly full:
 Fetch the latest weekly delta + its manifest:
   curl -O https://data.clinvar-gkm.org/deltas/00-latest/manifest.json
 
-Documentation: https://clingen-data-model.github.io/clinvar-gkm/
+Documentation: https://dataexchange.clinicalgenome.org/clinvar-gkm/
 Source: https://github.com/clingen-data-model/clinvar-gkm
