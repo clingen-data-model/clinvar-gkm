@@ -285,7 +285,7 @@ publish_monthly() {
   printf '%s  %s\n' "$sha" "${LATEST_MONTHLY}" > "$side"
   r2_upload "$side" "datasets/${LATEST_MONTHLY}.sha256" "text/plain"
   rm -f "$side"
-  echo "  sha256:   ${sha} (sidecars uploaded)"
+  echo "  sha256:   ${sha} (sidecars: ${MONTHLY_FILE}.sha256, ${LATEST_MONTHLY}.sha256)"
 }
 
 # =====================================================================
