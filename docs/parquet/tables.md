@@ -129,7 +129,7 @@ Every table can be queried straight from `https://data.clinvar-gkm.org/v1/datase
 
 - **Cheap on any table:** `DESCRIBE`, `count(*)`, and `LIMIT` reads. These touch only the file's footer or its first chunk, so they return in under a second even on the 3 GB `scv.parquet`.
 - **Fine on small tables:** full scans of anything up to tens of megabytes (`condition`, `gene`, `submitter`, `therapy`, the somatic propositions).
-- **Download first for big tables:** a full scan or `GROUP BY` over `scv`, `variation`, `varcond-proposition`, or the aggregates reads every row group, one request each, in a burst. The CDN rate-limits that with **HTTP 429**, even single-threaded. Download the table once and query it locally. See [Working at Scale](performance.md#local-or-remote).
+- **Download first for big tables:** a full scan or `GROUP BY` over `scv`, `variation`, `varcond-proposition`, or the aggregates reads every row group, one request each, in a burst. Remotely that takes tens of seconds and hundreds of megabytes, and a heavier query can still hit the CDN's limit of 250 requests per 10 seconds (**HTTP 429**). Download the table once and query it locally. See [Working at Scale](performance.md#local-or-remote).
 
 The sizes in the reference below tell you which category a table is in.
 

@@ -39,9 +39,9 @@ DuckDB reads Parquet over HTTPS with **range requests**: it fetches the file's f
 | `DESCRIBE`, `count(*)`, `parquet_metadata(…)` | footer only | yes, in under a second on any table |
 | `LIMIT n` without a filter | footer + first row group | yes |
 | Any query on a small table (`condition`, `gene`, `submitter`, `therapy`, …) | a few | yes |
-| A filter, `GROUP BY` or join over a big table | one per row group per column; 55 row groups in `scv`, 223 in `varcond-proposition` | **no**: rate-limited with HTTP 429 |
+| A filter, `GROUP BY` or join over a big table | one per row group per column; 55 row groups in `scv`, 223 in `varcond-proposition` | **slowly**: 10–35 s per query, reading hundreds of MB; download for repeated or heavier work |
 
-The published files are not sorted by any lookup key, so even a filter for a single variant or SCV has to read every row group of the filtered column. The CDN in front of `data.clinvar-gkm.org` limits how many requests one client can make in a short window, and a big-table scan exceeds it even with `SET threads=1` and retries.
+The published files are not sorted by any lookup key, so even a filter for a single variant or SCV has to read every row group of the filtered column. The CDN in front of `data.clinvar-gkm.org` allows **250 requests per 10 seconds** per client IP and blocks for 10 seconds past that (HTTP 429). From the command line, single-table scans and two-table joins on the big tables now complete within it (a `GROUP BY` over all of `scv` in about 30 s; a variant's PubMed ids in about 25 s), but each reads hundreds of megabytes, so repeated or larger work belongs on a downloaded copy.
 
 The rule: **query remotely to explore, download to analyze.** Download the tables a question needs once (see [Start Here](index.md#put-the-file-on-your-machine)), and every query on this page and in [Recipes](recipes.md) runs in seconds.
 
@@ -75,7 +75,7 @@ For work you repeat, open a database file (`duckdb clinvar-gkm.duckdb`) rather t
 
 Statements and propositions live in separate tables. An SCV row holds its classification but not the variant or condition it is about. Those are on the proposition, in one of four tables, each spelling the columns slightly differently. So any question about statements by **subject** (a variant), **object** (a condition, tumor type or therapy) or **qualifier** (gene context, mode of inheritance, penetrance) has to join two multi-GB tables first.
 
-Paying for that join on every query is slow locally. Over the network it does not work at all: `scv.parquet` has no variant column, so a lookup for one variant must read every row group of the file. That burst of requests is what trips the CDN's rate limit (**HTTP 429**) in the [live console](index.md#run-a-query-now).
+Paying for that join on every query is slow locally, and slower over the network: `scv.parquet` has no variant column, so a lookup for one variant must read every row group of the file. From the command line that takes about 25 seconds and hundreds of megabytes per query; in the browser's [live console](index.md#run-a-query-now) it can also exhaust memory or trip the CDN's rate limit (**HTTP 429**).
 
 The fix is to run the join **once**, store the result as a table sorted by the column you look up most, and query that table instead. DuckDB has no `CREATE MATERIALIZED VIEW`; `CREATE TABLE … AS SELECT` in a database file does the same job. You refresh it by re-running the script when you download a new release.
 

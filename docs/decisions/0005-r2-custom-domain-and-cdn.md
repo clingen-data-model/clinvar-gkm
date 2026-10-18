@@ -122,15 +122,26 @@ curl -s -o /dev/null -D - https://data.clinvar-gkm.org/v1/index.json | grep -i c
 
 ### Rate-limiting rule (Security → WAF → Rate limiting rules; 1 free IP-keyed rule)
 
+Live rule "R2 abuse backstop" (verified 2026-10-18):
+
 ```
 When:  (http.host eq "data.clinvar-gkm.org")
-Rate:  300 requests / 1 minute per client IP
-Then:  Block for 10 minutes
+Characteristics:  IP (ip.src)
+Rate:  250 requests / 10 seconds
+Then:  Block for 10 seconds
+Order: first; Status: Active
 ```
 
-Keep it **generous** (300, not tight): DuckDB/`httpfs` issues many range GETs per query, and cached hits
-still count toward the limiter. This is an anti-runaway backstop only — real exposure is pennies
-(free egress + $0.36 / million Class B).
+The Free plan fixes the counting period and the block duration at **10 seconds**; only the request count is
+adjustable. The original intent (300 requests / 1 minute, block 10 minutes) could not be expressed on Free and
+was first configured as 50 / 10 s. That blocked ordinary DuckDB queries after ~55 range requests, so on
+2026-10-18 the threshold was raised to **250 / 10 s**. A burst of 120 range requests in ~1 s now returns 206
+throughout, and remote queries such as a `GROUP BY` over all of `scv.parquet` or a variant's PubMed ids
+(an `scv` × `varcond-proposition` join) complete in 10–35 s.
+
+Keep it **generous**: DuckDB/`httpfs` issues many range GETs per query, cached hits still count toward the
+limiter, and a client that keeps retrying while blocked re-trips the rule. This is an anti-runaway backstop
+only — real exposure is pennies (free egress + $0.36 / million Class B, 10M/month free).
 
 ### Costs (order of magnitude)
 
