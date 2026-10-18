@@ -310,31 +310,36 @@ WITH seq AS (
   SELECT id FROM 'sequenceReference.parquet' WHERE name = 'NC_000013.11'    -- <- chromosome (RefSeq accession)
 ),
 loc AS (
-  SELECT id, loc_start, loc_end FROM 'location.parquet'
+  SELECT id, loc_start_min, loc_start_max, loc_end_min, loc_end_max FROM 'location.parquet'
   WHERE sequence_reference_id = (SELECT id FROM seq)
-    AND loc_start < 32338500 AND loc_end > 32338400                         -- <- window
+    AND loc_start_max < 32338500 AND loc_end_min > 32338400                 -- <- window
 ),
 vrs AS (
   SELECT id, location_id FROM 'allele.parquet'
   UNION ALL SELECT id, location_id FROM 'copyNumberCount.parquet'
   UNION ALL SELECT id, location_id FROM 'copyNumberChange.parquet'
 )
-SELECT v.id, v.name, l.loc_start, l.loc_end
+SELECT v.id, v.name, l.loc_start_min, l.loc_start_max, l.loc_end_min, l.loc_end_max
 FROM vrs
 JOIN loc l ON l.id = vrs.location_id
 JOIN (SELECT id, name, unnest(members) AS member FROM 'variation.parquet') v ON v.member = vrs.id
-ORDER BY l.loc_start, v.id;
+ORDER BY l.loc_start_max, v.id;
 ```
 
 ```text
-id               name                                                      loc_start  loc_end
-clinvar:373831   Single allele                                             32326577   32340895
-clinvar:920251   NM_000059.4(BRCA2):c.4006_4050dup (p.Phe1336_His1350dup)  32338360   32338405
-clinvar:3825390  NM_000059.4(BRCA2):c.4046_4047delinsC (p.Ile1349fs)       32338400   32338402
+id              name                                              loc_start_min  loc_start_max  loc_end_min  loc_end_max
+clinvar:146305  GRCh38/hg38 13q11-34(chr13:18445862-114327173)x1  NULL           18445861       114327173    NULL
+clinvar:151282  GRCh38/hg38 13q11-34(chr13:18456040-114340285)x3  NULL           18456039       114340285    NULL
+clinvar:59851   GRCh38/hg38 13q11-34(chr13:18565048-114327173)x3  NULL           18565047       114327173    NULL
 …
 ```
 
-208 variants in this 100-base window. Locations whose start or end is an uncertain range have a NULL `loc_start` or `loc_end`, so this query skips them; their range is in `location.data`.
+243 variants in this 100-base window. 35 of them are copy-number variants whose start or end is an uncertain range, like the three above: ClinVar knows the deleted or duplicated span covers at least `[loc_start_max, loc_end_min)`, but not how far beyond it. For a definite coordinate the min and max columns are equal.
+
+The query matches on the span each variant **certainly** covers. To include every variant that **may** reach the window, match on the outer bounds instead, treating NULL as unbounded: `coalesce(loc_start_min, 0) < 32338500 AND coalesce(loc_end_max, 9e9) > 32338400` (638 variants here).
+
+!!! note "From release 1.0.2"
+    The `loc_start_min` … `loc_end_max` columns exist in `location.parquet` from release 1.0.2. On earlier releases, filter on `loc_start` and `loc_end` instead (`loc_start < 32338500 AND loc_end > 32338400`); that finds 208 variants here, because it skips every location whose start or end is an uncertain range (their range is only in `location.data`).
 
 ## Gene rollup of ClinVar's calls { #gene-rollup }
 

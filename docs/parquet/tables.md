@@ -223,10 +223,16 @@ VRS **SequenceLocation** records — a span on a reference sequence, shared by a
 | `id` | `VARCHAR` | `ga4gh:SL.<digest>`. |
 | `type` | `VARCHAR` | Always `SequenceLocation`. |
 | `digest` | `VARCHAR` | The digest part of the id. |
-| `loc_start` | `BIGINT` | Start coordinate (0-based, interbase). NULL when the start is an uncertain range — the range is in `data` as `"start": [min, max]`. |
-| `loc_end` | `BIGINT` | End coordinate (interbase). NULL when the end is an uncertain range. |
+| `loc_start` | `BIGINT` | Start coordinate (0-based, interbase). NULL when the start is an uncertain range — the range is in `data` as `"start": [min, max]`; use `loc_start_min` / `loc_start_max` instead. |
+| `loc_end` | `BIGINT` | End coordinate (interbase). NULL when the end is an uncertain range; use `loc_end_min` / `loc_end_max` instead. |
 | `sequence_reference_id` | `VARCHAR` | `SQ.…` → `sequenceReference.id`. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
+| `loc_start_min` | `BIGINT` | Lower bound of the start. Equals `loc_start` for a definite start. For an uncertain range it is the range's `min`, or NULL when the range is open (`[null, max]`, unbounded below). *From 1.0.2.* |
+| `loc_start_max` | `BIGINT` | Upper bound of the start. Equals `loc_start` for a definite start, otherwise the range's `max`. Never NULL. *From 1.0.2.* |
+| `loc_end_min` | `BIGINT` | Lower bound of the end. Equals `loc_end` for a definite end, otherwise the range's `min`. Never NULL. *From 1.0.2.* |
+| `loc_end_max` | `BIGINT` | Upper bound of the end. Equals `loc_end` for a definite end. For an uncertain range it is the range's `max`, or NULL when the range is open (`[min, null]`, unbounded above). *From 1.0.2.* |
+
+`loc_start_max` and `loc_end_min` bound the span the variant certainly covers, and are set on every row, so window queries can use them without skipping uncertain-range locations (about 72,000 rows, mostly copy-number variants). `loc_start_min` and `loc_end_max` bound the widest span it may cover.
 
 #### `sequenceReference` { #sequenceReference }
 
