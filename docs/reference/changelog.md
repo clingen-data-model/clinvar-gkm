@@ -29,6 +29,21 @@ extension on the listed expression's `nucleotideExpression`, never altered or dr
 - **Repaired** (5): no valid one exists. The expression is listed with its type letter restored, with
   `originalClinvarExpression` (the submitted text) and `expressionRepaired: true`.
 
+**Duplicate allele keys** — when two ClinVar variations normalize to the same VRS allele, the `allele` section
+held one record per variation under the same key. A JSON reader kept whichever record came last, and Parquet had
+one row per record. This affected 1 allele in the 2026-09-23 to 2026-10-11 releases:
+`ga4gh:VA.lP8drLGSbZDn4x3Dr2TPwZOvvvU6kAJl`, the SERPINE1 4G/5G dup shared by variations 13572 and 4897201. It
+also affected 8 alleles in the June to August releases, which were ClinVar duplicate variations that ClinVar has
+since merged. Each allele now has exactly one record:
+
+- `expressions` is the union of the expressions from every variation that shares the allele, with no duplicates.
+- `name` is picked from that union by the existing rule (HGVS type, then precedence). Nothing is lost: the
+  expressions the other variations would have used as the name are still in `expressions`.
+- Each variation keeps its own `variation` record, which points to the shared allele.
+
+Expression order and the `name` are now fully deterministic. Ties are broken by value, which changes the name of
+2 alleles that had tied expressions.
+
 **Citations** — SCV `reportedIn` and `specifiedBy.reportedIn` now hold **one Document per ClinVar citation**,
 with no citation dropped and no ClinVar value changed silently. Counts are for the 2026-09-28 release:
 
