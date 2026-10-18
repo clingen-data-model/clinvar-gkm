@@ -1,5 +1,9 @@
 # Parquet Follow-ups Plan
 
+> **Relabelled 1.0.2 → 1.1.0 (2026-10-18).** The release now also carries the proposition reorganization
+> (plan PR #155) and is a full rebuild and in-place republish under `/v1/`; see ADR 0006. Version strings below
+> were updated; the patch-style backfill steps described here are superseded by the full rebuild in #155.
+
 > **For agentic workers:** each work item below is sized to one PR (or one decision). Items marked **Plan
 > first** need their own design plan before code. Steps use checkbox (`- [ ]`) syntax for tracking. Run
 > `/catchup` before starting an item; several depend on PRs that may have merged since this was written.
@@ -19,14 +23,14 @@ bundle, or the `clinvar_2026_10_11_v2_6_0` BigQuery dataset, unless marked *unve
 | --- | --- | --- | --- |
 | #140 | Docs deploy on push to `main` | `main` | merged |
 | #141 | Diagram header tint; statement codes as text | `main` | merged |
-| #142 | `ClinvarCategoricalVariant` oneOf fix (#132 item 4) + schema 1.0.2 | `1.0` | draft |
+| #142 | `ClinvarCategoricalVariant` oneOf fix (#132 item 4) + schema 1.1.0 | `1.0` | draft |
 | #143 | Parquet: bare ids for `object_therapy` and gene-list `gene`; typed `condition` export | `1.0` | draft |
 | #144 | This plan | `main` | open |
 | #145 | A1: no `hgvs.?`; ClinVar's invalid HGVS kept as extensions | `1.0` | draft |
 
 **Order constraints:**
 
-- **#142:** after merging, forward-merge `1.0` → `main` and tag **`1.0.2`** so the new w3id `$id`s resolve.
+- **#142:** after merging, forward-merge `1.0` → `main` and tag **`1.1.0`** so the new w3id `$id`s resolve.
 - **#143:** changes typed Parquet content, so the docs follow-up **A2** must land on `main` in the same window
   as the first Parquet export built with #143.
 
@@ -42,7 +46,7 @@ runs once. Docs move with every PR (paired `main` docs PR for `1.0` changes; `do
 
 | Change | JSON bundle | Parquet | Backfill past releases? |
 | --- | --- | --- | --- |
-| #142 oneOf fix + schema 1.0.2 | `schema_version` label only | — | no |
+| #142 oneOf fix + schema 1.1.0 | `schema_version` label only | — | no |
 | B2 bundle `oneOf`, A3 description drift | — | — | no (schema only) |
 | #145 A1 `hgvs.?` | 14 `variation` records (monthly fulls only; none appear in any of the 15 deltas) | `variation` | **yes** |
 | #143 gene-list ids | — | `variation` values change form | **yes**: a value change mixed across a full and its deltas breaks reconstruction |
@@ -63,7 +67,7 @@ the VCV EP/PG aggregate refactor.
    - optionally fold C2 into #143 (additive, so optional)
    - review and merge #142 → #143 → #145 into `1.0`
 3. **Paired docs PR on `main`** (A2 + docs for #143/#145/C2), merged together with step 4.
-4. **Forward-merge `1.0` → `main`; tag `1.0.2`.**
+4. **Forward-merge `1.0` → `main`; tag `1.1.0`.**
 5. **Forward rebuild** (next release, gated):
    - deploy the changed procedures
    - run the variant step in **full mode once** (A1)
