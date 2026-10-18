@@ -541,6 +541,11 @@ proven #132 / 1.0.1 path.
 - [ ] **Reference integrity** (`validate-proposition-conformance.sh`, updated in PR 1) on every dataset: each
   pointer's section equals `gkm_proposition_section(<target type>)`; 0 old `-proposition/` pointers; 0 dangling;
   0 unmapped. Make the script **exit non-zero** on any `*_BAD` (it only prints today).
+- [ ] **Uniform `#/` references** (`validate-proposition-conformance.sh`, hard gate added in #160) on every
+  dataset: 0 bare ids in every reference field (proposition `subject`/`object`/`conditionQualifier`,
+  ConceptSet and therapyGroup `concepts`, variation and VRS refs, statement and evidence-line refs). The script
+  exits non-zero on any bare value. The `submittedCondition` / `submittedConditionSet` extension strings are
+  bare by design and not checked. On 2026-10-11 before #160: 7,811,379 bare (fails); with #160: 0 (passes).
 - [ ] **Expected-diff** against the `__pre110` snapshots, per table:
   - proposition dicts: unchanged except the decided 3.A/3.D fields;
   - statement and evidence-line dicts: differ only in the pointer section, plus citations (`scv`) and the 3.D
