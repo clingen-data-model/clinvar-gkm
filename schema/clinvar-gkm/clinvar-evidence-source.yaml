@@ -22,6 +22,7 @@ namespaces:
 
 $defs:
   ClinvarSomaticEvidenceLineProperties:
+    abstract: true
     type: object
     maturity: trial use
     description: >-
@@ -47,12 +48,11 @@ $defs:
           - $refCurie: va-spec:VariantDiagnosticProposition
           - $refCurie: va-spec:VariantPrognosticProposition
           - $refCurie: gkm.core:iriReference
-    additionalProperties: true
     $comment: >-
       Somatic evidence lines also carry submittedCondition or
       submittedConditionSet extensions (defined in clinvar-statement-source.yaml)
       providing the submitter's original condition details. These are permitted
-      via additionalProperties.
+      by the `extensions` property inherited from the va-spec EvidenceLine base.
 
   ClinvarSomaticEvidenceLine:
     maturity: trial use

@@ -34,6 +34,7 @@
          "additionalProperties": false
       },
       "ClinvarAggregateStatementProperties": {
+         "abstract": true,
          "type": "object",
          "maturity": "trial use",
          "description": "ClinVar-specific properties for aggregate (VCV and RCV) statements.",
@@ -77,8 +78,7 @@
                },
                "description": "Aggregate-level extensions including the overall review status."
             }
-         },
-         "additionalProperties": false
+         }
       }
    },
    "maturity": "trial use",

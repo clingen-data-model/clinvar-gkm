@@ -81,11 +81,6 @@ A ClinVar canonical allele — the most common variant type. ClinVar identifies 
       - :ref:`ConceptMapping`
       - 0..m
       - A list of mappings to concepts in terminologies or code systems. Each mapping should include a coding and a relation.
-   *  - definingContext
-      -
-      - :ref:`iriReference` | :ref:`ClinvarAllele`
-      - 0..1
-      -
 
 **Composes:** :ref:`CanonicalAllele`, :ref:`ClinvarCanonicalAlleleProperties`, :ref:`ClinvarCategoricalVariantProperties`
 

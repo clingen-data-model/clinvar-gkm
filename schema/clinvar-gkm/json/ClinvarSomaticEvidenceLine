@@ -5,6 +5,7 @@
    "description": "An evidence line for ClinVar somatic clinical impact (SCI) statements. Carries a target proposition (therapeutic response, diagnostic, or prognostic) and an evidence outcome reflecting the AMP/ASCO/CAP tiered classification. SCI statements use this evidence line to link the parent VariantClinicalSignificanceProposition to specific clinical assertion types.",
    "$defs": {
       "ClinvarSomaticEvidenceLineProperties": {
+         "abstract": true,
          "type": "object",
          "maturity": "trial use",
          "description": "ClinVar-specific properties for somatic clinical impact evidence lines.",
@@ -32,8 +33,7 @@
                ]
             }
          },
-         "additionalProperties": false,
-         "$comment": "Somatic evidence lines also carry submittedCondition or submittedConditionSet extensions (defined in clinvar-statement-source.yaml) providing the submitter's original condition details. These are permitted via additionalProperties."
+         "$comment": "Somatic evidence lines also carry submittedCondition or submittedConditionSet extensions (defined in clinvar-statement-source.yaml) providing the submitter's original condition details. These are permitted by the `extensions` property inherited from the va-spec EvidenceLine base."
       }
    },
    "maturity": "trial use",

@@ -27,6 +27,7 @@ namespaces:
 
 $defs:
   ClinvarGermlineCustomPropositionProperties:
+    abstract: true
     type: object
     maturity: trial use
     description: >-

@@ -20,6 +20,9 @@ Usage:
   # or against a file of NDJSON records
   python3 src/scripts/validate-schema-conformance.py < records.ndjson
 
+Validation is strict by default: the schemas are used as published, closed-world checks
+included. Pass --relax to validate open-world instead (debugging only).
+
 Exit code is non-zero if any record fails validation.
 """
 # flake8: noqa: E501
@@ -38,17 +41,16 @@ SCHEMA_ROOT = Path(__file__).resolve().parents[2] / "schema"
 
 
 def relax_additional_properties(node):
-    """Recursively remove `additionalProperties: false` from a schema.
+    """Recursively remove `additionalProperties: false` and `unevaluatedProperties: false`.
 
-    The metaschema (gks-metaschema) emits closed-world `additionalProperties: false` on each
-    object even when it composes parents via `allOf`. Under JSON Schema, `additionalProperties`
-    does NOT see properties contributed by sibling `allOf` subschemas, so every composed record
-    is rejected for its inherited fields. `unevaluatedProperties: false` does not help either,
-    because the metaschema stamps it (here) at every level of the `allOf` chain and the nested
-    assertions cascade to failure. So we strip the closed-world check and validate open-world:
-    this still enforces `required`, `type`, `enum`, `format`, and `$ref`-resolved nested shapes
-    (e.g. a missing required `objectTherapy` is caught) but does not flag extra properties. The
-    real fix belongs upstream in gks-metaschema. Pass --no-relax to keep the schemas as-is.
+    Debugging aid only (--relax). Strict validation is the default and the release gate: the
+    published schemas must be correct as published. Strict mode used to reject nearly every
+    statement and variant because the ClinVar `*Properties` mixins were emitted closed
+    (`additionalProperties: false`) inside `allOf` branches, so each mixin rejected the fields its
+    upstream base supplies. The mixins are now `abstract: true` (left open by gkm-metaschema) and
+    the outer profile's `unevaluatedProperties: false` does the closing. Relaxed mode still
+    enforces `required`, `type`, `enum`, `format` and `$ref`-resolved nested shapes, but it does
+    not flag extra properties.
     """
     if isinstance(node, dict):
         if node.get("additionalProperties") is False:
@@ -66,7 +68,7 @@ def relax_additional_properties(node):
     return node
 
 
-def load_registry(schema_root: Path, relax: bool = True):
+def load_registry(schema_root: Path, relax: bool = False):
     """Load every JSON Schema under schema_root (following symlinks) into a referencing
     Registry keyed by $id, plus a basename->$id index for type routing."""
     resources = []
@@ -125,11 +127,14 @@ def main():
     ap.add_argument("--max-errors", type=int, default=20, help="max failing records to print")
     ap.add_argument("--as", dest="force_schema", default=None,
                     help="validate every record against this schema name (override routing)")
+    ap.add_argument("--relax", action="store_true",
+                    help="debugging only: strip additionalProperties/unevaluatedProperties false "
+                         "and validate open-world (default: strict, schemas as published)")
     ap.add_argument("--no-relax", action="store_true",
-                    help="keep additionalProperties:false as-is (will reject allOf-inherited props)")
+                    help="no-op, kept for compatibility (strict is the default)")
     args = ap.parse_args()
 
-    registry, name2contents = load_registry(args.schema_root, relax=not args.no_relax)
+    registry, name2contents = load_registry(args.schema_root, relax=args.relax)
     validators = {}
 
     def validator_for(name):
@@ -177,6 +182,10 @@ def main():
             skipped += 1
             continue
         errors = list(v.iter_errors(rec))
+        # When a oneOf/allOf branch fails, no property counts as evaluated, so the outer
+        # unevaluatedProperties error just lists every field. Report the real errors instead.
+        if any(e.validator != "unevaluatedProperties" for e in errors):
+            errors = [e for e in errors if e.validator != "unevaluatedProperties"]
         validated += 1
         if errors:
             failed += 1
