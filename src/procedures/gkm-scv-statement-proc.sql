@@ -772,8 +772,8 @@ BEGIN
     -- whitespace, a leading 'http(s)://(dx.)doi.org/', 'doi:', 'doi/' or 'org/', and a
     -- trailing '.'. The result must pass the check, or the id is unusable.
     -- Method citations keep ClinVar's order (cit_ord): Method.reportedIn holds ONE
-    -- Document, so the first is the method's and any further ones go to the statement's
-    -- reportedIn (Step 7b-2), flagged clinvarAssertionMethodCitation.
+    -- Document, so the first is the method's and any further ones go, as Documents, in
+    -- the Method's additionalClinvarMethodCitations extension (Step 7c).
     ---------------------------------------------------------------------------
     SET query_scv_citation_docs = REPLACE("""
       {CT} {P}.temp_scv_citation_docs AS
@@ -957,27 +957,10 @@ BEGIN
     ---------------------------------------------------------------------------
     SET query_scv_citations = REPLACE("""
       {CT} {P}.temp_scv_citations AS
-      WITH scv_doc AS (
-        SELECT scv_id, doc
+      WITH dedup AS (
+        SELECT scv_id, TO_JSON_STRING(doc) AS doc_key, ANY_VALUE(doc) AS doc
         FROM {P}.temp_scv_citation_docs
         WHERE role = 'statement'
-        UNION ALL
-        -- a 2nd+ assertion-method citation (Method.reportedIn holds only one)
-        SELECT
-          scv_id,
-          STRUCT(
-            doc.type, doc.pmid, doc.doi, doc.urls, doc.name, doc.documentType,
-            ARRAY_CONCAT(doc.extensions, [STRUCT(
-              'clinvarAssertionMethodCitation' AS name,
-              CAST(NULL AS STRING) AS value_string,
-              TRUE AS value_boolean)]) AS extensions
-          )
-        FROM {P}.temp_scv_citation_docs
-        WHERE role = 'method' AND method_rank > 1
-      ),
-      dedup AS (
-        SELECT scv_id, TO_JSON_STRING(doc) AS doc_key, ANY_VALUE(doc) AS doc
-        FROM scv_doc
         GROUP BY scv_id, doc_key
       )
       SELECT
@@ -994,17 +977,31 @@ BEGIN
     -- Step 7c: Materialize assertion method (specifiedBy) — GLOBAL (over-computed;
     -- LEFT-JOINed by scv id into the already-filtered gkm_dict_scv). One row per
     -- AssertionMethod attribute; its reportedIn is the attribute's first citation
-    -- Document (Step 7b).
+    -- Document (Step 7b). Method.reportedIn holds one Document, so any further citations
+    -- (ClinVar order) are kept as Documents in the Method's own extension
+    -- additionalClinvarMethodCitations (value_document_array -> `value` at publish).
+    -- `extensions` is appended after reportedIn so the typed Parquet struct only grows.
     ---------------------------------------------------------------------------
     SET query_scv_method = REPLACE("""
       {CT} {P}.temp_scv_method AS
+      WITH extra_doc AS (
+        SELECT scv_id, attr_ord, ARRAY_AGG(doc ORDER BY cit_ord) AS docs
+        FROM {P}.temp_scv_citation_docs
+        WHERE role = 'method' AND method_rank > 1
+        GROUP BY scv_id, attr_ord
+      )
       SELECT
         scv.id,
         STRUCT (
           'Method' as type,
           scv.method_type as methodType,
           a.attribute.value as name,
-          d.doc as reportedIn
+          d.doc as reportedIn,
+          IF(
+            x.docs IS NULL,
+            [],
+            [STRUCT('additionalClinvarMethodCitations' AS name, x.docs AS value_document_array)]
+          ) as extensions
         ) as specifiedBy
       FROM {P}.temp_gkm_scv scv
       CROSS JOIN UNNEST(scv.attribs) as a WITH OFFSET ao
@@ -1014,6 +1011,10 @@ BEGIN
         AND d.role = 'method'
         AND d.attr_ord = ao
         AND d.method_rank = 1
+      LEFT JOIN extra_doc x
+      ON
+        x.scv_id = scv.id
+        AND x.attr_ord = ao
       WHERE
         a.attribute.type = 'AssertionMethod'
     """, '{S}', rec.schema_name);
