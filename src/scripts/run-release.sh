@@ -254,7 +254,8 @@ if (( START_STEP <= 5 )); then
   # dataset, the newest JSON state. Non-fatal: the bundles are the record; Parquet is a derived
   # convenience, and its source.json says which release it was built from.
   echo ">>> [5/5] rebuilding the latest Parquet from ${DATE}"
-  "${REPO_ROOT}/src/scripts/release-gkm-parquet.sh" "${DELTA_ARGS[@]}" \
+  # --purge clears the CDN copy of 00-latest/ (cached 1 day by the "Latest Parquet" cache rule).
+  "${REPO_ROOT}/src/scripts/release-gkm-parquet.sh" "${DELTA_ARGS[@]}" --purge \
     || echo "WARNING: latest Parquet rebuild from ${DATE} failed; 00-latest still holds the previous set" >&2
 fi
 

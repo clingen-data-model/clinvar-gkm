@@ -106,6 +106,13 @@ echo "  ${removed} stale section file(s) $($DRY_RUN && echo 'to remove' || echo 
 INDEX_ARGS=(); $DRY_RUN && INDEX_ARGS+=("--dry-run")
 "${SCRIPT_DIR}/generate-r2-index.sh" "${INDEX_ARGS[@]+"${INDEX_ARGS[@]}"}"
 
+if $PURGE && { [[ -z "${CF_ZONE_ID:-}" ]] || [[ -z "${CF_PURGE_TOKEN:-}" ]]; }; then
+  # Credentials live outside the repo; load them without printing (see ADR 0005).
+  CF_ENV_FILE="${CF_ENV_FILE:-${HOME}/.config/clinvar-gkm/cloudflare.env}"
+  # shellcheck disable=SC1090
+  [[ -r "$CF_ENV_FILE" ]] && . "$CF_ENV_FILE"
+  CF_ZONE_ID="${CF_ZONE_ID:-}"; CF_PURGE_TOKEN="${CF_PURGE_TOKEN:-}"
+fi
 if $PURGE; then
   if $DRY_RUN; then echo "  [dry-run] purge: ${CF_PUBLIC_HOST}/${R2_PREFIX}${LATEST_PREFIX}"
   elif [[ -z "$CF_ZONE_ID" || -z "$CF_PURGE_TOKEN" ]]; then
