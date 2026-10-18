@@ -122,21 +122,63 @@ curl -s -o /dev/null -D - https://data.clinvar-gkm.org/v1/index.json | grep -i c
 
 ### Rate-limiting rule (Security → WAF → Rate limiting rules; 1 free IP-keyed rule)
 
+Live rule "R2 abuse backstop" (verified 2026-10-18):
+
 ```
 When:  (http.host eq "data.clinvar-gkm.org")
-Rate:  300 requests / 1 minute per client IP
-Then:  Block for 10 minutes
+Characteristics:  IP (ip.src)
+Rate:  250 requests / 10 seconds
+Then:  Block for 10 seconds
+Order: first; Status: Active
 ```
 
-Keep it **generous** (300, not tight): DuckDB/`httpfs` issues many range GETs per query, and cached hits
-still count toward the limiter. This is an anti-runaway backstop only — real exposure is pennies
-(free egress + $0.36 / million Class B).
+The Free plan fixes the counting period and the block duration at **10 seconds**; only the request count is
+adjustable. The original intent (300 requests / 1 minute, block 10 minutes) could not be expressed on Free and
+was first configured as 50 / 10 s. That blocked ordinary DuckDB queries after ~55 range requests, so on
+2026-10-18 the threshold was raised to **250 / 10 s**. A burst of 120 range requests in ~1 s now returns 206
+throughout, and remote queries such as a `GROUP BY` over all of `scv.parquet` or a variant's PubMed ids
+(an `scv` × `varcond-proposition` join) complete in 10–35 s.
+
+Keep it **generous**: DuckDB/`httpfs` issues many range GETs per query, cached hits still count toward the
+limiter, and a client that keeps retrying while blocked re-trips the rule. This is an anti-runaway backstop
+only — real exposure is pennies (free egress + $0.36 / million Class B, 10M/month free).
 
 ### Costs (order of magnitude)
 
 Storage $0.015/GB-mo (a few $/mo at current size); Class B $0.36/million reads with 10M/mo free;
 **egress $0**. Caching + the write-once layout keep origin reads near-zero. There is **no native hard
-spend cap** — add **Account → Notifications** alerts on R2 storage/operations to catch a spike.
+spend cap**. An account-wide **budget alert at $10/month** is configured (Manage Account → Billing → Billable
+Usage → budget alert; email only, it does not pause usage). R2-specific Usage Based Billing alerts
+(Alerts → Overview → Add) may need a paid plan.
+
+### Spend alert and kill switch
+
+R2 has no hard spend cap and the budget alert only emails, so pausing is manual. What can grow the bill:
+Class B reads that miss the cache (mostly range requests on files over 512 MB, which always go to R2), our
+own writes (Class A) and storage. Egress is $0.
+
+If the alert fires:
+
+1. **Stop our own writes:** no `run-release.sh`, uploader or backfill runs.
+2. **Find the cause:** R2 → clinvar-gkm → Metrics (which operation type jumped); clinvar-gkm.org →
+   Security → Events / Analytics (top IPs, ASNs, paths). If it is one client or network, block only that
+   with a WAF custom rule on `ip.src` or `ip.geoip.asnum`.
+3. **Pause all public reads with one command:**
+   ```bash
+   ./src/scripts/cdn-kill-switch.sh on       # block every request to data.clinvar-gkm.org at the edge
+   ./src/scripts/cdn-kill-switch.sh status   # rule state + a probe of /v1/index.json (403 = blocked)
+   ./src/scripts/cdn-kill-switch.sh off      # restore service
+   ```
+   It flips one WAF custom rule ("KILL SWITCH - block all public data"); cached hits are blocked too, so
+   nothing reaches R2. Nothing in R2 changes. It needs `CF_ZONE_ID` and `CF_WAF_TOKEN` in
+   `~/.config/clinvar-gkm/cloudflare.env`; the token is scoped to zone `clinvar-gkm.org` with **Zone → Zone
+   WAF → Edit** and **Zone → Firewall Services → Edit**. Run `init` once to pre-create the rule disabled.
+   The dashboard equivalent is Security → WAF → Custom rules → toggle the rule.
+4. **The `r2.dev` URL bypasses all of this.** The public development URL serves the same bucket with no
+   cache, WAF or rate limit. Disable it (R2 → clinvar-gkm → Settings → Public Development URL); nothing in
+   the repo uses it any more.
+5. **Harder stop**, if needed: disconnect the custom domain (R2 → clinvar-gkm → Settings → Custom Domains).
+   Reconnecting re-provisions TLS and takes a few minutes.
 
 ### Overwrite gotcha + the `--purge` flag
 
