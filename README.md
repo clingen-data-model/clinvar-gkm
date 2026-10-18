@@ -59,7 +59,7 @@ The pipeline runs on **Google BigQuery** using SQL stored procedures, with an ex
 
 Full documentation is available at **[clingen-data-model.github.io/clinvar-gkm](https://clingen-data-model.github.io/clinvar-gkm/)**, including pipeline details, GA4GH profile definitions, data access guides, and a schema registry.
 
-The site is built from `docs/` by [`deploy-docs.yml`](.github/workflows/deploy-docs.yml). Any merge to `main` that changes `docs/`, `zensical.toml`, or that workflow redeploys it automatically; releases and a daily schedule also deploy. To deploy by hand: `gh workflow run deploy-docs.yml --ref main`.
+The site is built from `docs/` by [`deploy-docs.yml`](.github/workflows/deploy-docs.yml). Any merge to `main` that changes `docs/`, `zensical.toml`, or that workflow redeploys it automatically; releases and a daily schedule also deploy. To deploy by hand: `gh workflow run deploy-docs.yml --ref main`. Each deploy runs `zensical build --clean --strict` and then [`check-site-links.py`](src/scripts/check-site-links.py), which fails the deploy on a broken internal link or `#anchor`; run both locally before pushing docs changes.
 
 ## Repository Structure
 
