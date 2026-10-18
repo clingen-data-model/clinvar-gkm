@@ -869,7 +869,7 @@ BEGIN
           role,
           attr_ord,
           cit_ord,
-          -- type/pmid/doi/urls keep their pre-1.0.2 positions; the new fields are appended
+          -- type/pmid/doi/urls keep their pre-1.1.0 positions; the new fields are appended
           -- so the typed Parquet struct only grows at the end
           STRUCT(
             'Document' AS type,
