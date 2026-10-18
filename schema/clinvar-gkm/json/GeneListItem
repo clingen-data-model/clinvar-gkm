@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.2/json/GeneListItem",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/GeneListItem",
    "title": "GeneListItem",
    "description": "One gene associated with a ClinVar variation: a reference to the gene's MappableConcept in the bundle's `gene` section, plus ClinVar's `relationship_type` and `source`.",
    "type": "object",

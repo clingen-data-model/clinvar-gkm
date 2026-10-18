@@ -62,7 +62,7 @@ EXECUTE IMMEDIATE query;
 ## Cat-VRS variant/constraint shapes (schema conformance — learned in 1.0.1)
 
 These are emitted by `gkm-catvar-proc.sql` and must match the cat-vrs schemas, or the bundle's `variation`
-schema (`ClinvarCategoricalVariant`, whose `oneOf` branches are mutually exclusive since 1.0.2) rejects the
+schema (`ClinvarCategoricalVariant`, whose `oneOf` branches are mutually exclusive since 1.1.0) rejects the
 record. Validate the produced data, not just that the SQL runs.
 
 - **Empty constraints must be NULL, never an all-NULL STRUCT.** `ARRAY_AGG(STRUCT(...))` over a LEFT JOIN that
