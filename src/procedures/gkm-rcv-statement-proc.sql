@@ -40,17 +40,17 @@
 --   Determinism: this proc has NO group-by / ANY_VALUE over the agg rows — the outputs
 --   are row-wise projections of the (already-deterministic) agg tables, and the array
 --   projections (ARRAY(SELECT … FROM UNNEST(…))) preserve the stored array order. The
---   only representative pick is the condition temp's ROW_NUMBER() … ORDER BY scv_id
---   (deterministic). No determinism fix was needed for carry-forward to hold.
+--   only representative pick is the condition temp's ROW_NUMBER() … ORDER BY scv_id,
+--   condition_concept (total order), taken over member SCVs that resolve to a condition.
 --
 --   Pointer vs inline: subjectVariant (#/variation), proposition (#/proposition),
 --   evidenceItems (#/scv, #/rcv) and hasEvidenceLines (#/evidenceLine) are all pointers.
 --   The proposition's objectCondition is INLINE condition content (condition_concept
 --   resolved from the RCV's representative member SCV via gkm_scv_condition_sets). This
 --   is safe under carry-forward: an unimpacted RCV has no changed/removed member and an
---   unchanged rcv_mapping, so its deterministic representative SCV (min scv_id) and that
---   SCV's condition are unchanged; any member/mapping change makes the RCV impacted and
---   it is recomputed.
+--   unchanged rcv_mapping, so its deterministic representative SCV (min scv_id with a
+--   resolvable condition) and that SCV's condition are unchanged; any member/mapping
+--   change makes the RCV impacted and it is recomputed.
 --
 --   Version-invalidation: the guard falls back to a full rebuild when the baseline is
 --   missing/incomplete, the impacted set / required inputs are absent, or the pipeline
@@ -182,33 +182,40 @@ BEGIN
 
     -------------------------------------------------------------------------
     -- CONDITION DATA: Resolve condition concept per RCV via rcv_mapping
-    -- Picks one representative SCV per RCV (deterministic: min scv_id); produces a single
-    -- JSON value representing either the SCV's condition (MappableConcept) or conditionSet
-    -- (ConceptSet of conditions). Extensions are excluded. {PFILTER} restricts to impacted
-    -- RCVs in incremental mode.
+    -- Picks one representative SCV per RCV (deterministic: min scv_id among the member
+    -- SCVs present in gkm_scv_condition_sets with a resolvable condition); produces a
+    -- pointer to either the SCV's condition or conditionSet. Extensions are excluded.
+    -- {PFILTER} restricts to impacted RCVs in incremental mode.
     -------------------------------------------------------------------------
     SET query_condition_data = REPLACE("""
       {CT} `{P}.temp_rcv_condition_data` AS
-      WITH rcv_scv_link AS (
+      WITH rcv_scv_condition AS (
         SELECT
-          rm.rcv_accession,
-          scv_id,
-          ROW_NUMBER() OVER (PARTITION BY rm.rcv_accession ORDER BY scv_id) AS rn
-        FROM `{S}.rcv_mapping` rm
-        CROSS JOIN UNNEST(rm.scv_accessions) AS scv_id
+          rsl.rcv_accession,
+          rsl.scv_id,
+          COALESCE(
+            IF(scs.extensions.value_submitted_condition.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition.condition), NULL),
+            IF(scs.extensions.value_submitted_condition.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition.conditionSet), NULL),
+            IF(scs.extensions.value_submitted_condition_set.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition_set.condition), NULL),
+            IF(scs.extensions.value_submitted_condition_set.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition_set.conditionSet), NULL)
+          ) AS condition_concept
+        FROM (
+          SELECT rm.rcv_accession, scv_id
+          FROM `{S}.rcv_mapping` rm
+          CROSS JOIN UNNEST(rm.scv_accessions) AS scv_id
+        ) rsl
+        JOIN `{S}.gkm_scv_condition_sets` scs ON scs.scv_id = rsl.scv_id
+        WHERE TRUE
+          {PFILTER}
       )
-      SELECT
-        rsl.rcv_accession,
-        COALESCE(
-          IF(scs.extensions.value_submitted_condition.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition.condition), NULL),
-          IF(scs.extensions.value_submitted_condition.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition.conditionSet), NULL),
-          IF(scs.extensions.value_submitted_condition_set.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition_set.condition), NULL),
-          IF(scs.extensions.value_submitted_condition_set.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition_set.conditionSet), NULL)
-        ) AS condition_concept
-      FROM rcv_scv_link rsl
-      JOIN `{S}.gkm_scv_condition_sets` scs ON scs.scv_id = rsl.scv_id
-      WHERE rsl.rn = 1
-        {PFILTER}
+      -- Rank AFTER the join, over members that resolve to a condition: rcv_mapping can
+      -- list an SCV that is no longer in the release; ranking before the join let that
+      -- stale SCV win rn = 1 and then drop out of the inner join, leaving the RCV's
+      -- propositions with no object.
+      SELECT rcv_accession, condition_concept
+      FROM rcv_scv_condition
+      WHERE condition_concept IS NOT NULL
+      QUALIFY ROW_NUMBER() OVER (PARTITION BY rcv_accession ORDER BY scv_id, condition_concept) = 1
     """, '{PFILTER}', pf_cond);
     SET query_condition_data = REPLACE(query_condition_data, '{S}', rec.schema_name);
     SET query_condition_data = REPLACE(query_condition_data, '{CT}', temp_create);
