@@ -476,15 +476,21 @@ BEGIN
           AND
           vrs.out.id is not null
       )
+      -- Every ARRAY_AGG is total-ordered (value / syntax as the final tie-breakers) so a full and an
+      -- incremental build emit byte-identical arrays.
       SELECT
         exp_item.variation_id,
         exp_item.accession,
         exp_item.assembly_version,
-        ARRAY_AGG(exp_item.value ORDER BY exp_item.hgvs_type DESC, exp_item.precedence)[0] as name,
+        ARRAY_AGG(exp_item.value ORDER BY exp_item.hgvs_type DESC, exp_item.precedence, exp_item.value)[0] as name,
         (CASE exp_item.assembly_version WHEN 38 THEN 'GRCh38' WHEN 37 THEN 'GRCh37' WHEN 36 THEN 'NCBI36' ELSE null END) as assembly,
-        ARRAY_AGG(STRUCT(exp_item.syntax, exp_item.value) ORDER BY exp_item.precedence) as expressions,
+        ARRAY_AGG(STRUCT(exp_item.syntax, exp_item.value) ORDER BY exp_item.precedence, exp_item.syntax, exp_item.value) as expressions,
+        -- the ranked items behind name/expressions: gkm_dict_allele re-ranks them across every variation
+        -- that normalizes to the same allele (see Step 2b)
+        ARRAY_AGG(STRUCT(exp_item.precedence, exp_item.hgvs_type, exp_item.syntax, exp_item.value)
+          ORDER BY exp_item.precedence, exp_item.syntax, exp_item.value) as expression_items,
         ARRAY_AGG(DISTINCT exp_item.hgvs_type IGNORE NULLS ORDER BY exp_item.hgvs_type DESC) as types,
-        ARRAY_AGG(DISTINCT exp_item.issue IGNORE NULLS) as issues
+        ARRAY_AGG(DISTINCT exp_item.issue IGNORE NULLS ORDER BY exp_item.issue) as issues
       FROM exp_item
       GROUP BY
         exp_item.variation_id,
@@ -499,17 +505,59 @@ BEGIN
     -------------------------------------------------------------------------
     -- Step 2b: Dictionary table - alleles (Allele type only) — GLOBAL
     -- Uses temp_ctxvar_expression for full expression set (spdi + hgvs + gnomad)
+    --
+    -- Exactly ONE row per allele id. Distinct ClinVar variations can normalize to the
+    -- same VRS allele (e.g. a dup in a homopolymer run submitted at two positions, or a
+    -- ClinVar duplicate variation not yet merged), so the record is assembled per ALLELE,
+    -- not per variation — a per-variation join emitted one row per variation, i.e. a
+    -- duplicate bundle key whose surviving copy depended on row order.
+    --   expressions: the union of every contributing variation's expressions, de-duplicated
+    --                on (syntax, value) and ordered by (best precedence, syntax, value).
+    --   name:        the same precedence rule Step 2 uses within a variation, applied over
+    --                that union (hgvs_type DESC, precedence, value). It is always one of the
+    --                expressions, so the other variations' names are kept there, not lost.
     -------------------------------------------------------------------------
     SET dict_allele_query = REPLACE("""
       CREATE OR REPLACE TABLE `{S}.gkm_dict_allele`
       AS
-      WITH allele_to_variation AS (
-        SELECT DISTINCT
-          vrs.out.id as allele_id,
-          vrs.in.variation_id
+      WITH allele_vrs AS (
+        -- the VRS output is a function of the allele id; pick one row deterministically anyway
+        SELECT vrs.out.*
         FROM `{S}.gkm_vrs` vrs
         WHERE vrs.out.id IS NOT NULL
           AND vrs.out.type = 'Allele'
+        QUALIFY ROW_NUMBER() OVER (
+          PARTITION BY vrs.out.id
+          ORDER BY SAFE_CAST(vrs.in.variation_id AS INT64), vrs.in.variation_id
+        ) = 1
+      ),
+      allele_exp_item AS (
+        SELECT
+          vrs.out.id as allele_id,
+          item.*
+        FROM `{S}.gkm_vrs` vrs
+        JOIN {P}.temp_ctxvar_expression exp ON exp.variation_id = vrs.in.variation_id
+        CROSS JOIN UNNEST(exp.expression_items) as item
+        WHERE vrs.out.id IS NOT NULL
+          AND vrs.out.type = 'Allele'
+      ),
+      allele_name AS (
+        SELECT
+          allele_id,
+          ARRAY_AGG(value ORDER BY hgvs_type DESC, precedence, value LIMIT 1)[OFFSET(0)] as name
+        FROM allele_exp_item
+        GROUP BY allele_id
+      ),
+      allele_expressions AS (
+        SELECT
+          allele_id,
+          ARRAY_AGG(STRUCT(syntax, value) ORDER BY precedence, syntax, value) as expressions
+        FROM (
+          SELECT allele_id, syntax, value, MIN(precedence) as precedence
+          FROM allele_exp_item
+          GROUP BY allele_id, syntax, value
+        )
+        GROUP BY allele_id
       )
       SELECT
         vrs.id as key,
@@ -517,19 +565,14 @@ BEGIN
           vrs.id,
           vrs.type,
           vrs.digest,
-          exp.name,
+          an.name,
           vrs.state,
-          exp.expressions,
+          ae.expressions,
           FORMAT('#/location/%s', vrs.location.id) as location
         )), remove_empty => TRUE) as value
-      FROM (
-        SELECT DISTINCT out.*
-        FROM `{S}.gkm_vrs`
-        WHERE out.id IS NOT NULL
-          AND out.type = 'Allele'
-      ) vrs
-      LEFT JOIN allele_to_variation atv ON atv.allele_id = vrs.id
-      LEFT JOIN {P}.temp_ctxvar_expression exp ON exp.variation_id = atv.variation_id
+      FROM allele_vrs vrs
+      LEFT JOIN allele_name an ON an.allele_id = vrs.id
+      LEFT JOIN allele_expressions ae ON ae.allele_id = vrs.id
     """, '{S}', rec.schema_name);
     SET dict_allele_query = REPLACE(dict_allele_query, '{P}', IF(debug, rec.schema_name, '_SESSION'));
     EXECUTE IMMEDIATE dict_allele_query;
