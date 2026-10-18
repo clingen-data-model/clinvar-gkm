@@ -278,7 +278,7 @@ $defs:
           conditionSet:
             type: string
             description: >-
-              The CURIE of the resolved condition set (e.g., clinvar.traitset:123;
+              The CURIE of the resolved condition set (e.g., "clinvar.traitset:123";
               the key of the corresponding #/conditionSet/ bundle entry).
           condition:
             type: string
