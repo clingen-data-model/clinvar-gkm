@@ -91,23 +91,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^clinvar:[0-9]+$": {
-          "anyOf": [
-            {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.2/json/ClinvarCategoricalVariant"
-            },
-            {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.2/json/ClinvarCanonicalAllele"
-            },
-            {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.2/json/ClinvarNonConstrainedVariant"
-            },
-            {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.2/json/ClinvarCategoricalCnvChange"
-            },
-            {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.2/json/ClinvarCategoricalCnvCount"
-            }
-          ]
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.2/json/ClinvarCategoricalVariant"
         }
       },
       "additionalProperties": false
