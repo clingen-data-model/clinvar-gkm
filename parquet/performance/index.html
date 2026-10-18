@@ -467,6 +467,8 @@
       
         
       
+        
+      
     
     
     
@@ -4064,6 +4066,8 @@
       
         
       
+        
+      
     
     
     
@@ -4249,6 +4253,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  FAQ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/glossary/" class="md-nav__link">
         
   
@@ -4299,7 +4330,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_8" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -4320,14 +4351,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_8_7" id="__nav_8_7_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_8_8" id="__nav_8_8_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_7">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4619,11 +4650,11 @@
 <tr>
 <td>A filter, <code>GROUP BY</code> or join over a big table</td>
 <td>one per row group per column; 55 row groups in <code>scv</code>, 223 in <code>varcond-proposition</code></td>
-<td><strong>no</strong>: rate-limited with HTTP 429</td>
+<td><strong>slowly</strong>: 10–35 s per query, reading hundreds of MB; download for repeated or heavier work</td>
 </tr>
 </tbody>
 </table>
-<p>The published files are not sorted by any lookup key, so even a filter for a single variant or SCV has to read every row group of the filtered column. The CDN in front of <code>data.clinvar-gkm.org</code> limits how many requests one client can make in a short window, and a big-table scan exceeds it even with <code>SET threads=1</code> and retries.</p>
+<p>The published files are not sorted by any lookup key, so even a filter for a single variant or SCV has to read every row group of the filtered column. The CDN in front of <code>data.clinvar-gkm.org</code> allows <strong>250 requests per 10 seconds</strong> per client IP and blocks for 10 seconds past that (HTTP 429). From the command line, single-table scans and two-table joins on the big tables now complete within it (a <code>GROUP BY</code> over all of <code>scv</code> in about 30 s; a variant's PubMed ids in about 25 s), but each reads hundreds of megabytes, so repeated or larger work belongs on a downloaded copy.</p>
 <p>The rule: <strong>query remotely to explore, download to analyze.</strong> Download the tables a question needs once (see <a href="../#put-the-file-on-your-machine">Start Here</a>), and every query on this page and in <a href="../recipes/">Recipes</a> runs in seconds.</p>
 <h2 id="settings">DuckDB settings for a laptop<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h2>
 <p>DuckDB's defaults suit most queries here: it uses every CPU core, caps itself at 80 % of RAM, and spills to a <code>.tmp</code> directory when a query needs more. When a big join or <code>GROUP BY</code> runs out of memory, you see this:</p>
@@ -4665,7 +4696,7 @@
 <p>For work you repeat, open a database file (<code>duckdb clinvar-gkm.duckdb</code>) rather than an in-memory session. Tables you create there persist, which is what makes the next section possible.</p>
 <h2 id="materialize-join-tables">Materialize the joins you repeat<a class="headerlink" href="#materialize-join-tables" title="Permanent link">&para;</a></h2>
 <p>Statements and propositions live in separate tables. An SCV row holds its classification but not the variant or condition it is about. Those are on the proposition, in one of four tables, each spelling the columns slightly differently. So any question about statements by <strong>subject</strong> (a variant), <strong>object</strong> (a condition, tumor type or therapy) or <strong>qualifier</strong> (gene context, mode of inheritance, penetrance) has to join two multi-GB tables first.</p>
-<p>Paying for that join on every query is slow locally. Over the network it does not work at all: <code>scv.parquet</code> has no variant column, so a lookup for one variant must read every row group of the file. That burst of requests is what trips the CDN's rate limit (<strong>HTTP 429</strong>) in the <a href="../#run-a-query-now">live console</a>.</p>
+<p>Paying for that join on every query is slow locally, and slower over the network: <code>scv.parquet</code> has no variant column, so a lookup for one variant must read every row group of the file. From the command line that takes about 25 seconds and hundreds of megabytes per query; in the browser's <a href="../#run-a-query-now">live console</a> it can also exhaust memory or trip the CDN's rate limit (<strong>HTTP 429</strong>).</p>
 <p>The fix is to run the join <strong>once</strong>, store the result as a table sorted by the column you look up most, and query that table instead. DuckDB has no <code>CREATE MATERIALIZED VIEW</code>; <code>CREATE TABLE … AS SELECT</code> in a database file does the same job. You refresh it by re-running the script when you download a new release.</p>
 <h3 id="build-it">Build it<a class="headerlink" href="#build-it" title="Permanent link">&para;</a></h3>
 <p>Download the four proposition tables and <code>scv.parquet</code> (see <a href="../#put-the-file-on-your-machine">Start Here</a>), then run this in the same directory. It writes a database file, <code>clinvar-gkm.duckdb</code>, that persists between sessions:</p>

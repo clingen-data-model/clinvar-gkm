@@ -467,6 +467,8 @@
       
         
       
+        
+      
     
     
     
@@ -4375,6 +4377,8 @@
       
         
       
+        
+      
     
     
     
@@ -4560,6 +4564,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  FAQ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/glossary/" class="md-nav__link">
         
   
@@ -4610,7 +4641,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_8" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -4631,14 +4662,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_8_7" id="__nav_8_7_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_8_8" id="__nav_8_8_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_7">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -5531,7 +5562,7 @@
 <ul>
 <li><strong>Cheap on any table:</strong> <code>DESCRIBE</code>, <code>count(*)</code>, and <code>LIMIT</code> reads. These touch only the file's footer or its first chunk, so they return in under a second even on the 3 GB <code>scv.parquet</code>.</li>
 <li><strong>Fine on small tables:</strong> full scans of anything up to tens of megabytes (<code>condition</code>, <code>gene</code>, <code>submitter</code>, <code>therapy</code>, the somatic propositions).</li>
-<li><strong>Download first for big tables:</strong> a full scan or <code>GROUP BY</code> over <code>scv</code>, <code>variation</code>, <code>varcond-proposition</code>, or the aggregates reads every row group, one request each, in a burst. The CDN rate-limits that with <strong>HTTP 429</strong>, even single-threaded. Download the table once and query it locally. See <a href="../performance/#local-or-remote">Working at Scale</a>.</li>
+<li><strong>Download first for big tables:</strong> a full scan or <code>GROUP BY</code> over <code>scv</code>, <code>variation</code>, <code>varcond-proposition</code>, or the aggregates reads every row group, one request each, in a burst. Remotely that takes tens of seconds and hundreds of megabytes, and a heavier query can still hit the CDN's limit of 250 requests per 10 seconds (<strong>HTTP 429</strong>). Download the table once and query it locally. See <a href="../performance/#local-or-remote">Working at Scale</a>.</li>
 </ul>
 <p>The sizes in the reference below tell you which category a table is in.</p>
 <h2 id="column-reference">Column reference<a class="headerlink" href="#column-reference" title="Permanent link">&para;</a></h2>
