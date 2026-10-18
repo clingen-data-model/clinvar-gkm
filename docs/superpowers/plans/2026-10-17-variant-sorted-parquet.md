@@ -51,7 +51,7 @@ make.** Three consequences:
 | `concept-set-membership` | set × member | `member_concept_id` | 401,265 | 6.4 MB | 4 | 5–9 requests |
 | `variant-gene` | gene × variant (ClinVar's gene list) | `gene_id` | 7,346,154 | 24.2 MB | 60 | 5–7 requests |
 | `statement-by-gene-context` | statement with a gene-context qualifier | `gene_context_id` | 6,694,162 | 73.9 MB | 55 | 4–7 requests |
-| `statement-by-citation` | PubMed id × SCV × role | `pmid` | 4,886,981 | 47.7 MB | 40 | 7–23 requests |
+| `statement-by-citation` | citation id × SCV × role | `citation_id` | 4,886,981 PMID-only as measured; ~7.9 M with the citation fix (§5) | 47.7 MB as measured | 40 | 7–23 requests |
 | *(on hold)* `statement-by-variant-gene` | statement × gene from the gene list | `gene_id` | 41,777,105 | 250.6 MB | 340 | 9–15 requests |
 
 **Total for one monthly set:** ~578 MB for the six recommended files. For comparison, the 22 section files
@@ -189,8 +189,8 @@ concepts and marks those rows `via_evidence_line = TRUE`:
 
 | Column | Type | Notes |
 | --- | --- | --- |
-| `concept_id` | string | **Sort key 1.** `clinvar.trait:` or `clinvar.therapy:` id |
-| `concept_type` | string | `condition` or `therapy` |
+| `concept_id` | string | **Sort key 1.** `clinvar.trait:` or `clinvar.therapy:` id. NULL only on `concept_type = 'none'` rows |
+| `concept_type` | string | `condition`, `therapy`, or `none` for a proposition with no `object` |
 | `role` | string | `object`, `set_member` or `condition_qualifier` |
 | `via_set_id` | string | The set/group the proposition names (NULL unless `set_member`) |
 | `membership_operator` | string | That set's `AND`/`OR` (NULL unless `set_member`) |
@@ -203,8 +203,12 @@ concepts and marks those rows `via_evidence_line = TRUE`:
 \* In the BigQuery prototype, not in the local measurement build. These columns are non-null on 1,592 rows
 only, so the size is unaffected.
 
-**Sort:** `concept_id, variant_id, source_table, statement_id, via_evidence_line, role, via_set_id NULLS
-FIRST, via_nested_set_id NULLS FIRST`. The key is unique: 32,555,778 distinct of 32,555,778.
+**NULL objects.** Four propositions have a NULL `object`. An earlier prototype typed them as sets, so their
+statements silently fell out of the file. They are kept as `role = 'object'` rows with `concept_id` NULL and
+`concept_type = 'none'`, sorted last, so every statement in the file is accounted for.
+
+**Sort:** `concept_id NULLS LAST, variant_id, source_table, statement_id, via_evidence_line, role, via_set_id
+NULLS FIRST, via_nested_set_id NULLS FIRST`. The key is unique: 32,555,778 distinct of 32,555,778.
 
 **Rows (2026-10):**
 
@@ -353,7 +357,7 @@ carried verbatim, including the placeholder.
 | --- | --- | --- |
 | `gene_context_id` | string | **Sort key 1.** `ncbigene:` + `primaryCoding.code`. NULL for the placeholder |
 | `gene_context_name` | string | Verbatim, including `submitted genes were not normalized` |
-| `submitted_gene_symbols` | list\<string\> | The `submittedGeneSymbols` extension, verbatim |
+| `submitted_gene_symbols` | list\<string\> | The `submittedGeneSymbols` extension, verbatim and in the bundle's order |
 | The core columns, except `gene_context_name` | | |
 
 **Sort:** `gene_context_id NULLS LAST, variant_id, source_table, statement_id`. The placeholder rows sort
@@ -399,52 +403,70 @@ row group of a variant-sorted file. It works fine on a downloaded `statement-by-
 
 ## 5. `statement-by-citation`
 
-**Purpose:** every statement that cites a PubMed id.
+**Purpose:** every statement that cites a given publication or URL: a PubMed id, a DOI or a URL.
 
-**One row per (PubMed id, SCV, role).** VCV and RCV carry no citations.
+**Keyed on a typed `citation_id` (decided).** The key is `pmid:<n>`, `doi:<doi>` or `url:<url>`, verbatim
+after the prefix, so every kind of citation prunes the same way. It is derived from the bundle's citation
+Documents, which after the citation fix (`fix/scv-citations`) are **one Document per ClinVar citation**,
+with `pmid`, `doi`, `urls`, `name`, `documentType` and verbatim-keeping extensions.
+
+**One row per (citation id, SCV, role).** VCV and RCV carry no citations.
+
+- **A multi-id Document yields one row per id.** ACMG 2015 is one Document with a PMID, a DOI and a PMC URL. It
+  gives three rows: `pmid:25741868`, `doi:10.1038/gim.2015.30` and
+  `url:https://europepmc.org/article/PMC/4544753`.
+- **Ids, not every URL.** `pmid` gives a `pmid:` row and `doi` a `doi:` row. Each entry of `urls` gives a
+  `url:` row, except the resolver URL the pipeline derives from the Document's own `pmid` or `doi`
+  (`https://pubmed.ncbi.nlm.nih.gov/<pmid>`, `https://doi.org/<doi>`), which would only repeat that id. PMC and
+  Bookshelf ids exist in the bundle only as URLs, so they are `url:` rows. A SICI-style DOI that VA-Spec's
+  pattern rejects has no `doi`; it is reachable through its `url:https://doi.org/…` row.
+- **Text-only Documents are excluded.** They have no `pmid`, `doi` or `urls`, only the verbatim
+  `clinvarCitationText` extension, so they have no `citation_id`. The same goes for a Document that carries
+  only `invalidClinvarCitation`.
+- **Role comes from the bundle.** `evidence` is `reportedIn[]` and `method` is `specifiedBy.reportedIn`. A
+  `reportedIn[]` Document flagged `clinvarAssertionMethodCitation` is a second assertion-method citation that
+  `Method.reportedIn` could not hold, so it is a `method` row. A method citation is never presented as
+  evidence.
 
 | Column | Type | Notes |
 | --- | --- | --- |
-| `pmid` | string | **Sort key 1** (text) |
-| `citation_role` | string | `evidence` (`reportedIn[]`) or `method` (`specifiedBy.reportedIn`, the assertion-criteria document) |
+| `citation_id` | string | **Sort key 1.** `pmid:…`, `doi:…` or `url:…` |
+| `citation_type` | string | `pmid`, `doi` or `url` (the prefix) |
+| `citation_role` | string | `evidence` or `method` |
+| `pmid` | string | The Document's `pmid`, on every row of that Document, so a DOI or URL row still shows its PubMed id |
 | The core columns, except `pmids` | | Includes `variant_id` and `object_id` |
 
-**Sort:** `pmid, citation_role, source_table, statement_id`. `DISTINCT` drops 710 rows where one SCV lists
-the same PMID twice in `reportedIn`.
+**Sort:** `citation_id, citation_role, source_table, statement_id`. `DISTINCT` drops a key that one SCV lists
+twice in the same role.
 
-**Rows (2026-10):** 1,546,181 evidence and 3,340,800 method, for 4,886,981 in all (47.7 MB, 40 row groups).
-`method` rows are mostly a few guideline papers: PMID 25741868 (ACMG/AMP 2015) alone has 1,194,391.
+**Rows, estimated on `clinvar_2026_09_28_v2_6_0` with the citation fix applied (BigQuery, read-only):**
 
-| Query | Requests |
+| Role | `pmid:` | `doi:` | `url:` | Total | Distinct keys |
+| --- | --- | --- | --- | --- | --- |
+| evidence | 1,546,184 | 8,189 | 86,522 | 1,640,895 | 159,641 |
+| method | 3,340,801 | 1,790 | 2,947,149 | 6,289,740 | 1,222 |
+| **All** | | | | **7,930,635** | 160,318 |
+
+That is about 62 % more rows than the PMID-only file measured below (4,886,981). Nearly all of the growth is
+2.95 M `method` `url:` rows, most of them a few submitter-uploaded FileTrack PDFs. They are cheap because they
+compress to a few keys. Size and request counts were not re-measured; re-measure before publishing (task 6).
+
+**PMID-only file as measured (2026-10, before the citation fix):** 1,546,181 evidence and 3,340,800 method
+rows, 4,886,981 in all (47.7 MB, 40 row groups). `method` rows are mostly a few guideline papers: PMID
+25741868 (ACMG/AMP 2015) alone has 1,194,391.
+
+| Query (PMID-only build) | Requests |
 | --- | --- |
 | Statements citing PMID 20301691 | 7 |
 | PMID 25741868, by role (1.2 M rows) | 23 |
 | BRCA1 PubMed ids by joining `statement-by-gene-context` → this file on `statement_id` | 55, at the limit |
 | BRCA1 PubMed ids from `statement-by-gene-context.pmids` directly | **5** |
 
+With the typed key, a PMID lookup filters `citation_id = 'pmid:20301691'`. The prefix keeps all `pmid:` keys
+in one contiguous range, so pruning matches the PMID-only file.
+
 **PubMed ids for a gene:** `statement-by-gene-context` already has `pmids`, so it is the gene → PMID path
 (5 requests). The join is the wrong path remotely, because this file is not sorted by `statement_id`.
-
-**DOIs and URLs, after the pending citation fix.** In 2026-10:
-
-| | Citations | With PMID | DOI only | URL only |
-| --- | --- | --- | --- | --- |
-| Evidence (`reportedIn[]`) | 1,565,812 | 1,546,891 | 8,421 | 10,500 |
-| Method (`specifiedBy.reportedIn`) | 6,293,485 | 3,340,800 | 5,538 | 2,947,147 |
-
-The citation fix will decide which repaired, invalid and URL-only citations come back, and that may add rows
-and DOIs. The options for carrying non-PMID citations (decision 6):
-
-- **(i) Recommended: a typed `citation_id` sort key**, with `citation_type` and a `pmid` column kept for
-  convenience.
-  - **Key:** `citation_id` is `pmid:<n>`, `doi:<doi>` or `url:<url>`, verbatim after the prefix.
-  - **Pruning:** every kind of citation prunes the same way.
-  - **Cost:** if URL-only method citations are included, the file grows by about 60 % (2.9 M rows).
-- **(ii) Nullable `doi` / `url` columns on the PMID-keyed file.** Non-PMID rows sort last and can't be looked
-  up by DOI or URL without a full scan.
-- **(iii) A separate `statement-by-doi` file.** Only worth it if DOI lookups become common.
-
-Until the fix lands, ship PMID-only (i.e. option (i) with `pmid:` keys only, or the file as measured).
 
 ---
 
@@ -476,7 +498,8 @@ Until the fix lands, ship PMID-only (i.e. option (i) with `pmid:` keys only, or 
      - `statement-by-variant` = scv + vcv + rcv
      - `statement-by-gene-context` = SCVs with a qualifier
      - `concept-set-membership` > 0
-   - 0 NULL sort keys, except `gene_context_id` on placeholder rows.
+   - 0 NULL sort keys, except `gene_context_id` on placeholder rows and `concept_id` on
+     `concept_type = 'none'` rows (the NULL-object propositions).
    - 0 bloom filters.
    - A probe key falls in exactly 1 row group.
 4. **Cost per monthly set.** The dry runs on 2026-10-11 processed (upper bound):
@@ -493,6 +516,14 @@ Until the fix lands, ship PMID-only (i.e. option (i) with `pmid:` keys only, or 
    That is **~43.5 GB, about $0.27 per set**. Exporting the core once and deriving the other files locally
    would save ~$0.20 a month, but it would break the one-SQL-per-file convention and couple the files to
    the merge step. Not worth it.
+
+**Drift risk, and the bundle-derivability rule.** Every Parquet value must be recomputable from the JSON bundle
+(user rule, 2026-10-18). Each file here derives only from bundle content: ids are stripped from `#/` pointers,
+citation keys come from the citation Documents (§5), and the statement and proposition fields are inlined.
+Building from the dict tables in BigQuery can still drift from what the bundle publishes, because the
+assembler filters and cleanup (single-member conditionSet drop, `strip_empty`, extension collapse) must be
+mirrored by hand. Building the files from the **published** Parquet, or checking them against it, would
+prevent that drift. At minimum, task 6 compares each file with the same set's section files.
 
 **Why not build them locally from the section Parquet:**
 - It ties the files to typed-table quirks: the pre-#143 quoted `object_therapy`, and `gene_context_id`,
@@ -606,9 +637,9 @@ Docs ship with the first set that has the files; examples are run against the pu
    `genes overlapped by variant`. 9–15 requests per gene, against ~690 for the two-step path. If published,
    every row must carry `relationship_type`/`relationship_source`, and the name and docs must say "variants
    in gene X", never "statements about gene X".
-6. **Non-PMID citations:** after the citation fix, a typed `citation_id` key (recommended), nullable
-   columns, or a separate file? And keep `method` rows? They are 68 % of the rows but cheap; recommended to
-   keep them, with `citation_role`.
+6. **Non-PMID citations — RESOLVED (2026-10-18).** The key is a typed `citation_id` (`pmid:` / `doi:` /
+   `url:`). A multi-id Document yields one row per id, and text-only Documents have no `citation_id` and are
+   excluded (§5). `method` rows are kept, with `citation_role`.
 7. **Typed export:** add `gene_context_id` and `submitted_gene_symbols` to `var*-proposition.sql`? This is
    additive and makes the qualifier usable without the lookup file. Recommended, with C2/C3.
 8. **Catch-all concepts** (`not provided`, `not specified`: ~7–8 M rows each in `statement-by-object`): keep
@@ -675,7 +706,7 @@ The browser console runs DuckDB-Wasm 1.29.0. Its request pattern must be checked
 | `concept-set-membership` | 281,065 + 90,113 nested + 30,032 sets + 55 therapy | 322,895 + 97,932 nested + 32,771 sets + 55 therapy |
 | `variant-gene` | 7,346,154 (92,972 genes) | 7,391,276 (92,977 genes) |
 | `statement-by-gene-context` | 6,689,348 with id + 4,814 placeholder | 6,800,068 + 4,827 |
-| `statement-by-citation` | evidence 1,546,181 · method 3,340,800 | evidence 1,552,301 · method 3,439,337 |
+| `statement-by-citation` (PMID-only, before the citation fix) | evidence 1,546,181 · method 3,340,800 | evidence 1,552,301 · method 3,439,337 |
 
 All three tiers join 100 % in both datasets, with 0 NULL `variant_id`.
 
@@ -689,7 +720,9 @@ was dry-run in its spliced form on `clinvar_2026_10_11_v2_6_0`. None needs `coll
 has a `data` column.
 
 **Fix found while validating:** `gkm_dict_condition_set` stores **traitset** members as `#/condition/…`
-pointers and minted-set members bare. `conditionSet.sql` strips them; `_concept-sets.sql` must too.
+pointers and minted-set members bare. The published bundle carries the same mix: traitset ConceptSets list
+`#/condition/…` pointers, `vcv-` sets list bare ids. Stripping to bare ids is therefore a supported derivation
+from the bundle, not a Parquet-only fact. `conditionSet.sql` strips them; `_concept-sets.sql` must too.
 
 ### `_statement-core.sql` (fragment)
 
@@ -707,11 +740,13 @@ prop AS (
     JSON_VALUE(value, '$.geneContextQualifier.name') AS gene_context_name,
     IF(JSON_VALUE(value, '$.geneContextQualifier.primaryCoding.code') IS NULL, NULL,
        CONCAT('ncbigene:', JSON_VALUE(value, '$.geneContextQualifier.primaryCoding.code'))) AS gene_context_id,
+    -- the bundle's array order, as in #143's var*-proposition.sql
     ARRAY(
       SELECT JSON_VALUE(sym)
       FROM UNNEST(JSON_QUERY_ARRAY(value, '$.geneContextQualifier.extensions')) AS ext,
-           UNNEST(JSON_QUERY_ARRAY(ext, '$.value_string')) AS sym
+           UNNEST(JSON_QUERY_ARRAY(ext, '$.value_string')) AS sym WITH OFFSET so
       WHERE JSON_VALUE(ext, '$.name') = 'submittedGeneSymbols'
+      ORDER BY so
     ) AS submitted_gene_symbols,
     JSON_VALUE(value, '$.modeOfInheritanceQualifier.name') AS mode_of_inheritance,
     JSON_VALUE(value, '$.penetranceQualifier.name') AS penetrance
@@ -721,7 +756,9 @@ prop AS (
     UNION ALL SELECT key, value FROM `{DATASET}.gkm_dict_rcv_proposition`
   )
 ),
--- stmt: statement-level columns, plus two SCV-only helpers (method_pmid, evidence_line_ids).
+-- stmt: statement-level columns, plus two SCV-only helpers (citation_keys, evidence_line_ids).
+-- citation_keys: one entry per typed id of each citation Document (§5). A reportedIn Document flagged
+-- clinvarAssertionMethodCitation is a method citation. Text-only Documents yield no key.
 stmt AS (
   SELECT
     'scv' AS source_table, s.id AS statement_id,
@@ -734,7 +771,24 @@ stmt AS (
        WHERE c.activityType = 'evaluated' LIMIT 1) AS date_last_evaluated,
     ARRAY(SELECT r.pmid FROM UNNEST(s.reportedIn) AS r WITH OFFSET AS o
           WHERE r.pmid IS NOT NULL ORDER BY o) AS pmids,
-    s.specifiedBy.reportedIn.pmid AS method_pmid,
+    ARRAY(
+      SELECT AS STRUCT k.citation_id, k.citation_type, x.citation_role, x.d.pmid
+      FROM (
+        SELECT IF(EXISTS(SELECT 1 FROM UNNEST(d.extensions) AS e
+                         WHERE e.name = 'clinvarAssertionMethodCitation'), 'method', 'evidence') AS citation_role, d
+        FROM UNNEST(s.reportedIn) AS d
+        UNION ALL
+        SELECT 'method', s.specifiedBy.reportedIn
+        FROM UNNEST([1]) WHERE s.specifiedBy.reportedIn IS NOT NULL
+      ) AS x,
+      UNNEST(ARRAY_CONCAT(
+        IF(x.d.pmid IS NULL, [], [STRUCT(CONCAT('pmid:', x.d.pmid) AS citation_id, 'pmid' AS citation_type)]),
+        IF(x.d.doi IS NULL, [], [STRUCT(CONCAT('doi:', x.d.doi), 'doi')]),
+        ARRAY(SELECT AS STRUCT CONCAT('url:', u), 'url' FROM UNNEST(x.d.urls) AS u
+              WHERE u != CONCAT('https://pubmed.ncbi.nlm.nih.gov/', IFNULL(x.d.pmid, ''))
+                AND u != CONCAT('https://doi.org/', IFNULL(x.d.doi, '')))
+      )) AS k
+    ) AS citation_keys,
     ARRAY(SELECT REGEXP_REPLACE(el, r'^#/[^/]+/', '') FROM UNNEST(s.hasEvidenceLines) AS el) AS evidence_line_ids
   FROM `{DATASET}.gkm_dict_scv` AS s
   UNION ALL
@@ -742,14 +796,16 @@ stmt AS (
     'vcv', v.id, REGEXP_REPLACE(v.proposition, r'^#/[^/]+/', ''),
     v.classification.name, v.strength.name, v.quality.name, v.direction,
     CAST(NULL AS STRING), CAST(NULL AS DATE), CAST([] AS ARRAY<STRING>),
-    CAST(NULL AS STRING), CAST([] AS ARRAY<STRING>)
+    CAST([] AS ARRAY<STRUCT<citation_id STRING, citation_type STRING, citation_role STRING, pmid STRING>>),
+    CAST([] AS ARRAY<STRING>)
   FROM `{DATASET}.gkm_dict_vcv` AS v
   UNION ALL
   SELECT
     'rcv', r.id, REGEXP_REPLACE(r.proposition, r'^#/[^/]+/', ''),
     r.classification.name, r.strength.name, r.quality.name, r.direction,
     CAST(NULL AS STRING), CAST(NULL AS DATE), CAST([] AS ARRAY<STRING>),
-    CAST(NULL AS STRING), CAST([] AS ARRAY<STRING>)
+    CAST([] AS ARRAY<STRUCT<citation_id STRING, citation_type STRING, citation_role STRING, pmid STRING>>),
+    CAST([] AS ARRAY<STRING>)
   FROM `{DATASET}.gkm_dict_rcv` AS r
 ),
 -- core: the 17 published core columns, then helper columns no file publishes as-is.
@@ -759,7 +815,7 @@ core AS (
     p.condition_qualifier_id, p.gene_context_name, p.mode_of_inheritance, p.penetrance,
     st.classification_name, st.strength_name, st.quality_name, st.direction,
     st.submitter_id, st.date_last_evaluated, st.pmids,
-    p.gene_context_id, p.submitted_gene_symbols, st.method_pmid, st.evidence_line_ids
+    p.gene_context_id, p.submitted_gene_symbols, st.citation_keys, st.evidence_line_ids
   FROM stmt AS st
   JOIN prop AS p ON p.proposition_id = st.proposition_id
 )
@@ -805,7 +861,7 @@ membership AS (
 -- statement-by-variant: one row per SCV/VCV/RCV statement. Merge-step sort:
 -- variant_id, source_table, statement_id.
 WITH {STATEMENT_CORE}
-SELECT * EXCEPT (gene_context_id, submitted_gene_symbols, method_pmid, evidence_line_ids)
+SELECT * EXCEPT (gene_context_id, submitted_gene_symbols, citation_keys, evidence_line_ids)
 FROM core
 ```
 
@@ -819,11 +875,12 @@ FROM core
 -- an SCV's evidence lines target are included with via_evidence_line = TRUE (the only route to therapies);
 -- those rows also carry the evidence line's own outcome and direction, since the statement's
 -- classification is about the statement's proposition, not the targeted one.
--- Merge-step sort: concept_id, variant_id, source_table, statement_id, via_evidence_line, role,
+-- A proposition with a NULL object gives one role = object row with concept_id NULL, concept_type 'none'.
+-- Merge-step sort: concept_id NULLS LAST, variant_id, source_table, statement_id, via_evidence_line, role,
 -- via_set_id NULLS FIRST, via_nested_set_id NULLS FIRST.
 WITH {STATEMENT_CORE}, {CONCEPT_SETS},
 stmt_prop AS (
-  SELECT c.* EXCEPT (gene_context_id, submitted_gene_symbols, method_pmid, evidence_line_ids),
+  SELECT c.* EXCEPT (gene_context_id, submitted_gene_symbols, citation_keys, evidence_line_ids),
          FALSE AS via_evidence_line,
          CAST(NULL AS STRING) AS evidence_outcome_name, CAST(NULL AS STRING) AS evidence_direction
   FROM core AS c
@@ -840,7 +897,8 @@ stmt_prop AS (
 ),
 typed AS (
   SELECT sp.*,
-         CASE WHEN STARTS_WITH(sp.object_id, 'clinvar.trait:') THEN 'condition'
+         CASE WHEN sp.object_id IS NULL THEN 'none'   -- 4 propositions have no object; keep their rows
+              WHEN STARTS_WITH(sp.object_id, 'clinvar.trait:') THEN 'condition'
               WHEN STARTS_WITH(sp.object_id, 'clinvar.therapy:') THEN 'therapy'
               ELSE 'set' END AS object_kind
   FROM stmt_prop AS sp
@@ -915,7 +973,7 @@ WHERE e.name = 'clinvarGeneList'
 -- normalized' placeholder). Merge-step sort: gene_context_id NULLS LAST, variant_id, source_table, statement_id.
 WITH {STATEMENT_CORE}
 SELECT gene_context_id, gene_context_name, submitted_gene_symbols,
-       * EXCEPT (gene_context_id, gene_context_name, submitted_gene_symbols, method_pmid, evidence_line_ids)
+       * EXCEPT (gene_context_id, gene_context_name, submitted_gene_symbols, citation_keys, evidence_line_ids)
 FROM core
 WHERE gene_context_name IS NOT NULL
 ```
@@ -923,21 +981,16 @@ WHERE gene_context_name IS NOT NULL
 ### `statement-by-citation.sql`
 
 ```sql
--- statement-by-citation: one row per (PubMed id, SCV statement, role). evidence = reportedIn;
--- method = specifiedBy.reportedIn. DISTINCT drops a PMID listed twice in one SCV's reportedIn.
--- Merge-step sort: pmid, citation_role, source_table, statement_id.
+-- statement-by-citation: one row per (typed citation id, SCV statement, role). citation_id is pmid:/doi:/url:
+-- (§5); a multi-id Document gives one row per id; text-only Documents have no key and are absent.
+-- DISTINCT drops a key one SCV lists twice in the same role.
+-- Merge-step sort: citation_id, citation_role, source_table, statement_id.
 WITH {STATEMENT_CORE}
-SELECT DISTINCT * FROM (
-  SELECT pmid, 'evidence' AS citation_role,
-         c.* EXCEPT (pmids, gene_context_id, submitted_gene_symbols, method_pmid, evidence_line_ids)
-  FROM core AS c, UNNEST(c.pmids) AS pmid
-  WHERE c.source_table = 'scv'
-  UNION ALL
-  SELECT c.method_pmid AS pmid, 'method' AS citation_role,
-         c.* EXCEPT (pmids, gene_context_id, submitted_gene_symbols, method_pmid, evidence_line_ids)
-  FROM core AS c
-  WHERE c.source_table = 'scv' AND c.method_pmid IS NOT NULL
-)
+SELECT DISTINCT
+  k.citation_id, k.citation_type, k.citation_role, k.pmid,
+  c.* EXCEPT (pmids, gene_context_id, submitted_gene_symbols, citation_keys, evidence_line_ids)
+FROM core AS c, UNNEST(c.citation_keys) AS k
+WHERE c.source_table = 'scv'
 ```
 
 ---
