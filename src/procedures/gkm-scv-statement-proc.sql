@@ -380,10 +380,12 @@ BEGIN
           on
             g.id = sgv.gene_id
         ),
-        -- The submitter's distinct symbols, verbatim, in submitted order: variation record, then gene
-        -- list, then position in the comma-separated symbol list. (cav.id, gene_offset, symbol_offset)
-        -- is unique, so this is a total order — ARRAY_AGG(DISTINCT) leaves the order unspecified, and
+        -- The submitter's distinct symbols, in submitted order: variation record, then gene list, then
+        -- position in the comma-separated symbol list. (cav.id, gene_offset, symbol_offset) is unique, so
+        -- this is a total order — ARRAY_AGG(DISTINCT) leaves the order unspecified, and
         -- gkm_dict_proposition is recomputed every release, so an unordered list flips between runs.
+        -- Each element is TRIMmed: SPLIT on a ', '-separated list leaves a leading space (' MEG3') that
+        -- comes from our parsing, not from ClinVar. Dedup is on the trimmed symbol.
         scv_submitted_genes AS (
           SELECT
             clinical_assertion_id,
@@ -394,9 +396,9 @@ BEGIN
               cav.id as cav_id,
               gene_offset,
               symbol_offset,
-              gene_symbol,
+              TRIM(gene_symbol) as gene_symbol,
               ROW_NUMBER() OVER (
-                PARTITION BY cav.clinical_assertion_id, gene_symbol
+                PARTITION BY cav.clinical_assertion_id, TRIM(gene_symbol)
                 ORDER BY cav.id, gene_offset, symbol_offset
               ) as rn
             FROM `{S}.clinical_assertion_variation` cav
@@ -459,19 +461,9 @@ BEGIN
         SELECT
           scv.id as scv_id,
           'MappableConcept' AS type, 'gene' as conceptType,
-          -- The submitter's symbol(s), never a fabricated gene: the submitted symbols in submitted
-          -- order, trimmed (a ', '-separated list splits to ' MEG3'), distinct, joined with ', '.
-          ARRAY_TO_STRING(
-            ARRAY(
-              SELECT sym FROM (
-                SELECT TRIM(s) as sym, MIN(o) as first_o
-                FROM UNNEST(ssg.submitted_gene_symbols) as s WITH OFFSET o
-                GROUP BY sym
-              )
-              ORDER BY first_o
-            ),
-            ', '
-          ) as name,
+          -- The submitter's symbol(s), never a fabricated gene: submittedGeneSymbols (already trimmed,
+          -- distinct and in submitted order) joined with ', '.
+          ARRAY_TO_STRING(ssg.submitted_gene_symbols, ', ') as name,
           null as primaryCoding,
           null as mappings,
           [
