@@ -202,11 +202,22 @@ References inside the JSON bundle and the `data` columns still use `#/<section>/
 
 **Republish**: 1.1.0 is not a patch. All 16 BigQuery datasets behind the published releases were rebuilt in
 full. Then the 4 monthly full bundles (2026-07 … 2026-10, and `00-latest`) and the 15 weekly deltas
-(2026-07-06 … 2026-10-11) were re-assembled, and every Parquet set was re-exported, in place under `/v1/`. Every
-published file therefore carries every change above, including the new proposition sections and the new
-Parquet columns, and the old `var*-proposition` files are gone. File contents and checksums change, so
+(2026-07-06 … 2026-10-11) were re-assembled in place under `/v1/`. Every published bundle therefore carries
+every change above, including the new proposition sections. File contents and checksums change, so
 re-download anything fetched before 1.1.0. Copies downloaded earlier keep the old forms; the
 [Query the Data](../parquet/index.md) pages note where they differ.
+
+**Parquet becomes latest-only.** Parquet is derived from the bundle and regenerated each release, so it is no
+longer kept per release: the dated monthly sets (`v1/datasets/parquet/<YYYY-MM>/`) and every per-delta set
+(`v1/deltas/<YYYY-MMDD>/parquet/`) are deleted, and one set is published at `v1/datasets/parquet/00-latest/`,
+built from the newest release (2026-10-11 for 1.1.0, not the 2026-10 monthly) and rebuilt every release. Its
+`source.json`, and the index's single `datasets.parquet` entry (`derived: true`, `source_release`), name the
+release it was built from. The index's delta entries lose their `parquet` list.
+
+**Checksums and archive.** Every bundle now has a `<file>.sha256` sidecar, and the index lists each bundle's
+`sha256`; the root manifest's `schema` reads `1.1.0` (it said `1.0.0`). The 1.0.1 generation is kept under
+`archive/1.0.1/`: every 1.0.1 bundle, delta manifest, index and feed, and the Parquet set built from its latest
+bundle, with a `MANIFEST.json` (sha256 per file) and a `README.txt`.
 
 ## 1.0.1 — 2026-10-13
 
