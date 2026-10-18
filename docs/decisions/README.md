@@ -19,3 +19,4 @@ importing them so they don't bloat every session's context.
 - [0003 — Roadmap generated from label-authorized discussions](0003-roadmap-from-labeled-discussions.md)
 - [0004 — Schema versioning & release change-management](0004-schema-versioning-and-release-management.md)
 - [0005 — R2 distribution domain, CDN caching, and fee protection](0005-r2-custom-domain-and-cdn.md)
+- [0007 — Pipeline principles and simplification](0007-pipeline-principles-and-simplification.md)
