@@ -72,12 +72,13 @@ with no citation dropped and no ClinVar value changed silently. Counts are for t
 - **Ordering**: Documents are ordered by PubMed id and then by content, so a full and an incremental build
   produce the same bytes.
 - **Assertion methods with two citations** (6 SCVs): `Method.reportedIn` holds one Document. ClinVar's first
-  citation stays on the method. The second used to be fused into it as `pmid: "29116469,29907814"`; it now goes on
-  the statement's `reportedIn`, flagged `clinvarAssertionMethodCitation`.
+  citation stays there. The second used to be fused into it as `pmid: "29116469,29907814"`; it is now a
+  Document in the Method's own `additionalClinvarMethodCitations` extension (an array of Documents).
 
 See [Citations](../output-reference/scv-statements.md#citations). This is a data change only; the schema already
 allows these Document fields and extensions. In Parquet, `scv.reportedIn` and `scv.specifiedBy.reportedIn` gain
-`name`, `documentType` and `extensions` at the end of the struct. The existing fields keep their names, types and
+`name`, `documentType` and `extensions` at the end of the struct, and `scv.specifiedBy` gains
+`extensions` after `reportedIn`. The existing fields keep their names, types and
 positions.
 
 **Gene context** — every SCV proposition `geneContextQualifier` gains a `geneContextSource` extension that says
@@ -97,6 +98,8 @@ upstream. Counts are for the 2026-09-28 release:
   in submitted order. They still have no `primaryCoding`, and `submittedGeneSymbols` is unchanged.
 - **`submittedGeneSymbols` order**: the symbols are now in submitted order. Before, their order was not fixed,
   and the 45 lists with more than one symbol could change order from one build to the next.
+- **`submittedGeneSymbols` trimmed**: the leading space our comma split left on symbols such as `" MEG3"` is
+  removed (3 propositions, 8 symbols); ClinVar's own values are unchanged.
 
 The gene context stays on the proposition. This is a data change only: the schema already allows extensions
 on the qualifier. See [Qualifier Extensions](../output-reference/scv-statements.md#qualifier-extensions).
