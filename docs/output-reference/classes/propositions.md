@@ -31,14 +31,14 @@ These types handle ClinVar submission categories not covered by the GA4GH specif
 | Code | Type | Predicate | Description |
 | --- | --- | --- | --- |
 | `RF` | [ClinvarRiskFactorProposition](ClinvarRiskFactorProposition.md) | `isRiskFactorFor` | Risk factor |
-| `PROT` | [ClinvarProtectiveProposition](ClinvarProtectiveProposition.md) | `isProtectiveFor` | Protective |
+| `PROTECT` | [ClinvarProtectiveProposition](ClinvarProtectiveProposition.md) | `isProtectiveFor` | Protective |
 | `DR` | [ClinvarDrugResponseProposition](ClinvarDrugResponseProposition.md) | `hasDrugResponseFor` | Drug response |
 | `AFF` | [ClinvarAffectsProposition](ClinvarAffectsProposition.md) | `hasAffectFor` | Affects |
 | `ASSOC` | [ClinvarAssociationProposition](ClinvarAssociationProposition.md) | `isAssociatedWith` | Association |
 | `CS` | [ClinvarConfersSensitivityProposition](ClinvarConfersSensitivityProposition.md) | `confersSensitivityFor` | Confers sensitivity |
 | `OTH` | [ClinvarOtherProposition](ClinvarOtherProposition.md) | `isClinvarOtherAssociationFor` | Other |
 | `NP` | [ClinvarNotProvidedProposition](ClinvarNotProvidedProposition.md) | `hasNoProvidedClassificationFor` | Not provided |
-| `CONF` | [ClinvarConflictingDataFromSubmitterProposition](ClinvarConflictingDataFromSubmitterProposition.md) | `isConflictingDataFromSubmittersFor` | Conflicting data (germline only) |
+| `CDFS` | [ClinvarConflictingDataFromSubmitterProposition](ClinvarConflictingDataFromSubmitterProposition.md) | `isConflictingDataFromSubmittersFor` | Conflicting data (germline only) |
 | `UNDEF` | [ClinvarUndefinedProposition](ClinvarUndefinedProposition.md) | `isClinvarUndefinedAssociationFor` | Fallback for a classification that maps to no defined type |
 
 ---
@@ -52,6 +52,22 @@ Somatic clinical impact (SCI) statements carry evidence lines with their own tar
 | `TR` | VariantTherapeuticResponseProposition | `predictsSensitivityTo`, `predictsResistanceTo` |
 | `DIAG` | VariantDiagnosticProposition | `isDiagnosticInclusionCriterionFor`, `isDiagnosticExclusionCriterionFor` |
 | `PROG` | VariantPrognosticProposition | `associatedWithBetterOutcomeFor`, `associatedWithWorseOutcomeFor` |
+
+---
+
+## Bundle Sections
+
+Since 1.1.0, propositions are delivered in four bundle sections grouped by **meaning**. A proposition's
+section depends only on its `type`, at every level (SCV, VCV, RCV). The Parquet tables have the same names.
+
+| Section | Types |
+| --- | --- |
+| `propositionPathogenicity` | `PATH` |
+| `propositionOncogenicity` | `ONCO` |
+| `propositionSomaticClinicalImpact` | `SCI`, `DIAG`, `PROG`, `TR` |
+| `propositionClinvarCustom` | `RF`, `PROTECT`, `DR`, `AFF`, `ASSOC`, `CS`, `OTH`, `NP`, `CDFS`, `UNDEF` |
+
+Statements and evidence lines point at the section: `#/propositionPathogenicity/SCV001234567-PATH`.
 
 ---
 

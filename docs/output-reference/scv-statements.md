@@ -20,7 +20,7 @@ Each record is a VA-Spec `Statement` with the following top-level fields:
 | --- | --- | --- |
 | `id` | string | SCV accession with version — `clinvar.submission:SCV000123456.1` |
 | `type` | string | Always `Statement` |
-| `proposition` | string | `#/{group}-proposition/{id}` reference to the classification proposition (group = `varcond`/`vartumor`/`vartherapy`/`varcustom` by datatype) |
+| `proposition` | string | `#/proposition<Meaning>/{id}` reference to the classification proposition (the section is set by the proposition `type`; see [ID References](id-references.md)) |
 | `classification` | object | MappableConcept — the submitter's classification. See [Classification](#classification) |
 | `strength` | object | MappableConcept — the evidence strength. See [Strength](#strength) |
 | `direction` | string | Whether the evidence `supports`, `disputes`, or is `neutral` toward the proposition |
@@ -171,7 +171,7 @@ An id that cannot be used, such as a DOI recorded as `https`, yields no `doi` or
 
 ## Proposition
 
-SCV propositions are delivered across the four `*-proposition` bundle sections (`varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`) by their (subject, object) datatype signature, referenced by `#/{group}-proposition/{id}`. The proposition ID combines the SCV accession with an uppercase proposition type code:
+SCV propositions are delivered across the four proposition bundle sections (`propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact`, `propositionClinvarCustom`) by meaning, referenced by `#/proposition<Meaning>/{id}`. The proposition ID combines the SCV accession with an uppercase proposition type code:
 
 ```text
 SCV001234567-PATH
@@ -201,12 +201,12 @@ A resolved proposition contains:
 | `ClinvarAssociationProposition` | `ASSOC` | `isAssociatedWith` | Association |
 | `ClinvarRiskFactorProposition` | `RF` | `isRiskFactorFor` | Risk factor |
 | `ClinvarDrugResponseProposition` | `DR` | `hasDrugResponseFor` | Drug response |
-| `ClinvarProtectiveProposition` | `PROT` | `isProtectiveFor` | Protective |
+| `ClinvarProtectiveProposition` | `PROTECT` | `isProtectiveFor` | Protective |
 | `ClinvarAffectsProposition` | `AFF` | `hasAffectFor` | Affects |
 | `ClinvarConfersSensitivityProposition` | `CS` | `confersSensitivityFor` | Confers sensitivity |
 | `ClinvarOtherProposition` | `OTH` | `isClinvarOtherAssociationFor` | Other |
 | `ClinvarNotProvidedProposition` | `NP` | `hasNoProvidedClassificationFor` | Not provided |
-| `ClinvarConflictingDataFromSubmitterProposition` | `CONF` | `isConflictingDataFromSubmittersFor` | Conflicting data |
+| `ClinvarConflictingDataFromSubmitterProposition` | `CDFS` | `isConflictingDataFromSubmittersFor` | Conflicting data |
 
 For somatic clinical impact, target propositions (evidence line propositions) use these codes: `PROG` (Prognostic), `DIAG` (Diagnostic), `TR` (Therapeutic Response).
 
@@ -221,7 +221,7 @@ Evidence lines appear on somatic clinical impact (SCI) statements. Each evidence
 ```json
 {
   "type": "EvidenceLine",
-  "proposition": "#/vartherapy-proposition/SCV004565358-TR",
+  "proposition": "#/propositionSomaticClinicalImpact/SCV004565358-TR",
   "directionOfEvidenceProvided": "supports",
   "evidenceOutcome": {
     "conceptType": "Outcome",

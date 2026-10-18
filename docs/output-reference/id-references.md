@@ -49,10 +49,10 @@ Objects reference each other using `#/{section}/{key}` strings. To resolve a ref
 | `#/therapy/{key}` | `#/therapy/clinvar.therapy:ab221549…d1c2b` | `therapy` |
 | `#/therapyGroup/{key}` | `#/therapyGroup/clinvar.therapygroup:df1d8467…9f05c` | `therapyGroup` |
 | `#/submitter/{key}` | `#/submitter/clinvar.submitter:500139` | `submitter` |
-| `#/varcond-proposition/{key}` | `#/varcond-proposition/SCV001234567-PATH` | `varcond-proposition` |
-| `#/vartumor-proposition/{key}` | `#/vartumor-proposition/SCV002345678-ONCO` | `vartumor-proposition` |
-| `#/vartherapy-proposition/{key}` | `#/vartherapy-proposition/SCV003456789-TR` | `vartherapy-proposition` |
-| `#/varcustom-proposition/{key}` | `#/varcustom-proposition/SCV004567890-RF` | `varcustom-proposition` |
+| `#/propositionPathogenicity/{key}` | `#/propositionPathogenicity/SCV001234567-PATH` | `propositionPathogenicity` |
+| `#/propositionOncogenicity/{key}` | `#/propositionOncogenicity/SCV002345678-ONCO` | `propositionOncogenicity` |
+| `#/propositionSomaticClinicalImpact/{key}` | `#/propositionSomaticClinicalImpact/SCV003456789-TR` | `propositionSomaticClinicalImpact` |
+| `#/propositionClinvarCustom/{key}` | `#/propositionClinvarCustom/SCV004567890-RF` | `propositionClinvarCustom` |
 | `#/scv/{key}` | `#/scv/clinvar.submission:SCV001234567.1` | `scv` |
 | `#/vcv/{key}` | `#/vcv/VCV000012582.63-G-PATH-CP` | `vcv` |
 | `#/evidenceLine/{key}` | `#/evidenceLine/VCV000012582.63-G-PATH-CP.contributing` | `evidenceLine` |
@@ -74,12 +74,12 @@ Objects reference each other using `#/{section}/{key}` strings. To resolve a ref
 | Therapeutic Response | `conditionQualifier` | `#/condition/` or `#/conditionSet/` |
 | ConditionSet | `concepts[]` | `#/condition/`, or `#/conditionSet/` for a TraitSet nested in a minted `vcv-` set |
 | TherapyGroup | `concepts[]` | `#/therapy/` |
-| SCV Statement | `proposition` | `#/{varcond,vartumor,vartherapy,varcustom}-proposition/` |
+| SCV Statement | `proposition` | `#/proposition{Pathogenicity,Oncogenicity,SomaticClinicalImpact,ClinvarCustom}/` |
 | SCV Statement | `contributions[].contributor` | `#/submitter/` |
-| VCV Statement | `proposition` | `#/{varcond,vartumor,vartherapy,varcustom}-proposition/` |
+| VCV Statement | `proposition` | `#/proposition{Pathogenicity,Oncogenicity,SomaticClinicalImpact,ClinvarCustom}/` |
 | SCV Statement | `hasEvidenceLines[]` | `#/evidenceLine/` |
 | VCV Statement | `hasEvidenceLines[]` | `#/evidenceLine/` |
-| RCV Statement | `proposition` | `#/{varcond,vartumor,vartherapy,varcustom}-proposition/` |
+| RCV Statement | `proposition` | `#/proposition{Pathogenicity,Oncogenicity,SomaticClinicalImpact,ClinvarCustom}/` |
 | RCV Statement | `hasEvidenceLines[]` | `#/evidenceLine/` |
 | EvidenceLine | `hasEvidenceItems[]` | `#/scv/`, `#/vcv/`, or `#/rcv/` |
 
@@ -141,7 +141,7 @@ SCV proposition IDs combine the SCV accession with an uppercase proposition type
 | Component | Description | Examples |
 | --- | --- | --- |
 | `scv_id` | SCV accession (without version) | `SCV001234567` |
-| `PROP_CODE` | Uppercase proposition type code | `PATH`, `ONCO`, `SCI`, `ASSOC`, `RF`, `DR`, `NP`, `OTH`, `PROT`, `AFF`, `CS`, `CONF`, `UNDEF` |
+| `PROP_CODE` | Uppercase proposition type code | `PATH`, `ONCO`, `SCI`, `ASSOC`, `RF`, `DR`, `NP`, `OTH`, `PROTECT`, `AFF`, `CS`, `CDFS`, `UNDEF` |
 
 Examples: `SCV001234567-PATH`, `SCV004565358-PROG`, `SCV004565358-TR`
 

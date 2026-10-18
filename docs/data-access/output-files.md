@@ -121,10 +121,10 @@ Each release file contains the following bundle sections:
 | `therapy` | Drug therapies (content-addressed, referenced by therapeutic propositions) |
 | `therapyGroup` | Combination (multi-drug) therapy groups |
 | `submitter` | Submitting organizations |
-| `varcond-proposition` | Classification propositions, variant×condition (SCV, VCV, RCV) |
-| `vartumor-proposition` | Classification propositions, variant×tumorType (Oncogenicity) |
-| `vartherapy-proposition` | Classification propositions, variant×therapy (TherapeuticResponse) |
-| `varcustom-proposition` | Classification propositions, custom variant×condition (the 10 `Clinvar*` types) |
+| `propositionPathogenicity` | Pathogenicity propositions (germline; SCV, VCV, RCV) |
+| `propositionOncogenicity` | Oncogenicity propositions (SCV, VCV, RCV) |
+| `propositionSomaticClinicalImpact` | Somatic clinical impact propositions: Clinical Significance (SCV, VCV, RCV), and the Diagnostic, Prognostic and Therapeutic Response propositions that SCV evidence lines target |
+| `propositionClinvarCustom` | ClinVar custom propositions: the 9 `Clinvar*` types plus `ClinvarUndefinedProposition` (SCV, VCV, RCV) |
 | `evidenceLine` | Evidence lines (SCV, VCV, and RCV) |
 | `scv` | Submitted classification statements |
 | `vcv` | Variation-level aggregate statements |

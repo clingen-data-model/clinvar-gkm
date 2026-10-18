@@ -293,7 +293,7 @@
         hint: 'Check your internet connection and try again. The data is served from <code>data.clinvar-gkm.org</code>.' };
     if (/\b40[34]\b|no files found|could not open file|http error/i.test(m))
       return { headline: 'That table or release could not be found.',
-        hint: 'Check the table name (<code>condition</code>, <code>scv</code>, <code>varcond-proposition</code>, …) and the release selected in the dropdowns.' };
+        hint: 'Check the table name (<code>condition</code>, <code>scv</code>, <code>propositionPathogenicity</code>, …) and the release selected in the dropdowns.' };
     if (col || /not found in from clause|referenced column|index is out of bounds|out of bounds/i.test(m))
       return { headline: col ? `There’s no column named “${col}” in this table.`
                              : 'A column in your query doesn’t exist in this table.',

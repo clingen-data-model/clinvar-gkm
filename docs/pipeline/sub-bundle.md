@@ -122,7 +122,7 @@ instead of hundreds of thousands — much easier to `grep`, diff, or scroll.
   "variation":         { "clinvar:17662": { ... } },
   "condition":         { "clinvar.trait:76328": { ... } },
   "submitter":         { "clinvar.submitter:509268": { ... } },
-  "varcond-proposition": { "SCV004101425-PATH": { ... } },
+  "propositionPathogenicity": { "SCV004101425-PATH": { ... } },
   "scv":               { "clinvar.submission:SCV004101425.2": { ... } }
 }
 ```
@@ -138,7 +138,7 @@ The script resolves the graph efficiently rather than one object at a time:
 - **Batched breadth-first traversal.** Each round collects all pending references, groups them by
   source table, and issues **one query per table** — so a list of N statements is a handful of
   queries, not N× the work.
-- **Prefix-routed proposition/evidence resolution.** A `#/varcond-proposition/` or `#/evidenceLine/`
+- **Prefix-routed proposition/evidence resolution.** A `#/proposition…/` (any of the four proposition sections) or `#/evidenceLine/`
   reference is resolved from the SCV-, VCV-, or RCV-specific table based on the key's `SCV`/`VCV`/`RCV`
   prefix.
 - **Global dedup.** Every referenced object is fetched at most once across the whole run; the final

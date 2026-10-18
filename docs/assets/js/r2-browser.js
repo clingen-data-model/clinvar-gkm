@@ -15,7 +15,7 @@
   var PARQUET_SECTIONS = [
     "sequenceReference", "location", "allele", "copyNumberCount", "copyNumberChange",
     "gene", "variation", "condition", "conditionSet", "therapy", "therapyGroup", "submitter",
-    "varcond-proposition", "vartumor-proposition", "vartherapy-proposition", "varcustom-proposition",
+    "propositionPathogenicity", "propositionOncogenicity", "propositionSomaticClinicalImpact", "propositionClinvarCustom",
     "evidenceLine", "vcv_evidenceLine", "rcv_evidenceLine", "scv", "vcv", "rcv"
   ];
   var LATEST_MONTHLY = "clinvar-gkm_00-latest.json.gz";
