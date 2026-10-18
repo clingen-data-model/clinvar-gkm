@@ -255,7 +255,7 @@ BEGIN
       -- sequences); NULLS LAST so an unresolved-assembly variant never wins over a real one.
       QUALIFY ROW_NUMBER() OVER (
         PARTITION BY vrs.out.location.sequenceReference.refgetAccession
-        ORDER BY vrs.in.assembly_version DESC NULLS LAST
+        ORDER BY vrs.in.assembly_version DESC NULLS LAST, vrs.in.accession
       ) = 1
     """, '{S}', rec.schema_name);
     SET temp_seqref_query = REPLACE(temp_seqref_query, '{CT}', temp_create);
@@ -711,6 +711,7 @@ BEGIN
               hcsq.consq_label as name,
               [format('https://identifiers.org/%s',hcsq.consq_code)] as iris
             )
+            ORDER BY hcsq.c_id
           ) as molecularConsequence
         FROM hgvs_items hgvs
         JOIN hgvs_consq hcsq
@@ -744,6 +745,8 @@ BEGIN
               ) as proteinExpression,
               hcsq.molecularConsequence
             )
+            -- total order: the expression text, then the whole source row as the tie-breaker
+            ORDER BY hgvs.nucleotide_value, hgvs.protein_value, TO_JSON_STRING(hgvs)
           ) value
         FROM hgvs_items hgvs
         LEFT JOIN hgvs_item_consq hcsq
@@ -763,6 +766,7 @@ BEGIN
               ga.relationship_type,
               ga.source
             )
+            ORDER BY SAFE_CAST(ga.gene_id AS INT64), ga.gene_id, ga.relationship_type, ga.source
           ) as genes
         FROM `{S}.gene_association` ga
         GROUP BY
@@ -880,6 +884,21 @@ BEGIN
               x.value_hgvs_array,
               x.value_gene_array
             )
+            -- the cat_ext_item arm order, then the value (several rows of one name differ only in value_string)
+            ORDER BY
+              CASE x.name
+                WHEN 'categoricalVariationType' THEN 1
+                WHEN 'definingVrsVariationType' THEN 2
+                WHEN 'vrsPreProcessingIssue' THEN 3
+                WHEN 'clinvarVariationType' THEN 4
+                WHEN 'clinvarSubclassType' THEN 5
+                WHEN 'clinvarCytogeneticLocation' THEN 6
+                WHEN 'vrsProcessingException' THEN 7
+                WHEN 'clinvarHgvsList' THEN 8
+                WHEN 'clinvarGeneList' THEN 9
+              END,
+              x.name,
+              x.value_string
           ) as extensions
         FROM cat_ext_item x
         {VFILTER}
@@ -985,7 +1004,7 @@ BEGIN
           END as relation
         FROM `{S}.variation_xref` x
         LEFT JOIN (
-          SELECT LOWER(db) as db_lower, ANY_VALUE(system) as system
+          SELECT LOWER(db) as db_lower, MIN(system) as system
           FROM `clinvar_ingest.gkm_xref_iri_templates`
           WHERE category IN ('Variation', 'Tests')
           GROUP BY LOWER(db)
@@ -993,7 +1012,9 @@ BEGIN
       )
       SELECT
         m.variation_id,
-        ARRAY_AGG(STRUCT(m.coding, m.relation)) as mappings
+        -- the ClinVar exactMatch first, then the xrefs; the whole row is the final tie-breaker
+        ARRAY_AGG(STRUCT(m.coding, m.relation)
+          ORDER BY m.relation != 'exactMatch', m.coding.system, m.coding.code, TO_JSON_STRING(m)) as mappings
       FROM catvar_mappings m
       {VFILTER}
       GROUP BY m.variation_id
@@ -1141,6 +1162,14 @@ BEGIN
                   cci.relations
                 )
               ) IGNORE NULLS
+              ORDER BY
+                CASE cci.type
+                  WHEN 'DefiningAlleleConstraint' THEN 1
+                  WHEN 'DefiningLocationConstraint' THEN 2
+                  WHEN 'CopyCountConstraint' THEN 3
+                  WHEN 'CopyChangeConstraint' THEN 4
+                END,
+                TO_JSON_STRING(cci)
             )
           ) as constraints
         FROM catvar cv
