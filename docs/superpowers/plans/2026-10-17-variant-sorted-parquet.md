@@ -1,89 +1,97 @@
-# Variant-Sorted Statement Parquet (C1) — Design Plan
+# Statement Lookup Files (C1) — Design Plan
 
-> **Status: design only (2026-10-17).** Nothing here is wired into the release pipeline. This plan answers
-> the **C1** "Plan first" item in `docs/superpowers/plans/2026-10-16-parquet-followups.md` (branch
-> `docs/parquet-followups-plan`, PR #144). The export SQL below is a prototype, quoted here so it can't be
-> mistaken for a live `parquet-schemas/` file. Decisions marked **(maintainer)** are listed at the end.
+> **Status: design only (2026-10-17, extended 2026-10-18).** Nothing here is wired into the release
+> pipeline. This plan answers the **C1** "Plan first" item in
+> `docs/superpowers/plans/2026-10-16-parquet-followups.md` (branch `docs/parquet-followups-plan`, PR #144).
+> On 2026-10-18 it grew from one file into a **family** of lookup files that share one set of statement
+> columns, each sorted by a different key. All export SQL below is a prototype, quoted here so nobody mistakes
+> it for a live `parquet-schemas/` file. Decisions marked **(maintainer)** are collected in §11.
 
-**Goal:** publish one pre-joined Parquet file of statements × propositions, sorted by variant. A question
-about one variant ("PubMed ids for `clinvar:10`") then reads one row group, not every row group of
-`scv.parquet`. That makes per-variant questions run over HTTPS, including in the browser console, which today
-gets HTTP 429 after about 55 requests in 10 s.
+**Goal.** Publish pre-joined Parquet files, sorted by the key a question starts from:
+
+- a variant
+- a condition or therapy (including through the sets that contain it)
+- a gene
+- a PubMed id
+
+Each such question then reads one or two row groups instead of scanning `scv.parquet` (3.1 GB) and a
+proposition table. That makes the questions runnable over HTTPS, including in the browser console, which gets
+HTTP 429 after about 55 requests in 10 s.
+
+**Ground rule for the whole family: a column or a file never implies a relationship the source data doesn't
+make.** Three consequences:
+
+- A concept reached through a condition set is labelled as such, never presented as the proposition's own
+  object.
+- ClinVar's variant-to-gene list is never presented as a statement's gene.
+- A method citation is never presented as evidence.
 
 **Measurement sources:**
-- **Local:** the 2026-10 monthly Parquet set in `~/Development/sandbox/clinvar-gkm-parquet`, with DuckDB 1.5.4.
-- **BigQuery (read-only):** `clinvar_2026_10_11_v2_6_0` and `clinvar_2026_09_28_v2_6_0`. The latter is the
-  source of the 2026-10 monthly set; its `gkm_dict_scv/vcv/rcv` row counts match the published set exactly.
+
+- **Files:** every one was built from the 2026-10 monthly Parquet set (`~/Development/sandbox/clinvar-gkm-parquet`)
+  with DuckDB 1.5.4. All share the same settings: ZSTD, default 122,880-row groups, no bloom filters, a
+  total-order sort.
 - **Request counts:** DuckDB's `httpfs` reading from a local HTTP server that supports range requests and
-  logs every one. Each query ran in a fresh process with `SET threads = 1`, to match the single-threaded
-  browser console.
+  logs each one. Every query ran in a fresh process with `SET threads = 1`, to match the single-threaded
+  console. Counts include the footer fetch.
+- **BigQuery (read-only):** every prototype was dry-run on `clinvar_2026_10_11_v2_6_0`. Each was also run as
+  a `SELECT` with row-count breakdowns on that dataset and on `clinvar_2026_09_28_v2_6_0`. The latter is the
+  source of the 2026-10 monthly set.
+- **Equivalence:** on `2026_09_28`, every breakdown of every file matches the local build exactly. No
+  `EXPORT DATA`, `CREATE` or `DELETE` was run.
 
 ---
 
-## Recommendations at a glance
+## The family at a glance
 
-| Question | Recommendation |
-| --- | --- |
-| Which statements | **SCV, VCV and RCV in one file**, with a `source_table` column (`scv` / `vcv` / `rcv`) |
-| File name | **`statement-by-variant.parquet`** |
-| Sort | **`variant_id, source_table, statement_id`** (a total order, so rebuilds are byte-stable) |
-| Row groups | **122,880 rows** (DuckDB default) → 226 row groups |
-| Compression | **ZSTD** (189 MB vs 328 MB with Snappy) |
-| Bloom filters | **Off** (`WRITE_BLOOM_FILTER false`). With them on, any second filter costs one request per row group |
-| `proposition_id` | **Drop it**: it's 31 % of the file. `statement_id` joins back to the statement table **(maintainer)** |
-| Schema version | Parquet key/value metadata, not a column |
-| Built by | `parquet-schemas/statement-by-variant.sql` (BigQuery `EXPORT DATA`), then **sorted in the local merge step** |
-| Deltas | **Not shipped in deltas.** Rebuilt whole for every monthly set |
-| R2 layout | Inside each monthly set: `v1/datasets/parquet/YYYY-MM/` and `00-latest/` |
-| Upload / index scripts | `upload-gkm-to-r2.sh`: none. `generate-r2-index.sh`: one additive field, so the browser lists only files that exist |
-| Past releases | **Yes for the 4 monthly sets** (2026-07 … 2026-10); not needed for the 15 weeklies |
-| Size | **189 MB** for 2026-10 (27.65 M rows); about 192 MB projected for 2026-10-11 (28.05 M rows) |
-| Pruning | One variant reads **1 of 226** row groups. The PubMed lookup takes **17 requests** (today: 399 requests, 331 MB) |
+| File | One row per | Sort key | Rows (2026-10) | Size | Row groups | Typical lookup |
+| --- | --- | --- | --- | --- | --- | --- |
+| `statement-by-variant` | statement | `variant_id` | 27,653,888 | 189.2 MB | 226 | 10–17 requests |
+| `statement-by-object` | statement × condition/therapy | `concept_id` | 32,555,778 | 236.5 MB | 265 | 8–16 requests |
+| `concept-set-membership` | set × member | `member_concept_id` | 401,265 | 6.4 MB | 4 | 5–9 requests |
+| `variant-gene` | gene × variant (ClinVar's gene list) | `gene_id` | 7,346,154 | 24.2 MB | 60 | 5–7 requests |
+| `statement-by-gene-context` | statement with a gene-context qualifier | `gene_context_id` | 6,694,162 | 73.9 MB | 55 | 4–7 requests |
+| `statement-by-citation` | PubMed id × SCV × role | `pmid` | 4,886,981 | 47.7 MB | 40 | 7–23 requests |
+| *(on hold)* `statement-by-variant-gene` | statement × gene from the gene list | `gene_id` | 41,777,105 | 250.6 MB | 340 | 9–15 requests |
+
+**Total for one monthly set:** ~578 MB for the six recommended files. For comparison, the 22 section files
+come to ~13.0 GB.
+
+**One-variant answer today:** the `scv` ⨝ `varcond-proposition` join for PubMed ids on `clinvar:10` takes
+**399 requests and 331 MB**. With `statement-by-variant` it takes **16 requests and 1.2 MB**.
 
 ---
 
-## 1. Which statements
+## Decisions shared by every file
 
-**Recommendation: SCV, VCV and RCV in one file, one row per statement, with `source_table` naming the
-statement table it came from.**
+| Topic | Decision | Why |
+| --- | --- | --- |
+| Compression | **ZSTD** | `statement-by-variant` is 189 MB, against 328 MB with Snappy. DuckDB, DuckDB-Wasm, pyarrow and polars all read it |
+| Row groups | **122,880 rows** (DuckDB default) | Smaller groups added requests and grew the footer (§1) |
+| Bloom filters | **Off** (`WRITE_BLOOM_FILTER false`) | With them on, any filter besides the sort key costs one request per row group (§1) |
+| Sort | **Total order**, with the lookup key first | Pruning, and stable rebuilds: two separate builds of `statement-by-variant` came out the same size to the byte (189,156,552) |
+| Ids | **Bare** (`clinvar.trait:2645`, `ncbigene:672`) | Same as every typed-Parquet foreign-key column after #143 |
+| Provenance | Parquet key/value metadata: `clinvar_gkm_release`, `clinvar_gkm_schema_version`, `sort_order` | Readable from the footer. A constant column would add one to every row |
+| Built by | One `parquet-schemas/<file>.sql` `EXPORT DATA` per file, sharing spliced fragments; **sorted in the local merge step** | `EXPORT DATA` controls neither order nor row groups nor bloom filters (§6) |
+| Deltas | **Never in deltas.** Every file is rebuilt whole for each monthly set | §7 |
+| Location | Inside each monthly set, `v1/datasets/parquet/YYYY-MM/` (+ `00-latest/`) | The console's `{BASE}` already points there (§8) |
+| Past releases | **Yes, for the four monthly sets** (2026-07 … 2026-10). Nothing for the 15 weeklies | §9 |
 
-- **Coverage:** all three tiers join to a proposition 100 % of the time (0 unjoined of 28,045,103 rows on
-  2026-10-11), and every proposition subject is a `clinvar:` variant id.
-- **One file answers the whole question:** "everything ClinVar says about variant X" (submissions, the VCV
-  layers, the RCVs) is one footer fetch plus one row group. Three files would mean three footers (0.12–0.5 MB
-  each) and three sets of requests.
-- **Filtering by tier stays cheap.** A `source_table = 'scv'` filter on top of `variant_id` adds no requests,
-  as long as bloom filters are off (§2).
-- **Cost:** SCV alone is 75 MB. VCV and RCV add 114 MB, for 189 MB total.
+### The core statement columns
 
-`source_table` is named after the table the `statement_id` lives in (`scv.parquet`, `vcv.parquet`,
-`rcv.parquet`), so a join back to the full record is obvious. It deliberately avoids "tier" and "level",
-which already name the VCV aggregation layers.
-
-**Alternative (maintainer):** SCV only (75 MB). It answers the motivating PubMed question, but a reader who
-wants the aggregate classification would still have to scan `vcv.parquet`.
-
-## 2. File name, columns, sort, row groups
-
-### Name
-
-`statement-by-variant.parquet`. It is a derived lookup file, not a bundle section, so it doesn't follow
-section naming. The name leaves room for a companion `statement-by-object.parquet` (§8, open question 3).
-
-### Columns
-
-All ids are bare (no `#/section/` pointers), like every other typed-Parquet foreign-key column after #143.
+Four files carry these 17 columns unchanged: `statement-by-variant`, `statement-by-object`,
+`statement-by-gene-context`, and `statement-by-citation` (which drops `pmids`). Users learn them once.
 
 | Column | Type | From | Notes |
 | --- | --- | --- | --- |
-| `variant_id` | string | proposition `subject` | **Sort key 1.** `clinvar:<variation id>` |
-| `source_table` | string | — | `scv`, `vcv` or `rcv`. Sort key 2 |
-| `statement_id` | string | statement `id` | Sort key 3. Joins to `id` in `scv`/`vcv`/`rcv.parquet` |
-| `proposition_type` | string | proposition `type` | e.g. `VariantPathogenicityProposition`, `ClinvarRiskFactorProposition` |
+| `variant_id` | string | proposition `subject` | `clinvar:<variation id>` |
+| `source_table` | string | — | `scv`, `vcv` or `rcv`: the table `statement_id` lives in |
+| `statement_id` | string | statement `id` | Joins to `id` in that table |
+| `proposition_type` | string | proposition `type` | |
 | `predicate` | string | proposition `predicate` | |
-| `object_id` | string | proposition `object` | A `clinvar.trait:`, `clinvar.traitset:`, `clinvar.conditionset:`, tumor-type, `clinvar.therapy:` or `clinvar.therapygroup:` id |
+| `object_id` | string | proposition `object`, **as stated** | A condition, condition set, tumor type, therapy or therapy group id |
 | `condition_qualifier_id` | string | `conditionQualifier` | Therapeutic-response propositions only |
-| `gene_context_name` | string | `geneContextQualifier.name` | SCV only today (see C4) |
+| `gene_context_name` | string | `geneContextQualifier.name` | **Variant-derived**, not submitter-asserted (§4). SCV only |
 | `mode_of_inheritance` | string | `modeOfInheritanceQualifier.name` | SCV only |
 | `penetrance` | string | `penetranceQualifier.name` | SCV only |
 | `classification_name` | string | `classification.name` | |
@@ -92,326 +100,603 @@ All ids are bare (no `#/section/` pointers), like every other typed-Parquet fore
 | `direction` | string | `direction` | |
 | `submitter_id` | string | first `contributions[]` with `activityType = 'submitted'` | SCV only. Joins to `submitter.parquet` |
 | `date_last_evaluated` | date | first `contributions[]` with `activityType = 'evaluated'` | SCV only |
-| `pmids` | list\<string\> | `reportedIn[].pmid` | SCV only. Empty list for VCV/RCV |
+| `pmids` | list\<string\> | `reportedIn[].pmid` | SCV only. Empty for VCV/RCV |
 
-The struct columns are flattened to strings with a `_name` suffix (`classification_name`, not
-`classification`). The suffix keeps them from being mistaken for the structs in `scv.parquet`, where
-`classification.name` is the idiom.
+The struct columns are flattened with a `_name` suffix, so they can't be mistaken for the structs in
+`scv.parquet`.
 
-**Not carried:** `data`, `description`, `specifiedBy`, extensions. These are 2 GB+ in `scv.parquet`, and a
-one-variant lookup can fetch them with a join back on `statement_id` once `scv.parquet` is id-sorted (§8,
-open question 4).
+**Not carried:** `data`, `description`, `specifiedBy` and extensions. A lookup joins back on `statement_id`
+for those.
 
-**`proposition_id`, recommend dropping (maintainer).** At 91 MB of a 292 MB file it is the second-largest
-column, and every field a lookup needs from the proposition is already inlined. For VCV/RCV it is derivable
-from `statement_id` (drop the `.version`). For SCV it isn't (`clinvar.submission:SCV004905533.1` →
-`SCV004905533-PATH`), so it is still reachable through `scv.parquet`.
+**`proposition_id` dropped (maintainer):** it was 91 MB of 292 MB. Every field a lookup needs from the
+proposition is already inlined, and the id stays reachable through the statement table.
 
-### Sort and pruning
+---
 
-`ORDER BY variant_id, source_table, statement_id`. `statement_id` is unique within a table, so the order is
-total and two builds of the same dataset write the same bytes. Each row group's min/max statistics on
-`variant_id` then cover a narrow, non-overlapping id range, and an equality filter skips every other row
-group.
+## 1. `statement-by-variant`
 
-`variant_id` sorts as text (`clinvar:10` < `clinvar:100` < `clinvar:11`). That is fine for equality and
-`IN (…)` lookups, which are the use case. A numeric range of variation ids would not prune; no recipe needs
-one.
+**Purpose:** everything ClinVar says about one variant (submissions, VCV layers, RCVs) in one footer fetch
+plus one row group.
 
-### Row-group size
+| Column | Notes |
+| --- | --- |
+| The 17 core columns | Sort: `variant_id, source_table, statement_id` |
+
+**Which tiers.** SCV, VCV and RCV, in one file:
+
+- All three join to a proposition 100 % of the time: 0 unjoined of 28,045,103 rows on 2026-10-11.
+- SCV alone would be 75 MB.
+- A `source_table = 'scv'` filter costs nothing extra, provided bloom filters are off.
+
+**Pruning.** I sampled 2,000 random variants, plus `clinvar:10` and the busiest variant (`clinvar:17004`,
+189 statements). Every lookup touched exactly 1 of 226 row groups.
+
+`variant_id` sorts as text (`clinvar:10` < `clinvar:100` < `clinvar:11`). That is fine for `=` and `IN`;
+numeric ranges don't prune.
+
+**Row-group size**, with bloom filters on (so the files are slightly bigger than the final layout):
 
 | Rows per group | Row groups | File | Footer | Requests: `SELECT *` for one variant |
 | --- | --- | --- | --- | --- |
-| **122,880 (default)** | **226** | **201 MB*** | **0.52 MB** | **11** |
-| 61,440 | 451 | 205 MB* | 1.03 MB | 17 |
-| 30,720 | 901 | 212 MB* | 2.03 MB | 28 |
+| **122,880** | **226** | 201 MB | 0.52 MB | **11** |
+| 61,440 | 451 | 205 MB | 1.03 MB | 17 |
+| 30,720 | 901 | 212 MB | 2.03 MB | 28 |
 
-\* With bloom filters and `proposition_id` dropped. The final layout (no bloom filters) is 189 MB.
+**Why bloom filters must be off:**
 
-Smaller groups read fewer bytes per lookup but make the footer bigger, add requests, and grow the file.
-Across a random sample of 2,000 variants plus `clinvar:10` and the busiest variant (`clinvar:17004`, 189
-statements), **every lookup touched exactly 1 row group** at every size tested. Keep the default.
+- DuckDB writes them by default. The published `scv.parquet` has them on 3,523 of its 3,960 column chunks.
+- When a filter's min/max can't rule a row group out, DuckDB probes that column's bloom filter, which costs
+  one request per row group. It does this even when the sort-key filter has already excluded the group.
 
-### Bloom filters off
-
-DuckDB writes a bloom filter for every dictionary-encoded column by default. The published `scv.parquet` has
-them on 3,523 of its 3,960 column chunks. When a query filters on a column whose min/max can't rule a row
-group out, DuckDB probes that column's bloom filter, one HTTP request per row group. It does this even when
-the `variant_id` filter has already excluded the group:
-
-| Query on the variant-sorted file | Bloom filters on | Bloom filters off |
+| Query on `statement-by-variant` | Bloom on | Bloom off |
 | --- | --- | --- |
-| `WHERE variant_id = 'clinvar:10'` | 11 requests | 10 requests |
-| `… AND source_table = 'scv'` (the PubMed recipe) | **238 requests** | **16 requests** |
-| `… AND classification_name = 'Pathogenic'` | **238 requests** | **16 requests** |
-| `WHERE object_id = 'clinvar.trait:9580'` (no variant) | 487 requests | 358 requests |
+| `variant_id = 'clinvar:10'` | 11 | 10 |
+| `… AND source_table = 'scv'` | **238** | **16** |
+| `… AND classification_name = 'Pathogenic'` | **238** | **16** |
 
-Bloom filters never help here: the sort key already prunes, and lookups by other columns aren't remote-viable
-on this file either way (§8). **Write with `WRITE_BLOOM_FILTER false`.**
+## 2. `statement-by-object`
 
-### Compression
+**Purpose:** every statement about a condition or therapy, whether the proposition names the concept itself
+or names a set that contains it. Every row says which of those is the case.
 
-ZSTD: 189 MB, against 328 MB for Snappy (the other published files use Snappy). Every DuckDB release in use,
-DuckDB-Wasm, pyarrow and polars read ZSTD. The smaller pages also mean fewer bytes per lookup (2.0 MB vs 2.6
-MB for one variant's rows).
+**One row per (statement, concept):**
 
-### Schema version and provenance
+| `role` | The concept is… | `via_set_id` | `membership_operator` | `via_nested_set_id` |
+| --- | --- | --- | --- | --- |
+| `object` | the proposition's own object: a single condition, tumor type or therapy | NULL | NULL | NULL |
+| `set_member` | a leaf member of the condition set or therapy group the proposition names | that set | its `AND`/`OR` | the inner `clinvar.traitset` when the member came through one nested inside a minted `clinvar.conditionset`, else NULL |
+| `condition_qualifier` | a therapeutic-response proposition's `conditionQualifier` | NULL | NULL | NULL |
 
-The release and schema version go in Parquet key/value metadata, not a column. A constant column would cost
-almost nothing on disk, but the published files don't carry one, and metadata is readable from the footer
-alone:
+Direct rows and set rows are never merged. A query for "statements *about* Marfan syndrome" filters
+`role = 'object'`; "statements whose condition set *includes* Marfan" filters `role = 'set_member'`. The
+nested set's own operator is in `concept-set-membership` (§3). Only minted sets nest, and only one level, so
+no deeper expansion is needed. Sets themselves are not rows: they have no single meaning to look up by, and
+a lookup by set id is the job of §3.
 
-```sql
-SELECT decode(key) AS k, decode(value) AS v FROM parquet_kv_metadata('statement-by-variant.parquet');
--- clinvar_gkm_release        2026-10
--- clinvar_gkm_schema_version 1.0.2
--- sort_order                 variant_id,source_table,statement_id
-```
+**Therapies come only through evidence lines.** No statement's own proposition is therapeutic. In 2026-10,
+13 therapeutic-response propositions are the targets of somatic SCVs' evidence lines (1,568 evidence lines,
+which also target 1,555 diagnostic and prognostic propositions). The file includes each targeted proposition's
+concepts and marks those rows `via_evidence_line = TRUE`:
 
-Verified with DuckDB 1.5.4 `COPY … (KV_METADATA {…})`. Whether to stamp the other 22 files the same way is
-open question 5.
+- Their proposition columns (`proposition_type`, `predicate`, `object_id`, qualifiers) are the **targeted**
+  proposition's.
+- Their statement columns (`classification_name`, …) are the SCV's own, and the SCV's classification is about
+  its own proposition.
+- So those rows also carry the evidence line's own `evidence_outcome_name` (`Level A/B` 1,022, `Level C/D`
+  570) and `evidence_direction`. Read those, not `classification_name`, for the therapy.
 
-## 3. How it is built
+**Columns:**
 
-**Recommendation: one `EXPORT DATA` query from a new `parquet-schemas/statement-by-variant.sql`, then a
-special case in the local merge step that sorts and writes the final file.**
+| Column | Type | Notes |
+| --- | --- | --- |
+| `concept_id` | string | **Sort key 1.** `clinvar.trait:` or `clinvar.therapy:` id |
+| `concept_type` | string | `condition` or `therapy` |
+| `role` | string | `object`, `set_member` or `condition_qualifier` |
+| `via_set_id` | string | The set/group the proposition names (NULL unless `set_member`) |
+| `membership_operator` | string | That set's `AND`/`OR` (NULL unless `set_member`) |
+| `via_nested_set_id` | string | Inner `clinvar.traitset`, when flattened through one |
+| The 17 core columns | | `object_id` is the proposition's object as stated, so it equals `via_set_id` on set rows |
+| `via_evidence_line` | boolean | TRUE when the concept came from a proposition an SCV's evidence line targets |
+| `evidence_outcome_name` | string | Evidence line `evidenceOutcome.name` (NULL unless `via_evidence_line`)* |
+| `evidence_direction` | string | Evidence line `directionOfEvidenceProvided` (same)* |
 
-1. **`export-gkm-dicts.sh`:** add `extract_parquet_typed statement-by-variant.parquet
-   statement-by-variant.sql`, **skipped when `--delta` is set** (§4).
-2. **`release-gkm.sh` step 3**, when merging shards: for `statement-by-variant`, replace the plain `COPY` with:
+\* In the BigQuery prototype, not in the local measurement build. These columns are non-null on 1,592 rows
+only, so the size is unaffected.
+
+**Sort:** `concept_id, variant_id, source_table, statement_id, via_evidence_line, role, via_set_id NULLS
+FIRST, via_nested_set_id NULLS FIRST`. The key is unique: 32,555,778 distinct of 32,555,778.
+
+**Rows (2026-10):**
+
+| `role` / `concept_type` | Rows |
+| --- | --- |
+| object / condition | 24,750,175 (+ 1,555 via evidence line) |
+| set_member / condition | 7,019,358 direct + 784,653 through a nested traitset |
+| object / therapy | 6 (all via evidence line) |
+| set_member / therapy | 18 (all via evidence line) |
+| condition_qualifier / condition | 13 (all via evidence line) |
+
+**Marfan syndrome (`clinvar.trait:2645`), one lookup, 9 requests:**
+
+| `role` | SCV | VCV | RCV |
+| --- | --- | --- | --- |
+| object | 4,365 | 3,119 | 7,273 |
+| set_member | 5,892 (15 traitsets) | 9,287 direct (227 minted sets) + 6,304 nested (234) | 11,760 (15 traitsets) |
+
+**Heavy concepts.** `clinvar.trait:17556` (not provided) and `clinvar.trait:16789` (not specified) each have
+about 7–8 M rows. A `count(*)` of one takes 70 requests, over the rate limit. These are catch-alls; leave
+them download-only (decision 8).
+
+## 3. `concept-set-membership`
+
+**Purpose:** "which sets contain X" and "what is in set Y", without parsing `conditionSet.concepts` or
+`therapyGroup.value`. It is the small companion that explains the `set_member` rows of §2.
+
+**One row per (set, member).** Rows come from every published condition set (the >1-member filter applies)
+and every therapy group:
+
+- **Direct members.** A nested `clinvar.traitset` inside a minted set appears as a row with
+  `member_type = 'set'`.
+- **Flattened leaves** of each nested set, with `via_nested_set_id`.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `member_concept_id` | string | **Sort key 1.** Bare id |
+| `member_type` | string | `condition`, `therapy` or `set` (a nested traitset) |
+| `member_name` | string | From `condition.parquet` / `therapy.parquet`. NULL for nested sets, which have no name, and for 30 conditions with no name in the source |
+| `set_id` | string | The containing set |
+| `set_type` | string | `conditionSet` or `therapyGroup` |
+| `concept_set_type` | string | `Disease`, `Finding`, `TraitChoice`, `DrugResponse` for ClinVar traitsets. NULL for minted sets and therapy groups |
+| `membership_operator` | string | The containing set's `AND`/`OR` |
+| `via_nested_set_id` | string | Set when the row is a leaf flattened through a nested traitset |
+
+**Sort:** `member_concept_id, set_id, via_nested_set_id NULLS FIRST`. One duplicate pair is dropped with
+`DISTINCT`: a therapy group lists the same therapy twice.
+
+**Rows (2026-10):**
+
+| Kind | Rows |
+| --- | --- |
+| conditionSet → condition, direct | 281,065 |
+| conditionSet → condition, through a nested set | 90,113 |
+| conditionSet → nested set | 30,032 |
+| therapyGroup → therapy | 55 |
+| **Total** | **401,265** (6.4 MB, 4 row groups) |
+
+**Lookups:**
+
+- **Which sets contain `clinvar.trait:2645`:** 5 requests. It is in 8 Disease and 7 TraitChoice traitsets
+  (AND), 214 minted sets directly and 290 through a nested traitset (OR).
+- **Members of a given set:** 9 requests. That is the whole 6.4 MB file, which is fine at this size.
+
+## 4. Genes: two different relationships, two files, never merged
+
+The data holds two gene relationships. They mean different things, and no file may present one as the other.
+
+**(a) ClinVar's variant-to-gene list**, the variation's `clinvarGeneList` extension:
+- **Shape:** many genes per variant.
+- **Columns:** each entry carries a `relationship_type` (`within single gene`, `within multiple genes by
+  overlap`, `genes overlapped by variant`, `near gene, upstream/downstream`, `asserted, but not computed`) and
+  a `source` (`submitted` or `calculated`).
+- **Meaning:** it describes the **variant**, not any statement.
+- **Scale:** 7,346,154 pairs over 4,637,755 variants and 92,972 genes. 866 variants list more than 500
+  genes each, contributing 911,238 pairs (mostly `genes overlapped by variant`, the large CNVs).
+
+**(b) The proposition's gene-context qualifier**, `geneContextQualifier` (`gene_context_name` in the typed
+Parquet). It is **variant-derived and single-valued**, not submitter-asserted. Provenance:
+
+1. **Built in** `gkm-scv-statement-proc.sql`, Step 2 (`temp_gene_context_qualifiers`). It joins each SCV's
+   `variation_id` to the upstream `single_gene_variation` table, then to `gene`. That sets `name` = gene
+   symbol, `primaryCoding.code` = the NCBI Gene id, and an HGNC `exactMatch` mapping.
+2. **`single_gene_variation`** comes from clinvar-ingest-bq-tools,
+   `scripts/dataset-preparation/04-single-gene-variation-proc.sql`. It picks **one representative gene per
+   variation**, taking the first step of this cascade that applies:
+   1. a MANE Select transcript at the start of the variation name
+   2. a resolvable gene symbol in an HGVS-style name (`NM_…(GENE):c.…`)
+   3. a star-allele name (`CYP2C19*10`)
+   4. a single gene association of any kind
+   5. a single *submitted* association that is neither `genes overlapped by variant` nor `asserted, but not
+      computed`
+   6. a single `within single gene` association
+   7. a haplotype/genotype whose child variations all share one gene
+
+   Steps 1–3 and 7 record `source = 'cvc calculated'` when no gene-association row backs the chosen
+   gene. That marks a gene *inferred by this heuristic*, not one ClinVar reported. The `source` and
+   `relationship_type` are **not** carried into the qualifier, so the Parquet can't tell which step chose
+   the gene.
+3. **The same gene on every SCV of a variant.** Because the qualifier hangs off `variation_id`, every SCV
+   of a variant gets the same gene.
+4. **The submitter's own genes** appear only as the qualifier's `submittedGeneSymbols` extension, a per-SCV
+   list parsed from `clinical_assertion_variation`.
+5. **The placeholder.** When the variation has no single gene but the submitter named genes, `name` is the
+   literal `submitted genes were not normalized`, with no coding.
+
+**In 2026-10:**
+- 6,694,162 SCVs carry a qualifier: 19,190 gene ids, plus the placeholder on **4,814** SCVs.
+- 5,812,837 of them also carry `submittedGeneSymbols`.
+- In 27,817 the submitted symbols don't include the chosen gene's symbol.
+- VCV/RCV propositions carry no qualifier today (C4).
+
+**The two must stay separate.** Sending (a) through statements would label 41.8 M statement rows with genes
+no statement asserted, and would bury the single-gene choice among overlap genes. Sending (b) through the
+gene list would lose its "one representative gene" meaning.
+
+### 4.1 `variant-gene`
+
+**Purpose:** a thin crosswalk of (a). It saves every consumer from unnesting
+`variation.extensions[].value_gene_array[]` from a 4 GB file.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `gene_id` | string | **Sort key 1.** `ncbigene:` id |
+| `gene_symbol` | string | From `gene.parquet` `name` (a join on the id, not a symbol mapping) |
+| `variant_id` | string | Sort key 2 |
+| `relationship_type` | string | As in the gene list |
+| `relationship_source` | string | `submitted` or `calculated` |
+
+**Sort:** `gene_id, variant_id, relationship_type, relationship_source` (unique). The file is 24.2 MB, 60
+row groups. All CNV fan-out is kept; filter on `relationship_type` to drop it.
+
+**Lookups:**
+- BRCA1 (`ncbigene:672`, 16,089 variants): 5 requests.
+- TTN (`ncbigene:7273`, 40,949 variants): 7 requests.
+- By symbol (`gene_symbol = 'BRCA1'`, not the sort key): 60 requests. Resolve the symbol to an id in the
+  small `gene.parquet` first.
+
+### 4.2 `statement-by-gene-context`
+
+**Purpose:** statements by (b), keyed on the qualifier's own NCBI Gene id. That id is
+`geneContextQualifier.primaryCoding.code`, already in the data, so no symbol is mapped to an id. Names are
+carried verbatim, including the placeholder.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `gene_context_id` | string | **Sort key 1.** `ncbigene:` + `primaryCoding.code`. NULL for the placeholder |
+| `gene_context_name` | string | Verbatim, including `submitted genes were not normalized` |
+| `submitted_gene_symbols` | list\<string\> | The `submittedGeneSymbols` extension, verbatim |
+| The core columns, except `gene_context_name` | | |
+
+**Sort:** `gene_context_id NULLS LAST, variant_id, source_table, statement_id`. The placeholder rows sort
+last, and a `gene_context_name = 'submitted genes were not normalized'` filter finds them.
+
+**Size:** 6,694,162 rows (SCV only today), 73.9 MB, 55 row groups.
+
+| Query | Requests |
+| --- | --- |
+| SCVs for `ncbigene:672` (BRCA1), by classification | 4 |
+| SCVs for `ncbigene:4625` (MYH7) | 4 |
+| SCVs for `ncbigene:7273` (TTN) | 6 |
+| BRCA1 PubMed ids (from `pmids`) | 5 |
+| By name `gene_context_name = 'BRCA1'` (not the sort key) | 56 |
+| Symbol → id in `gene.parquet` as a scalar subquery, then by id | **7** |
+
+**Typed-Parquet gap:** `parquet-schemas/var*-proposition.sql` exports only `gene_context_name`. This file is
+built from the proposition JSON in BigQuery, so it doesn't need them. Adding `gene_context_id` and
+`submitted_gene_symbols` to the four proposition exports is a separate, additive choice (decision 7).
+
+### 4.3 On hold: a fat `statement-by-variant-gene` file
+
+A file of (a) × statements, sorted by gene, answers "every statement on a variant in gene X" in one lookup.
+It is **not recommended for now**: it attaches gene-list genes to statements, which is exactly the
+relationship the source doesn't make, unless every row carries `relationship_type`/`relationship_source`
+and the docs keep saying "variants in/overlapping gene X". The numbers for that decision:
+
+| | Rows | Size (ZSTD) | Row groups |
+| --- | --- | --- | --- |
+| All gene-list relationships | 41,777,105 | **250.6 MB** | 340 |
+| Without `genes overlapped by variant` | 30,791,138 | 210.7 MB | 251 |
+| Rows from the 866 variants with >500 genes | 4,575,394 | — | — |
+
+| Query: VCV classifications for variants in the gene | Two-step: `variant-gene` → `statement-by-variant` | Fat file |
+| --- | --- | --- |
+| BRCA1 (16,089 variants) | **686 requests**, 20.5 MB; touches 196 of 226 row groups | **9 requests**, 1.2 MB |
+| TTN (40,949 variants) | **688 requests**, 20.9 MB; 188 of 226 row groups | **15 requests**, 1.3 MB |
+| BRCA1, ids already in hand (local list) | 681 requests | — |
+| BRCA1 PubMed ids | — | 11 requests |
+
+The two-step path is correct but not remote-viable: a gene's variant ids are scattered across almost every
+row group of a variant-sorted file. It works fine on a downloaded `statement-by-variant` (189 MB).
+
+## 5. `statement-by-citation`
+
+**Purpose:** every statement that cites a PubMed id.
+
+**One row per (PubMed id, SCV, role).** VCV and RCV carry no citations.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `pmid` | string | **Sort key 1** (text) |
+| `citation_role` | string | `evidence` (`reportedIn[]`) or `method` (`specifiedBy.reportedIn`, the assertion-criteria document) |
+| The core columns, except `pmids` | | Includes `variant_id` and `object_id` |
+
+**Sort:** `pmid, citation_role, source_table, statement_id`. `DISTINCT` drops 710 rows where one SCV lists
+the same PMID twice in `reportedIn`.
+
+**Rows (2026-10):** 1,546,181 evidence and 3,340,800 method, for 4,886,981 in all (47.7 MB, 40 row groups).
+`method` rows are mostly a few guideline papers: PMID 25741868 (ACMG/AMP 2015) alone has 1,194,391.
+
+| Query | Requests |
+| --- | --- |
+| Statements citing PMID 20301691 | 7 |
+| PMID 25741868, by role (1.2 M rows) | 23 |
+| BRCA1 PubMed ids by joining `statement-by-gene-context` → this file on `statement_id` | 55, at the limit |
+| BRCA1 PubMed ids from `statement-by-gene-context.pmids` directly | **5** |
+
+**PubMed ids for a gene:** `statement-by-gene-context` already has `pmids`, so it is the gene → PMID path
+(5 requests). The join is the wrong path remotely, because this file is not sorted by `statement_id`.
+
+**DOIs and URLs, after the pending citation fix.** In 2026-10:
+
+| | Citations | With PMID | DOI only | URL only |
+| --- | --- | --- | --- | --- |
+| Evidence (`reportedIn[]`) | 1,565,812 | 1,546,891 | 8,421 | 10,500 |
+| Method (`specifiedBy.reportedIn`) | 6,293,485 | 3,340,800 | 5,538 | 2,947,147 |
+
+The citation fix will decide which repaired, invalid and URL-only citations come back, and that may add rows
+and DOIs. The options for carrying non-PMID citations (decision 6):
+
+- **(i) Recommended: a typed `citation_id` sort key**, with `citation_type` and a `pmid` column kept for
+  convenience.
+  - **Key:** `citation_id` is `pmid:<n>`, `doi:<doi>` or `url:<url>`, verbatim after the prefix.
+  - **Pruning:** every kind of citation prunes the same way.
+  - **Cost:** if URL-only method citations are included, the file grows by about 60 % (2.9 M rows).
+- **(ii) Nullable `doi` / `url` columns on the PMID-keyed file.** Non-PMID rows sort last and can't be looked
+  up by DOI or URL without a full scan.
+- **(iii) A separate `statement-by-doi` file.** Only worth it if DOI lookups become common.
+
+Until the fix lands, ship PMID-only (i.e. option (i) with `pmid:` keys only, or the file as measured).
+
+---
+
+## 6. How the files are built
+
+1. **SQL.** Each file is one `parquet-schemas/<file>.sql`.
+   - The four statement files share the CTE fragment `_statement-core.sql`, spliced in at
+     `{STATEMENT_CORE}`.
+   - `statement-by-object` and `concept-set-membership` share `_concept-sets.sql`, spliced in at
+     `{CONCEPT_SETS}`.
+   - This needs a small change to `extract_parquet_typed`: substitute the fragments, and skip files whose
+     name starts with `_`.
+   - The `--delta` table rewrite must never touch these files (§7).
+2. **Sort in the merge.** `release-gkm.sh` step 3 replaces the plain merge `COPY` for each file with:
 
    ```sql
    SET preserve_insertion_order = false;
-   COPY (SELECT * FROM read_parquet('<shards>/statement-by-variant-*.parquet')
-         ORDER BY variant_id, source_table, statement_id)
-   TO '<dir>/statement-by-variant.parquet'
+   COPY (SELECT * FROM read_parquet('<shards>/<file>-*.parquet') ORDER BY <sort key from the table above>)
+   TO '<dir>/<file>.parquet'
    (FORMAT parquet, COMPRESSION zstd, ROW_GROUP_SIZE 122880, WRITE_BLOOM_FILTER false,
     KV_METADATA {clinvar_gkm_release: '<YYYY-MM>', clinvar_gkm_schema_version: '<x.y.z>',
-                 sort_order: 'variant_id,source_table,statement_id'});
+                 sort_order: '<sort key>'});
    ```
 
-   Measured: 50 s and 4.3 GB peak memory for 27.65 M rows.
-3. **Gate in the same step:** fail the release unless every one of these holds:
-   - `count(*)` equals `scv + vcv + rcv` row counts
-   - `count(*) FILTER (WHERE variant_id IS NULL)` is 0
-   - `parquet_metadata` shows 0 bloom filters
-   - a probe `variant_id` falls in exactly 1 row group
+   The biggest sort (`statement-by-object`, 32.6 M rows) fits in the 4–8 GB the merge already uses. The full
+   local family build peaked at 8 GB.
+3. **Gate in the merge.** Fail the release if any of these fails:
+   - Row counts against the source tables:
+     - `statement-by-variant` = scv + vcv + rcv
+     - `statement-by-gene-context` = SCVs with a qualifier
+     - `concept-set-membership` > 0
+   - 0 NULL sort keys, except `gene_context_id` on placeholder rows.
+   - 0 bloom filters.
+   - A probe key falls in exactly 1 row group.
+4. **Cost per monthly set.** The dry runs on 2026-10-11 processed (upper bound):
 
-Why not sort in BigQuery: `EXPORT DATA` writes shards in parallel, with no row-group or bloom-filter control
-and no promised order across shards. The merge already rewrites every file through DuckDB, so the sort costs
-one extra step.
+   | File | GB processed |
+   | --- | --- |
+   | `statement-by-variant` | 11.19 |
+   | `statement-by-object` | 11.21 |
+   | `statement-by-gene-context` | 11.19 |
+   | `statement-by-citation` | 8.63 |
+   | `variant-gene` | 1.28 |
+   | `concept-set-membership` | 0.02 |
 
-**Cost per build:** dry run on 2026-10-11 = **11.19 GB processed** (upper bound), about $0.07 on demand, plus
-the 50 s merge.
+   That is **~43.5 GB, about $0.27 per set**. Exporting the core once and deriving the other files locally
+   would save ~$0.20 a month, but it would break the one-SQL-per-file convention and couple the files to
+   the merge step. Not worth it.
 
-**Equivalence check:** I ran the prototype SQL on `clinvar_2026_09_28_v2_6_0` and the local build (the
-`performance.md` recipe extended to VCV/RCV) on the published 2026-10 Parquet, then compared aggregates per
-`source_table`. Every one matched exactly:
+**Why not build them locally from the section Parquet:**
+- It ties the files to typed-table quirks: the pre-#143 quoted `object_therapy`, and `gene_context_id`,
+  which the section Parquet doesn't have.
+- It only works where a full Parquet set exists on disk.
 
-- row counts
-- distinct variants and objects
-- non-null counts of every qualifier, submitter and date column
-- total PubMed ids
-- a length checksum over 14 string columns
+## 7. Deltas
 
-**Alternative considered:** build locally in DuckDB from the merged section files (no BigQuery cost). Not
-recommended, for three reasons:
+**None of these files ships in a weekly delta. Each is rebuilt whole for each monthly set.**
 
-- It ties the file to the column names of five typed tables, including the pre-#143 quoted
-  `object_therapy` pointer.
-- It only works where a full Parquet set exists on disk, so it rules out weekly copies.
-- It breaks the "one SQL file per published Parquet file" convention.
+- **The delta rewrite can't produce them.** `extract_parquet_typed --delta` rewrites
+  `.gkm_dict_` → `.delta_gkm_dict_`. Every file here joins two or more dict tables: statements to
+  propositions; sets to conditions; variations to genes. Joining delta to delta drops every row whose other
+  side didn't change.
+  - Also, the comment in `extract_parquet_typed` saying each schema file reads exactly ONE table is already
+    wrong (the proposition and therapy files read 3–4). Reword it.
+- **Applying a delta would undo the sort**, and the sort is the whole point. A consumer replaying deltas
+  rebuilds locally instead, with the Working at Scale recipe (about 1 minute per file).
+- **They aren't bundle sections.** The manifest, the reconstruction oracle and the replay examples iterate
+  over sections. A full derived file in `deltas/<date>/parquet/` would be listed as changed rows.
 
-The BigQuery SQL strips pointers itself, so it doesn't depend on #143.
+Weekly full copies are decision 4.
 
-## 4. Deltas
+## 8. R2 layout, `index.json` and scripts
 
-**Recommendation: never ship it in weekly deltas, and rebuild it whole for each monthly set.**
+All six files sit in the monthly set directory: `v1/datasets/parquet/YYYY-MM/<file>.parquet`, copied to
+`00-latest/`. Year-end archiving (`archive_parquet_yearly`) moves every file in that directory. An upload
+with `R2_PREFIX=''` publishes the flat-root copy the same way.
 
-- **The `--delta` table rewrite can't produce it.** `extract_parquet_typed --delta` rewrites
-  `.gkm_dict_` → `.delta_gkm_dict_` in the schema SQL. Here that would join *changed statements* to
-  *changed propositions*, dropping every statement whose proposition didn't change, and the reverse. A correct
-  delta is "rows whose statement **or** proposition changed", a union over two sections, plus deletes taken
-  from three manifest sections. That doesn't fit the per-section model. (The comment in
-  `extract_parquet_typed` saying every schema file reads exactly ONE table is already inaccurate: the
-  proposition and therapy files read 3–4. Reword it when this lands.)
-- **Applying a delta would undo the point.** The keyed upsert in Downloads → Parquet Files produces rows in
-  arbitrary order. A consumer would have to re-sort 28 M rows, which costs the same as rebuilding from their
-  updated section set with the Working at Scale recipe (about 50 s).
-- **It isn't a section.** The manifest, the delta-reconstruction oracle and the replay examples iterate over
-  bundle sections. A derived file in `deltas/<date>/parquet/` would be listed beside the changed-rows files
-  and mislead downloaders.
-
-Weekly freshness is open question 2: a *full* weekly copy in its own directory, never a delta.
-
-## 5. R2 layout, `index.json` and scripts
-
-**Location:** `v1/datasets/parquet/YYYY-MM/statement-by-variant.parquet`, and `…/00-latest/` through the
-existing server-side copy. Year-end archiving moves it with the rest of the set (`archive_parquet_yearly` moves every file in
-the directory). An upload run with `R2_PREFIX=''` publishes the flat-root copy the same way.
-
-| Script | Change |
+| Script / file | Change |
 | --- | --- |
-| `export-gkm-dicts.sh` | Add the export line, guarded by `if ! $DELTA` |
-| `release-gkm.sh` | Special-case the merge for this file (§3), including the gate |
-| `upload-gkm-to-r2.sh` | **None.** `upload_parquet` already uploads every `*.parquet` in the directory and copies each to `00-latest/`. The new dated path was never cached, so nothing needs purging |
-| `generate-r2-index.sh` | **Additive:** give each `datasets.parquet[]` entry a `"parquet": [...]` list of the files present (reuse `r2_parquet_sections_under`, which delta entries already use). Without it, `r2-browser.js` can't tell which month sets have the file |
-| `docs/assets/js/r2-browser.js` | Render the files listed in `parquet` for each month set, falling back to the fixed 22 when the field is absent. Label the new file "lookup (derived)" |
-| `upload-gkm-delta-to-r2.sh`, `release-gkm-delta.sh`, `build-delta-manifest.py`, oracles | None |
+| `parquet-schemas/` | Six new SQL files + two `_` fragments |
+| `export-gkm-dicts.sh` | Export lines guarded by `if ! $DELTA`; fragment splicing; fix the ONE-table comment |
+| `release-gkm.sh` | Sorted merge + gate per file (§6) |
+| `upload-gkm-to-r2.sh` | **None.** `upload_parquet` uploads every `*.parquet` and copies each to `00-latest/`. The dated paths are new, so nothing needs purging |
+| `generate-r2-index.sh` | **Additive:** each `datasets.parquet[]` entry gets a `"parquet": [...]` file list (reuse `r2_parquet_sections_under`, as delta entries do), so readers can tell which sets have the lookup files |
+| `docs/assets/js/r2-browser.js` | Render that list, falling back to the fixed 22. Group the lookup files under a "Lookup files (derived)" sub-heading |
+| Delta scripts, `build-delta-manifest.py`, oracles | None |
 
-## 6. Past releases and the backfill
+## 9. Past releases and the backfill
 
-**Recommendation: yes for the four monthly sets (2026-07, -08, -09, -10). The 15 weeklies need nothing,
-because the file never lives in a delta directory.**
+**Recommendation: give all six files to the four monthly sets (2026-07, -08, -09, -10). The 15 weeklies need
+nothing.** The console's release picker and the docs file browser both list all four months, so a missing
+file would 404 there.
 
-Why it's worth doing: the console's release picker lists all four months, and so does the docs file browser.
-If only new months have the file, the console example returns 404 for every month the picker offers today.
+This doesn't need to wait for the consolidated backfill or block it:
+- The files are new, at paths never cached.
+- They are in no manifest and feed no oracle.
+- No published file changes.
 
-It **does not need** to ride in the consolidated backfill. That backfill exists because overwriting
-published section files changes delta reconstruction and needs CDN purges. This file:
+So they can go out with that backfill if they're ready, or as a separate additive step later.
 
-- is new, at a path that has never been cached
-- appears in no manifest
-- feeds no oracle
-
-So it can be added to past months at any time without breaking the "one rebuild, one backfill" rule. If C1
-is implemented before the backfill runs, fold it in; otherwise publish it as a separate additive step.
-
-**Cost of including it, per monthly set:**
+**Cost per monthly set:**
 
 | Step | Cost |
 | --- | --- |
-| `EXPORT DATA` from the month's source dataset (2026-10 ← `clinvar_2026_09_28_v2_6_0`, per ADR 0002) | ~11 GB processed, ~$0.07 |
-| Download shards + sort/merge | ~1 min, ~4.3 GB RAM |
-| Upload | ~190 MB (+ one server-side copy for `00-latest`) |
-| CDN purge | none (new path) |
+| `EXPORT DATA` ×6 from the month's source dataset (2026-10 ← `clinvar_2026_09_28_v2_6_0`, per ADR 0002) | ~43.5 GB processed, ~$0.27 |
+| Download shards + sort/merge | ~5 min, ≤ 8 GB RAM |
+| Upload | ~578 MB, plus server-side copies for `00-latest` (latest set only) |
+| CDN purge | None (new paths) |
 
-**Total for four sets:** about $0.30 of BigQuery, about 5 minutes of merging, about 0.8 GB of uploads, then
-one `index.json` regeneration. There is no oracle or reconstruction re-run, and no existing file changes.
+**For four sets:** about $1.10 of BigQuery, about 20 minutes, about 2.3 GB of uploads, then one
+`index.json` regeneration. Nothing is overwritten and there is no oracle or reconstruction re-run.
 
-The only ordering constraint is C4. If `gene_context_name` gets populated on aggregate propositions, VCV/RCV
-rows in this file change. Build past months from their datasets as they stand after whatever C4 decides for
-history. Forward builds pick up C4 automatically, since the file is rebuilt whole.
+**Ordering:** build after C4 is decided, because populating aggregate gene context would change the VCV/RCV
+rows of `statement-by-gene-context` and `statement-by-variant`. And if past months should carry the citation
+fix, build after it too.
 
-## 7. Docs changes (in the implementation PR, on `main`)
+## 10. Docs changes (in the implementation PR, on `main`)
 
-Docs ship with the first release that publishes the file. A console example that 404s is worse than none.
+Docs ship with the first set that has the files; examples are run against the published files first.
 
-- [ ] **Recipes** (`docs/parquet/recipes.md`): a "One variant, over the network" section built on
-  `statement-by-variant.parquet`:
-  - PubMed ids for a variant (the existing recipe, now runnable remotely)
-  - a variant's VCV layers
-  - its SCVs with submitter and condition names, joining the small `submitter`/`condition` tables, measured
-    at 23 requests
-- [ ] **Console** (`docs/assets/duckdb-console.html`):
-  - add an example "PubMed ids cited for one variant" against `{BASE}/statement-by-variant.parquet`
-  - point the 429 hint at the published file as well as the local recipe
-- [ ] **Working at Scale** (`docs/parquet/performance.md`):
-  - open "Materialize the joins you repeat" with an admonition: per-variant lookups are published pre-built
-    as `statement-by-variant.parquet`, so download it or query it remotely
-  - keep the local recipe for object/qualifier lookups and custom columns
-  - in **Local or remote**, add a row: a `variant_id` lookup on `statement-by-variant.parquet` is ~10–17
-    requests, so yes
-  - update "Share it as a sorted Parquet file" to say this is what the release now publishes, and why bloom
-    filters are off
-- [ ] **The 22 Tables** (`docs/parquet/tables.md`): a "Derived lookup file" section with the column table from §2.
-  Say plainly that it is not a bundle section, has no `id` column and no delta, and is rebuilt monthly.
-- [ ] **Downloads → Parquet Files** (`docs/data-access/parquet.md`): list it under "Available Parquet files"
-  as derived and monthly-only, and add a line to the delta section saying it isn't in deltas.
-- [ ] **ADR:** a short ADR, "Derived Parquet files," recording: not a section; full rebuild per monthly set;
-  never in deltas; sorted; no bloom filters; key/value metadata.
+- [ ] **The 22 Tables → new section "Lookup files (derived)":**
+  - each file's column table from this plan, and its sort key
+  - that the files are rebuilt monthly, are not in deltas, and have no `id` column
+  - the two gene relationships (§4), with the provenance of the gene-context qualifier
+- [ ] **Recipes:** one-lookup recipes for each key:
+  - a variant's PubMed ids and VCV layers
+  - a condition's statements, direct versus through sets, and its P/LP calls by submitter
+  - a therapy's statements, explaining `via_evidence_line`
+  - a gene, with both relationships side by side
+  - the statements citing a PMID
+  - which sets contain a condition
+- [ ] **Console:** examples for a variant, a condition, a gene context and a PMID; point the 429 hint at
+  the lookup files.
+- [ ] **Working at Scale:**
+  - "Materialize the joins you repeat" opens by pointing to the published files
+  - the local recipe stays for custom columns
+  - "Local or remote" gains rows for the lookup files
+  - the bloom-filter finding goes into "Share it as a sorted Parquet file"
+- [ ] **Joining Tables:** a note that `gene_context_name` is variant-derived, not submitter-asserted. The
+  provenance text from §4 belongs in the Data Guide as well.
+- [ ] **Downloads → Parquet Files:** list the lookup files as derived and monthly-only.
+- [ ] **ADR "Derived Parquet lookup files":**
+  - not sections
+  - rebuilt per monthly set, never in deltas
+  - sorted, no bloom filters, key/value metadata
+  - the no-implied-relationship rule
 
-Run every SQL snippet against the published file before it ships (the docs convention).
+## 11. Decisions needed from the maintainer
 
-## 8. Decisions needed from the maintainer
-
-1. **Tiers:** SCV + VCV + RCV in one file (recommended, 189 MB), or SCV only (75 MB)?
-2. **Weekly freshness:** monthly only (recommended for now), or also a *full* weekly copy at
-   `v1/deltas/<YYYY-MMDD>/lookup/statement-by-variant.parquet` plus `deltas/00-latest/lookup/`?
-   - **Cost per week:** one non-delta export (~$0.07), a 50 s merge and about 190 MB of R2 (~10 GB/year).
-   - **Script work:** `release-gkm-delta.sh` would need a full-mode export of this one file, plus a
-     `--lookup-dir` in `upload-gkm-delta-to-r2.sh`, a `lookup` field on delta index entries, and a
-     console/browser option for it.
-3. **Lookups by condition or gene:** this file doesn't speed them up.
-   - **Measured on the variant-sorted file:** a condition lookup takes 358 requests and a gene lookup 229,
-     both over the rate limit.
-   - **An object-sorted companion** (`statement-by-object.parquet`, sorted by `object_id, variant_id, …`)
-     measured 172 MB, and the same condition lookup took **5 requests**. The two catch-all objects (`not
-     provided`, `not specified`: ~6.9 M rows each) would still span ~57 row groups.
-   - **Options:** add it now, later, or leave condition/gene questions download-only.
-4. **Sort every published section by `id` in the merge step?** Not part of C1, but it would let a lookup
-   join back from `statement_id` to `scv.parquet` (for `data`, `description`) prune too. Today that join
-   scans the whole file. It's a one-line `ORDER BY id` in the merge step, with no schema change.
-5. **Key/value metadata:** stamp `clinvar_gkm_release` and `clinvar_gkm_schema_version` on this file only
-   (recommended for now), or on all 23?
-6. **Drop `proposition_id`?** Recommended: −91 MB, and nothing in the lookup recipes uses it.
-7. **Backfill timing:** fold the four past months into the consolidated backfill if C1 is ready by then,
-   otherwise run it as a separate additive publish (§6). The backfill doesn't need to wait for C1.
-
----
-
-## Measurements (2026-10 monthly, DuckDB 1.5.4)
-
-**Build:** the local join of 6,735,011 SCV + 9,079,449 VCV + 11,839,428 RCV rows took 49 s at 4.8 GB peak.
-The sort and write took 50 s at 4.3 GB.
-
-**Size by variant** (row groups of 122,880):
-
-| Variant | Size | Row groups | Footer |
-| --- | --- | --- | --- |
-| **SCV+VCV+RCV, no `proposition_id`, ZSTD, no bloom filters (recommended)** | **189.2 MB** | **226** | **492 KB** |
-| SCV+VCV+RCV, no `proposition_id`, ZSTD, bloom filters | 201.1 MB | 226 | 521 KB |
-| SCV+VCV+RCV, no `proposition_id`, Snappy, bloom filters | 327.8 MB | 226 | — |
-| SCV+VCV+RCV, with `proposition_id`, ZSTD, bloom filters | 291.7 MB | 226 | — |
-| SCV only, ZSTD, bloom filters | 75.2 MB | 55 | 118 KB |
-| Object-sorted companion, ZSTD, no bloom filters | 171.8 MB | 226 | — |
-
-**Largest columns** in the recommended layout: `statement_id` 102 MB, `object_id` 24 MB, `variant_id` 13
-MB, `gene_context_name` 12 MB and `date_last_evaluated` 12 MB. Everything else is under 8 MB.
-
-**HTTP range requests per query** (fresh process, `threads = 1`, local range server; footer fetch included):
-
-| Query | File | Requests | Bytes |
-| --- | --- | --- | --- |
-| PubMed ids for `clinvar:10` (today's way: `scv` ⨝ `varcond-proposition`) | published files | **399** | 331 MB |
-| PubMed ids for `clinvar:10` | recommended file | **17** | 1.7 MB |
-| VCV layers for `clinvar:10` | recommended | 17 | 1.7 MB |
-| SCVs for `clinvar:10` + submitter + condition names (joins 2 small tables) | recommended + `submitter` + `condition` | 23 | 5.9 MB |
-| `SELECT *` for `clinvar:10` (101 rows) | recommended | 10 | 2.1 MB |
-| `count(*)` | recommended | 3 | 0.75 MB |
-| condition `clinvar.trait:9580` (4,033 rows) | recommended | 358 | 26.8 MB |
-| condition `clinvar.trait:9580` | object-sorted companion | 5 | 0.75 MB |
-| gene `BRCA1` | recommended | 229 | 13.0 MB |
-
-The browser console runs DuckDB-Wasm 1.29.0, not the CLI. Its request pattern needs checking before the docs
-ship (task 6 below), but its min/max pruning is the same.
-
-**BigQuery, `clinvar_2026_10_11_v2_6_0`** (read-only `SELECT`s; no `EXPORT DATA`, `CREATE` or `DELETE`):
-
-| `source_table` | Rows | Distinct variants | Unjoined | Null `variant_id` | PubMed ids |
-| --- | --- | --- | --- | --- | --- |
-| scv | 6,845,745 | 4,444,468 | 0 | 0 | 1,553,011 |
-| vcv | 9,156,181 | 4,444,468 | 0 | 0 | — |
-| rcv | 12,043,177 | 4,444,468 | 0 | 0 | — |
-
-The prototype dry run (`bq query --dry_run`) validates, with an upper bound of 11,193,634,399 bytes processed.
+1. **Which files to publish.** Recommended: the six in the table (≈ 578 MB a month). The fat
+   `statement-by-variant-gene` is on hold (decision 5).
+2. **Statement tiers:** SCV + VCV + RCV in every statement file (recommended), or SCV only? VCV/RCV rows reach
+   conditions mostly through minted sets, which `role`/`via_set_id` keeps visible.
+3. **Drop `proposition_id`** from the core? Recommended: −91 MB on `statement-by-variant` alone.
+4. **Weekly freshness:** monthly only (recommended for now), or also full weekly copies at
+   `v1/deltas/<YYYY-MMDD>/lookup/`? That would cost about $0.27, ~578 MB a week (~30 GB/year of R2), plus
+   delta-script, index and console work.
+5. **Fat `statement-by-variant-gene` (for the user).** 250.6 MB with all relationships, or 210.7 MB without
+   `genes overlapped by variant`. 9–15 requests per gene, against ~690 for the two-step path. If published,
+   every row must carry `relationship_type`/`relationship_source`, and the name and docs must say "variants
+   in gene X", never "statements about gene X".
+6. **Non-PMID citations:** after the citation fix, a typed `citation_id` key (recommended), nullable
+   columns, or a separate file? And keep `method` rows? They are 68 % of the rows but cheap; recommended to
+   keep them, with `citation_role`.
+7. **Typed export:** add `gene_context_id` and `submitted_gene_symbols` to `var*-proposition.sql`? This is
+   additive and makes the qualifier usable without the lookup file. Recommended, with C2/C3.
+8. **Catch-all concepts** (`not provided`, `not specified`: ~7–8 M rows each in `statement-by-object`): keep
+   them and document them as download-only (recommended), or leave them out of the file? Leaving them out
+   would make the file a subset of the data.
+9. **Sort every published section by `id`** in the merge step? Separate from C1, but it would make
+   `statement_id` → `scv.parquet` (`data`, `description`) cheap remotely.
+10. **Key/value metadata** on these files only (recommended), or on all published files?
+11. **Backfill timing:** with the consolidated backfill if ready, otherwise a separate additive publish
+    (§9).
 
 ---
 
-## Prototype export SQL
+## Measurements
 
-Proposed path: `src/scripts/parquet-schemas/statement-by-variant.sql`. `{DATASET}` is substituted by
-`extract_parquet_typed`. It needs no `collapse_ext_values` (there is no `data` column).
+**Local builds** (2026-10). The whole family took 141 s to join and 288 s to sort and write, peaking at
+8 GB RSS. `statement-by-variant` alone: 49 s to join, 50 s to sort.
+
+| File | Rows | Size | Row groups | Footer |
+| --- | --- | --- | --- | --- |
+| `statement-by-variant` | 27,653,888 | 189.2 MB | 226 | 492 KB |
+| `statement-by-object` | 32,555,778 | 236.5 MB | 265 | 800 KB |
+| `concept-set-membership` | 401,265 | 6.4 MB | 4 | 5 KB |
+| `variant-gene` | 7,346,154 | 24.2 MB | 60 | 37 KB |
+| `statement-by-gene-context` | 6,694,162 | 73.9 MB | 55 | 126 KB |
+| `statement-by-citation` | 4,886,981 | 47.7 MB | 40 | 84 KB |
+| *(on hold)* `statement-by-variant-gene` | 41,777,105 | 250.6 MB | 340 | 905 KB |
+
+**Requests per query** (local range server, `threads = 1`, footer included):
+
+| Query | File(s) | Requests | MB |
+| --- | --- | --- | --- |
+| PubMed ids for `clinvar:10` (today: `scv` ⨝ `varcond-proposition`) | section files | 399 | 331 |
+| PubMed ids for `clinvar:10` | `statement-by-variant` | 16 | 1.2 |
+| VCV layers for `clinvar:10` | `statement-by-variant` | 17 | 1.7 |
+| SCVs for `clinvar:10` + submitter + condition names | + `submitter`, `condition` | 23 | 5.9 |
+| Marfan (`clinvar.trait:2645`), all statements by role | `statement-by-object` | 9 | 1.3 |
+| Erlotinib, all statements | `statement-by-object` | 8 | 1.8 |
+| Marfan P/LP SCVs by submitter, with names | + `submitter` | 16 | 2.6 |
+| `clinvar.trait:17556` (not provided) `count(*)` | `statement-by-object` | **70** | 1.1 |
+| Sets containing `clinvar.trait:2645` | `concept-set-membership` | 5 | 0.1 |
+| Members of `clinvar.traitset:84974` | `concept-set-membership` | 9 | 6.4 |
+| BRCA1 / TTN variants | `variant-gene` | 5 / 7 | 0.1 |
+| BRCA1 variants by `gene_symbol` | `variant-gene` | 60 | 0.5 |
+| BRCA1 / MYH7 / TTN SCVs by classification | `statement-by-gene-context` | 4 / 4 / 6 | 0.2 |
+| BRCA1 PubMed ids | `statement-by-gene-context` | 5 | 0.9 |
+| BRCA1 by `gene_context_name` | `statement-by-gene-context` | 56 | 0.3 |
+| BRCA1 via `gene.parquet` symbol → id subquery | + `gene` | 7 | 1.1 |
+| BRCA1 / TTN VCV calls, two-step | `variant-gene` → `statement-by-variant` | 686 / 688 | 20.5 / 20.9 |
+| BRCA1 / TTN VCV calls | fat `statement-by-variant-gene` | 9 / 15 | 1.2 / 1.3 |
+| Statements citing PMID 20301691 | `statement-by-citation` | 7 | 0.3 |
+| PMID 25741868 by role | `statement-by-citation` | 23 | 0.2 |
+| BRCA1 PMIDs via gene-context ⨝ citation | both | 55 | 9.1 |
+
+The browser console runs DuckDB-Wasm 1.29.0. Its request pattern must be checked before the docs ship
+(task 7), but its min/max pruning is the same.
+
+**BigQuery `SELECT` breakdowns** (read-only):
+
+| File | `clinvar_2026_09_28_v2_6_0` (= local, exact) | `clinvar_2026_10_11_v2_6_0` |
+| --- | --- | --- |
+| `statement-by-variant` | scv 6,735,011 · vcv 9,079,449 · rcv 11,839,428 | scv 6,845,745 · vcv 9,156,181 · rcv 12,043,177 |
+| `statement-by-object` | object 24,750,175 · set_member 7,019,358 + 784,653 nested · evidence-line rows 1,592 | object 25,087,165 · set_member 7,210,009 + 802,058 nested · evidence-line 1,592 |
+| `concept-set-membership` | 281,065 + 90,113 nested + 30,032 sets + 55 therapy | 322,895 + 97,932 nested + 32,771 sets + 55 therapy |
+| `variant-gene` | 7,346,154 (92,972 genes) | 7,391,276 (92,977 genes) |
+| `statement-by-gene-context` | 6,689,348 with id + 4,814 placeholder | 6,800,068 + 4,827 |
+| `statement-by-citation` | evidence 1,546,181 · method 3,340,800 | evidence 1,552,301 · method 3,439,337 |
+
+All three tiers join 100 % in both datasets, with 0 NULL `variant_id`.
+
+---
+
+## Prototype SQL
+
+Proposed paths are under `src/scripts/parquet-schemas/`. `{DATASET}` is substituted by
+`extract_parquet_typed`, and `{STATEMENT_CORE}` / `{CONCEPT_SETS}` by the splice step in §6. Each file below
+was dry-run in its spliced form on `clinvar_2026_10_11_v2_6_0`. None needs `collapse_ext_values`, since none
+has a `data` column.
+
+**Fix found while validating:** `gkm_dict_condition_set` stores **traitset** members as `#/condition/…`
+pointers and minted-set members bare. `conditionSet.sql` strips them; `_concept-sets.sql` must too.
+
+### `_statement-core.sql` (fragment)
 
 ```sql
--- statement-by-variant: one row per SCV, VCV and RCV statement, with its proposition's subject, object and
--- qualifiers inlined. Bare ids everywhere (no '#/section/' pointers), matching the typed-Parquet FK columns.
--- No ORDER BY: EXPORT DATA shards are written in parallel and BigQuery does not promise row order across
--- shards, so the sort (and row-group size, compression, no bloom filters) is applied in the local merge.
--- Reads SIX {DATASET}.gkm_dict_* tables, so the --delta '.gkm_dict_' -> '.delta_gkm_dict_' rewrite must NOT
--- be applied to this file: a delta join would drop every statement whose proposition did not change (and
--- vice versa). The file is rebuilt whole from the full dict tables instead.
-WITH prop AS (
+-- Shared CTEs for the statement lookup files (spliced in where a file says {STATEMENT_CORE}).
+-- prop: every proposition, aligned to one shape; bare ids (no '#/section/' pointers).
+prop AS (
   SELECT
     key AS proposition_id,
     JSON_VALUE(value, '$.type') AS proposition_type,
@@ -420,6 +705,14 @@ WITH prop AS (
     REGEXP_REPLACE(JSON_VALUE(value, '$.object'), r'^#/[^/]+/', '') AS object_id,
     REGEXP_REPLACE(JSON_VALUE(value, '$.conditionQualifier'), r'^#/[^/]+/', '') AS condition_qualifier_id,
     JSON_VALUE(value, '$.geneContextQualifier.name') AS gene_context_name,
+    IF(JSON_VALUE(value, '$.geneContextQualifier.primaryCoding.code') IS NULL, NULL,
+       CONCAT('ncbigene:', JSON_VALUE(value, '$.geneContextQualifier.primaryCoding.code'))) AS gene_context_id,
+    ARRAY(
+      SELECT JSON_VALUE(sym)
+      FROM UNNEST(JSON_QUERY_ARRAY(value, '$.geneContextQualifier.extensions')) AS ext,
+           UNNEST(JSON_QUERY_ARRAY(ext, '$.value_string')) AS sym
+      WHERE JSON_VALUE(ext, '$.name') = 'submittedGeneSymbols'
+    ) AS submitted_gene_symbols,
     JSON_VALUE(value, '$.modeOfInheritanceQualifier.name') AS mode_of_inheritance,
     JSON_VALUE(value, '$.penetranceQualifier.name') AS penetrance
   FROM (
@@ -428,82 +721,247 @@ WITH prop AS (
     UNION ALL SELECT key, value FROM `{DATASET}.gkm_dict_rcv_proposition`
   )
 ),
+-- stmt: statement-level columns, plus two SCV-only helpers (method_pmid, evidence_line_ids).
 stmt AS (
   SELECT
-    'scv' AS source_table,
-    s.id AS statement_id,
+    'scv' AS source_table, s.id AS statement_id,
     REGEXP_REPLACE(s.proposition, r'^#/[^/]+/', '') AS proposition_id,
-    s.classification.name AS classification_name,
-    s.strength.name AS strength_name,
-    s.quality.name AS quality_name,
-    s.direction,
+    s.classification.name AS classification_name, s.strength.name AS strength_name,
+    s.quality.name AS quality_name, s.direction,
     (SELECT REGEXP_REPLACE(c.contributor, r'^#/[^/]+/', '') FROM UNNEST(s.contributions) AS c
        WHERE c.activityType = 'submitted' LIMIT 1) AS submitter_id,
     (SELECT c.date FROM UNNEST(s.contributions) AS c
        WHERE c.activityType = 'evaluated' LIMIT 1) AS date_last_evaluated,
     ARRAY(SELECT r.pmid FROM UNNEST(s.reportedIn) AS r WITH OFFSET AS o
-          WHERE r.pmid IS NOT NULL ORDER BY o) AS pmids
+          WHERE r.pmid IS NOT NULL ORDER BY o) AS pmids,
+    s.specifiedBy.reportedIn.pmid AS method_pmid,
+    ARRAY(SELECT REGEXP_REPLACE(el, r'^#/[^/]+/', '') FROM UNNEST(s.hasEvidenceLines) AS el) AS evidence_line_ids
   FROM `{DATASET}.gkm_dict_scv` AS s
   UNION ALL
   SELECT
-    'vcv' AS source_table, v.id AS statement_id,
-    REGEXP_REPLACE(v.proposition, r'^#/[^/]+/', '') AS proposition_id,
-    v.classification.name AS classification_name, v.strength.name AS strength_name,
-    v.quality.name AS quality_name, v.direction,
-    CAST(NULL AS STRING) AS submitter_id, CAST(NULL AS DATE) AS date_last_evaluated,
-    CAST([] AS ARRAY<STRING>) AS pmids
+    'vcv', v.id, REGEXP_REPLACE(v.proposition, r'^#/[^/]+/', ''),
+    v.classification.name, v.strength.name, v.quality.name, v.direction,
+    CAST(NULL AS STRING), CAST(NULL AS DATE), CAST([] AS ARRAY<STRING>),
+    CAST(NULL AS STRING), CAST([] AS ARRAY<STRING>)
   FROM `{DATASET}.gkm_dict_vcv` AS v
   UNION ALL
   SELECT
-    'rcv' AS source_table, r.id AS statement_id,
-    REGEXP_REPLACE(r.proposition, r'^#/[^/]+/', '') AS proposition_id,
-    r.classification.name AS classification_name, r.strength.name AS strength_name,
-    r.quality.name AS quality_name, r.direction,
-    CAST(NULL AS STRING) AS submitter_id, CAST(NULL AS DATE) AS date_last_evaluated,
-    CAST([] AS ARRAY<STRING>) AS pmids
+    'rcv', r.id, REGEXP_REPLACE(r.proposition, r'^#/[^/]+/', ''),
+    r.classification.name, r.strength.name, r.quality.name, r.direction,
+    CAST(NULL AS STRING), CAST(NULL AS DATE), CAST([] AS ARRAY<STRING>),
+    CAST(NULL AS STRING), CAST([] AS ARRAY<STRING>)
   FROM `{DATASET}.gkm_dict_rcv` AS r
+),
+-- core: the 17 published core columns, then helper columns no file publishes as-is.
+core AS (
+  SELECT
+    p.variant_id, st.source_table, st.statement_id, p.proposition_type, p.predicate, p.object_id,
+    p.condition_qualifier_id, p.gene_context_name, p.mode_of_inheritance, p.penetrance,
+    st.classification_name, st.strength_name, st.quality_name, st.direction,
+    st.submitter_id, st.date_last_evaluated, st.pmids,
+    p.gene_context_id, p.submitted_gene_symbols, st.method_pmid, st.evidence_line_ids
+  FROM stmt AS st
+  JOIN prop AS p ON p.proposition_id = st.proposition_id
 )
-SELECT
-  p.variant_id,
-  st.source_table,
-  st.statement_id,
-  p.proposition_type,
-  p.predicate,
-  p.object_id,
-  p.condition_qualifier_id,
-  p.gene_context_name,
-  p.mode_of_inheritance,
-  p.penetrance,
-  st.classification_name,
-  st.strength_name,
-  st.quality_name,
-  st.direction,
-  st.submitter_id,
-  st.date_last_evaluated,
-  st.pmids
-FROM stmt AS st
-JOIN prop AS p ON p.proposition_id = st.proposition_id
 ```
 
-To keep `proposition_id` (if decision 6 goes the other way), add `st.proposition_id` to the final `SELECT`.
+### `_concept-sets.sql` (fragment)
+
+```sql
+-- Shared CTEs for concept sets (spliced in where a file says {CONCEPT_SETS}).
+-- sets: condition sets (the published >1-member filter) and therapy groups, members as bare ids
+-- (traitset members are stored as '#/condition/…' pointers; minted-set members are already bare).
+sets AS (
+  SELECT id AS set_id, 'conditionSet' AS set_type, conceptSetType AS concept_set_type,
+         membershipOperator AS membership_operator,
+         ARRAY(SELECT REGEXP_REPLACE(c, r'^#/[^/]+/', '') FROM UNNEST(concepts) AS c) AS concepts
+  FROM `{DATASET}.gkm_dict_condition_set`
+  WHERE ARRAY_LENGTH(concepts) > 1
+  UNION ALL
+  SELECT key, 'therapyGroup', CAST(NULL AS STRING), JSON_VALUE(value, '$.membershipOperator'),
+         ARRAY(SELECT REGEXP_REPLACE(JSON_VALUE(c), r'^#/[^/]+/', '')
+               FROM UNNEST(JSON_QUERY_ARRAY(value, '$.concepts')) AS c)
+  FROM `{DATASET}.gkm_dict_therapygroup`
+),
+-- membership: direct members, plus the leaves of a nested set flattened one level
+-- (only minted clinvar.conditionset sets nest clinvar.traitset sets).
+membership AS (
+  SELECT s.set_id, s.set_type, s.concept_set_type, s.membership_operator,
+         m AS member_concept_id, CAST(NULL AS STRING) AS via_nested_set_id
+  FROM sets AS s, UNNEST(s.concepts) AS m
+  UNION ALL
+  SELECT o.set_id, o.set_type, o.concept_set_type, o.membership_operator,
+         im AS member_concept_id, n.set_id AS via_nested_set_id
+  FROM sets AS o
+  CROSS JOIN UNNEST(o.concepts) AS m
+  JOIN sets AS n ON n.set_id = m
+  CROSS JOIN UNNEST(n.concepts) AS im
+)
+```
+
+### `statement-by-variant.sql`
+
+```sql
+-- statement-by-variant: one row per SCV/VCV/RCV statement. Merge-step sort:
+-- variant_id, source_table, statement_id.
+WITH {STATEMENT_CORE}
+SELECT * EXCEPT (gene_context_id, submitted_gene_symbols, method_pmid, evidence_line_ids)
+FROM core
+```
+
+### `statement-by-object.sql`
+
+```sql
+-- statement-by-object: one row per (statement, concept). A concept is the proposition's object when that
+-- is a single condition or therapy (role = object); each leaf member of the set/group it names
+-- (role = set_member, via_set_id + membership_operator, via_nested_set_id when reached through a nested
+-- traitset); and a therapeutic proposition's conditionQualifier (role = condition_qualifier). Propositions
+-- an SCV's evidence lines target are included with via_evidence_line = TRUE (the only route to therapies);
+-- those rows also carry the evidence line's own outcome and direction, since the statement's
+-- classification is about the statement's proposition, not the targeted one.
+-- Merge-step sort: concept_id, variant_id, source_table, statement_id, via_evidence_line, role,
+-- via_set_id NULLS FIRST, via_nested_set_id NULLS FIRST.
+WITH {STATEMENT_CORE}, {CONCEPT_SETS},
+stmt_prop AS (
+  SELECT c.* EXCEPT (gene_context_id, submitted_gene_symbols, method_pmid, evidence_line_ids),
+         FALSE AS via_evidence_line,
+         CAST(NULL AS STRING) AS evidence_outcome_name, CAST(NULL AS STRING) AS evidence_direction
+  FROM core AS c
+  UNION ALL
+  SELECT p.variant_id, c.source_table, c.statement_id, p.proposition_type, p.predicate, p.object_id,
+         p.condition_qualifier_id, p.gene_context_name, p.mode_of_inheritance, p.penetrance,
+         c.classification_name, c.strength_name, c.quality_name, c.direction,
+         c.submitter_id, c.date_last_evaluated, c.pmids, TRUE AS via_evidence_line,
+         el.evidenceOutcome.name AS evidence_outcome_name, el.directionOfEvidenceProvided AS evidence_direction
+  FROM core AS c
+  CROSS JOIN UNNEST(c.evidence_line_ids) AS el_id
+  JOIN `{DATASET}.gkm_dict_evidence_line` AS el ON el.id = el_id
+  JOIN prop AS p ON p.proposition_id = REGEXP_REPLACE(el.targetProposition, r'^#/[^/]+/', '')
+),
+typed AS (
+  SELECT sp.*,
+         CASE WHEN STARTS_WITH(sp.object_id, 'clinvar.trait:') THEN 'condition'
+              WHEN STARTS_WITH(sp.object_id, 'clinvar.therapy:') THEN 'therapy'
+              ELSE 'set' END AS object_kind
+  FROM stmt_prop AS sp
+)
+SELECT t.object_id AS concept_id, t.object_kind AS concept_type, 'object' AS role,
+       CAST(NULL AS STRING) AS via_set_id, CAST(NULL AS STRING) AS membership_operator,
+       CAST(NULL AS STRING) AS via_nested_set_id, t.* EXCEPT (object_kind)
+FROM typed AS t
+WHERE t.object_kind <> 'set'
+UNION ALL
+SELECT m.member_concept_id,
+       IF(STARTS_WITH(m.member_concept_id, 'clinvar.therapy:'), 'therapy', 'condition'),
+       'set_member', t.object_id, m.membership_operator, m.via_nested_set_id, t.* EXCEPT (object_kind)
+FROM typed AS t
+JOIN membership AS m ON m.set_id = t.object_id
+WHERE t.object_kind = 'set'
+  AND (STARTS_WITH(m.member_concept_id, 'clinvar.trait:') OR STARTS_WITH(m.member_concept_id, 'clinvar.therapy:'))
+UNION ALL
+SELECT t.condition_qualifier_id, 'condition', 'condition_qualifier',
+       CAST(NULL AS STRING), CAST(NULL AS STRING), CAST(NULL AS STRING), t.* EXCEPT (object_kind)
+FROM typed AS t
+WHERE t.condition_qualifier_id IS NOT NULL
+```
+
+### `concept-set-membership.sql`
+
+```sql
+-- concept-set-membership: one row per (set, member) for every condition set and therapy group, with
+-- nested-set leaves flattened (via_nested_set_id). Merge-step sort:
+-- member_concept_id, set_id, via_nested_set_id NULLS FIRST.
+WITH {CONCEPT_SETS},
+names AS (
+  SELECT id, name FROM `{DATASET}.gkm_dict_condition`
+  UNION ALL
+  SELECT key, JSON_VALUE(value, '$.name') FROM `{DATASET}.gkm_dict_therapy`
+)
+SELECT DISTINCT
+  m.member_concept_id,
+  CASE WHEN STARTS_WITH(m.member_concept_id, 'clinvar.trait:') THEN 'condition'
+       WHEN STARTS_WITH(m.member_concept_id, 'clinvar.therapy:') THEN 'therapy'
+       ELSE 'set' END AS member_type,
+  nm.name AS member_name,
+  m.set_id, m.set_type, m.concept_set_type, m.membership_operator, m.via_nested_set_id
+FROM membership AS m
+LEFT JOIN names AS nm ON nm.id = m.member_concept_id
+```
+
+### `variant-gene.sql`
+
+```sql
+-- variant-gene: ClinVar's variant-to-gene list (the variation's clinvarGeneList extension), one row per
+-- (gene, variant, relationship). Describes the variant, not any statement. Merge-step sort:
+-- gene_id, variant_id, relationship_type, relationship_source.
+SELECT
+  REGEXP_REPLACE(g.gene, r'^#/[^/]+/', '') AS gene_id,
+  JSON_VALUE(gn.value, '$.name') AS gene_symbol,
+  v.id AS variant_id,
+  g.relationship_type,
+  g.source AS relationship_source
+FROM `{DATASET}.gkm_dict_variation` AS v
+CROSS JOIN UNNEST(v.extensions) AS e
+CROSS JOIN UNNEST(e.value_gene_array) AS g
+LEFT JOIN `{DATASET}.gkm_dict_gene` AS gn ON gn.key = REGEXP_REPLACE(g.gene, r'^#/[^/]+/', '')
+WHERE e.name = 'clinvarGeneList'
+```
+
+### `statement-by-gene-context.sql`
+
+```sql
+-- statement-by-gene-context: statements whose proposition carries a geneContextQualifier (SCV only today).
+-- gene_context_id is the qualifier's own primaryCoding.code (NULL for the 'submitted genes were not
+-- normalized' placeholder). Merge-step sort: gene_context_id NULLS LAST, variant_id, source_table, statement_id.
+WITH {STATEMENT_CORE}
+SELECT gene_context_id, gene_context_name, submitted_gene_symbols,
+       * EXCEPT (gene_context_id, gene_context_name, submitted_gene_symbols, method_pmid, evidence_line_ids)
+FROM core
+WHERE gene_context_name IS NOT NULL
+```
+
+### `statement-by-citation.sql`
+
+```sql
+-- statement-by-citation: one row per (PubMed id, SCV statement, role). evidence = reportedIn;
+-- method = specifiedBy.reportedIn. DISTINCT drops a PMID listed twice in one SCV's reportedIn.
+-- Merge-step sort: pmid, citation_role, source_table, statement_id.
+WITH {STATEMENT_CORE}
+SELECT DISTINCT * FROM (
+  SELECT pmid, 'evidence' AS citation_role,
+         c.* EXCEPT (pmids, gene_context_id, submitted_gene_symbols, method_pmid, evidence_line_ids)
+  FROM core AS c, UNNEST(c.pmids) AS pmid
+  WHERE c.source_table = 'scv'
+  UNION ALL
+  SELECT c.method_pmid AS pmid, 'method' AS citation_role,
+         c.* EXCEPT (pmids, gene_context_id, submitted_gene_symbols, method_pmid, evidence_line_ids)
+  FROM core AS c
+  WHERE c.source_table = 'scv' AND c.method_pmid IS NOT NULL
+)
+```
 
 ---
 
 ## Implementation tasks (after the decisions)
 
-Base: `1.0` for the scripts and SQL, with a paired `main` docs PR. Size M.
+Base: `1.0` for the scripts and SQL, with a paired `main` docs PR. Size: L as a family. The files can ship
+one at a time; `statement-by-variant` goes first.
 
-- [ ] **1.** Add `src/scripts/parquet-schemas/statement-by-variant.sql` (above, adjusted for the decisions).
-- [ ] **2.** `export-gkm-dicts.sh`: export it in full mode only; fix the "exactly ONE table" comment.
-- [ ] **3.** `release-gkm.sh` step 3: the sorted merge plus gate from §3, with `--month-label` passed into
+- [ ] **1.** Add the SQL files and fragments above, adjusted for the decisions.
+- [ ] **2.** `export-gkm-dicts.sh`:
+  - fragment splicing
+  - full-mode-only exports
+  - fix the ONE-table comment
+- [ ] **3.** `release-gkm.sh` step 3: sorted merge + gate per file (§6), with `--month-label` passed into
   `KV_METADATA`. Validate with `bash -n` and `shellcheck`.
-- [ ] **4.** `generate-r2-index.sh`: add the `parquet` file list to month-set entries. `r2-browser.js`: render it.
-- [ ] **5.** Dry-run the release (`release-gkm.sh --dry-run`), then a real export to a scratch GCS prefix.
-  Check the merged file against §3's gate, and its aggregates against the section files of the same set.
-- [ ] **6.** Console check before publishing. No R2 writes needed:
-  - serve the merged file locally with CORS and range support
-  - point a local docs build's console at it
-  - confirm the PubMed example stays under ~20 requests in DuckDB-Wasm 1.29.0
-- [ ] **7.** Publish with the next monthly set. Backfill 2026-07 … 2026-10 per §6, with each live write
+- [ ] **4.** `generate-r2-index.sh`: the `parquet` file list on month-set entries. `r2-browser.js`: render it.
+- [ ] **5.** Dry-run the release. Then do a real export to a scratch GCS prefix and gate it.
+- [ ] **6.** Compare aggregates against the section files of the same set: the same breakdowns as the
+  Measurements tables.
+- [ ] **7.** Console check, with no R2 writes:
+  - serve the files locally with CORS and range support
+  - point a local docs build's console at them
+  - confirm each example stays under ~20 requests in DuckDB-Wasm 1.29.0
+- [ ] **8.** Publish with the next monthly set. Backfill 2026-07 … 2026-10 per §9, with each live write
   confirmed.
-- [ ] **8.** Docs per §7, merged in the same window as step 7.
+- [ ] **9.** Docs per §10, merged in the same window as step 8.
