@@ -206,8 +206,8 @@ files whose JSON is semantically unchanged, and keep only the real diff.
 ## Task 1: Open the nine `*Properties` mixins (schema only)
 
 **Files:** `schema/clinvar-gkm/clinvar-{statement,variant,proposition,evidence}-source.yaml`, regenerated
-`schema/clinvar-gkm/json/*`. **Base:** `1.0`. If `1.0.2` isn't tagged yet, fold this into the same release as
-#142 (as with B2/A3); otherwise it's a PATCH.
+`schema/clinvar-gkm/json/*`. **Base:** `1.0`. If `1.0.2` isn't tagged yet, fold this into the same release
+as #142 (as with B2/A3); otherwise it's a PATCH.
 
 - [ ] In each of the nine mixins listed under root cause 1, add `abstract: true` and delete the class-level
   `additionalProperties: true` where present. Keep the property-level `additionalProperties` on nested objects,
@@ -255,7 +255,7 @@ files whose JSON is semantically unchanged, and keep only the real diff.
   `"https"` DOIs (3,746 rows) and the `PMID:` URLs. Establish whether the bad value is in the ClinVar XML or
   comes from upstream clinvar-ingest parsing. If it is upstream, open an issue there as well.
 - [ ] **DOI:** set `doi` to `REGEXP_EXTRACT(cid.id, r'(10\.\d+(?:\.\d+)*/[^\s]+?)\.?$')`. That strips the
-  `https://doi.org/`, `doi.org/`, `dx.doi.org/`, `doi:` and `DOI: ` prefixes and a trailing period. It is NULL
+  `https://doi.org/`, `doi.org/`, `dx.doi.org/`, `doi:` and `DOI:` (with its trailing space) prefixes and a trailing period. It is NULL
   when no DOI is present (`https`, `doi`, a PMID or PMC id). Build the `https://doi.org/%s` URL only from the
   normalized DOI.
 - [ ] **URLs:** emit a `urls` entry only when it matches `^(https?|s?ftp)://`. Route PubMed-style sources
