@@ -27,7 +27,7 @@ carries a set of corrections, all delivered through one full rebuild that rewrit
 - **Breaking: version.** The schema `$id` version and the bundle `schema_version` move `1.0.1 → 1.1.0`.
 - **Corrective**: everything else below. The schema change to `ClinvarCategoricalVariant` accepts every valid
   record; the data corrections fix HGVS syntax, duplicate allele keys, RCV propositions without an object,
-  condition pointers, citations and gene context; and the Parquet changes add bare-id and typed columns and
+  condition pointers, citations, gene context and array order; and the Parquet changes add bare-id and typed columns and
   make every Parquet value match the bundle.
 
 **Schema change** — no change to valid instances:
@@ -136,6 +136,19 @@ upstream. Counts are for the 2026-09-28 release:
 
 The gene context stays on the proposition. This is a data change only: the schema already allows extensions
 on the qualifier. See [Qualifier Extensions](../output-reference/scv-statements.md#qualifier-extensions).
+
+**Array order** — several arrays had no fixed order, so two builds of the same release could list the same
+items in a different order. Each now has one fixed order, and every build gives the same bytes. Only the order
+changes; no value is added, removed or changed. Counts are for the 2026-10-11 release:
+
+- `variation` (4,686,825 of 4,687,256 records): `extensions` follow a fixed order by name (`categoricalVariationType`
+  … `clinvarHgvsList`, `clinvarGeneList`). `clinvarHgvsList` entries are ordered by expression, `clinvarGeneList` by
+  NCBI gene id, and `mappings` start with the ClinVar `exactMatch`. A copy-number variant lists its
+  `DefiningLocationConstraint` before its copy constraint.
+- `condition` (12,832 of 23,392): `mappings` are ordered by system and code, and each coding's `iris` in a fixed
+  order.
+- VCV and RCV `evidenceLine` (688,701 and 358,507): `hasEvidenceItems` lists SCVs in id order and
+  non-contributing statements in priority order.
 
 **Parquet** — typed columns now hold bare ids, as the other id columns already did:
 
