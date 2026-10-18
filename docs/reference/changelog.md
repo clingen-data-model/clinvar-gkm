@@ -51,6 +51,22 @@ mapping still listed an SCV that ClinVar had removed (`SCV000021267`), and that 
 no longer had a condition. The SCV is now picked from the members that have a condition. The propositions point
 to `#/condition/clinvar.trait:2478` again, as they did through 2026-09-28. No other RCV changes.
 
+**Condition references are all `#/` pointers** — two kinds of condition reference were bare ids, while every
+other reference in the bundle was a `#/<section>/<id>` pointer. Both are now pointers to the same record (counts
+for the 2026-10-11 release):
+
+- A VCV proposition's `object`, when the VCV has a single condition (7,474,404 of 9,156,181): `clinvar.trait:2478`
+  is now `#/condition/clinvar.trait:2478`, and `clinvar.traitset:…` is now `#/conditionSet/clinvar.traitset:…`.
+- The `concepts` of the condition sets minted for VCV aggregates (`clinvar.conditionset:vcv-…`, 94,980 sets):
+  members are now `#/condition/…` or, for a nested TraitSet, `#/conditionSet/…`.
+
+The ids themselves are unchanged, including every `vcv-` set id. A pointer-following reader (the
+[GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/tools/gkm-toolkit/getting-started/), `sub-bundle.py`)
+now reaches these conditions. The `submittedCondition` and `submittedConditionSet` extension values stay bare
+CURIEs: they record what was submitted, not a reference. In Parquet, the typed id columns (`object_condition_id`,
+`object_id`, `object_tumor_type_id`, `conditionSet.concepts`) are unchanged bare ids; only the `data` columns
+change, to the pointer form. See [ID References](../output-reference/id-references.md#where-references-appear).
+
 **Citations** — SCV `reportedIn` and `specifiedBy.reportedIn` now hold **one Document per ClinVar citation**,
 with no citation dropped and no ClinVar value changed silently. Counts are for the 2026-09-28 release:
 

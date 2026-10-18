@@ -17,6 +17,7 @@ All ClinVar-GKM identifiers use a prefix namespace to indicate the resource type
 | `clinvar.submitter:` | Submitter organization | `clinvar.submitter:{submitter_id}` | `clinvar.submitter:508027` |
 | `clinvar.trait:` | Condition / trait | `clinvar.trait:{trait_id}` | `clinvar.trait:9580` |
 | `clinvar.traitset:` | Condition set | `clinvar.traitset:{trait_set_id}` | `clinvar.traitset:1234` |
+| `clinvar.conditionset:` | Condition set minted for a VCV aggregate | `clinvar.conditionset:vcv-{md5}` | `clinvar.conditionset:vcv-c620785e2025efde81bdd15c814fa83d` |
 | `clinvar.therapy:` | Therapy (drug/procedure) | `clinvar.therapy:{sha256}` | `clinvar.therapy:ab221549…d1c2b` |
 | `clinvar.therapygroup:` | Therapy group (combination) | `clinvar.therapygroup:{sha256}` | `clinvar.therapygroup:df1d8467…9f05c` |
 | `ncbigene:` | Gene | `ncbigene:{gene_id}` | `ncbigene:3077` |
@@ -71,7 +72,7 @@ Objects reference each other using `#/{section}/{key}` strings. To resolve a ref
 | Pathogenicity / Oncogenicity / Custom / Diagnostic / Prognostic | `object` | `#/condition/` or `#/conditionSet/` |
 | Therapeutic Response | `object` | `#/therapy/` or `#/therapyGroup/` |
 | Therapeutic Response | `conditionQualifier` | `#/condition/` or `#/conditionSet/` |
-| ConditionSet | `concepts[]` | `#/condition/` |
+| ConditionSet | `concepts[]` | `#/condition/`, or `#/conditionSet/` for a TraitSet nested in a minted `vcv-` set |
 | TherapyGroup | `concepts[]` | `#/therapy/` |
 | SCV Statement | `proposition` | `#/{varcond,vartumor,vartherapy,varcustom}-proposition/` |
 | SCV Statement | `contributions[].contributor` | `#/submitter/` |
@@ -81,6 +82,18 @@ Objects reference each other using `#/{section}/{key}` strings. To resolve a ref
 | RCV Statement | `proposition` | `#/{varcond,vartumor,vartherapy,varcustom}-proposition/` |
 | RCV Statement | `hasEvidenceLines[]` | `#/evidenceLine/` |
 | EvidenceLine | `hasEvidenceItems[]` | `#/scv/`, `#/vcv/`, or `#/rcv/` |
+
+!!! note "Releases before 1.1.0 had two bare-id references"
+    From 1.1.0 every field above is a `#/` pointer. Before, two condition references were bare ids: a VCV
+    proposition's `object` when the VCV had a single condition (`clinvar.trait:2478` rather than
+    `#/condition/clinvar.trait:2478`; about 7.5 million propositions), and the `concepts` of the condition sets
+    minted for VCV aggregates (`clinvar.conditionset:vcv-…`). A bare id names the same record: look up
+    `clinvar.trait:` ids in `condition` and `clinvar.traitset:` ids in `conditionSet`. A bundle downloaded before
+    the 1.1.0 republish still has the old form.
+
+    The `condition`, `conditionSet`, `direct_match` and `normalized_match` values in the `submittedCondition` and
+    `submittedConditionSet` extensions are bare CURIEs by design. They record what was submitted and how it was
+    matched; they are not references.
 
 ### Resolution Example
 

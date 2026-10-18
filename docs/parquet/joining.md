@@ -87,7 +87,9 @@ clinvar.conditionset:vcv-c620785e2025efde81bdd15c814fa83d  conditionSet  Epiderm
 
 ### Expanding a set to its member names
 
-`conditionSet.concepts` holds member **ids**, not names. Printing the list gives you ids:
+`conditionSet.concepts` holds member **ids**, not names. Parquet keeps them as bare ids. In the bundle and the
+`data` column they are `#/condition/…` or `#/conditionSet/…` pointers from 1.1.0 (before, minted sets listed
+bare ids there). Printing the list gives you ids:
 
 ```sql
 SELECT id, membershipOperator, array_to_string(concepts, '; ') AS members
