@@ -27,7 +27,7 @@ carries a set of corrections, all delivered through one full rebuild that rewrit
 - **Breaking: version.** The schema `$id` version and the bundle `schema_version` move `1.0.1 → 1.1.0`.
 - **Corrective**: everything else below. The schema change to `ClinvarCategoricalVariant` accepts every valid
   record; the data corrections fix HGVS syntax, duplicate allele keys, RCV propositions without an object,
-  condition pointers, citations, gene context and array order; and the Parquet changes add bare-id and typed columns and
+  condition pointers, condition names, citations, gene context and array order; and the Parquet changes add bare-id and typed columns and
   make every Parquet value match the bundle.
 
 **Schema change** — no change to valid instances:
@@ -83,6 +83,20 @@ now reaches these conditions. The `submittedCondition` and `submittedConditionSe
 CURIEs: they record what was submitted, not a reference. In Parquet, the typed id columns (`object_condition_id`,
 `object_id`, `object_tumor_type_id`, `conditionSet.concepts`) are unchanged bare ids; only the `data` columns
 change, to the pointer form. See [ID References](../output-reference/id-references.md#where-references-appear).
+
+**Conditions without a name** — 58 `condition` records in the 2026-10-11 release (57 or 58 in every release
+since 2026-06-27) had neither `name` nor `primaryCoding`, so they failed `MappableConcept` validation. ClinVar
+gives these traits no Preferred name in the trait record, but it does name them elsewhere. Each now takes its
+name from ClinVar, in this order: the trait's Preferred name, then the Preferred name in the RCV's TraitSet, then
+the trait's Alternate name (the first alphabetically). No value is made up, and `aliases` is unchanged:
+
+- **Alternate name only** (51), such as `clinvar.trait:9800`, now named
+  `Apolipoprotein c-ii variants, molecular defect unknown`. The name is also in `aliases`, as before.
+- **Named only in the RCV** (7: `clinvar.trait:10547`, `10548`, `54780`, `76440`, `76481`, `78166`, `78167`). The
+  trait record is empty, but the RCV's TraitSet names each `not provided`.
+
+When an SCV's submitted condition has no name, its classification `description` uses the condition's name. In
+173 SCVs it changes from `for unspecified condition` to the ClinVar name.
 
 **Citations** — SCV `reportedIn` and `specifiedBy.reportedIn` now hold **one Document per ClinVar citation**,
 with no citation dropped and no ClinVar value changed silently. Counts are for the 2026-09-28 release:
