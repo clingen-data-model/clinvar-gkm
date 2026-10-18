@@ -82,6 +82,10 @@ def _object_sql(section: str, dataset: str) -> str | None:
 
     `data` is the fully-assembled bundle object as a JSON string.
     """
+    if section.startswith("proposition"):
+        # The four proposition sections share one template (export-gkm-dicts.sh substitutes {SECTION}).
+        return ((SCHEMA_DIR / "proposition.sql").read_text()
+                .replace("{DATASET}", dataset).replace("{SECTION}", section))
     schema = SCHEMA_DIR / f"{section}.sql"
     if schema.is_file():
         return schema.read_text().replace("{DATASET}", dataset)

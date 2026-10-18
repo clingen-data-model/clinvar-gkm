@@ -87,9 +87,11 @@ export_variation_ndjson() {
 extract_parquet_typed() {
   # Export via EXPORT DATA using a SQL schema file from parquet-schemas/.
   # Schema files define typed columns, FK cleanup, and data column.
-  # The {DATASET} placeholder is substituted with the target dataset.
+  # The {DATASET} placeholder is substituted with the target dataset, and {SECTION} with the optional
+  # third argument (the shared proposition.sql template is exported once per proposition section).
   local basename="$1"
   local sql_file="$2"
+  local section="${3:-}"
   local sharded="${basename%.parquet}-*.parquet"
   local schema_path="${SCHEMA_DIR}/${sql_file}"
   if [[ ! -f "${schema_path}" ]]; then
@@ -99,15 +101,16 @@ extract_parquet_typed() {
   local sql
   sql=$(<"${schema_path}")
   sql="${sql//\{DATASET\}/${DATASET}}"
+  sql="${sql//\{SECTION\}/${section}}"
   if $DELTA; then
     # Typed-Parquet can't use src_table() (the table name is embedded inside the schema SQL,
     # not passed as a CLI arg). Every {DATASET}.gkm_dict_* table a parquet-schemas/*.sql
-    # references (the proposition files reference several) has a delta_gkm_dict_* counterpart,
+    # references (proposition.sql references the three proposition dicts) has a delta_gkm_dict_* counterpart,
     # and no schema file uses "gkm_dict_" in any alias/column/literal, so rewriting every
     # qualified reference is safe. Invariant future schema authors must preserve.
     sql="${sql//.gkm_dict_/.delta_gkm_dict_}"
   fi
-  echo "  Exporting ${sql_file%.sql} -> ${sharded} (Parquet via EXPORT DATA)"
+  echo "  Exporting ${section:-${sql_file%.sql}} -> ${sharded} (Parquet via EXPORT DATA)"
   # ${COLLAPSE_UDF} makes collapse_ext_values(...) (the extension value_xxx -> value collapse),
   # is_blank(...) (all-null placeholder test) and bundle_cleanup(...) available to every schema file.
   bq query --use_legacy_sql=false --nouse_cache \
@@ -318,11 +321,12 @@ extract_parquet_typed therapyGroup.parquet therapyGroup.sql
 extract_parquet_typed submitter.parquet submitter.sql
 extract_parquet_typed evidenceLine.parquet evidenceLine.sql
 
-# Proposition delivery groups (Phase 2): 4 typed group tables replace the 3 per-level tables.
-extract_parquet_typed varcond-proposition.parquet varcond-proposition.sql
-extract_parquet_typed vartumor-proposition.parquet vartumor-proposition.sql
-extract_parquet_typed vartherapy-proposition.parquet vartherapy-proposition.sql
-extract_parquet_typed varcustom-proposition.parquet varcustom-proposition.sql
+# Proposition sections (1.1.0, by meaning): one table per section, all with the one shared column schema
+# of proposition.sql, so read_parquet('proposition*.parquet') unions them. Same split and fail-loud
+# function as the NDJSON export; assert_proposition_sections (above) covered every row.
+for section in ${PROP_SECTIONS}; do
+  extract_parquet_typed "${section}.parquet" proposition.sql "${section}"
+done
 
 # VCV/RCV evidence lines
 extract_parquet_typed vcv_evidenceLine.parquet vcv_evidenceLine.sql
