@@ -77,6 +77,16 @@ positions.
 
 References inside the JSON bundle and the `data` columns still use `#/<section>/` pointers.
 
+**Parquet matches the bundle** — every Parquet value can now be recomputed from the JSON bundle:
+
+- `scv.extensions` and `evidenceLine.extensions` no longer carry empty placeholder elements. Every row held
+  all-null structs the bundle doesn't have: the unused `value_*` fields of each extension, with empty
+  `concepts[]` and `xrefs[]` elements inside them (in the 2026-10-11 delta, 69,956 empty `concepts[]` and
+  58,375 empty `xrefs[]` elements). An unused `value_*` field is now NULL and the empty elements are gone.
+  The column type is unchanged.
+- `conditionSet.data` is null-stripped like every other `data` column: a set with no `conceptSetType`
+  omits the key instead of carrying `"conceptSetType": null`.
+
 **Backfill**: the 14 corrected `variation` records were patched into the published monthly full bundles, and
 the `variation` and `vartherapy-proposition` Parquet files were re-exported for every published release, so
 fulls and deltas carry the same forms. The new columns start with the 1.0.2 export and are not backfilled. The
