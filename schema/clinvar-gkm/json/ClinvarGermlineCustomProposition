@@ -1,10 +1,11 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarGermlineCustomProposition",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGermlineCustomProposition",
    "title": "ClinvarGermlineCustomProposition",
    "description": "A custom proposition type for ClinVar germline submissions that do not have a corresponding GA4GH VA-Spec proposition type. Includes ClinVar submission categories such as \"risk factor\", \"protective\", \"drug response\", \"affects\", \"association\", \"confers sensitivity\", \"other\", \"not provided\", and \"conflicting data from submitters\". These custom proposition types are used to represent variant-condition associations in Clin",
    "$defs": {
       "ClinvarGermlineCustomPropositionProperties": {
+         "abstract": true,
          "type": "object",
          "maturity": "trial use",
          "description": "ClinVar-specific properties for germline custom propositions.",
@@ -71,8 +72,7 @@
                ],
                "description": "Reports the penetrance of the effect - the extent to which the variant impact is expressed by carriers."
             }
-         },
-         "additionalProperties": false
+         }
       }
    },
    "maturity": "trial use",

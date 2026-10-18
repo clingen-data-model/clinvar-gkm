@@ -28,7 +28,8 @@
 --     * gkm_dict_evidence_line, gkm_dict_scv — in incremental mode the final writes
 --       (and temp_scv_condition_names, which feeds ONLY gkm_dict_scv) are filtered to
 --       the changed set, staged, and merged with the carried-forward baseline rows via
---       UNION-CTAS. temp_scv_citations / temp_scv_method feed ONLY gkm_dict_scv and are
+--       UNION-CTAS. temp_scv_citation_docs (-> temp_scv_citations / temp_scv_method)
+--       feeds ONLY gkm_dict_scv; those are
 --       LEFT-JOINed by scv id into that already-filtered final, so they are safely
 --       over-computed globally. (The gene-context / MOI / penetrance qualifier temps,
 --       Steps 2-4, feed ONLY the global temp_gkm_scv_proposition / _target_proposition
@@ -60,6 +61,7 @@ BEGIN
   DECLARE query_scv_proposition STRING;
   DECLARE query_scv_target_proposition STRING;
   DECLARE query_scv_condition_names STRING;
+  DECLARE query_scv_citation_docs STRING;
   DECLARE query_scv_citations STRING;
   DECLARE query_scv_method STRING;
   DECLARE query_scv_therapy STRING;
@@ -190,7 +192,7 @@ BEGIN
         'temp_gkm_scv', 'temp_gene_context_qualifiers', 'temp_moi_qualifiers',
         'temp_penetrance_qualifiers', 'temp_gkm_scv_proposition', 'temp_gkm_scv_target_proposition',
         'temp_gkm_scv_therapy',
-        'temp_scv_condition_names', 'temp_scv_citations', 'temp_scv_method',
+        'temp_scv_condition_names', 'temp_scv_citation_docs', 'temp_scv_citations', 'temp_scv_method',
         'stg_gkm_dict_evidence_line', 'stg_gkm_dict_scv'
       ]);
     END IF;
@@ -741,106 +743,280 @@ BEGIN
     EXECUTE IMMEDIATE query_scv_condition_names;
 
     ---------------------------------------------------------------------------
-    -- Step 7b: Materialize citations — GLOBAL (over-computed; LEFT-JOINed by scv id
-    -- into the already-filtered gkm_dict_scv)
+    -- Step 7b: Citation Documents — GLOBAL (over-computed; feeds 7b-2 / 7c, which are
+    -- LEFT-JOINed by scv id into the already-filtered gkm_dict_scv)
+    --
+    -- One va-spec Document per ClinVar citation, built by the SAME rules for the
+    -- statement's citations (reportedIn) and the assertion method's (specifiedBy).
+    -- A ClinVar citation can carry several ids for one publication (ACMG 2015 =
+    -- DOI + PubMed + PMC); they become ONE Document:
+    --   pmid          the PubMed id (source PubMed, or its alias PMID)
+    --   doi           the DOI, when it passes va-spec's Document.doi pattern
+    --   urls          every resolvable URL, in a fixed order: ClinVar's url, pubmed,
+    --                 pmc (europepmc), doi.org, bookshelf. Never a bare id or CURIE.
+    --   name          ClinVar's abbrev (e.g. 'ACMG, 2015')
+    --   documentType  ClinVar's citation type, verbatim
+    -- Original ClinVar values are never changed silently; extensions keep them:
+    --   clinvarCitationText            the citation's free text, verbatim
+    --   originalClinvarCitation        the verbatim id, when the id was repaired
+    --   originalClinvarCitationSource  the verbatim source, when the id is re-sourced
+    --                                  (DOI '25741868' -> pmid, DOI 'PMC8832287' -> pmc)
+    --   citationRepaired               true on any repaired Document
+    --   clinvarDoi                     a syntactically valid DOI that va-spec's doi pattern
+    --                                  rejects (SICI-style '10.1002/(SICI)...'): doi stays
+    --                                  empty, the percent-encoded doi.org URL is in urls
+    --   invalidClinvarCitation         an unusable id (e.g. DOI 'https') or url, verbatim;
+    --                                  nothing is derived from it
+    --   unmappedClinvarCitation        '<source>:<id>' for an unrecognized source, verbatim
+    -- Only DOIs failing the check are repaired (a DOI with whitespace fails): drop
+    -- whitespace, a leading 'http(s)://(dx.)doi.org/', 'doi:', 'doi/' or 'org/', and a
+    -- trailing '.'. The result must pass the check, or the id is unusable.
+    -- Method citations keep ClinVar's order (cit_ord): Method.reportedIn holds ONE
+    -- Document, so the first is the method's and any further ones go, as Documents, in
+    -- the Method's additionalClinvarMethodCitations extension (Step 7c).
+    ---------------------------------------------------------------------------
+    SET query_scv_citation_docs = REPLACE("""
+      {CT} {P}.temp_scv_citation_docs AS
+      WITH raw_citation AS (
+        -- statement citations (temp_gkm_scv already de-duplicated them)
+        SELECT
+          scv.id AS scv_id,
+          'statement' AS role,
+          CAST(NULL AS INT64) AS attr_ord,
+          CAST(NULL AS INT64) AS cit_ord,
+          c
+        FROM {P}.temp_gkm_scv scv
+        CROSS JOIN UNNEST(scv.scvCitations) AS c
+        UNION ALL
+        -- assertion-method citations, in ClinVar order
+        SELECT
+          scv.id,
+          'method',
+          ao,
+          co,
+          c
+        FROM {P}.temp_gkm_scv scv
+        CROSS JOIN UNNEST(scv.attribs) AS a WITH OFFSET ao
+        CROSS JOIN UNNEST(a.citation) AS c WITH OFFSET co
+        WHERE
+          a.attribute.type = 'AssertionMethod'
+      ),
+      classified AS (
+        SELECT
+          r.scv_id,
+          r.role,
+          r.attr_ord,
+          r.cit_ord,
+          r.c,
+          (r.c.url IS NOT NULL AND REGEXP_CONTAINS(r.c.url, r'^(https?|s?ftp)://\\S+$')) AS url_ok,
+          ARRAY(
+            SELECT AS STRUCT
+              i.id AS raw_id,
+              i.source AS raw_source,
+              io AS id_ord,
+              k.kind,
+              k.val,
+              k.repaired,
+              k.resourced
+            FROM UNNEST(r.c.id) AS i WITH OFFSET io
+            CROSS JOIN UNNEST([STRUCT(
+              LOWER(TRIM(i.source)) AS src,
+              REGEXP_REPLACE(
+                REGEXP_REPLACE(
+                  REGEXP_REPLACE(i.id, r'\\s+', ''),
+                  r'(?i)^(https?://)?(dx\\.)?(doi\\.org/|doi:|doi/|org/)', ''),
+                r'\\.$', '') AS cleaned,
+              -- va-spec Document.doi pattern, plus no whitespace
+              (REGEXP_CONTAINS(i.id, r'^10.(\\d+)(\\.\\d+)*/[\\w\\-\\.]+') AND NOT REGEXP_CONTAINS(i.id, r'\\s')) AS doi_ok
+            )]) AS p
+            CROSS JOIN UNNEST([
+              CASE
+                WHEN p.src IN ('pubmed', 'pmid') AND REGEXP_CONTAINS(i.id, r'^\\d+$')
+                  THEN STRUCT('pmid' AS kind, i.id AS val, FALSE AS repaired, FALSE AS resourced)
+                WHEN p.src = 'pmc' AND REGEXP_CONTAINS(i.id, r'^(PMC)?\\d+$')
+                  THEN STRUCT('pmc', i.id, FALSE, FALSE)
+                WHEN p.src = 'bookshelf' AND REGEXP_CONTAINS(i.id, r'^[A-Za-z0-9._-]+$')
+                  THEN STRUCT('bookshelf', i.id, FALSE, FALSE)
+                WHEN p.src IN ('pubmed', 'pmid', 'pmc', 'bookshelf')
+                  THEN STRUCT('invalid', i.id, FALSE, FALSE)
+                WHEN IFNULL(p.src, '') != 'doi'
+                  THEN STRUCT('unmapped', FORMAT('%s:%s', IFNULL(i.source, ''), i.id), FALSE, FALSE)
+                -- source DOI
+                WHEN p.doi_ok
+                  THEN STRUCT('doi', i.id, FALSE, FALSE)
+                WHEN REGEXP_CONTAINS(i.id, r'^10\\.\\d+(\\.\\d+)*/\\S+$')
+                  THEN STRUCT('clinvar_doi', i.id, FALSE, FALSE)
+                WHEN REGEXP_CONTAINS(i.id, r'^\\d+$')
+                  THEN STRUCT('pmid', i.id, TRUE, TRUE)
+                WHEN REGEXP_CONTAINS(i.id, r'^PMC\\d+$')
+                  THEN STRUCT('pmc', i.id, TRUE, TRUE)
+                WHEN REGEXP_CONTAINS(p.cleaned, r'^10.(\\d+)(\\.\\d+)*/[\\w\\-\\.]+')
+                  THEN STRUCT('doi', p.cleaned, TRUE, FALSE)
+                WHEN REGEXP_CONTAINS(p.cleaned, r'^10\\.\\d+(\\.\\d+)*/\\S+$')
+                  THEN STRUCT('clinvar_doi', p.cleaned, TRUE, FALSE)
+                ELSE
+                  STRUCT('invalid', i.id, FALSE, FALSE)
+              END
+            ]) AS k
+            WHERE
+              i.id IS NOT NULL
+          ) AS ids
+        FROM raw_citation r
+      ),
+      docs AS (
+        SELECT
+          scv_id,
+          role,
+          attr_ord,
+          cit_ord,
+          -- type/pmid/doi/urls keep their pre-1.1.0 positions; the new fields are appended
+          -- so the typed Parquet struct only grows at the end
+          STRUCT(
+            'Document' AS type,
+            (SELECT x.val FROM UNNEST(ids) x WHERE x.kind = 'pmid' ORDER BY x.resourced, x.id_ord LIMIT 1) AS pmid,
+            (SELECT x.val FROM UNNEST(ids) x WHERE x.kind = 'doi' ORDER BY x.id_ord LIMIT 1) AS doi,
+            ARRAY(
+              SELECT u.url
+              FROM (
+                SELECT 0 AS grp, -1 AS ord, c.url AS url
+                FROM UNNEST(IF(url_ok, [1], []))
+                UNION ALL
+                SELECT
+                  CASE x.kind WHEN 'pmid' THEN 1 WHEN 'pmc' THEN 2 WHEN 'bookshelf' THEN 4 ELSE 3 END,
+                  x.id_ord,
+                  CASE x.kind
+                    WHEN 'pmid' THEN FORMAT('https://pubmed.ncbi.nlm.nih.gov/%s', x.val)
+                    WHEN 'pmc' THEN FORMAT('https://europepmc.org/article/PMC/%s', x.val)
+                    WHEN 'bookshelf' THEN FORMAT('https://www.ncbi.nlm.nih.gov/books/%s', x.val)
+                    -- doi / clinvar_doi: percent-encode anything outside a URL-path-safe set
+                    ELSE FORMAT('https://doi.org/%s', (
+                      SELECT STRING_AGG(
+                        IF(REGEXP_CONTAINS(ch, r'^[A-Za-z0-9._~/:;()-]$'), ch,
+                          (SELECT STRING_AGG(FORMAT('%%%02X', b), '' ORDER BY bo)
+                           FROM UNNEST(TO_CODE_POINTS(CAST(ch AS BYTES))) AS b WITH OFFSET bo)),
+                        '' ORDER BY co)
+                      FROM UNNEST(SPLIT(x.val, '')) AS ch WITH OFFSET co))
+                  END
+                FROM UNNEST(ids) x
+                WHERE x.kind IN ('pmid', 'pmc', 'doi', 'clinvar_doi', 'bookshelf')
+              ) u
+              GROUP BY u.url
+              ORDER BY MIN(u.grp), MIN(u.ord), u.url
+            ) AS urls,
+            c.abbrev AS name,
+            c.type AS documentType,
+            ARRAY(
+              SELECT AS STRUCT e.name, e.value_string, e.value_boolean
+              FROM (
+                SELECT 1 AS rnk, -1 AS ord, 'clinvarCitationText' AS name, c.text AS value_string, CAST(NULL AS BOOL) AS value_boolean
+                FROM UNNEST(IF(c.text IS NOT NULL, [1], []))
+                UNION ALL
+                SELECT 2, x.id_ord, 'originalClinvarCitation', x.raw_id, NULL
+                FROM UNNEST(ids) x WHERE x.repaired
+                UNION ALL
+                SELECT 3, x.id_ord, 'originalClinvarCitationSource', x.raw_source, NULL
+                FROM UNNEST(ids) x WHERE x.resourced
+                UNION ALL
+                SELECT 4, -1, 'citationRepaired', NULL, TRUE
+                FROM UNNEST(IF(EXISTS(SELECT 1 FROM UNNEST(ids) x WHERE x.repaired), [1], []))
+                UNION ALL
+                SELECT 5, x.id_ord, 'clinvarDoi', x.val, NULL
+                FROM UNNEST(ids) x WHERE x.kind = 'clinvar_doi'
+                UNION ALL
+                SELECT 6, -1, 'invalidClinvarCitation', c.url, NULL
+                FROM UNNEST(IF(c.url IS NOT NULL AND NOT url_ok, [1], []))
+                UNION ALL
+                SELECT 6, x.id_ord, 'invalidClinvarCitation', x.raw_id, NULL
+                FROM UNNEST(ids) x WHERE x.kind = 'invalid'
+                UNION ALL
+                SELECT 7, x.id_ord, 'unmappedClinvarCitation', x.val, NULL
+                FROM UNNEST(ids) x WHERE x.kind = 'unmapped'
+              ) e
+              ORDER BY e.rnk, e.ord, e.value_string
+            ) AS extensions
+          ) AS doc
+        FROM classified
+      )
+      SELECT
+        scv_id,
+        role,
+        attr_ord,
+        cit_ord,
+        IF(role = 'method', ROW_NUMBER() OVER (PARTITION BY scv_id, role, attr_ord ORDER BY cit_ord), NULL) AS method_rank,
+        doc
+      FROM docs
+    """, '{S}', rec.schema_name);
+    SET query_scv_citation_docs = REPLACE(query_scv_citation_docs, '{CT}', temp_create);
+    SET query_scv_citation_docs = REPLACE(query_scv_citation_docs, '{P}', IF(debug, rec.schema_name, '_SESSION'));
+    EXECUTE IMMEDIATE query_scv_citation_docs;
+
+    ---------------------------------------------------------------------------
+    -- Step 7b-2: Materialize statement citations (reportedIn) — GLOBAL (over-computed;
+    -- LEFT-JOINed by scv id into the already-filtered gkm_dict_scv). Identical
+    -- Documents collapse to one; total-order ORDER BY keeps full == incremental.
     ---------------------------------------------------------------------------
     SET query_scv_citations = REPLACE("""
       {CT} {P}.temp_scv_citations AS
-      WITH scv_citation AS (
-        SELECT
-          scv.id,
-          STRUCT(
-            'Document' as type,
-            IF(lower(cid.source) = 'pubmed', cid.id, null) as pmid,
-            IF(lower(cid.source) = 'doi', cid.id, null) as doi,
-            [CASE
-            WHEN c.url IS NOT NULL THEN
-              c.url
-            WHEN LOWER(cid.source) = 'pubmed' THEN
-              FORMAT('https://pubmed.ncbi.nlm.nih.gov/%s',cid.id)
-            WHEN LOWER(cid.source) = 'pmc' THEN
-              FORMAT('https://europepmc.org/article/PMC/%s',cid.id)
-            WHEN LOWER(cid.source) = 'doi' THEN
-              FORMAT('https://doi.org/%s',cid.id)
-            WHEN LOWER(cid.source) = 'bookshelf' THEN
-              FORMAT('https://www.ncbi.nlm.nih.gov/books/%s',cid.id)
-            ELSE
-              cid.curie
-            END] as urls
-          ) as doc
-        FROM {P}.temp_gkm_scv scv
-        CROSS JOIN UNNEST(scv.scvCitations) as c
-        CROSS JOIN UNNEST(c.id) as cid
-        WHERE
-          cid.source IS NOT NULL
-          OR c.url IS NOT NULL
+      WITH dedup AS (
+        SELECT scv_id, TO_JSON_STRING(doc) AS doc_key, ANY_VALUE(doc) AS doc
+        FROM {P}.temp_scv_citation_docs
+        WHERE role = 'statement'
+        GROUP BY scv_id, doc_key
       )
       SELECT
-        id,
-        ARRAY_AGG(doc) as reportedIn
-      FROM scv_citation
-      GROUP BY id
+        scv_id AS id,
+        ARRAY_AGG(doc ORDER BY doc.pmid IS NULL, SAFE_CAST(doc.pmid AS INT64), doc_key) AS reportedIn
+      FROM dedup
+      GROUP BY scv_id
     """, '{S}', rec.schema_name);
     SET query_scv_citations = REPLACE(query_scv_citations, '{CT}', temp_create);
     SET query_scv_citations = REPLACE(query_scv_citations, '{P}', IF(debug, rec.schema_name, '_SESSION'));
     EXECUTE IMMEDIATE query_scv_citations;
 
     ---------------------------------------------------------------------------
-    -- Step 7c: Materialize assertion method — GLOBAL (over-computed; LEFT-JOINed by
-    -- scv id into the already-filtered gkm_dict_scv)
+    -- Step 7c: Materialize assertion method (specifiedBy) — GLOBAL (over-computed;
+    -- LEFT-JOINed by scv id into the already-filtered gkm_dict_scv). One row per
+    -- AssertionMethod attribute; its reportedIn is the attribute's first citation
+    -- Document (Step 7b). Method.reportedIn holds one Document, so any further citations
+    -- (ClinVar order) are kept as Documents in the Method's own extension
+    -- additionalClinvarMethodCitations (value_document_array -> `value` at publish).
+    -- `extensions` is appended after reportedIn so the typed Parquet struct only grows.
     ---------------------------------------------------------------------------
     SET query_scv_method = REPLACE("""
       {CT} {P}.temp_scv_method AS
-      -- there are less than 10 assertion method attributes that contain multiple citations
-      --   these are likely mis-submitted info since they should be in the interp citations
-      --   not the assertion method citations which should almost exclusively be 1 item
-      --   for now we comprimise by grouping any multi- citation id values together as a string
-      --   and hoping that the citation source and url will aggregate to the same single record.
-      --   this hacky policy works around the bad data as of 2024-04-07
+      WITH extra_doc AS (
+        SELECT scv_id, attr_ord, ARRAY_AGG(doc ORDER BY cit_ord) AS docs
+        FROM {P}.temp_scv_citation_docs
+        WHERE role = 'method' AND method_rank > 1
+        GROUP BY scv_id, attr_ord
+      )
       SELECT
         scv.id,
         STRUCT (
           'Method' as type,
           scv.method_type as methodType,
           a.attribute.value as name,
+          d.doc as reportedIn,
           IF(
-            (cid.source is not null OR c.url is not null),
-            STRUCT(
-              'Document' as type,
-              IF(LOWER(cid.source) = 'pubmed', STRING_AGG(cid.id), null) as pmid,
-              IF(LOWER(cid.source) = 'doi', STRING_AGG(cid.id), null) as doi,
-              [
-                CASE
-                WHEN c.url IS NOT NULL THEN
-                  c.url
-                WHEN LOWER(cid.source) = 'pubmed' THEN
-                  FORMAT('https://pubmed.ncbi.nlm.nih.gov/%s',STRING_AGG(cid.id))
-                WHEN LOWER(cid.source) = 'pmc' THEN
-                  FORMAT('https://europepmc.org/article/PMC/%s',STRING_AGG(cid.id))
-                WHEN LOWER(cid.source) = 'doi' THEN
-                  FORMAT('https://doi.org/%s',STRING_AGG(cid.id))
-                WHEN LOWER(cid.source) = 'bookshelf' THEN
-                  FORMAT('https://www.ncbi.nlm.nih.gov/books/%s',STRING_AGG(cid.id))
-                ELSE
-                  FORMAT('%s:%s', cid.source, STRING_AGG(cid.id))
-                END
-              ] as urls
-            ),
-            null
-          ) as reportedIn
+            x.docs IS NULL,
+            [],
+            [STRUCT('additionalClinvarMethodCitations' AS name, x.docs AS value_document_array)]
+          ) as extensions
         ) as specifiedBy
       FROM {P}.temp_gkm_scv scv
-      CROSS JOIN UNNEST(scv.attribs) as a
-      LEFT JOIN UNNEST(a.citation) as c
-      LEFT JOIN UNNEST(c.id) as cid
+      CROSS JOIN UNNEST(scv.attribs) as a WITH OFFSET ao
+      LEFT JOIN {P}.temp_scv_citation_docs d
+      ON
+        d.scv_id = scv.id
+        AND d.role = 'method'
+        AND d.attr_ord = ao
+        AND d.method_rank = 1
+      LEFT JOIN extra_doc x
+      ON
+        x.scv_id = scv.id
+        AND x.attr_ord = ao
       WHERE
         a.attribute.type = 'AssertionMethod'
-      GROUP BY
-        scv.id,
-        a.attribute.value,
-        cid.source,
-        c.url,
-        scv.method_type
     """, '{S}', rec.schema_name);
     SET query_scv_method = REPLACE(query_scv_method, '{CT}', temp_create);
     SET query_scv_method = REPLACE(query_scv_method, '{P}', IF(debug, rec.schema_name, '_SESSION'));
@@ -1311,6 +1487,7 @@ BEGIN
       DROP TABLE IF EXISTS _SESSION.temp_gkm_scv_proposition;
       DROP TABLE IF EXISTS _SESSION.temp_gkm_scv_target_proposition;
       DROP TABLE IF EXISTS _SESSION.temp_scv_condition_names;
+      DROP TABLE IF EXISTS _SESSION.temp_scv_citation_docs;
       DROP TABLE IF EXISTS _SESSION.temp_scv_citations;
       DROP TABLE IF EXISTS _SESSION.temp_scv_method;
       IF eff_incremental THEN

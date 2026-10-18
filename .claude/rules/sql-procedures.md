@@ -56,16 +56,21 @@ EXECUTE IMMEDIATE query;
 - Incremental procs must be **byte-identical** to a full rebuild (the carry-forward invariant). Use total-order
   `ORDER BY` in `ARRAY_AGG`/`STRING_AGG` and pick from ONE deterministic representative (smallest `full_scv_id`)
   rather than `ANY_VALUE` for attributes not determined by the group key.
+- **One row per bundle key.** A `gkm_dict_*` table keyed by a VRS id must be built per id, never per ClinVar
+  variation: distinct variations can normalize to the same allele, and a per-variation join emits a duplicate
+  JSON key (the reader keeps whichever copy comes last). Merge such inputs per key (see `gkm_dict_allele`) and
+  check `GROUP BY key HAVING COUNT(*) > 1` returns nothing.
 - BQ-touching changes are **oracle-gated**: a full-vs-incremental oracle and the delta-reconstruction oracle
   (`oracle-delta-reconstruction.sh`) must both report `0,0,0` before publishing.
 
 ## Cat-VRS variant/constraint shapes (schema conformance — learned in 1.0.1)
 
 These are emitted by `gkm-catvar-proc.sql` and must match the cat-vrs schemas, or the bundle's `variation`
-`anyOf` rejects the record. Validate the produced data, not just that the SQL runs.
+schema (`ClinvarCategoricalVariant`, whose `oneOf` branches are mutually exclusive since 1.1.0) rejects the
+record. Validate the produced data, not just that the SQL runs.
 
 - **Empty constraints must be NULL, never an all-NULL STRUCT.** `ARRAY_AGG(STRUCT(...))` over a LEFT JOIN that
-  missed produces one all-NULL element → serializes to `constraints: [{}]`, which matches no `anyOf` branch.
+  missed produces one all-NULL element → serializes to `constraints: [{}]`, which matches no variant branch.
   Guard it: `IF(COUNTIF(cci.type IS NOT NULL)=0, NULL, ARRAY_AGG(IF(cci.type IS NULL, NULL, STRUCT(...)) IGNORE
   NULLS))`. A NULL array is coerced to `[]` on table write, which the assembler's `strip_empty` then drops →
   the attribute is omitted entirely → the variant validates as `ClinvarNonConstrainedVariant`
