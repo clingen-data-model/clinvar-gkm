@@ -80,6 +80,27 @@ allows these Document fields and extensions. In Parquet, `scv.reportedIn` and `s
 `name`, `documentType` and `extensions` at the end of the struct. The existing fields keep their names, types and
 positions.
 
+**Gene context** — every SCV proposition `geneContextQualifier` gains a `geneContextSource` extension that says
+where its gene came from. The gene itself is unchanged: it is still the variant's one representative gene, chosen
+upstream. Counts are for the 2026-09-28 release:
+
+| `geneContextSource` | Meaning | Propositions |
+| --- | --- | ---: |
+| `submittedSymbolMatches` | The submitter's symbols include the qualifier's symbol | 5,781,920 |
+| `submittedSymbolDiffers` | The submitter gave symbols, none equal to the qualifier's symbol (mostly previous symbols of the same gene, e.g. `GBA` for `GBA1`) | 27,671 |
+| `inferredFromVariant` | The submitter gave no symbols | 881,325 |
+| `submittedNotNormalized` | The variant has no single representative gene (the placeholder) | 4,814 |
+
+- Symbols are compared after trimming spaces and ignoring case, so `C19ORF12` matches `C19orf12`.
+- **Placeholder name**: the 4,814 placeholder qualifiers are named with the submitter's symbol, verbatim,
+  instead of the literal `submitted genes were not normalized`. The 5 with several symbols join them with `, `
+  in submitted order. They still have no `primaryCoding`, and `submittedGeneSymbols` is unchanged.
+- **`submittedGeneSymbols` order**: the symbols are now in submitted order. Before, their order was not fixed,
+  and the 45 lists with more than one symbol could change order from one build to the next.
+
+The gene context stays on the proposition. This is a data change only: the schema already allows extensions
+on the qualifier. See [Qualifier Extensions](../output-reference/scv-statements.md#qualifier-extensions).
+
 **Parquet** — typed columns now hold bare ids, as the other id columns already did:
 
 - `vartherapy-proposition.object_therapy` is `clinvar.therapy:…` or `clinvar.therapygroup:…`, not a
@@ -89,8 +110,9 @@ positions.
   and `therapyGroup.members`. `condition` keeps its camelCase column names, and `therapy` / `therapyGroup` keep
   `key` and `value`.
 - The four proposition tables gain `gene_context_id` (the gene-context qualifier's own `ncbigene:` coding;
-  NULL for the `submitted genes were not normalized` placeholder) and `submitted_gene_symbols` (the submitter's
-  gene symbols, verbatim). `gene_context_name` is unchanged. The qualifier is one representative gene per
+  NULL for the placeholder), `submitted_gene_symbols` (the submitter's gene symbols, verbatim) and
+  `gene_context_source` (the qualifier's `geneContextSource`; see Gene context above). `gene_context_name` is
+  unchanged, except that a placeholder now holds the submitter's symbol. The qualifier is one representative gene per
   variant, chosen upstream, not a submitter-asserted gene; see
   [Gene context](../parquet/tables.md#gene-context).
 - `location` gains `loc_start_min`, `loc_start_max`, `loc_end_min` and `loc_end_max`: the bounds of each

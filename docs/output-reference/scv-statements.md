@@ -187,7 +187,7 @@ A resolved proposition contains:
 | `subject` | string | `#/variation/clinvar:{id}` reference |
 | `object` | string | The asserted object, as a reference. For most types: `#/condition/clinvar.trait:{id}` or `#/conditionSet/clinvar.traitset:{id}`. For `VariantTherapeuticResponseProposition`: `#/therapy/clinvar.therapy:{sha256}` (single) or `#/therapyGroup/clinvar.therapygroup:{sha256}` (combination) |
 | `conditionQualifier` | string | `#/condition/` or `#/conditionSet/` reference — present on `VariantTherapeuticResponseProposition` (where `object` carries the therapy, so the condition moves to this qualifier) |
-| `geneContextQualifier` | object | Gene context with NCBI Gene and HGNC identifiers (when applicable) |
+| `geneContextQualifier` | object | Gene context: the variant's one representative gene, with NCBI Gene and HGNC identifiers. Its `geneContextSource` extension says where the gene came from. When the variant has no single gene, a placeholder named with the submitter's symbol and no coding |
 | `modeOfInheritanceQualifier` | object | Mode of inheritance with HPO coding (when submitted) |
 | `penetranceQualifier` | object | Penetrance qualifier (for low-penetrance/risk factor classifications) |
 
@@ -283,7 +283,8 @@ Extensions on proposition qualifier objects (`geneContextQualifier`, `modeOfInhe
 
 | Extension Name | Value Type | Description |
 |---|---|---|
-| `submittedGeneSymbols` | array of `string` | Gene symbols originally submitted by the submitter. Present on `geneContextQualifier` when the submitter provided gene information. May differ from the normalized gene symbol. |
+| `submittedGeneSymbols` | array of `string` | Gene symbols originally submitted by the submitter, verbatim, in submitted order. Present on `geneContextQualifier` when the submitter provided gene information. May differ from the normalized gene symbol. |
+| `geneContextSource` | `string` | Where the `geneContextQualifier` gene came from. Present on every `geneContextQualifier`. `submittedSymbolMatches`: the submitter's symbols include the qualifier's symbol. `submittedSymbolDiffers`: the submitter gave symbols, but none equals the qualifier's symbol; most are previous symbols of the same gene, so the genes are not necessarily different. `inferredFromVariant`: the submitter gave no symbols. `submittedNotNormalized`: the variant has no single representative gene, so the qualifier is a placeholder whose `name` is the submitter's symbol (several are joined with `, `) and which has no `primaryCoding`. Symbols are compared after trimming spaces and ignoring case. Added in this release; earlier placeholders are named `submitted genes were not normalized`. |
 | `submittedModeOfInheritance` | `string` | Mode of inheritance text as originally submitted. Present on all `modeOfInheritanceQualifier` objects. Preserved alongside the normalized HPO coding. |
 | `submittedClassification` | `string` | Original submitted classification text that triggered the penetrance qualifier derivation. Present on all `penetranceQualifier` objects. |
 

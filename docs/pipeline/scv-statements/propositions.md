@@ -15,9 +15,15 @@ Extracts gene context from `single_gene_variation` by matching each SCV's variat
 - **conceptType**: `"gene"`
 - **primaryCoding**: NCBI Gene identifier using both `identifiers.org` and NCBI Gene URLs
 - **HGNC mappings**: When an HGNC identifier is available, included as an additional coding
-- **submittedGeneSymbols extension**: Gene symbols from `clinical_assertion_variation`, preserving the submitter's original gene annotations
+- **submittedGeneSymbols extension**: Gene symbols from `clinical_assertion_variation`, preserving the submitter's original gene annotations. Distinct, verbatim, in submitted order: variation record, then gene list, then position in the comma-separated symbol list. That key is unique, so the order is total and an incremental build matches a full one.
+- **geneContextSource extension**: Where the gene came from. The submitter's symbols never choose the gene; they only set this value. They are compared with the gene's symbol after trimming spaces and ignoring case:
+    - `submittedSymbolMatches` — the submitter's symbols include the gene's symbol
+    - `submittedSymbolDiffers` — the submitter gave symbols, none equal to it (mostly previous symbols of the same gene)
+    - `inferredFromVariant` — the submitter gave no symbols
 
-When no single-gene match exists for a variation, the qualifier falls back to a record noting that "submitted genes were not normalized."
+When no single-gene match exists for a variation but the submitter gave symbols, the qualifier is a placeholder. Its `name` is the submitter's symbol: several symbols are trimmed, de-duplicated and joined with `, ` in submitted order. It has no `primaryCoding` or `mappings`, keeps `submittedGeneSymbols`, and has `geneContextSource` = `submittedNotNormalized`. Releases before this one name the placeholder `submitted genes were not normalized`.
+
+The extension values are stored as typed fields (`value_string` for the symbol array, `value_enum` for the source) and collapsed to `value` at publish.
 
 **Output:** `temp_gene_context_qualifiers` -- one row per SCV+gene combination. <span class="role-badge badge-internal">Internal</span>
 

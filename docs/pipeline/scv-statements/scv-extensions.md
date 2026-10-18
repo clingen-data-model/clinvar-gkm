@@ -96,7 +96,8 @@ Extensions on proposition qualifier objects, preserving the original submitter-p
 
 | Extension | Type | Description |
 |---|---|---|
-| `submittedGeneSymbols` | array&lt;string&gt; | Gene symbols originally submitted by the submitter. Present on `geneContextQualifier` when the submitter provided gene information. May differ from the normalized gene symbol. |
+| `submittedGeneSymbols` | array&lt;string&gt; | Gene symbols originally submitted by the submitter, verbatim, in submitted order. Present on `geneContextQualifier` when the submitter provided gene information. May differ from the normalized gene symbol. |
+| `geneContextSource` | string | Where the `geneContextQualifier` gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized` (the placeholder, named with the submitter's symbol). Present on every `geneContextQualifier`. Added in this release. |
 | `submittedModeOfInheritance` | string | Mode of inheritance text as originally submitted. Present on all `modeOfInheritanceQualifier` objects. Preserved alongside the normalized HPO coding. |
 | `submittedClassification` | string | Original submitted classification text that triggered the penetrance qualifier derivation. Present on all `penetranceQualifier` objects. |
 
@@ -112,7 +113,8 @@ Gene context qualifier with submitted gene symbols:
   "name": "KRAS",
   "primaryCoding": { "code": "3845", "name": "KRAS", "system": "https://www.ncbi.nlm.nih.gov/gene/" },
   "extensions": [
-    { "name": "submittedGeneSymbols", "value": ["KRAS"] }
+    { "name": "submittedGeneSymbols", "value": ["KRAS"] },
+    { "name": "geneContextSource", "value": "submittedSymbolMatches" }
   ]
 }
 ```

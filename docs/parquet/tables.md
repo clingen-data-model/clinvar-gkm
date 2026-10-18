@@ -351,12 +351,13 @@ Variant × condition propositions — the claim a germline or somatic classifica
 | `predicate` | `VARCHAR` | The relation, e.g. `isCausalFor`, `hasClinicalSignificanceFor`, `isDiagnosticInclusionCriterionFor`, `associatedWithBetterOutcomeFor`. |
 | `subject_variant_id` | `VARCHAR` | `clinvar:<n>` → `variation.id`. |
 | `object_condition_id` | `VARCHAR` | **Prefix-dispatched**: `clinvar.trait:` → `condition.id`; `clinvar.traitset:` or `clinvar.conditionset:` → `conditionSet.id`. |
-| `gene_context_name` | `VARCHAR` | Symbol of the proposition's gene-context gene (e.g. `EGFR`), the placeholder `submitted genes were not normalized`, or NULL. SCV propositions only. **One representative gene per variant**, not the submitter's genes; see [Gene context](#gene-context). A symbol, not an id: join on `gene_context_id`. |
+| `gene_context_name` | `VARCHAR` | Symbol of the proposition's gene-context gene (e.g. `EGFR`), or NULL. SCV propositions only. **One representative gene per variant**, not the submitter's genes; see [Gene context](#gene-context). For the placeholder (`gene_context_source` = `submittedNotNormalized`) it is the submitter's symbol; releases before this one hold the literal `submitted genes were not normalized`. A symbol, not an id: join on `gene_context_id`. |
 | `mode_of_inheritance` | `VARCHAR` | Mode-of-inheritance qualifier (e.g. `Autosomal dominant inheritance`), or NULL. |
 | `penetrance` | `VARCHAR` | Penetrance qualifier, or NULL. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
 | `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.0.2.* |
 | `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.0.2.* |
+| `gene_context_source` | `VARCHAR` | Where the gene-context gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`. NULL on VCV and RCV propositions, and where there is no qualifier. See [Gene context](#gene-context). *From this release.* |
 
 #### `varcustom-proposition` { #varcustom-proposition }
 
@@ -371,12 +372,13 @@ Variant × condition propositions for ClinVar's **non-pathogenicity germline** c
 | `predicate` | `VARCHAR` | The relation, e.g. `isRiskFactorFor`, `hasDrugResponseFor`. |
 | `subject_id` | `VARCHAR` | `clinvar:<n>` → `variation.id`. (Spelled `subject_id` here, `subject_variant_id` in the other three.) |
 | `object_id` | `VARCHAR` | **Prefix-dispatched**, same as `varcond-proposition.object_condition_id`. |
-| `gene_context_name` | `VARCHAR` | Symbol of the proposition's gene-context gene (e.g. `EGFR`), the placeholder `submitted genes were not normalized`, or NULL. SCV propositions only. **One representative gene per variant**, not the submitter's genes; see [Gene context](#gene-context). A symbol, not an id: join on `gene_context_id`. |
+| `gene_context_name` | `VARCHAR` | Symbol of the proposition's gene-context gene (e.g. `EGFR`), or NULL. SCV propositions only. **One representative gene per variant**, not the submitter's genes; see [Gene context](#gene-context). For the placeholder (`gene_context_source` = `submittedNotNormalized`) it is the submitter's symbol; releases before this one hold the literal `submitted genes were not normalized`. A symbol, not an id: join on `gene_context_id`. |
 | `mode_of_inheritance` | `VARCHAR` | Mode-of-inheritance qualifier (e.g. `Autosomal dominant inheritance`), or NULL. |
 | `penetrance` | `VARCHAR` | Penetrance qualifier, or NULL. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
 | `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.0.2.* |
 | `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.0.2.* |
+| `gene_context_source` | `VARCHAR` | Where the gene-context gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`. NULL on VCV and RCV propositions, and where there is no qualifier. See [Gene context](#gene-context). *From this release.* |
 
 #### `vartumor-proposition` { #vartumor-proposition }
 
@@ -391,10 +393,11 @@ Variant × tumor-type propositions — somatic **oncogenicity** claims.
 | `predicate` | `VARCHAR` | `isOncogenicFor`. |
 | `subject_variant_id` | `VARCHAR` | `clinvar:<n>` → `variation.id`. |
 | `object_tumor_type_id` | `VARCHAR` | The tumor type. **Prefix-dispatched**: almost always a `clinvar.trait:` → `condition.id`, but 12 rows name a `clinvar.conditionset:` → `conditionSet.id`. |
-| `gene_context_name` | `VARCHAR` | Symbol of the proposition's gene-context gene (e.g. `EGFR`), the placeholder `submitted genes were not normalized`, or NULL. SCV propositions only. **One representative gene per variant**, not the submitter's genes; see [Gene context](#gene-context). A symbol, not an id: join on `gene_context_id`. |
+| `gene_context_name` | `VARCHAR` | Symbol of the proposition's gene-context gene (e.g. `EGFR`), or NULL. SCV propositions only. **One representative gene per variant**, not the submitter's genes; see [Gene context](#gene-context). For the placeholder (`gene_context_source` = `submittedNotNormalized`) it is the submitter's symbol; releases before this one hold the literal `submitted genes were not normalized`. A symbol, not an id: join on `gene_context_id`. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
 | `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.0.2.* |
 | `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.0.2.* |
+| `gene_context_source` | `VARCHAR` | Where the gene-context gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`. NULL on VCV and RCV propositions, and where there is no qualifier. See [Gene context](#gene-context). *From this release.* |
 
 #### `vartherapy-proposition` { #vartherapy-proposition }
 
@@ -410,21 +413,34 @@ Variant × therapy propositions — somatic **therapeutic response**. These are 
 | `subject_variant_id` | `VARCHAR` | `clinvar:<n>` → `variation.id`. |
 | `condition_qualifier_id` | `VARCHAR` | The tumor/condition context, `clinvar.trait:` → `condition.id`. |
 | `object_therapy` | `VARCHAR` | `clinvar.therapy:<sha256>` → `therapy.key`, or `clinvar.therapygroup:<sha256>` → `therapyGroup.key`. Releases before 1.0.2 held a JSON-quoted pointer instead; see [Joins that lie](joining.md#joins-that-lie). |
-| `gene_context_name` | `VARCHAR` | Symbol of the proposition's gene-context gene (e.g. `EGFR`), the placeholder `submitted genes were not normalized`, or NULL. SCV propositions only. **One representative gene per variant**, not the submitter's genes; see [Gene context](#gene-context). A symbol, not an id: join on `gene_context_id`. |
+| `gene_context_name` | `VARCHAR` | Symbol of the proposition's gene-context gene (e.g. `EGFR`), or NULL. SCV propositions only. **One representative gene per variant**, not the submitter's genes; see [Gene context](#gene-context). For the placeholder (`gene_context_source` = `submittedNotNormalized`) it is the submitter's symbol; releases before this one hold the literal `submitted genes were not normalized`. A symbol, not an id: join on `gene_context_id`. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
 | `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.0.2.* |
 | `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.0.2.* |
+| `gene_context_source` | `VARCHAR` | Where the gene-context gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`. NULL on VCV and RCV propositions, and where there is no qualifier. See [Gene context](#gene-context). *From this release.* |
 
 #### Gene context { #gene-context }
 
-`gene_context_name`, `gene_context_id` and `submitted_gene_symbols` describe a proposition's `geneContextQualifier`. They are filled in only on **SCV** propositions; every VCV and RCV proposition has NULLs and an empty list. In the 2026-10 release, 6,655,967 `varcond-proposition` rows carry the qualifier.
+`gene_context_name`, `gene_context_id`, `submitted_gene_symbols` and `gene_context_source` describe a proposition's `geneContextQualifier`. They are filled in only on **SCV** propositions; every VCV and RCV proposition has NULLs and an empty list. In the 2026-10 release, 6,655,967 `varcond-proposition` rows carry the qualifier.
 
 - **One representative gene per variant.** The qualifier comes from the variant, not from the submission. Upstream, [clinvar-ingest](https://github.com/clingen-data-model/clinvar-ingest-bq-tools) picks one gene for each variant by a priority procedure: a MANE Select transcript in the variant name first, then a gene symbol in an HGVS-style name, a star-allele name, a single gene association, and so on. Every SCV of the variant gets that same gene. The submitter did **not** assert it, and the Parquet doesn't say which step chose it.
 - **`gene_context_id`** is that gene's own NCBI Gene coding (`primaryCoding.code`), written `ncbigene:<n>` so it joins `gene.id` directly. `gene_context_name` is the same gene's symbol. The id is never looked up from a symbol.
-- **`submitted_gene_symbols`** is what the submitter named, verbatim. It can list several genes, and may leave out the representative gene: 27,817 SCVs in the 2026-10 release do.
-- **The placeholder.** When the variant has no single representative gene but the submitter named genes, `gene_context_name` is the literal `submitted genes were not normalized` and `gene_context_id` is NULL. The submitter's genes are still in `submitted_gene_symbols`. There are 4,814 of these SCVs, all in `varcond-proposition` and `varcustom-proposition`.
+- **`submitted_gene_symbols`** is what the submitter named, verbatim. It can list several genes, and may leave out the representative gene: 27,817 SCVs in the 2026-10 release do. From this release the symbols are in submitted order; earlier releases list them in no fixed order.
+- **`gene_context_source`** says where the gene came from. It is filled in on every SCV proposition that has the qualifier. *From this release.*
 
-Releases before 1.0.2 have only `gene_context_name`; the id and symbols are in `data` (`geneContextQualifier.primaryCoding.code`, and the `submittedGeneSymbols` extension).
+    | Value | Meaning | 2026-09-28 |
+    | --- | --- | ---: |
+    | `submittedSymbolMatches` | The submitter's symbols include the qualifier's symbol, possibly with other genes. | 5,781,920 |
+    | `submittedSymbolDiffers` | The submitter gave symbols, but none equals the qualifier's symbol. Most are a previous symbol of the same gene (`GBA` for `GBA1`); the genes are not necessarily different. | 27,671 |
+    | `inferredFromVariant` | The submitter gave no symbols. | 881,325 |
+    | `submittedNotNormalized` | The placeholder: the variant has no single representative gene. | 4,814 |
+
+    Symbols are compared after trimming spaces and ignoring case (`C19ORF12` matches `C19orf12`). That is why `submittedSymbolDiffers` counts 27,671, not the 27,817 above, which compared exactly.
+- **The placeholder.** When the variant has no single representative gene but the submitter named genes, `gene_context_name` is the submitter's symbol and `gene_context_id` is NULL. The name is not a normalized gene, and `gene_context_source` is `submittedNotNormalized`. Several symbols are joined with `, ` in submitted order (5 SCVs, e.g. `DLK1, MEG3`). The submitter's genes are still in `submitted_gene_symbols`. There are 4,814 of these SCVs, all in `varcond-proposition` and `varcustom-proposition`. Releases before this one name every placeholder with the literal `submitted genes were not normalized`.
+
+    Because a placeholder's name is now a submitted symbol, a filter such as `gene_context_name = 'TP53'` also matches placeholders. In 2026-09-28 that is 29 `TP53` rows (78 for `BRCA1`, `BRCA2`, `TP53` and `MLH1` together). To get only normalized genes, filter on `gene_context_id`, or exclude `gene_context_source = 'submittedNotNormalized'`.
+
+Releases before 1.0.2 have only `gene_context_name`; the id and symbols are in `data` (`geneContextQualifier.primaryCoding.code`, and the `submittedGeneSymbols` extension). `gene_context_source` and its `geneContextSource` extension start with this release.
 
 This is **not** the variant's gene list. The gene list (`clinvarGeneList` in `variation.extensions`) relates a variant to every gene ClinVar associates with it: many genes per variant, including genes a large copy-number variant merely overlaps. Use the gene list to find a gene's variants, as in the [gene rollup recipe](recipes.md#gene-rollup); use `gene_context_id` for the one gene a submission's proposition is framed around. A planned `variant-gene` lookup file will publish the gene list as a gene × variant crosswalk; it carries the gene list, not the gene context.
 
