@@ -154,17 +154,51 @@ BEGIN
     -- STEP 1: Create gkm_dict_condition (canonical trait representations) — GLOBAL
     -- All traits with clinvar.trait:{id} identifiers, with primaryCoding,
     -- mappings (deduplicated by code+system), and aliases extension.
+    -- name precedence (ClinVar values only, never fabricated): the trait's
+    -- Preferred name > the Preferred name ClinVar gives the same trait in an
+    -- RCV TraitSet (rcv_mapping; the VCV-derived trait row can lack it) > the
+    -- trait's alphabetically-first Alternate name (alternates stay in aliases).
     -- -----------------------------------------------------------------------
     SET query_gkm_dict_condition = REPLACE("""
       CREATE OR REPLACE TABLE `{S}.gkm_dict_condition` AS
-      WITH traits AS (
+      WITH nameless_trait_ids AS (
+        SELECT t.id FROM `{S}.trait` t WHERE t.name IS NULL
+      ),
+      rcv_preferred_names AS (
+        -- parse only the RCV trait sets that hold a nameless trait
+        SELECT
+          rt.id AS trait_id,
+          MIN(n.element_value) AS name
+        FROM (
+          SELECT `clinvar_ingest.parseTraitSet`(FORMAT('{"TraitSet": %s}', rm.trait_set_content)) AS ts
+          FROM `{S}.rcv_mapping` rm
+          WHERE rm.trait_set_id IN (
+            SELECT ts.id
+            FROM `{S}.trait_set` ts
+            CROSS JOIN UNNEST(ts.trait_ids) AS tid
+            WHERE tid IN (SELECT id FROM nameless_trait_ids)
+          )
+        ) rmt
+        CROSS JOIN UNNEST(rmt.ts.trait) AS rt
+        CROSS JOIN UNNEST(rt.name) AS n
+        WHERE n.type = 'Preferred'
+          AND rt.id IN (SELECT id FROM nameless_trait_ids)
+        GROUP BY rt.id
+      ),
+      traits AS (
         select distinct
           t.id,
           t.type,
-          t.name,
+          COALESCE(
+            t.name,
+            rpn.name,
+            (SELECT MIN(a) FROM UNNEST(t.alternate_names) AS a)
+          ) AS name,
           t.alternate_names as synonyms,
           clinvar_ingest.parseXRefItems(t.xrefs) as xrefs
         FROM `{S}.trait` t
+        LEFT JOIN rcv_preferred_names rpn
+          ON rpn.trait_id = t.id
       ),
       distinct_trait_xrefs AS (
         SELECT DISTINCT
