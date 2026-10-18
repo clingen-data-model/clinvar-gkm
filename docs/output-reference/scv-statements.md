@@ -27,8 +27,8 @@ Each record is a VA-Spec `Statement` with the following top-level fields:
 | `quality` | object | Concept struct with `conceptType: "Quality"` and `name` (the submission level label). See [Quality](#quality) |
 | `description` | string | Free-text interpretation summary (when provided by the submitter) |
 | `contributions` | array | Submitter and date information with `#/submitter/` references. See [Contributions](#contributions) |
-| `specifiedBy` | object | The classification method/guideline used |
-| `reportedIn` | array | Supporting publications (PubMed, DOI references) |
+| `specifiedBy` | object | The classification method/guideline used, with the Document that describes it. See [Citations](#citations) |
+| `reportedIn` | array | Supporting publications — one Document per ClinVar citation. See [Citations](#citations) |
 | `extensions` | array of [Extension](#extensions) | ClinVar-specific metadata (0..*). See [Extensions](#extensions) |
 | `hasEvidenceLines` | array | Evidence lines for somatic clinical impact assertions. See [Evidence Lines](#evidence-lines) |
 
@@ -124,6 +124,48 @@ The `contributions` array records the submitter and key dates. Each contribution
   }
 ]
 ```
+
+---
+
+## Citations
+
+`reportedIn` lists the submission's citations, and `specifiedBy.reportedIn` holds the citation for the assertion method. Each is a VA-Spec `Document`, **one per ClinVar citation**. A citation that ClinVar lists with several ids — ACMG 2015 has a PubMed id, a PMC id and a DOI — is a single Document:
+
+```json
+{
+  "type": "Document",
+  "name": "ACMG, 2015",
+  "documentType": "general",
+  "pmid": "25741868",
+  "doi": "10.1038/gim.2015.30",
+  "urls": [
+    "https://pubmed.ncbi.nlm.nih.gov/25741868",
+    "https://europepmc.org/article/PMC/4544753",
+    "https://doi.org/10.1038/gim.2015.30"
+  ]
+}
+```
+
+- `name` is ClinVar's short label for the citation and `documentType` is ClinVar's citation type, both verbatim
+- `urls` holds every resolvable URL, ClinVar's own URL first; a citation ClinVar gives only as a URL is `{"type": "Document", "urls": [...]}`
+- A citation that is only free text has no `pmid`, `doi` or `urls`. Its text is kept verbatim in the `clinvarCitationText` extension. Such text is often not a reference, e.g. a list of ACMG criteria.
+
+The pipeline never changes ClinVar's citation data silently. When an invalid id is repaired, the Document's extensions keep the original:
+
+```json
+{
+  "type": "Document",
+  "documentType": "general",
+  "doi": "10.1155/2023/2564200",
+  "urls": ["https://doi.org/10.1155/2023/2564200"],
+  "extensions": [
+    { "name": "originalClinvarCitation", "value": "doi:10.1155/2023/2564200" },
+    { "name": "citationRepaired", "value": true }
+  ]
+}
+```
+
+An id that cannot be used, such as a DOI recorded as `https`, yields no `doi` or URL. It appears only as `{ "name": "invalidClinvarCitation", "value": "https" }`. The full list of citation extensions and repair rules is on the [Final Statements](../pipeline/scv-statements/final-statements.md#temp_scv_citation_docs) pipeline page.
 
 ---
 

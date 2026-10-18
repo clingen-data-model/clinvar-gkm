@@ -29,6 +29,35 @@ extension on the listed expression's `nucleotideExpression`, never altered or dr
 - **Repaired** (5): no valid one exists. The expression is listed with its type letter restored, with
   `originalClinvarExpression` (the submitted text) and `expressionRepaired: true`.
 
+**Citations** — SCV `reportedIn` and `specifiedBy.reportedIn` now hold **one Document per ClinVar citation**,
+with no citation dropped and no ClinVar value changed silently. Counts are for the 2026-09-28 release:
+
+- **Multi-id citations merged** (5,698 citations on 5,698 SCVs): a citation with several ids, such as ACMG 2015
+  with a DOI, a PubMed id and a PMC id, was split into 2–3 Documents. It is now one Document with `pmid`, `doi`
+  and every URL. Together these citations account for 10,260 fewer Documents.
+- **Restored** (78,142 citations on 72,603 SCVs): URL-only citations (76,379) were dropped and are now
+  `{urls: [url]}`. Text-only citations (1,763) were dropped and now keep their text in a `clinvarCitationText`
+  extension. The 109 text-only assertion-method citations had no `reportedIn`; they now get one the same way.
+  Assertion-method citations that have both a URL and text (12,451) also gain `clinvarCitationText`.
+- **New labels**: ClinVar's citation `abbrev` (e.g. `ACMG, 2015`) is the Document `name`, and its citation
+  `type` (e.g. `general`, `practice guideline`) is `documentType`, verbatim.
+- **No more non-URL `urls` or invalid `doi` values.** 3,874 Documents had a `doi` that fails the VA-Spec pattern,
+  and 12 had a non-URL `urls` entry. Malformed DOIs such as `doi:10.…`, `https://doi.org/10.…` or ones with stray spaces (117)
+  are repaired; the original is kept in `originalClinvarCitation`, flagged `citationRepaired`. A DOI-sourced PubMed
+  or PMC id (3) moves to `pmid` or a PMC URL and also keeps `originalClinvarCitationSource`. Unusable ids, mostly
+  3,746 assertion-method DOIs recorded as `https`, are kept only in `invalidClinvarCitation`. A valid
+  SICI-style DOI that the VA-Spec pattern rejects is kept in `clinvarDoi`, with its `doi.org` URL.
+- **Ordering**: Documents are ordered by PubMed id and then by content, so a full and an incremental build
+  produce the same bytes.
+- **Assertion methods with two citations** (6 SCVs): `Method.reportedIn` holds one Document. ClinVar's first
+  citation stays on the method. The second used to be fused into it as `pmid: "29116469,29907814"`; it now goes on
+  the statement's `reportedIn`, flagged `clinvarAssertionMethodCitation`.
+
+See [Citations](../output-reference/scv-statements.md#citations). This is a data change only; the schema already
+allows these Document fields and extensions. In Parquet, `scv.reportedIn` and `scv.specifiedBy.reportedIn` gain
+`name`, `documentType` and `extensions` at the end of the struct. The existing fields keep their names, types and
+positions.
+
 **Parquet** — typed columns now hold bare ids, as the other id columns already did:
 
 - `vartherapy-proposition.object_therapy` is `clinvar.therapy:…` or `clinvar.therapygroup:…`, not a
