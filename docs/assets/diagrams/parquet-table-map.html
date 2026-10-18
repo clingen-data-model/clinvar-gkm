@@ -261,7 +261,7 @@ WHERE v.id = 'clinvar:51592';</pre>
   <svg class="d w820" viewBox="0 0 860 246" role="img" aria-label="The condition and therapy area: conditionSet references condition through a concepts array, and therapyGroup references therapy the same way. Both resolve fully.">
     <text class="lb" x="261" y="48" text-anchor="middle">concepts[] · 281,065 refs</text>
     <text class="lb p" x="261" y="128" text-anchor="middle">30,032 nested set members</text>
-    <text class="lb n" x="556" y="128" text-anchor="middle">concepts[] · 56 refs · 100 %</text>
+    <text class="lb n" x="556" y="128" text-anchor="middle">members[] · 56 refs · 100 %</text>
 
     <a class="tl" href="../../parquet/tables/#condition" target="_top"><title>Column reference: condition</title><rect class="b g" x="24" y="62" width="190" height="46" rx="7"/>
     <text class="nm" x="38" y="84">condition</text><text class="ct" x="38" y="99">23,162 · clinvar.trait:</text></a>
@@ -286,9 +286,9 @@ WHERE v.id = 'clinvar:51592';</pre>
   </div>
   <figcaption>
     <code>conditionSet</code> holds two kinds of row: 5,345 accessioned ClinVar TraitSets and 83,538 sets
-    minted for VCV-level aggregates. <code>therapyGroup</code> fans out the same way, but its
-    <code>concepts[]</code> exists <em>only</em> inside its JSON <code>value</code> — the table has just
-    <code>key</code> and <code>value</code> columns, so a schema-level read makes it look like a dead end.
+    minted for VCV-level aggregates. <code>therapyGroup</code> fans out the same way through its
+    <code>members[]</code> column of <code>clinvar.therapy:</code> ids. Releases before 1.0.2 have no
+    <code>members</code> column: the members are only inside the JSON <code>value</code>.
   </figcaption>
 </figure>
 <details class="q"><summary>Query — expand a conditionSet to member names (concepts[] holds ids, not names)</summary>

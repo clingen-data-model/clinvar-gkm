@@ -5,6 +5,46 @@ A running record of every schema change and data re-release on the 1.x line. See
 [GitHub Releases](https://github.com/clingen-data-model/clinvar-gkm/releases) page for the
 tagged source of each.
 
+## 1.0.2
+
+<!-- set the release date when 1.0.2 is tagged -->
+
+A conformance and Parquet-consistency release, shipped with one rebuild and one backfill of the published
+releases.
+
+**Schema change** — no change to valid instances:
+
+- The four `ClinvarCategoricalVariant` branches are now mutually exclusive, each keyed on its constraint
+  (`DefiningAlleleConstraint`, `CopyCountConstraint`, `CopyChangeConstraint`, or no `constraints`). Before, real
+  variants matched more than one branch and failed the `oneOf`. The bundle schema now validates the
+  `variation` section through `ClinvarCategoricalVariant`.
+- The schema `$id` version and the bundle `schema_version` move `1.0.1 → 1.0.2`.
+
+**Data-shape correction** — 14 variants (16 HGVS expressions) had `clinvarHgvsList` entries with syntax
+`hgvs.?`, which VRS doesn't allow. ClinVar's submitted text had no HGVS type letter. It is now kept as an
+extension on the listed expression's `nucleotideExpression`, never altered or dropped:
+
+- **Merged** (11): ClinVar also supplies a valid expression for the same accession. That one is listed, with
+  `invalidClinvarExpression` (the submitted text) and `expressionMerged: true`.
+- **Repaired** (5): no valid one exists. The expression is listed with its type letter restored, with
+  `originalClinvarExpression` (the submitted text) and `expressionRepaired: true`.
+
+**Parquet** — typed columns now hold bare ids, as the other id columns already did:
+
+- `vartherapy-proposition.object_therapy` is `clinvar.therapy:…` or `clinvar.therapygroup:…`, not a
+  JSON-quoted `"#/therapy/…"` pointer.
+- `variation.extensions[].value_gene_array[].gene` is `ncbigene:…`, not `#/gene/ncbigene:…`.
+- New columns: `condition.data`; `therapy.name` and `therapy.concept_type`; `therapyGroup.membership_operator`
+  and `therapyGroup.members`. `condition` keeps its camelCase column names, and `therapy` / `therapyGroup` keep
+  `key` and `value`.
+
+References inside the JSON bundle and the `data` columns still use `#/<section>/` pointers.
+
+**Backfill**: the 14 corrected `variation` records were patched into the published monthly full bundles, and
+the `variation` and `vartherapy-proposition` Parquet files were re-exported for every published release, so
+fulls and deltas carry the same forms. The new columns start with the 1.0.2 export and are not backfilled. The
+[Query the Data](../parquet/index.md) queries run on both the old and new forms.
+
 ## 1.0.1 — 2026-10-13
 
 A schema-conformance release shipped in place during the

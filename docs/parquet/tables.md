@@ -120,8 +120,8 @@ Two things differ inside `data`. References are bundle pointers (`#/submitter/cl
 
 Three tables break the pattern:
 
-- **[`condition`](#condition)** has no `data` column, and its columns are camelCase (`conceptType`, `primaryCoding`), not snake_case.
-- **[`therapy`](#therapy)** and **[`therapyGroup`](#therapyGroup)** have just two columns, `key` (the id) and `value` (the JSON object), so there is no `id` or `name`. Read a therapy's name with `value->>'name'`.
+- **[`condition`](#condition)** has camelCase columns (`conceptType`, `primaryCoding`), not snake_case. Its `data` column is new in 1.0.2; earlier releases don't have one.
+- **[`therapy`](#therapy)** and **[`therapyGroup`](#therapyGroup)** name the id column `key` and hold the JSON object in `value`, not `id` and `data`. From 1.0.2 they also have typed columns (`name`, `members`, …). On earlier releases, read a therapy's name with `value->>'name'`.
 
 ## Reading a table remotely
 
@@ -134,6 +134,8 @@ Every table can be queried straight from `https://data.clinvar-gkm.org/v1/datase
 The sizes in the reference below tell you which category a table is in.
 
 ## Column reference { #column-reference }
+
+<!-- regenerate after 1.0.2 export -->
 
 Every column of every table, from `DESCRIBE` on the release. Types are shown compactly: `STRUCT(a, b)` lists only the top-level fields, and `[]` marks a list. Expand **Full nested types** under a table for the complete DuckDB type, or run `DESCRIBE SELECT * FROM '<table>.parquet'` yourself.
 
@@ -152,7 +154,7 @@ ClinVar's variants, one row per ClinVar Variation id, as Cat-VRS **CategoricalVa
 | `id` | `VARCHAR` | `clinvar:<variation id>`, e.g. `clinvar:51592`. |
 | `type` | `VARCHAR` | Always `CategoricalVariant`. |
 | `name` | `VARCHAR` | ClinVar's preferred name, e.g. `NM_000059.4(BRCA2):c.4090A>C (p.Ile1364Leu)`. |
-| `extensions` | `STRUCT(name, value_string, value_boolean, value_coding, value_hgvs_array, value_gene_array)[]` | Named ClinVar attributes, each `{name, value_*}` with the one `value_*` field matching its kind populated: `clinvarVariationType`, `clinvarSubclassType`, `definingVrsVariationType`, `categoricalVariationType`, `clinvarCytogeneticLocation`, `clinvarHgvsList` (→ `value_hgvs_array`), `clinvarGeneList` (→ `value_gene_array`, whose `.gene` is a `#/gene/ncbigene:…` pointer), and VRS processing notes (`vrsProcessingException`, `vrsPreProcessingIssue`). |
+| `extensions` | `STRUCT(name, value_string, value_boolean, value_coding, value_hgvs_array, value_gene_array)[]` | Named ClinVar attributes, each `{name, value_*}` with the one `value_*` field matching its kind populated: `clinvarVariationType`, `clinvarSubclassType`, `definingVrsVariationType`, `categoricalVariationType`, `clinvarCytogeneticLocation`, `clinvarHgvsList` (→ `value_hgvs_array`; an entry's `nucleotideExpression` may carry `extensions` that keep ClinVar's submitted text when it wasn't valid HGVS: `invalidClinvarExpression` with `expressionMerged`, or `originalClinvarExpression` with `expressionRepaired`), `clinvarGeneList` (→ `value_gene_array`, whose `.gene` is a bare `ncbigene:…` id → `gene.id`), and VRS processing notes (`vrsProcessingException`, `vrsPreProcessingIssue`). |
 | `mappings` | `STRUCT(coding, relation)[]` | Identifiers for this variant in other systems: `{coding{system, code, iris}, relation}`. Always the ClinVar id (`exactMatch`); often dbSNP and ClinGen Allele Registry; sometimes dbVar, OMIM, UniProt, and locus-specific databases. |
 | `members` | `VARCHAR[]` | VRS ids of the concrete variants that are members of this category — `ga4gh:VA.` → `allele`, `ga4gh:CN.` → `copyNumberCount`, `ga4gh:CX.` → `copyNumberChange`. |
 | `constraints` | `STRUCT(type, allele, location, copies, copyChange, matchCharacteristic, relations)[]` | Cat-VRS constraints that define the category: `DefiningAlleleConstraint` (`.allele`), `DefiningLocationConstraint` (`.location`), `CopyCountConstraint` (`.copies`), `CopyChangeConstraint` (`.copyChange`); `.relations` lists allowed relations such as `liftover_to`, `transcribed_to`. |
@@ -259,7 +261,7 @@ Genes referenced by variants' gene lists, keyed by NCBI Gene id. A **leaf**.
 
 #### `condition` { #condition }
 
-ClinVar's conditions (traits) — diseases, phenotypes, findings — one row per ClinVar trait. The object of most propositions. A **leaf**. **No `data` column, and camelCase column names** (`conceptType`, `primaryCoding`), unlike the other tables.
+ClinVar's conditions (traits) — diseases, phenotypes, findings — one row per ClinVar trait. The object of most propositions. A **leaf**. **camelCase column names** (`conceptType`, `primaryCoding`), unlike the other tables.
 
 `condition.parquet` · **23,162** rows · 2.0 MB
 
@@ -272,6 +274,7 @@ ClinVar's conditions (traits) — diseases, phenotypes, findings — one row per
 | `aliases` | `VARCHAR[]` | Alternate names. |
 | `primaryCoding` | `STRUCT(name, code, system, iris)` | The MedGen coding: `{name, code, system, iris}`; `primaryCoding.code` is the MedGen CUI (e.g. `C3150901`). |
 | `mappings` | `STRUCT(coding, relation)[]` | Cross-references `{coding{name, code, system, iris}, relation}` — MONDO, Orphanet, OMIM, HPO, and others. |
+| `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). New in 1.0.2. |
 
 ??? note "Full nested types — `condition`"
     ```text
@@ -296,18 +299,20 @@ Sets of conditions a single proposition is about. Two kinds of row share the tab
 
 #### `therapy` { #therapy }
 
-Drug therapies named by therapeutic-response propositions. A **leaf**. **A two-column key/value table**: there are no `id` or `name` columns.
+Drug therapies named by therapeutic-response propositions. A **leaf**. **The id column is `key`**, not `id`, and the JSON object is in `value`, not `data`.
 
 `therapy.parquet` · **38** rows · 4.0 KB
 
 | Column | Type | Description |
 | --- | --- | --- |
 | `key` | `VARCHAR` | The therapy id, `clinvar.therapy:<sha256>` (content-addressed). |
-| `value` | `VARCHAR` | The JSON object as a string: `{conceptType: "Drug", name, type}`. Read the name with `value->>'name'`. |
+| `value` | `VARCHAR` | The JSON object as a string: `{conceptType: "Drug", name, type}`. |
+| `name` | `VARCHAR` | The therapy name. New in 1.0.2; on earlier releases use `value->>'name'`. |
+| `concept_type` | `VARCHAR` | Always `Drug`. New in 1.0.2. |
 
 #### `therapyGroup` { #therapyGroup }
 
-Combination therapies — a set of `therapy` members. Same key/value shape as `therapy`; its members exist only inside the JSON `value`.
+Combination therapies — a set of `therapy` members. Same `key`/`value` shape as `therapy`, plus typed columns for the operator and members.
 
 `therapyGroup.parquet` · **10** rows · 4.9 KB
 
@@ -315,6 +320,8 @@ Combination therapies — a set of `therapy` members. Same key/value shape as `t
 | --- | --- | --- |
 | `key` | `VARCHAR` | The group id, `clinvar.therapygroup:<sha256>`. |
 | `value` | `VARCHAR` | The JSON object as a string: `{type, membershipOperator, concepts}`, where `concepts` is a list of `#/therapy/clinvar.therapy:…` pointers. |
+| `membership_operator` | `VARCHAR` | Always `AND`: the members are given together. New in 1.0.2. |
+| `members` | `VARCHAR[]` | Member **ids**, `clinvar.therapy:…` → `therapy.key`. New in 1.0.2; on earlier releases the members are only in `value`. |
 
 ### 3 · Proposition
 
@@ -383,7 +390,7 @@ Variant × therapy propositions — somatic **therapeutic response**. These are 
 | `predicate` | `VARCHAR` | `predictsSensitivityTo` or `predictsResistanceTo`. |
 | `subject_variant_id` | `VARCHAR` | `clinvar:<n>` → `variation.id`. |
 | `condition_qualifier_id` | `VARCHAR` | The tumor/condition context, `clinvar.trait:` → `condition.id`. |
-| `object_therapy` | `VARCHAR` | A **JSON-quoted pointer**, not a bare id: `"#/therapy/clinvar.therapy:…"` or `"#/therapyGroup/clinvar.therapygroup:…"`. Strip the quotes and the `#/<section>/` prefix to join `therapy.key` / `therapyGroup.key`. |
+| `object_therapy` | `VARCHAR` | `clinvar.therapy:<sha256>` → `therapy.key`, or `clinvar.therapygroup:<sha256>` → `therapyGroup.key`. Releases before 1.0.2 held a JSON-quoted pointer instead; see [Joins that lie](joining.md#joins-that-lie). |
 | `gene_context_name` | `VARCHAR` | Gene symbol the submitter named as context for the claim (e.g. `EGFR`), or NULL. A natural key, not an id — symbols are not unique; join genes by `ncbigene:` id instead. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
 

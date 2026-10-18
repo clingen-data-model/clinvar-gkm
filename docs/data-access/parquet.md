@@ -19,7 +19,7 @@ Changed-rows delta Parquet (not a full set) — one group per weekly release, ca
 
 ## Available Parquet files
 
-Each Parquet file contains one bundle section with typed, query-friendly columns extracted from the JSON objects. Nearly every section includes an `id` column (the object identifier) and a `data` column (the full JSON object as a string), plus additional typed columns for key fields — enabling efficient filtering and aggregation without parsing JSON. The exceptions: `condition` has no `data` column, and `therapy` / `therapyGroup` have only `key` (the id) and `value` (the JSON object). The [column reference](../parquet/tables.md#column-reference) lists every column of every section.
+Each Parquet file contains one bundle section with typed, query-friendly columns extracted from the JSON objects. Nearly every section includes an `id` column (the object identifier) and a `data` column (the full JSON object as a string), plus additional typed columns for key fields — enabling efficient filtering and aggregation without parsing JSON. The exception: `therapy` and `therapyGroup` name the id column `key` and hold the JSON object in `value`. Before 1.0.2, `condition` had no `data` column and `therapy` / `therapyGroup` had only `key` and `value`. The [column reference](../parquet/tables.md#column-reference) lists every column of every section.
 
 Available Parquet files (22 sections):
 

@@ -110,7 +110,7 @@ FROM 'vartumor-proposition.parquet'
 UNION ALL BY NAME
 SELECT id, type AS proposition_type, predicate,
        subject_variant_id AS variant_id,
-       regexp_replace(trim(object_therapy, '"'), '^#/[A-Za-z]+/', '') AS object_id,   -- pointer -> bare id
+       regexp_replace(trim(object_therapy, '"'), '^#/[A-Za-z]+/', '') AS object_id,   -- bare id on any release
        gene_context_name, condition_qualifier_id
 FROM 'vartherapy-proposition.parquet';
 

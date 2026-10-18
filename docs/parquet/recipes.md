@@ -345,11 +345,11 @@ WITH v AS (
   SELECT id
   FROM 'variation.parquet'
   WHERE list_contains(
-          flatten([[g.gene FOR g IN e.value_gene_array
+          flatten([[replace(g.gene, '#/gene/', '') FOR g IN e.value_gene_array   -- bare ncbigene: id
                     IF g.relationship_type IN ('within single gene', 'within multiple genes by overlap',
                                                'asserted, but not computed')]
                    FOR e IN extensions IF e.name = 'clinvarGeneList']),
-          '#/gene/' || (SELECT id FROM 'gene.parquet' WHERE name = 'MYH7'))     -- <- your gene symbol
+          (SELECT id FROM 'gene.parquet' WHERE name = 'MYH7'))                 -- <- your gene symbol
 )
 SELECT classification.name AS clinvar_call, count(*) AS variants
 FROM 'vcv.parquet'
@@ -370,7 +370,7 @@ Pathogenic                                       96
 …
 ```
 
-About **5 s** and **1.6 GB**, nearly all of it reading the gene lists in the 4 GB `variation.parquet`. The `relationship_type` filter drops large copy-number variants that merely overlap the gene and variants near it; remove it to include them.
+About **5 s** and **1.6 GB**, nearly all of it reading the gene lists in the 4 GB `variation.parquet`. The `relationship_type` filter drops large copy-number variants that merely overlap the gene and variants near it; remove it to include them. The `replace(…, '#/gene/', '')` lets the query run on any release: before 1.0.2 each gene was a `#/gene/ncbigene:…` pointer, and on the bare `ncbigene:` ids from 1.0.2 on it changes nothing.
 
 !!! tip "Reach into nested lists with `[… FOR … IN …]`, not `unnest`"
     The gene filter above uses a list comprehension. Written instead with `unnest(extensions)` and `unnest(value_gene_array)`, the same filter returns the same 5,942 variants but takes about **37 s** and **2.5 GB**, because `unnest` expands every variant's whole extension list into rows first.
@@ -384,12 +384,12 @@ WITH v AS (                                  -- variants whose ClinVar gene list
   SELECT id, name
   FROM 'variation.parquet'
   WHERE list_contains(
-          flatten([[g.gene FOR g IN e.value_gene_array
+          flatten([[replace(g.gene, '#/gene/', '') FOR g IN e.value_gene_array   -- bare ncbigene: id
                     -- drop large CNVs that merely overlap the gene, and near-gene variants:
                     IF g.relationship_type IN ('within single gene', 'within multiple genes by overlap',
                                                'asserted, but not computed')]
                    FOR e IN extensions IF e.name = 'clinvarGeneList']),
-          '#/gene/' || (SELECT id FROM 'gene.parquet' WHERE name = 'MYH7'))     -- <- your gene symbol
+          (SELECT id FROM 'gene.parquet' WHERE name = 'MYH7'))                 -- <- your gene symbol
 ),
 prop AS (
   SELECT id, subject_variant_id AS variant_id FROM 'varcond-proposition.parquet'

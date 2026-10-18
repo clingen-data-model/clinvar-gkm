@@ -255,19 +255,18 @@ Every one of these returns a plausible answer with no error. Check them first wh
     | --- | --- | --- |
     | `varcond-proposition.object_condition_id`, `varcustom-proposition.object_id`, `vartumor-proposition.object_tumor_type_id` | `condition` or `conditionSet` | `clinvar.trait:` vs `clinvar.traitset:` / `clinvar.conditionset:` |
     | `variation.members[]` | `allele`, `copyNumberCount`, or `copyNumberChange` | `ga4gh:VA.` / `ga4gh:CN.` / `ga4gh:CX.` |
-    | `vartherapy-proposition.object_therapy` | `therapy` or `therapyGroup` | `#/therapy/` vs `#/therapyGroup/` |
+    | `vartherapy-proposition.object_therapy` | `therapy` or `therapyGroup` | `clinvar.therapy:` vs `clinvar.therapygroup:` |
     | `vcv_evidenceLine.evidence_items[]`, `rcv_evidenceLine.evidence_items[]` | an SCV, or another statement in the same table | `clinvar.submission:` vs `VCV`/`RCV` |
 
     Join every branch, or at least count the rows that matched nothing.
 
-!!! danger "`object_therapy` is a quoted pointer, not an id"
-    Its values look like `"#/therapy/clinvar.therapy:…"`, with literal double quotes and a section prefix. A direct `JOIN 'therapy.parquet' t ON t.key = p.object_therapy` matches **0** of the 13 rows. Strip both first:
+!!! note "Releases before 1.0.2 stored pointers, not ids"
+    In releases before 1.0.2, `vartherapy-proposition.object_therapy` held a JSON-quoted pointer (`"#/therapy/clinvar.therapy:…"`), and each variant gene-list entry held a `#/gene/ncbigene:…` pointer. Both now hold bare ids, and the backfill rewrote the published Parquet for past releases. Parquet downloaded before the backfill still has the old form. These expressions return the bare id from either form:
 
     ```sql
     regexp_replace(trim(p.object_therapy, '"'), '^#/[A-Za-z]+/', '')   -- -> clinvar.therapy:…
+    replace(g.gene, '#/gene/', '')                                      -- -> ncbigene:…
     ```
-
-    With that, all 13 resolve: 6 to a single `therapy` and 7 to a `therapyGroup`, whose members are again pointers inside its JSON `value`.
 
 !!! danger "`gene_context_name` is not a gene join"
     It is a gene **symbol**, filled in only on SCV propositions (6,655,967 of them) and **NULL on every VCV and RCV proposition**. Filtering aggregates by it returns nothing. Symbols are also not unique (`BTBD8` names two NCBI genes). To find a gene's variants, use the variant's gene list, which carries `ncbigene:` ids, as in the [PubMed-ids-for-a-gene recipe](recipes.md#pubmed-ids-for-a-gene).

@@ -44,7 +44,7 @@ Run the same `DESCRIBE` on `scv.parquet` and most of its columns are `STRUCT`s: 
 
 Every row has an `id`, and its shape tells you which table it belongs to (`clinvar.trait:2645` is a condition, `clinvar:51592` a variant; see [Ids tell you where to look](tables.md#ids-tell-you-where-to-look)). Ids are how tables connect, and they are how you look up one row.
 
-Two tables spell it differently: `therapy` and `therapyGroup` have just a `key` column (the id) and a `value` column (the JSON object).
+Two tables spell it differently: in `therapy` and `therapyGroup` the id column is `key`, and the JSON object is in `value`.
 
 ## The `data` column holds everything else
 
@@ -69,7 +69,7 @@ ga4gh:VA.E8L_Ltq8nC8OPjbEk1jasgkF9SXDKEkf  NC_000017.11:g.8173472G>A    A    17-
 …
 ```
 
-`->>` returns text, and `->` returns JSON that you can `CAST` to a typed list or struct, as `expressions` is here. `condition` is the exception: it has no `data` column.
+`->>` returns text, and `->` returns JSON that you can `CAST` to a typed list or struct, as `expressions` is here. In `therapy` and `therapyGroup` the same JSON is in `value`. Before 1.0.2, `condition` had no `data` column.
 
 ## Reading a `STRUCT` column
 
