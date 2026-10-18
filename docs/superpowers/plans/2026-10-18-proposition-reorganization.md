@@ -42,9 +42,9 @@ record) with DuckDB, calibrated against the published files (§5).
 | # | Item | Status | Recommendation |
 | --- | --- | --- | --- |
 | 1 | Groups and names | decided | keep the proposed names (§2.2) |
-| 2 | Shared Parquet schema | decided | the 13 columns in §4, `data` last |
+| 2 | Shared Parquet schema | decided | the 14 columns in §4, `data` last |
 | 3 | Ship in 1.x now, one rebuild | decided | full rebuild of 16 datasets (§6) |
-| A | Gene-context qualifier design | **open** (revised) | unaffected by the reorg; decide (a)/(b)/(c) **before** the rebuild or defer to a later forward-only release (§3.A) |
+| A | Gene-context qualifier design | **resolved** (2026-10-18) | (a) + (b) in this release (#159), (c) deferred; unaffected by the reorg (§3.A) |
 | B | Content-shared propositions | open | **defer** (§3.B) |
 | C | Version label | open | **1.1.0**, in place under `/v1/` (§3.C) |
 | D | Normalize VCV `object` and `vcv-` set members to `#/` pointers | **new, open** | **do it in this rebuild** (§3.D) |
@@ -190,6 +190,21 @@ they must be decided **before** the rebuild in §6, or deferred to a later relea
 (a) and (b) are additive or value-only; (c) changes which gene 27,817 propositions name, a semantic change
 that would need its own announcement.
 
+**Resolved (2026-10-18): (a) + (b) in this release, (c) deferred.** Implemented in #159 (`1.0`, SCV proc
+Step 2), so they ride the single rebuild:
+
+- (a) every `geneContextQualifier` carries a `geneContextSource` extension: `submittedSymbolMatches`,
+  `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`. Symbols are compared trimmed and
+  case-insensitively, which moves 146 case-only differences (`C19ORF12` vs `C19orf12`) from "differs" to
+  "matches". On 2026-09-28 the counts are 5,781,920 / 27,671 / 881,325 / 4,814, plus 40,849 propositions with
+  no qualifier.
+- (b) the placeholder's `name` is the submitter's symbol. The 5 multi-symbol placeholders join the symbols with
+  `", "` in submitted order. There is still no `primaryCoding`, and `submittedGeneSymbols` stays. The
+  `submittedNotNormalized` value is the not-normalized flag.
+- #159 also gives `submittedGeneSymbols` a total (submitted) order. `ARRAY_AGG(DISTINCT)` had left 45
+  multi-symbol lists to flip order between runs.
+- The shared Parquet schema gains `gene_context_source` (§4.1); #143 adds it to the four current tables.
+
 ### 3.B Content-shared propositions: defer
 
 **Measured** (memory `project_proposition_content_dedup`, 2026-08-16; and 2026-10-18 notes): VCV and RCV
@@ -311,6 +326,7 @@ the bundle path it derives from (user rule: Parquet holds only bundle-derivable 
 | `gene_context_id` | `VARCHAR` | `'ncbigene:' ‖ $.geneContextQualifier.primaryCoding.code` | from #143; NULL on placeholders |
 | `gene_context_name` | `VARCHAR` | `$.geneContextQualifier.name` | |
 | `submitted_gene_symbols` | `VARCHAR[]` | the `submittedGeneSymbols` extension on the qualifier | from #143 |
+| `gene_context_source` | `VARCHAR` | the `geneContextSource` extension on the qualifier, picked by name | from #143 / #159 (decision A) |
 | `mode_of_inheritance` | `VARCHAR` | `$.modeOfInheritanceQualifier.name` | germline SCV only |
 | `penetrance` | `VARCHAR` | `$.penetranceQualifier.name` | germline SCV only |
 | `data` | `VARCHAR` | the whole record, `collapse_ext_values` applied | last, as in every table |
@@ -353,6 +369,11 @@ SELECT
     WHERE JSON_VALUE(ext, '$.name') = 'submittedGeneSymbols'
     ORDER BY so
   ) AS submitted_gene_symbols,
+  (
+    SELECT JSON_VALUE(ext, '$.value_enum')
+    FROM UNNEST(JSON_QUERY_ARRAY(value, '$.geneContextQualifier.extensions')) AS ext
+    WHERE JSON_VALUE(ext, '$.name') = 'geneContextSource'
+  ) AS gene_context_source,
   JSON_VALUE(value, '$.modeOfInheritanceQualifier.name') AS mode_of_inheritance,
   JSON_VALUE(value, '$.penetranceQualifier.name') AS penetrance,
   collapse_ext_values(TO_JSON_STRING(value)) AS data
@@ -385,6 +406,7 @@ WHERE `clinvar_ingest.gkm_proposition_section`(JSON_VALUE(value, '$.type')) = '{
 | `vartherapy-proposition.condition_qualifier_id` | `condition_qualifier_id` (now on every table) |
 | — | `object_type` (new) |
 | `gene_context_id`, `submitted_gene_symbols` (#143, three of four tables) | same names, all four tables |
+| `gene_context_source` (#143, all four tables) | same name, all four tables |
 | `mode_of_inheritance`, `penetrance` (varcond, varcustom only) | all four tables |
 
 ### 4.4 Optional: `proposition_section` on statement tables (decision E)
@@ -633,7 +655,10 @@ SELECT
   CASE WHEN j->>'$.geneContextQualifier.primaryCoding.code' IS NOT NULL
        THEN 'ncbigene:' || (j->>'$.geneContextQualifier.primaryCoding.code') END AS gene_context_id,
   j->>'$.geneContextQualifier.name' AS gene_context_name,
-  CAST(json_extract(j, '$.geneContextQualifier.extensions[0].value') AS VARCHAR[]) AS submitted_gene_symbols,
+  CAST(list_filter(CAST(j->'$.geneContextQualifier.extensions' AS JSON[]),
+                   lambda e: e->>'$.name' = 'submittedGeneSymbols')[1]->'$.value' AS VARCHAR[]) AS submitted_gene_symbols,
+  list_filter(CAST(j->'$.geneContextQualifier.extensions' AS JSON[]),
+              lambda e: e->>'$.name' = 'geneContextSource')[1]->>'$.value' AS gene_context_source,
   j->>'$.modeOfInheritanceQualifier.name' AS mode_of_inheritance,
   j->>'$.penetranceQualifier.name' AS penetrance,
   data,
@@ -648,9 +673,9 @@ FROM (
 );
 ```
 
-(The `extensions[0]` shortcut holds because the qualifier carries at most one extension today; the shipped
-docs version should select by `name`.) The same expressions reproduce the new tables exactly: they are the
-§5.2 prototype.
+(Extensions are picked by `name`: from decision A the qualifier can carry two, so `extensions[0]` is no
+longer safe. `lambda e:` needs DuckDB 1.3 or later. `gene_context_source` is NULL in releases before #159.)
+The same expressions reproduce the new tables exactly: they are the §5.2 prototype.
 
 ### 7.3 Bundle code
 
@@ -741,6 +766,7 @@ Each `1.0` PR's description names its paired `main` PR.
 | #153 B1 strict | `fix/hgvs-invalid-expressions` | source YAMLs, `json/`, custom-proposition mixins | retarget to `1.0` after #145; coordinate dropping `ClinvarGermlineCustomProposition` from the bundle `anyOf` |
 | #143 Parquet ids | `1.0` | **the four `var*-proposition.sql` files PR 3 deletes**; `export-gkm-dicts.sh` | merge first; PR 3 carries its `gene_context_id` / `submitted_gene_symbols` / bare `object_therapy` logic into the template (direct conflict, resolved by PR 3) |
 | #150 C3 | `1.0` | `location.sql` only | none |
+| #159 gene context (decision A) | `1.0` | `gkm-scv-statement-proc.sql` Step 2 only; no pointer sites | merge before the rebuild; PR 3's template carries `gene_context_source` (already in §4.2) |
 | `fix/scv-citations` | `1.0.1` tag (uncommitted) | `gkm-scv-statement-proc.sql` Step 7b/7c, ~200 lines above the pointer sites | merge before PR 1; PR 1 rebases (shifted lines, low textual risk) |
 | `fix/allele-duplicate-key` | `1.0` | catvar proc | none |
 | #146 docs 1.0.2 | `main` | **every Query the Data page, the table-map diagram, the console, the changelog** | keep it as the base for D2: rebase D2 on it (or fold D2 into it); its changelog's patch-backfill text must be rewritten |
@@ -761,7 +787,7 @@ Each `1.0` PR's description names its paired `main` PR.
 2. **Allele non-determinism.** Independent full rebuilds pick different duplicate-key alleles (1.0.1 follow-up),
    which reappears as allele oracle failures and spurious allele changes in republished releases unless the
    tie-breakers land first.
-3. **A second rebuild.** Any data decision left open (3.A (a)/(b)/(c), 3.D, E, C1-driven bundle additions)
+3. **A second rebuild.** Any data decision left open (3.A (c), 3.D, E, C1-driven bundle additions)
    that is taken after the backfill forces another full backfill. Settle them first, or explicitly defer them as
    forward-only.
 4. **Weekly releases in the window.** A weekly run from `1.0` after the merges and before the backfill would
@@ -778,7 +804,8 @@ Each `1.0` PR's description names its paired `main` PR.
 **Open questions**
 
 1. C: 1.1.0 (recommended) or 1.0.2?
-2. 3.A: decide (a)/(b)/(c) before the rebuild, or defer them as forward-only?
+2. ~~3.A: decide (a)/(b)/(c) before the rebuild, or defer them as forward-only?~~ Resolved: (a) + (b) in this
+   release (#159), (c) deferred.
 3. 3.D: normalize VCV objects and `vcv-` set members now (recommended)?
 4. E: add `proposition_section` to the statement Parquet?
 5. `submitted_gene_symbols`: empty array (as #143) or NULL when absent?
