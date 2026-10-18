@@ -32,8 +32,15 @@ $defs:
       nucleotideExpression:
         $refCurie: vrs:Expression
         description: >-
-          The nucleotide HGVS expression with `syntax` (e.g.,` hgvs.c`, `hgvs.g`) 
-          and `value` (the HGVS string). 
+          The nucleotide HGVS expression with `syntax` (e.g.,` hgvs.c`, `hgvs.g`)
+          and `value` (the HGVS string). ClinVar's submitted text is never altered: when
+          ClinVar supplies an expression with no HGVS type letter (e.g.
+          `NC_000017.10:9481617_9489649del`), it is kept as an extension of the listed
+          expression. If ClinVar also supplies a valid expression for the same accession,
+          that one is listed with extensions `invalidClinvarExpression` (the submitted text) and
+          `expressionMerged` (`true`). Otherwise the listed expression is a repair (the
+          type letter restored) with extensions `originalClinvarExpression` (the submitted
+          text) and `expressionRepaired` (`true`).
       nucleotideType:
         type: string
         enum: 

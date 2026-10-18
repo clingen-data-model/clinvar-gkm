@@ -670,22 +670,93 @@ BEGIN
           ) as so_list
           CROSS JOIN UNNEST(so_list.so_items) as so_item
       ),
-      hgvs_items AS (
-        -- clinvar hgvs list structure nucleotide, protein, molecular consequence, mane select, mane plus
+      hgvs_exprs AS (
+        -- Every ClinVar expression for a variation + accession. n_letter is the HGVS type letter after the
+        -- colon (g, c, n, ...); it is NULL when the submitted text lacks one, e.g.
+        -- 'NC_000017.10:9481617_9489649del', which is not valid HGVS. repaired is that text with the type
+        -- letter restored: stray leading dots stripped, 'g(' -> 'g.(', '(g.123' -> 'g.(123', or the letter
+        -- for the accession's HGVS type inserted.
         SELECT
-          vh.variation_id,
-          vh.accession,
-          format('hgvs.%s', IFNULL(REGEXP_EXTRACT(exp.nucleotide, r':([gmcnrp])\\.'), '?')) as nucleotide_syntax,
-          exp.nucleotide as nucleotide_value,
-          format('hgvs.%s', IFNULL(REGEXP_EXTRACT(exp.protein, r':([gmcnrp])\\.'), '?')) as protein_syntax,
-          exp.protein as protein_value,
-          SPLIT(vh.consq_id) as consq_ids,
-          vh.hgvs_source,
-          vh.mane_plus,
-          vh.mane_select,
-          vh.type
-        FROM `{S}.variation_hgvs` vh
-        LEFT JOIN UNNEST(vh.expr) as exp
+          x.*,
+          SUBSTR(x.nucleotide, 1, STRPOS(x.nucleotide, ':')) ||
+          CASE
+            WHEN REGEXP_CONTAINS(x.change, r'^[gmcnrp]\\.') THEN x.change
+            WHEN REGEXP_CONTAINS(x.change, r'^[gmcnrp]\\(') THEN SUBSTR(x.change, 1, 1) || '.' || SUBSTR(x.change, 2)
+            WHEN REGEXP_CONTAINS(x.change, r'^\\([gmcnrp]\\.') THEN SUBSTR(x.change, 2, 2) || '(' || SUBSTR(x.change, 4)
+            ELSE CASE
+              WHEN x.type LIKE 'genomic%' THEN 'g.'
+              WHEN x.type = 'coding' THEN 'c.'
+              WHEN x.type = 'non-coding' THEN 'n.'
+            END || x.change
+          END as repaired
+        FROM (
+          SELECT
+            vh.variation_id,
+            vh.accession,
+            exp.nucleotide,
+            exp.protein,
+            REGEXP_EXTRACT(exp.nucleotide, r':([gmcnrp])\\.') as n_letter,
+            COUNTIF(REGEXP_EXTRACT(exp.nucleotide, r':([gmcnrp])\\.') IS NOT NULL)
+              OVER (PARTITION BY vh.variation_id, vh.accession) as valid_in_row,
+            REGEXP_REPLACE(SUBSTR(exp.nucleotide, STRPOS(exp.nucleotide, ':') + 1), r'^\\.+', '') as change,
+            vh.consq_id,
+            vh.hgvs_source,
+            vh.mane_plus,
+            vh.mane_select,
+            vh.type
+          FROM `{S}.variation_hgvs` vh
+          LEFT JOIN UNNEST(vh.expr) as exp
+        ) x
+      ),
+      hgvs_invalid_dups AS (
+        -- invalid expressions that have a valid ClinVar expression for the same accession: merged into it
+        SELECT
+          variation_id,
+          accession,
+          ARRAY_CONCAT(
+            ARRAY_AGG(
+              STRUCT('invalidClinvarExpression' as name, nucleotide as value_string, CAST(null as BOOLEAN) as value_boolean)
+              ORDER BY nucleotide),
+            [STRUCT('expressionMerged' as name, CAST(null as STRING) as value_string, TRUE as value_boolean)]
+          ) as exts
+        FROM hgvs_exprs
+        WHERE n_letter IS NULL AND valid_in_row > 0
+        GROUP BY variation_id, accession
+      ),
+      hgvs_items AS (
+        -- clinvar hgvs list structure nucleotide, protein, molecular consequence, mane select, mane plus.
+        -- ClinVar's submitted text is never altered or dropped. An invalid nucleotide expression (no HGVS type
+        -- letter) is not listed as its own expression; it is kept as an extension of the listed one:
+        --   * merged:   on ClinVar's valid expression for the same accession, when one exists
+        --               -> invalidClinvarExpression: <submitted text>, expressionMerged: true
+        --   * repaired: on our repair of it, when none exists
+        --               -> originalClinvarExpression: <submitted text>, expressionRepaired: true
+        SELECT
+          e.variation_id,
+          e.accession,
+          format('hgvs.%s', COALESCE(e.n_letter, REGEXP_EXTRACT(e.repaired, r':([gmcnrp])\\.'))) as nucleotide_syntax,
+          IF(e.n_letter IS NOT NULL, e.nucleotide, e.repaired) as nucleotide_value,
+          IF(e.n_letter IS NOT NULL, d.exts, [
+            STRUCT('originalClinvarExpression' as name, e.nucleotide as value_string, CAST(null as BOOLEAN) as value_boolean),
+            STRUCT('expressionRepaired' as name, CAST(null as STRING) as value_string, TRUE as value_boolean)
+          ]) as nucleotide_extensions,
+          format('hgvs.%s', IFNULL(REGEXP_EXTRACT(e.protein, r':([gmcnrp])\\.'), '?')) as protein_syntax,
+          e.protein as protein_value,
+          SPLIT(e.consq_id) as consq_ids,
+          e.hgvs_source,
+          e.mane_plus,
+          e.mane_select,
+          e.type
+        FROM hgvs_exprs e
+        LEFT JOIN hgvs_invalid_dups d
+        ON
+          d.variation_id = e.variation_id
+          AND
+          d.accession = e.accession
+        WHERE
+          e.n_letter IS NOT NULL
+          OR
+          (e.valid_in_row = 0 AND REGEXP_CONTAINS(e.repaired, r':[gmcnrp]\\.'))
       ),
       hgvs_consq AS (
         SELECT
@@ -729,7 +800,8 @@ BEGIN
             STRUCT(
               STRUCT(
                 hgvs.nucleotide_syntax as syntax,
-                hgvs.nucleotide_value as value
+                hgvs.nucleotide_value as value,
+                hgvs.nucleotide_extensions as extensions
               ) as nucleotideExpression,
               hgvs.type as nucleotideType,
               hgvs.mane_select as maneSelect,
