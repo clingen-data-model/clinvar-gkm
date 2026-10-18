@@ -33,8 +33,10 @@ the pipeline is built.
     - The proposition type → bundle section mapping is copied in 11 places: 8 procedure sites, the NDJSON export,
       the delta manifest and the conformance validator (#155 §2.3). The copies already differ in detail.
 2. **Mixed reference forms.** Bare CURIEs and `#/section/key` pointers were both used for references: 7,811,379
-   bare values in VCV proposition `object` and `vcv-` ConceptSet `concepts` on 2026-10-11 (#160). A Parquet
-   column carried quoted pointers. Consumers and our own Parquet SQL strip pointers with regexes in many places.
+   bare values in VCV proposition `object` and `vcv-` ConceptSet `concepts` on 2026-10-11 (#160). The published
+   1.0.1 Parquet held JSON-quoted pointers in `vartherapy-proposition.object_therapy`
+   (`"\"#/therapy/clinvar.therapy:…\""`), fixed in #143. Consumers and our own Parquet SQL strip pointers with
+   regexes in many places.
 3. **Incremental and full builds disagreed.**
     - Unordered aggregates made the procedures non-deterministic: two runs of unchanged SQL gave different
       fingerprints for `gkm_dict_variation`, the VCV/RCV aggregate tables, `variation_hgvs` and
