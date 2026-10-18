@@ -15,8 +15,8 @@ SELECT
   -- Appended after `data` (additive; existing column positions unchanged). The gene-context qualifier is
   -- SCV-only and variant-derived (one representative gene per variant, chosen upstream), NOT
   -- submitter-asserted. gene_context_id is the qualifier's own primaryCoding.code as a bare `ncbigene:` id
-  -- (joins gene.parquet `id`); NULL when there is no coding (incl. the "submitted genes were not
-  -- normalized" placeholder). Never derived from a symbol.
+  -- (joins gene.parquet `id`); NULL when there is no coding (incl. the no-single-gene placeholder, whose
+  -- name is the submitter's symbol). Never derived from a symbol.
   IF(JSON_VALUE(value, '$.geneContextQualifier.primaryCoding.code') IS NULL, NULL,
      CONCAT('ncbigene:', JSON_VALUE(value, '$.geneContextQualifier.primaryCoding.code'))) AS gene_context_id,
   -- The submitter's own gene symbols, verbatim and in order, from the qualifier extension picked by name.
@@ -26,7 +26,15 @@ SELECT
          UNNEST(JSON_QUERY_ARRAY(ext, '$.value_string')) AS sym WITH OFFSET so
     WHERE JSON_VALUE(ext, '$.name') = 'submittedGeneSymbols'
     ORDER BY so
-  ) AS submitted_gene_symbols
+  ) AS submitted_gene_symbols,
+  -- Where the qualifier's gene came from, from the `geneContextSource` extension picked by name:
+  -- submittedSymbolMatches | submittedSymbolDiffers | inferredFromVariant | submittedNotNormalized.
+  -- NULL on RCV/VCV rows and on releases built before the extension existed.
+  (
+    SELECT JSON_VALUE(ext, '$.value_enum')
+    FROM UNNEST(JSON_QUERY_ARRAY(value, '$.geneContextQualifier.extensions')) AS ext
+    WHERE JSON_VALUE(ext, '$.name') = 'geneContextSource'
+  ) AS gene_context_source
 FROM (
   SELECT key, value FROM `{DATASET}.gkm_dict_proposition`
   UNION ALL SELECT key, value FROM `{DATASET}.gkm_dict_rcv_proposition`
