@@ -47,6 +47,23 @@ Only includes expressions for variations that successfully resolved through VRS 
 
 **Output:** `temp_ctxvar_expression` — one row per variation+accession+assembly. <span class="role-badge badge-internal">Internal</span>
 
+### Step 2b: Build `gkm_dict_allele`
+
+Builds one VRS `Allele` record per allele id. Two or more ClinVar variations can normalize to the same VRS
+allele: for example, a duplication in a repeat run that was submitted at two positions, or a ClinVar duplicate
+variation that has not been merged yet. The record is built per allele, not per variation, so its key is never
+repeated:
+
+- `expressions` — the union of every contributing variation's expressions, de-duplicated and ordered by
+  precedence, then syntax, then value.
+- `name` — the Step 2 rule (HGVS type descending, then precedence) applied across that union, with the
+  expression value as the final tie-breaker. The name is always one of the expressions, so the expressions the
+  other variations would have used as the name stay in `expressions`.
+
+Each contributing variation keeps its own Categorical Variant record, which references the shared allele.
+
+**Output:** `gkm_dict_allele` — one row per VRS allele id.
+
 ### Step 3: Build `temp_ctxvar`
 
 Joins VRS output with expressions and sequence locations to build contextual variant records. Maps VRS output types to categorical variant types:

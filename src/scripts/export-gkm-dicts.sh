@@ -84,16 +84,6 @@ export_variation_ndjson() {
     FROM \`${DATASET}.${table}\`"
 }
 
-extract_parquet() {
-  # Raw Parquet export via bq extract — for tables with no FK columns to clean.
-  local table="$1"
-  local basename="$2"
-  local sharded="${basename%.parquet}-*.parquet"
-  echo "  Exporting ${table} -> ${sharded} (Parquet)"
-  bq extract --destination_format PARQUET --compression SNAPPY \
-    "${DATASET}.${table}" "${GCS_PARQUET_PATH}/${sharded}"
-}
-
 extract_parquet_typed() {
   # Export via EXPORT DATA using a SQL schema file from parquet-schemas/.
   # Schema files define typed columns, FK cleanup, and data column.
@@ -111,14 +101,15 @@ extract_parquet_typed() {
   sql="${sql//\{DATASET\}/${DATASET}}"
   if $DELTA; then
     # Typed-Parquet can't use src_table() (the table name is embedded inside the schema SQL,
-    # not passed as a CLI arg). Every parquet-schemas/*.sql references exactly ONE
-    # {DATASET}.gkm_dict_* table and never uses "gkm_dict_" in any alias/column/literal, so
-    # this qualified-reference rewrite is safe. Invariant future schema authors must preserve.
+    # not passed as a CLI arg). Every {DATASET}.gkm_dict_* table a parquet-schemas/*.sql
+    # references (the proposition files reference several) has a delta_gkm_dict_* counterpart,
+    # and no schema file uses "gkm_dict_" in any alias/column/literal, so rewriting every
+    # qualified reference is safe. Invariant future schema authors must preserve.
     sql="${sql//.gkm_dict_/.delta_gkm_dict_}"
   fi
   echo "  Exporting ${sql_file%.sql} -> ${sharded} (Parquet via EXPORT DATA)"
-  # ${COLLAPSE_UDF} makes collapse_ext_values(...) available to schema files whose `data` column
-  # needs the extension value_xxx -> value collapse (proposition groups, scv, evidenceLine).
+  # ${COLLAPSE_UDF} makes collapse_ext_values(...) (the extension value_xxx -> value collapse),
+  # is_blank(...) (all-null placeholder test) and bundle_cleanup(...) available to every schema file.
   bq query --use_legacy_sql=false --nouse_cache \
     "${COLLAPSE_UDF}
     EXPORT DATA OPTIONS(
@@ -152,7 +143,17 @@ SQL
 # populated `value_*` key (JSON_STRIP_NULLS already dropped the rest) to `value` in every extension object
 # (any object with a `name` sibling), at any nesting depth. The gkm_dict_* tables keep `value_*`; only the
 # bundle export is collapsed. Prepend ${COLLAPSE_UDF} to any query that uses collapse_ext_values(...).
+# It also defines:
+#   is_blank(x)        TRUE when x is NULL or holds only nulls / empty arrays / empty structs at every depth
+#                      (what JSON_STRIP_NULLS remove_empty drops). Typed-Parquet schema files use it to drop
+#                      all-null placeholder structs and array elements the bundle does not carry.
+#   bundle_cleanup(j)  the assembler's exact record cleanup (gkm_json_cleanup.py strip_empty, then the
+#                      value_* collapse) for KV `data`/`value` columns, which the bundle cleans only in the
+#                      assembler. Unlike JSON_STRIP_NULLS it KEEPS list elements, so a VRS Range [null, n]
+#                      keeps its null bound (JSON_STRIP_NULLS would turn it into [n]).
 COLLAPSE_UDF=$(cat <<'SQL'
+CREATE TEMP FUNCTION is_blank(x ANY TYPE) AS (
+  JSON_TYPE(JSON_STRIP_NULLS(TO_JSON(x), remove_empty => TRUE)) = 'null');
 CREATE TEMP FUNCTION collapse_ext_values(j STRING)
 RETURNS STRING
 LANGUAGE js AS r"""
@@ -165,6 +166,31 @@ LANGUAGE js AS r"""
     }
   }
   const p = JSON.parse(j); walk(p); return JSON.stringify(p);
+""";
+CREATE TEMP FUNCTION bundle_cleanup(j STRING)
+RETURNS STRING
+LANGUAGE js AS r"""
+  if (j == null) return null;
+  function strip(v){
+    if (Array.isArray(v)) return v.map(strip);
+    if (v && typeof v === "object"){
+      const o = {};
+      for (const k of Object.keys(v)){
+        const s = strip(v[k]);
+        if (!(s === null || (typeof s === "object" && Object.keys(s).length === 0))) o[k] = s;
+      }
+      return o;
+    }
+    return v;
+  }
+  function walk(o){
+    if (Array.isArray(o)){ for (const x of o) walk(x); return; }
+    if (o && typeof o === "object"){
+      if ("name" in o){ for (const k of Object.keys(o)){ if (k.indexOf("value_")===0){ o["value"]=o[k]; delete o[k]; } } }
+      for (const k of Object.keys(o)) walk(o[k]);
+    }
+  }
+  const p = strip(JSON.parse(j)); walk(p); return JSON.stringify(p);
 """;
 SQL
 )
@@ -271,7 +297,7 @@ extract_parquet_typed gene.parquet gene.sql
 extract_parquet_typed variation.parquet variation.sql
 
 # Conditions
-extract_parquet "$(src_table gkm_dict_condition)" condition.parquet
+extract_parquet_typed condition.parquet condition.sql
 extract_parquet_typed conditionSet.parquet conditionSet.sql
 
 # Therapies (key/value JSON dicts -> two string columns key,value). Typed export casts the
