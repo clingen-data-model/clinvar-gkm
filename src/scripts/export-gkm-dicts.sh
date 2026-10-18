@@ -108,8 +108,8 @@ extract_parquet_typed() {
     sql="${sql//.gkm_dict_/.delta_gkm_dict_}"
   fi
   echo "  Exporting ${sql_file%.sql} -> ${sharded} (Parquet via EXPORT DATA)"
-  # ${COLLAPSE_UDF} makes collapse_ext_values(...) available to schema files whose `data` column
-  # needs the extension value_xxx -> value collapse (proposition groups, scv, evidenceLine).
+  # ${COLLAPSE_UDF} makes collapse_ext_values(...) (the extension value_xxx -> value collapse),
+  # is_blank(...) (all-null placeholder test) and bundle_cleanup(...) available to every schema file.
   bq query --use_legacy_sql=false --nouse_cache \
     "${COLLAPSE_UDF}
     EXPORT DATA OPTIONS(
@@ -143,7 +143,17 @@ SQL
 # populated `value_*` key (JSON_STRIP_NULLS already dropped the rest) to `value` in every extension object
 # (any object with a `name` sibling), at any nesting depth. The gkm_dict_* tables keep `value_*`; only the
 # bundle export is collapsed. Prepend ${COLLAPSE_UDF} to any query that uses collapse_ext_values(...).
+# It also defines:
+#   is_blank(x)        TRUE when x is NULL or holds only nulls / empty arrays / empty structs at every depth
+#                      (what JSON_STRIP_NULLS remove_empty drops). Typed-Parquet schema files use it to drop
+#                      all-null placeholder structs and array elements the bundle does not carry.
+#   bundle_cleanup(j)  the assembler's exact record cleanup (gkm_json_cleanup.py strip_empty, then the
+#                      value_* collapse) for KV `data`/`value` columns, which the bundle cleans only in the
+#                      assembler. Unlike JSON_STRIP_NULLS it KEEPS list elements, so a VRS Range [null, n]
+#                      keeps its null bound (JSON_STRIP_NULLS would turn it into [n]).
 COLLAPSE_UDF=$(cat <<'SQL'
+CREATE TEMP FUNCTION is_blank(x ANY TYPE) AS (
+  JSON_TYPE(JSON_STRIP_NULLS(TO_JSON(x), remove_empty => TRUE)) = 'null');
 CREATE TEMP FUNCTION collapse_ext_values(j STRING)
 RETURNS STRING
 LANGUAGE js AS r"""
@@ -156,6 +166,31 @@ LANGUAGE js AS r"""
     }
   }
   const p = JSON.parse(j); walk(p); return JSON.stringify(p);
+""";
+CREATE TEMP FUNCTION bundle_cleanup(j STRING)
+RETURNS STRING
+LANGUAGE js AS r"""
+  if (j == null) return null;
+  function strip(v){
+    if (Array.isArray(v)) return v.map(strip);
+    if (v && typeof v === "object"){
+      const o = {};
+      for (const k of Object.keys(v)){
+        const s = strip(v[k]);
+        if (!(s === null || (typeof s === "object" && Object.keys(s).length === 0))) o[k] = s;
+      }
+      return o;
+    }
+    return v;
+  }
+  function walk(o){
+    if (Array.isArray(o)){ for (const x of o) walk(x); return; }
+    if (o && typeof o === "object"){
+      if ("name" in o){ for (const k of Object.keys(o)){ if (k.indexOf("value_")===0){ o["value"]=o[k]; delete o[k]; } } }
+      for (const k of Object.keys(o)) walk(o[k]);
+    }
+  }
+  const p = strip(JSON.parse(j)); walk(p); return JSON.stringify(p);
 """;
 SQL
 )

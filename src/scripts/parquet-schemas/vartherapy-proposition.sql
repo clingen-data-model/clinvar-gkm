@@ -10,7 +10,7 @@ SELECT
   -- bare id like every other FK column (was a JSON-quoted '#/therapy/...' pointer)
   REGEXP_REPLACE(JSON_VALUE(value, '$.object'), r'^#/[^/]+/', '') AS object_therapy,
   JSON_VALUE(value, '$.geneContextQualifier.name') AS gene_context_name,
-  collapse_ext_values(TO_JSON_STRING(value)) AS data,
+  bundle_cleanup(TO_JSON_STRING(value)) AS data,  -- = the bundle record (assembler strip_empty + value_* collapse)
   -- Appended after `data` (additive; existing column positions unchanged). The gene-context qualifier is
   -- SCV-only and variant-derived (one representative gene per variant, chosen upstream), NOT
   -- submitter-asserted. gene_context_id is the qualifier's own primaryCoding.code as a bare `ncbigene:` id
