@@ -50,7 +50,6 @@ ClinVar's original values are never changed silently. Only invalid values are re
 | `clinvarDoi` | string | A valid DOI that VA-Spec's `doi` pattern rejects, such as SICI DOIs (`10.1002/(SICI)…`). `doi` stays empty and the DOI's `doi.org` URL is in `urls`. |
 | `invalidClinvarCitation` | string | An id that cannot be used, e.g. a DOI of `https`. No `doi` or URL is derived from it. |
 | `unmappedClinvarCitation` | string | `<source>:<id>` for a source the pipeline does not recognize |
-| `clinvarAssertionMethodCitation` | `true` | A second or later assertion-method citation, reported on the statement (see `temp_scv_method`) |
 
 The repairs:
 
@@ -65,7 +64,22 @@ Collects the submission's citation Documents into the `reportedIn` array, ordere
 
 ### temp_scv_method
 
-Builds the assertion method record for the `specifiedBy` field: the method type, the method name and, when the assertion method cites a publication, its Document. `Method.reportedIn` holds one Document. When ClinVar lists more than one citation for the method, the first, in ClinVar's order, goes on the method. The rest go on the statement's `reportedIn`, with the extension `clinvarAssertionMethodCitation`.
+Builds the assertion method record for the `specifiedBy` field: the method type, the method name and, when the assertion method cites a publication, its Document. `Method.reportedIn` holds one Document. When ClinVar lists more than one citation for the method, the first, in ClinVar's order, goes on the method. The rest go in the Method's own extension `additionalClinvarMethodCitations`, whose `value` is an array of Documents built by the same rules:
+
+```json
+{
+  "type": "Method",
+  "methodType": "research",
+  "name": "Submitter's publication",
+  "reportedIn": { "type": "Document", "pmid": "29116469", "urls": ["https://pubmed.ncbi.nlm.nih.gov/29116469"] },
+  "extensions": [
+    {
+      "name": "additionalClinvarMethodCitations",
+      "value": [ { "type": "Document", "pmid": "29907814", "urls": ["https://pubmed.ncbi.nlm.nih.gov/29907814"] } ]
+    }
+  ]
+}
+```
 
 ---
 

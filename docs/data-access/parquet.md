@@ -180,7 +180,7 @@ Statement sections (`scv`, `vcv`, `rcv`) share a common set of typed columns:
 | `extensions` | string | JSON array of extensions |
 | `data` | string | Full JSON object |
 
-SCV statements include additional columns: `description`, `contributions`, `reportedIn` and `specifiedBy`. `reportedIn` is a list of citation Documents, one per ClinVar citation, and `specifiedBy.reportedIn` is the assertion method's Document. From 1.0.2 each Document also has `name`, `documentType` and `extensions`; see [`scv`](../parquet/tables.md#scv).
+SCV statements include additional columns: `description`, `contributions`, `reportedIn` and `specifiedBy`. `reportedIn` is a list of citation Documents, one per ClinVar citation, and `specifiedBy.reportedIn` is the assertion method's Document. From 1.1.0 each Document also has `name`, `documentType` and `extensions`; see [`scv`](../parquet/tables.md#scv).
 
 The four proposition sections are typed per datatype: `varcond-proposition` (`subject_variant_id`, `predicate`, `object_condition_id`, `type`, `gene_context_name`, `mode_of_inheritance`, `penetrance`), `vartumor-proposition` (`object_tumor_type_id`, …), `vartherapy-proposition` (`object_therapy`, `condition_qualifier_id`, …), and `varcustom-proposition` (`subject_id`, `object_id`, `type`, `predicate`, `gene_context_name`, `mode_of_inheritance`, `penetrance`) — enabling JOINs across statements, variants, and conditions without parsing JSON. From 1.0.2, all four also carry `gene_context_id` and `submitted_gene_symbols`, and from this release `gene_context_source` (where the gene came from); see [Gene context](../parquet/tables.md#gene-context) for what the gene context is (one representative gene per variant, not a submitter-asserted gene).
 

@@ -165,7 +165,7 @@ The pipeline never changes ClinVar's citation data silently. When an invalid id 
 }
 ```
 
-An id that cannot be used, such as a DOI recorded as `https`, yields no `doi` or URL. It appears only as `{ "name": "invalidClinvarCitation", "value": "https" }`. The full list of citation extensions and repair rules is on the [Final Statements](../pipeline/scv-statements/final-statements.md#temp_scv_citation_docs) pipeline page.
+An id that cannot be used, such as a DOI recorded as `https`, yields no `doi` or URL. It appears only as `{ "name": "invalidClinvarCitation", "value": "https" }`. `Method.reportedIn` holds one Document. When ClinVar lists more than one citation for an assertion method, the first stays there and the rest are Documents in the Method's `additionalClinvarMethodCitations` extension. The full list of citation extensions and repair rules is on the [Final Statements](../pipeline/scv-statements/final-statements.md#temp_scv_citation_docs) pipeline page.
 
 ---
 
