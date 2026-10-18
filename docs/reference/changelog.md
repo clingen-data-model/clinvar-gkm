@@ -42,6 +42,9 @@ extension on the listed expression's `nucleotideExpression`, never altered or dr
   gene symbols, verbatim). `gene_context_name` is unchanged. The qualifier is one representative gene per
   variant, chosen upstream, not a submitter-asserted gene; see
   [Gene context](../parquet/tables.md#gene-context).
+- `location` gains `loc_start_min`, `loc_start_max`, `loc_end_min` and `loc_end_max`: the bounds of each
+  coordinate, set from the range when ClinVar gives an uncertain start or end (about 72,000 rows, mostly
+  copy-number variants), where `loc_start` / `loc_end` are NULL. See [`location`](../parquet/tables.md#location).
 
 References inside the JSON bundle and the `data` columns still use `#/<section>/` pointers.
 

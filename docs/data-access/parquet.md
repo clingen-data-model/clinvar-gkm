@@ -182,7 +182,7 @@ Statement sections (`scv`, `vcv`, `rcv`) share a common set of typed columns:
 
 SCV statements include additional columns: `description`, `contributions`, `reported_in`, `specified_by`.
 
-The four proposition sections are typed per datatype: `varcond-proposition` (`subject_variant_id`, `predicate`, `object_condition_id`, `type`, `gene_context_name`, `mode_of_inheritance`, `penetrance`), `vartumor-proposition` (`object_tumor_type_id`, …), `vartherapy-proposition` (`object_therapy`, `condition_qualifier_id`, …), and `varcustom-proposition` (`subject_id`, `object_id`, `gene_context_name`, `mode_of_inheritance`, `penetrance`) — enabling JOINs across statements, variants, and conditions without parsing JSON.
+The four proposition sections are typed per datatype: `varcond-proposition` (`subject_variant_id`, `predicate`, `object_condition_id`, `type`, `gene_context_name`, `mode_of_inheritance`, `penetrance`), `vartumor-proposition` (`object_tumor_type_id`, …), `vartherapy-proposition` (`object_therapy`, `condition_qualifier_id`, …), and `varcustom-proposition` (`subject_id`, `object_id`, `type`, `predicate`, `gene_context_name`, `mode_of_inheritance`, `penetrance`) — enabling JOINs across statements, variants, and conditions without parsing JSON. From 1.0.2, all four also carry `gene_context_id` and `submitted_gene_symbols`; see [Gene context](../parquet/tables.md#gene-context) for what the gene context is (one representative gene per variant, not a submitter-asserted gene).
 
 Run `DESCRIBE` in DuckDB to see the full schema for any section.
 
