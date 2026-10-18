@@ -183,16 +183,16 @@
 <details class="q"><summary>Query — row counts by area</summary>
 <pre>SELECT 'variation' AS section, count(*) n FROM 'variation.parquet'
 UNION ALL SELECT 'condition',           count(*) FROM 'condition.parquet'
-UNION ALL SELECT 'varcond-proposition', count(*) FROM 'varcond-proposition.parquet'
+UNION ALL SELECT 'propositionPathogenicity', count(*) FROM 'propositionPathogenicity.parquet'
 UNION ALL SELECT 'scv', count(*) FROM 'scv.parquet'
 UNION ALL SELECT 'rcv', count(*) FROM 'rcv.parquet'
 UNION ALL SELECT 'vcv', count(*) FROM 'vcv.parquet';</pre>
-<div class="out">variation             4,647,675
-condition                23,162
-varcond-proposition  27,459,666
-scv                   6,735,011
-rcv                  11,839,428
-vcv                   9,079,449</div>
+<div class="out">variation                  4,647,675
+condition                     23,162
+propositionPathogenicity  27,447,072
+scv                        6,735,011
+rcv                       11,839,428
+vcv                        9,079,449</div>
 </details>
 
 <!-- ============ AREA 1 ============ -->
@@ -306,8 +306,8 @@ clinvar.conditionset:vcv-50aae75…  OR   Charcot-Marie-Tooth disease type 2; no
 <div class="sec" id="d-4">Area 3 — Proposition, what is being claimed</div>
 <figure>
   <div class="frame">
-  <svg class="d w820" viewBox="0 0 840 320" role="img" aria-label="The proposition shape: a record with subject, predicate, object and qualifier slots. The subject slot points to variation; the object slot points by id prefix to condition or conditionSet; the qualifier slot points to gene by name.">
-    <text class="lb p" x="545" y="22" text-anchor="middle">object · prefix-dispatched · all resolve</text>
+  <svg class="d w820" viewBox="0 0 840 320" role="img" aria-label="The proposition shape: a record with subject, predicate, object and qualifier slots. The subject slot points to variation; the object slot points to condition, conditionSet, therapy or therapyGroup, as object_type says; the qualifier slot points to gene by name.">
+    <text class="lb p" x="545" y="22" text-anchor="middle">object_id · dispatch on object_type · all resolve</text>
 
     <rect class="b g" x="252" y="56" width="248" height="178" rx="8"/>
     <line class="div" x1="252" y1="86" x2="500" y2="86"/>
@@ -334,7 +334,7 @@ clinvar.conditionset:vcv-50aae75…  OR   Charcot-Marie-Tooth disease type 2; no
     <text class="ct" x="602" y="132">1.27 M refs · traitset:</text>
     <text class="ct" x="602" y="145">1.63 M refs · conditionset:</text>
     <rect class="b" x="588" y="166" width="212" height="42" rx="7"/>
-    <text class="nm" x="602" y="187">therapy / therapyGroup</text><text class="ct" x="602" y="200">13 refs · vartherapy only</text>
+    <text class="nm" x="602" y="187">therapy / therapyGroup</text><text class="ct" x="602" y="200">13 refs · therapeutic response only</text>
 
     <path class="e poly" d="M504,152 C548,152 552,65 584,65" marker-end="url(#ap)"/>
     <path class="e poly" d="M504,158 C548,158 552,126 584,126" marker-end="url(#ap)"/>
@@ -346,8 +346,8 @@ clinvar.conditionset:vcv-50aae75…  OR   Charcot-Marie-Tooth disease type 2; no
   </svg>
   </div>
   <figcaption>
-    All four proposition tables share this subject–predicate–object skeleton; only the column names differ. The
-    object slot is the only polymorphic one, and every branch resolves. Prefix dispatch is
+    All four proposition tables have this shape, with the same column names (from 1.1.0). The object slot is
+    the only polymorphic one: <code>object_type</code> names its table, and every branch resolves. Dispatch is
     <strong>deterministic</strong> — no object id ever matches both <code>condition</code> and
     <code>conditionSet</code>.
   </figcaption>
@@ -359,14 +359,14 @@ WITH set_names AS (
     FROM 'conditionSet.parquet' cs, unnest(cs.concepts) AS t(cid)
     LEFT JOIN 'condition.parquet' c ON c.id = cid GROUP BY cs.id
 )
-SELECT DISTINCT p.object_condition_id, coalesce(c.name, sn.member_names) AS condition
-FROM 'varcond-proposition.parquet' p
-LEFT JOIN 'condition.parquet' c  ON c.id  = p.object_condition_id
-LEFT JOIN set_names           sn ON sn.id = p.object_condition_id
+SELECT DISTINCT p.object_id, coalesce(c.name, sn.member_names) AS condition
+FROM 'propositionPathogenicity.parquet' p
+LEFT JOIN 'condition.parquet' c  ON p.object_type = 'condition'    AND c.id  = p.object_id
+LEFT JOIN set_names           sn ON p.object_type = 'conditionSet' AND sn.id = p.object_id
 WHERE p.subject_variant_id = 'clinvar:51592'            -- NM_000059.4(BRCA2):c.4090A>C
   AND coalesce(c.name, sn.member_names) IS NOT NULL
 ORDER BY condition LIMIT 12;</pre>
-<div class="out">object_condition_id                condition
+<div class="out">object_id                          condition
 clinvar.trait:32337                Breast and/or ovarian cancer
 clinvar.trait:636                  Breast-ovarian cancer, familial, susceptibility to, 2
 clinvar.conditionset:vcv-2604d0…   Breast-ovarian cancer…; Familial cancer of breast; …  (8 members)
@@ -422,7 +422,7 @@ SELECT DISTINCT s.classification.name AS classification, sub.name AS submitter
 FROM 'scv.parquet' s, unnest(s.contributions) AS t(con)
 JOIN 'submitter.parquet' sub ON sub.id = con.contributor
 WHERE s.proposition_id IN (
-    SELECT id FROM 'varcond-proposition.parquet' WHERE subject_variant_id = 'clinvar:51592')
+    SELECT id FROM read_parquet('proposition*.parquet') WHERE subject_variant_id = 'clinvar:51592')
 LIMIT 12;</pre>
 <div class="out">classification           submitter
 Benign                   Color Diagnostics, LLC DBA Color Health

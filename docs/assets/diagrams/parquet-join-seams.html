@@ -105,7 +105,7 @@
 <header class="top">
 <h1>ClinVar-GKM parquet — join seams</h1>
 <p class="lede">
-  The five places tables join. Three of them dispatch on an id prefix and silently drop rows if you join only
+  The five places tables join. Three of them dispatch on an id prefix or a type column and silently drop rows if you join only
   one branch. Figures are from the 14&nbsp;Oct&nbsp;2026 release.
 </p>
 <nav class="mini" aria-label="Diagrams in this frame"><ol>
@@ -120,21 +120,22 @@
 <!-- ============ SEAM A ============ -->
 <div class="seamhd" id="d-1">Seam A · Variant → Proposition</div>
 <p class="seamsub">The clean one. All four proposition tables resolve to <code>variation.id</code> at 100 % —
-  27,655,456 references, zero unresolved. They just spell the column differently.</p>
+  27,655,456 references, zero unresolved. They share one column schema (from 1.1.0), so one glob,
+  <code>read_parquet('proposition*.parquet')</code>, reads them all through <code>subject_variant_id</code>.</p>
 <figure>
   <div class="frame">
-  <svg class="d w820" viewBox="0 0 860 192" role="img" aria-label="Seam A: four proposition tables all join to variation.id at one hundred percent, using either subject_variant_id or subject_id.">
+  <svg class="d w820" viewBox="0 0 860 192" role="img" aria-label="Seam A: four proposition tables all join to variation.id at one hundred percent through subject_variant_id.">
     <defs>
       <marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,1.2 L8.6,5 L0,8.8 z" fill="currentColor"/></marker>
       <marker id="ap" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,1.2 L8.6,5 L0,8.8 z" fill="var(--poly)"/></marker>
     </defs>
-    <text class="lb" x="356" y="26" text-anchor="middle">all four resolve at 100 %</text>
+    <text class="lb" x="356" y="26" text-anchor="middle">subject_variant_id · all four resolve at 100 %</text>
     <a class="tl" href="../../parquet/tables/#variation" target="_top"><title>Column reference: variation</title><rect class="b g" x="24" y="62" width="170" height="46" rx="7"/>
     <text class="nm" x="38" y="84">variation</text><text class="ct" x="38" y="99">PK id</text></a>
-    <a class="tl" href="../../parquet/tables/#varcond-proposition" target="_top"><title>Column reference: varcond-proposition</title><rect class="b" x="528" y="44" width="304" height="30" rx="6"/><text class="sl" x="542" y="64">varcond.subject_variant_id</text></a>
-    <a class="tl" href="../../parquet/tables/#varcustom-proposition" target="_top"><title>Column reference: varcustom-proposition</title><rect class="b" x="528" y="80" width="304" height="30" rx="6"/><text class="sl" x="542" y="100">varcustom.subject_id</text></a>
-    <a class="tl" href="../../parquet/tables/#vartumor-proposition" target="_top"><title>Column reference: vartumor-proposition</title><rect class="b" x="528" y="116" width="304" height="30" rx="6"/><text class="sl" x="542" y="136">vartumor.subject_variant_id</text></a>
-    <a class="tl" href="../../parquet/tables/#vartherapy-proposition" target="_top"><title>Column reference: vartherapy-proposition</title><rect class="b" x="528" y="152" width="304" height="30" rx="6"/><text class="sl" x="542" y="172">vartherapy.subject_variant_id</text></a>
+    <a class="tl" href="../../parquet/tables/#propositionPathogenicity" target="_top"><title>Column reference: propositionPathogenicity</title><rect class="b" x="528" y="44" width="304" height="30" rx="6"/><text class="sl" x="542" y="64">propositionPathogenicity</text></a>
+    <a class="tl" href="../../parquet/tables/#propositionClinvarCustom" target="_top"><title>Column reference: propositionClinvarCustom</title><rect class="b" x="528" y="80" width="304" height="30" rx="6"/><text class="sl" x="542" y="100">propositionClinvarCustom</text></a>
+    <a class="tl" href="../../parquet/tables/#propositionOncogenicity" target="_top"><title>Column reference: propositionOncogenicity</title><rect class="b" x="528" y="116" width="304" height="30" rx="6"/><text class="sl" x="542" y="136">propositionOncogenicity</text></a>
+    <a class="tl" href="../../parquet/tables/#propositionSomaticClinicalImpact" target="_top"><title>Column reference: propositionSomaticClinicalImpact</title><rect class="b" x="528" y="152" width="304" height="30" rx="6"/><text class="sl" x="542" y="172">propositionSomaticClinicalImpact</text></a>
     <path class="e" d="M524,59 C430,59 300,78 198,80" marker-end="url(#a)"/>
     <path class="e" d="M524,95 C430,95 300,86 198,86" marker-end="url(#a)"/>
     <path class="e" d="M524,131 C430,131 300,94 198,92" marker-end="url(#a)"/>
@@ -142,16 +143,11 @@
   </svg>
   </div>
 </figure>
-<details class="q"><summary>Query — one variant, every proposition (the 4 tables spell the subject column differently)</summary>
-<pre><span class="c">-- union the 4 proposition tables once; subject is subject_variant_id or subject_id</span>
+<details class="q"><summary>Query — one variant, every proposition (one glob reads all four tables)</summary>
+<pre><span class="c">-- the 4 proposition tables share one schema; read them as one table</span>
 SELECT v.id, v.name, p.type, p.predicate
 FROM 'variation.parquet' v
-JOIN (
-    SELECT id, type, predicate, subject_variant_id AS subj FROM 'varcond-proposition.parquet'
-    UNION ALL SELECT id, type, predicate, subject_id         FROM 'varcustom-proposition.parquet'
-    UNION ALL SELECT id, type, predicate, subject_variant_id FROM 'vartumor-proposition.parquet'
-    UNION ALL SELECT id, type, predicate, subject_variant_id FROM 'vartherapy-proposition.parquet'
-) p ON p.subj = v.id
+JOIN read_parquet('proposition*.parquet') p ON p.subject_variant_id = v.id
 WHERE v.id = 'clinvar:51592';</pre>
 <div class="out">id             name                                         type                             predicate
 <a href="https://identifiers.org/clinvar:51592" target="idorg">clinvar:51592</a>  NM_000059.4(BRCA2):c.4090A>C (p.Ile1364Leu)  VariantPathogenicityProposition  isCausalFor
@@ -160,23 +156,24 @@ WHERE v.id = 'clinvar:51592';</pre>
 
 <!-- ============ SEAM B ============ -->
 <div class="seamhd" id="d-2">Seam B · Proposition → Condition or ConditionSet</div>
-<p class="seamsub">The condition column of every proposition table (<code>object_condition_id</code>,
-  <code>object_id</code>, <code>object_tumor_type_id</code>, <code>condition_qualifier_id</code>) is polymorphic,
-  deterministic, and complete. All three prefixes resolve; two of them land in
-  <code>conditionSet</code> — one accessioned, one minted — so dispatch on the prefix to know which kind of set
-  you have, but join both to the same table.</p>
+<p class="seamsub">Every proposition table's <code>object_id</code> is polymorphic, deterministic, and complete:
+  <code>object_type</code> names its table. Condition objects split three ways by prefix, and all three resolve;
+  two land in <code>conditionSet</code> — one accessioned, one minted — so read the prefix to know which kind of
+  set you have, but join both to the same table. The 13 therapeutic-response propositions point at a
+  <code>therapy</code> or <code>therapyGroup</code> instead, with the tumor type in
+  <code>condition_qualifier_id</code>.</p>
 <figure>
   <div class="frame">
-  <svg class="d w820" viewBox="0 0 860 176" role="img" aria-label="Seam B: the condition-id columns of the four proposition tables split three ways by prefix - clinvar.trait to condition, clinvar.traitset and clinvar.conditionset to conditionSet - and all three now resolve.">
+  <svg class="d w820" viewBox="0 0 860 176" role="img" aria-label="Seam B: the object_id column of the four proposition tables splits by object_type and prefix - clinvar.trait to condition, clinvar.traitset and clinvar.conditionset to conditionSet, plus 13 therapy objects - and all resolve.">
     <rect class="b g" x="24" y="62" width="210" height="46" rx="7"/>
-    <text class="nm" x="38" y="84">condition-id columns</text><text class="ct" x="38" y="99">27,655,456 refs · 4 tables</text>
+    <text class="nm" x="38" y="84">object_id</text><text class="ct" x="38" y="99">27,655,456 refs · 4 tables</text>
     <circle cx="300" cy="85" r="13" fill="none" stroke="var(--poly)" stroke-width="1.6"/>
     <text class="lb p" x="300" y="89" text-anchor="middle">?</text>
-    <text class="lb p" x="300" y="56" text-anchor="middle">prefix</text>
+    <text class="lb p" x="300" y="56" text-anchor="middle">object_type</text>
 
     <rect class="b" x="392" y="10" width="420" height="38" rx="6"/>
     <text class="sl" x="406" y="27">clinvar.trait:&lt;n&gt;  →  condition.id</text>
-    <text class="ct" x="406" y="41">24,751,743 refs · 100 %</text>
+    <text class="ct" x="406" y="41">24,751,730 refs · 100 %</text>
     <rect class="b" x="392" y="66" width="420" height="38" rx="6"/>
     <text class="sl" x="406" y="83">clinvar.traitset:&lt;n&gt;  →  conditionSet.id</text>
     <text class="ct" x="406" y="97">1,271,961 refs · 100 % · accessioned</text>
@@ -190,11 +187,12 @@ WHERE v.id = 'clinvar:51592';</pre>
     <path class="e poly" d="M314,92 C352,92 358,141 388,141" marker-end="url(#ap)"/>
   </svg>
   </div>
-  <figcaption><code>conditionSet.concepts[]</code> holds <em>ids</em>, not names — expand it and re-join to
+  <figcaption>Not drawn: 13 therapeutic-response objects, 6 <code>therapy</code> and 7 <code>therapyGroup</code>.
+    <code>conditionSet.concepts[]</code> holds <em>ids</em>, not names — expand it and re-join to
     <code>condition</code> to get member names; a minted set can nest a <code>clinvar.traitset:</code> member, so
     expansion is one level deeper than it looks.</figcaption>
 </figure>
-<details class="q"><summary>Query — dispatch object_condition_id by prefix, resolved to condition / conditionSet names</summary>
+<details class="q"><summary>Query — dispatch object_id on object_type, resolved to condition / conditionSet names</summary>
 <pre><span class="c">-- resolve the object to a name: condition.name, or the set's members joined by ';'</span>
 WITH set_names AS (
     SELECT cs.id, string_agg(c.name, '; ') AS member_names
@@ -202,18 +200,16 @@ WITH set_names AS (
     LEFT JOIN 'condition.parquet' c ON c.id = cid
     GROUP BY cs.id
 )
-SELECT DISTINCT p.object_condition_id,
-    CASE WHEN c.id  IS NOT NULL THEN 'condition'
-         WHEN sn.id IS NOT NULL THEN 'conditionSet' ELSE 'UNRESOLVED' END AS resolved_via,
-    coalesce(c.name, sn.member_names) AS condition_name
-FROM 'varcond-proposition.parquet' p
-LEFT JOIN 'condition.parquet' c  ON c.id  = p.object_condition_id
-LEFT JOIN set_names           sn ON sn.id = p.object_condition_id
-WHERE p.object_condition_id IN (
+SELECT DISTINCT p.object_id, p.object_type,
+    coalesce(c.name, sn.member_names, 'UNRESOLVED') AS condition_name
+FROM 'propositionPathogenicity.parquet' p
+LEFT JOIN 'condition.parquet' c  ON p.object_type = 'condition'    AND c.id  = p.object_id
+LEFT JOIN set_names           sn ON p.object_type = 'conditionSet' AND sn.id = p.object_id
+WHERE p.object_id IN (
     'clinvar.trait:16789', 'clinvar.traitset:10013',
     'clinvar.conditionset:vcv-c620785e2025efde81bdd15c814fa83d')
-ORDER BY resolved_via;</pre>
-<div class="out">object_condition_id          resolved_via  condition_name
+ORDER BY p.object_type;</pre>
+<div class="out">object_id                    object_type   condition_name
 clinvar.trait:16789          condition     not specified
 clinvar.traitset:10013       conditionSet  GM1 gangliosidosis; Mucopolysaccharidosis, MPS-IV-B
 clinvar.conditionset:vcv-…   conditionSet  Epidermodysplasia verruciformis; Inborn genetic diseases</div>
@@ -223,43 +219,45 @@ clinvar.conditionset:vcv-…   conditionSet  Epidermodysplasia verruciformis; In
 <div class="seamhd" id="d-3">Seam C · Proposition → Statements <span style="font-weight:600;color:var(--poly)">· 1:1</span></div>
 <p class="seamsub"><code>proposition_id</code> is unique within each statement table <em>and</em> across all three
   combined — 27,653,888 references, 27,653,888 distinct. A proposition has at most one statement, so it is
-  effectively a side-table of its statement. Only 1,555 <code>varcond</code> propositions have no statement.</p>
+  effectively a side-table of its statement. Only the 1,568 evidence-line targets in
+  <code>propositionSomaticClinicalImpact</code> (diagnostic, prognostic, therapeutic response) have no statement.</p>
 <figure>
   <div class="frame">
-  <svg class="d w820" viewBox="0 0 860 206" role="img" aria-label="Seam C: scv, rcv and vcv each resolve their proposition_id across varcond-proposition, varcustom-proposition and vartumor-proposition.">
+  <svg class="d w820" viewBox="0 0 860 206" role="img" aria-label="Seam C: scv, rcv and vcv each resolve their proposition_id across propositionPathogenicity, propositionClinvarCustom, propositionSomaticClinicalImpact and propositionOncogenicity.">
     <a class="tl" href="../../parquet/tables/#scv" target="_top"><title>Column reference: scv</title><rect class="b" x="24" y="20" width="200" height="40" rx="7"/><text class="nm" x="38" y="38">scv</text><text class="ct" x="38" y="52">6,735,011</text></a>
     <a class="tl" href="../../parquet/tables/#rcv" target="_top"><title>Column reference: rcv</title><rect class="b" x="24" y="76" width="200" height="40" rx="7"/><text class="nm" x="38" y="94">rcv</text><text class="ct" x="38" y="108">11,839,428</text></a>
     <a class="tl" href="../../parquet/tables/#vcv" target="_top"><title>Column reference: vcv</title><rect class="b" x="24" y="132" width="200" height="40" rx="7"/><text class="nm" x="38" y="150">vcv</text><text class="ct" x="38" y="164">9,079,449</text></a>
 
-    <line class="e poly" x1="300" y1="26" x2="300" y2="166" style="opacity:1"/>
+    <line class="e poly" x1="300" y1="24" x2="300" y2="176" style="opacity:1"/>
     <path class="e poly" d="M228,40 H296"/><path class="e poly" d="M228,96 H296"/><path class="e poly" d="M228,152 H296"/>
-    <text class="lb p" x="300" y="186" text-anchor="middle">proposition_id</text>
+    <text class="lb p" x="300" y="196" text-anchor="middle">proposition_id</text>
 
-    <a class="tl" href="../../parquet/tables/#varcond-proposition" target="_top"><title>Column reference: varcond-proposition</title><rect class="b g" x="420" y="20" width="396" height="40" rx="7"/>
-    <text class="sl" x="434" y="38">varcond-proposition</text><text class="ct" x="434" y="52">6,694,282 / 11,758,493 / 9,005,336</text></a>
-    <a class="tl" href="../../parquet/tables/#varcustom-proposition" target="_top"><title>Column reference: varcustom-proposition</title><rect class="b g" x="420" y="76" width="396" height="40" rx="7"/>
-    <text class="sl" x="434" y="94">varcustom-proposition</text><text class="ct" x="434" y="108">38,805 / 77,087 / 70,290</text></a>
-    <a class="tl" href="../../parquet/tables/#vartumor-proposition" target="_top"><title>Column reference: vartumor-proposition</title><rect class="b g" x="420" y="132" width="396" height="40" rx="7"/>
-    <text class="sl" x="434" y="150">vartumor-proposition</text><text class="ct" x="434" y="164">1,924 / 3,848 / 3,823</text></a>
+    <a class="tl" href="../../parquet/tables/#propositionPathogenicity" target="_top"><title>Column reference: propositionPathogenicity</title><rect class="b g" x="420" y="6" width="396" height="40" rx="7"/>
+    <text class="sl" x="434" y="24">propositionPathogenicity</text><text class="ct" x="434" y="38">6,692,530 / 11,753,254 / 9,001,288</text></a>
+    <a class="tl" href="../../parquet/tables/#propositionClinvarCustom" target="_top"><title>Column reference: propositionClinvarCustom</title><rect class="b g" x="420" y="54" width="396" height="40" rx="7"/>
+    <text class="sl" x="434" y="72">propositionClinvarCustom</text><text class="ct" x="434" y="86">38,805 / 77,087 / 70,290</text></a>
+    <a class="tl" href="../../parquet/tables/#propositionSomaticClinicalImpact" target="_top"><title>Column reference: propositionSomaticClinicalImpact</title><rect class="b g" x="420" y="102" width="396" height="40" rx="7"/>
+    <text class="sl" x="434" y="120">propositionSomaticClinicalImpact</text><text class="ct" x="434" y="134">1,752 / 5,239 / 4,048</text></a>
+    <a class="tl" href="../../parquet/tables/#propositionOncogenicity" target="_top"><title>Column reference: propositionOncogenicity</title><rect class="b g" x="420" y="150" width="396" height="40" rx="7"/>
+    <text class="sl" x="434" y="168">propositionOncogenicity</text><text class="ct" x="434" y="182">1,924 / 3,848 / 3,823</text></a>
 
-    <path class="e poly" d="M304,40 H416" marker-end="url(#ap)"/>
-    <path class="e poly" d="M304,96 H416" marker-end="url(#ap)"/>
-    <path class="e poly" d="M304,152 H416" marker-end="url(#ap)"/>
+    <path class="e poly" d="M304,26 H416" marker-end="url(#ap)"/>
+    <path class="e poly" d="M304,74 H416" marker-end="url(#ap)"/>
+    <path class="e poly" d="M304,122 H416" marker-end="url(#ap)"/>
+    <path class="e poly" d="M304,170 H416" marker-end="url(#ap)"/>
   </svg>
   </div>
   <figcaption>Counts are, in order, how many <code>scv</code> / <code>rcv</code> / <code>vcv</code> rows resolve
-    to that proposition table. Each tier's three shares sum to its exact row count, so joining
-    <code>varcond</code> alone silently loses the remainder.</figcaption>
+    to that proposition table. Each tier's four shares sum to its exact row count, so joining
+    <code>propositionPathogenicity</code> alone silently loses the remainder; join the glob.</figcaption>
 </figure>
 <details class="q"><summary>Query — SCVs across proposition tables: scv + classification + proposition type + variant &amp; condition names</summary>
-<pre><span class="c">-- union the proposition tables keeping subject + object, then resolve both to names.</span>
-<span class="c">-- (at the SCV level the object is always a condition; therapy objects live only in</span>
-<span class="c">--  vartherapy-proposition, which has no SCVs.)</span>
+<pre><span class="c">-- read all four proposition tables keeping subject + object, then resolve both to names.</span>
+<span class="c">-- (a statement's object is always a condition or set; therapy objects belong only to the</span>
+<span class="c">--  therapeutic-response propositions, which no statement classifies.)</span>
 WITH prop AS (
-    SELECT id, type, subject_variant_id AS variant_id, object_condition_id  AS object_id
-      FROM 'varcond-proposition.parquet'
-    UNION ALL SELECT id, type, subject_id,         object_id             FROM 'varcustom-proposition.parquet'
-    UNION ALL SELECT id, type, subject_variant_id, object_tumor_type_id  FROM 'vartumor-proposition.parquet'
+    SELECT id, type, subject_variant_id AS variant_id, object_id
+      FROM read_parquet('proposition*.parquet')
 ),
 set_names AS (
     SELECT cs.id, string_agg(c.name, '; ') AS member_names

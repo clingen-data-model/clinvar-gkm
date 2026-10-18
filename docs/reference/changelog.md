@@ -22,8 +22,14 @@ carries a set of corrections, all delivered through one full rebuild that rewrit
   names the new section (`#/varcond-proposition/SCV…-PATH` becomes `#/propositionPathogenicity/SCV…-PATH`).
   The four Parquet tables share one column schema, so `read_parquet('proposition*.parquet')` reads them all.
   `object_condition_id`, `object_tumor_type_id` and `object_therapy` become `object_id`, and
-  `varcustom-proposition.subject_id` becomes `subject_variant_id`. The Parquet entries below name the
-  pre-1.1.0 tables.
+  `varcustom-proposition.subject_id` becomes `subject_variant_id`. Every proposition table gains
+  `object_type` (the table `object_id` points at: `condition`, `conditionSet`, `therapy` or `therapyGroup`)
+  and the columns only some of the old tables had (`condition_qualifier_id`, `mode_of_inheritance`,
+  `penetrance`). The section is a function of the proposition `type` alone; see the
+  [migration table](../parquet/tables.md#proposition-migration). The bundle schema's
+  `propositionClinvarCustom` section no longer lists the abstract `ClinvarGermlineCustomProposition` base, so
+  each record must carry one of the concrete `Clinvar*` types (every published record already does). The
+  Parquet entries below name the pre-1.1.0 tables.
 - **Breaking: version.** The schema `$id` version and the bundle `schema_version` move `1.0.1 → 1.1.0`.
 - **Corrective**: everything else below. The schema change to `ClinvarCategoricalVariant` accepts every valid
   record; the data corrections fix HGVS syntax, duplicate allele keys, RCV propositions without an object,

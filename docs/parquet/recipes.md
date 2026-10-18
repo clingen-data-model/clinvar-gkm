@@ -52,10 +52,8 @@ WHERE a.name = 'NC_000013.11:g.32338445A>C';
 One row for each VCV root statement (one per classification type) and each RCV (one per condition), with the condition names resolved:
 
 ```sql
-WITH prop AS (
-  SELECT id, type, subject_variant_id AS variant_id, object_condition_id AS object_id FROM 'varcond-proposition.parquet'
-  UNION ALL SELECT id, type, subject_id,         object_id            FROM 'varcustom-proposition.parquet'
-  UNION ALL SELECT id, type, subject_variant_id, object_tumor_type_id FROM 'vartumor-proposition.parquet'
+WITH prop AS (                    -- all four proposition tables: one shared schema, one glob
+  SELECT id, type, subject_variant_id AS variant_id, object_id FROM read_parquet('proposition*.parquet')
 ),
 set_names AS (
   SELECT cs.id, string_agg(c.name, '; ' ORDER BY c.name) AS member_names
@@ -95,10 +93,8 @@ Drop the root-statement filter to see each level statement as well (`-EP`, `-CP`
 Who submitted, what they said, at what level, for which condition, and when they last evaluated it:
 
 ```sql
-WITH prop AS (
-  SELECT id, type, subject_variant_id AS variant_id, object_condition_id AS object_id FROM 'varcond-proposition.parquet'
-  UNION ALL SELECT id, type, subject_id,         object_id            FROM 'varcustom-proposition.parquet'
-  UNION ALL SELECT id, type, subject_variant_id, object_tumor_type_id FROM 'vartumor-proposition.parquet'
+WITH prop AS (                    -- all four proposition tables: one shared schema, one glob
+  SELECT id, type, subject_variant_id AS variant_id, object_id FROM read_parquet('proposition*.parquet')
 ),
 set_names AS (
   SELECT cs.id, string_agg(c.name, '; ' ORDER BY c.name) AS member_names
@@ -140,12 +136,8 @@ PubMed ids appear only on **SCVs** (individual submissions), in `scv.reportedIn[
 WITH v AS (
   SELECT id, name FROM 'variation.parquet' WHERE id = 'clinvar:10'         -- <- your variant
 ),
--- the four proposition tables spell the subject column differently; union them once
-prop AS (
-  SELECT id, subject_variant_id AS variant_id FROM 'varcond-proposition.parquet'
-  UNION ALL SELECT id, subject_id         FROM 'varcustom-proposition.parquet'
-  UNION ALL SELECT id, subject_variant_id FROM 'vartumor-proposition.parquet'
-  UNION ALL SELECT id, subject_variant_id FROM 'vartherapy-proposition.parquet'
+prop AS (                                     -- all four proposition tables, one glob
+  SELECT id, subject_variant_id AS variant_id FROM read_parquet('proposition*.parquet')
 ),
 cites AS (                                    -- one row per (SCV, cited PubMed id)
   SELECT p.variant_id, s.id AS scv_id, unnest(s.reportedIn).pmid AS pmid
@@ -196,8 +188,7 @@ objects AS (                      -- the condition itself, plus every set that c
                                     WHERE list_has_any(ts.concepts, (SELECT list(id) FROM target))))
 ),
 prop AS (
-  SELECT id, subject_variant_id AS variant_id, object_condition_id AS object_id FROM 'varcond-proposition.parquet'
-  UNION ALL SELECT id, subject_id, object_id FROM 'varcustom-proposition.parquet'
+  SELECT id, subject_variant_id AS variant_id, object_id FROM read_parquet('proposition*.parquet')
 )
 SELECT p.variant_id, v.name AS variant_name,
        count(*) AS scvs,
@@ -397,10 +388,7 @@ WITH v AS (                                  -- variants whose ClinVar gene list
           (SELECT id FROM 'gene.parquet' WHERE name = 'MYH7'))                 -- <- your gene symbol
 ),
 prop AS (
-  SELECT id, subject_variant_id AS variant_id FROM 'varcond-proposition.parquet'
-  UNION ALL SELECT id, subject_id         FROM 'varcustom-proposition.parquet'
-  UNION ALL SELECT id, subject_variant_id FROM 'vartumor-proposition.parquet'
-  UNION ALL SELECT id, subject_variant_id FROM 'vartherapy-proposition.parquet'
+  SELECT id, subject_variant_id AS variant_id FROM read_parquet('proposition*.parquet')
 ),
 cites AS (
   SELECT p.variant_id, s.id AS scv_id, unnest(s.reportedIn).pmid AS pmid
@@ -426,8 +414,7 @@ Spreadsheets and many tools can't read Parquet, and you rarely want a whole tabl
 -- Expert-panel and practice-guideline submissions, with their variant
 COPY (
   WITH prop AS (
-    SELECT id, subject_variant_id AS variant_id FROM 'varcond-proposition.parquet'
-    UNION ALL SELECT id, subject_id FROM 'varcustom-proposition.parquet'
+    SELECT id, subject_variant_id AS variant_id FROM read_parquet('proposition*.parquet')
   )
   SELECT replace(s.id, 'clinvar.submission:', '') AS scv,
          p.variant_id,

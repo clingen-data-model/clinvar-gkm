@@ -15,7 +15,7 @@ The map renders at full size in a scrollable frame. Each area has a runnable que
 | --- | --- | --- |
 | **1 · Variant** | [`variation`](#variation), [`allele`](#allele), [`copyNumberCount`](#copyNumberCount), [`copyNumberChange`](#copyNumberChange), [`location`](#location), [`sequenceReference`](#sequenceReference), [`gene`](#gene) | Which variant is this, and where is it on the genome? |
 | **2 · Condition & therapy** | [`condition`](#condition), [`conditionSet`](#conditionSet), [`therapy`](#therapy), [`therapyGroup`](#therapyGroup) | Which disease, tumor type or drug is the claim about? |
-| **3 · Proposition** | [`varcond-proposition`](#varcond-proposition), [`varcustom-proposition`](#varcustom-proposition), [`vartumor-proposition`](#vartumor-proposition), [`vartherapy-proposition`](#vartherapy-proposition) | What exactly is being claimed about the variant? |
+| **3 · Proposition** | [`propositionPathogenicity`](#propositionPathogenicity), [`propositionClinvarCustom`](#propositionClinvarCustom), [`propositionSomaticClinicalImpact`](#propositionSomaticClinicalImpact), [`propositionOncogenicity`](#propositionOncogenicity) | What exactly is being claimed about the variant? |
 | **4 · SCV** | [`scv`](#scv), [`evidenceLine`](#evidenceLine), [`submitter`](#submitter) | What did each submitter say, how, and on what evidence? |
 | **5 · RCV** | [`rcv`](#rcv), [`rcv_evidenceLine`](#rcv_evidenceLine) | What is ClinVar's combined call for this variant **and this condition**? |
 | **6 · VCV** | [`vcv`](#vcv), [`vcv_evidenceLine`](#vcv_evidenceLine) | What is ClinVar's combined call for this variant **across all its conditions**? |
@@ -51,7 +51,7 @@ Every row has an id, and the id's shape names its table. Learn these shapes befo
 Two details are easy to miss:
 
 - **A proposition id is its statement's id without the version.** `VCV000051592-G-PATH-CP` is the proposition, and `VCV000051592.122-G-PATH-CP` is the statement about it.
-- **A proposition id's classification code names its table.** `PATH`, `SCI`, `DIAG` and `PROG` are in `varcond-proposition`, `ONCO` in `vartumor-proposition`, `TR` in `vartherapy-proposition`, and every other code in `varcustom-proposition` (see the code table under [Reading a variant's statements](#reading-a-variants-statements)). A query that spans several codes is still simplest with one `UNION ALL` of the four tables.
+- **A proposition id's classification code names its table.** `PATH` is in `propositionPathogenicity`, `ONCO` in `propositionOncogenicity`, `SCI`, `DIAG`, `PROG` and `TR` in `propositionSomaticClinicalImpact`, and every other code in `propositionClinvarCustom` (see the code table under [Reading a variant's statements](#reading-a-variants-statements)). A query that spans several codes can read all four at once: the tables share one column schema, so `read_parquet('proposition*.parquet')` is a single table.
 
 ## Where a traversal ends
 
@@ -77,20 +77,20 @@ The same facts as text. A statement id reads `<accession>.<version>-<lane>-<code
 
 | Lane | Code | Proposition type | Proposition table | Root statements |
 | --- | --- | --- | --- | ---: |
-| G | `PATH` | `VariantPathogenicityProposition` | `varcond-proposition` | 4,390,392 |
-| G | `NP` | `ClinvarNotProvidedProposition` | `varcustom-proposition` | 27,920 |
-| G | `DR` | `ClinvarDrugResponseProposition` | `varcustom-proposition` | 2,760 |
-| G | `OTH` | `ClinvarOtherProposition` | `varcustom-proposition` | 2,171 |
-| G | `RF` | `ClinvarRiskFactorProposition` | `varcustom-proposition` | 1,072 |
-| G | `ASSOC` | `ClinvarAssociationProposition` | `varcustom-proposition` | 525 |
-| G | `AFF` | `ClinvarAffectsProposition` | `varcustom-proposition` | 331 |
-| G | `CDFS` | `ClinvarConflictingDataFromSubmitterProposition` | `varcustom-proposition` | 192 |
-| G | `PROTECT` | `ClinvarProtectiveProposition` | `varcustom-proposition` | 99 |
-| G | `CS` | `ClinvarConfersSensitivityProposition` | `varcustom-proposition` | 20 |
-| S | `ONCO` | `VariantOncogenicityProposition` | `vartumor-proposition` | 1,905 |
-| S | `SCI` | `VariantClinicalSignificanceProposition` | `varcond-proposition` | 1,317 |
+| G | `PATH` | `VariantPathogenicityProposition` | `propositionPathogenicity` | 4,390,392 |
+| G | `NP` | `ClinvarNotProvidedProposition` | `propositionClinvarCustom` | 27,920 |
+| G | `DR` | `ClinvarDrugResponseProposition` | `propositionClinvarCustom` | 2,760 |
+| G | `OTH` | `ClinvarOtherProposition` | `propositionClinvarCustom` | 2,171 |
+| G | `RF` | `ClinvarRiskFactorProposition` | `propositionClinvarCustom` | 1,072 |
+| G | `ASSOC` | `ClinvarAssociationProposition` | `propositionClinvarCustom` | 525 |
+| G | `AFF` | `ClinvarAffectsProposition` | `propositionClinvarCustom` | 331 |
+| G | `CDFS` | `ClinvarConflictingDataFromSubmitterProposition` | `propositionClinvarCustom` | 192 |
+| G | `PROTECT` | `ClinvarProtectiveProposition` | `propositionClinvarCustom` | 99 |
+| G | `CS` | `ClinvarConfersSensitivityProposition` | `propositionClinvarCustom` | 20 |
+| S | `ONCO` | `VariantOncogenicityProposition` | `propositionOncogenicity` | 1,905 |
+| S | `SCI` | `VariantClinicalSignificanceProposition` | `propositionSomaticClinicalImpact` | 1,317 |
 
-Root statement counts are VCV roots. An SCV's proposition id uses the same codes without a lane (`SCV000056982-ASSOC`). Somatic clinical impact (`SCI`) also has evidence lines whose `target_proposition_id` names the specific impact: `-TR` (therapeutic response, in `vartherapy-proposition`), `-DIAG` or `-PROG` (in `varcond-proposition`). Their tier is in `evidenceOutcome`: `Level A/B` is Tier I, `Level C/D` is Tier II.
+Root statement counts are VCV roots. An SCV's proposition id uses the same codes without a lane (`SCV000056982-ASSOC`). Somatic clinical impact (`SCI`) also has evidence lines whose `target_proposition_id` names the specific impact: `-TR` (therapeutic response), `-DIAG` or `-PROG`, all in `propositionSomaticClinicalImpact` with the `SCI` propositions. Their tier is in `evidenceOutcome`: `Level A/B` is Tier I, `Level C/D` is Tier II.
 
 **Aggregate level.** The level suffix matches the `quality.name` of the submissions it groups:
 
@@ -129,7 +129,7 @@ Every table can be queried straight from `https://data.clinvar-gkm.org/v1/datase
 
 - **Cheap on any table:** `DESCRIBE`, `count(*)`, and `LIMIT` reads. These touch only the file's footer or its first chunk, so they return in under a second even on the 3 GB `scv.parquet`.
 - **Fine on small tables:** full scans of anything up to tens of megabytes (`condition`, `gene`, `submitter`, `therapy`, the somatic propositions).
-- **Download first for big tables:** a full scan or `GROUP BY` over `scv`, `variation`, `varcond-proposition`, or the aggregates reads every row group, one request each, in a burst. Remotely that takes tens of seconds and hundreds of megabytes, and a heavier query can still hit the CDN's limit of 250 requests per 10 seconds (**HTTP 429**). Download the table once and query it locally. See [Working at Scale](performance.md#local-or-remote).
+- **Download first for big tables:** a full scan or `GROUP BY` over `scv`, `variation`, `propositionPathogenicity`, or the aggregates reads every row group, one request each, in a burst. Remotely that takes tens of seconds and hundreds of megabytes, and a heavier query can still hit the CDN's limit of 250 requests per 10 seconds (**HTTP 429**). Download the table once and query it locally. See [Working at Scale](performance.md#local-or-remote).
 
 The sizes in the reference below tell you which category a table is in.
 
@@ -338,90 +338,77 @@ Combination therapies — a set of `therapy` members. Same `key`/`value` shape a
 
 ### 3 · Proposition
 
-#### `varcond-proposition` { #varcond-proposition }
+From 1.1.0 propositions are grouped by **meaning**, in four tables that share **one column schema**. A proposition's table depends only on its `type`, and `read_parquet('proposition*.parquet')` reads all four as one table with no renaming. Before 1.1.0 they were grouped by the shape of their object, in `varcond-`, `varcustom-`, `vartumor-` and `vartherapy-proposition`; see [Migrating from 1.0](#proposition-migration).
 
-Variant × condition propositions — the claim a germline or somatic classification is about: **pathogenicity** (`VariantPathogenicityProposition`, 99.9 % of rows), somatic **clinical significance**, **diagnostic**, and **prognostic**. The 1,555 diagnostic and prognostic rows are SCI evidence-line targets, so no statement classifies them directly.
+| Table | Proposition types (id codes) | Rows | Size |
+| --- | --- | ---: | ---: |
+| [`propositionPathogenicity`](#propositionPathogenicity) | `VariantPathogenicityProposition` (`PATH`) | **27,447,072** | about 1.45 GB |
+| [`propositionClinvarCustom`](#propositionClinvarCustom) | the 9 `Clinvar*` types and `ClinvarUndefinedProposition` (`NP`, `DR`, `OTH`, `RF`, `ASSOC`, `AFF`, `CDFS`, `PROTECT`, `CS`, `UNDEF`) | **186,182** | about 10 MB |
+| [`propositionSomaticClinicalImpact`](#propositionSomaticClinicalImpact) | `VariantClinicalSignificanceProposition` (`SCI`), `VariantDiagnosticProposition` (`DIAG`), `VariantPrognosticProposition` (`PROG`), `VariantTherapeuticResponseProposition` (`TR`) | **12,607** | about 0.7 MB |
+| [`propositionOncogenicity`](#propositionOncogenicity) | `VariantOncogenicityProposition` (`ONCO`) | **9,595** | about 0.45 MB |
 
-`varcond-proposition.parquet` · **27,459,666** rows · 1.4 GB
+#### The shared columns { #proposition-columns }
+
+Every proposition table has exactly these columns, in this order. A column that does not apply to a row is NULL (`submitted_gene_symbols`: an empty list). Every column is derived from the bundle record in `data`.
 
 | Column | Type | Description |
 | --- | --- | --- |
-| `id` | `VARCHAR` | `SCV<n>-<CODE>` for a submission's proposition; `VCV<n>-<G|S>-<CODE>[-<LEVEL>]` or `RCV…` for an aggregate's — e.g. `VCV000051592-G-PATH-CP`. Matches the `proposition_id` of at most one statement. |
-| `type` | `VARCHAR` | The proposition class, e.g. `VariantPathogenicityProposition`. |
-| `predicate` | `VARCHAR` | The relation, e.g. `isCausalFor`, `hasClinicalSignificanceFor`, `isDiagnosticInclusionCriterionFor`, `associatedWithBetterOutcomeFor`. |
+| `id` | `VARCHAR` | `SCV<n>-<CODE>` for a submission's proposition; `VCV<n>-<G|S>-<CODE>[-<LEVEL>]` or `RCV…` for an aggregate's — e.g. `VCV000051592-G-PATH-CP`. Matches the `proposition_id` of at most one statement. Ids did not change in 1.1.0. |
+| `type` | `VARCHAR` | The proposition class, e.g. `VariantPathogenicityProposition`, `ClinvarRiskFactorProposition`. |
+| `predicate` | `VARCHAR` | The relation, e.g. `isCausalFor`, `isRiskFactorFor`, `hasClinicalSignificanceFor`, `predictsSensitivityTo`. |
 | `subject_variant_id` | `VARCHAR` | `clinvar:<n>` → `variation.id`. |
-| `object_condition_id` | `VARCHAR` | **Prefix-dispatched**: `clinvar.trait:` → `condition.id`; `clinvar.traitset:` or `clinvar.conditionset:` → `conditionSet.id`. |
-| `gene_context_name` | `VARCHAR` | Symbol of the proposition's gene-context gene (e.g. `EGFR`), or NULL. SCV propositions only. **One representative gene per variant**, not the submitter's genes; see [Gene context](#gene-context). For the placeholder (`gene_context_source` = `submittedNotNormalized`) it is the submitter's symbol; releases before this one hold the literal `submitted genes were not normalized`. A symbol, not an id: join on `gene_context_id`. |
-| `mode_of_inheritance` | `VARCHAR` | Mode-of-inheritance qualifier (e.g. `Autosomal dominant inheritance`), or NULL. |
-| `penetrance` | `VARCHAR` | Penetrance qualifier, or NULL. |
+| `object_id` | `VARCHAR` | The object's id. **Dispatch on `object_type`**: a `condition` → `condition.id`, a `conditionSet` → `conditionSet.id` (accessioned `clinvar.traitset:` or minted `clinvar.conditionset:`), a `therapy` → `therapy.key`, a `therapyGroup` → `therapyGroup.key`. |
+| `object_type` | `VARCHAR` | The table `object_id` points at: `condition`, `conditionSet`, `therapy` or `therapyGroup`. Only Therapeutic Response propositions have a therapy object. |
+| `condition_qualifier_id` | `VARCHAR` | Therapeutic Response only: the tumor/condition context, `clinvar.trait:` → `condition.id` (13 rows). NULL elsewhere. |
+| `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. SCV propositions only; see [Gene context](#gene-context). |
+| `gene_context_name` | `VARCHAR` | Symbol of the proposition's gene-context gene (e.g. `EGFR`), or NULL. SCV propositions only. **One representative gene per variant**, not the submitter's genes. For the placeholder (`gene_context_source` = `submittedNotNormalized`) it is the submitter's symbol; releases before 1.1.0 hold the literal `submitted genes were not normalized`. A symbol, not an id: join on `gene_context_id`. |
+| `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. |
+| `gene_context_source` | `VARCHAR` | Where the gene-context gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`. NULL on VCV and RCV propositions, and where there is no qualifier. |
+| `mode_of_inheritance` | `VARCHAR` | Mode-of-inheritance qualifier (e.g. `Autosomal dominant inheritance`), or NULL. Germline SCV propositions only. |
+| `penetrance` | `VARCHAR` | Penetrance qualifier, or NULL. Germline SCV propositions only. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
-| `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.1.0.* |
-| `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.1.0.* |
-| `gene_context_source` | `VARCHAR` | Where the gene-context gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`. NULL on VCV and RCV propositions, and where there is no qualifier. See [Gene context](#gene-context). *From this release.* |
 
-#### `varcustom-proposition` { #varcustom-proposition }
+#### `propositionPathogenicity` { #propositionPathogenicity }
 
-Variant × condition propositions for ClinVar's **non-pathogenicity germline** classifications, which have no standard VA-Spec proposition: not provided, drug response, risk factor, association, affects, protective, confers sensitivity, other, conflicting data from submitters.
+Germline **pathogenicity** claims (`VariantPathogenicityProposition`, predicate `isCausalFor`) at every level. By far the largest table. `object_type` is `condition` or `conditionSet` (2,890,991 rows, mostly VCV propositions over several conditions). 6,652,661 SCV rows carry a gene-context qualifier.
 
-`varcustom-proposition.parquet` · **186,182** rows · 9.9 MB
+`propositionPathogenicity.parquet` · **27,447,072** rows · about 1.45 GB
 
-| Column | Type | Description |
+#### `propositionClinvarCustom` { #propositionClinvarCustom }
+
+ClinVar's **non-pathogenicity germline** classifications, which have no standard VA-Spec proposition: not provided, drug response, risk factor, association, affects, protective, confers sensitivity, other, conflicting data from submitters, plus `ClinvarUndefinedProposition`, the fallback for a classification that maps to no defined type (no rows so far). `object_type` is `condition` or `conditionSet`.
+
+`propositionClinvarCustom.parquet` · **186,182** rows · about 10 MB
+
+#### `propositionSomaticClinicalImpact` { #propositionSomaticClinicalImpact }
+
+Somatic **clinical impact**: the clinical significance (`SCI`) that SCV, VCV and RCV statements classify, and the diagnostic (`DIAG`), prognostic (`PROG`) and therapeutic-response (`TR`) propositions that SCI evidence lines target. No statement classifies a `DIAG`, `PROG` or `TR` proposition directly; they are reached through [`evidenceLine.target_proposition_id`](#evidenceLine). The 13 `TR` rows have a `therapy` or `therapyGroup` object and a `condition_qualifier_id`; every other row's object is a `condition` or `conditionSet`.
+
+`propositionSomaticClinicalImpact.parquet` · **12,607** rows · about 0.7 MB
+
+#### `propositionOncogenicity` { #propositionOncogenicity }
+
+Somatic **oncogenicity** claims (`VariantOncogenicityProposition`, predicate `isOncogenicFor`). The object is the tumor type: almost always a `condition`, but 12 rows name a minted `conditionSet`.
+
+`propositionOncogenicity.parquet` · **9,595** rows · about 0.45 MB
+
+#### Migrating from 1.0 { #proposition-migration }
+
+The ids, the records and the `data` column are unchanged; only the table a proposition is in, and some column names, changed in 1.1.0.
+
+| Proposition type (code) | Before 1.1.0 | From 1.1.0 |
 | --- | --- | --- |
-| `id` | `VARCHAR` | `SCV<n>-<CODE>` for a submission's proposition; `VCV<n>-<G|S>-<CODE>[-<LEVEL>]` or `RCV…` for an aggregate's — e.g. `VCV000009525-G-AFF`. Matches the `proposition_id` of at most one statement. |
-| `type` | `VARCHAR` | The ClinVar custom proposition class, e.g. `ClinvarRiskFactorProposition`. |
-| `predicate` | `VARCHAR` | The relation, e.g. `isRiskFactorFor`, `hasDrugResponseFor`. |
-| `subject_id` | `VARCHAR` | `clinvar:<n>` → `variation.id`. (Spelled `subject_id` here, `subject_variant_id` in the other three.) |
-| `object_id` | `VARCHAR` | **Prefix-dispatched**, same as `varcond-proposition.object_condition_id`. |
-| `gene_context_name` | `VARCHAR` | Symbol of the proposition's gene-context gene (e.g. `EGFR`), or NULL. SCV propositions only. **One representative gene per variant**, not the submitter's genes; see [Gene context](#gene-context). For the placeholder (`gene_context_source` = `submittedNotNormalized`) it is the submitter's symbol; releases before this one hold the literal `submitted genes were not normalized`. A symbol, not an id: join on `gene_context_id`. |
-| `mode_of_inheritance` | `VARCHAR` | Mode-of-inheritance qualifier (e.g. `Autosomal dominant inheritance`), or NULL. |
-| `penetrance` | `VARCHAR` | Penetrance qualifier, or NULL. |
-| `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
-| `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.1.0.* |
-| `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.1.0.* |
-| `gene_context_source` | `VARCHAR` | Where the gene-context gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`. NULL on VCV and RCV propositions, and where there is no qualifier. See [Gene context](#gene-context). *From this release.* |
+| `VariantPathogenicityProposition` (`PATH`) | `varcond-proposition` | `propositionPathogenicity` |
+| `VariantClinicalSignificanceProposition` (`SCI`), `VariantDiagnosticProposition` (`DIAG`), `VariantPrognosticProposition` (`PROG`) | `varcond-proposition` | `propositionSomaticClinicalImpact` |
+| `VariantTherapeuticResponseProposition` (`TR`) | `vartherapy-proposition` | `propositionSomaticClinicalImpact` |
+| `VariantOncogenicityProposition` (`ONCO`) | `vartumor-proposition` | `propositionOncogenicity` |
+| the `Clinvar*` types | `varcustom-proposition` | `propositionClinvarCustom` |
 
-#### `vartumor-proposition` { #vartumor-proposition }
-
-Variant × tumor-type propositions — somatic **oncogenicity** claims.
-
-`vartumor-proposition.parquet` · **9,595** rows · 436.4 KB
-
-| Column | Type | Description |
-| --- | --- | --- |
-| `id` | `VARCHAR` | `SCV<n>-<CODE>` for a submission's proposition; `VCV<n>-<G|S>-<CODE>[-<LEVEL>]` or `RCV…` for an aggregate's — e.g. `VCV003897731-S-ONCO-CP`. Matches the `proposition_id` of at most one statement. |
-| `type` | `VARCHAR` | Always `VariantOncogenicityProposition`. |
-| `predicate` | `VARCHAR` | `isOncogenicFor`. |
-| `subject_variant_id` | `VARCHAR` | `clinvar:<n>` → `variation.id`. |
-| `object_tumor_type_id` | `VARCHAR` | The tumor type. **Prefix-dispatched**: almost always a `clinvar.trait:` → `condition.id`, but 12 rows name a `clinvar.conditionset:` → `conditionSet.id`. |
-| `gene_context_name` | `VARCHAR` | Symbol of the proposition's gene-context gene (e.g. `EGFR`), or NULL. SCV propositions only. **One representative gene per variant**, not the submitter's genes; see [Gene context](#gene-context). For the placeholder (`gene_context_source` = `submittedNotNormalized`) it is the submitter's symbol; releases before this one hold the literal `submitted genes were not normalized`. A symbol, not an id: join on `gene_context_id`. |
-| `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
-| `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.1.0.* |
-| `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.1.0.* |
-| `gene_context_source` | `VARCHAR` | Where the gene-context gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`. NULL on VCV and RCV propositions, and where there is no qualifier. See [Gene context](#gene-context). *From this release.* |
-
-#### `vartherapy-proposition` { #vartherapy-proposition }
-
-Variant × therapy propositions — somatic **therapeutic response**. These are the specific-impact targets of SCI evidence lines; no statement classifies one directly.
-
-`vartherapy-proposition.parquet` · **13** rows · 6.1 KB
-
-| Column | Type | Description |
-| --- | --- | --- |
-| `id` | `VARCHAR` | `SCV<n>-<CODE>` for a submission's proposition; `VCV<n>-<G|S>-<CODE>[-<LEVEL>]` or `RCV…` for an aggregate's — e.g. `SCV004565359-TR`. Matches the `proposition_id` of at most one statement. |
-| `type` | `VARCHAR` | Always `VariantTherapeuticResponseProposition`. |
-| `predicate` | `VARCHAR` | `predictsSensitivityTo` or `predictsResistanceTo`. |
-| `subject_variant_id` | `VARCHAR` | `clinvar:<n>` → `variation.id`. |
-| `condition_qualifier_id` | `VARCHAR` | The tumor/condition context, `clinvar.trait:` → `condition.id`. |
-| `object_therapy` | `VARCHAR` | `clinvar.therapy:<sha256>` → `therapy.key`, or `clinvar.therapygroup:<sha256>` → `therapyGroup.key`. Releases before 1.1.0 held a JSON-quoted pointer instead; see [Joins that lie](joining.md#joins-that-lie). |
-| `gene_context_name` | `VARCHAR` | Symbol of the proposition's gene-context gene (e.g. `EGFR`), or NULL. SCV propositions only. **One representative gene per variant**, not the submitter's genes; see [Gene context](#gene-context). For the placeholder (`gene_context_source` = `submittedNotNormalized`) it is the submitter's symbol; releases before this one hold the literal `submitted genes were not normalized`. A symbol, not an id: join on `gene_context_id`. |
-| `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
-| `gene_context_id` | `VARCHAR` | `ncbigene:<n>` → `gene.id`: the gene-context qualifier's own NCBI Gene coding. NULL when there is no qualifier, and for the placeholder. *From 1.1.0.* |
-| `submitted_gene_symbols` | `VARCHAR[]` | The gene symbols the submitter gave, verbatim and in order (e.g. `[MYCN, MYCNOS]`). Empty when there are none. *From 1.1.0.* |
-| `gene_context_source` | `VARCHAR` | Where the gene-context gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`. NULL on VCV and RCV propositions, and where there is no qualifier. See [Gene context](#gene-context). *From this release.* |
+Renamed columns: `varcond-proposition.object_condition_id`, `vartumor-proposition.object_tumor_type_id` and `vartherapy-proposition.object_therapy` are all `object_id`; `varcustom-proposition.subject_id` is `subject_variant_id`. New on every table: `object_type`, and the columns that only some of the old tables had (`condition_qualifier_id`, `mode_of_inheritance`, `penetrance`, the gene-context columns).
 
 #### Gene context { #gene-context }
 
-`gene_context_name`, `gene_context_id`, `submitted_gene_symbols` and `gene_context_source` describe a proposition's `geneContextQualifier`. They are filled in only on **SCV** propositions; every VCV and RCV proposition has NULLs and an empty list. In the 2026-10 release, 6,655,967 `varcond-proposition` rows carry the qualifier.
+`gene_context_name`, `gene_context_id`, `submitted_gene_symbols` and `gene_context_source` describe a proposition's `geneContextQualifier`. They are filled in only on **SCV** propositions; every VCV and RCV proposition has NULLs and an empty list. In the 2026-10 release, 6,655,967 SCV propositions carry the qualifier, 6,652,661 of them in `propositionPathogenicity`.
 
 - **One representative gene per variant.** The qualifier comes from the variant, not from the submission. Upstream, [clinvar-ingest](https://github.com/clingen-data-model/clinvar-ingest-bq-tools) picks one gene for each variant by a priority procedure: a MANE Select transcript in the variant name first, then a gene symbol in an HGVS-style name, a star-allele name, a single gene association, and so on. Every SCV of the variant gets that same gene. The submitter did **not** assert it, and the Parquet doesn't say which step chose it.
 - **`gene_context_id`** is that gene's own NCBI Gene coding (`primaryCoding.code`), written `ncbigene:<n>` so it joins `gene.id` directly. `gene_context_name` is the same gene's symbol. The id is never looked up from a symbol.
@@ -436,7 +423,7 @@ Variant × therapy propositions — somatic **therapeutic response**. These are 
     | `submittedNotNormalized` | The placeholder: the variant has no single representative gene. | 4,814 |
 
     Symbols are compared after trimming spaces and ignoring case (`C19ORF12` matches `C19orf12`). That is why `submittedSymbolDiffers` counts 27,671, not the 27,817 above, which compared exactly.
-- **The placeholder.** When the variant has no single representative gene but the submitter named genes, `gene_context_name` is the submitter's symbol and `gene_context_id` is NULL. The name is not a normalized gene, and `gene_context_source` is `submittedNotNormalized`. Several symbols are joined with `, ` in submitted order (5 SCVs, e.g. `DLK1, MEG3`). The submitter's genes are still in `submitted_gene_symbols`. There are 4,814 of these SCVs, all in `varcond-proposition` and `varcustom-proposition`. Releases before this one name every placeholder with the literal `submitted genes were not normalized`.
+- **The placeholder.** When the variant has no single representative gene but the submitter named genes, `gene_context_name` is the submitter's symbol and `gene_context_id` is NULL. The name is not a normalized gene, and `gene_context_source` is `submittedNotNormalized`. Several symbols are joined with `, ` in submitted order (5 SCVs, e.g. `DLK1, MEG3`). The submitter's genes are still in `submitted_gene_symbols`. There are 4,814 of these SCVs: 4,763 in `propositionPathogenicity` and 51 in `propositionClinvarCustom`. Releases before this one name every placeholder with the literal `submitted genes were not normalized`.
 
     Because a placeholder's name is now a submitted symbol, a filter such as `gene_context_name = 'TP53'` also matches placeholders. In 2026-09-28 that is 29 `TP53` rows (78 for `BRCA1`, `BRCA2`, `TP53` and `MLH1` together). To get only normalized genes, filter on `gene_context_id`, or exclude `gene_context_source = 'submittedNotNormalized'`.
 
@@ -464,7 +451,7 @@ This is **not** the variant's gene list. The gene list (`clinvarGeneList` in `va
 | `specifiedBy` | `STRUCT(type, methodType, name, reportedIn, extensions)` | The method: `methodType` (ClinVar collection method — `clinical testing`, `curation`, `research`, …), `name` (the assertion criteria, e.g. ACMG guidelines), `reportedIn` (the criteria document, one Document shaped like a `reportedIn` element) and `extensions`. When ClinVar lists more than one citation for the method, the others are in the extension `additionalClinvarMethodCitations` (`value_document_array`, from 1.1.0; 6 SCVs). |
 | `reportedIn` | `STRUCT(type, pmid, doi, urls, name, documentType, extensions)[]` | Citations supporting the submission, **one Document per ClinVar citation** (from 1.1.0): `pmid`, `doi`, `urls` (every resolvable URL for the citation), `name` (ClinVar's label, e.g. `ACMG, 2015`) and `documentType` (ClinVar's citation type, e.g. `general`, `practice guideline`). `extensions` (`name`, `value_string`, `value_boolean`) keep ClinVar's citation text (`clinvarCitationText`) and any repaired or unusable id; see [citation Documents](../pipeline/scv-statements/final-statements.md#temp_scv_citation_docs). A Document may have no `pmid`, `doi` or `urls`: a text-only citation carries only `clinvarCitationText`. Before 1.1.0, a citation with several ids was split into one Document per id, and URL-only and text-only citations were dropped. |
 | `extensions` | `STRUCT(name, value_string, value_submitted_condition_set, value_submitted_condition)[]` | Named ClinVar attributes: `clinvarScvId`, `clinvarScvVersion`, `clinvarScvReviewStatus`, `submissionLevel`, `submittedScvLocalKey`, `submittedScvClassification`, and the submitter's original condition (`submittedCondition` → `value_submitted_condition`, or `submittedConditionSet` → `value_submitted_condition_set`) with its MedGen mapping. Each element sets only the `value_*` field that matches its name; the others are NULL, as the bundle omits them. Files exported before 1.1.0 filled the unused ones with all-null structs, including empty `concepts[]` and `xrefs[]` elements. |
-| `proposition_id` | `VARCHAR` | The proposition this statement classifies. Its classification code names the proposition table (see [Reading a variant's statements](#reading-a-variants-statements)); to cover every code, join the four-table union ([Joining → Seam C](joining.md#seam-c-proposition-statements-1-1)). One statement per proposition. |
+| `proposition_id` | `VARCHAR` | The proposition this statement classifies. Its classification code names the proposition table (see [Reading a variant's statements](#reading-a-variants-statements)); to cover every code, join `read_parquet('proposition*.parquet')` ([Joining → Seam C](joining.md#seam-c-proposition-statements-1-1)). One statement per proposition. |
 | `contributions` | `STRUCT(type, contributor, date, activityType)[]` | `{contributor, date, activityType}` — `contributor` is a `clinvar.submitter:` id → `submitter.id`; `activityType` is `submitted`, `created`, or `evaluated`. |
 | `has_evidence_lines` | `VARCHAR[]` | Ids of this statement's evidence lines in `evidenceLine`. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
@@ -493,7 +480,7 @@ SCV-level evidence lines — used only by somatic **clinical impact (SCI)** subm
 | `directionOfEvidenceProvided` | `VARCHAR` | `supports` / `disputes` / `neutral`. |
 | `evidenceOutcome` | `STRUCT(type, conceptType, name)` | MappableConcept; `.name` is `Level A/B` (Tier I) or `Level C/D` (Tier II). |
 | `extensions` | `STRUCT(name, value_submitted_condition_set, value_submitted_condition)[]` | The submitter's original condition (`submittedCondition`), same shape as on `scv`: only the matching `value_*` field is set, and, from 1.1.0, there are no empty placeholder elements. |
-| `target_proposition_id` | `VARCHAR` | The specific-impact proposition: `…-DIAG` / `…-PROG` → `varcond-proposition`, `…-TR` → `vartherapy-proposition`. |
+| `target_proposition_id` | `VARCHAR` | The specific-impact proposition (`…-DIAG`, `…-PROG` or `…-TR`) → `propositionSomaticClinicalImpact.id`. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
 
 ??? note "Full nested types — `evidenceLine`"
@@ -532,7 +519,7 @@ The organizations that submit to ClinVar. A **leaf**, referenced from `scv.contr
 | `quality` | `STRUCT(type, conceptType, name)` | MappableConcept; `quality.name` is the aggregate level — `practice guidelines`, `expert panel`, `criteria provided`, `no assertion criteria provided`, `no classification`, or `flagged`. |
 | `classification` | `STRUCT(type, conceptType, name, extensions)` | MappableConcept; `classification.name` is the aggregate call (e.g. `Pathogenic`, `Benign/Likely benign`, `Conflicting classifications of pathogenicity`). `classification.extensions` carries `conflictingExplanation` when the call is a conflict. |
 | `extensions` | `STRUCT(name, value)[]` | `{name, value}` pairs; today one: `clinvarReviewStatus` — ClinVar's review-status text (e.g. `criteria provided, multiple submitters, no conflicts`). |
-| `proposition_id` | `VARCHAR` | The proposition this statement classifies. Its classification code names the proposition table (see [Reading a variant's statements](#reading-a-variants-statements)); to cover every code, join the four-table union ([Joining → Seam C](joining.md#seam-c-proposition-statements-1-1)). One statement per proposition. |
+| `proposition_id` | `VARCHAR` | The proposition this statement classifies. Its classification code names the proposition table (see [Reading a variant's statements](#reading-a-variants-statements)); to cover every code, join `read_parquet('proposition*.parquet')` ([Joining → Seam C](joining.md#seam-c-proposition-statements-1-1)). One statement per proposition. |
 | `has_evidence_lines` | `VARCHAR[]` | Ids of this statement's evidence lines in `rcv_evidenceLine`. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
 
@@ -581,7 +568,7 @@ Evidence lines of RCV statements: which statements each RCV statement cites, and
 | `quality` | `STRUCT(type, conceptType, name)` | MappableConcept; `quality.name` is the aggregate level — `practice guidelines`, `expert panel`, `criteria provided`, `no assertion criteria provided`, `no classification`, or `flagged`. |
 | `classification` | `STRUCT(type, conceptType, name, extensions)` | MappableConcept; `classification.name` is the aggregate call (e.g. `Pathogenic`, `Benign/Likely benign`, `Conflicting classifications of pathogenicity`). `classification.extensions` carries `conflictingExplanation` when the call is a conflict. |
 | `extensions` | `STRUCT(name, value)[]` | `{name, value}` pairs; today one: `clinvarReviewStatus` — ClinVar's review-status text (e.g. `criteria provided, multiple submitters, no conflicts`). |
-| `proposition_id` | `VARCHAR` | The proposition this statement classifies. Its classification code names the proposition table (see [Reading a variant's statements](#reading-a-variants-statements)); to cover every code, join the four-table union ([Joining → Seam C](joining.md#seam-c-proposition-statements-1-1)). One statement per proposition. |
+| `proposition_id` | `VARCHAR` | The proposition this statement classifies. Its classification code names the proposition table (see [Reading a variant's statements](#reading-a-variants-statements)); to cover every code, join `read_parquet('proposition*.parquet')` ([Joining → Seam C](joining.md#seam-c-proposition-statements-1-1)). One statement per proposition. |
 | `has_evidence_lines` | `VARCHAR[]` | Ids of this statement's evidence lines in `vcv_evidenceLine`. |
 | `data` | `VARCHAR` | Full JSON object as a string — see [The `data` column](#the-data-column). |
 

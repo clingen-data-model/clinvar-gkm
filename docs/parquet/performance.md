@@ -3,7 +3,7 @@
 !!! info "Release"
     Timings, sizes and counts on this page are from the **2026-10 monthly release** (published 14 Oct 2026), measured with DuckDB 1.5 on a laptop. Your numbers will differ with the release and your machine.
 
-Nine tables are over 500 MB: `variation` (4.1 GB), `scv` (3.1 GB), `varcond-proposition` (1.4 GB), `allele` (1.1 GB), `location`, and the RCV and VCV statements and evidence lines (0.5–0.9 GB each). The other thirteen are each under 10 MB. A handful of habits keeps queries over the big ones fast on a laptop.
+Nine tables are over 500 MB: `variation` (4.1 GB), `scv` (3.1 GB), `propositionPathogenicity` (1.45 GB), `allele` (1.1 GB), `location`, and the RCV and VCV statements and evidence lines (0.5–0.9 GB each). The other thirteen are each about 10 MB or less. A handful of habits keeps queries over the big ones fast on a laptop.
 
 ## Name your columns { #name-your-columns }
 
@@ -39,7 +39,7 @@ DuckDB reads Parquet over HTTPS with **range requests**: it fetches the file's f
 | `DESCRIBE`, `count(*)`, `parquet_metadata(…)` | footer only | yes, in under a second on any table |
 | `LIMIT n` without a filter | footer + first row group | yes |
 | Any query on a small table (`condition`, `gene`, `submitter`, `therapy`, …) | a few | yes |
-| A filter, `GROUP BY` or join over a big table | one per row group per column; 55 row groups in `scv`, 223 in `varcond-proposition` | **slowly**: 10–35 s per query, reading hundreds of MB; download for repeated or heavier work |
+| A filter, `GROUP BY` or join over a big table | one per row group per column; 55 row groups in `scv`, about 223 in `propositionPathogenicity` | **slowly**: 10–35 s per query, reading hundreds of MB; download for repeated or heavier work |
 
 The published files are not sorted by any lookup key, so even a filter for a single variant or SCV has to read every row group of the filtered column. The CDN in front of `data.clinvar-gkm.org` allows **250 requests per 10 seconds** per client IP and blocks for 10 seconds past that (HTTP 429). From the command line, single-table scans and two-table joins on the big tables now complete within it (a `GROUP BY` over all of `scv` in about 30 s; a variant's PubMed ids in about 25 s), but each reads hundreds of megabytes, so repeated or larger work belongs on a downloaded copy.
 
@@ -91,34 +91,18 @@ duckdb clinvar-gkm.duckdb < materialize.sql
 -- materialize.sql
 SET preserve_insertion_order = false;   -- lets DuckDB build large tables with less memory
 
--- 1. One proposition table: the four tables, columns aligned to one shape.
+-- 1. One proposition table: the four tables share one column schema, so one glob reads them all.
 CREATE OR REPLACE TABLE prop AS
 SELECT id, type AS proposition_type, predicate,
-       subject_variant_id AS variant_id, object_condition_id AS object_id,
-       gene_context_name, mode_of_inheritance, penetrance
-FROM 'varcond-proposition.parquet'
-UNION ALL BY NAME
-SELECT id, type AS proposition_type, predicate,
-       subject_id AS variant_id, object_id,
-       gene_context_name, mode_of_inheritance, penetrance
-FROM 'varcustom-proposition.parquet'
-UNION ALL BY NAME
-SELECT id, type AS proposition_type, predicate,
-       subject_variant_id AS variant_id, object_tumor_type_id AS object_id,
-       gene_context_name
-FROM 'vartumor-proposition.parquet'
-UNION ALL BY NAME
-SELECT id, type AS proposition_type, predicate,
-       subject_variant_id AS variant_id,
-       regexp_replace(trim(object_therapy, '"'), '^#/[A-Za-z]+/', '') AS object_id,   -- bare id on any release
-       gene_context_name, condition_qualifier_id
-FROM 'vartherapy-proposition.parquet';
+       subject_variant_id AS variant_id, object_id, object_type,
+       gene_context_name, gene_context_id, mode_of_inheritance, penetrance, condition_qualifier_id
+FROM read_parquet('proposition*.parquet');
 
 -- 2. SCV statements with their proposition's subject, object and qualifiers inlined,
 --    sorted by variant so a lookup by variant touches one small slice of the table.
 CREATE OR REPLACE TABLE scv_by_variant AS
-SELECT p.variant_id, p.object_id, p.proposition_type, p.predicate,
-       p.gene_context_name, p.mode_of_inheritance, p.penetrance, p.condition_qualifier_id,
+SELECT p.variant_id, p.object_id, p.object_type, p.proposition_type, p.predicate,
+       p.gene_context_name, p.gene_context_id, p.mode_of_inheritance, p.penetrance, p.condition_qualifier_id,
        s.id                     AS scv_id,
        s.classification.name    AS classification,
        s.quality.name           AS submission_level,

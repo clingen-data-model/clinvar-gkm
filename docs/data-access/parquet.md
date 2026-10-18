@@ -37,10 +37,10 @@ Available Parquet files (22 sections):
 | `therapy.parquet` | Therapy records (drug therapies, content-addressed) |
 | `therapyGroup.parquet` | TherapyGroup records (combination therapies) |
 | `submitter.parquet` | Submitter organization records |
-| `varcond-proposition.parquet` | Variant×condition propositions (Pathogenicity, ClinicalSignificance, Diagnostic, Prognostic) |
-| `vartumor-proposition.parquet` | Variant×tumorType propositions (Oncogenicity) |
-| `vartherapy-proposition.parquet` | Variant×therapy propositions (TherapeuticResponse) |
-| `varcustom-proposition.parquet` | Custom variant×condition propositions |
+| `propositionPathogenicity.parquet` | Pathogenicity propositions |
+| `propositionOncogenicity.parquet` | Oncogenicity propositions |
+| `propositionSomaticClinicalImpact.parquet` | Somatic clinical impact propositions (ClinicalSignificance, and the Diagnostic, Prognostic and TherapeuticResponse targets of SCI evidence lines) |
+| `propositionClinvarCustom.parquet` | ClinVar custom propositions (the `Clinvar*` types) |
 | `evidenceLine.parquet` | SCV evidence line records |
 | `vcv_evidenceLine.parquet` | VCV evidence line records |
 | `rcv_evidenceLine.parquet` | RCV evidence line records |
@@ -67,13 +67,13 @@ Download individual sections or all files at once:
 
     # Download specific sections
     curl -O "${BASE}/scv.parquet"
-    curl -O "${BASE}/varcond-proposition.parquet"
+    curl -O "${BASE}/propositionPathogenicity.parquet"
     curl -O "${BASE}/condition.parquet"
 
     # Or download all 22 sections
     for section in sequenceReference location allele copyNumberCount copyNumberChange \
                    gene variation condition conditionSet therapy therapyGroup submitter \
-                   varcond-proposition vartumor-proposition vartherapy-proposition varcustom-proposition \
+                   propositionPathogenicity propositionOncogenicity propositionSomaticClinicalImpact propositionClinvarCustom \
                    evidenceLine vcv_evidenceLine rcv_evidenceLine \
                    scv vcv rcv; do
       curl -O "${BASE}/${section}.parquet"
@@ -114,11 +114,11 @@ Download individual sections or all files at once:
     ```bash
     # Join SCVs with propositions to find pathogenic variants for a specific condition
     duckdb -c "
-      SELECT s.id, s.classification.name AS classification, p.predicate, p.object_condition_id
+      SELECT s.id, s.classification.name AS classification, p.predicate, p.object_id
       FROM 'scv.parquet' s
-      JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
+      JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
       WHERE s.classification.name = 'Pathogenic'
-        AND p.object_condition_id LIKE '%clinvar.trait:9580%'
+        AND p.object_id = 'clinvar.trait:9580'
       LIMIT 10;
     "
     ```
@@ -171,7 +171,7 @@ Statement sections (`scv`, `vcv`, `rcv`) share a common set of typed columns:
 | --- | --- | --- |
 | `id` | string | Statement identifier |
 | `type` | string | Statement type |
-| `proposition_id` | string | FK to the matching proposition Parquet — one of `varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`, per the proposition's datatype |
+| `proposition_id` | string | FK to the matching proposition Parquet — one of `propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact`, `propositionClinvarCustom`, by the proposition's type; `read_parquet('proposition*.parquet')` covers all four |
 | `classification` | struct (MappableConcept) | Use `classification.name` (or `classification.primaryCoding.code`) — e.g., "Pathogenic" |
 | `strength` | struct (MappableConcept) | Use `strength.name` — e.g., "definitive", "likely" |
 | `direction` | string | Evidence direction ("supports", "disputes", "neutral") |
@@ -182,13 +182,13 @@ Statement sections (`scv`, `vcv`, `rcv`) share a common set of typed columns:
 
 SCV statements include additional columns: `description`, `contributions`, `reportedIn` and `specifiedBy`. `reportedIn` is a list of citation Documents, one per ClinVar citation, and `specifiedBy.reportedIn` is the assertion method's Document. From 1.1.0 each Document also has `name`, `documentType` and `extensions`; see [`scv`](../parquet/tables.md#scv).
 
-The four proposition sections are typed per datatype: `varcond-proposition` (`subject_variant_id`, `predicate`, `object_condition_id`, `type`, `gene_context_name`, `mode_of_inheritance`, `penetrance`), `vartumor-proposition` (`object_tumor_type_id`, …), `vartherapy-proposition` (`object_therapy`, `condition_qualifier_id`, …), and `varcustom-proposition` (`subject_id`, `object_id`, `type`, `predicate`, `gene_context_name`, `mode_of_inheritance`, `penetrance`) — enabling JOINs across statements, variants, and conditions without parsing JSON. From 1.1.0, all four also carry `gene_context_id` and `submitted_gene_symbols`, and from this release `gene_context_source` (where the gene came from); see [Gene context](../parquet/tables.md#gene-context) for what the gene context is (one representative gene per variant, not a submitter-asserted gene).
+The four proposition tables share **one column schema** (from 1.1.0): `id`, `type`, `predicate`, `subject_variant_id`, `object_id`, `object_type`, `condition_qualifier_id`, `gene_context_id`, `gene_context_name`, `submitted_gene_symbols`, `gene_context_source`, `mode_of_inheritance`, `penetrance` and `data`, so `read_parquet('proposition*.parquet')` reads them as one table. This enables JOINs across statements, variants, and conditions without parsing JSON. See [Gene context](../parquet/tables.md#gene-context) for what the gene context is (one representative gene per variant, not a submitter-asserted gene), and [The shared columns](../parquet/tables.md#proposition-columns) for each column.
 
 Run `DESCRIBE` in DuckDB to see the full schema for any section.
 
-These examples demonstrate cross-section JOINs using typed columns. Most analytical queries can be answered without parsing JSON — the varcond proposition's `gene_context_name` column carries the gene symbol directly, and the condition's `primaryCoding` struct carries the MedGen code. (These queries join `scv.parquet` to `varcond-proposition.parquet`, the variant×condition group that holds pathogenicity and clinical-significance propositions; the other three proposition groups — `vartumor`, `vartherapy`, `varcustom` — have their own typed columns.)
+These examples demonstrate cross-section JOINs using typed columns. Most analytical queries can be answered without parsing JSON — the proposition's `gene_context_name` column carries the gene symbol directly, and the condition's `primaryCoding` struct carries the MedGen code. (These queries join `scv.parquet` to `propositionPathogenicity.parquet`; swap in `read_parquet('proposition*.parquet')` to include every kind of claim, since the four tables have the same columns.)
 
-For how the sections join — including the prefix-dispatched columns where a single-table join silently drops rows — see [Joining Tables](../parquet/joining.md); for task-oriented queries, see [Recipes](../parquet/recipes.md).
+For how the sections join — including the columns that point at more than one table, where a single-table join silently drops rows — see [Joining Tables](../parquet/joining.md); for task-oriented queries, see [Recipes](../parquet/recipes.md).
 
 ??? example "Example cross-section queries (SQL)"
     **All SCVs for a gene — detailed view:**
@@ -205,8 +205,8 @@ For how the sections join — including the prefix-dispatched columns where a si
         c.name AS condition_name,
         c.primaryCoding.code AS condition_code
     FROM 'scv.parquet' s
-    JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
-    LEFT JOIN 'condition.parquet' c ON p.object_condition_id = c.id
+    JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
+    LEFT JOIN 'condition.parquet' c ON p.object_id = c.id
     WHERE p.gene_context_name = 'BRCA1'
     ORDER BY s.classification.name;
     ```
@@ -222,7 +222,7 @@ For how the sections join — including the prefix-dispatched columns where a si
         s.direction,
         COUNT(*) AS scv_count
     FROM 'scv.parquet' s
-    JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
+    JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
     WHERE p.gene_context_name = 'BRCA2'
     GROUP BY ALL
     ORDER BY scv_count DESC;
@@ -238,8 +238,8 @@ For how the sections join — including the prefix-dispatched columns where a si
         s.quality.name AS review_status,
         c.name AS condition_name
     FROM 'scv.parquet' s
-    JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
-    LEFT JOIN 'condition.parquet' c ON p.object_condition_id = c.id
+    JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
+    LEFT JOIN 'condition.parquet' c ON p.object_id = c.id
     WHERE p.gene_context_name = 'TP53'
       AND s.quality.name IN ('criteria provided', 'reviewed by expert panel')
     ORDER BY s.classification.name;
@@ -254,7 +254,7 @@ For how the sections join — including the prefix-dispatched columns where a si
         s.classification.name AS classification,
         COUNT(*) AS n
     FROM 'scv.parquet' s
-    JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
+    JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
     WHERE p.gene_context_name IN ('BRCA1', 'BRCA2', 'TP53', 'MLH1')
       AND s.quality.name = 'criteria provided'
     GROUP BY gene, s.classification.name
@@ -272,7 +272,7 @@ For how the sections join — including the prefix-dispatched columns where a si
         json_extract_string(s.data, '$.contributions[0].agent.name') AS submitter,
         json_extract_string(s.data, '$.specifiedBy.name') AS method
     FROM 'scv.parquet' s
-    JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
+    JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
     WHERE p.gene_context_name = 'BRCA1'
       AND s.classification.name = 'Pathogenic'
       AND s.quality.name = 'reviewed by expert panel'
@@ -316,7 +316,7 @@ Every section Parquet — full and delta alike — exposes an `id` column, and t
     mkdir -p full delta
     for section in sequenceReference location allele copyNumberCount copyNumberChange \
                    gene variation condition conditionSet therapy therapyGroup submitter \
-                   varcond-proposition vartumor-proposition vartherapy-proposition varcustom-proposition \
+                   propositionPathogenicity propositionOncogenicity propositionSomaticClinicalImpact propositionClinvarCustom \
                    evidenceLine vcv_evidenceLine rcv_evidenceLine scv vcv rcv; do
       curl -sf "${BASE}/v1/datasets/parquet/${CKPT}/${section}.parquet" -o "full/${section}.parquet"  || true
       curl -sf "${BASE}/v1/deltas/00-latest/parquet/${section}.parquet" -o "delta/${section}.parquet" || true
@@ -377,7 +377,7 @@ Every section Parquet — full and delta alike — exposes an `id` column, and t
     SECTIONS = [
         "sequenceReference", "location", "allele", "copyNumberCount", "copyNumberChange",
         "gene", "variation", "condition", "conditionSet", "therapy", "therapyGroup", "submitter",
-        "varcond-proposition", "vartumor-proposition", "vartherapy-proposition", "varcustom-proposition",
+        "propositionPathogenicity", "propositionOncogenicity", "propositionSomaticClinicalImpact", "propositionClinvarCustom",
         "evidenceLine", "vcv_evidenceLine", "rcv_evidenceLine", "scv", "vcv", "rcv",
     ]
 

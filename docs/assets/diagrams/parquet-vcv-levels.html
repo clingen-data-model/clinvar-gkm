@@ -184,10 +184,8 @@
 </div>
 <details class="q"><summary>Query — decode a variant's statement ids, with proposition type, quality, and classification</summary>
 <pre><span class="c">-- the axes fall out of the id; join the proposition for its type, read quality + classification</span>
-WITH prop AS (
-    SELECT id, type FROM 'varcond-proposition.parquet'
-    UNION ALL SELECT id, type FROM 'vartumor-proposition.parquet'
-    UNION ALL SELECT id, type FROM 'varcustom-proposition.parquet'
+WITH prop AS (                    <span class="c">-- the four proposition tables share one schema</span>
+    SELECT id, type FROM read_parquet('proposition*.parquet')
 )
 SELECT regexp_extract(v.id, '-([GS])-', 1)                                      AS lane,
        regexp_extract(v.id, '-[GS]-([A-Z]+)', 1)                                AS class_code,
@@ -277,11 +275,7 @@ G     PATH        root   VariantPathogenicityProposition  expert panel          
 SELECT tp.type AS evidence_target_proposition, tp.predicate,
        e.evidenceOutcome.name AS tier, count(*) n
 FROM 'evidenceLine.parquet' e
-JOIN (
-    SELECT id, type, predicate FROM 'varcond-proposition.parquet'
-    UNION ALL
-    SELECT id, type, predicate FROM 'vartherapy-proposition.parquet'
-) tp ON tp.id = e.target_proposition_id
+JOIN 'propositionSomaticClinicalImpact.parquet' tp ON tp.id = e.target_proposition_id
 GROUP BY 1, 2, 3 ORDER BY n DESC;</pre>
 <div class="out">evidence_target_proposition            predicate                           tier       n
 VariantDiagnosticProposition           isDiagnosticInclusionCriterionFor   Level A/B  987

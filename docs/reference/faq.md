@@ -137,7 +137,7 @@ SELECT id,
                    lambda e: e->>'$.name' = 'submittedGeneSymbols')[1]->'$.value' AS submitted_gene_symbols,
        list_filter(CAST(data->'$.geneContextQualifier.extensions' AS JSON[]),
                    lambda e: e->>'$.name' = 'geneContextSource')[1]->>'$.value'  AS gene_context_source
-FROM 'varcond-proposition.parquet'
+FROM 'propositionPathogenicity.parquet'
 WHERE id IN ('SCV001494816-PATH', 'SCV000024718-PATH', 'SCV005419060-PATH', 'SCV000039919-PATH');
 ```
 
