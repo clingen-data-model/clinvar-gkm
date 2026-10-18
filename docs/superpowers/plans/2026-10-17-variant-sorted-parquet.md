@@ -719,10 +719,12 @@ Proposed paths are under `src/scripts/parquet-schemas/`. `{DATASET}` is substitu
 was dry-run in its spliced form on `clinvar_2026_10_11_v2_6_0`. None needs `collapse_ext_values`, since none
 has a `data` column.
 
-**Fix found while validating:** `gkm_dict_condition_set` stores **traitset** members as `#/condition/…`
-pointers and minted-set members bare. The published bundle carries the same mix: traitset ConceptSets list
-`#/condition/…` pointers, `vcv-` sets list bare ids. Stripping to bare ids is therefore a supported derivation
-from the bundle, not a Parquet-only fact. `conditionSet.sql` strips them; `_concept-sets.sql` must too.
+**Fix found while validating:** through 1.0.1, `gkm_dict_condition_set` stored **traitset** members as
+`#/condition/…` pointers and minted-set members bare, and the published bundle carried the same mix. From 1.1.0
+(#160, `fix/uniform-condition-pointers`) every member is a `#/condition/…` or `#/conditionSet/…` pointer, as is
+every VCV proposition `object`. Stripping with `REGEXP_REPLACE(…, r'^#/[^/]+/', '')` gives the same bare ids
+from either form, so it is a supported derivation from the bundle. `conditionSet.sql` strips them;
+`_concept-sets.sql` must too.
 
 ### `_statement-core.sql` (fragment)
 
@@ -826,7 +828,7 @@ core AS (
 ```sql
 -- Shared CTEs for concept sets (spliced in where a file says {CONCEPT_SETS}).
 -- sets: condition sets (the published >1-member filter) and therapy groups, members as bare ids
--- (traitset members are stored as '#/condition/…' pointers; minted-set members are already bare).
+-- (members are '#/condition/…' / '#/conditionSet/…' pointers from 1.1.0; minted-set members were bare before).
 sets AS (
   SELECT id AS set_id, 'conditionSet' AS set_type, conceptSetType AS concept_set_type,
          membershipOperator AS membership_operator,
