@@ -20,3 +20,4 @@ importing them so they don't bloat every session's context.
 - [0004 — Schema versioning & release change-management](0004-schema-versioning-and-release-management.md)
 - [0005 — R2 distribution domain, CDN caching, and fee protection](0005-r2-custom-domain-and-cdn.md)
 - [0006 — Ship the proposition reorganization as 1.1.0, in place under `/v1/`](0006-ship-1.1.0-in-place-under-v1.md)
+- [0007 — Pipeline principles and simplification](0007-pipeline-principles-and-simplification.md)

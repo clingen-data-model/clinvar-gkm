@@ -30,6 +30,8 @@ Docs are Zensical (Material theme) in `docs/`, deployed to GitHub Pages by `.git
 
 - Run `zensical build --strict` after **any** docs change and fix all warnings before committing (broken links
   and other warnings fail the strict build). Config lives in `zensical.toml` (nav, theme, extensions).
+- Then run `python src/scripts/check-site-links.py` on the built `site/`: it checks `#anchor` fragments and links
+  in raw HTML (iframes, diagrams, the console), which `--strict` doesn't. The deploy fails on any it reports.
 - Use the `write-docs` skill for creating/editing docs pages.
 
 ## Terminology

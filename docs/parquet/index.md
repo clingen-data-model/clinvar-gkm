@@ -1,13 +1,13 @@
 # Start Here
 
 !!! info "Release"
-    Counts on this page are from the **2026-10 monthly release** (published 14 Oct 2026). The console queries the newest release, so its numbers may be higher.
+    Counts on this page are from the **2026-10 monthly release** (published 14 Oct 2026). The console's **Release** list is read live from the published index and defaults to the newest monthly release, so once a newer one is out its numbers may be higher; pick `2026-10` to match this page.
 
 ClinVar-GKM publishes all of ClinVar as **Parquet** — 22 typed tables you query with SQL, with no database server and no data-loading step. This page gets a real answer from real ClinVar data in about five minutes: no joins, no genomics background, and — to begin — nothing to install.
 
 ## Run a query now
 
-The console below runs SQL **in your browser**, directly against the published data at `data.clinvar-gkm.org`. Pick an example from the dropdown and press **Run**. The first query loads the engine (a few seconds, once); everything after is immediate.
+The console below runs SQL **in your browser**, directly against the published data at `data.clinvar-gkm.org`. The **Release** dropdown lists every published monthly release and starts on the newest; `00-latest` is also there, but dated releases load faster because the CDN caches them. Pick an example from the dropdown and press **Run**. The first query loads the engine (a few seconds, once); everything after is immediate.
 
 <iframe src="../assets/duckdb-console.html" style="width:100%; height:640px; border:1px solid rgba(128,128,128,.25); border-radius:8px;" title="ClinVar-GKM live query console" loading="lazy"></iframe>
 
