@@ -21,6 +21,8 @@ bundle, or the `clinvar_2026_10_11_v2_6_0` BigQuery dataset, unless marked *unve
 | #141 | Diagram header tint; statement codes as text | `main` | merged |
 | #142 | `ClinvarCategoricalVariant` oneOf fix (#132 item 4) + schema 1.0.2 | `1.0` | draft |
 | #143 | Parquet: bare ids for `object_therapy` and gene-list `gene`; typed `condition` export | `1.0` | draft |
+| #144 | This plan | `main` | open |
+| #145 | A1: no `hgvs.?`; ClinVar's invalid HGVS kept as extensions | `1.0` | draft |
 
 **Order constraints:**
 
@@ -29,6 +31,52 @@ bundle, or the `clinvar_2026_10_11_v2_6_0` BigQuery dataset, unless marked *unve
   as the first Parquet export built with #143.
 
 ---
+
+## Consolidated data release (one rebuild, one backfill)
+
+Rule: every change that alters published data lands **before** the forward rebuild and the backfill, so each
+runs once. Docs move with every PR (paired `main` docs PR for `1.0` changes; `docs/parquet/` exists only on
+`main`).
+
+### What changes published data
+
+| Change | JSON bundle | Parquet | Backfill past releases? |
+| --- | --- | --- | --- |
+| #142 oneOf fix + schema 1.0.2 | `schema_version` label only | — | no |
+| B2 bundle `oneOf`, A3 description drift | — | — | no (schema only) |
+| #145 A1 `hgvs.?` | 14 `variation` records (monthly fulls only; none appear in any of the 15 deltas) | `variation` | **yes** |
+| #143 gene-list ids | — | `variation` values change form | **yes**: a value change mixed across a full and its deltas breaks reconstruction |
+| #143 `object_therapy` | — | `vartherapy-proposition` values change form | **yes**, same reason |
+| #143 `condition` `data` column | — | new column | no: additive columns mix safely (`UNION ALL BY NAME`) |
+| C2 therapy columns, C3 location ranges | — | new columns | no (additive) |
+| C1 variant-sorted file | — | new file | no (new artifact starts with the next release) |
+| C4 `gene_context_name` on aggregates | ~20 M VCV/RCV propositions | `varcond` / `varcustom` | must be **decided before** the rebuild: populating it later would force a second rebuild |
+
+Confirmed not pending (already merged): the va-spec 2026-09 migration, the ConceptSet iriReference change, and
+the VCV EP/PG aggregate refactor.
+
+### Sequence
+
+1. **Settle data decisions first:** C4 (`gene_context_name` on aggregates: keep SCV-only, or populate now).
+2. **Finish the `1.0` PRs:**
+   - fold B2 and A3 into #142
+   - optionally fold C2 into #143 (additive, so optional)
+   - review and merge #142 → #143 → #145 into `1.0`
+3. **Paired docs PR on `main`** (A2 + docs for #143/#145/C2), merged together with step 4.
+4. **Forward-merge `1.0` → `main`; tag `1.0.2`.**
+5. **Forward rebuild** (next release, gated):
+   - deploy the changed procedures
+   - run the variant step in **full mode once** (A1)
+   - export with the new Parquet SQL
+   - full-vs-incremental and delta-reconstruction oracles at 0,0,0
+6. **One backfill of published releases** (live writes, each confirmed):
+   - **JSON:** the 14 A1 `variation` records in the monthly fulls (2026-07 … 2026-10, `00-latest`, `/v1/` and flat-root)
+   - **Parquet:** re-export `variation` and `vartherapy-proposition` for every monthly set and every delta that
+     contains those tables, so A1 and both #143 value changes land in one pass
+   - **Then:** purge the CDN for overwritten dated paths, regenerate `index.json`, re-verify reconstruction
+     (full + deltas == next full), and validate the patched bundles
+   - **Changelog:** record the backfill
+7. **After the backfill:** additive items (C1, C3, C2 if not folded in) ship forward-only with any later release.
 
 ## Workstream A — Conformance and correctness (do first)
 
@@ -310,6 +358,8 @@ diagram boxes, the console). Every check of those in the Query the Data work was
 ---
 
 ## Suggested order
+
+Data-changing work follows the consolidated release sequence above; this order covers everything else.
 
 1. **A1** (`hgvs.?`, code done; release steps + option 2 backfill) and **B2** (bundle `oneOf`), on `1.0`, alongside
    #142. Same release, if possible.
