@@ -47,7 +47,7 @@ record) with DuckDB, calibrated against the published files (§5).
 | A | Gene-context qualifier design | **resolved** (2026-10-18) | (a) + (b) in this release (#159), (c) deferred; unaffected by the reorg (§3.A) |
 | B | Content-shared propositions | open | **defer** (§3.B) |
 | C | Version label | open | **1.1.0**, in place under `/v1/` (§3.C) |
-| D | Normalize VCV `object` and `vcv-` set members to `#/` pointers | **new, open** | **do it in this rebuild** (§3.D) |
+| D | Normalize VCV `object` and `vcv-` set members to `#/` pointers | **decided** (2026-10-18) | (i), in this rebuild, as its own PR: #160, branch `fix/uniform-condition-pointers` (§3.D) |
 | E | `proposition_section` column on statement Parquet | new, open | optional; recommended (§4.4) |
 
 ---
@@ -268,10 +268,16 @@ line until GA, announced rather than RFC'd. #142, #145 and #153 already bump the
   - `schema_version` / `$id` 1.1.0;
   - every published release (4 monthly fulls, `00-latest`, 15 deltas, every Parquet set) rewritten in place,
     so checksums change and earlier downloads should be refreshed;
-  - the other data changes riding the same rebuild (A1 HGVS, citations, allele duplicate key, #143, C3, and D
-    if chosen).
+  - the other data changes riding the same rebuild (A1 HGVS, citations, allele duplicate key, #143, C3, and D).
 
 ### 3.D New: normalize VCV `object` and `vcv-` set members (found while measuring)
+
+**Decided (user, 2026-10-18): (i).** It is its own PR, **#160** (branch `fix/uniform-condition-pointers`, base
+`1.0`), not part of PR 1–4. The re-wrap is done at emission in `gkm-vcv-statement-proc.sql` (the three `obj_ref`
+builds and the synthetic `vcv-` set `concepts`), not in `gkm-vcv-proc.sql`'s `condition_ref`: the `vcv-` id
+digest stays over the bare CURIEs, so no `vcv-` id changes, and the `gkm_vcv_*_agg` tables are untouched. On
+2026-10-11 it rewrites 7,474,404 VCV propositions and all 94,980 `vcv-` sets; 0 bare references and 0 dangling
+pointers remain; the Parquet typed id columns are unchanged. The text below is the original analysis.
 
 The bundle mixes reference forms for the same kind of target:
 
@@ -386,7 +392,7 @@ FROM (
 WHERE `clinvar_ingest.gkm_proposition_section`(JSON_VALUE(value, '$.type')) = '{SECTION}'
 ```
 
-- If 3.D (i) is chosen, drop the two CURIE fallback arms so a non-pointer object fails the export.
+- 3.D (i) is decided (#160): drop the two CURIE fallback arms so a non-pointer object fails the export.
 - The delta export's `.gkm_dict_` → `.delta_gkm_dict_` rewrite (`export-gkm-dicts.sh:112-118`) works unchanged:
   the template references the three dicts, each with a `delta_` counterpart (the invariant comment as corrected
   by #143 `c4cabeb`).
@@ -499,7 +505,7 @@ proven #132 / 1.0.1 path.
    5. `fix/scv-citations` (uncommitted today in worktree `scv-citations`, based on the `1.0.1` tag)
    6. #143 (bare ids, typed condition, C2, gene-context columns, plus the Parquet `extensions` placeholder cleanup)
    7. #150 (C3 location ranges)
-   8. **PR 1 → PR 2 → PR 3 → PR 4** of this plan (§8), and PR 5 if 3.D (i) is chosen
+   8. **PR 1 → PR 2 → PR 3 → PR 4** of this plan (§8), and PR 5 (#160, 3.D)
 3. **Do not run a weekly release from `1.0` between these merges and the backfill** (master plan rule): pause
    `run-release.sh` for the window. If ClinVar publishes a new weekly before the rebuild, build it as the 17th
    dataset at the end of §6.3.
@@ -603,7 +609,7 @@ Local disk is the tight resource: a monthly full is 4.8 GB and its Parquet set a
 
 Arrives through the rebuild instead of patching: **A1** (`hgvs.?`; no separate full-mode variant run needed),
 the **citation fix**, the **allele duplicate-key fix**, **#143** (bare ids, typed condition, C2, gene-context
-columns, extensions cleanup), **C3**, **#142/#153** schema changes, and **3.D** if chosen.
+columns, extensions cleanup), **C3**, **#142/#153** schema changes, and **3.D** (#160).
 
 Obsolete in `scratchpad/backfill102/`:
 
@@ -702,7 +708,7 @@ the publish window. All `1.0` PRs merge just before the rebuild (§6.2).
 | 2 | `1.0` | `feat(bundle): proposition sections by meaning + schema 1.1.0` | `export-gkm-dicts.sh` NDJSON groups; `assemble-gkm-dicts.py` `SECTIONS` + `SCHEMA_VERSION`; `build-delta-manifest.py`; `sub-bundle.py`; bundle schema sections + `$id`/const; 4 source YAML `$id`s; `json/` regen (version-only diff; revert `$defs` reorder churn) | D1 |
 | 3 | `1.0` | `feat(parquet): one shared proposition schema` | `parquet-schemas/proposition.sql` template replaces the four `var*-proposition.sql`; `extract_parquet_typed` `{SECTION}` substitution + row-count assertion; `extract-example.py` maps `proposition*` sections to the template; optional `proposition_section` (E) on `scv`/`vcv`/`rcv`/`evidenceLine` | D2 |
 | 4 | `1.0` | `chore(release): staged republish for the 1.1.0 backfill` | `--no-upload` stop in `release-gkm.sh` / `release-gkm-delta.sh`; dated-dir `--replace-sections` wipe in both uploaders; a `republish-v1.sh` runbook driver (backup → stale delete → upload → index) | D3 |
-| 5 | `1.0` | `fix(vcv): #/ pointers for VCV objects and vcv- set members` (only if 3.D (i)) | `gkm-vcv-proc.sql` `condition_ref` re-wrap; synthetic set `concepts` as pointers | D1 |
+| 5 | `1.0` | **#160** `fix(vcv-statement): #/ pointers for VCV condition objects and vcv- set members (D)`, branch `fix/uniform-condition-pointers` | `gkm-vcv-statement-proc.sql`: `obj_ref` re-wrap (×3) and synthetic set `concepts` as pointers; `vcv-` digest unchanged | #146 (changelog, ID References, Joining Tables) |
 | D1 | `main` | `docs: bundle reference for the proposition sections` | bundle/reference pages, ADR 0006, ADR 0004 note | with 1+2 (+5) |
 | D2 | `main` | `docs(parquet): Query the Data for the shared proposition schema` | Query the Data pages, diagrams, console, `r2-browser.js`; folds into or rebases on #146 | with 3 |
 | D3 | `main` | `docs: 1.1.0 changelog, versioning, announcement` | changelog, versioning, known-issues, release notes, master-plan update | with the publish |
@@ -714,7 +720,7 @@ Each `1.0` PR's description names its paired `main` PR.
 
 | Area | Files | Where |
 | --- | --- | --- |
-| **Procs** (PR 1, PR 5) | 3 changed + 1 new (+1 for 3.D) | `gkm-scv-statement-proc.sql` evidence-line `targetProposition` `:981-988` and statement `proposition` `:1066-1078`; `gkm-rcv-statement-proc.sql` `:268-276`, `:341-349`, `:419-427`; `gkm-vcv-statement-proc.sql` `:221-229`, `:294-302`, `:372-380` (8 pointer sites); new `gkm-proposition-section-func.sql`; 3.D: `gkm-vcv-proc.sql` `vcv_conditions` `:279-298` and the synthetic-set build. Dict builds unchanged (SCV Step 7e `:880-898`; RCV/VCV `dict_*_proposition_query`). |
+| **Procs** (PR 1, PR 5) | 3 changed + 1 new (+1 for 3.D) | `gkm-scv-statement-proc.sql` evidence-line `targetProposition` `:981-988` and statement `proposition` `:1066-1078`; `gkm-rcv-statement-proc.sql` `:268-276`, `:341-349`, `:419-427`; `gkm-vcv-statement-proc.sql` `:221-229`, `:294-302`, `:372-380` (8 pointer sites); new `gkm-proposition-section-func.sql`; 3.D (#160): `gkm-vcv-statement-proc.sql` `obj_ref` `:533-535`, `:567-569`, `:601-603` and the synthetic-set build. Dict builds unchanged (SCV Step 7e `:880-898`; RCV/VCV `dict_*_proposition_query`). |
 | **Export + Parquet SQL** (PR 3) | 6 | `export-gkm-dicts.sh` `PROP_GROUP_CASE` `:133-146`, `export_proposition_group_ndjson` `:172-188`, NDJSON calls `:242-249`, Parquet calls `:286-290`, delta rewrite `:112-118` (no change, verify); `parquet-schemas/var{cond,custom,tumor,therapy}-proposition.sql` → `proposition.sql`; `extract-example.py` (section → schema-file mapping) |
 | **Assembler + cleanup** (PR 2) | 1 (+1 verified unchanged) | `assemble-gkm-dicts.py` `SCHEMA_VERSION` `:69`, `SECTIONS` `:87-90`; `gkm_json_cleanup.py` unchanged (strip/collapse untouched) |
 | **Delta model / change log** (PR 2, PR 4) | 3 | `build-delta-manifest.py` `TABLE_SECTION` comment + `GROUP_SECTION_CASE` `:36-49` (also drop the vestigial `customPropositionType` COALESCE); `upload-gkm-to-r2.sh`, `upload-gkm-delta-to-r2.sh` (dated-dir wipe). Unchanged: `gkm-change-log-proc.sql`, `gkm-delta-proc.sql` (track dict tables), `generate-r2-index.sh` (lists from R2), `r2-readme.txt` (generic) |
@@ -811,7 +817,8 @@ Each `1.0` PR's description names its paired `main` PR.
 1. C: 1.1.0 (recommended) or 1.0.2?
 2. ~~3.A: decide (a)/(b)/(c) before the rebuild, or defer them as forward-only?~~ Resolved: (a) + (b) in this
    release (#159), (c) deferred.
-3. 3.D: normalize VCV objects and `vcv-` set members now (recommended)?
+3. ~~3.D: normalize VCV objects and `vcv-` set members now (recommended)?~~ Resolved: (i), PR #160
+   (`fix/uniform-condition-pointers`).
 4. E: add `proposition_section` to the statement Parquet?
 5. `submitted_gene_symbols`: empty array (as #143) or NULL when absent?
 6. Should the shared schema also carry a derived `statement_level` (`scv`/`vcv`/`rcv`, from the id prefix)?
