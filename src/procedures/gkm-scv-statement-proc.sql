@@ -366,15 +366,32 @@ BEGIN
           on
             g.id = sgv.gene_id
         ),
+        -- The submitter's distinct symbols, verbatim, in submitted order: variation record, then gene
+        -- list, then position in the comma-separated symbol list. (cav.id, gene_offset, symbol_offset)
+        -- is unique, so this is a total order — ARRAY_AGG(DISTINCT) leaves the order unspecified, and
+        -- gkm_dict_proposition is recomputed every release, so an unordered list flips between runs.
         scv_submitted_genes AS (
           SELECT
-            cav.clinical_assertion_id,
-            ARRAY_AGG(DISTINCT gene_symbol) as submitted_gene_symbols
-          FROM `{S}.clinical_assertion_variation` cav
-          CROSS JOIN UNNEST(clinvar_ingest.parseGeneLists(cav.content)) as g
-          CROSS JOIN UNNEST(SPLIT(g.symbol)) as gene_symbol
+            clinical_assertion_id,
+            ARRAY_AGG(gene_symbol ORDER BY cav_id, gene_offset, symbol_offset) as submitted_gene_symbols
+          FROM (
+            SELECT
+              cav.clinical_assertion_id,
+              cav.id as cav_id,
+              gene_offset,
+              symbol_offset,
+              gene_symbol,
+              ROW_NUMBER() OVER (
+                PARTITION BY cav.clinical_assertion_id, gene_symbol
+                ORDER BY cav.id, gene_offset, symbol_offset
+              ) as rn
+            FROM `{S}.clinical_assertion_variation` cav
+            CROSS JOIN UNNEST(clinvar_ingest.parseGeneLists(cav.content)) as g WITH OFFSET gene_offset
+            CROSS JOIN UNNEST(SPLIT(g.symbol)) as gene_symbol WITH OFFSET symbol_offset
+          )
+          WHERE rn = 1
           GROUP BY
-            cav.clinical_assertion_id
+            clinical_assertion_id
         )
         SELECT
           scv.id as scv_id,
