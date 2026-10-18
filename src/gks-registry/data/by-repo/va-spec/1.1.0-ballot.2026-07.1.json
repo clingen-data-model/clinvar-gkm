@@ -1,0 +1,318 @@
+{
+  "repo": "va-spec",
+  "tag": "1.1.0-ballot.2026-07.1",
+  "name": "1.1.0-ballot.2026-07.1",
+  "published_at": "2026-07-22T15:50:55",
+  "schema_count": 36,
+  "maturity_summary": {
+    "draft": 14,
+    "trial use": 22
+  },
+  "schemas": {
+    "AmpAscoCapEvidenceLine": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/aac-2017/json/AmpAscoCapEvidenceLine",
+      "maturity": "draft",
+      "description": "Evidence line for AMP/ASCO/CAP",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/aac-2017/json/AmpAscoCapEvidenceLine",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/aac-2017/json/AmpAscoCapEvidenceLine"
+    },
+    "DiagnosticEvidenceLine": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/aac-2017/json/DiagnosticEvidenceLine",
+      "maturity": "draft",
+      "description": "Diagnostic evidence line for AMP/ASCO/CAP",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/aac-2017/json/DiagnosticEvidenceLine",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/aac-2017/json/DiagnosticEvidenceLine"
+    },
+    "PrognosticEvidenceLine": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/aac-2017/json/PrognosticEvidenceLine",
+      "maturity": "draft",
+      "description": "Prognostic evidence line for AMP/ASCO/CAP",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/aac-2017/json/PrognosticEvidenceLine",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/aac-2017/json/PrognosticEvidenceLine"
+    },
+    "TherapeuticEvidenceLine": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/aac-2017/json/TherapeuticEvidenceLine",
+      "maturity": "draft",
+      "description": "Therapeutic evidence line for AMP/ASCO/CAP",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/aac-2017/json/TherapeuticEvidenceLine",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/aac-2017/json/TherapeuticEvidenceLine"
+    },
+    "VariantClinicalSignificanceStatement": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/aac-2017/json/VariantClinicalSignificanceStatement",
+      "maturity": "draft",
+      "description": "A statement reporting a conclusion from a single study about the clinical significance of a variant with respect to a condition, based on interpretation of the study's results.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/aac-2017/json/VariantClinicalSignificanceStatement",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/aac-2017/json/VariantClinicalSignificanceStatement"
+    },
+    "VariantPathogenicityEvidenceLine": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/acmg-2015/json/VariantPathogenicityEvidenceLine",
+      "maturity": "draft",
+      "description": "An Evidence Line that describes how a specific type of information was interpreted as evidence for or against a variant's pathogenicity. In the ACMG Framework, evidence is assessed by determining if a specific criterion (e.g. 'PM2') with a default strength (e.g. 'moderate') is 'met' or 'not met', and in some cases adjusting the default strength based on the quality and abundance of evidence.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/acmg-2015/json/VariantPathogenicityEvidenceLine",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/acmg-2015/json/VariantPathogenicityEvidenceLine"
+    },
+    "VariantPathogenicityStatement": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/acmg-2015/json/VariantPathogenicityStatement",
+      "maturity": "draft",
+      "description": "A Statement describing the role of a variant in causing an inherited condition.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/acmg-2015/json/VariantPathogenicityStatement",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/acmg-2015/json/VariantPathogenicityStatement"
+    },
+    "Agent": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/Agent",
+      "maturity": "trial use",
+      "description": "An autonomous actor (person, organization, or software agent) that bears some form of responsibility for an activity taking place, for the existence of an entity, or for another agent's activity.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/Agent",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/Agent"
+    },
+    "CohortAlleleFrequencyStudyResult": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/CohortAlleleFrequencyStudyResult",
+      "maturity": "trial use",
+      "description": "A StudyResult that reports measures related to the frequency of an Allele in a cohort",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/CohortAlleleFrequencyStudyResult",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/CohortAlleleFrequencyStudyResult"
+    },
+    "ComputationalVariantFunctionalImpactAnalysisResult": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/ComputationalVariantFunctionalImpactAnalysisResult",
+      "maturity": "draft",
+      "description": "An AnalysisResult that reports the output of a single in silico tool's analysis of a variant's functional impact, including any numeric score(s) and optional categorical interpretation.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/ComputationalVariantFunctionalImpactAnalysisResult",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/ComputationalVariantFunctionalImpactAnalysisResult"
+    },
+    "Condition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/Condition",
+      "maturity": "trial use",
+      "description": "A specialization of MappableConcept representing a single condition (disease, phenotype, or trait). Allowed conceptType values include: Condition, Phenotype, Disease, Trait, Absent.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/Condition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/Condition"
+    },
+    "ConditionSet": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/ConditionSet",
+      "maturity": "trial use",
+      "description": "A specialization of ConceptSet representing a set of conditions (diseases, phenotypes, traits) that occur together or are related, depending on the membership operator. Concepts are restricted to Condition and ConditionSet members.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/ConditionSet",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/ConditionSet"
+    },
+    "Contribution": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/Contribution",
+      "maturity": "trial use",
+      "description": "An action taken by an agent in contributing to the creation, modification, assessment, or deprecation of a particular entity (e.g. a Statement, EvidenceLine, DataSet, Publication, etc.)",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/Contribution",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/Contribution"
+    },
+    "DataSet": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/DataSet",
+      "maturity": "trial use",
+      "description": "A collection of related data items or records that are organized together in a common format or structure, to enable their computational manipulation as a unit.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/DataSet",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/DataSet"
+    },
+    "Document": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/Document",
+      "maturity": "trial use",
+      "description": "A collection of information, usually in a text-based or graphic human-readable form, intended to be read and understood together as a whole.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/Document",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/Document"
+    },
+    "EvidenceLine": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/EvidenceLine",
+      "maturity": "trial use",
+      "description": "An independent, evidence-based argument that may support or refute the validity of a specific Proposition. The strength and direction of this argument is based on an interpretation of one or more pieces of information as evidence for or against the target Proposition.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/EvidenceLine",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/EvidenceLine"
+    },
+    "ExperimentalVariantFunctionalImpactProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/ExperimentalVariantFunctionalImpactProposition",
+      "maturity": "trial use",
+      "description": "A Proposition describing the impact of a variant on the function sequence feature (typically a gene or gene product).",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/ExperimentalVariantFunctionalImpactProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/ExperimentalVariantFunctionalImpactProposition"
+    },
+    "ExperimentalVariantFunctionalImpactStudyResult": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/ExperimentalVariantFunctionalImpactStudyResult",
+      "maturity": "trial use",
+      "description": "A StudyResult that reports a functional impact score from a variant functional assay or study.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/ExperimentalVariantFunctionalImpactStudyResult",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/ExperimentalVariantFunctionalImpactStudyResult"
+    },
+    "GeneDiseaseValidityProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/GeneDiseaseValidityProposition",
+      "maturity": "draft",
+      "description": "A proposition that variants affecting a particular Gene are valid for evaluation as causal for some Condition using appropriate variant classification criteria, given a specific mode of inheritance.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/GeneDiseaseValidityProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/GeneDiseaseValidityProposition"
+    },
+    "Method": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/Method",
+      "maturity": "trial use",
+      "description": "A set of instructions that specify how to achieve some objective.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/Method",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/Method"
+    },
+    "Statement": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/Statement",
+      "maturity": "trial use",
+      "description": "A claim of purported truth as made by a particular agent, on a particular occasion. Statements may be used to put forth a possible fact (i.e. a 'Proposition') as true or false, or to provide a more nuanced assessment of the level of confidence or evidence supporting a particular Proposition.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/Statement",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/Statement"
+    },
+    "StudyGroup": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/StudyGroup",
+      "maturity": "trial use",
+      "description": "A collection of individuals or specimens from the same taxonomic class, selected for analysis in a scientific study based on their exhibiting one or more common characteristics  (e.g. species, race, age, gender, disease state, income). May be referred to as a 'cohort' or 'population' in specific research settings.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/StudyGroup",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/StudyGroup"
+    },
+    "StudyResult": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/StudyResult",
+      "maturity": "trial use",
+      "description": "A collection of data items from a single study that pertain to a particular subject or experimental unit in the study, along with optional provenance information describing how these data items were generated.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/StudyResult",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/StudyResult"
+    },
+    "SubjectVariantProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/SubjectVariantProposition",
+      "maturity": "trial use",
+      "description": "A Proposition that has a variant as the subject.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/SubjectVariantProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/SubjectVariantProposition"
+    },
+    "Therapy": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/Therapy",
+      "maturity": "trial use",
+      "description": "A specialization of MappableConcept representing an individual therapy (drug, procedure, behavioral intervention, etc.). Allowed conceptType values include: Therapy, Absent, Drug, Procedure, Behavioral Intervention.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/Therapy",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/Therapy"
+    },
+    "TherapyGroup": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/TherapyGroup",
+      "maturity": "trial use",
+      "description": "A specialization of ConceptSet representing a group of two or more therapies that are applied in combination to a single patient/subject, or applied individually to a different subset of participants in a research study. Concepts are restricted to Therapy and TherapyGroup members.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/TherapyGroup",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/TherapyGroup"
+    },
+    "TumorVariantFrequencyStudyResult": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/TumorVariantFrequencyStudyResult",
+      "maturity": "draft",
+      "description": "A Study Result that reports measures related to the frequency of a variant in a particular tumor type.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/TumorVariantFrequencyStudyResult",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/TumorVariantFrequencyStudyResult"
+    },
+    "VariantClinicalSignificanceProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/VariantClinicalSignificanceProposition",
+      "maturity": "draft",
+      "description": "A Proposition describing the clinical significance of a variant with respect to a condition.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/VariantClinicalSignificanceProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/VariantClinicalSignificanceProposition"
+    },
+    "VariantDiagnosticProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/VariantDiagnosticProposition",
+      "maturity": "trial use",
+      "description": "A Proposition about whether a variant is associated with a disease (a diagnostic inclusion criterion), or absence of a disease (diagnostic exclusion criterion).",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/VariantDiagnosticProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/VariantDiagnosticProposition"
+    },
+    "VariantMolecularConsequenceProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/VariantMolecularConsequenceProposition",
+      "maturity": "draft",
+      "description": "A Proposition describing a predicted molecular consequence of a variant on transcript and protein molecules - typically reporting the type of sequence feature affected (e.g. 'intron variant', 'splice-site variant'), or an impact on the processing of the molecule along the path from gene to transcript to polypeptide (e.g. 'missense variant', 'frameshift variant'). Note that annotations about variant impact on gene product function, which may occur downstream of a molecular consequence, are not in scope here. These are covered by a Variant Functional Impact Proposition classes.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/VariantMolecularConsequenceProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/VariantMolecularConsequenceProposition"
+    },
+    "VariantOncogenicityProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/VariantOncogenicityProposition",
+      "maturity": "trial use",
+      "description": "A proposition describing the role of a variant in causing a tumor type.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/VariantOncogenicityProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/VariantOncogenicityProposition"
+    },
+    "VariantPathogenicityProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/VariantPathogenicityProposition",
+      "maturity": "trial use",
+      "description": "A proposition describing the role of a variant in causing a heritable condition.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/VariantPathogenicityProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/VariantPathogenicityProposition"
+    },
+    "VariantPrognosticProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/VariantPrognosticProposition",
+      "maturity": "trial use",
+      "description": "A Proposition about whether a variant is associated with an improved or worse outcome for a disease.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/VariantPrognosticProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/VariantPrognosticProposition"
+    },
+    "VariantTherapeuticResponseProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/base/json/VariantTherapeuticResponseProposition",
+      "maturity": "trial use",
+      "description": "A Proposition about the role of a variant in modulating the response of a neoplasm to drug administration or other therapeutic procedures.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/base/json/VariantTherapeuticResponseProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/base/json/VariantTherapeuticResponseProposition"
+    },
+    "VariantOncogenicityEvidenceLine": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/ccv-2022/json/VariantOncogenicityEvidenceLine",
+      "maturity": "draft",
+      "description": "An Evidence Line that describes how evidence for a variant was interpreted to determine if a specific CCV 2022 criterion code is met, and the strength that evidence this provides for or against the variant's oncogenicity. An Evidence Line that describes how a specific type of information was interpreted as evidence for or against a variant's oncogenicity. In the CCV Framework, evidence is assessed by determining if a specific criterion (e.g. 'OM2') with a default strength (e.g. 'moderate') is 'met' or 'not met', and in some cases adjusting the default strength based on the quality and abundance of evidence.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/ccv-2022/json/VariantOncogenicityEvidenceLine",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/ccv-2022/json/VariantOncogenicityEvidenceLine"
+    },
+    "VariantOncogenicityStatement": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0-ballot.2026-07.1/ccv-2022/json/VariantOncogenicityStatement",
+      "maturity": "draft",
+      "description": "A statement reporting a conclusion from a single study about whether a variant is associated with oncogenicity (positive or negative) - based on interpretation of the study's results.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/ccv-2022/json/VariantOncogenicityStatement",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0-ballot.2026-07.1/schema/va-spec/ccv-2022/json/VariantOncogenicityStatement"
+    }
+  },
+  "release_notes": "## What's Changed\r\n* fix: update condition set va-spec version by @korikuzma in https://github.com/ga4gh/va-spec/pull/376\r\n* feat!: update aac 2017 profiles to better reflect guidelines by @korikuzma in https://github.com/ga4gh/va-spec/pull/377\r\n* docs: fix typos in allele origin description by @jsstevenson in https://github.com/ga4gh/va-spec/pull/379\r\n* fix(docs): update descriptions for VariantClinicalSignificanceStatement + rtd by @korikuzma in https://github.com/ga4gh/va-spec/pull/381\r\n* feat: update submodules for cat-vrs/vrs/gks-core by @korikuzma in https://github.com/ga4gh/va-spec/pull/393\r\n* test: add examples for civic onco assertion + prop by @korikuzma in https://github.com/ga4gh/va-spec/pull/399\r\n* docs: auto-update copyright year by @jsstevenson in https://github.com/ga4gh/va-spec/pull/385\r\n* docs: add tumor variant frequency SR to SR profiles page by @jsstevenson in https://github.com/ga4gh/va-spec/pull/394\r\n* fix: resolve typo (Oncoogenicity -> Oncogenicity) by @korikuzma in https://github.com/ga4gh/va-spec/pull/402\r\n* docs: fix a bunch of things by @jsstevenson in https://github.com/ga4gh/va-spec/pull/383\r\n* docs: add README to Modeling subdirectory by @jsstevenson in https://github.com/ga4gh/va-spec/pull/411\r\n* feat: add constraints to evidence line types for acmg + ccv statements by @korikuzma in https://github.com/ga4gh/va-spec/pull/409\r\n* feat: update method types in ccv and acmg profiles by @korikuzma in https://github.com/ga4gh/va-spec/pull/410\r\n* style: run `pre-commit` run by @korikuzma in https://github.com/ga4gh/va-spec/pull/412\r\n* docs: update readme to include contributing info by @korikuzma in https://github.com/ga4gh/va-spec/pull/417\r\n* test: temporary add specifiedBy for onco evidence line by @korikuzma in https://github.com/ga4gh/va-spec/pull/419\r\n* #396: Quick start guidance by @brendanreardon in https://github.com/ga4gh/va-spec/pull/398\r\n* fix(pre-commit): detect and stage va-spec schema updates by @korikuzma in https://github.com/ga4gh/va-spec/pull/418\r\n* chore: add citation file by @jsstevenson in https://github.com/ga4gh/va-spec/pull/415\r\n* Molecular Consequence Schema and Tests by @Mrinal-Thomas-Epic in https://github.com/ga4gh/va-spec/pull/336\r\n* Update name/def of ClinicalVariantProposition by @mbrush in https://github.com/ga4gh/va-spec/pull/375\r\n* Add GeneDiseaseValidityProposition by @tnavatar in https://github.com/ga4gh/va-spec/pull/406\r\n* Epic vep in silico tools by @kattaylor511 in https://github.com/ga4gh/va-spec/pull/371\r\n* fix: profile statements.hasEvidenceLines should incl iris by @korikuzma in https://github.com/ga4gh/va-spec/pull/425\r\n* test: update civic onco assertion test fixture by @korikuzma in https://github.com/ga4gh/va-spec/pull/404\r\n* test: update civic aac test fixtures by @korikuzma in https://github.com/ga4gh/va-spec/pull/413\r\n* fix: update source yaml for ComputationalVariantFunctionalImpactAnalysisResult by @korikuzma in https://github.com/ga4gh/va-spec/pull/426\r\n* fix: enforce enum validation in profiles primaryCodings by @korikuzma in https://github.com/ga4gh/va-spec/pull/427\r\n* ballot-prep: bump schema versions and add required type discriminators by @larrybabb in https://github.com/ga4gh/va-spec/pull/428\r\n* ballot-prep: bump schema versions and add required type discriminators by @larrybabb in https://github.com/ga4gh/va-spec/pull/429\r\n\r\n## New Contributors\r\n* @brendanreardon made their first contribution in https://github.com/ga4gh/va-spec/pull/398\r\n* @Mrinal-Thomas-Epic made their first contribution in https://github.com/ga4gh/va-spec/pull/336\r\n* @tnavatar made their first contribution in https://github.com/ga4gh/va-spec/pull/406\r\n* @kattaylor511 made their first contribution in https://github.com/ga4gh/va-spec/pull/371\r\n\r\n**Full Changelog**: https://github.com/ga4gh/va-spec/compare/1.0.1...1.1.0-ballot.2026-07.1",
+  "release_url": "https://github.com/ga4gh/va-spec/releases/tag/1.1.0-ballot.2026-07.1",
+  "previous_release": "1.1.0-snapshot.2026-06.1",
+  "dependencies": [
+    {
+      "product": "cat-vrs",
+      "release": "1.1.0-ballot.2026-07.1"
+    },
+    {
+      "product": "gks-core",
+      "release": "1.2.0-ballot.2026-07.1"
+    },
+    {
+      "product": "vrs",
+      "release": "2.1.0-ballot.2026-07.1"
+    }
+  ]
+}
