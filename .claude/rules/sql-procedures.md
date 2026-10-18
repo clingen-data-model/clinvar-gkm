@@ -62,10 +62,11 @@ EXECUTE IMMEDIATE query;
 ## Cat-VRS variant/constraint shapes (schema conformance — learned in 1.0.1)
 
 These are emitted by `gkm-catvar-proc.sql` and must match the cat-vrs schemas, or the bundle's `variation`
-`anyOf` rejects the record. Validate the produced data, not just that the SQL runs.
+schema (`ClinvarCategoricalVariant`, whose `oneOf` branches are mutually exclusive since 1.0.2) rejects the
+record. Validate the produced data, not just that the SQL runs.
 
 - **Empty constraints must be NULL, never an all-NULL STRUCT.** `ARRAY_AGG(STRUCT(...))` over a LEFT JOIN that
-  missed produces one all-NULL element → serializes to `constraints: [{}]`, which matches no `anyOf` branch.
+  missed produces one all-NULL element → serializes to `constraints: [{}]`, which matches no variant branch.
   Guard it: `IF(COUNTIF(cci.type IS NOT NULL)=0, NULL, ARRAY_AGG(IF(cci.type IS NULL, NULL, STRUCT(...)) IGNORE
   NULLS))`. A NULL array is coerced to `[]` on table write, which the assembler's `strip_empty` then drops →
   the attribute is omitted entirely → the variant validates as `ClinvarNonConstrainedVariant`
