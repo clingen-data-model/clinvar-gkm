@@ -154,7 +154,7 @@ SCV000039919-PATH  SERPINC1        462        NULL                    inferredFr
 In the 2026-10 release, `SCV001494816-PATH` is named `submitted genes were not normalized` and
 `gene_context_source` is NULL.
 
-From release 1.0.2, the four proposition Parquet tables also carry typed `gene_context_id` (the qualifier's
+From release 1.1.0, the four proposition Parquet tables also carry typed `gene_context_id` (the qualifier's
 `ncbigene:` id, NULL for the placeholder) and `submitted_gene_symbols` columns. From this release they also
 carry `gene_context_source`.
 
