@@ -9,7 +9,11 @@
 #   4. upload-gkm-to-r2.sh  — upload bundle + Parquet to Cloudflare R2
 #
 # Usage:
-#   ./release-gkm.sh <export_date> <dataset_version> [--start-step=N] [--keep-source] [--dry-run]
+#   ./release-gkm.sh <export_date> <dataset_version> [--start-step=N] [--keep-source] [--dry-run] [--no-upload]
+#
+# --no-upload stops after step 3 and KEEPS the staged bundle + Parquet dir (no R2 write, no cleanup), so
+# they can be validated before publishing; resume with --start-step=4. STAGE_DIR (default /tmp) sets where
+# they are staged.
 #
 # Examples:
 #   ./release-gkm.sh 2026-05-03 v2_5_0
@@ -17,16 +21,18 @@
 #   ./release-gkm.sh 2026-05-03 v2_5_0 --keep-source
 #   ./release-gkm.sh 2026-05-03 v2_5_0 --start-step=2  # re-run from assemble step
 #   ./release-gkm.sh 2026-05-03 v2_5_0 --start-step=4  # re-run upload only
+#   ./release-gkm.sh 2026-05-03 v2_5_0 --no-upload     # stage only (export, assemble, Parquet)
 
 set -e
 
 # --- Positional arguments ---
 if [[ $# -lt 2 ]]; then
-  echo "Usage: $0 <export_date> <dataset_version> [--start-step=N] [--keep-source] [--dry-run] [--month-label=YYYY-MM]"
+  echo "Usage: $0 <export_date> <dataset_version> [--start-step=N] [--keep-source] [--dry-run] [--month-label=YYYY-MM] [--no-upload]"
   echo "  export_date      ClinVar release date (YYYY-MM-DD)"
   echo "  dataset_version  Dataset version (e.g. v2_5_0)"
   echo "  --start-step=N   Start at step N (1=export, 2=assemble, 3=download parquet, 4=upload)"
   echo "  --month-label=   Publish to this YYYY-MM monthly slot instead of export_date's month"
+  echo "  --no-upload      Stop after step 3; keep the staged bundle + Parquet (resume with --start-step=4)"
   exit 1
 fi
 
@@ -45,12 +51,14 @@ DRY_RUN=false
 KEEP_SOURCE=false
 START_STEP=1
 MONTH_LABEL=""
+NO_UPLOAD=false
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=true ;;
     --keep-source) KEEP_SOURCE=true ;;
     --start-step=*) START_STEP="${arg#--start-step=}" ;;
     --month-label=*) MONTH_LABEL="${arg#--month-label=}" ;;
+    --no-upload) NO_UPLOAD=true ;;
     *)
       echo "ERROR: Unknown argument '${arg}'"
       exit 1
@@ -80,8 +88,9 @@ else
   PYTHON="python3"
 fi
 
-BUNDLE_FILE="/tmp/clinvar-gkm-${EXPORT_DATE}.json.gz"
-PARQUET_DIR="/tmp/clinvar-gkm-${EXPORT_DATE}-parquet"
+STAGE_DIR="${STAGE_DIR:-/tmp}"
+BUNDLE_FILE="${STAGE_DIR}/clinvar-gkm-${EXPORT_DATE}.json.gz"
+PARQUET_DIR="${STAGE_DIR}/clinvar-gkm-${EXPORT_DATE}-parquet"
 
 echo "=== ClinVar-GKM Release Pipeline ==="
 echo "  Release date:  ${EXPORT_DATE}"
@@ -93,6 +102,7 @@ echo "  Bundle:        ${BUNDLE_FILE}"
 echo "  Parquet dir:   ${PARQUET_DIR}"
 $DRY_RUN && echo "  Mode:          DRY RUN"
 $KEEP_SOURCE && echo "  Keep source:   YES"
+$NO_UPLOAD && echo "  Upload:        NO (stage only)"
 [[ "$START_STEP" -gt 1 ]] && echo "  Start step:    ${START_STEP}"
 echo ""
 
@@ -128,6 +138,7 @@ if [[ "$START_STEP" -le 2 ]]; then
   if $KEEP_SOURCE; then
     ASSEMBLE_ARGS+=("--keep-source")
   fi
+  ASSEMBLE_ARGS+=("--output" "${BUNDLE_FILE}")
 
   if $DRY_RUN; then
     echo "  [dry-run] Would run: ${PYTHON} assemble-gkm-dicts.py ${ASSEMBLE_ARGS[*]}"
@@ -178,6 +189,14 @@ fi
 # =====================================================================
 # Step 4: Upload bundle and Parquet to Cloudflare R2
 # =====================================================================
+
+if $NO_UPLOAD; then
+  echo "=== Step 4/4: Skipped (--no-upload); staged artifacts kept ==="
+  echo "  Bundle:  ${BUNDLE_FILE}"
+  echo "  Parquet: ${PARQUET_DIR}/"
+  echo "  Publish later with: $0 ${EXPORT_DATE} ${DATASET_VERSION} --start-step=4${MONTH_LABEL:+ --month-label=${MONTH_LABEL}}"
+  exit 0
+fi
 
 echo "=== Step 4/4: Uploading to R2 ==="
 UPLOAD_ARGS=("${EXPORT_DATE}" "${DATASET_VERSION}" "${BUNDLE_FILE}" "--parquet-dir=${PARQUET_DIR}")

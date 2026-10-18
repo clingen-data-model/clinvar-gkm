@@ -15,7 +15,10 @@
 # full bundle this delta chain replays onto. Then regenerates index.json.
 #
 # Usage:
-#   ./upload-gkm-delta-to-r2.sh <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run] [--purge]
+#   ./upload-gkm-delta-to-r2.sh <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run] [--purge] [--replace-sections]
+#
+# --replace-sections: after uploading this release's Parquet set, delete the dated parquet/ dir's *.parquet
+# files that are not in --parquet-dir (stale sections from an earlier layout). For re-publishing a date.
 #
 # --purge: after upload, purge the CDN cache for this release's dated prefix. Only needed
 # when RE-publishing an existing date (overwrite); requires CF_ZONE_ID + CF_PURGE_TOKEN
@@ -25,7 +28,7 @@ set -e
 
 # --- Positional arguments ---
 if [[ $# -lt 3 ]]; then
-  echo "Usage: $0 <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run] [--purge]"
+  echo "Usage: $0 <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run] [--purge] [--replace-sections]"
   echo "  export_date    ClinVar release date (YYYY-MM-DD)"
   echo "  delta_bundle   Local path to the assembled delta bundle (.json.gz)"
   echo "  manifest_file  Local path to manifest.json"
@@ -47,14 +50,16 @@ fi
 DRY_RUN=false
 PARQUET_DIR=""
 PURGE=false
+REPLACE_SECTIONS=false
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=true ;;
     --purge) PURGE=true ;;
+    --replace-sections) REPLACE_SECTIONS=true ;;
     --parquet-dir=*) PARQUET_DIR="${arg#--parquet-dir=}" ;;
     *)
       echo "ERROR: Unknown argument '${arg}'"
-      echo "Usage: $0 <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run] [--purge]"
+      echo "Usage: $0 <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run] [--purge] [--replace-sections]"
       exit 1
       ;;
   esac
@@ -145,6 +150,36 @@ r2_ls() {
     --endpoint-url "${R2_ENDPOINT}" \
     --profile "${R2_PROFILE}" \
     2>/dev/null | awk '{print $NF}' || true
+}
+
+r2_rm() {
+  local key="${R2_PREFIX}$1"
+  if $DRY_RUN; then
+    echo "  [dry-run] delete: ${key}"
+    return
+  fi
+  aws s3 rm "s3://${R2_BUCKET}/${key}" \
+    --endpoint-url "${R2_ENDPOINT}" \
+    --profile "${R2_PROFILE}" \
+    --quiet
+}
+
+remove_stale_sections() {
+  # --replace-sections only: after this release's Parquet set is uploaded to a DATED dir ($1, bare path,
+  # trailing slash), delete every *.parquet there that is not in the local set ($2). Dated dirs are never
+  # wiped otherwise, so a republish that renames sections (1.1.0: the four var*-proposition tables ->
+  # proposition*) would leave the old files beside the new ones, and generate-r2-index.sh lists sections
+  # from the R2 listing. Upload-then-delete leaves no window with missing files. Honors DRY_RUN.
+  $REPLACE_SECTIONS || return 0
+  local dated_dir="$1" local_dir="$2" fn removed=0
+  while IFS= read -r fn; do
+    [[ "$fn" == *.parquet ]] || continue
+    [[ -f "${local_dir}/${fn}" ]] && continue
+    echo "  stale section: ${dated_dir}${fn}"
+    r2_rm "${dated_dir}${fn}"
+    (( removed++ )) || true
+  done < <(r2_ls "${dated_dir}")
+  echo "  ${removed} stale section file(s) $($DRY_RUN && echo 'to remove' || echo 'removed') from ${dated_dir}"
 }
 
 cf_purge() {
@@ -256,6 +291,7 @@ if [[ -n "${PARQUET_DIR}" && -d "${PARQUET_DIR}" ]]; then
       "application/vnd.apache.parquet"
   done
   echo "  ${#PARQUET_SECTIONS[@]} Parquet sections uploaded."
+  remove_stale_sections "${PREFIX}/parquet/" "${PARQUET_DIR}"
 elif $DRY_RUN; then
   echo "  [dry-run] (no local Parquet dir; would upload ${R2_PREFIX}${PREFIX}/parquet/<section>.parquet)"
 else

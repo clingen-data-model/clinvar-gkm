@@ -2,15 +2,20 @@
 # Release the per-release GKS DELTA: export delta_<dict> tables, assemble a delta
 # bundle, merge delta Parquet, build manifest.json, upload the delta tree to R2.
 #
-# Usage: ./release-gkm-delta.sh <export_date> <dataset_version> [--start-step=N] [--dry-run]
+# Usage: ./release-gkm-delta.sh <export_date> <dataset_version> [--start-step=N] [--dry-run] [--no-upload]
+#
+# --no-upload builds the manifest in step 4 but skips the R2 upload and KEEPS the staged bundle, manifest
+# and Parquet dir (no cleanup), so they can be validated first; publish with upload-gkm-delta-to-r2.sh (or
+# re-run with --start-step=4). STAGE_DIR (default /tmp) sets where they are staged.
 set -e
-[[ $# -lt 2 ]] && { echo "Usage: $0 <export_date> <dataset_version> [--start-step=N] [--dry-run]"; exit 1; }
+[[ $# -lt 2 ]] && { echo "Usage: $0 <export_date> <dataset_version> [--start-step=N] [--dry-run] [--no-upload]"; exit 1; }
 EXPORT_DATE="$1"; DATASET_VERSION="$2"; shift 2
 [[ "$EXPORT_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "ERROR: bad date '${EXPORT_DATE}'"; exit 1; }
 
-DRY_RUN=false; START_STEP=1
+DRY_RUN=false; START_STEP=1; NO_UPLOAD=false
 for arg in "$@"; do case "$arg" in
   --dry-run) DRY_RUN=true ;;
+  --no-upload) NO_UPLOAD=true ;;
   --start-step=*) START_STEP="${arg#--start-step=}" ;;
   *) echo "ERROR: unknown arg '${arg}'"; exit 1 ;;
 esac; done
@@ -29,9 +34,10 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 PYTHON="python3"; [[ -x "${PROJECT_ROOT}/venv/3.12/bin/python3" ]] && PYTHON="${PROJECT_ROOT}/venv/3.12/bin/python3"
 
-DELTA_BUNDLE="/tmp/clinvar-gkm-delta-${EXPORT_DATE}.json.gz"
-DELTA_PARQUET_DIR="/tmp/clinvar-gkm-delta-${EXPORT_DATE}-parquet"
-MANIFEST_FILE="/tmp/clinvar-gkm-delta-${EXPORT_DATE}-manifest.json"
+STAGE_DIR="${STAGE_DIR:-/tmp}"
+DELTA_BUNDLE="${STAGE_DIR}/clinvar-gkm-delta-${EXPORT_DATE}.json.gz"
+DELTA_PARQUET_DIR="${STAGE_DIR}/clinvar-gkm-delta-${EXPORT_DATE}-parquet"
+MANIFEST_FILE="${STAGE_DIR}/clinvar-gkm-delta-${EXPORT_DATE}-manifest.json"
 
 echo "=== ClinVar-GKM DELTA release ${EXPORT_DATE} (dataset ${BQ_DATASET}) ==="
 $DRY_RUN && echo "  Mode: DRY RUN"
@@ -83,6 +89,11 @@ if (( START_STEP <= 4 )); then
     echo "  [dry-run] build-delta-manifest.py ${MANIFEST_ARGS[*]}"
   else
     "${PYTHON}" "${SCRIPT_DIR}/build-delta-manifest.py" "${MANIFEST_ARGS[@]}"
+  fi
+  if $NO_UPLOAD; then
+    echo "  Upload skipped (--no-upload); staged artifacts kept:"
+    echo "    ${DELTA_BUNDLE}"; echo "    ${MANIFEST_FILE}"; echo "    ${DELTA_PARQUET_DIR}/"
+    exit 0
   fi
   UPLOAD_ARGS=("${EXPORT_DATE}" "${DELTA_BUNDLE}" "${MANIFEST_FILE}" "--parquet-dir=${DELTA_PARQUET_DIR}")
   $DRY_RUN && UPLOAD_ARGS+=("--dry-run")
