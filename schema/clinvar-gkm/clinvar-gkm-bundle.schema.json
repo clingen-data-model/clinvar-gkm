@@ -156,35 +156,22 @@
       },
       "additionalProperties": false
     },
-    "varcond-proposition": {
+    "propositionPathogenicity": {
       "type": "object",
-      "title": "varcond-proposition",
-      "description": "Variant\u00d7condition propositions (pathogenicity, clinical significance, diagnostic, prognostic).",
+      "title": "propositionPathogenicity",
+      "description": "Variant pathogenicity propositions (germline classifications, SCV/RCV/VCV).",
       "minProperties": 1,
       "patternProperties": {
         "^(SCV|VCV|RCV).+": {
-          "anyOf": [
-            {
-              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantPathogenicityProposition"
-            },
-            {
-              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantClinicalSignificanceProposition"
-            },
-            {
-              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantDiagnosticProposition"
-            },
-            {
-              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantPrognosticProposition"
-            }
-          ]
+          "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantPathogenicityProposition"
         }
       },
       "additionalProperties": false
     },
-    "vartumor-proposition": {
+    "propositionOncogenicity": {
       "type": "object",
-      "title": "vartumor-proposition",
-      "description": "Variant\u00d7tumorType propositions (oncogenicity).",
+      "title": "propositionOncogenicity",
+      "description": "Variant oncogenicity propositions (SCV/RCV/VCV).",
       "minProperties": 1,
       "patternProperties": {
         "^(SCV|VCV|RCV).+": {
@@ -193,29 +180,39 @@
       },
       "additionalProperties": false
     },
-    "vartherapy-proposition": {
+    "propositionSomaticClinicalImpact": {
       "type": "object",
-      "title": "vartherapy-proposition",
-      "description": "Variant\u00d7therapy propositions (therapeutic response).",
-      "minProperties": 1,
-      "patternProperties": {
-        "^(SCV|VCV|RCV).+": {
-          "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantTherapeuticResponseProposition"
-        }
-      },
-      "additionalProperties": false
-    },
-    "varcustom-proposition": {
-      "type": "object",
-      "title": "varcustom-proposition",
-      "description": "Custom ClinVar variant\u00d7condition propositions.",
+      "title": "propositionSomaticClinicalImpact",
+      "description": "Somatic clinical impact propositions: clinical significance (SCV/RCV/VCV) and the diagnostic, prognostic and therapeutic-response propositions that SCV evidence lines target.",
       "minProperties": 1,
       "patternProperties": {
         "^(SCV|VCV|RCV).+": {
           "anyOf": [
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGermlineCustomProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantClinicalSignificanceProposition"
             },
+            {
+              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantDiagnosticProposition"
+            },
+            {
+              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantPrognosticProposition"
+            },
+            {
+              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantTherapeuticResponseProposition"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "propositionClinvarCustom": {
+      "type": "object",
+      "title": "propositionClinvarCustom",
+      "description": "ClinVar custom germline propositions (the Clinvar*Proposition types, incl. ClinvarUndefinedProposition), SCV/RCV/VCV.",
+      "minProperties": 1,
+      "patternProperties": {
+        "^(SCV|VCV|RCV).+": {
+          "anyOf": [
             {
               "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarRiskFactorProposition"
             },
