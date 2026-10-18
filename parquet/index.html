@@ -4357,11 +4357,11 @@
 <h1 id="start-here">Start Here<a class="headerlink" href="#start-here" title="Permanent link">&para;</a></h1>
 <div class="admonition info">
 <p class="admonition-title">Release</p>
-<p>Counts on this page are from the <strong>2026-10 monthly release</strong> (published 14 Oct 2026). The console queries the newest release, so its numbers may be higher.</p>
+<p>Counts on this page are from the <strong>2026-10 monthly release</strong> (published 14 Oct 2026). The console's <strong>Release</strong> list is read live from the published index and defaults to the newest monthly release, so once a newer one is out its numbers may be higher; pick <code>2026-10</code> to match this page.</p>
 </div>
 <p>ClinVar-GKM publishes all of ClinVar as <strong>Parquet</strong> — 22 typed tables you query with SQL, with no database server and no data-loading step. This page gets a real answer from real ClinVar data in about five minutes: no joins, no genomics background, and — to begin — nothing to install.</p>
 <h2 id="run-a-query-now">Run a query now<a class="headerlink" href="#run-a-query-now" title="Permanent link">&para;</a></h2>
-<p>The console below runs SQL <strong>in your browser</strong>, directly against the published data at <code>data.clinvar-gkm.org</code>. Pick an example from the dropdown and press <strong>Run</strong>. The first query loads the engine (a few seconds, once); everything after is immediate.</p>
+<p>The console below runs SQL <strong>in your browser</strong>, directly against the published data at <code>data.clinvar-gkm.org</code>. The <strong>Release</strong> dropdown lists every published monthly release and starts on the newest; <code>00-latest</code> is also there, but dated releases load faster because the CDN caches them. Pick an example from the dropdown and press <strong>Run</strong>. The first query loads the engine (a few seconds, once); everything after is immediate.</p>
 <iframe src="../assets/duckdb-console.html" style="width:100%; height:640px; border:1px solid rgba(128,128,128,.25); border-radius:8px;" title="ClinVar-GKM live query console" loading="lazy"></iframe>
 
 <p>The first example counts every <strong>condition</strong> in ClinVar: <strong>23,162</strong>. <code>condition.parquet</code> is the right table to start with — about 2 MB, one row per condition, and a plain-English <code>name</code> column, with none of the variant identifiers or nested structures the larger tables carry.</p>
