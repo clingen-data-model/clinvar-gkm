@@ -147,7 +147,9 @@ only — real exposure is pennies (free egress + $0.36 / million Class B, 10M/mo
 
 Storage $0.015/GB-mo (a few $/mo at current size); Class B $0.36/million reads with 10M/mo free;
 **egress $0**. Caching + the write-once layout keep origin reads near-zero. There is **no native hard
-spend cap** — add **Account → Notifications** alerts on R2 storage/operations to catch a spike.
+spend cap**. An account-wide **budget alert at $10/month** is configured (Manage Account → Billing → Billable
+Usage → budget alert; email only, it does not pause usage). R2-specific Usage Based Billing alerts
+(Alerts → Overview → Add) may need a paid plan.
 
 ### Overwrite gotcha + the `--purge` flag
 
