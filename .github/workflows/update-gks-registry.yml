@@ -9,6 +9,10 @@ on:
         default: false
         type: boolean
 
+# Least privilege: read public release data via the API; push registry updates to this repo.
+permissions:
+  contents: write
+
 jobs:
   update-registry:
     runs-on: ubuntu-latest
@@ -27,7 +31,8 @@ jobs:
 
       - name: Fetch and update registry
         env:
-          GITHUB_TOKEN: ${{ secrets.GKS_REGISTRY_TOKEN }}
+          # Built-in per-run token: the registry fetch only reads public GitHub release data.
+          GITHUB_TOKEN: ${{ github.token }}
         working-directory: src/gks-registry
         run: |
           if [ "${{ inputs.full_refresh }}" = "true" ]; then
