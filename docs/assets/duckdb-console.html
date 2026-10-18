@@ -105,11 +105,12 @@
   <div class="bar">
     <label>Release
       <select id="release">
-        <option value="00-latest">00-latest (newest)</option>
-        <option value="2026-10">2026-10</option>
+        <!-- Fallback list, used only if index.json can't be fetched; replaced at load time. -->
+        <option value="2026-10" selected>2026-10</option>
         <option value="2026-09">2026-09</option>
         <option value="2026-08">2026-08</option>
         <option value="2026-07">2026-07</option>
+        <option value="00-latest">00-latest (always newest, not cached)</option>
       </select>
     </label>
     <label>Example
@@ -140,7 +141,10 @@
     <b>How it works.</b> The DuckDB engine (~35&nbsp;MB WASM, served from this site) loads on your first Run and
     is cached by your browser afterwards. It reads Parquet with HTTP range requests, so <code>count(*)</code> and
     <code>DESCRIBE</code> fetch only the file footer.
-    <code>{BASE}</code> in a query is replaced with the selected release path.
+    <code>{BASE}</code> in a query is replaced with the selected release path. The <b>Release</b> list is read
+    from the live <a href="https://data.clinvar-gkm.org/v1/index.json" target="_blank" rel="noopener">index.json</a>
+    when the page opens and defaults to the newest dated monthly release, which the CDN caches;
+    <code>00-latest</code> always points at the newest release but bypasses the cache.
     The connection runs with <code>SET threads=1</code> to stay gentle on the CDN; a parallel full scan of a big
     table can trip rate limiting (<code>HTTP 429</code>); joins across the big tables belong on your machine, <a href="../parquet/performance/#materialize-join-tables" target="_top">materialized once</a>. To keep load on the shared service light, the console
     runs <b>at most one query every 10&nbsp;seconds</b> &mdash; the Run button greys out and a countdown beside it
@@ -173,9 +177,43 @@
 
   function syncBase() { baseEl.textContent = base() + '/'; }
   function loadExample() { sqlEl.value = EXAMPLES[exSel.value].replaceAll('{BASE}', base()); }
-  relSel.addEventListener('change', () => { syncBase(); loadExample(); });
+  let userPickedRelease = false;
+  relSel.addEventListener('change', () => { userPickedRelease = true; syncBase(); loadExample(); });
   exSel.addEventListener('change', loadExample);
   syncBase(); loadExample();
+
+  // Replace the fallback Release list with the live one from index.json. Runs in the background so a slow
+  // or failed fetch never blocks the console; on any failure the hardcoded fallback options stay.
+  const INDEX_URL = 'https://data.clinvar-gkm.org/v1/index.json';
+  async function loadReleases() {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
+    try {
+      const res = await fetch(INDEX_URL, { signal: ctrl.signal, cache: 'no-cache' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const entries = (await res.json())?.datasets?.parquet;
+      if (!Array.isArray(entries)) throw new Error('no datasets.parquet in index.json');
+      // The directory name (last path segment) is what {BASE} needs: '2026-10', '00-latest', …
+      const dir = e => String(e?.path || '').replace(/\/+$/, '').split('/').pop();
+      const dated = [...new Set(entries.map(dir).filter(d => /^\d{4}-\d{2}$/.test(d)))].sort().reverse();
+      if (!dated.length) throw new Error('no dated releases in index.json');
+      const hasLatest = entries.some(e => dir(e) === '00-latest');
+      const opts = dated.map((d, i) => new Option(i === 0 ? `${d} (latest)` : d, d));
+      if (hasLatest) opts.push(new Option('00-latest (always newest, not cached)', '00-latest'));
+      const oldBase = base();
+      const keep = userPickedRelease && opts.some(o => o.value === relSel.value) ? relSel.value : dated[0];
+      relSel.replaceChildren(...opts);
+      relSel.value = keep;
+      // Re-point whatever is in the editor (example or the user's own edits) at the selected release.
+      if (base() !== oldBase) sqlEl.value = sqlEl.value.replaceAll(oldBase, base());
+      syncBase();
+    } catch (e) {
+      console.warn('Release list: using built-in fallback (' + (e && e.message || e) + ')');
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  loadReleases();
 
   let dbPromise = null;
   async function getConn() {
