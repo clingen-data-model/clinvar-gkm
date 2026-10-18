@@ -52,6 +52,11 @@ jobs:
 
       - run: zensical build --clean --strict
 
+      # --strict doesn't check #fragments or links in raw HTML (iframes, diagrams,
+      # the console); check every internal link in the built site.
+      - name: Check site links and anchors
+        run: python src/scripts/check-site-links.py site
+
       - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ github.token }}
