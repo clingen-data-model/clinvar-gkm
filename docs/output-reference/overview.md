@@ -217,7 +217,7 @@ API references for exact signatures and options.
 
 In addition to the JSON bundle, the assembler can produce **typed Parquet files** — one per bundle section — using the `--parquet-dir` flag. Parquet files use columnar storage with named, typed columns for each section's fields, making them suitable for analytical workloads, DuckDB, pandas, or Apache Spark.
 
-See [Export & Distribute](../pipeline/export.md#parquet-output) for how the Parquet files are produced. To query them — every table's columns, how the tables join, and runnable recipes — see [Query the Data](../parquet/index.md).
+See [Export & Distribute](../pipeline/export.md#step-3-rebuild-the-latest-parquet) for how the Parquet files are produced (derived from the bundle, latest release only). To query them — every table's columns, how the tables join, and runnable recipes — see [Query the Data](../parquet/index.md).
 
 ---
 

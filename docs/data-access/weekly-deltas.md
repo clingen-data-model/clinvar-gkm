@@ -4,16 +4,15 @@ Links: [Monthly Full Bundles](monthly-full.md) · [Parquet Files](parquet.md) ·
 
 <div class="r2-browser" data-r2-type="deltas"></div>
 
-A weekly delta is published for every ClinVar release under `deltas/<YYYY-MMDD>/`. Each release directory contains three artifact kinds:
+A weekly delta is published for every ClinVar release under `deltas/<YYYY-MMDD>/`. Each release directory contains the bundle and its manifest:
 
 ```text
 deltas/2026-0706/
   clinvar-gkm-delta_2026-0706.json.gz   added + updated records (same section structure as the full bundle)
   manifest.json                         per-section adds, updates, and deletes for this release
-  parquet/<section>.parquet             typed Parquet for the changed records only
 ```
 
-The most recent delta is mirrored at `v1/deltas/00-latest/` under stable filenames (`clinvar-gkm-delta_00-latest.json.gz`, `manifest.json`, `parquet/<section>.parquet`).
+The most recent delta is mirrored at `v1/deltas/00-latest/` under stable filenames (`clinvar-gkm-delta_00-latest.json.gz`, `manifest.json`). Deltas carry no Parquet: Parquet is derived and published only for the latest release ([Parquet Files](parquet.md)).
 
 ??? example "Download a weekly delta with curl / Python"
     ```bash

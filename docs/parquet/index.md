@@ -1,13 +1,13 @@
 # Start Here
 
 !!! info "Release"
-    Counts on this page are from the **2026-10 monthly release** (published 14 Oct 2026). The console's **Release** list is read live from the published index and defaults to the newest monthly release, so once a newer one is out its numbers may be higher; pick `2026-10` to match this page.
+    Counts on this page are from the **2026-10 monthly release** (published 14 Oct 2026). Parquet is derived from the bundle and regenerated each release, and only the latest set is published, so the console's numbers are today's and may be higher than this page's.
 
 ClinVar-GKM publishes all of ClinVar as **Parquet** — 22 typed tables you query with SQL, with no database server and no data-loading step. This page gets a real answer from real ClinVar data in about five minutes: no joins, no genomics background, and — to begin — nothing to install.
 
 ## Run a query now
 
-The console below runs SQL **in your browser**, directly against the published data at `data.clinvar-gkm.org`. The **Release** dropdown lists every published monthly release and starts on the newest; `00-latest` is also there, but dated releases load faster because the CDN caches them. Pick an example from the dropdown and press **Run**. The first query loads the engine (a few seconds, once); everything after is immediate.
+The console below runs SQL **in your browser**, directly against the published data at `data.clinvar-gkm.org`. It reads the one published Parquet set, the latest, rebuilt every release; the **Release** label shows the release it was built from. Pick an example from the dropdown and press **Run**. The first query loads the engine (a few seconds, once); everything after is immediate.
 
 <iframe src="../assets/duckdb-console.html" style="width:100%; height:640px; border:1px solid rgba(128,128,128,.25); border-radius:8px;" title="ClinVar-GKM live query console" loading="lazy"></iframe>
 
@@ -47,7 +47,7 @@ curl -O "${BASE}/condition.parquet"
 duckdb -c "SELECT id, name FROM 'condition.parquet' WHERE name ILIKE '%marfan%'"
 ```
 
-The [Downloads → Parquet Files](../data-access/parquet.md) page lists every file, the stable URLs, and how to keep a local set current with the weekly deltas.
+The [Downloads → Parquet Files](../data-access/parquet.md) page lists every file and the stable URL. Parquet is derived from the bundle and regenerated each release: the published set is always the latest release.
 
 ---
 

@@ -1,6 +1,6 @@
 # Downloads
 
-ClinVar-GKM is distributed as a monthly full bundle plus weekly deltas (JSON + typed Parquet), free from Cloudflare R2 — no authentication, no egress fees. New here? See [How Releases Work](release-model.md).
+ClinVar-GKM is distributed as a monthly full bundle plus weekly deltas (JSON), with typed Parquet of the latest release, free from Cloudflare R2 — no authentication, no egress fees. New here? See [How Releases Work](release-model.md).
 
 ---
 
@@ -35,21 +35,22 @@ v1/
     clinvar-gkm_00-latest.json.gz            latest monthly full bundle (stable URL)
     clinvar-gkm_YYYY-MM.json.gz              monthly full bundles (current year)
   datasets/parquet/00-latest/
-    {section}.parquet                        typed Parquet for the latest monthly full (stable URL)
-  datasets/parquet/YYYY-MM/
-    {section}.parquet                        typed Parquet for a specific monthly full (current year)
+    {section}.parquet                        typed Parquet for the LATEST release only (derived; rebuilt every release)
+    source.json                              the release the Parquet was built from
   deltas/00-latest/
     clinvar-gkm-delta_00-latest.json.gz      latest weekly delta bundle (stable URL)
     manifest.json                            latest delta manifest
-    parquet/{section}.parquet                typed Parquet for the latest delta
   deltas/YYYY-MMDD/
     clinvar-gkm-delta_YYYY-MMDD.json.gz      weekly delta bundle (added + updated records)
     manifest.json                            per-release change manifest
-    parquet/{section}.parquet                typed Parquet for the changed records
   archives/{YYYY}/
     clinvar-gkm_YYYY-MM.json.gz              monthly full bundles from prior years
-    parquet/YYYY-MM/{section}.parquet        typed Parquet month sets from prior years
+archive/{version}/                           a superseded generation (e.g. archive/1.0.1/): its bundles, delta
+                                             manifests and indexes, the Parquet built from its latest bundle,
+                                             MANIFEST.json (sha256 per file) and README.txt
 ```
+
+Every bundle has a `<file>.sha256` sidecar (`sha256sum -c` format) from 1.1.0.
 
 ---
 

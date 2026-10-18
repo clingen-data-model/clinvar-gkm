@@ -1,6 +1,7 @@
 /* Shared R2 release browser. Each mount element:
      <div class="r2-browser" data-r2-type="TYPE"></div>
-   TYPE ∈ latest | monthly | deltas | parquet-monthly | parquet-weekly
+   TYPE ∈ latest | monthly | deltas | parquet-latest
+   (parquet-monthly is an alias of parquet-latest; Parquet is derived and only the latest set is published)
    Reads the root version manifest (/index.json), follows it to the current major
    line's index (e.g. /v1/index.json), then renders each mount by its type.
    No-ops when no mount is present. CSP-safe (only same-host index fetches). */
@@ -11,7 +12,7 @@
   var BASE_URL = "https://data.clinvar-gkm.org";
   var ROOT_INDEX_URL = BASE_URL + "/index.json";   // root version manifest
 
-  // Stable section order for composing Parquet URLs (full sets always carry all 22).
+  // Section order for composing Parquet URLs when the index entry carries no `sections` list.
   var PARQUET_SECTIONS = [
     "sequenceReference", "location", "allele", "copyNumberCount", "copyNumberChange",
     "gene", "variation", "condition", "conditionSet", "therapy", "therapyGroup", "submitter",
@@ -79,11 +80,12 @@
     var deltas = data.deltas || [];
     var mLatest = monthly.filter(function (f) { return f.latest; })[0];
     var dLatest = deltas.filter(function (d) { return d.latest; })[0];
-    var mDated = newestDated(monthly), dDated = newestDated(deltas), pDated = newestDated(parquet);
+    var mDated = newestDated(monthly), dDated = newestDated(deltas);
+    var pLatest = parquet.filter(function (p) { return p.latest; })[0] || parquet[0];
 
     function deltaDir(d) { return d.path.replace(/^deltas\//, "").replace(/\/$/, ""); }
 
-    // "Get" cells: monthly = one stable bundle; delta = bundle + manifest; parquet set is a
+    // "Get" cells: monthly = one stable bundle; delta = bundle + manifest; the latest Parquet set is a
     // directory (no single file) so link to the Parquet page. "../parquet/" is page-relative
     // from the hub (/data-access/download/ -> /data-access/parquet/); verified in the serve test.
     var monthlyGet = mLatest ? [el("a", { href: BASE_URL + "/" + mLatest.path, text: "bundle" })] : [];
@@ -92,12 +94,13 @@
       el("span", { text: " · " }),
       el("a", { href: BASE_URL + "/" + dLatest.path + "manifest.json", text: "manifest" })
     ] : [];
-    var parquetGet = [el("a", { href: "../parquet/", text: "browse sets →" })];
+    var parquetGet = [el("a", { href: "../parquet/", text: "browse →" })];
 
     var rows = [
       ["Monthly full", mDated ? mDated.name.replace(/^clinvar-gkm_|\.json\.gz$/g, "") : "", mDated && mDated.modified, monthlyGet],
       ["Weekly delta", dDated ? deltaDir(dDated).replace(/^(\d{4})-(\d{2})(\d{2})$/, "$1-$2-$3") : "", dDated && dDated.modified, deltaGet],
-      ["Parquet (full)", pDated ? pDated.release : "", pDated && pDated.modified, parquetGet]
+      ["Parquet (latest, derived)", pLatest ? (pLatest.source_release ? "built from " + pLatest.source_release : "latest") : "",
+       pLatest && pLatest.modified, parquetGet]
     ];
 
     var table = el("table", { className: "r2-latest" });
@@ -147,36 +150,16 @@
     mount.appendChild(top);
   }
 
-  function renderParquetMonthly(mount, sets, archivesByYear) {
-    function set(p, open) {
-      var label = p.release === "latest" ? "00-latest" : p.release;
-      var f = folder(label, open, dateBadge(p.modified));
-      PARQUET_SECTIONS.forEach(function (s) {
-        f.appendChild(fileRow(s + ".parquet", BASE_URL + "/" + p.path + s + ".parquet"));
-      });
-      return f;
-    }
-    (sets || []).slice().sort(function (a, b) {
-      if (a.release === "latest") return -1;
-      if (b.release === "latest") return 1;
-      return b.release.localeCompare(a.release);
-    }).forEach(function (p, i) { mount.appendChild(set(p, i === 0)); });
-    var years = Object.keys(archivesByYear || {}).sort().reverse();
-    years.forEach(function (y) {
-      (archivesByYear[y].parquet || []).forEach(function (p) { mount.appendChild(set(p, false)); });
+  // The one published Parquet set: the latest, derived from the bundle and rebuilt every release.
+  function renderParquetLatest(mount, sets) {
+    var p = (sets || []).filter(function (x) { return x.latest; })[0] || (sets || [])[0];
+    if (!p) return;
+    var label = "datasets/parquet/00-latest/" + (p.source_release ? " (built from " + p.source_release + ")" : "");
+    var f = folder(label, true, dateBadge(p.modified));
+    (p.sections && p.sections.length ? p.sections : PARQUET_SECTIONS).forEach(function (s) {
+      f.appendChild(fileRow(s + ".parquet", BASE_URL + "/" + p.path + s + ".parquet"));
     });
-  }
-
-  function renderParquetWeekly(mount, deltas) {
-    (deltas || []).filter(function (d) { return d.release !== "latest" && d.parquet && d.parquet.length; })
-      .sort(function (a, b) { return b.release.localeCompare(a.release); })
-      .forEach(function (d, i) {
-        var f = folder(d.release, i === 0, dateBadge(d.modified));
-        d.parquet.forEach(function (s) {
-          f.appendChild(fileRow(s + ".parquet", BASE_URL + "/" + d.path + "parquet/" + s + ".parquet"));
-        });
-        mount.appendChild(f);
-      });
+    mount.appendChild(f);
   }
 
   function render(mount, data) {
@@ -185,8 +168,7 @@
     if (t === "latest") renderLatest(mount, data);
     else if (t === "monthly") renderFileList(mount, (data.datasets || {}).monthly, arch);
     else if (t === "deltas") renderDeltas(mount, data.deltas);
-    else if (t === "parquet-monthly") renderParquetMonthly(mount, (data.datasets || {}).parquet, arch);
-    else if (t === "parquet-weekly") renderParquetWeekly(mount, data.deltas);
+    else if (t === "parquet-latest" || t === "parquet-monthly") renderParquetLatest(mount, (data.datasets || {}).parquet);
   }
 
   function fail(msg) {

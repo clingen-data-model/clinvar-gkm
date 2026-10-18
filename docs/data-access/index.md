@@ -1,6 +1,6 @@
 # Data Access
 
-ClinVar-GKM is distributed as a **monthly full bundle** plus **weekly deltas**, synchronized with ClinVar's XML releases. Each is a gzip-compressed JSON file with typed Parquet (one file per section). The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
+ClinVar-GKM is distributed as a **monthly full bundle** plus **weekly deltas**, synchronized with ClinVar's XML releases. Each is a gzip-compressed JSON file. Typed Parquet (one file per section) is published for the latest release only: it is derived from the bundle and regenerated each release. The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
 
 ---
 
@@ -22,7 +22,7 @@ curl -O https://data.clinvar-gkm.org/v1/deltas/00-latest/clinvar-gkm-delta_00-la
 curl -O https://data.clinvar-gkm.org/v1/deltas/00-latest/manifest.json
 ```
 
-The full bundle is a single JSON object containing all bundle sections — variations, statements, propositions, conditions, and supporting reference data. A delta uses the same section structure but carries only the records added or updated since its baseline release. Typed Parquet files (one per section) accompany both — dated monthly full sets at `v1/datasets/parquet/<yyyy-mm>/` (with a stable `v1/datasets/parquet/00-latest/`) and weekly delta sets at `v1/deltas/<yyyy-mmdd>/parquet/`. See [Output Format](../output-reference/overview.md) for the complete structure, [Weekly Deltas](weekly-deltas.md) for the consumer replay model, and [Parquet Files](parquet.md) for the full Parquet list.
+The full bundle is a single JSON object containing all bundle sections — variations, statements, propositions, conditions, and supporting reference data. A delta uses the same section structure but carries only the records added or updated since its baseline release. Typed Parquet files (one per section) are derived from the bundle and published for the latest release only, at `v1/datasets/parquet/00-latest/`, rebuilt every release. See [Output Format](../output-reference/overview.md) for the complete structure, [Weekly Deltas](weekly-deltas.md) for the consumer replay model, and [Parquet Files](parquet.md) for the full Parquet list.
 
 ---
 
@@ -30,7 +30,8 @@ The full bundle is a single JSON object containing all bundle sections — varia
 
 - **Weekly deltas** are published for every ClinVar release under `deltas/<yyyy-mmdd>/`, mirrored at `deltas/00-latest/`
 - **Monthly full bundles** are published once a month under `datasets/`, aligned to ClinVar's own monthly VCV releases — each `ClinVarVCVRelease_YYYY-MM` triggers our `clinvar-gkm_YYYY-MM` full, built from the most recent weekly release before ClinVar's monthly cut
-- At the start of each year, the previous year's monthly full bundles and dated Parquet month sets move to `archives/`
+- At the start of each year, the previous year's monthly full bundles move to `archives/`
+- The latest Parquet set (`datasets/parquet/00-latest/`) is rebuilt from every release
 
 The stable filenames `clinvar-gkm_00-latest.json.gz` (monthly full) and `clinvar-gkm-delta_00-latest.json.gz` (weekly delta) always point to the most recent full and delta respectively.
 
@@ -44,24 +45,19 @@ datasets/
   clinvar-gkm_yyyy-mm.json.gz                monthly full bundles (current year)
 
 datasets/parquet/00-latest/
-  {section}.parquet                          typed Parquet for the latest monthly full (stable URL)
-
-datasets/parquet/yyyy-mm/
-  {section}.parquet                          typed Parquet for a specific monthly full (current year)
+  {section}.parquet                          typed Parquet for the latest release only (derived; rebuilt every release)
+  source.json                                the release the Parquet was built from
 
 deltas/00-latest/
   clinvar-gkm-delta_00-latest.json.gz        latest weekly delta bundle
   manifest.json                              latest delta manifest
-  parquet/{section}.parquet                  typed Parquet for the latest delta
 
 deltas/yyyy-mmdd/
   clinvar-gkm-delta_yyyy-mmdd.json.gz        weekly delta bundle (added + updated records)
   manifest.json                              per-release change manifest
-  parquet/{section}.parquet                  typed Parquet for the changed records
 
 archives/{yyyy}/
   clinvar-gkm_yyyy-mm.json.gz                monthly full bundles from prior years
-  parquet/yyyy-mm/{section}.parquet          typed Parquet month sets from prior years
 ```
 
 ---
@@ -74,7 +70,7 @@ Pipeline changes that affect the structure or content of the output are document
 
 ## File Format
 
-The primary release format is a **gzip-compressed JSON file** (`.json.gz`). Typed Parquet files (one per bundle section) are also produced during assembly for analytical use. The decompressed JSON content is a single JSON object with bundle sections at the root level:
+The primary release format is a **gzip-compressed JSON file** (`.json.gz`). Typed Parquet files (one per bundle section) are derived from the bundle for analytical use; only the latest release's set is published. The decompressed JSON content is a single JSON object with bundle sections at the root level:
 
 ```json
 {

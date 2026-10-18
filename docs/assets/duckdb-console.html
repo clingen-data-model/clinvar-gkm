@@ -105,12 +105,8 @@
   <div class="bar">
     <label>Release
       <select id="release">
-        <!-- Fallback list, used only if index.json can't be fetched; replaced at load time. -->
-        <option value="2026-10" selected>2026-10</option>
-        <option value="2026-09">2026-09</option>
-        <option value="2026-08">2026-08</option>
-        <option value="2026-07">2026-07</option>
-        <option value="00-latest">00-latest (always newest, not cached)</option>
+        <!-- One set: Parquet is derived and only the latest is published. The label is filled in from index.json. -->
+        <option value="00-latest" selected>latest</option>
       </select>
     </label>
     <label>Example
@@ -141,10 +137,9 @@
     <b>How it works.</b> The DuckDB engine (~35&nbsp;MB WASM, served from this site) loads on your first Run and
     is cached by your browser afterwards. It reads Parquet with HTTP range requests, so <code>count(*)</code> and
     <code>DESCRIBE</code> fetch only the file footer.
-    <code>{BASE}</code> in a query is replaced with the selected release path. The <b>Release</b> list is read
-    from the live <a href="https://data.clinvar-gkm.org/v1/index.json" target="_blank" rel="noopener">index.json</a>
-    when the page opens and defaults to the newest dated monthly release, which the CDN caches;
-    <code>00-latest</code> always points at the newest release but bypasses the cache.
+    <code>{BASE}</code> in a query is replaced with the Parquet path. Parquet is derived from the JSON bundle and
+    regenerated every release, so there is one set, the latest; the <b>Release</b> label shows the release it was
+    built from, read from the live <a href="https://data.clinvar-gkm.org/v1/index.json" target="_blank" rel="noopener">index.json</a>.
     The connection runs with <code>SET threads=1</code> to stay gentle on the CDN; a parallel full scan of a big
     table can trip rate limiting (<code>HTTP 429</code>); joins across the big tables belong on your machine, <a href="../parquet/performance/#materialize-join-tables" target="_top">materialized once</a>. To keep load on the shared service light, the console
     runs <b>at most one query every 10&nbsp;seconds</b> &mdash; the Run button greys out and a countdown beside it
@@ -182,8 +177,8 @@
   exSel.addEventListener('change', loadExample);
   syncBase(); loadExample();
 
-  // Replace the fallback Release list with the live one from index.json. Runs in the background so a slow
-  // or failed fetch never blocks the console; on any failure the hardcoded fallback options stay.
+  // Label the one (latest) Parquet set with the release it was built from, from index.json. Runs in the
+  // background so a slow or failed fetch never blocks the console; on any failure the plain label stays.
   const INDEX_URL = 'https://data.clinvar-gkm.org/v1/index.json';
   async function loadReleases() {
     const ctrl = new AbortController();
@@ -193,22 +188,10 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const entries = (await res.json())?.datasets?.parquet;
       if (!Array.isArray(entries)) throw new Error('no datasets.parquet in index.json');
-      // The directory name (last path segment) is what {BASE} needs: '2026-10', '00-latest', …
-      const dir = e => String(e?.path || '').replace(/\/+$/, '').split('/').pop();
-      const dated = [...new Set(entries.map(dir).filter(d => /^\d{4}-\d{2}$/.test(d)))].sort().reverse();
-      if (!dated.length) throw new Error('no dated releases in index.json');
-      const hasLatest = entries.some(e => dir(e) === '00-latest');
-      const opts = dated.map((d, i) => new Option(i === 0 ? `${d} (latest)` : d, d));
-      if (hasLatest) opts.push(new Option('00-latest (always newest, not cached)', '00-latest'));
-      const oldBase = base();
-      const keep = userPickedRelease && opts.some(o => o.value === relSel.value) ? relSel.value : dated[0];
-      relSel.replaceChildren(...opts);
-      relSel.value = keep;
-      // Re-point whatever is in the editor (example or the user's own edits) at the selected release.
-      if (base() !== oldBase) sqlEl.value = sqlEl.value.replaceAll(oldBase, base());
-      syncBase();
+      const latest = entries.find(e => e?.latest) || entries[0];
+      if (latest?.source_release) relSel.options[0].text = `latest (built from ${latest.source_release})`;
     } catch (e) {
-      console.warn('Release list: using built-in fallback (' + (e && e.message || e) + ')');
+      console.warn('Release label: using the plain label (' + (e && e.message || e) + ')');
     } finally {
       clearTimeout(timer);
     }
