@@ -268,7 +268,7 @@ Every one of these returns a plausible answer with no error. Check them first wh
     replace(g.gene, '#/gene/', '')                                      -- -> ncbigene:…
     ```
 
-!!! danger "`gene_context_name` is not a gene join"
-    It is a gene **symbol**, filled in only on SCV propositions (6,655,967 of them) and **NULL on every VCV and RCV proposition**. Filtering aggregates by it returns nothing. Symbols are also not unique (`BTBD8` names two NCBI genes). To find a gene's variants, use the variant's gene list, which carries `ncbigene:` ids, as in the [PubMed-ids-for-a-gene recipe](recipes.md#pubmed-ids-for-a-gene).
+!!! danger "The gene context is not the variant's genes"
+    `gene_context_name` is a gene **symbol**, and symbols are not unique (`BTBD8` names two NCBI genes), so join on `gene_context_id`, its `ncbigene:` id (from 1.0.2). Both are filled in only on SCV propositions (6,655,967 of them) and are **NULL on every VCV and RCV proposition**, so filtering aggregates by them returns nothing. Both name **one representative gene per variant**, chosen upstream, not the genes the submitter named (those are in `submitted_gene_symbols`); see [Gene context](tables.md#gene-context). To find a gene's variants, use the variant's gene list, which carries `ncbigene:` ids, as in the [PubMed-ids-for-a-gene recipe](recipes.md#pubmed-ids-for-a-gene).
 
 Next: [Recipes](recipes.md) puts these joins to work on real questions.

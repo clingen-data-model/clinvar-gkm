@@ -37,6 +37,11 @@ extension on the listed expression's `nucleotideExpression`, never altered or dr
 - New columns: `condition.data`; `therapy.name` and `therapy.concept_type`; `therapyGroup.membership_operator`
   and `therapyGroup.members`. `condition` keeps its camelCase column names, and `therapy` / `therapyGroup` keep
   `key` and `value`.
+- The four proposition tables gain `gene_context_id` (the gene-context qualifier's own `ncbigene:` coding;
+  NULL for the `submitted genes were not normalized` placeholder) and `submitted_gene_symbols` (the submitter's
+  gene symbols, verbatim). `gene_context_name` is unchanged. The qualifier is one representative gene per
+  variant, chosen upstream, not a submitter-asserted gene; see
+  [Gene context](../parquet/tables.md#gene-context).
 
 References inside the JSON bundle and the `data` columns still use `#/<section>/` pointers.
 
