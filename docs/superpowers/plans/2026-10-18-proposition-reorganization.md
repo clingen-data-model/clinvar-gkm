@@ -202,7 +202,8 @@ Step 2), so they ride the single rebuild:
   `", "` in submitted order. There is still no `primaryCoding`, and `submittedGeneSymbols` stays. The
   `submittedNotNormalized` value is the not-normalized flag.
 - #159 also gives `submittedGeneSymbols` a total (submitted) order. `ARRAY_AGG(DISTINCT)` had left 45
-  multi-symbol lists to flip order between runs.
+  multi-symbol lists to flip order between runs. It also trims the leading space our comma split left (`" MEG3"`; 3
+  propositions).
 - The shared Parquet schema gains `gene_context_source` (§4.1); #143 adds it to the four current tables.
 
 ### 3.B Content-shared propositions: defer
@@ -556,6 +557,10 @@ proven #132 / 1.0.1 path.
   tables' union equals the three dicts; spot-check `data` equals the bundle record.
 - [ ] **Published-bundle reconstruction:** full + its deltas == next full (the existing check), on the staged
   bundles.
+- [ ] **Re-extract `examples/`** from the rebuilt data, as for 1.0.0 in PR #131. The committed example JSON
+  must show the rebuilt shapes, including the gene-context changes (`geneContextSource`, the placeholder name,
+  trimmed and ordered `submittedGeneSymbols`), citations, A1 and 3.D. Commit the refresh to `1.0` before the
+  tag.
 
 Oracle and gate cost, from 2026-10-12/13: about **2 TiB ≈ $12**, several hours.
 
