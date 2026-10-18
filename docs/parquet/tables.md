@@ -234,6 +234,13 @@ VRS **SequenceLocation** records — a span on a reference sequence, shared by a
 
 `loc_start_max` and `loc_end_min` bound the span the variant certainly covers, and are set on every row, so window queries can use them without skipping uncertain-range locations (about 72,000 rows, mostly copy-number variants). `loc_start_min` and `loc_end_max` bound the widest span it may cover.
 
+!!! note "Why `loc_start` and `loc_end`, not `start` and `end`"
+    In the bundle and in `data`, these fields are VRS's `start` and `end`. The typed columns carry a `loc_`
+    prefix because `END` is a reserved word in SQL. DuckDB and BigQuery both reject an unquoted `end`
+    (`SELECT end FROM …` is a syntax error), so a column named `end` would have to be quoted as `"end"` or
+    `` `end` `` in every query. `start` is not reserved, but it shares the prefix so the pair stays consistent,
+    as do the four range-bound columns.
+
 #### `sequenceReference` { #sequenceReference }
 
 The reference sequences locations are placed on — RefSeq chromosomes, transcripts, and other sequences, keyed by their GA4GH refget id. A **leaf**: it references nothing.
