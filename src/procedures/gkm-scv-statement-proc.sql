@@ -327,6 +327,20 @@ BEGIN
     -- Step 2: Create temp gene context qualifiers — GLOBAL (over-computed). Feeds ONLY
     -- the global temp_gkm_scv_proposition / temp_gkm_scv_target_proposition (Steps 5-6
     -- -> gkm_dict_proposition), never the per-SCV finals, so it stays unfiltered.
+    --
+    -- Every qualifier carries a `geneContextSource` extension saying where its gene came from:
+    --   submittedSymbolMatches  the submitter's symbols include the qualifier's symbol
+    --   submittedSymbolDiffers  the submitter gave symbols, none equal to the qualifier's symbol
+    --                           (mostly previous/alias symbols of the same gene, e.g. GBA vs GBA1)
+    --   inferredFromVariant     the submitter gave no symbols
+    --   submittedNotNormalized  no single representative gene; `name` is the submitter's symbol(s)
+    -- Symbols are compared trimmed and case-insensitively (HGNC symbols are unique ignoring case;
+    -- e.g. C19ORF12 = C19orf12). The gene itself is always the variant's single representative
+    -- gene (single_gene_variation); the submitter's symbols never select it.
+    -- The extension STRUCT is {name, value_string ARRAY<STRING>, value_object, value_enum STRING}:
+    -- value_string is already the submittedGeneSymbols array, so the scalar enum gets its own typed
+    -- variant (collapsed to `value` at publish, like every value_*). Every literal sets all four
+    -- fields so the array elements and the UNION arms unify.
     ---------------------------------------------------------------------------
     SET query_gene_context_qualifiers = REPLACE("""
       {CT} {P}.temp_gene_context_qualifiers
@@ -400,14 +414,34 @@ BEGIN
           nsgv.name,
           nsgv.primaryCoding,
           nsgv.mappings,
-          IF(
-            ssg.submitted_gene_symbols is null OR ARRAY_LENGTH(ssg.submitted_gene_symbols) = 0,
-            null,
+          ARRAY_CONCAT(
+            IF(
+              ssg.submitted_gene_symbols is null OR ARRAY_LENGTH(ssg.submitted_gene_symbols) = 0,
+              [],
+              [
+                STRUCT(
+                  'submittedGeneSymbols' as name,
+                  ssg.submitted_gene_symbols as value_string,
+                  null as value_object,
+                  CAST(null as STRING) as value_enum
+                )
+              ]
+            ),
             [
               STRUCT(
-                'submittedGeneSymbols' as name,
-                ssg.submitted_gene_symbols as value_string,
-                null as value_object
+                'geneContextSource' as name,
+                CAST(null as ARRAY<STRING>) as value_string,
+                null as value_object,
+                CASE
+                  WHEN ssg.submitted_gene_symbols is null OR ARRAY_LENGTH(ssg.submitted_gene_symbols) = 0
+                    THEN 'inferredFromVariant'
+                  WHEN EXISTS (
+                    SELECT 1 FROM UNNEST(ssg.submitted_gene_symbols) as s
+                    WHERE UPPER(TRIM(s)) = UPPER(nsgv.name)
+                  )
+                    THEN 'submittedSymbolMatches'
+                  ELSE 'submittedSymbolDiffers'
+                END as value_enum
               )
             ]
           ) as extensions
@@ -425,14 +459,33 @@ BEGIN
         SELECT
           scv.id as scv_id,
           'MappableConcept' AS type, 'gene' as conceptType,
-          'submitted genes were not normalized' as name,
+          -- The submitter's symbol(s), never a fabricated gene: the submitted symbols in submitted
+          -- order, trimmed (a ', '-separated list splits to ' MEG3'), distinct, joined with ', '.
+          ARRAY_TO_STRING(
+            ARRAY(
+              SELECT sym FROM (
+                SELECT TRIM(s) as sym, MIN(o) as first_o
+                FROM UNNEST(ssg.submitted_gene_symbols) as s WITH OFFSET o
+                GROUP BY sym
+              )
+              ORDER BY first_o
+            ),
+            ', '
+          ) as name,
           null as primaryCoding,
           null as mappings,
           [
             STRUCT(
               'submittedGeneSymbols' as name,
               ssg.submitted_gene_symbols as value_string,
-              null as value_object
+              null as value_object,
+              CAST(null as STRING) as value_enum
+            ),
+            STRUCT(
+              'geneContextSource' as name,
+              CAST(null as ARRAY<STRING>) as value_string,
+              null as value_object,
+              'submittedNotNormalized' as value_enum
             )
           ]  as extensions
         from {P}.temp_gkm_scv scv
