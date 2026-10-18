@@ -7,28 +7,26 @@
 # without updating the 00-latest pointer.
 #
 # Destination is derived from the export year vs. the current calendar year (all under v1/):
-#   Current year:  v1/datasets/clinvar-gkm_{YYYY}-{MM}.json.gz          (+ v1/datasets/parquet/{YYYY-MM}/)
-#   Prior year:    v1/archives/{YYYY}/clinvar-gkm_{YYYY}-{MM}.json.gz   (+ v1/archives/{YYYY}/parquet/{YYYY-MM}/)
+#   Current year:  v1/datasets/clinvar-gkm_{YYYY}-{MM}.json.gz
+#   Prior year:    v1/archives/{YYYY}/clinvar-gkm_{YYYY}-{MM}.json.gz
 #
-# Pass --parquet-dir=DIR to also backfill that month's typed Parquet set to the dated
-# path (datasets/parquet/{YYYY-MM}/ or archives/{YYYY}/parquet/{YYYY-MM}/).
+# No Parquet: Parquet is derived and published only as the single latest set (ADR 0008), never per month.
 #
-# The 00-latest pointers (JSON and Parquet) are NOT updated — this is a backfill, not the
+# The 00-latest pointers are NOT updated — this is a backfill, not the
 # most recent release. Run the normal upload-gkm-to-r2.sh for current releases.
 #
 # Usage:
-#   ./backfill-monthly-to-r2.sh <export_date> <dataset_version> <bundle_file> [--dry-run] [--parquet-dir=DIR] [--purge]
+#   ./backfill-monthly-to-r2.sh <export_date> <dataset_version> <bundle_file> [--dry-run] [--purge]
 #
 # Examples:
 #   ./backfill-monthly-to-r2.sh 2026-03-29 v2_5_0 /tmp/clinvar-gkm-2026-03-29.json.gz
 #   ./backfill-monthly-to-r2.sh 2025-11-28 v2_4_0 /tmp/clinvar-gkm-2025-11-28.json.gz --dry-run
-#   ./backfill-monthly-to-r2.sh 2026-03-29 v2_5_0 /tmp/bundle.json.gz --parquet-dir=/tmp/parquet
 
 set -e
 
 # --- Positional arguments ---
 if [[ $# -lt 3 ]]; then
-  echo "Usage: $0 <export_date> <dataset_version> <bundle_file> [--dry-run] [--parquet-dir=DIR] [--purge]"
+  echo "Usage: $0 <export_date> <dataset_version> <bundle_file> [--dry-run] [--purge]"
   echo "  export_date      ClinVar release date (YYYY-MM-DD)"
   echo "  dataset_version  Dataset version (e.g. v2_5_0)"
   echo "  bundle_file      Local path to the assembled bundle (.json.gz)"
@@ -48,13 +46,11 @@ fi
 
 # --- Parse flags ---
 DRY_RUN=false
-PARQUET_DIR=""
 PURGE=false
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=true ;;
     --purge) PURGE=true ;;
-    --parquet-dir=*) PARQUET_DIR="${arg#--parquet-dir=}" ;;
     *)
       echo "ERROR: Unknown argument '${arg}'"
       exit 1
@@ -90,13 +86,11 @@ CURRENT_YEAR="$(date +%Y)"
 # --- Filenames ---
 MONTHLY_FILE="clinvar-gkm_${YEAR}-${MM}.json.gz"
 
-# --- Destination (JSON bundle + dated Parquet set) ---
+# --- Destination ---
 if [[ "$YEAR" == "$CURRENT_YEAR" ]]; then
   DEST="datasets/${MONTHLY_FILE}"
-  PARQUET_DEST_PREFIX="datasets/parquet/${YEAR}-${MM}"
 else
   DEST="archives/${YEAR}/${MONTHLY_FILE}"
-  PARQUET_DEST_PREFIX="archives/${YEAR}/parquet/${YEAR}-${MM}"
 fi
 
 # =====================================================================
@@ -163,28 +157,6 @@ cf_purge() {
   fi
 }
 
-upload_parquet_backfill() {
-  # Backfill this month's typed Parquet to the dated path. Like the JSON backfill it does
-  # NOT touch datasets/parquet/00-latest/ — that pointer belongs to the most recent release.
-  local parquet_dir="$1"
-  if [[ -z "$parquet_dir" || ! -d "$parquet_dir" ]]; then
-    echo "  (no Parquet dir found, skipping)"
-    return
-  fi
-  echo "--- Uploading Parquet section files -> ${PARQUET_DEST_PREFIX}/ ---"
-  local uploaded=0
-  for parquet_file in "${parquet_dir}"/*.parquet; do
-    [[ -f "$parquet_file" ]] || continue
-    local section
-    section="$(basename "${parquet_file}" .parquet)"
-    echo "  ${PARQUET_DEST_PREFIX}/${section}.parquet"
-    r2_upload "${parquet_file}" "${PARQUET_DEST_PREFIX}/${section}.parquet" \
-      "application/vnd.apache.parquet"
-    (( uploaded++ )) || true
-  done
-  echo "  ${uploaded} Parquet files uploaded to ${PARQUET_DEST_PREFIX}/."
-}
-
 # =====================================================================
 # Main
 # =====================================================================
@@ -213,12 +185,6 @@ echo "  ${DEST}"
 r2_upload "${BUNDLE_FILE}" "${DEST}"
 echo ""
 
-# --- Upload dated Parquet set (if provided) ---
-if [[ -n "${PARQUET_DIR}" ]]; then
-  upload_parquet_backfill "${PARQUET_DIR}"
-  echo ""
-fi
-
 # --- Regenerate index.json via the shared delta-aware generator ---
 # (Do NOT inline an index builder here — it would write the retired weekly-schema index and
 #  clobber the deltas-aware index.json. generate-r2-index.sh reflects current R2 state:
@@ -231,17 +197,10 @@ $DRY_RUN && INDEX_ARGS+=("--dry-run")
 
 # --- Purge CDN cache for the re-published dated paths (--purge only) ---
 # Only needed when re-running a backfill over an already-published (cached) month.
-PURGE_TARGETS=("${CF_PUBLIC_HOST}/${R2_PREFIX}${DEST}")
-if [[ -n "${PARQUET_DIR}" ]]; then
-  PURGE_TARGETS+=("${CF_PUBLIC_HOST}/${R2_PREFIX}${PARQUET_DEST_PREFIX}/")
-fi
-cf_purge "${PURGE_TARGETS[@]}"
+cf_purge "${CF_PUBLIC_HOST}/${R2_PREFIX}${DEST}"
 
 # --- Summary ---
 echo ""
 echo "=== Backfill Complete ==="
 echo "  Monthly: ${R2_PUBLIC_URL}/${R2_PREFIX}${DEST}"
-if [[ -n "${PARQUET_DIR}" && -d "${PARQUET_DIR}" ]]; then
-  echo "  Parquet: ${R2_PUBLIC_URL}/${R2_PREFIX}${PARQUET_DEST_PREFIX}/"
-fi
 echo "  Index:   ${R2_PUBLIC_URL}/index.json"

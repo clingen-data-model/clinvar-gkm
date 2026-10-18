@@ -2,7 +2,10 @@
 # export-gkm-dicts.sh
 # Export all GKS dictionary tables to GCS as NDJSON and/or Parquet
 #
-# Usage: ./export-gkm-dicts.sh <dataset> <gcs_bucket> [prefix] [--parquet-only] [--delta]
+# Usage: ./export-gkm-dicts.sh <dataset> <gcs_bucket> [prefix] [--parquet-only | --ndjson-only] [--delta]
+#
+# --ndjson-only exports the bundle NDJSON and no Parquet: the monthly full and delta releases publish no
+# Parquet (only the single latest set, built by release-gkm-parquet.sh with --parquet-only).
 # Example: ./export-gkm-dicts.sh clinvar_2025_06_08 clinvar-gkm gkm-dicts
 # Example: ./export-gkm-dicts.sh clinvar_2025_06_08 clinvar-gkm gkm-dicts --parquet-only
 
@@ -13,10 +16,12 @@ DATASET="${1:?Usage: $0 <dataset> <gcs_bucket> [prefix] [--parquet-only] [--delt
 BUCKET="${2:?Usage: $0 <dataset> <gcs_bucket> [prefix] [--parquet-only] [--delta]}"
 PREFIX="${3:-gkm-dicts}"
 PARQUET_ONLY=false
+NDJSON_ONLY=false
 DELTA=false
 for arg in "$@"; do
   case "$arg" in
     --parquet-only) PARQUET_ONLY=true ;;
+    --ndjson-only) NDJSON_ONLY=true ;;
     --delta) DELTA=true ;;
   esac
 done
@@ -282,6 +287,12 @@ if ! $PARQUET_ONLY; then
   export_ndjson_ext_collapse "$(src_table gkm_dict_scv)" scv.ndjson.gz
   extract "$(src_table gkm_dict_vcv)" vcv.ndjson.gz
   extract "$(src_table gkm_dict_rcv)" rcv.ndjson.gz
+fi
+
+if $NDJSON_ONLY; then
+  echo "Done (--ndjson-only: no Parquet)."
+  echo "  NDJSON:  ${GCS_PATH}/"
+  exit 0
 fi
 
 echo ""
