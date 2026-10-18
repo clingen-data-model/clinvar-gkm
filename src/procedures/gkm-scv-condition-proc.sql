@@ -194,6 +194,7 @@ BEGIN
                   ELSE dtxr.id
                 END
               )
+              ORDER BY iri.template, iri.id_replace_pattern, iri.id_replacement
             ) as iris
           ) as mapping
         FROM distinct_trait_xrefs dtxr
@@ -226,6 +227,7 @@ BEGIN
             null
           )
           IGNORE NULLS
+          ORDER BY tx.mapping.code, TO_JSON_STRING(tx.mapping)
         )[SAFE_OFFSET(0)] as primaryCoding,
         ARRAY_AGG(
           IF(
@@ -234,6 +236,7 @@ BEGIN
             null
           )
           IGNORE NULLS
+          ORDER BY tx.mapping.system, tx.mapping.code, TO_JSON_STRING(tx.mapping)
         ) as mappings
       FROM traits t
       LEFT JOIN trait_xrefs tx
@@ -363,10 +366,12 @@ BEGIN
           SELECT
             rcv_trait_set_id,
             rcv_trait_id,
-            ARRAY_AGG(rcv_trait_name ORDER BY ARRAY_LENGTH(scv_ids) DESC LIMIT 1)[OFFSET(0)] AS rcv_trait_name,
-            ARRAY_AGG(rcv_trait_type ORDER BY ARRAY_LENGTH(scv_ids) DESC LIMIT 1)[OFFSET(0)] AS rcv_trait_type,
-            ARRAY_AGG(rcv_trait_relationship_type ORDER BY ARRAY_LENGTH(scv_ids) DESC LIMIT 1)[OFFSET(0)] AS rcv_trait_relationship_type,
-            ARRAY_AGG(medgen_id IGNORE NULLS ORDER BY ARRAY_LENGTH(scv_ids) DESC LIMIT 1)[SAFE_OFFSET(0)] AS medgen_id,
+            -- ties on the scv count are broken by the row's own (group-key) values, so all four
+            -- picks come from the same deterministic row
+            ARRAY_AGG(rcv_trait_name ORDER BY ARRAY_LENGTH(scv_ids) DESC, rcv_trait_name, rcv_trait_type, rcv_trait_relationship_type, medgen_id LIMIT 1)[OFFSET(0)] AS rcv_trait_name,
+            ARRAY_AGG(rcv_trait_type ORDER BY ARRAY_LENGTH(scv_ids) DESC, rcv_trait_name, rcv_trait_type, rcv_trait_relationship_type, medgen_id LIMIT 1)[OFFSET(0)] AS rcv_trait_type,
+            ARRAY_AGG(rcv_trait_relationship_type ORDER BY ARRAY_LENGTH(scv_ids) DESC, rcv_trait_name, rcv_trait_type, rcv_trait_relationship_type, medgen_id LIMIT 1)[OFFSET(0)] AS rcv_trait_relationship_type,
+            ARRAY_AGG(medgen_id IGNORE NULLS ORDER BY ARRAY_LENGTH(scv_ids) DESC, rcv_trait_name, rcv_trait_type, rcv_trait_relationship_type, medgen_id LIMIT 1)[SAFE_OFFSET(0)] AS medgen_id,
             ARRAY_CONCAT_AGG(alternate_names) AS alternate_names,
             ARRAY_CONCAT_AGG(mondo_ids) AS mondo_ids,
             ARRAY_CONCAT_AGG(omim_ids) AS omim_ids,
@@ -430,7 +435,8 @@ BEGIN
           ORDER BY tst.rcv_trait_id
         ) AS concepts,
         IF(
-          ANY_VALUE(art.rcv_trait_relationship_type) IN ('Finding member','co-occurring condition'),
+          ARRAY_AGG(art.rcv_trait_relationship_type IGNORE NULLS ORDER BY tst.rcv_trait_id LIMIT 1)[SAFE_OFFSET(0)]
+            IN ('Finding member','co-occurring condition'),
           'AND',
           'OR'
         ) AS membershipOperator
@@ -510,10 +516,11 @@ BEGIN
 
             ARRAY_AGG(
               STRUCT(xref.id as code, xref.db as system)
+              ORDER BY xref_offset
             ) as raw_codings
 
           FROM scv_trait_xrefs stx
-          CROSS JOIN UNNEST(stx.xrefs) as xref
+          CROSS JOIN UNNEST(stx.xrefs) as xref WITH OFFSET xref_offset
           GROUP BY
             stx.id
         )
@@ -968,7 +975,7 @@ BEGIN
         numbered_unassigned AS (
           SELECT
             u.*,
-            ROW_NUMBER() OVER (PARTITION BY u.scv_id ORDER BY u.cat_id) AS rn
+            ROW_NUMBER() OVER (PARTITION BY u.scv_id ORDER BY u.cat_id, TO_JSON_STRING(u)) AS rn
           FROM unassigned u
           JOIN valid_groups vg ON vg.scv_id = u.scv_id
         ),
@@ -1073,7 +1080,7 @@ BEGIN
               conditionSet,
               condition,
               multiple_condition_explanation,
-              ARRAY_AGG(condition_struct ORDER BY CAST(REGEXP_EXTRACT(condition_struct.id, r'\\.(\\d+)$') AS INT)) AS concepts
+              ARRAY_AGG(condition_struct ORDER BY CAST(REGEXP_EXTRACT(condition_struct.id, r'\\.(\\d+)$') AS INT), TO_JSON_STRING(condition_struct)) AS concepts
             ) AS value_submitted_condition_set
           FROM base_conditions
           WHERE scv_trait_count > 1

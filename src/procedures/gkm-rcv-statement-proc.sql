@@ -39,7 +39,8 @@
 --
 --   Determinism: this proc has NO group-by / ANY_VALUE over the agg rows — the outputs
 --   are row-wise projections of the (already-deterministic) agg tables, and the array
---   projections (ARRAY(SELECT … FROM UNNEST(…))) preserve the stored array order. The
+--   projections (ARRAY(SELECT … FROM UNNEST(…) WITH OFFSET o ORDER BY o)) preserve the
+--   stored array order (UNNEST alone does not guarantee it). The
 --   only representative pick is the condition temp's ROW_NUMBER() … ORDER BY scv_id,
 --   condition_concept (total order), taken over member SCVs that resolve to a condition.
 --
@@ -477,7 +478,8 @@ BEGIN
         STRUCT('MappableConcept' AS type, 'Strength' AS conceptType, 'Contributing' AS name) AS strengthOfEvidenceProvided,
         ARRAY(
           SELECT FORMAT('#/scv/clinvar.submission:%s', scv_id)
-          FROM UNNEST(agg.full_scv_ids) AS scv_id
+          FROM UNNEST(agg.full_scv_ids) AS scv_id WITH OFFSET o
+          ORDER BY o
         ) AS hasEvidenceItems
       FROM `{S}.gkm_rcv_classification_agg` agg
       WHERE TRUE
@@ -493,7 +495,8 @@ BEGIN
         STRUCT('MappableConcept' AS type, 'Strength' AS conceptType, 'Contributing' AS name) AS strengthOfEvidenceProvided,
         ARRAY(
           SELECT FORMAT('#/rcv/%s', stmt_id)
-          FROM UNNEST(agg.contributing_statement_ids) AS stmt_id
+          FROM UNNEST(agg.contributing_statement_ids) AS stmt_id WITH OFFSET o
+          ORDER BY o
         ) AS hasEvidenceItems
       FROM `{S}.gkm_rcv_priority_agg` agg
       WHERE TRUE
@@ -509,7 +512,8 @@ BEGIN
         STRUCT('MappableConcept' AS type, 'Strength' AS conceptType, 'Non-contributing' AS name) AS strengthOfEvidenceProvided,
         ARRAY(
           SELECT FORMAT('#/rcv/%s', stmt_id)
-          FROM UNNEST(agg.non_contributing_statement_ids) AS stmt_id
+          FROM UNNEST(agg.non_contributing_statement_ids) AS stmt_id WITH OFFSET o
+          ORDER BY o
         ) AS hasEvidenceItems
       FROM `{S}.gkm_rcv_priority_agg` agg
       WHERE ARRAY_LENGTH(agg.non_contributing_statement_ids) > 0
@@ -538,7 +542,8 @@ BEGIN
         STRUCT('MappableConcept' AS type, 'Strength' AS conceptType, 'Non-contributing' AS name) AS strengthOfEvidenceProvided,
         ARRAY(
           SELECT FORMAT('#/rcv/%s', nc.layer_id)
-          FROM UNNEST(agg.non_contributing_details) AS nc
+          FROM UNNEST(agg.non_contributing_details) AS nc WITH OFFSET o
+          ORDER BY o
         ) AS hasEvidenceItems
       FROM `{S}.gkm_rcv_aggregate_contribution` agg
       WHERE agg.non_contributing_details IS NOT NULL AND ARRAY_LENGTH(agg.non_contributing_details) > 0
