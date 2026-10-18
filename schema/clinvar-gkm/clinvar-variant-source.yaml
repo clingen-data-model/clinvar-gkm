@@ -78,24 +78,16 @@ $defs:
 
   GeneListItem:
     description: >-
-      A complex structure for sharing individual Gene entries associated with Clinvar
-      Variations including `entrez_gene_id`, `hgnc_id`, `symbol`, `relationship_type`,
-      `source`, and `iris`.
+      One gene associated with a ClinVar variation: a reference to the gene's MappableConcept in
+      the bundle's `gene` section, plus ClinVar's `relationship_type` and `source`.
     type: object
     maturity: trial use
     properties:
-      entrez_gene_id:
-        type: string
+      gene:
+        $refCurie: gkm.core:iriReference
         description: >-
-          NCBI Entrez Gene identifier.
-      hgnc_id:
-        type: string
-        description: >-
-          HGNC gene identifier (e.g., `HGNC:1234`). May be null for genes without an HGNC assignment.
-      symbol:
-        type: string
-        description: >-
-          The gene symbol (e.g., `BRCA1`, `MTOR`).
+          Reference to the gene MappableConcept in the bundle's `gene` section
+          (e.g. `#/gene/ncbigene:672`).
       relationship_type:
         type: string
         enum: 
@@ -110,15 +102,16 @@ $defs:
           `within single gene`, `genes overlapped by variant`).
       source:
         type: string
+        enum:
+          - calculated
+          - submitted
         description: >-
-          The source of the gene association (e.g., `submitted`, `calculated`).
-      iris:
-        type: array
-        ordered: false
-        items:
-          $refCurie: gkm.core:iriReference
-        description: >-
-          Identifier IRIs for the gene, including links to identifiers.org (HGNC and/or NCBI Gene) and NCBI Gene pages.        
+          The source of the gene association: `submitted` (asserted by the submitter) or
+          `calculated` (computed by ClinVar).
+    required:
+      - gene
+      - relationship_type
+      - source
 
   ExtensionClinvarHgvsList:
     description: >-
@@ -414,6 +407,7 @@ $defs:
           The VRS processing errors associated with the Clinvar variant.
 
   ClinvarSequenceReferenceProperties:
+    abstract: true
     type: object
     maturity: trial use
     description: >
@@ -426,7 +420,6 @@ $defs:
         items:
           oneOf:
             - $ref: "#/$defs/ExtensionAssembly"
-    additionalProperties: true
 
   ClinvarSequenceReference:
     maturity: trial use
@@ -438,6 +431,7 @@ $defs:
       - $ref: "#/$defs/ClinvarSequenceReferenceProperties"
 
   ClinvarSequenceLocationProperties:
+    abstract: true
     type: object
     maturity: trial use
     description: >-
@@ -456,7 +450,6 @@ $defs:
         maxItems: 0
         items:
           $refCurie: gkm.core:Extension
-    additionalProperties: true
 
   ClinvarSequenceLocation:
     maturity: trial use
@@ -468,6 +461,7 @@ $defs:
       - $ref: "#/$defs/ClinvarSequenceLocationProperties"
 
   ClinvarAlleleProperties:
+    abstract: true
     description: >-
       The GA4GH Allele Representation(AR) profile specific to Clinvar.
     protectedClassOf: ClinvarCategoricalVariant
@@ -490,7 +484,6 @@ $defs:
         # description: >-
         #   A list of extensions to the entity. Extensions are not expected to be natively understood,
         #   but may be used for pre-negotiated exchange of message attributes between systems.
-    additionalProperties: true
 
   ClinvarAllele:
     maturity: trial use
@@ -502,16 +495,13 @@ $defs:
       - $ref: "#/$defs/ClinvarAlleleProperties"
 
   ClinvarCanonicalAlleleProperties:
+    abstract: true
     type: object
     maturity: trial use
     description: >-
       The GA4GH Canonical Allele Representation profile specific to Clinvar.
     protectedClassOf: ClinvarCategoricalVariant
     properties:
-      definingContext:
-        oneOf:
-          - $refCurie: gkm.core:iriReference
-          - $ref: "#/$defs/ClinvarAllele"
       members:
         type: array
         ordered: false
@@ -522,9 +512,9 @@ $defs:
           oneOf:
             - $refCurie: gkm.core:iriReference
             - $ref: "#/$defs/ClinvarAllele"
-    additionalProperties: true
 
   ClinvarCategoricalVariantProperties:
+    abstract: true
     description: >-
       A variant in Clinvar, which may be associated with multiple statements.
     protectedClassOf: ClinvarCategoricalVariant
@@ -548,7 +538,6 @@ $defs:
         description: >-
           A list of extensions to the entity. Extensions are not expected to be natively understood,
           but may be used for pre-negotiated exchange of message attributes between systems.
-    additionalProperties: true
 
   ClinvarCanonicalAllele:
     maturity: trial use

@@ -333,6 +333,7 @@ $defs:
   # ─── Statement Profiles ───
 
   ClinvarScvStatementProperties:
+    abstract: true
     type: object
     maturity: trial use
     description: >-
@@ -380,7 +381,6 @@ $defs:
         description: >-
           SCV-level extensions including submission metadata, review status,
           and the submitter's original condition mapping.
-    additionalProperties: true
 
   ClinvarScvStatement:
     maturity: trial use
@@ -409,6 +409,7 @@ $defs:
       - $ref: "#/$defs/ClinvarScvStatementProperties"
 
   ClinvarAggregateStatementProperties:
+    abstract: true
     type: object
     maturity: trial use
     description: >-
@@ -446,7 +447,6 @@ $defs:
             - $ref: "#/$defs/ExtensionClinvarReviewStatus"
         description: >-
           Aggregate-level extensions including the overall review status.
-    additionalProperties: true
 
   ClinvarAggregateStatement:
     maturity: trial use
