@@ -52,5 +52,5 @@ spec):
 - The prompting change (the `submittedCondition` CURIE de-pointer) is content-only, so it ships under the
   stabilization window without a version bump; this policy governs the first *breaking* change after GA.
 - Accepted additions: a bundle-level `schema_version` field (bundles self-identify) and a Home-page release
-  indicator reading the root manifest. The email list (Google Group) is planned but on hold — no public
-  sign-up until it is stood up.
+  indicator reading the root manifest. The email list (Google Group) was stood up on 2026-10-18 as
+  `clinvar-gkm@broadinstitute.org`; it carries the same announcements as GitHub Discussions.

@@ -1,336 +1,306 @@
 {
   "maturity": "trial use",
-  "generated_at": "2026-03-06T02:13:18.832601Z",
+  "generated_at": "2026-10-18T23:49:00.461967Z",
   "schemas": [
     {
       "repo": "cat-vrs",
-      "release": "1.1.0-snapshot.2026-02.2",
+      "release": "1.1.1",
       "name": "CanonicalAllele",
-      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.0.0/json/CanonicalAllele"
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.1/json/CanonicalAllele"
     },
     {
       "repo": "cat-vrs",
-      "release": "1.1.0-snapshot.2026-02.2",
+      "release": "1.1.1",
       "name": "CategoricalVariant",
-      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0-snapshot.2026-02.1/json/CategoricalVariant"
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.1/json/CategoricalVariant"
     },
     {
       "repo": "cat-vrs",
-      "release": "1.1.0-snapshot.2026-02.2",
+      "release": "1.1.1",
       "name": "Constraint",
-      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0-snapshot.2026-02.1/json/Constraint"
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.1/json/Constraint"
     },
     {
       "repo": "cat-vrs",
-      "release": "1.1.0-snapshot.2026-02.2",
+      "release": "1.1.1",
       "name": "CopyCountConstraint",
-      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0-snapshot.2026-02.1/json/CopyCountConstraint"
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.1/json/CopyCountConstraint"
     },
     {
       "repo": "cat-vrs",
-      "release": "1.1.0-snapshot.2026-02.2",
+      "release": "1.1.1",
       "name": "DefiningAlleleConstraint",
-      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0-snapshot.2026-02.1/json/DefiningAlleleConstraint"
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.1/json/DefiningAlleleConstraint"
     },
     {
       "repo": "cat-vrs",
-      "release": "1.1.0-snapshot.2026-02.2",
+      "release": "1.1.1",
       "name": "DefiningLocationConstraint",
-      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0-snapshot.2026-02.1/json/DefiningLocationConstraint"
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.1/json/DefiningLocationConstraint"
     },
     {
       "repo": "cat-vrs",
-      "release": "1.1.0-snapshot.2026-02.2",
+      "release": "1.1.1",
       "name": "ProteinSequenceConsequence",
-      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.0.0/json/ProteinSequenceConsequence"
-    },
-    {
-      "repo": "gks-core",
-      "release": "1.1.0",
-      "name": "Coding",
-      "$id": "https://w3id.org/ga4gh/schema/gks-core/1.1.0/json/Coding"
-    },
-    {
-      "repo": "gks-core",
-      "release": "1.1.0",
-      "name": "ConceptMapping",
-      "$id": "https://w3id.org/ga4gh/schema/gks-core/1.1.0/json/ConceptMapping"
-    },
-    {
-      "repo": "gks-core",
-      "release": "1.1.0",
-      "name": "ConceptSet",
-      "$id": "https://w3id.org/ga4gh/schema/gks-core/1.1.0/json/ConceptSet"
-    },
-    {
-      "repo": "gks-core",
-      "release": "1.1.0",
-      "name": "Extension",
-      "$id": "https://w3id.org/ga4gh/schema/gks-core/1.1.0/json/Extension"
-    },
-    {
-      "repo": "gks-core",
-      "release": "1.1.0",
-      "name": "MappableConcept",
-      "$id": "https://w3id.org/ga4gh/schema/gks-core/1.1.0/json/MappableConcept"
-    },
-    {
-      "repo": "gks-core",
-      "release": "1.1.0",
-      "name": "code",
-      "$id": "https://w3id.org/ga4gh/schema/gks-core/1.1.0/json/code"
-    },
-    {
-      "repo": "gks-core",
-      "release": "1.1.0",
-      "name": "date",
-      "$id": "https://w3id.org/ga4gh/schema/gks-core/1.1.0/json/date"
-    },
-    {
-      "repo": "gks-core",
-      "release": "1.1.0",
-      "name": "datetime",
-      "$id": "https://w3id.org/ga4gh/schema/gks-core/1.1.0/json/datetime"
-    },
-    {
-      "repo": "gks-core",
-      "release": "1.1.0",
-      "name": "iriReference",
-      "$id": "https://w3id.org/ga4gh/schema/gks-core/1.1.0/json/iriReference"
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.1/json/ProteinSequenceConsequence"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "Agent",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/Agent"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Agent"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "CohortAlleleFrequencyStudyResult",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/CohortAlleleFrequencyStudyResult"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/CohortAlleleFrequencyStudyResult"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "Condition",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/Condition"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Condition"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "ConditionSet",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/ConditionSet"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/ConditionSet"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "Contribution",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/Contribution"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Contribution"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "DataSet",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/DataSet"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/DataSet"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "Document",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/Document"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Document"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "EvidenceLine",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/EvidenceLine"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/EvidenceLine"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "ExperimentalVariantFunctionalImpactProposition",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/ExperimentalVariantFunctionalImpactProposition"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/ExperimentalVariantFunctionalImpactProposition"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "ExperimentalVariantFunctionalImpactStudyResult",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/ExperimentalVariantFunctionalImpactStudyResult"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/ExperimentalVariantFunctionalImpactStudyResult"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
+      "name": "GeneticContextVariantProposition",
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/GeneticContextVariantProposition"
+    },
+    {
+      "repo": "va-spec",
+      "release": "1.1.0",
+      "name": "InformationEntity",
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/InformationEntity"
+    },
+    {
+      "repo": "va-spec",
+      "release": "1.1.0",
       "name": "Method",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/Method"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Method"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
+      "name": "Proposition",
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Proposition"
+    },
+    {
+      "repo": "va-spec",
+      "release": "1.1.0",
       "name": "Statement",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/Statement"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Statement"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "StudyGroup",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/StudyGroup"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/StudyGroup"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "StudyResult",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/StudyResult"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/StudyResult"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "SubjectVariantProposition",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/SubjectVariantProposition"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/SubjectVariantProposition"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
-      "name": "Therapeutic",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/Therapeutic"
+      "release": "1.1.0",
+      "name": "Therapy",
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Therapy"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "TherapyGroup",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/TherapyGroup"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/TherapyGroup"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "VariantDiagnosticProposition",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/VariantDiagnosticProposition"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantDiagnosticProposition"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "VariantOncogenicityProposition",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/VariantOncogenicityProposition"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantOncogenicityProposition"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "VariantPathogenicityProposition",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/VariantPathogenicityProposition"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantPathogenicityProposition"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "VariantPrognosticProposition",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/VariantPrognosticProposition"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantPrognosticProposition"
     },
     {
       "repo": "va-spec",
-      "release": "1.0.1",
+      "release": "1.1.0",
       "name": "VariantTherapeuticResponseProposition",
-      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.0.1/base/json/VariantTherapeuticResponseProposition"
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantTherapeuticResponseProposition"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "Adjacency",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/Adjacency"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/Adjacency"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "Allele",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/Allele"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/Allele"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "CisPhasedBlock",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/CisPhasedBlock"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/CisPhasedBlock"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "CopyNumberCount",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/CopyNumberCount"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/CopyNumberCount"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "Expression",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/Expression"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/Expression"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
+      "name": "Ga4ghIdentifiableObject",
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/Ga4ghIdentifiableObject"
+    },
+    {
+      "repo": "vrs",
+      "release": "2.1.1",
       "name": "LiteralSequenceExpression",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/LiteralSequenceExpression"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/LiteralSequenceExpression"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "Location",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/Location"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/Location"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "MolecularVariation",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/MolecularVariation"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/MolecularVariation"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "Range",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/Range"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/Range"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "ReferenceLengthExpression",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/ReferenceLengthExpression"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/ReferenceLengthExpression"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "SequenceExpression",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/SequenceExpression"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/SequenceExpression"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "SequenceLocation",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/SequenceLocation"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/SequenceLocation"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "SequenceReference",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/SequenceReference"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/SequenceReference"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "SystemicVariation",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/SystemicVariation"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/SystemicVariation"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "Variation",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/Variation"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/Variation"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "residue",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/residue"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/residue"
     },
     {
       "repo": "vrs",
-      "release": "2.1.0-snapshot.2026-02.2",
+      "release": "2.1.1",
       "name": "sequenceString",
-      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.0-snapshot.2026-02.2/json/sequenceString"
+      "$id": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/sequenceString"
     }
   ]
 }
