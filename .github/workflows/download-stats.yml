@@ -30,6 +30,9 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-latest
+    # Secrets live in the 'download-stats' environment, which only the main branch may use, so a workflow
+    # pushed on another branch cannot read them without review.
+    environment: download-stats
     env:
       STATS_BRANCH: ops/download-stats
     steps:
