@@ -135,8 +135,8 @@ allows these Document fields and extensions. In Parquet, `scv.reportedIn` and `s
 positions.
 
 **Gene context** — every SCV proposition `geneContextQualifier` gains a `geneContextSource` extension that says
-where its gene came from. The gene itself is unchanged: it is still the variant's one representative gene, chosen
-upstream. Counts are for the 2026-09-28 release:
+where its gene came from. The gene is still the variant's one representative gene, chosen upstream; only the
+name-derived genes below are new. Counts are for the 2026-09-28 release, before that change:
 
 | `geneContextSource` | Meaning | Propositions |
 | --- | --- | ---: |
@@ -153,6 +153,14 @@ upstream. Counts are for the 2026-09-28 release:
   and the 45 lists with more than one symbol could change order from one build to the next.
 - **`submittedGeneSymbols` trimmed**: the leading space our comma split left on symbols such as `" MEG3"` is
   removed (3 propositions, 8 symbols); ClinVar's own values are unchanged.
+- **Name-derived genes**: gene context now comes entirely from the upstream
+  [single-gene method](https://github.com/clingen-data-model/clinvar-ingest-bq-tools/blob/main/docs/methods/single-gene-variation.md), including the gene's symbol and HGNC id. This adds genes named in a variant's title
+  that ClinVar does not associate with it, such as `NR_164162.1(GLRA4):n.1091C>T` → GLRA4. In the 2026-10-11
+  release that is 25 variants (GLRA4, CCDC144NL, RNU6-81P) and 31 SCV propositions. 20 of them had the placeholder
+  and now get the gene, with `submittedSymbolMatches`; the other 11 had no qualifier and now get one, with
+  `inferredFromVariant`.
+    - These genes are not in the bundle's `gene` section, which lists the genes ClinVar associates with a variant.
+      So their Parquet `gene_context_id` does not join to `gene.parquet`.
 
 The gene context stays on the proposition. This is a data change only: the schema already allows extensions
 on the qualifier. See [Qualifier Extensions](../output-reference/scv-statements.md#qualifier-extensions).

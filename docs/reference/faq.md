@@ -17,18 +17,14 @@ Step 2 of `gkm_scv_statement_proc` (see [Propositions](../pipeline/scv-statement
 qualifier as follows:
 
 - **The gene** is the variant's single representative gene, taken from the upstream `single_gene_variation`
-  table (built by `clinvar-ingest-bq-tools`). That table picks one gene per variant by a priority order:
-    1. a MANE Select transcript named in the variant name
-    2. a gene symbol in an HGVS-style variant name, such as `NM_000059.4(BRCA2):c.…`
-    3. a star-allele name, such as `CYP2C19*10`
-    4. exactly one gene in ClinVar's gene associations for the variant
-    5. exactly one submitted association that is not "genes overlapped by variant" or "asserted, but not computed"
-    6. exactly one "within single gene" association
-    7. for a haplotype or genotype, component variants that all share one gene
-
-  Several of these rules are calculated by the upstream pipeline rather than supplied by ClinVar.
+  table (built by `clinvar-ingest-bq-tools`). That table picks at most one gene per variant by rules applied in
+  order, strongest evidence first: the gene named in the variant's own name (a MANE transcript, an HGVS-style
+  name or a star allele), then ClinVar's gene associations, then the shared gene of a haplotype's or genotype's
+  alleles. Several rules are calculated upstream rather than supplied by ClinVar. See the
+  [Single Gene Variation method](https://github.com/clingen-data-model/clinvar-ingest-bq-tools/blob/main/docs/methods/single-gene-variation.md) for the rules, the reasons for them and their known limitations.
 - **The gene sets** the qualifier's `name` (the gene symbol), its `primaryCoding` (the NCBI Gene id) and its
-  HGNC `mappings`.
+  HGNC `mappings`. The symbol and HGNC id are the ones the upstream method used for that release, so they come
+  with the gene, even for a gene ClinVar names in the variant title without associating it.
 - **The submitter's genes** are the symbols the submitter gave in their submitted variant record. They are
   attached to the qualifier as the `submittedGeneSymbols` extension, verbatim and in submitted order. They never
   choose the gene.
