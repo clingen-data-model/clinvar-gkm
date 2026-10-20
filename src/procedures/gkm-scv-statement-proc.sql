@@ -56,6 +56,7 @@ BEGIN
 
   DECLARE query_scv_records STRING;
   DECLARE query_gene_context_qualifiers STRING;
+  DECLARE sgv_identity_columns INT64;
   DECLARE query_moi_qualifiers STRING;
   DECLARE query_penetrance_qualifiers STRING;
   DECLARE query_scv_proposition STRING;
@@ -339,11 +340,27 @@ BEGIN
     -- Symbols are compared trimmed and case-insensitively (HGNC symbols are unique ignoring case;
     -- e.g. C19ORF12 = C19orf12). The gene itself is always the variant's single representative
     -- gene (single_gene_variation); the submitter's symbols never select it.
+    -- The gene's name and codes come from single_gene_variation's own identity columns (symbol,
+    -- hgnc_id, added upstream in clinvar-ingest-bq-tools), not from a join to {S}.gene, so genes the
+    -- release's gene table does not list (named in a variant title, not associated by ClinVar) keep
+    -- their gene context. A release built before those columns existed stops here with an error.
     -- The extension STRUCT is {name, value_string ARRAY<STRING>, value_object, value_enum STRING}:
     -- value_string is already the submittedGeneSymbols array, so the scalar enum gets its own typed
     -- variant (collapsed to `value` at publish, like every value_*). Every literal sets all four
     -- fields so the array elements and the UNION arms unify.
     ---------------------------------------------------------------------------
+    EXECUTE IMMEDIATE REPLACE("""
+      SELECT COUNT(DISTINCT column_name)
+      FROM `{S}.INFORMATION_SCHEMA.COLUMNS`
+      WHERE table_name = 'single_gene_variation' AND column_name IN ('symbol', 'hgnc_id')
+    """, '{S}', rec.schema_name) INTO sgv_identity_columns;
+    IF sgv_identity_columns < 2 THEN
+      RAISE USING MESSAGE = FORMAT(
+        "%s.single_gene_variation has no gene identity columns (symbol, hgnc_id). Run clinvar-ingest-bq-tools' CALL `clinvar_ingest.single_gene_variation_identity_backfill`(from_date, to_date) for this release first.",
+        rec.schema_name
+      );
+    END IF;
+
     SET query_gene_context_qualifiers = REPLACE("""
       {CT} {P}.temp_gene_context_qualifiers
       AS
@@ -351,26 +368,26 @@ BEGIN
           SELECT DISTINCT
             sgv.gene_id,
             'MappableConcept' AS type, 'gene' as conceptType,
-            g.symbol as name,
+            sgv.symbol as name,
             STRUCT(
-              g.id as code,
-              g.symbol as name,
+              sgv.gene_id as code,
+              sgv.symbol as name,
               'https://www.ncbi.nlm.nih.gov/gene/' as system,
               [
-                  FORMAT('https://identifiers.org/ncbigene:%s',g.id),
-                  FORMAT('https://www.ncbi.nlm.nih.gov/gene/%s', g.id)
+                  FORMAT('https://identifiers.org/ncbigene:%s',sgv.gene_id),
+                  FORMAT('https://www.ncbi.nlm.nih.gov/gene/%s', sgv.gene_id)
               ] as iris
             ) as primaryCoding,
             [
               STRUCT(
                 STRUCT(
-                  REGEXP_EXTRACT(g.hgnc_id, r'\\d+') as code,
+                  REGEXP_EXTRACT(sgv.hgnc_id, r'\\d+') as code,
                   'https://www.genenames.org' as system,
                   [
-                      FORMAT('https://identifiers.org/hgnc:%s',REGEXP_EXTRACT(g.hgnc_id, r'\\d+')),
+                      FORMAT('https://identifiers.org/hgnc:%s',REGEXP_EXTRACT(sgv.hgnc_id, r'\\d+')),
                       FORMAT(
                         'https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/%s',
-                        REGEXP_EXTRACT(g.hgnc_id, r'\\d+')
+                        REGEXP_EXTRACT(sgv.hgnc_id, r'\\d+')
                       )
                   ] as iris
                 ) as coding,
@@ -378,9 +395,8 @@ BEGIN
               )
             ] as mappings
           from `{S}.single_gene_variation` sgv
-          join `{S}.gene` g
-          on
-            g.id = sgv.gene_id
+          where
+            sgv.symbol is not null
         ),
         -- The submitter's distinct symbols, in submitted order: variation record, then gene list, then
         -- position in the comma-separated symbol list. (cav.id, gene_offset, symbol_offset) is unique, so
