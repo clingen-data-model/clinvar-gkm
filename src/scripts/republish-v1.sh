@@ -1,7 +1,7 @@
 #!/bin/bash
 # republish-v1.sh — runbook driver for the 1.1.0 in-place republish of /v1/ (ADR 0006, ADR 0008):
-# the 4 monthly fulls + 00-latest and the 15 deltas are re-published as bundles, and Parquet becomes a
-# single latest derived set built from the newest dataset. Run AFTER the 16 datasets are rebuilt and every
+# the 4 monthly fulls + 00-latest and the 16 deltas are re-published as bundles, and Parquet becomes a
+# single latest derived set built from the newest dataset. Run AFTER the 17 datasets are rebuilt and every
 # gate in docs/superpowers/plans/2026-10-18-proposition-reorganization.md §6.4 passes. Each step that writes
 # to R2 or Cloudflare is a separate, user-confirmed step and honours --dry-run.
 #
@@ -12,7 +12,7 @@
 #   ./republish-v1.sh archive-latest-parquet [--dry-run]  # 1.0.1's latest Parquet -> archive/1.0.1/ + MANIFEST sha256
 #   ./republish-v1.sh stage   <target|all|parquet>        # export + assemble (or build Parquet), NO upload (STAGE_DIR)
 #   ./republish-v1.sh upload  <target|all|parquet> [--dry-run]
-#   ./republish-v1.sh delete-dated-parquet   [--dry-run]  # every dated Parquet object (~65 GB); guarded
+#   ./republish-v1.sh delete-dated-parquet   [--dry-run]  # every dated Parquet object (~52 GB, 440 objects); guarded
 #   ./republish-v1.sh index                  [--dry-run]  # regenerate v1/index.json, root manifest, v1/feed.xml
 #   ./republish-v1.sh purge                  [--dry-run]  # Cloudflare purge_everything (credentials from CF_ENV_FILE)
 #
@@ -52,9 +52,10 @@ DELTAS="
 2026-09-28 v2_6_0
 2026-10-04 v2_6_0
 2026-10-11 v2_6_0
+2026-10-18 v2_6_0
 "
 # The newest dataset: the latest Parquet set is built from it (date version).
-LATEST_SOURCE="${LATEST_SOURCE:-2026-10-11 v2_6_0}"
+LATEST_SOURCE="${LATEST_SOURCE:-2026-10-18 v2_6_0}"
 
 R2_BUCKET="clinvar-gkm"
 R2_ENDPOINT="https://09208aa33790838db213a21f630c33e7.r2.cloudflarestorage.com"
