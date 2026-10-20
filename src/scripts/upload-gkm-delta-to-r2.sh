@@ -1,21 +1,21 @@
 #!/bin/bash
 
-# Upload a ClinVar-GKM DELTA tree (bundle + manifest + Parquet) to Cloudflare R2.
-# Runs after release-gkm-delta.sh has produced the delta bundle, manifest.json,
-# and merged per-section delta Parquet.
+# Upload a ClinVar-GKM DELTA tree (bundle + sha256 sidecar + manifest) to Cloudflare R2.
+# Runs after release-gkm-delta.sh has produced the delta bundle and manifest.json.
 #
 # R2 layout written:
-#   deltas/<YYYY-MMDD>/clinvar-gkm-delta_<YYYY-MMDD>.json.gz   — the delta bundle
-#   deltas/<YYYY-MMDD>/manifest.json                          — per-release manifest
-#   deltas/<YYYY-MMDD>/parquet/<section>.parquet              — per-section delta Parquet
-#   deltas/00-latest/{clinvar-gkm-delta_00-latest.json.gz, manifest.json, parquet/*}
+#   deltas/<YYYY-MMDD>/clinvar-gkm-delta_<YYYY-MMDD>.json.gz          — the delta bundle
+#   deltas/<YYYY-MMDD>/clinvar-gkm-delta_<YYYY-MMDD>.json.gz.sha256   — its sha256 (sha256sum -c format)
+#   deltas/<YYYY-MMDD>/manifest.json                                 — per-release manifest
+#   deltas/00-latest/{clinvar-gkm-delta_00-latest.json.gz(.sha256), manifest.json}
+# No per-delta Parquet: Parquet is published only as the single latest set (release-gkm-parquet.sh).
 #
 # Before upload it resolves manifest.checkpoint_full = the newest monthly FULL
 # currently in datasets/ (clinvar-gkm_YYYY-MM.json.gz), so a consumer knows which
 # full bundle this delta chain replays onto. Then regenerates index.json.
 #
 # Usage:
-#   ./upload-gkm-delta-to-r2.sh <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run] [--purge]
+#   ./upload-gkm-delta-to-r2.sh <export_date> <delta_bundle> <manifest_file> [--dry-run] [--purge]
 #
 # --purge: after upload, purge the CDN cache for this release's dated prefix. Only needed
 # when RE-publishing an existing date (overwrite); requires CF_ZONE_ID + CF_PURGE_TOKEN
@@ -25,7 +25,7 @@ set -e
 
 # --- Positional arguments ---
 if [[ $# -lt 3 ]]; then
-  echo "Usage: $0 <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run] [--purge]"
+  echo "Usage: $0 <export_date> <delta_bundle> <manifest_file> [--dry-run] [--purge]"
   echo "  export_date    ClinVar release date (YYYY-MM-DD)"
   echo "  delta_bundle   Local path to the assembled delta bundle (.json.gz)"
   echo "  manifest_file  Local path to manifest.json"
@@ -45,16 +45,14 @@ fi
 
 # --- Parse flags ---
 DRY_RUN=false
-PARQUET_DIR=""
 PURGE=false
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=true ;;
     --purge) PURGE=true ;;
-    --parquet-dir=*) PARQUET_DIR="${arg#--parquet-dir=}" ;;
     *)
       echo "ERROR: Unknown argument '${arg}'"
-      echo "Usage: $0 <export_date> <delta_bundle> <manifest_file> [--parquet-dir=DIR] [--dry-run] [--purge]"
+      echo "Usage: $0 <export_date> <delta_bundle> <manifest_file> [--dry-run] [--purge]"
       exit 1
       ;;
   esac
@@ -246,45 +244,22 @@ echo "--- Uploading delta tree to ${PREFIX}/ ---"
 r2_upload "${DELTA_BUNDLE}" "${PREFIX}/${DELTA_NAME}"
 r2_upload "${MANIFEST_FILE}" "${PREFIX}/manifest.json" "application/json"
 
-PARQUET_SECTIONS=()
-if [[ -n "${PARQUET_DIR}" && -d "${PARQUET_DIR}" ]]; then
-  for parquet_file in "${PARQUET_DIR}"/*.parquet; do
-    [[ -f "$parquet_file" ]] || continue
-    section="$(basename "${parquet_file}" .parquet)"
-    PARQUET_SECTIONS+=("$section")
-    r2_upload "${parquet_file}" "${PREFIX}/parquet/${section}.parquet" \
-      "application/vnd.apache.parquet"
-  done
-  echo "  ${#PARQUET_SECTIONS[@]} Parquet sections uploaded."
-elif $DRY_RUN; then
-  echo "  [dry-run] (no local Parquet dir; would upload ${R2_PREFIX}${PREFIX}/parquet/<section>.parquet)"
-else
-  echo "  (no Parquet dir found, skipping)"
-fi
+# sha256 sidecar (ADR 0008), `sha256sum -c` format; a sidecar survives every copy, object metadata doesn't.
+DELTA_SHA="0000000000000000000000000000000000000000000000000000000000000000"
+$DRY_RUN || DELTA_SHA="$(shasum -a 256 "${DELTA_BUNDLE}" | awk '{print $1}')"
+SIDECAR="$(mktemp)"
+printf '%s  %s\n' "${DELTA_SHA}" "${DELTA_NAME}" > "${SIDECAR}"
+r2_upload "${SIDECAR}" "${PREFIX}/${DELTA_NAME}.sha256" "text/plain"
+echo "  sha256: ${DELTA_SHA}"
 echo ""
 
-# --- (c) Refresh deltas/00-latest/ (server-side copy of the three artifact kinds) -----
+# --- (c) Refresh deltas/00-latest/ (server-side copy of the bundle + manifest) --------
 echo "--- Refreshing ${LATEST_PREFIX}/ ---"
 r2_copy "${PREFIX}/${DELTA_NAME}" "${LATEST_PREFIX}/${LATEST_DELTA_NAME}"
 r2_copy "${PREFIX}/manifest.json" "${LATEST_PREFIX}/manifest.json"
-# Clear stale sections from 00-latest/parquet/ before copying THIS release's sections.
-# The delta's per-section parquet set varies release to release, so without a wipe a section
-# from a prior release (that had no changes this release) would linger in 00-latest/parquet/
-# alongside the current sections and misrepresent the latest delta. The bundle + manifest are
-# single files (cleanly overwritten by r2_copy above), so only parquet/ needs this.
-if $DRY_RUN; then
-  echo "  [dry-run] clear ${R2_PREFIX}${LATEST_PREFIX}/parquet/ (drop stale prior-release sections)"
-else
-  aws s3 rm "s3://${R2_BUCKET}/${R2_PREFIX}${LATEST_PREFIX}/parquet/" --recursive \
-    --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" --quiet 2>/dev/null || true
-fi
-if [[ ${#PARQUET_SECTIONS[@]} -gt 0 ]]; then
-  for section in "${PARQUET_SECTIONS[@]}"; do
-    r2_copy "${PREFIX}/parquet/${section}.parquet" "${LATEST_PREFIX}/parquet/${section}.parquet"
-  done
-elif $DRY_RUN; then
-  echo "  [dry-run] (would copy ${R2_PREFIX}${PREFIX}/parquet/<section>.parquet -> ${R2_PREFIX}${LATEST_PREFIX}/parquet/)"
-fi
+printf '%s  %s\n' "${DELTA_SHA}" "${LATEST_DELTA_NAME}" > "${SIDECAR}"
+r2_upload "${SIDECAR}" "${LATEST_PREFIX}/${LATEST_DELTA_NAME}.sha256" "text/plain"
+rm -f "${SIDECAR}"
 echo ""
 
 # --- (d) Regenerate index.json --------------------------------------------------------

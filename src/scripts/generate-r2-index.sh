@@ -5,10 +5,14 @@
 # Standalone generator called by BOTH uploaders (upload-gkm-to-r2.sh and
 # upload-gkm-delta-to-r2.sh) so the published index is consistent regardless of
 # which one ran last. Lists:
-#   datasets.monthly — monthly full bundles in datasets/ (00-latest marked)
-#   datasets.parquet — dated Parquet month sets under datasets/parquet/ (00-latest marked)
-#   archives         — prior-year monthly files + parquet month sets under archives/{yyyy}/
-#   deltas           — per-release delta dirs under deltas/ (00-latest marked)
+#   datasets.monthly — monthly full bundles in datasets/ (00-latest marked), each with its sha256
+#                      read from the <file>.sha256 sidecar (null when there is none)
+#   datasets.parquet — ONE entry: the latest derived Parquet set, datasets/parquet/00-latest/, with the
+#                      release it was built from (its source.json). Parquet is derived from the bundle and
+#                      regenerated every release; there are no per-release sets (ADR 0008).
+#   archives         — prior-year monthly files under archives/{yyyy}/
+#   deltas           — per-release delta dirs under deltas/ (00-latest marked), each with its bundle
+#                      {path, size, sha256}
 #
 # Usage:
 #   ./generate-r2-index.sh [--dry-run]
@@ -41,6 +45,9 @@ R2_PUBLIC_URL="${R2_PUBLIC_URL:-https://data.clinvar-gkm.org}"
 R2_PREFIX="${R2_PREFIX:-v1/}"
 
 LATEST_MONTHLY="clinvar-gkm_00-latest.json.gz"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# The bundle schema version the pipeline emits (root manifest "schema"); env-overridable.
+SCHEMA_VERSION="${SCHEMA_VERSION:-$(sed -n 's/^SCHEMA_VERSION = "\(.*\)"$/\1/p' "${SCRIPT_DIR}/assemble-gkm-dicts.py")}"
 
 # =====================================================================
 # Helper functions
@@ -86,6 +93,14 @@ r2_newest_date_under() {
     2>/dev/null \
     | awk '$1 ~ /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/ {print $1}' \
     | sort | tail -n1 || true
+}
+
+# The sha256 from an object's <key>.sha256 sidecar as a JSON value: "<64 hex>", or null when there is none.
+r2_sha256_json() {
+  local sha
+  sha="$(aws s3 cp "s3://${R2_BUCKET}/$1.sha256" - --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" \
+    2>/dev/null | awk '{print $1; exit}' || true)"
+  if [[ "$sha" =~ ^[0-9a-f]{64}$ ]]; then printf '"%s"' "$sha"; else printf 'null'; fi
 }
 
 # JSON array of parquet section names (filename minus .parquet) under a prefix.
@@ -137,57 +152,35 @@ build_file_array() {
       is_latest="true"
     fi
 
-    arr+=$(printf '{"name":"%s","path":"%s%s","size":%s,"modified":"%s","latest":%s}' \
-      "$filename" "$prefix" "$filename" "$size" "$modified" "$is_latest")
+    arr+=$(printf '{"name":"%s","path":"%s%s","size":%s,"sha256":%s,"modified":"%s","latest":%s}' \
+      "$filename" "$prefix" "$filename" "$size" "$(r2_sha256_json "${prefix}${filename}")" "$modified" "$is_latest")
   done < <(r2_ls_with_size "$prefix")
 
   arr+="]"
   echo "$arr"
 }
 
-# Build a JSON array of Parquet month-set objects under a prefix.
-# Each entry: {release, path, modified, latest}. A dir named 00-latest is marked
-# latest; a dir named YYYY-MM becomes release=YYYY-MM. Consumers compose
-# per-section URLs as <path><section>.parquet.
-# Args: prefix (e.g. "datasets/parquet/" or "archives/2025/parquet/")
-build_parquet_array() {
-  local prefix="$1"
-  local first=true
-  local arr="["
-
-  while IFS= read -r dir; do
-    dir="${dir%/}"
-    [[ -z "$dir" ]] && continue
-
-    local release is_latest
-    if [[ "$dir" == "00-latest" ]]; then
-      release="latest"
-      is_latest="true"
-    elif [[ "$dir" =~ ^[0-9]{4}-[0-9]{2}$ ]]; then
-      release="$dir"
-      is_latest="false"
-    else
-      continue
-    fi
-
-    if ! $first; then arr+=","; fi
-    first=false
-
-    local modified
-    modified="$(r2_newest_date_under "${prefix}${dir}/")"
-
-    arr+=$(printf '{"release":"%s","path":"%s%s/","modified":"%s","latest":%s}' \
-      "$release" "$prefix" "$dir" "$modified" "$is_latest")
-  done < <(r2_ls "$prefix")
-
-  arr+="]"
-  echo "$arr"
+# The latest derived Parquet set as a one-entry JSON array (or [] when there is none). Its source.json
+# names the release it was built from. Consumers compose per-section URLs as <path><section>.parquet;
+# `sections` lists them.
+build_latest_parquet() {
+  local dir="${R2_PREFIX}datasets/parquet/00-latest/"
+  local sections
+  sections="$(r2_parquet_sections_under "$dir")"
+  if [[ "$sections" == "[]" ]]; then echo "[]"; return; fi
+  local source_release
+  source_release="$(aws s3 cp "s3://${R2_BUCKET}/${dir}source.json" - --endpoint-url "${R2_ENDPOINT}" \
+    --profile "${R2_PROFILE}" 2>/dev/null | sed -n 's/^ *"release": *"\([0-9-]*\)".*/\1/p' | head -n1 || true)"
+  local src_json="null"
+  [[ -n "$source_release" ]] && src_json="\"${source_release}\""
+  printf '[{"release":"latest","path":"%s","source_release":%s,"derived":true,"modified":"%s","sections":%s,"latest":true}]' \
+    "$dir" "$src_json" "$(r2_newest_date_under "$dir")" "$sections"
 }
 
 # Build the deltas JSON array — one object per release dir under deltas/.
-# Each entry: {release, path, manifest, modified, parquet, latest}, where
-# `modified` is the newest file date under the delta dir and `parquet` is the
-# array of section names under its parquet/ subdir. deltas/00-latest is marked latest.
+# Each entry: {release, path, manifest, bundle: {path, size, sha256}, modified, latest}, where
+# `modified` is the newest file date under the delta dir and `sha256` comes from the bundle's
+# .sha256 sidecar (null when there is none). deltas/00-latest is marked latest.
 build_deltas_array() {
   local first=true
   local arr="["
@@ -210,12 +203,16 @@ build_deltas_array() {
     fi
     path="${R2_PREFIX}deltas/${dir}/"
 
-    local modified parquet_sections
+    local modified b_size b_name bundle_json="null"
     modified="$(r2_newest_date_under "${R2_PREFIX}deltas/${dir}/")"
-    parquet_sections="$(r2_parquet_sections_under "${R2_PREFIX}deltas/${dir}/parquet/")"
+    read -r _ b_size b_name < <(r2_ls_with_size "${path}" | head -n1) || true
+    if [[ -n "${b_name:-}" ]]; then
+      bundle_json=$(printf '{"path":"%s%s","size":%s,"sha256":%s}' \
+        "$path" "$b_name" "$b_size" "$(r2_sha256_json "${path}${b_name}")")
+    fi
 
-    arr+=$(printf '{"release":"%s","path":"%s","manifest":"%smanifest.json","modified":"%s","parquet":%s,"latest":%s}' \
-      "$release" "$path" "$path" "$modified" "$parquet_sections" "$is_latest")
+    arr+=$(printf '{"release":"%s","path":"%s","manifest":"%smanifest.json","bundle":%s,"modified":"%s","latest":%s}' \
+      "$release" "$path" "$path" "$bundle_json" "$modified" "$is_latest")
   done < <(r2_ls "${R2_PREFIX}deltas/" 2>/dev/null)
 
   arr+="]"
@@ -233,10 +230,10 @@ INDEX_TMP="/tmp/clinvar-gkm-index.json"
 # datasets.monthly (weekly section dropped — full is month-end only now)
 DS_MONTHLY=$(build_file_array "${R2_PREFIX}datasets/" "${LATEST_MONTHLY}")
 
-# datasets.parquet — dated month sets + 00-latest under datasets/parquet/
-DS_PARQUET=$(build_parquet_array "${R2_PREFIX}datasets/parquet/")
+# datasets.parquet — the single latest derived set (no per-release sets)
+DS_PARQUET=$(build_latest_parquet)
 
-# archives — per-year discovery (monthly bundles + dated parquet month sets)
+# archives — per-year discovery (monthly bundles)
 ARCHIVES_JSON="{"
 FIRST_YEAR=true
 while IFS= read -r year_dir; do
@@ -247,9 +244,7 @@ while IFS= read -r year_dir; do
   FIRST_YEAR=false
 
   ARCH_MONTHLY=$(build_file_array "${R2_PREFIX}archives/${year_dir}/")
-  ARCH_PARQUET=$(build_parquet_array "${R2_PREFIX}archives/${year_dir}/parquet/")
-  ARCHIVES_JSON+=$(printf '"%s":{"monthly":%s,"parquet":%s}' \
-    "$year_dir" "$ARCH_MONTHLY" "$ARCH_PARQUET")
+  ARCHIVES_JSON+=$(printf '"%s":{"monthly":%s}' "$year_dir" "$ARCH_MONTHLY")
 done < <(r2_ls "${R2_PREFIX}archives/" 2>/dev/null)
 ARCHIVES_JSON+="}"
 
@@ -265,6 +260,8 @@ cat > "$INDEX_TMP" <<INDEXEOF
   "description": "ClinVar-GKM release index",
   "updated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "base_url": "${R2_PUBLIC_URL}",
+  "schema_version": "${SCHEMA_VERSION}",
+  "parquet_note": "Parquet is derived from the JSON bundle and regenerated every release; only the latest set is published (ADR 0008).",
   "datasets": {
     "monthly": ${DS_MONTHLY},
     "parquet": ${DS_PARQUET}
@@ -280,8 +277,8 @@ echo "  ${R2_PREFIX}index.json uploaded."
 # ---------------------------------------------------------------------
 # Output 2: thin ROOT manifest -> index.json (bucket root, ADR 0004)
 # Lists the active major lines; each points at its own per-line index.
-# The major / schema / index are hardcoded for the single v1 line today;
-# a future major adds entries here.
+# The major / index are hardcoded for the single v1 line today (a future major adds entries
+# here); "schema" is the bundle schema version the pipeline emits (SCHEMA_VERSION).
 # ---------------------------------------------------------------------
 MANIFEST_TMP="/tmp/clinvar-gkm-manifest.json"
 cat > "$MANIFEST_TMP" <<MANIFESTEOF
@@ -291,7 +288,7 @@ cat > "$MANIFEST_TMP" <<MANIFESTEOF
   "base_url": "${R2_PUBLIC_URL}",
   "active": ["1"],
   "versions": {
-    "1": {"schema": "1.0.0", "status": "current", "eol": null, "index": "v1/index.json"}
+    "1": {"schema": "${SCHEMA_VERSION}", "status": "current", "eol": null, "index": "v1/index.json"}
   }
 }
 MANIFESTEOF

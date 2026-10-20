@@ -11,8 +11,10 @@
 #   3. vrsify                src/vrsify/vrsify.sh   (external vrs-python; needs local services)
 #   4. vrs-to-bq             src/scripts/vrs-to-bq-table.sh
 #                            (Cloud Run transform -> load gkm_vrs -> gkm_* procs)
-#   5. release               src/scripts/release-gkm.sh
-#                            (export dict bundle + Parquet -> assemble -> upload to Cloudflare R2)
+#   5. release               src/scripts/release-gkm.sh (any due monthly full) + release-gkm-delta.sh
+#                            (export dict bundle -> assemble -> upload to Cloudflare R2), then
+#                            release-gkm-parquet.sh (rebuild the single latest Parquet set from this
+#                            release's dataset; Parquet is derived and never kept per release)
 #
 # Stages 1 and 2 are incremental by default (recompute only changed variations, carry the
 # rest forward). Stage 4 self-corrects between incremental and full loads. --full forces a
@@ -33,7 +35,7 @@
 #
 #   --full          full rebuild of stages 1-2 and catvar in stage 4 (reseed the baseline);
 #                   the version-stamp gate is unaffected, so next week resumes incremental
-#   --dry-run       stage 5 (release-gkm.sh) runs in dry-run: no R2 upload / no GCS writes
+#   --dry-run       stage 5 (release scripts) runs in dry-run: no R2 upload / no GCS writes
 #   --start-step N  begin at stage N (1-5); default 1. Stage 3 (vrsify) needs the local
 #                   SeqRepo/UTA/gene-norm services — see src/vrsify/README.md.
 #
@@ -225,9 +227,9 @@ publish_due_monthly_fulls() {
   done < <(clinvar_monthlies)
 }
 
-# --- Stage 5: export bundle + Parquet, upload to R2 ------------------------------------
+# --- Stage 5: export bundles, upload to R2; rebuild the latest Parquet -------------------
 if (( START_STEP <= 5 )); then
-  echo ">>> [5/5] release-gkm.sh (export bundle + Parquet, upload to R2)"
+  echo ">>> [5/5] release (bundles to R2, then the latest derived Parquet)"
   # release-gkm.sh needs the dataset version (e.g. v2_5_0); derive it from the dataset name.
   DATE_US="${DATE//-/_}"
   DATASET_ID="$(bq ls --project_id="${PROJECT_ID}" --max_results=10000 \
@@ -247,6 +249,14 @@ if (( START_STEP <= 5 )); then
 
   echo ">>> [5/5] publishing weekly DELTA for ${DATE}"
   "${REPO_ROOT}/src/scripts/release-gkm-delta.sh" "${DELTA_ARGS[@]}"
+
+  # The single latest Parquet set (v1/datasets/parquet/00-latest/) is rebuilt from THIS release's
+  # dataset, the newest JSON state. Non-fatal: the bundles are the record; Parquet is a derived
+  # convenience, and its source.json says which release it was built from.
+  echo ">>> [5/5] rebuilding the latest Parquet from ${DATE}"
+  # --purge clears the CDN copy of 00-latest/ (cached 1 day by the "Latest Parquet" cache rule).
+  "${REPO_ROOT}/src/scripts/release-gkm-parquet.sh" "${DELTA_ARGS[@]}" --purge \
+    || echo "WARNING: latest Parquet rebuild from ${DATE} failed; 00-latest still holds the previous set" >&2
 fi
 
 echo "=== run-release ${DATE} complete ==="
