@@ -121,21 +121,31 @@ extract_parquet_typed() {
     ${sql}"
 }
 
-# Proposition delivery-group split (Phase 2): the 3 per-level proposition dicts are delivered as 4
-# datatype-homogeneous sections. Group is keyed on the proposition `type` (va-spec 2026-09: custom +
-# standard alike carry the real type name in `type`) — the SAME canonical mapping the statement procs use.
-# Quoted heredoc so nothing ($., single quotes) expands in bash.
-PROP_GROUP_CASE=$(cat <<'SQL'
-CASE
-  WHEN JSON_VALUE(value, '$.type') LIKE 'Clinvar%' THEN 'varcustom'
-  WHEN JSON_VALUE(value, '$.type') = 'VariantOncogenicityProposition' THEN 'vartumor'
-  WHEN JSON_VALUE(value, '$.type') = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-  WHEN JSON_VALUE(value, '$.type') IN
-    ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition','VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-  ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', JSON_VALUE(value, '$.type')))
-END
-SQL
-)
+# Proposition sections (1.1.0, by meaning): the 3 per-level proposition dicts are delivered as the 4
+# sections below. A row's section is clinvar_ingest.gkm_proposition_section(type), the ONE canonical
+# mapping (src/procedures/gkm-proposition-section-func.sql) the statement procs use for their pointers.
+# The function raises on an unmapped type, so the export fails loudly instead of dropping rows.
+PROP_SECTIONS="propositionPathogenicity propositionOncogenicity propositionSomaticClinicalImpact propositionClinvarCustom"
+# shellcheck disable=SC2016  # literal BigQuery backticks, not command substitution
+PROP_SECTION_FN='`clinvar_ingest.gkm_proposition_section`'
+
+# Belt and braces before any proposition export: every proposition row maps to one of PROP_SECTIONS, so
+# the exported sections sum to the three dicts' total (a new section added to the function but not to
+# PROP_SECTIONS would otherwise be dropped silently). Delta-aware via src_table.
+assert_proposition_sections() {
+  local in_list="" section
+  for section in ${PROP_SECTIONS}; do in_list="${in_list:+${in_list},}'${section}'"; done
+  echo "  Asserting every proposition maps to one of: ${PROP_SECTIONS}"
+  bq query --use_legacy_sql=false --nouse_cache --quiet \
+    "ASSERT (
+      SELECT COUNTIF(${PROP_SECTION_FN}(JSON_VALUE(value, '\$.type')) IN (${in_list})) = COUNT(*)
+      FROM (
+        SELECT value FROM \`${DATASET}.$(src_table gkm_dict_proposition)\`
+        UNION ALL SELECT value FROM \`${DATASET}.$(src_table gkm_dict_rcv_proposition)\`
+        UNION ALL SELECT value FROM \`${DATASET}.$(src_table gkm_dict_vcv_proposition)\`
+      )
+    ) AS 'proposition rows map to a section outside PROP_SECTIONS'"
+}
 
 # Extension value collapse (conformance): the pipeline stores typed extension values as `value_<type>`
 # (value_string, value_boolean, value_submitted_condition, ...) so gkm_json_proc can nullify-by-type and
@@ -195,10 +205,10 @@ LANGUAGE js AS r"""
 SQL
 )
 
-export_proposition_group_ndjson() {
-  local group="$1"
-  local sharded="${group}-proposition-*.ndjson.gz"
-  echo "  Exporting proposition group ${group} -> ${sharded} (NDJSON via EXPORT DATA)"
+export_proposition_section_ndjson() {
+  local section="$1"
+  local sharded="${section}-*.ndjson.gz"
+  echo "  Exporting proposition section ${section} -> ${sharded} (NDJSON via EXPORT DATA)"
   bq query --use_legacy_sql=false --nouse_cache \
     "${COLLAPSE_UDF}
     EXPORT DATA OPTIONS(
@@ -208,12 +218,10 @@ export_proposition_group_ndjson() {
       overwrite=true
     ) AS
     SELECT key, SAFE.PARSE_JSON(collapse_ext_values(TO_JSON_STRING(value))) AS value FROM (
-      SELECT key, value, ${PROP_GROUP_CASE} AS _grp FROM (
-        SELECT key, value FROM \`${DATASET}.$(src_table gkm_dict_proposition)\`
-        UNION ALL SELECT key, value FROM \`${DATASET}.$(src_table gkm_dict_rcv_proposition)\`
-        UNION ALL SELECT key, value FROM \`${DATASET}.$(src_table gkm_dict_vcv_proposition)\`
-      )
-    ) WHERE _grp = '${group}'"
+      SELECT key, value FROM \`${DATASET}.$(src_table gkm_dict_proposition)\`
+      UNION ALL SELECT key, value FROM \`${DATASET}.$(src_table gkm_dict_rcv_proposition)\`
+      UNION ALL SELECT key, value FROM \`${DATASET}.$(src_table gkm_dict_vcv_proposition)\`
+    ) WHERE ${PROP_SECTION_FN}(JSON_VALUE(value, '\$.type')) = '${section}'"
 }
 
 # NDJSON export of a passthrough dict table with its `extensions` column value-collapsed for the bundle.
@@ -235,6 +243,8 @@ export_ndjson_ext_collapse() {
         TO_JSON_STRING(JSON_STRIP_NULLS(TO_JSON(extensions), remove_empty => TRUE)))) AS extensions)
     FROM \`${DATASET}.${table}\`"
 }
+
+assert_proposition_sections
 
 if ! $PARQUET_ONLY; then
   echo "Exporting NDJSON files to ${GCS_PATH}"
@@ -265,16 +275,15 @@ if ! $PARQUET_ONLY; then
   extract "$(src_table gkm_dict_submitter)" submitter.ndjson.gz
   export_ndjson_ext_collapse "$(src_table gkm_dict_evidence_line)" evidenceLine.ndjson.gz
 
-  # Proposition delivery groups (Phase 2): the 3 per-level proposition dicts are split into 4
-  # datatype-homogeneous sections by the canonical group mapping. Delta-aware — the helper reads
-  # $(src_table gkm_dict_*proposition), so --delta mode emits proposition deltas split into the 4
-  # group sections (build-delta-manifest.py resolves each changed key to its group section to match).
-  export_proposition_group_ndjson varcond
-  export_proposition_group_ndjson vartumor
-  export_proposition_group_ndjson vartherapy
-  export_proposition_group_ndjson varcustom
+  # Proposition sections (1.1.0, by meaning): the 3 per-level proposition dicts are split into the
+  # PROP_SECTIONS by the canonical function. Delta-aware: the helper reads
+  # $(src_table gkm_dict_*proposition), so --delta mode emits proposition deltas split the same way
+  # (build-delta-manifest.py resolves each changed key to its section with the same function).
+  for section in ${PROP_SECTIONS}; do
+    export_proposition_section_ndjson "${section}"
+  done
 
-  # VCV/RCV evidence line dictionaries (propositions handled by the group split above)
+  # VCV/RCV evidence line dictionaries (propositions handled by the section split above)
   extract "$(src_table gkm_dict_vcv_evidence_line)" vcv_evidenceLine.ndjson.gz
   extract "$(src_table gkm_dict_rcv_evidence_line)" rcv_evidenceLine.ndjson.gz
 
