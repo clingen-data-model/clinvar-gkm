@@ -27,6 +27,9 @@ SELECT * EXCEPT(proposition, hasEvidenceLines, contributions) REPLACE(
     WHERE NOT is_blank(e) ORDER BY eo
   ) AS extensions),
   REGEXP_REPLACE(proposition, r'^#/[^/]+/', '') AS proposition_id,
+  -- The proposition table/section this statement's proposition is in (1.1.0): propositionPathogenicity,
+  -- propositionOncogenicity, propositionSomaticClinicalImpact or propositionClinvarCustom. From the pointer.
+  REGEXP_EXTRACT(proposition, r'^#/([^/]+)/') AS proposition_section,
   ARRAY(
     SELECT AS STRUCT c.type, REGEXP_REPLACE(c.contributor, r'^#/[^/]+/', '') AS contributor, c.date, c.activityType
     FROM UNNEST(contributions) AS c
