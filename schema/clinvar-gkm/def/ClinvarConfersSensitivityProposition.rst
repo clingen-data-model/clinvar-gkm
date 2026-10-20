@@ -74,7 +74,7 @@ A proposition describing a variant that confers sensitivity to a condition or en
       - An Entity or concept that is related to the subject of a Proposition via its predicate.
    *  - geneContextQualifier
       -
-      - :ref:`MappableConcept` | :ref:`iriReference`
+      - :ref:`ClinvarGeneContextQualifier` | :ref:`iriReference`
       - 0..1
       - Reports a gene impacted by the variant, which may contribute to the association described in the Proposition.
    *  - modeOfInheritanceQualifier
