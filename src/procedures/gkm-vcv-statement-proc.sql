@@ -40,7 +40,8 @@
 --   stored array order (UNNEST alone does not guarantee it). No
 --   determinism fix was needed for carry-forward to hold.
 --
---   Pointer vs inline: subjectVariant (#/variation), proposition (#/proposition),
+--   Pointer vs inline: subjectVariant (#/variation), proposition (#/<section>, the section from
+--   gkm_proposition_section),
 --   evidenceItems (#/scv, #/vcv) and hasEvidenceLines (#/evidenceLine) are all pointers.
 --   The proposition's objectCondition is the INLINE agg.unique_conditions array (already
 --   materialized deterministically in the agg table). This is safe under carry-forward: an
@@ -219,15 +220,10 @@ BEGIN
           ) AS extensions
         ) AS classification,
 
-        FORMAT('#/%s-proposition/%s',
-          CASE
-            WHEN cpt.gks_type LIKE 'Clinvar%' THEN 'varcustom'
-            WHEN cpt.gks_type = 'VariantOncogenicityProposition' THEN 'vartumor'
-            WHEN cpt.gks_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-            WHEN cpt.gks_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
-                                  'VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gks_type))
-          END,
+        -- Section from the canonical mapping (gkm-proposition-section-func.sql), on the same resolved
+        -- type the proposition record carries (the dict build's IFNULL fallback to Undefined).
+        FORMAT('#/%s/%s',
+          `clinvar_ingest.gkm_proposition_section`(IFNULL(cpt.gks_type, 'ClinvarUndefinedProposition')),
           agg.prop_id) AS proposition,
 
         IF(
@@ -292,15 +288,10 @@ BEGIN
           ) AS extensions
         ) AS classification,
 
-        FORMAT('#/%s-proposition/%s',
-          CASE
-            WHEN cpt.gks_type LIKE 'Clinvar%' THEN 'varcustom'
-            WHEN cpt.gks_type = 'VariantOncogenicityProposition' THEN 'vartumor'
-            WHEN cpt.gks_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-            WHEN cpt.gks_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
-                                  'VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gks_type))
-          END,
+        -- Section from the canonical mapping (gkm-proposition-section-func.sql), on the same resolved
+        -- type the proposition record carries (the dict build's IFNULL fallback to Undefined).
+        FORMAT('#/%s/%s',
+          `clinvar_ingest.gkm_proposition_section`(IFNULL(cpt.gks_type, 'ClinvarUndefinedProposition')),
           agg.prop_id) AS proposition,
 
         IF(
@@ -370,15 +361,10 @@ BEGIN
           ) AS extensions
         ) AS classification,
 
-        FORMAT('#/%s-proposition/%s',
-          CASE
-            WHEN cpt.gks_type LIKE 'Clinvar%' THEN 'varcustom'
-            WHEN cpt.gks_type = 'VariantOncogenicityProposition' THEN 'vartumor'
-            WHEN cpt.gks_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-            WHEN cpt.gks_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
-                                  'VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gks_type))
-          END,
+        -- Section from the canonical mapping (gkm-proposition-section-func.sql), on the same resolved
+        -- type the proposition record carries (the dict build's IFNULL fallback to Undefined).
+        FORMAT('#/%s/%s',
+          `clinvar_ingest.gkm_proposition_section`(IFNULL(cpt.gks_type, 'ClinvarUndefinedProposition')),
           agg.prop_id) AS proposition,
 
         IF(

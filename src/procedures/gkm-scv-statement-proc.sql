@@ -22,7 +22,7 @@
 --       stale gene context on unmodified SCVs whose variation changed. It is therefore
 --       recomputed globally, like gkm_dict_submitter. Its feeding temps
 --       (temp_gkm_scv_proposition, temp_gkm_scv_target_proposition) stay GLOBAL.
---   TWO outputs are per-SCV carry-forward (they use #/proposition pointers and do NOT
+--   TWO outputs are per-SCV carry-forward (they use #/<section>/ proposition pointers and do NOT
 --   embed gene context — only the SCV's own record + the trait-covered submitted-
 --   condition struct):
 --     * gkm_dict_evidence_line, gkm_dict_scv — in incremental mode the final writes
@@ -1232,15 +1232,10 @@ BEGIN
       SELECT
         FORMAT('clinvar.submission:%s.%i', scv.id, scv.version) as id,
         'EvidenceLine' as type,
-        -- Delivery-group-qualified target-proposition reference (Phase 2). Target props are always
-        -- standard: Diagnostic/Prognostic -> varcond, TherapeuticResponse -> vartherapy.
-        FORMAT('#/%s-proposition/%s',
-          CASE
-            WHEN stp.type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-            WHEN stp.type IN ('VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-            ELSE ERROR(FORMAT('unmapped target proposition type: %t', stp.type))
-          END,
-          stp.id) as targetProposition,
+        -- Section-qualified target-proposition reference; the section comes from the canonical
+        -- mapping (gkm-proposition-section-func.sql). Target props (Diagnostic, Prognostic,
+        -- TherapeuticResponse) all land in propositionSomaticClinicalImpact.
+        FORMAT('#/%s/%s', `clinvar_ingest.gkm_proposition_section`(stp.type), stp.id) as targetProposition,
         'supports' as directionOfEvidenceProvided,
         CASE scv.classification_code
           WHEN 'tier 1' THEN
@@ -1317,19 +1312,10 @@ BEGIN
       SELECT
         FORMAT('clinvar.submission:%s.%i', scv.id, scv.version) as id,
         'Statement' as type,
-        -- Delivery-group-qualified proposition reference (Phase 2). Group keyed on the proposition type
-        -- (custom + standard alike now carry the real type name in `type`).
-        FORMAT('#/%s-proposition/%s',
-          CASE
-            WHEN sp.type LIKE 'Clinvar%' THEN 'varcustom'
-            WHEN sp.type = 'VariantOncogenicityProposition' THEN 'vartumor'
-            WHEN sp.type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-            WHEN sp.type IN (
-              'VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
-              'VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', sp.type))
-          END,
-          sp.id) as proposition,
+        -- Section-qualified proposition reference; the section comes from the canonical mapping
+        -- (gkm-proposition-section-func.sql), keyed on the proposition type (never NULL: Step 1
+        -- falls back to ClinvarUndefinedProposition).
+        FORMAT('#/%s/%s', `clinvar_ingest.gkm_proposition_section`(sp.type), sp.id) as proposition,
         STRUCT(
           'MappableConcept' AS type, 'Classification' AS conceptType,
           scv.submitted_classification as name,

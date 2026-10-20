@@ -9,14 +9,27 @@
 #
 # Usage: ./validate-proposition-conformance.sh <release_date> <dataset_version>   (project clingen-dev)
 #        GKM_DATASET=<dataset> overrides the dataset name derived from the date + version.
-# Exits non-zero if any reference field holds a bare id instead of a '#/' pointer (see the last check).
+# Exits non-zero on any *_BAD violation (structure, section reference integrity, coverage) and if any
+# reference field holds a bare id instead of a '#/' pointer (the last check).
 set -euo pipefail
 DATE="${1:?release date YYYY-MM-DD}"; VER="${2:?dataset version e.g. v2_5_0}"
 PROJECT="${CLOUDSDK_CORE_PROJECT:-clingen-dev}"
 DS="${GKM_DATASET:-clinvar_${DATE//-/_}_${VER}}"
 
+# Runs one assertion query; prints it as a table; adds every *_BAD column to BAD_TOTAL.
+BAD_TOTAL=0
+check() {   # $1 = title, $2 = SQL
+  local out bad
+  echo "=== $1 ==="
+  out="$(bq query --project_id="$PROJECT" --use_legacy_sql=false --format=csv --max_rows=1000 --quiet "$2")"
+  echo "$out" | column -t -s,
+  bad="$(echo "$out" | awk -F, 'NR==1 {for (i=1;i<=NF;i++) if ($i ~ /_BAD$/) c[i]=1; next}
+                                {for (i in c) s+=$i} END {print s+0}')"
+  BAD_TOTAL=$((BAD_TOTAL + bad))
+}
+
 echo "=== proposition conformance: ${DS} ==="
-bq query --project_id="$PROJECT" --use_legacy_sql=false --format=pretty --quiet "
+check "proposition structure" "
 WITH allp AS (
   SELECT value FROM \`${DS}.gkm_dict_proposition\`
   UNION ALL SELECT value FROM \`${DS}.gkm_dict_rcv_proposition\`
@@ -34,18 +47,18 @@ SELECT
   COUNT(*) AS total
 FROM allp"
 
-echo "=== condition conceptType enum (must be only Condition/Phenotype/Disease/Trait/Absent) ==="
-bq query --project_id="$PROJECT" --use_legacy_sql=false --format=pretty --quiet "
+check "condition conceptType enum (must be only Condition/Phenotype/Disease/Trait/Absent)" "
 SELECT COUNTIF(conceptType NOT IN ('Condition','Phenotype','Disease','Trait','Absent')) AS invalid_conceptType_BAD,
        COUNT(*) AS total
 FROM \`${DS}.gkm_dict_condition\`"
 
-# --- Phase 2: proposition delivery-group reference integrity -------------------------------------
-# Every statement/evidence-line proposition pointer is now group-qualified (#/<group>-proposition/<id>).
-# The pointer's group prefix (computed proc-side) must equal the group recomputed from the referenced
-# proposition row's raw gks type; no old #/proposition/ pointers may remain; no dangling ids.
-echo "=== proposition reference integrity (group prefix == recomputed group; no old/dangling refs) ==="
-bq query --project_id="$PROJECT" --use_legacy_sql=false --format=pretty --quiet "
+# --- Proposition section reference integrity (1.1.0: sections by meaning) ------------------------
+# Every statement/evidence-line proposition pointer is section-qualified: #/proposition<Meaning>/<id>.
+# The pointer's section (computed proc-side) must equal clinvar_ingest.gkm_proposition_section() of
+# the referenced proposition's type; no pre-1.1.0 pointer (#/proposition/, #/<group>-proposition/) may
+# remain; no dangling ids. The function raises on an unmapped type, which fails this query (and the
+# script, under set -e) -- the same fail-loud behavior as the procs and the export.
+check "proposition reference integrity (section == gkm_proposition_section(type); no old/dangling refs)" "
 WITH refs AS (
   SELECT proposition FROM \`${DS}.gkm_dict_scv\`
   UNION ALL SELECT proposition FROM \`${DS}.gkm_dict_rcv\`
@@ -53,50 +66,40 @@ WITH refs AS (
   UNION ALL SELECT targetProposition FROM \`${DS}.gkm_dict_evidence_line\`
 ),
 props AS (
-  SELECT key, JSON_VALUE(value,'\$.type') AS raw_type
-  FROM \`${DS}.gkm_dict_proposition\`
-  UNION ALL SELECT key, JSON_VALUE(value,'\$.type')
-  FROM \`${DS}.gkm_dict_rcv_proposition\`
-  UNION ALL SELECT key, JSON_VALUE(value,'\$.type')
-  FROM \`${DS}.gkm_dict_vcv_proposition\`
+  SELECT key, JSON_VALUE(value,'\$.type') AS raw_type FROM \`${DS}.gkm_dict_proposition\`
+  UNION ALL SELECT key, JSON_VALUE(value,'\$.type') FROM \`${DS}.gkm_dict_rcv_proposition\`
+  UNION ALL SELECT key, JSON_VALUE(value,'\$.type') FROM \`${DS}.gkm_dict_vcv_proposition\`
 ),
 parsed AS (
   SELECT
-    (proposition LIKE '#/proposition/%') AS is_old,
-    REGEXP_EXTRACT(proposition, r'^#/([a-z]+)-proposition/') AS ptr_group,
-    REGEXP_EXTRACT(proposition, r'^#/[a-z]+-proposition/(.+)\$') AS ref_id
+    (proposition LIKE '#/proposition/%' OR REGEXP_CONTAINS(proposition, r'^#/[a-z]+-proposition/')) AS is_old,
+    REGEXP_EXTRACT(proposition, r'^#/(proposition[A-Za-z]+)/') AS ptr_section,
+    REGEXP_EXTRACT(proposition, r'^#/proposition[A-Za-z]+/(.+)\$') AS ref_id
   FROM refs
 )
 SELECT
   COUNTIF(parsed.is_old) AS leftover_old_ref_BAD,
-  COUNTIF(NOT parsed.is_old AND p.key IS NULL) AS dangling_ref_BAD,
-  COUNTIF(NOT parsed.is_old AND p.key IS NOT NULL AND parsed.ptr_group != CASE
-      WHEN p.raw_type LIKE 'Clinvar%' THEN 'varcustom'
-      WHEN p.raw_type = 'VariantOncogenicityProposition' THEN 'vartumor'
-      WHEN p.raw_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-      WHEN p.raw_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
-                          'VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-      ELSE 'UNKNOWN' END) AS misrouted_ref_BAD,
+  COUNTIF(NOT parsed.is_old AND parsed.ptr_section IS NULL) AS unparsed_ref_BAD,
+  COUNTIF(parsed.ptr_section IS NOT NULL AND p.key IS NULL) AS dangling_ref_BAD,
+  COUNTIF(p.key IS NOT NULL
+          AND parsed.ptr_section != \`clinvar_ingest.gkm_proposition_section\`(p.raw_type)) AS misrouted_ref_BAD,
   COUNT(*) AS total_refs
 FROM parsed LEFT JOIN props p ON p.key = parsed.ref_id"
 
-# Every proposition's raw gks type must map to exactly one of the 4 delivery groups (total mapping).
-echo "=== proposition group coverage (every prop maps to a known group) ==="
-bq query --project_id="$PROJECT" --use_legacy_sql=false --format=pretty --quiet "
+# Every proposition's type maps to exactly one section (the function raises on an unmapped type).
+check "proposition section coverage (every proposition maps to one section)" "
 WITH allp AS (
   SELECT value FROM \`${DS}.gkm_dict_proposition\`
   UNION ALL SELECT value FROM \`${DS}.gkm_dict_rcv_proposition\`
   UNION ALL SELECT value FROM \`${DS}.gkm_dict_vcv_proposition\`)
-SELECT COUNTIF(
-    JSON_VALUE(value,'\$.type') NOT IN
-      ('VariantOncogenicityProposition','VariantTherapeuticResponseProposition','VariantPathogenicityProposition',
-       'VariantClinicalSignificanceProposition','VariantDiagnosticProposition','VariantPrognosticProposition')
-    AND NOT JSON_VALUE(value,'\$.type') LIKE 'Clinvar%'
-  ) AS unknown_group_BAD,
-  COUNT(*) AS total
-FROM allp"
+SELECT \`clinvar_ingest.gkm_proposition_section\`(JSON_VALUE(value,'\$.type')) AS section, COUNT(*) AS total
+FROM allp GROUP BY section ORDER BY section"
 
-echo "All *_BAD columns must be 0."
+if [ "$BAD_TOTAL" -ne 0 ]; then
+  echo "FAIL: ${BAD_TOTAL} violation(s) in the *_BAD columns above (exits non-zero after the last check)" >&2
+else
+  echo "PASS: every *_BAD column is 0."
+fi
 
 # --- Uniform '#/' references (hard gate) ---------------------------------------------------------
 # Every field that points at another bundle record must be a '#/<section>/<id>' pointer, never a
@@ -154,3 +157,4 @@ if [ "$BARE_TOTAL" -ne 0 ]; then
   echo "FAIL: ${BARE_TOTAL} reference value(s) are bare ids, not '#/' pointers (see bare_BAD above)" >&2; exit 1
 fi
 echo "PASS: every reference field is a '#/' pointer."
+[ "$BAD_TOTAL" -eq 0 ] || exit 1
