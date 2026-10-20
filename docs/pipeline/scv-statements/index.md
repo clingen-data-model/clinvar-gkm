@@ -78,7 +78,7 @@ Final assembly of VA-Spec Statement records. Joins SCV records with propositions
 ## Dependencies
 
 - **UDFs**: `clinvar_ingest.parseAttributeSet`, `clinvar_ingest.parseCitations`, `clinvar_ingest.parseGeneLists`, `clinvar_ingest.schema_on`, `clinvar_ingest.cleanup_temp_tables`
-- **Source Tables**: `scv_summary`, `clinical_assertion`, `clinical_assertion_variation`, `single_gene_variation`, `gene`, `variation_archive`
+- **Source Tables**: `scv_summary`, `clinical_assertion`, `clinical_assertion_variation`, `single_gene_variation`, `variation_archive`
 - **Lookup Tables**: `clinvar_clinsig_types`, `submission_level`, `hpo_terms`
 - **Upstream Procedures**: `gkm_scv_condition_proc` (provides `gkm_scv_condition_sets`), `gkm_catvar_proc`
 - **Downstream Consumers**: `gkm_vcv_proc`, `gkm_vcv_statement_proc`, change-log / delta build (`gkm_change_log`), export pipeline

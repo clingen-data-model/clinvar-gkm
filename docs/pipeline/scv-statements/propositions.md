@@ -10,7 +10,7 @@ Steps 2--6 of `gkm_scv_statement_proc` build the qualifier tables and assemble t
 
 ### Step 2: Build `temp_gene_context_qualifiers`
 
-Extracts gene context from `single_gene_variation` by matching each SCV's variation_id to its associated gene. For each match, builds a gene concept with:
+Extracts gene context from `single_gene_variation` by matching each SCV's variation_id to its associated gene. The gene's symbol and HGNC id come from `single_gene_variation`'s own `symbol` and `hgnc_id` columns, not from the release's `gene` table, so genes ClinVar does not list (named in a variant title but not associated) keep their context. See the upstream [Single Gene Variation method](https://github.com/clingen-data-model/clinvar-ingest-bq-tools/blob/main/docs/methods/single-gene-variation.md). A release whose `single_gene_variation` lacks those columns stops with an error. For each match, builds a gene concept with:
 
 - **conceptType**: `"gene"`
 - **primaryCoding**: NCBI Gene identifier using both `identifiers.org` and NCBI Gene URLs
@@ -87,6 +87,6 @@ The JSON pointer `4/proposition/subject` is used instead of duplicating the vari
 
 ## Dependencies
 
-- **Source Tables**: `single_gene_variation`, `clinical_assertion`, `clinical_assertion_variation`, `gene`
+- **Source Tables**: `single_gene_variation`, `clinical_assertion`, `clinical_assertion_variation`
 - **Lookup Tables**: `hpo_terms`
 - **Upstream Steps**: Step 1 (`temp_gkm_scv`), condition pipeline (`gkm_scv_condition_sets`)
