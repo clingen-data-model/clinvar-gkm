@@ -146,6 +146,8 @@ name-derived genes below are new. Counts are for the 2026-09-28 release, before 
 | `submittedNotNormalized` | The variant has no single representative gene (the placeholder) | 4,814 |
 
 - Symbols are compared after trimming spaces and ignoring case, so `C19ORF12` matches `C19orf12`.
+- **Schema**: `geneContextSource` accepts only these four values. The new `ClinvarGeneContextQualifier` class
+  defines them, and the bundle schema applies it to every proposition section.
 - **Placeholder name**: the 4,814 placeholder qualifiers are named with the submitter's symbol, verbatim,
   instead of the literal `submitted genes were not normalized`. The 5 with several symbols join them with `, `
   in submitted order. They still have no `primaryCoding`, and `submittedGeneSymbols` is unchanged.

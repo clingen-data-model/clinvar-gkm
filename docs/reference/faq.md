@@ -34,7 +34,8 @@ qualifier as follows:
     - `inferredFromVariant`: the submitter gave no symbols
     - `submittedNotNormalized`: the placeholder (next item)
 
-  Symbols are compared after trimming spaces and ignoring case, so `C19ORF12` matches `C19orf12`.
+  Symbols are compared after trimming spaces and ignoring case, so `C19ORF12` matches `C19orf12`. The schema
+  accepts only these four values.
 - **The placeholder** applies when the variant has no single representative gene but the submitter named one.
   From this release, the qualifier's `name` is the submitter's symbol, verbatim; several symbols are joined with
   `, ` in submitted order. It has no `primaryCoding`, the submitter's symbols are in `submittedGeneSymbols`, and

@@ -23,6 +23,8 @@ Extracts gene context from the upstream `single_gene_variation` table: one repre
 
 When no single-gene match exists for a variation but the submitter gave symbols, the qualifier is a placeholder. Its `name` is the submitter's symbol: several are joined with `, ` in submitted order. It has no `primaryCoding` or `mappings`, keeps `submittedGeneSymbols`, and has `geneContextSource` = `submittedNotNormalized`. Releases before this one name the placeholder `submitted genes were not normalized`.
 
+The schema accepts only these four `geneContextSource` values. `ClinvarGeneContextQualifier` defines them, and the bundle schema applies it to every proposition type, including the VA-Spec ones.
+
 The extension values are stored as typed fields (`value_string` for the symbol array, `value_enum` for the source) and collapsed to `value` at publish.
 
 **Output:** `temp_gene_context_qualifiers` -- one row per SCV+gene combination. <span class="role-badge badge-internal">Internal</span>

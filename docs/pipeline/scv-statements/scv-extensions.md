@@ -97,7 +97,7 @@ Extensions on proposition qualifier objects, preserving the original submitter-p
 | Extension | Type | Description |
 |---|---|---|
 | `submittedGeneSymbols` | array&lt;string&gt; | Gene symbols originally submitted by the submitter, verbatim, in submitted order. Present on `geneContextQualifier` when the submitter provided gene information. May differ from the normalized gene symbol. |
-| `geneContextSource` | string | Where the `geneContextQualifier` gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized` (the placeholder, named with the submitter's symbol). Present on every `geneContextQualifier`. Added in this release. |
+| `geneContextSource` | string | Where the `geneContextQualifier` gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized` (the placeholder, named with the submitter's symbol). Present on every `geneContextQualifier`. The schema accepts only these four values. Added in this release. |
 | `submittedModeOfInheritance` | string | Mode of inheritance text as originally submitted. Present on all `modeOfInheritanceQualifier` objects. Preserved alongside the normalized HPO coding. |
 | `submittedClassification` | string | Original submitted classification text that triggered the penetrance qualifier derivation. Present on all `penetranceQualifier` objects. |
 
