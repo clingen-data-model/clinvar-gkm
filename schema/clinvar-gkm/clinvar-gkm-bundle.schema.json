@@ -6,6 +6,29 @@
   "type": "object",
   "minProperties": 1,
   "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "Every proposition section (any section whose name contains 'proposition'): a proposition's geneContextQualifier must match ClinvarGeneContextQualifier, which restricts the 'geneContextSource' extension value to its four defined values. This also covers the GA4GH VA-Spec proposition types, whose own schemas leave qualifier extensions open. It sits in allOf so it does not widen the root's additionalProperties.",
+      "patternProperties": {
+        "proposition": {
+          "additionalProperties": {
+            "properties": {
+              "geneContextQualifier": {
+                "anyOf": [
+                  {
+                    "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGeneContextQualifier"
+                  },
+                  {
+                    "$ref": "https://w3id.org/ga4gh/schema/gkm-core/1.3.0/json/iriReference"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
   "properties": {
     "schema_version": {
       "type": "string",
