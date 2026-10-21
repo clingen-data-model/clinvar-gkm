@@ -29,16 +29,24 @@
 # hash, even on --full, so a --full release still leaves a valid baseline for next week's
 # normal run to resume incremental from.
 #
+# --full-procs forces ONLY the gkm procs of Stage 4 full (GKS_FULL=true into vrs-to-bq-table.sh): every
+# catvar/scv/rcv/vcv proc runs its full wrapper. Stages 1-3 (variation_identity, export, vrsify) and the
+# gkm_vrs load stay incremental, so only the ~changed variations are re-normalized. This is the weekly mode
+# after 1.1.0 until ADR 0007 workstream 3 decides on the incremental gkm machinery (the incremental wrappers
+# were seen to fall back to full silently). --full implies it.
+#
 # Stage 5 publishes to the public R2 bucket. Use --dry-run to run everything but have the
 # release stage only print what it would upload (no R2 writes) — use it for test runs.
 # NOTE: --dry-run still writes the pipeline_version stamp to BigQuery; --dry-run only gates
 # Stage 5 / R2 upload.
 #
 # USAGE:
-#   ./src/scripts/run-release.sh YYYY-MM-DD [--full] [--dry-run] [--start-step N]
+#   ./src/scripts/run-release.sh YYYY-MM-DD [--full | --full-procs] [--dry-run] [--start-step N]
 #
-#   --full          full rebuild of stages 1-2 and catvar in stage 4 (reseed the baseline);
+#   --full          full rebuild of stages 1-2 and every gkm proc in stage 4 (reseed the baseline);
 #                   the version-stamp gate is unaffected, so next week resumes incremental
+#   --full-procs    only the stage-4 gkm procs full; variation_identity, export, vrsify and the
+#                   gkm_vrs load stay incremental
 #   --dry-run       stage 5 (release scripts) runs in dry-run: no R2 upload / no GCS writes
 #   --start-step N  begin at stage N (1-5); default 1. Stage 3 (vrsify) needs the local
 #                   SeqRepo/UTA/gene-norm services — see src/vrsify/README.md.
@@ -61,12 +69,14 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 DATE=""
 FULL=false
+FULL_PROCS=false
 DRY_RUN=false
 START_STEP=1
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --full) FULL=true; shift ;;
+    --full-procs) FULL_PROCS=true; shift ;;
     --dry-run) DRY_RUN=true; shift ;;
     --start-step) START_STEP="${2:?--start-step needs a number}"; shift 2 ;;
     --start-step=*) START_STEP="${1#*=}"; shift ;;
@@ -76,11 +86,12 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$DATE" ]]; then
-  echo "Usage: $0 YYYY-MM-DD [--full] [--dry-run] [--start-step N]" >&2
+  echo "Usage: $0 YYYY-MM-DD [--full | --full-procs] [--dry-run] [--start-step N]" >&2
   exit 1
 fi
 
-echo "=== run-release ${DATE} (full=${FULL}, dry-run=${DRY_RUN}, start-step=${START_STEP}, project=${PROJECT_ID}) ==="
+$FULL && FULL_PROCS=true   # --full implies the procs full
+echo "=== run-release ${DATE} (full=${FULL}, full-procs=${FULL_PROCS}, dry-run=${DRY_RUN}, start-step=${START_STEP}, project=${PROJECT_ID}) ==="
 
 # --- Stage 0: dataset diff (produces {S}.diff_* — drivers for all incremental procs) ----
 # Idempotent (CREATE OR REPLACE). On the first release it emits a warning and writes no
@@ -141,7 +152,8 @@ fi
 # --- Stage 4: transform -> load gkm_vrs -> gkm_* procs ---------------------------------
 if (( START_STEP <= 4 )); then
   echo ">>> [4/5] vrs-to-bq-table.sh (transform, load gkm_vrs, run gkm_* procs)"
-  GKS_FULL="${FULL}" "${REPO_ROOT}/src/scripts/vrs-to-bq-table.sh" "${DATE}"
+  # GKS_FULL forces the full proc wrappers; it does not change the gkm_vrs load (that follows the data).
+  GKS_FULL="${FULL_PROCS}" "${REPO_ROOT}/src/scripts/vrs-to-bq-table.sh" "${DATE}"
 fi
 
 # --- Monthly-full trigger helpers (ClinVar authoritative index) -----------------------
