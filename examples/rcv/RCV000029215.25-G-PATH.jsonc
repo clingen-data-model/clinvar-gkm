@@ -33,9 +33,9 @@
               "directionOfEvidenceProvided": "supports",
               "hasEvidenceItems": [
                 "#/scv/clinvar.submission:SCV001736991.1",
-                "#/scv/clinvar.submission:SCV007538136.1",
+                "#/scv/clinvar.submission:SCV002318898.4",
                 "#/scv/clinvar.submission:SCV006304919.1",
-                "#/scv/clinvar.submission:SCV002318898.4"
+                "#/scv/clinvar.submission:SCV007538136.1"
               ],
               "id": "RCV000029215.25-G-PATH-CP.contributing",
               "strengthOfEvidenceProvided": {
@@ -151,12 +151,12 @@
       "mappings": [
         {
           "coding": {
-            "code": "2612",
+            "code": "0010817",
             "iris": [
-              "https://identifiers.org/orphanet:2612",
-              "http://www.orpha.net/ORDO/Orphanet_2612"
+              "http://purl.obolibrary.org/obo/HP_0010817",
+              "https://identifiers.org/HP:0010817"
             ],
-            "system": "https://www.orpha.net/"
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
@@ -164,8 +164,8 @@
           "coding": {
             "code": "0008097",
             "iris": [
-              "https://identifiers.org/mondo:0008097",
-              "http://purl.obolibrary.org/obo/MONDO_0008097"
+              "http://purl.obolibrary.org/obo/MONDO_0008097",
+              "https://identifiers.org/mondo:0008097"
             ],
             "system": "https://mondo.monarchinitiative.org/"
           },
@@ -175,8 +175,8 @@
           "coding": {
             "code": "163200",
             "iris": [
-              "https://www.omim.org/entry/163200",
-              "https://identifiers.org/mim:163200"
+              "https://identifiers.org/mim:163200",
+              "https://www.omim.org/entry/163200"
             ],
             "system": "https://www.omim.org/"
           },
@@ -184,12 +184,12 @@
         },
         {
           "coding": {
-            "code": "0010817",
+            "code": "2612",
             "iris": [
-              "https://identifiers.org/HP:0010817",
-              "http://purl.obolibrary.org/obo/HP_0010817"
+              "http://www.orpha.net/ORDO/Orphanet_2612",
+              "https://identifiers.org/orphanet:2612"
             ],
-            "system": "https://hpo.jax.org/"
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
@@ -208,8 +208,8 @@
       "primaryCoding": {
         "code": "C4552097",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C4552097",
-          "https://identifiers.org/medgen:C4552097"
+          "https://identifiers.org/medgen:C4552097",
+          "https://www.ncbi.nlm.nih.gov/medgen/C4552097"
         ],
         "name": "Linear nevus sebaceous syndrome",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"

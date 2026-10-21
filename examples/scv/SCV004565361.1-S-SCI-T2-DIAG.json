@@ -128,6 +128,10 @@
               "value": [
                 "ACVR1"
               ]
+            },
+            {
+              "name": "geneContextSource",
+              "value": "submittedSymbolMatches"
             }
           ],
           "mappings": [
@@ -164,8 +168,8 @@
               "coding": {
                 "code": "0957196",
                 "iris": [
-                  "https://identifiers.org/mondo:0957196",
-                  "http://purl.obolibrary.org/obo/MONDO_0957196"
+                  "http://purl.obolibrary.org/obo/MONDO_0957196",
+                  "https://identifiers.org/mondo:0957196"
                 ],
                 "system": "https://mondo.monarchinitiative.org/"
               },
@@ -176,8 +180,8 @@
           "primaryCoding": {
             "code": "C4289688",
             "iris": [
-              "https://www.ncbi.nlm.nih.gov/medgen/C4289688",
-              "https://identifiers.org/medgen:C4289688"
+              "https://identifiers.org/medgen:C4289688",
+              "https://www.ncbi.nlm.nih.gov/medgen/C4289688"
             ],
             "name": "Diffuse midline glioma, H3 K27M-mutant",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -201,6 +205,10 @@
           "value": [
             "ACVR1"
           ]
+        },
+        {
+          "name": "geneContextSource",
+          "value": "submittedSymbolMatches"
         }
       ],
       "mappings": [
@@ -237,8 +245,8 @@
           "coding": {
             "code": "0957196",
             "iris": [
-              "https://identifiers.org/mondo:0957196",
-              "http://purl.obolibrary.org/obo/MONDO_0957196"
+              "http://purl.obolibrary.org/obo/MONDO_0957196",
+              "https://identifiers.org/mondo:0957196"
             ],
             "system": "https://mondo.monarchinitiative.org/"
           },
@@ -249,8 +257,8 @@
       "primaryCoding": {
         "code": "C4289688",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C4289688",
-          "https://identifiers.org/medgen:C4289688"
+          "https://identifiers.org/medgen:C4289688",
+          "https://www.ncbi.nlm.nih.gov/medgen/C4289688"
         ],
         "name": "Diffuse midline glioma, H3 K27M-mutant",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -279,6 +287,24 @@
       "type": "Document",
       "urls": [
         "https://pubmed.ncbi.nlm.nih.gov/24705254"
+      ]
+    },
+    {
+      "type": "Document",
+      "urls": [
+        "https://civicdb.org/links/evidence/4846"
+      ]
+    },
+    {
+      "type": "Document",
+      "urls": [
+        "https://civicdb.org/links/evidence/6955"
+      ]
+    },
+    {
+      "type": "Document",
+      "urls": [
+        "https://identifiers.org/civic.mpid:1594"
       ]
     }
   ],

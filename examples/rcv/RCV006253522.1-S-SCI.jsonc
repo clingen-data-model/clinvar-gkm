@@ -121,12 +121,12 @@
       "mappings": [
         {
           "coding": {
-            "code": "99757",
+            "code": "0006743",
             "iris": [
-              "https://identifiers.org/orphanet:99757",
-              "http://www.orpha.net/ORDO/Orphanet_99757"
+              "http://purl.obolibrary.org/obo/HP_0006743",
+              "https://identifiers.org/HP:0006743"
             ],
-            "system": "https://www.orpha.net/"
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
@@ -134,8 +134,8 @@
           "coding": {
             "code": "0009993",
             "iris": [
-              "https://identifiers.org/mondo:0009993",
-              "http://purl.obolibrary.org/obo/MONDO_0009993"
+              "http://purl.obolibrary.org/obo/MONDO_0009993",
+              "https://identifiers.org/mondo:0009993"
             ],
             "system": "https://mondo.monarchinitiative.org/"
           },
@@ -143,12 +143,12 @@
         },
         {
           "coding": {
-            "code": "0006743",
+            "code": "99757",
             "iris": [
-              "https://identifiers.org/HP:0006743",
-              "http://purl.obolibrary.org/obo/HP_0006743"
+              "http://www.orpha.net/ORDO/Orphanet_99757",
+              "https://identifiers.org/orphanet:99757"
             ],
-            "system": "https://hpo.jax.org/"
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         }
@@ -157,8 +157,8 @@
       "primaryCoding": {
         "code": "C0206656",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C0206656",
-          "https://identifiers.org/medgen:C0206656"
+          "https://identifiers.org/medgen:C0206656",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0206656"
         ],
         "name": "Embryonal rhabdomyosarcoma",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"

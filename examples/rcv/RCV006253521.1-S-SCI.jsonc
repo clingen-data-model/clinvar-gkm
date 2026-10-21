@@ -120,12 +120,12 @@
       "mappings": [
         {
           "coding": {
-            "code": "182067",
+            "code": "0009733",
             "iris": [
-              "https://identifiers.org/orphanet:182067",
-              "http://www.orpha.net/ORDO/Orphanet_182067"
+              "http://purl.obolibrary.org/obo/HP_0009733",
+              "https://identifiers.org/HP:0009733"
             ],
-            "system": "https://www.orpha.net/"
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
@@ -144,21 +144,10 @@
           "coding": {
             "code": "0021042",
             "iris": [
-              "https://identifiers.org/mondo:0021042",
-              "http://purl.obolibrary.org/obo/MONDO_0021042"
+              "http://purl.obolibrary.org/obo/MONDO_0021042",
+              "https://identifiers.org/mondo:0021042"
             ],
             "system": "https://mondo.monarchinitiative.org/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "0009733",
-            "iris": [
-              "https://identifiers.org/HP:0009733",
-              "http://purl.obolibrary.org/obo/HP_0009733"
-            ],
-            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
@@ -169,6 +158,17 @@
               "https://www.omim.org/phenotypicSeries/PS137800"
             ],
             "system": "https://www.omim.org/phenotypicSeries/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "182067",
+            "iris": [
+              "http://www.orpha.net/ORDO/Orphanet_182067",
+              "https://identifiers.org/orphanet:182067"
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
@@ -187,8 +187,8 @@
       "primaryCoding": {
         "code": "C0017638",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C0017638",
-          "https://identifiers.org/medgen:C0017638"
+          "https://identifiers.org/medgen:C0017638",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0017638"
         ],
         "name": "Glioma",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
