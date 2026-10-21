@@ -1,128 +1,83 @@
 #!/bin/bash
-# Upload the single LATEST ClinVar-GKM Parquet set to Cloudflare R2.
+# Upload the ONE ClinVar-GKM Parquet set of the version line (R2_LINE, default v1/1.1/) to <line>parquet/.
 #
-# Parquet is a derived convenience, not a public record (ADR 0008): it is recomputable from the JSON
-# bundle, and only the latest state is published, at one stable path, rebuilt every release from the
-# newest dataset:
-#   datasets/parquet/00-latest/<section>.parquet
-#   datasets/parquet/00-latest/source.json      — which release/dataset it was built from, schema version
-# There are no dated Parquet sets (monthly or delta). Each section file is overwritten in place; after the
-# upload, any *.parquet in 00-latest/ that is not in the local set is deleted (a renamed or dropped section),
-# so there is no window with a missing file. index.json is regenerated.
+# Parquet is derived from the JSON bundle and is not a release record (ADR 0008): one set, rebuilt every release
+# from the newest dataset and overwritten in place. There is no Parquet in archives; past states are rebuilt from
+# the monthly bundles. Layout:
+#   <line>parquet/<section>.parquet
+#   <line>parquet/manifest.json   build date, source release + dataset, builder ("BigQuery export" until
+#                                 clinvar-gkm-parquet takes over), table-spec version (if known), schema version,
+#                                 and every file with its size and sha256
+# Each section is overwritten in place; afterwards any *.parquet (or other file) in parquet/ that is not in the
+# local set is deleted (a renamed or dropped section), so there is no window with a missing file. The index is
+# regenerated.
 #
-# Usage:
-#   ./upload-gkm-parquet-to-r2.sh <export_date> <dataset_version> <parquet_dir> [--dry-run] [--purge]
+# Usage: ./upload-gkm-parquet-to-r2.sh <export_date> <dataset_version> <parquet_dir> [--dry-run] [--purge]
 #
-# --purge: purge the CDN cache for datasets/parquet/00-latest/ after the upload (needs CF_ZONE_ID +
-# CF_PURGE_TOKEN; ADR 0005).
-set -e
+# --purge purges the CDN copy of <line>parquet/ (cached 1 day by the Parquet cache rule; ADR 0005).
+# PARQUET_BUILDER and PARQUET_TABLE_SPEC_VERSION override the manifest's builder and table_spec_version.
+set -euo pipefail
 
 if [[ $# -lt 3 ]]; then
-  echo "Usage: $0 <export_date> <dataset_version> <parquet_dir> [--dry-run] [--purge]"
-  exit 1
+  sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 1
 fi
 EXPORT_DATE="$1"; DATASET_VERSION="$2"; PARQUET_DIR="$3"; shift 3
-[[ "$EXPORT_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "ERROR: bad date '${EXPORT_DATE}'"; exit 1; }
-
+[[ "$EXPORT_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "ERROR: bad date '${EXPORT_DATE}'" >&2; exit 1; }
 DRY_RUN=false; PURGE=false
 for arg in "$@"; do case "$arg" in
   --dry-run) DRY_RUN=true ;;
   --purge) PURGE=true ;;
-  *) echo "ERROR: unknown arg '${arg}'"; exit 1 ;;
+  *) echo "ERROR: unknown arg '${arg}'" >&2; exit 1 ;;
 esac; done
+export DRY_RUN
 
-R2_BUCKET="clinvar-gkm"
-R2_ENDPOINT="https://09208aa33790838db213a21f630c33e7.r2.cloudflarestorage.com"
-R2_PROFILE="r2"
-R2_PUBLIC_URL="${R2_PUBLIC_URL:-https://data.clinvar-gkm.org}"
-R2_PREFIX="${R2_PREFIX:-v1/}"
-LATEST_PREFIX="datasets/parquet/00-latest/"
-CF_PUBLIC_HOST="${CF_PUBLIC_HOST:-data.clinvar-gkm.org}"
-CF_ZONE_ID="${CF_ZONE_ID:-}"
-CF_PURGE_TOKEN="${CF_PURGE_TOKEN:-}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=r2-common.sh
+. "${SCRIPT_DIR}/r2-common.sh"
 SCHEMA_VERSION="$(sed -n 's/^SCHEMA_VERSION = "\(.*\)"$/\1/p' "${SCRIPT_DIR}/assemble-gkm-dicts.py")"
+PQ="${R2_LINE}parquet/"
+TMP="$(mktemp -d)"
+trap 'rm -rf "${TMP}"' EXIT
 
-r2_upload() {
-  local src="$1" dest="${R2_PREFIX}$2" content_type="${3:-application/vnd.apache.parquet}"
-  if $DRY_RUN; then echo "  [dry-run] upload: ${dest}"; return; fi
-  aws s3 cp "$src" "s3://${R2_BUCKET}/${dest}" --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" \
-    --content-type "${content_type}" --quiet
-}
-r2_ls() {
-  aws s3 ls "s3://${R2_BUCKET}/${R2_PREFIX}$1" --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" \
-    2>/dev/null | awk '{print $NF}' || true
-}
-r2_rm() {
-  if $DRY_RUN; then echo "  [dry-run] delete: ${R2_PREFIX}$1"; return; fi
-  aws s3 rm "s3://${R2_BUCKET}/${R2_PREFIX}$1" --endpoint-url "${R2_ENDPOINT}" --profile "${R2_PROFILE}" --quiet
-}
-
-echo "=== ClinVar-GKM latest Parquet upload (built from ${EXPORT_DATE}, ${DATASET_VERSION}) ==="
-$DRY_RUN && echo "  Mode: DRY RUN"
+echo "=== ClinVar-GKM Parquet upload -> ${PQ} (built from ${EXPORT_DATE}, ${DATASET_VERSION}) ==="
+${DRY_RUN} && echo "  Mode: DRY RUN"
 SECTIONS=()
 if [[ -d "${PARQUET_DIR}" ]]; then
-  for f in "${PARQUET_DIR}"/*.parquet; do
-    [[ -f "$f" ]] && SECTIONS+=("$(basename "$f" .parquet)")
-  done
+  for f in "${PARQUET_DIR}"/*.parquet; do [[ -f "$f" ]] && SECTIONS+=("$(basename "$f")"); done
 fi
 if [[ ${#SECTIONS[@]} -eq 0 ]]; then
-  if $DRY_RUN; then echo "  [dry-run] (no local Parquet in ${PARQUET_DIR}; would upload <section>.parquet)"
-  else echo "ERROR: no *.parquet in ${PARQUET_DIR}" >&2; exit 1; fi
+  ${DRY_RUN} || { echo "ERROR: no *.parquet in ${PARQUET_DIR}" >&2; exit 1; }
+  echo "  [dry-run] (no local Parquet in ${PARQUET_DIR}; would upload <section>.parquet + manifest.json)"
 fi
 
-echo "--- Uploading ${#SECTIONS[@]} sections -> ${R2_PREFIX}${LATEST_PREFIX} ---"
-for section in "${SECTIONS[@]+"${SECTIONS[@]}"}"; do
-  r2_upload "${PARQUET_DIR}/${section}.parquet" "${LATEST_PREFIX}${section}.parquet"
+echo "--- uploading ${#SECTIONS[@]} sections ---"
+for f in "${SECTIONS[@]+"${SECTIONS[@]}"}"; do
+  r2_put "${PARQUET_DIR}/${f}" "${PQ}${f}" "application/vnd.apache.parquet"
 done
 
-# Provenance of the derived set: which release and dataset it was built from.
-SOURCE_JSON="$(mktemp)"
-{
-  printf '{\n  "derived": true,\n  "note": "Derived from the JSON bundle and regenerated every release; not a release record.",\n'
-  printf '  "release": "%s",\n  "dataset": "clinvar_%s_%s",\n' "${EXPORT_DATE}" "${EXPORT_DATE//-/_}" "${DATASET_VERSION}"
-  printf '  "schema_version": "%s",\n  "generated_at": "%s",\n  "sections": [' "${SCHEMA_VERSION}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-  first=true
-  for section in "${SECTIONS[@]+"${SECTIONS[@]}"}"; do
-    $first || printf ', '; first=false; printf '"%s"' "$section"
-  done
-  printf ']\n}\n'
-} > "${SOURCE_JSON}"
-r2_upload "${SOURCE_JSON}" "${LATEST_PREFIX}source.json" "application/json"
-rm -f "${SOURCE_JSON}"
+if [[ ${#SECTIONS[@]} -gt 0 ]]; then
+  r2_layout parquet-manifest --dir "${PARQUET_DIR}" --release "${EXPORT_DATE}" \
+    --dataset "clinvar_${EXPORT_DATE//-/_}_${DATASET_VERSION}" --schema-version "${SCHEMA_VERSION}" \
+    --builder "${PARQUET_BUILDER:-BigQuery export}" \
+    ${PARQUET_TABLE_SPEC_VERSION:+--table-spec-version "${PARQUET_TABLE_SPEC_VERSION}"} --out "${TMP}/manifest.json"
+  r2_put "${TMP}/manifest.json" "${PQ}manifest.json" "application/json"
+fi
 
-# Remove sections that are no longer produced (after the upload: no window with a missing file).
-echo "--- Removing stale sections from ${R2_PREFIX}${LATEST_PREFIX} ---"
+# Remove files that are no longer produced (after the upload: no window with a missing file).
+echo "--- removing stale files from ${PQ} ---"
 removed=0
-while IFS= read -r fn; do
-  [[ "$fn" == *.parquet ]] || continue
-  [[ -f "${PARQUET_DIR}/${fn}" ]] && continue
-  if $DRY_RUN && [[ ${#SECTIONS[@]} -eq 0 ]]; then continue; fi
-  r2_rm "${LATEST_PREFIX}${fn}"
-  removed=$((removed + 1))
-done < <(r2_ls "${LATEST_PREFIX}")
-echo "  ${removed} stale section file(s) $($DRY_RUN && echo 'to remove' || echo 'removed')."
+r2_listing "${PQ}" "${TMP}/parquet.txt"
+while read -r _ _ _ key; do
+  [[ -n "${key:-}" ]] || continue
+  fn="${key#"${PQ}"}"
+  [[ "${fn}" == "manifest.json" || -f "${PARQUET_DIR}/${fn}" ]] && continue
+  [[ ${#SECTIONS[@]} -eq 0 ]] && continue
+  r2_rm "${key}"; removed=$((removed + 1))
+done < "${TMP}/parquet.txt"
+echo "  ${removed} stale file(s) $(${DRY_RUN} && echo 'to remove' || echo 'removed')."
 
-INDEX_ARGS=(); $DRY_RUN && INDEX_ARGS+=("--dry-run")
-"${SCRIPT_DIR}/generate-r2-index.sh" "${INDEX_ARGS[@]+"${INDEX_ARGS[@]}"}"
+IDX=(); ${DRY_RUN} && IDX+=(--dry-run)
+"${SCRIPT_DIR}/generate-r2-index.sh" "${IDX[@]+"${IDX[@]}"}"
 
-if $PURGE && { [[ -z "${CF_ZONE_ID:-}" ]] || [[ -z "${CF_PURGE_TOKEN:-}" ]]; }; then
-  # Credentials live outside the repo; load them without printing (see ADR 0005).
-  CF_ENV_FILE="${CF_ENV_FILE:-${HOME}/.config/clinvar-gkm/cloudflare.env}"
-  # shellcheck disable=SC1090
-  [[ -r "$CF_ENV_FILE" ]] && . "$CF_ENV_FILE"
-  CF_ZONE_ID="${CF_ZONE_ID:-}"; CF_PURGE_TOKEN="${CF_PURGE_TOKEN:-}"
-fi
-if $PURGE; then
-  if $DRY_RUN; then echo "  [dry-run] purge: ${CF_PUBLIC_HOST}/${R2_PREFIX}${LATEST_PREFIX}"
-  elif [[ -z "$CF_ZONE_ID" || -z "$CF_PURGE_TOKEN" ]]; then
-    echo "  WARNING: --purge set but CF_ZONE_ID/CF_PURGE_TOKEN not set; skipping CDN purge."
-  else
-    curl -fsS -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
-      -H "Authorization: Bearer ${CF_PURGE_TOKEN}" -H "Content-Type: application/json" \
-      --data "{\"prefixes\":[\"${CF_PUBLIC_HOST}/${R2_PREFIX}${LATEST_PREFIX}\"]}" >/dev/null 2>&1 \
-      && echo "  Purge requested." || echo "  WARNING: CDN purge request failed (continuing)."
-  fi
-fi
-
-echo "=== Latest Parquet: ${R2_PUBLIC_URL}/${R2_PREFIX}${LATEST_PREFIX} ==="
+${PURGE} && cf_purge prefixes "${PQ}"
+echo "=== Parquet: ${R2_PUBLIC_URL}/${PQ} ==="

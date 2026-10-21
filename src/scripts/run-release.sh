@@ -11,10 +11,14 @@
 #   3. vrsify                src/vrsify/vrsify.sh   (external vrs-python; needs local services)
 #   4. vrs-to-bq             src/scripts/vrs-to-bq-table.sh
 #                            (Cloud Run transform -> load gkm_vrs -> gkm_* procs)
-#   5. release               src/scripts/release-gkm.sh (any due monthly full) + release-gkm-delta.sh
-#                            (export dict bundle -> assemble -> upload to Cloudflare R2), then
-#                            release-gkm-parquet.sh (rebuild the single latest Parquet set from this
-#                            release's dataset; Parquet is derived and never kept per release)
+#   5. release               publish to the version line R2_LINE (default v1/1.1/; layout in r2_layout.py):
+#                            r2-rollover.sh (month/year rollover now that this release is posted),
+#                            release-gkm.sh --weekly (this release's weekly FULL -> weekly/),
+#                            any due official monthly (a server-side copy of its ADR 0002 source
+#                            release's weekly full, or a re-export when that is gone), r2-rollover.sh
+#                            again (drops the kept source candidate once the monthly is posted),
+#                            release-gkm-delta.sh (the weekly DELTA -> deltas/), then
+#                            release-gkm-parquet.sh (the one Parquet set -> parquet/, overwritten)
 #
 # Stages 1 and 2 are incremental by default (recompute only changed variations, carry the
 # rest forward). Stage 4 self-corrects between incremental and full loads. --full forces a
@@ -149,9 +153,10 @@ fi
 # ClinVar, content from our build). See docs/superpowers/specs/2026-08-24-clinvar-index-
 # monthly-trigger-design.md.
 CLINVAR_XML_INDEX="https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/"
-R2_BUCKET_NAME="clinvar-gkm"
-R2_ENDPOINT_URL="https://09208aa33790838db213a21f630c33e7.r2.cloudflarestorage.com"
-R2_PROFILE_NAME="r2"
+R2_LINE="${R2_LINE:-v1/1.1/}"
+export R2_LINE
+# shellcheck source=r2-common.sh
+. "${REPO_ROOT}/src/scripts/r2-common.sh"
 
 # Emit "YYYY-MM<TAB>YYYY-MM-DD HH:MM:SS" per ClinVar monthly release, ascending. Parses the
 # autoindex: after tag-strip the fields are filename, size, released-date, released-time,
@@ -165,12 +170,12 @@ clinvar_monthlies() {
     | sort -u
 }
 
-# Echo the newest YYYY-MM already published as a monthly full in R2 (datasets/), or empty.
+# Echo the newest YYYY-MM already published as an official monthly in the line (top level or archive/YYYY/),
+# or empty. (Before the v1/1.1/ layout this listed the retired bucket-root datasets/ and always came back empty.)
 r2_latest_published_month() {
-  aws s3 ls "s3://${R2_BUCKET_NAME}/datasets/" \
-    --endpoint-url "${R2_ENDPOINT_URL}" --profile "${R2_PROFILE_NAME}" 2>/dev/null \
-    | grep -oE 'clinvar-gkm_[0-9]{4}-[0-9]{2}\.json\.gz' \
-    | sed -E 's/clinvar-gkm_([0-9]{4}-[0-9]{2})\.json\.gz/\1/' \
+  aws_r2 s3 ls "s3://${R2_BUCKET}/${R2_LINE}" --recursive 2>/dev/null \
+    | awk '{print $4}' \
+    | sed -n -E "s#^${R2_LINE}(archive/[0-9]{4}/)?clinvar-gkm_([0-9]{4}-[0-9]{2})\.json\.gz\$#\2#p" \
     | sort | tail -n1
 }
 
@@ -200,15 +205,16 @@ resolve_source_date() {
   )
 }
 
-# Publish a monthly full for any ClinVar monthly strictly NEWER than the latest already in R2
-# (the bound keeps this cheap and stops it from re-touching history). Normally 0 or 1 per run.
-# Bootstrap (empty bucket) is intentionally a manual re-align, not this trigger. Every failure
-# mode here is non-fatal to the weekly delta that follows.
+# Publish an official monthly for any ClinVar monthly strictly NEWER than the latest already in the line (the
+# bound keeps this cheap and stops it from re-touching history). Normally 0 or 1 per run. The monthly is a
+# server-side copy of its source release's weekly full when that is still in weekly/ (r2-rollover.sh keeps the
+# newest weekly full of the finished month until this happens); otherwise it is re-exported from BigQuery.
+# Bootstrap (empty line) is a manual step (republish-v1.sh). Every failure here is non-fatal to the delta.
 publish_due_monthly_fulls() {
-  local latest_pub month cv_dt src_date
+  local latest_pub month cv_dt src_date src_key
   latest_pub="$(r2_latest_published_month)" || true
   if [[ -z "${latest_pub}" ]]; then
-    echo "    monthly trigger: no monthly full in R2 yet; skipping (bootstrap is a manual re-align)"
+    echo "    monthly trigger: no monthly in ${R2_LINE} yet; skipping (bootstrap is republish-v1.sh)"
     return 0
   fi
   while IFS=$'\t' read -r month cv_dt; do
@@ -219,17 +225,26 @@ publish_due_monthly_fulls() {
       echo "    monthly ${month}: no GKM-built release before ${cv_dt} yet; will retry next run"
       continue
     fi
-    echo ">>> [5/5] ClinVar monthly ${month} (released ${cv_dt}) -> publishing FULL from ${src_date}"
-    local full_args=("${src_date}" "${DATASET_VERSION}" "--month-label=${month}")
-    $DRY_RUN && full_args+=("--dry-run")
-    "${REPO_ROOT}/src/scripts/release-gkm.sh" "${full_args[@]}" \
-      || echo "WARNING: monthly FULL ${month} from ${src_date} failed; continuing to weekly delta" >&2
+    src_key="${R2_LINE}weekly/clinvar-gkm_${src_date:0:4}-${src_date:5:2}${src_date:8:2}.json.gz"
+    local up_args=("${src_date}" "${DATASET_VERSION}" "-" "--month-label=${month}" "--from-weekly")
+    $DRY_RUN && up_args+=("--dry-run")
+    if [[ -n "$(r2_size "${src_key}")" ]]; then
+      echo ">>> [5/5] ClinVar monthly ${month} (released ${cv_dt}) -> copy of the ${src_date} weekly full"
+      "${REPO_ROOT}/src/scripts/upload-gkm-to-r2.sh" "${up_args[@]}" \
+        || echo "WARNING: monthly ${month} copy from ${src_key} failed; continuing" >&2
+    else
+      echo ">>> [5/5] ClinVar monthly ${month} (released ${cv_dt}) -> re-export from ${src_date} (no weekly full)"
+      local full_args=("${src_date}" "${DATASET_VERSION}" "--month-label=${month}")
+      $DRY_RUN && full_args+=("--dry-run")
+      "${REPO_ROOT}/src/scripts/release-gkm.sh" "${full_args[@]}" \
+        || echo "WARNING: monthly ${month} from ${src_date} failed; continuing" >&2
+    fi
   done < <(clinvar_monthlies)
 }
 
-# --- Stage 5: export bundles, upload to R2; rebuild the latest Parquet -------------------
+# --- Stage 5: publish to the version line ------------------------------------------------
 if (( START_STEP <= 5 )); then
-  echo ">>> [5/5] release (bundles to R2, then the latest derived Parquet)"
+  echo ">>> [5/5] release to ${R2_LINE} (rollover, weekly full, monthly, delta, Parquet)"
   # release-gkm.sh needs the dataset version (e.g. v2_5_0); derive it from the dataset name.
   DATE_US="${DATE//-/_}"
   DATASET_ID="$(bq ls --project_id="${PROJECT_ID}" --max_results=10000 \
@@ -241,22 +256,34 @@ if (( START_STEP <= 5 )); then
   DATASET_VERSION="${DATASET_ID#clinvar_"${DATE_US}"_}"
   echo "    dataset=${DATASET_ID} version=${DATASET_VERSION}"
 
-  DELTA_ARGS=("${DATE}" "${DATASET_VERSION}"); $DRY_RUN && DELTA_ARGS+=("--dry-run")
+  REL_ARGS=("${DATE}" "${DATASET_VERSION}"); $DRY_RUN && REL_ARGS+=("--dry-run")
+  ROLL_ARGS=("${DATE}"); $DRY_RUN && ROLL_ARGS+=("--dry-run")
 
-  # Monthly full: publish any ClinVar monthly not yet in R2, BEFORE the weekly delta so the
-  # delta's checkpoint_full resolves to the freshly-published month. Non-fatal to the delta.
+  # Month/year rollover first: posting this release may start a new month (or year).
+  echo ">>> [5/5] rollover for ${DATE}"
+  "${REPO_ROOT}/src/scripts/r2-rollover.sh" "${ROLL_ARGS[@]}"
+
+  # This release's weekly FULL. Non-fatal: the delta is the record; a monthly whose source weekly full is
+  # missing is re-exported instead.
+  echo ">>> [5/5] publishing weekly FULL for ${DATE}"
+  "${REPO_ROOT}/src/scripts/release-gkm.sh" "${REL_ARGS[@]}" --weekly \
+    || echo "WARNING: weekly FULL ${DATE} failed; continuing to the monthly trigger and the delta" >&2
+
+  # Official monthly, BEFORE the delta, so the delta's checkpoint_full can resolve to it.
   publish_due_monthly_fulls
 
-  echo ">>> [5/5] publishing weekly DELTA for ${DATE}"
-  "${REPO_ROOT}/src/scripts/release-gkm-delta.sh" "${DELTA_ARGS[@]}"
+  # Drop the finished month's kept weekly full once the new month's monthly is posted.
+  "${REPO_ROOT}/src/scripts/r2-rollover.sh" "${ROLL_ARGS[@]}"
 
-  # The single latest Parquet set (v1/datasets/parquet/00-latest/) is rebuilt from THIS release's
-  # dataset, the newest JSON state. Non-fatal: the bundles are the record; Parquet is a derived
-  # convenience, and its source.json says which release it was built from.
-  echo ">>> [5/5] rebuilding the latest Parquet from ${DATE}"
-  # --purge clears the CDN copy of 00-latest/ (cached 1 day by the "Latest Parquet" cache rule).
-  "${REPO_ROOT}/src/scripts/release-gkm-parquet.sh" "${DELTA_ARGS[@]}" --purge \
-    || echo "WARNING: latest Parquet rebuild from ${DATE} failed; 00-latest still holds the previous set" >&2
+  echo ">>> [5/5] publishing weekly DELTA for ${DATE}"
+  "${REPO_ROOT}/src/scripts/release-gkm-delta.sh" "${REL_ARGS[@]}"
+
+  # The one Parquet set (parquet/) is rebuilt from THIS release's dataset, the newest JSON state. Non-fatal:
+  # the bundles are the record; parquet/manifest.json says which release the set was built from.
+  echo ">>> [5/5] rebuilding the Parquet set from ${DATE}"
+  # --purge clears the CDN copy of parquet/ (cached 1 day by the Parquet cache rule).
+  "${REPO_ROOT}/src/scripts/release-gkm-parquet.sh" "${REL_ARGS[@]}" --purge \
+    || echo "WARNING: Parquet rebuild from ${DATE} failed; parquet/ still holds the previous set" >&2
 fi
 
 echo "=== run-release ${DATE} complete ==="
