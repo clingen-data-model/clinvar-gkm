@@ -75,11 +75,12 @@ The whole release can be run end-to-end with the `run-release.sh` orchestrator, 
 ```bash
 ./src/scripts/run-release.sh YYYY-MM-DD              # incremental (default)
 ./src/scripts/run-release.sh YYYY-MM-DD --full       # full rebuild / reseed
+./src/scripts/run-release.sh YYYY-MM-DD --full-procs # only the gkm procs full (the weekly mode after 1.1.0)
 ./src/scripts/run-release.sh YYYY-MM-DD --dry-run    # run everything but skip the R2 publish (stage 5)
 ./src/scripts/run-release.sh YYYY-MM-DD --start-step 5   # resume from a stage (1-5)
 ```
 
-`--full` propagates version-invalidation across stages 1–2; use it for the first release or after a `variation_identity` transform change or a vrsify-pin bump. `--dry-run` runs the build stages but has the final release stage only print what it would upload — use it for test runs. The vrsify stage (stage 3) requires local SeqRepo / UTA / gene-normalizer services — see [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/src/vrsify) — so on hosts without them, run the BigQuery-side stages with `--start-step` and run vrsify separately.
+`--full` propagates version-invalidation across stages 1–2; use it for the first release or after a `variation_identity` transform change or a vrsify-pin bump. `--full-procs` builds only the stage-4 gkm procedures full (catvar, SCV, RCV, VCV): variation identity, the export, vrsification and the `gkm_vrs` load stay incremental, so only the changed variations are re-normalized. Weekly runs after 1.1.0 use `--full-procs` until [ADR 0007](../decisions/0007-pipeline-principles-and-simplification.md) workstream 3 decides on the incremental procedures, which were seen to fall back to full builds without saying so. `--full` implies `--full-procs`. `--dry-run` runs the build stages but has the final release stage only print what it would upload — use it for test runs. The vrsify stage (stage 3) requires local SeqRepo / UTA / gene-normalizer services — see [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/src/vrsify) — so on hosts without them, run the BigQuery-side stages with `--start-step` and run vrsify separately.
 
 The individual stages are documented below.
 
