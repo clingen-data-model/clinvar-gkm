@@ -1,64 +1,64 @@
 # Data Access
 
-ClinVar-GKM is distributed as a **monthly full bundle** plus **weekly deltas**, synchronized with ClinVar's XML releases. Each is a gzip-compressed JSON file. Typed Parquet (one file per section) is published for the latest release only: it is derived from the bundle and regenerated each release. The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
+ClinVar-GKM is distributed as **official monthly full bundles**, **weekly full bundles** and **weekly deltas**, synchronized with ClinVar's XML releases and laid out like NCBI's ClinVar XML folder. Each is a gzip-compressed JSON file. One typed Parquet dataset (one file per section) is published for the latest release: it is derived from the bundle and overwritten each release. The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
 
 ---
 
 ## Latest Release
 
-!!! warning "The monthly full is a month-start baseline, not the current week"
-    `clinvar-gkm_00-latest.json.gz` reflects the **last release of the _previous_ month** — e.g. the `2026-10` full is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. It does **not** include the current month's weekly changes. To get the current weekly state, apply the latest delta on top of it — see the [Consumer Replay Model](weekly-deltas.md#consumer-replay-model).
+!!! tip "Monthly full or weekly full?"
+    `clinvar-gkm_00-latest.json.gz` is the newest **official monthly**; it reflects the **last release of the _previous_ month** — e.g. the `2026-10` monthly is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. For the current week, download the newest weekly full, `weekly/clinvar-gkm_00-latest_weekly.json.gz`.
 
-Download the most recent monthly full bundle:
-
-```bash
-curl -O https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz
-```
-
-Download the most recent weekly delta and its manifest:
+Download the newest official monthly and the newest weekly full:
 
 ```bash
-curl -O https://data.clinvar-gkm.org/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
-curl -O https://data.clinvar-gkm.org/v1/deltas/00-latest/manifest.json
+curl -O https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz
+curl -O https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz
 ```
 
-The full bundle is a single JSON object containing all bundle sections — variations, statements, propositions, conditions, and supporting reference data. A delta uses the same section structure but carries only the records added or updated since its baseline release. Typed Parquet files (one per section) are derived from the bundle and published for the latest release only, at `v1/datasets/parquet/00-latest/`, rebuilt every release. See [Output Format](../output-reference/overview.md) for the complete structure, [Weekly Deltas](weekly-deltas.md) for the consumer replay model, and [Parquet Files](parquet.md) for the full Parquet list.
+The full bundle is a single JSON object containing all bundle sections — variations, statements, propositions, conditions, and supporting reference data. A delta uses the same section structure but carries only the records added or updated since its baseline release. The Parquet dataset (one file per section) is derived from the bundle, published at `v1/1.1/parquet/` and overwritten every release. See [Output Format](../output-reference/overview.md) for the complete structure, [Weekly Deltas](weekly-deltas.md) for the replay model, and [Parquet Files](parquet.md) for the full Parquet list.
 
 ---
 
 ## Release Schedule
 
-- **Weekly deltas** are published for every ClinVar release under `deltas/<yyyy-mmdd>/`, mirrored at `deltas/00-latest/`
-- **Monthly full bundles** are published once a month under `datasets/`, aligned to ClinVar's own monthly VCV releases — each `ClinVarVCVRelease_YYYY-MM` triggers our `clinvar-gkm_YYYY-MM` full, built from the most recent weekly release before ClinVar's monthly cut
-- At the start of each year, the previous year's monthly full bundles move to `archives/`
-- The latest Parquet set (`datasets/parquet/00-latest/`) is rebuilt from every release
+- **Weekly releases**: for every ClinVar weekly release, a weekly full bundle in `weekly/` and a delta in `deltas/`. `weekly/` keeps the current month only
+- **Official monthly full bundles** are published once a month at the top of the line folder, aligned to ClinVar's own monthly VCV releases — each `ClinVarVCVRelease_YYYY-MM` triggers our `clinvar-gkm_YYYY-MM` full, built from the most recent weekly release before ClinVar's monthly cut (its `source_release`)
+- **At the start of each month**, the previous month's deltas move to `deltas/YYYY-MM/` and its weekly fulls are deleted
+- **At the start of each year**, the previous year's monthlies and deltas move to `archive/YYYY/`
+- The Parquet dataset (`parquet/`) is rebuilt and overwritten from every release
 
-The stable filenames `clinvar-gkm_00-latest.json.gz` (monthly full) and `clinvar-gkm-delta_00-latest.json.gz` (weekly delta) always point to the most recent full and delta respectively.
+The stable filenames `clinvar-gkm_00-latest.json.gz` (official monthly) and `weekly/clinvar-gkm_00-latest_weekly.json.gz` (weekly full) always point to the newest of each.
 
 ---
 
 ## Directory Structure
 
+All paths are under the current line folder, `v1/1.1/` (see [Downloads](download.md#directory-structure) for the version folders):
+
 ```text
-datasets/
-  clinvar-gkm_00-latest.json.gz              latest monthly full bundle
-  clinvar-gkm_yyyy-mm.json.gz                monthly full bundles (current year)
+clinvar-gkm_00-latest.json.gz                newest official monthly full
+clinvar-gkm_yyyy-mm.json.gz                  official monthly fulls (current year)
 
-datasets/parquet/00-latest/
-  {section}.parquet                          typed Parquet for the latest release only (derived; rebuilt every release)
-  source.json                                the release the Parquet was built from
+weekly/
+  clinvar-gkm_00-latest_weekly.json.gz       newest weekly full
+  clinvar-gkm_yyyy-mmdd.json.gz              weekly fulls (current month only)
 
-deltas/00-latest/
-  clinvar-gkm-delta_00-latest.json.gz        latest weekly delta bundle
-  manifest.json                              latest delta manifest
+deltas/
+  clinvar-gkm-delta_yyyy-mmdd.json.gz        weekly delta bundles (current month; added + updated records)
+  clinvar-gkm-delta_yyyy-mmdd.manifest.json  per-release change manifest
+  yyyy-mm/                                   earlier months of the current year
 
-deltas/yyyy-mmdd/
-  clinvar-gkm-delta_yyyy-mmdd.json.gz        weekly delta bundle (added + updated records)
-  manifest.json                              per-release change manifest
+archive/yyyy/
+  clinvar-gkm_yyyy-mm.json.gz                monthly fulls from prior years
+  deltas/yyyy-mm/                            deltas from prior years
 
-archives/{yyyy}/
-  clinvar-gkm_yyyy-mm.json.gz                monthly full bundles from prior years
+parquet/
+  {section}.parquet                          the one Parquet dataset (derived; overwritten every release)
+  manifest.json                              build date, source release, tool version
 ```
+
+Every bundle has a `<file>.sha256` sidecar.
 
 ---
 
@@ -70,7 +70,7 @@ Pipeline changes that affect the structure or content of the output are document
 
 ## File Format
 
-The primary release format is a **gzip-compressed JSON file** (`.json.gz`). Typed Parquet files (one per bundle section) are derived from the bundle for analytical use; only the latest release's set is published. The decompressed JSON content is a single JSON object with bundle sections at the root level:
+The primary release format is a **gzip-compressed JSON file** (`.json.gz`). Typed Parquet files (one per bundle section) are derived from the bundle for analytical use; only one dataset, for the latest release, is published. The decompressed JSON content is a single JSON object with bundle sections at the root level:
 
 ```json
 {

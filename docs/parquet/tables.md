@@ -125,7 +125,7 @@ Three tables break the pattern:
 
 ## Reading a table remotely
 
-Every table can be queried straight from `https://data.clinvar-gkm.org/v1/datasets/parquet/00-latest/<table>.parquet`, without downloading it. How well that works depends on what you ask:
+Every table can be queried straight from `https://data.clinvar-gkm.org/v1/1.1/parquet/<table>.parquet`, without downloading it. How well that works depends on what you ask:
 
 - **Cheap on any table:** `DESCRIBE`, `count(*)`, and `LIMIT` reads. These touch only the file's footer or its first chunk, so they return in under a second even on the 3 GB `scv.parquet`.
 - **Fine on small tables:** full scans of anything up to tens of megabytes (`condition`, `gene`, `submitter`, `therapy`, the somatic propositions).

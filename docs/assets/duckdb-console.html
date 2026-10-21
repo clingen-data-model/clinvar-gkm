@@ -105,8 +105,8 @@
   <div class="bar">
     <label>Release
       <select id="release">
-        <!-- One set: Parquet is derived and only the latest is published. The label is filled in from index.json. -->
-        <option value="00-latest" selected>latest</option>
+        <!-- One dataset: Parquet is derived, and one dataset is published and overwritten every release. The label is filled in from index.json. -->
+        <option value="latest" selected>latest</option>
       </select>
     </label>
     <label>Example
@@ -138,8 +138,8 @@
     is cached by your browser afterwards. It reads Parquet with HTTP range requests, so <code>count(*)</code> and
     <code>DESCRIBE</code> fetch only the file footer.
     <code>{BASE}</code> in a query is replaced with the Parquet path. Parquet is derived from the JSON bundle and
-    regenerated every release, so there is one set, the latest; the <b>Release</b> label shows the release it was
-    built from, read from the live <a href="https://data.clinvar-gkm.org/v1/index.json" target="_blank" rel="noopener">index.json</a>.
+    overwritten every release, so there is one dataset, the latest; the <b>Release</b> label shows the release it was
+    built from, read from the live <a href="https://data.clinvar-gkm.org/v1/1.1/index.json" target="_blank" rel="noopener">index.json</a>.
     The connection runs with <code>SET threads=1</code> to stay gentle on the CDN; a parallel full scan of a big
     table can trip rate limiting (<code>HTTP 429</code>); joins across the big tables belong on your machine, <a href="../parquet/performance/#materialize-join-tables" target="_top">materialized once</a>. To keep load on the shared service light, the console
     runs <b>at most one query every 10&nbsp;seconds</b> &mdash; the Run button greys out and a countdown beside it
@@ -151,7 +151,10 @@
 <script type="module">
   import * as duckdb from './vendor/duckdb/duckdb-browser.bundled.js';
 
-  const ROOT = 'https://data.clinvar-gkm.org/v1/datasets/parquet';
+  // The one Parquet dataset, overwritten every release. loadReleases() replaces it with the path the live
+  // index gives, so a new version line (e.g. v1/1.2/) needs no edit here.
+  const HOST = 'https://data.clinvar-gkm.org';
+  let parquetBase = `${HOST}/v1/1.1/parquet`;
   const relSel = document.getElementById('release');
   const exSel  = document.getElementById('examples');
   const baseEl = document.getElementById('base');
@@ -160,7 +163,7 @@
   const statusEl = document.getElementById('status');
   const outEl  = document.getElementById('out');
 
-  const base = () => `${ROOT}/${relSel.value}`;
+  const base = () => parquetBase;
   const EXAMPLES = {
     count:    `SELECT count(*) AS n_conditions FROM '{BASE}/condition.parquet';`,
     marfan:   `SELECT id, name\nFROM '{BASE}/condition.parquet'\nWHERE name ILIKE '%marfan%';`,
@@ -177,19 +180,34 @@
   exSel.addEventListener('change', loadExample);
   syncBase(); loadExample();
 
-  // Label the one (latest) Parquet set with the release it was built from, from index.json. Runs in the
-  // background so a slow or failed fetch never blocks the console; on any failure the plain label stays.
-  const INDEX_URL = 'https://data.clinvar-gkm.org/v1/index.json';
+  // Find the Parquet dataset and the release it was built from: the root manifest (/index.json) names the
+  // current line's index, whose Parquet entry gives its path and source_release. Runs in the background so
+  // a slow or failed fetch never blocks the console; on any failure the default path and plain label stay.
+  const ROOT_INDEX_URL = `${HOST}/index.json`;
+  async function fetchJSON(url, signal) {
+    const res = await fetch(url, { signal, cache: 'no-cache' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
   async function loadReleases() {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 8000);
     try {
-      const res = await fetch(INDEX_URL, { signal: ctrl.signal, cache: 'no-cache' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const entries = (await res.json())?.datasets?.parquet;
-      if (!Array.isArray(entries)) throw new Error('no datasets.parquet in index.json');
-      const latest = entries.find(e => e?.latest) || entries[0];
-      if (latest?.source_release) relSel.options[0].text = `latest (built from ${latest.source_release})`;
+      const root = await fetchJSON(ROOT_INDEX_URL, ctrl.signal);
+      const lines = Object.values(root?.versions || {});
+      const line = lines.find(v => v?.status === 'current') || lines[lines.length - 1];
+      if (!line?.index) throw new Error('no current line in the root manifest');
+      const index = await fetchJSON(`${HOST}/${line.index.replace(/^\//, '')}`, ctrl.signal);
+      const p = index?.datasets?.parquet ?? index?.parquet;
+      const entry = Array.isArray(p) ? (p.find(e => e?.latest) || p[0]) : p;
+      if (!entry) throw new Error('no Parquet entry in the line index');
+      if (entry.path) {
+        const generated = sqlEl.value === EXAMPLES[exSel.value].replaceAll('{BASE}', base());
+        parquetBase = `${HOST}/${entry.path.replace(/^\//, '').replace(/\/$/, '')}`;
+        syncBase();
+        if (generated) loadExample();    // refresh the example only if the user hasn't edited it
+      }
+      if (entry.source_release) relSel.options[0].text = `latest (built from ${entry.source_release})`;
     } catch (e) {
       console.warn('Release label: using the plain label (' + (e && e.message || e) + ')');
     } finally {

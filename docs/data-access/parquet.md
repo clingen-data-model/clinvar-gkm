@@ -1,14 +1,22 @@
 # Parquet Files
 
-Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Deltas](weekly-deltas.md) · [How Releases Work](release-model.md)
+Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-full.md) · [Weekly Deltas](weekly-deltas.md) · [How Releases Work](release-model.md)
 
 !!! tip "Want to query the files, not just download them?"
     This page covers where the Parquet files live and how to keep a set current. [**Query the Data**](../parquet/index.md) teaches querying them: a live in-browser console, every table's columns, how the tables join, and runnable recipes.
 
-!!! info "Parquet is derived from the bundle and regenerated each release"
-    The JSON bundles are the release record. Parquet is a convenience: every value in it can be recomputed from the bundle, and only the **latest** state is published, rebuilt every release (weekly) from the newest release's data. There are no dated or per-delta Parquet sets. Since 1.1.0 the latest set is built from the newest weekly release, not from the monthly full; its `source.json` (and the index's `source_release`) names the release.
+!!! info "Parquet is derived from the bundle and overwritten every release"
+    The JSON bundles are the release record. Parquet is a convenience: every value in it can be recomputed from the bundle. **One** Parquet dataset is published, rebuilt every release (weekly) from the newest weekly release and overwritten in place. There are no dated, per-delta or archived Parquet sets.
 
-The latest set lives at one stable path, `datasets/parquet/00-latest/`, one file per section. For an earlier state, use the JSON bundles; see [Earlier releases](#earlier-releases).
+The dataset lives at one stable path, `v1/1.1/parquet/`, one file per section, with a `manifest.json` beside it:
+
+```text
+v1/1.1/parquet/
+  {section}.parquet      22 files, one per bundle section
+  manifest.json          when the dataset was built, from which release, by which tool version
+```
+
+The manifest names the release the dataset was built from, so check it before comparing results with a bundle (the index's Parquet entry carries the same `source_release`). For an earlier state, see [Earlier releases](#earlier-releases).
 
 ## The latest set
 
@@ -58,9 +66,10 @@ Download individual sections or all files at once:
 
 ??? example "Download sections with curl"
     ```bash
-    # The one published Parquet set: the latest, rebuilt every release (source.json names the release).
-    BASE="https://data.clinvar-gkm.org/v1/datasets/parquet/00-latest"
+    # The one published Parquet dataset, overwritten every release; manifest.json names its release.
+    BASE="https://data.clinvar-gkm.org/v1/1.1/parquet"
     mkdir -p clinvar-gkm-parquet && cd clinvar-gkm-parquet
+    curl -O "${BASE}/manifest.json"
 
     # Download specific sections
     curl -O "${BASE}/scv.parquet"
@@ -286,9 +295,10 @@ When to use each access path:
 
 ## Earlier releases { #earlier-releases }
 
-Parquet is published only for the latest state; it is not kept per release, and weekly deltas carry no Parquet. To work with an earlier state:
+Only the current Parquet dataset is published; it is overwritten every release, and weekly deltas, archives and frozen lines carry no Parquet. To work with an earlier state:
 
-- **Use the JSON bundles.** Every monthly full and weekly delta stays published as a bundle, with a `.sha256` sidecar. Rebuild the state you need with the [JSON replay](weekly-deltas.md#consumer-replay-model), then read the sections you need. A tool that converts a bundle to this Parquet layout is planned.
-- **Archived generations.** When a release rewrites the published files in place, the previous generation is kept under `archive/<version>/` with a `MANIFEST.json` (sha256 per file): every bundle and delta manifest, plus the one Parquet set built from that generation's latest bundle. The 1.0.1 generation is at `archive/1.0.1/`.
+- **Rebuild it from the bundles.** Every official monthly stays published (in `archive/YYYY/` after its year ends) with a `.sha256` sidecar, and so does every delta. Rebuild the bundle for the week you need with the [replay recipe](weekly-deltas.md#rebuild-a-past-week), then read the sections you need.
+- **Convert a bundle to Parquet with `clinvar-gkm-parquet` (planned).** [`clinvar-gkm-parquet`](https://github.com/clingen-data-model/clinvar-gkm-parquet) is a separate, versioned tool that builds this Parquet layout from a published bundle and writes the same `manifest.json`. It is in design and not yet released; until it is, earlier Parquet can't be downloaded or rebuilt in this layout.
+- **The 1.0.1 generation** is the frozen line `v1/1.0/`: its bundles and delta manifests, with no Parquet.
 
 Parquet downloaded from an earlier release keeps its old tables and columns; see the [changelog](../reference/changelog.md) for what changed.

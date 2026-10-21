@@ -57,8 +57,8 @@ New releases are produced within a day or two after ClinVar's XML releases and a
 The latest ClinVar-GKM release is available as a single compressed JSON file:
 
 ```bash
-# Download the latest monthly release
-curl -O https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz
+# Download the newest official monthly release
+curl -O https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz
 
 # Decompress
 gunzip clinvar-gkm_00-latest.json.gz
@@ -134,50 +134,47 @@ The SCV statements for this variant reference it via `#/variation/clinvar:10` in
 
 ## Data Access
 
-ClinVar-GKM is distributed as a **monthly full bundle** plus **weekly deltas**. Each is a gzip-compressed JSON file with typed Parquet (one file per section). The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
+ClinVar-GKM is distributed as **official monthly full bundles**, **weekly full bundles** and **weekly deltas**, laid out like NCBI's ClinVar XML folder, plus one typed Parquet dataset (one file per section) for the latest release. Each bundle is a gzip-compressed JSON file. The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
 
 ### Release Schedule
 
-- **Weekly deltas** are published for every ClinVar release under `deltas/<yyyy-mmdd>/` — each carries only the records added or updated since the prior release, plus a `manifest.json` listing per-section adds, updates, and deletes
-- **Monthly full bundles** are published once a month under `datasets/`, aligned to ClinVar's own monthly VCV releases — each `ClinVarVCVRelease_YYYY-MM` triggers our `clinvar-gkm_YYYY-MM` full, built from the most recent weekly release before ClinVar's monthly cut
-- At the start of each year, the previous year's monthly full bundles move to `archives/`
+- **Weekly releases**: for every ClinVar weekly release, a weekly full bundle in `weekly/` and a delta in `deltas/` (the records added or updated since the prior release, plus a manifest listing per-section adds, updates, and deletes). `weekly/` keeps the current month only
+- **Official monthly full bundles** are published once a month, aligned to ClinVar's own monthly VCV releases — each `ClinVarVCVRelease_YYYY-MM` triggers our `clinvar-gkm_YYYY-MM` full, built from the most recent weekly release before ClinVar's monthly cut
+- At the start of each month, the previous month's deltas move to `deltas/YYYY-MM/` and its weekly fulls are deleted; at the start of each year, the previous year's monthlies and deltas move to `archive/YYYY/`
 
-The stable filenames `clinvar-gkm_00-latest.json.gz` (monthly full) and `clinvar-gkm-delta_00-latest.json.gz` (weekly delta) always point to the most recent full and delta respectively. To reconstruct the current state, take the latest monthly full and replay the weekly deltas published since it.
+The stable filenames `clinvar-gkm_00-latest.json.gz` (official monthly) and `weekly/clinvar-gkm_00-latest_weekly.json.gz` (weekly full) always point to the newest of each. Any past week can be rebuilt from a monthly plus the deltas after it.
 
 ### Downloads
 
-Download the most recent monthly full bundle:
+Download the newest official monthly and the newest weekly full:
 
 ```bash
-curl -O https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz
+curl -O https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz
+curl -O https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz
 ```
 
-Download the most recent weekly delta and its manifest:
-
-```bash
-curl -O https://data.clinvar-gkm.org/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
-curl -O https://data.clinvar-gkm.org/v1/deltas/00-latest/manifest.json
-```
-
-See [How Releases Work](data-access/release-model.md) for the release model and manifest, and [Weekly Deltas](data-access/weekly-deltas.md) for the consumer replay model.
+See [How Releases Work](data-access/release-model.md) for the release model, and [Weekly Deltas](data-access/weekly-deltas.md) for the deltas and the replay recipe.
 
 ### Directory Structure
 
+All paths are under the current line folder, `v1/1.1/`:
+
 ```text
-datasets/
-  clinvar-gkm_00-latest.json.gz              latest monthly full bundle
-  clinvar-gkm_yyyy-mm.json.gz                monthly full bundles (current year)
+clinvar-gkm_00-latest.json.gz                newest official monthly full
+clinvar-gkm_yyyy-mm.json.gz                  official monthly fulls (current year)
 
-deltas/00-latest/
-  clinvar-gkm-delta_00-latest.json.gz        latest weekly delta bundle
-  manifest.json                              latest delta manifest
+weekly/
+  clinvar-gkm_00-latest_weekly.json.gz       newest weekly full
+  clinvar-gkm_yyyy-mmdd.json.gz              weekly fulls (current month only)
 
-deltas/yyyy-mmdd/
-  clinvar-gkm-delta_yyyy-mmdd.json.gz        weekly delta bundle (added + updated records)
-  manifest.json                              per-release change manifest
+deltas/
+  clinvar-gkm-delta_yyyy-mmdd.json.gz        weekly deltas (current month)
+  clinvar-gkm-delta_yyyy-mmdd.manifest.json  per-release change manifest
+  yyyy-mm/                                   earlier months of the current year
 
-archives/{yyyy}/
-  clinvar-gkm_yyyy-mm.json.gz                monthly full bundles from prior years
+archive/yyyy/                                prior years: monthlies and deltas/yyyy-mm/
+
+parquet/                                     one Parquet dataset, overwritten every release
 ```
 
 ### Release Notes

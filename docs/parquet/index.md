@@ -1,13 +1,13 @@
 # Start Here
 
 !!! info "Release"
-    Counts on this page are from the **2026-10 monthly release** (published 14 Oct 2026). Parquet is derived from the bundle and regenerated each release, and only the latest set is published, so the console's numbers are today's and may be higher than this page's.
+    Counts on this page are from the **2026-10 monthly release** (published 14 Oct 2026). Parquet is derived from the bundle and regenerated each release, and one dataset is published, overwritten every release, so the console's numbers are today's and may be higher than this page's.
 
 ClinVar-GKM publishes all of ClinVar as **Parquet** — 22 typed tables you query with SQL, with no database server and no data-loading step. This page gets a real answer from real ClinVar data in about five minutes: no joins, no genomics background, and — to begin — nothing to install.
 
 ## Run a query now
 
-The console below runs SQL **in your browser**, directly against the published data at `data.clinvar-gkm.org`. It reads the one published Parquet set, the latest, rebuilt every release; the **Release** label shows the release it was built from. Pick an example from the dropdown and press **Run**. The first query loads the engine (a few seconds, once); everything after is immediate.
+The console below runs SQL **in your browser**, directly against the published data at `data.clinvar-gkm.org`. It reads the one published Parquet dataset, `v1/1.1/parquet/`, overwritten every release; the **Release** label shows the release it was built from. Pick an example from the dropdown and press **Run**. The first query loads the engine (a few seconds, once); everything after is immediate.
 
 <iframe src="../assets/duckdb-console.html" style="width:100%; height:640px; border:1px solid rgba(128,128,128,.25); border-radius:8px;" title="ClinVar-GKM live query console" loading="lazy"></iframe>
 
@@ -41,7 +41,7 @@ These queries name the file as `'condition.parquet'` — how you run them once t
 To go past the browser console — larger queries, your own scripts, repeated work — download the file and query it with [DuckDB](https://duckdb.org/docs/installation/), a single self-contained binary.
 
 ```bash
-BASE="https://data.clinvar-gkm.org/v1/datasets/parquet/00-latest"
+BASE="https://data.clinvar-gkm.org/v1/1.1/parquet"
 curl -O "${BASE}/condition.parquet"
 
 duckdb -c "SELECT id, name FROM 'condition.parquet' WHERE name ILIKE '%marfan%'"

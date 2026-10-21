@@ -26,20 +26,23 @@ Distribution follows a **full + delta** model:
 
 | Product | Cadence | Contents |
 | --- | --- | --- |
-| **Monthly full** | Monthly | Every record for the release — JSON bundle + typed Parquet |
-| **Weekly delta** | Every ClinVar release | Only records added or updated since the prior release, plus a `manifest.json` of per-section adds, updates, and deletes |
+| **Official monthly full** | Monthly, lined up with ClinVar's monthly release | Every record for the release (JSON bundle) |
+| **Weekly full** | Every ClinVar release; kept for the current month only | Every record for that week's release (JSON bundle) |
+| **Weekly delta** | Every ClinVar release | Only records added or updated since the prior release, plus a manifest of per-section adds, updates, and deletes |
+| **Parquet** | Overwritten every release | One typed Parquet dataset of the newest release, derived from the bundle |
 
-A consumer reconstructs current state by taking the latest monthly full and replaying the weekly deltas published since.
+The R2 layout mirrors NCBI's ClinVar FTP site: official monthlies at the top, `weekly/` for the current month's weekly fulls, `archive/YYYY/` for prior years, plus `deltas/` and `parquet/`. Monthlies and deltas are the durable record; any past week is rebuilt by replaying the deltas onto the monthly before it.
 
 ## Data Access
 
 Releases are hosted on **Cloudflare R2** — free, no authentication, no egress fees. The stable "latest" URLs always point at the newest release:
 
-- **Latest monthly full (JSON):** <https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz>
-- **Latest weekly delta (JSON):** <https://data.clinvar-gkm.org/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz>
-- **Release index:** <https://data.clinvar-gkm.org/index.json>
+- **Latest official monthly (JSON):** <https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz>
+- **Latest weekly full (JSON):** <https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz>
+- **Parquet:** <https://data.clinvar-gkm.org/v1/1.1/parquet/> (one file per table, plus `manifest.json`)
+- **Release index:** <https://data.clinvar-gkm.org/index.json> (lists each version line and its `index.json`, which lists every file, including the weekly deltas)
 
-See the [Downloads guide](https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/download/) for Parquet, dated releases, the delta replay model, and curl / Python / DuckDB examples. Sample records for each section are in the [`examples/`](examples/) directory.
+See the [Downloads guide](https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/download/) for the directory layout, dated releases, the delta replay model, and curl / Python / DuckDB examples. Sample records for each section are in the [`examples/`](examples/) directory.
 
 > **Operators:** the distribution domain (`data.clinvar-gkm.org`), CDN cache rules, rate-limiting, cost controls, and the cache-purge workflow are documented in [ADR 0005](docs/decisions/0005-r2-custom-domain-and-cdn.md).
 

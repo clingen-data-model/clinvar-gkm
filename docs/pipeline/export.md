@@ -88,9 +88,10 @@ pip install orjson
 
 ### Step 3: Rebuild the Latest Parquet
 
-Parquet is derived from the bundle and regenerated each release; only the latest set is published, at
-`datasets/parquet/00-latest/`. `release-gkm-parquet.sh` builds it from a dataset (`run-release.sh` runs it on
-every release, after the weekly delta):
+Parquet is derived from the bundle and regenerated each release; one dataset is published, at
+`v1/1.1/parquet/`, and overwritten every release (ADR 0009).
+`release-gkm-parquet.sh` builds it from a dataset (`run-release.sh` runs it on every release, after the weekly
+delta):
 
 ```bash
 ./src/scripts/release-gkm-parquet.sh <export_date> <dataset_version> [--start-step=N] [--dry-run] [--no-upload] [--purge]
@@ -98,9 +99,9 @@ every release, after the weekly delta):
 
 1. `export-gkm-dicts.sh --parquet-only` exports the full dict tables as typed Parquet to GCS.
 2. The shards are downloaded and merged into one file per section with DuckDB.
-3. `upload-gkm-parquet-to-r2.sh` overwrites each section in `00-latest/`, writes `source.json` (the release,
-   dataset and schema version it was built from), deletes any section file that is no longer produced, and
-   regenerates `index.json`.
+3. `upload-gkm-parquet-to-r2.sh` overwrites each section in `parquet/`, writes `manifest.json` (the build
+   date, the release it was built from and the tool version), deletes any section file that is no longer
+   produced, purges the folder from the CDN, and regenerates `index.json`.
 
 The 22 tables and their columns are in [The 22 Tables](../parquet/tables.md); see
 [Parquet Files](../data-access/parquet.md) for the download URL.
@@ -121,16 +122,17 @@ The 22 tables and their columns are in [The 22 Tables](../parquet/tables.md); se
 ./src/scripts/upload-gkm-to-r2.sh 2026-06-14 v2_5_0 /tmp/clinvar-gkm-2026-06-14.json.gz --dry-run
 ```
 
-The script manages the monthly full slots:
+The R2 layout mirrors NCBI's ClinVar XML folder (ADR 0009). Under the line folder `v1/1.1/`:
 
-- **`datasets/`** — monthly full bundles for the current year (`clinvar-gkm_yyyy-mm.json.gz`) plus a stable `clinvar-gkm_00-latest.json.gz`
-- **`archives/{yyyy}/`** — monthly full bundles from prior years
+- **top level** — official monthly fulls for the current year (`clinvar-gkm_yyyy-mm.json.gz`) plus a stable `clinvar-gkm_00-latest.json.gz`, each with a `.sha256` sidecar
+- **`weekly/`** — a weekly full bundle for every release of the current month (`clinvar-gkm_yyyy-mmdd.json.gz`) plus a stable `clinvar-gkm_00-latest_weekly.json.gz`
+- **`archive/{yyyy}/`** — monthly fulls from prior years, and their deltas under `archive/{yyyy}/deltas/{yyyy-mm}/`
 
-There is **no weekly full bundle** — weekly changes are published as deltas (see [Step 5](#step-5-publish-the-weekly-delta)). The monthly upload is unconditional; boundary detection now governs only year rollover — when a new year begins, the prior year's monthly full bundles are moved to `archives/{yyyy}/`. After upload, `generate-r2-index.sh` regenerates `index.json`, which lists the monthly `datasets` (bundles with their sha256, and the one latest Parquet entry with the release it was built from), the `archives`, and the `deltas`.
+Rollovers run with the first release of a new period. **New month:** the finished month's deltas move into `deltas/{yyyy-mm}/` and its weekly fulls are deleted. **New year:** the finished year's monthlies and delta folders move into `archive/{yyyy}/`. Each move or delete is followed by a CDN purge of the old paths. After upload, `generate-r2-index.sh` regenerates the line's `index.json`, which lists the monthlies (with their sha256 and `source_release`, the release each was built from), the weekly fulls, the deltas wherever they now sit, the `archive` years and the Parquet dataset.
 
 ### Step 5: Publish the Weekly Delta
 
-`release-gkm-delta.sh` publishes the per-release delta for every ClinVar release. It exports the `delta_<dict>` change tables produced by step 8 of the pipeline, assembles a delta bundle (added + updated records, same section structure as the full), builds `manifest.json`, and uploads the delta tree to R2. Deltas carry no Parquet.
+`release-gkm-delta.sh` publishes the per-release delta for every ClinVar release. It exports the `delta_<dict>` change tables produced by step 8 of the pipeline, assembles a delta bundle (added + updated records, same section structure as the full), builds the delta manifest, and uploads them to R2. Deltas carry no Parquet.
 
 ```bash
 ./src/scripts/release-gkm-delta.sh <export_date> <dataset_version> [--start-step=N] [--dry-run]
@@ -143,16 +145,15 @@ There is **no weekly full bundle** — weekly changes are published as deltas (s
 
 The three internal steps are: export delta tables to GCS, assemble the delta bundle, then build the manifest (`build-delta-manifest.py`) and upload (`upload-gkm-delta-to-r2.sh`). The uploader writes:
 
-- **`deltas/<yyyy-mmdd>/`** — the delta bundle (`clinvar-gkm-delta_<yyyy-mmdd>.json.gz`), its `.sha256` sidecar, and `manifest.json`
-- **`deltas/00-latest/`** — a server-side mirror of the most recent delta under stable filenames
+- **`deltas/`** — the delta bundle (`clinvar-gkm-delta_<yyyy-mmdd>.json.gz`), its `.sha256` sidecar, and its manifest (`clinvar-gkm-delta_<yyyy-mmdd>.manifest.json`); the current month's deltas sit here, earlier months in `deltas/<yyyy-mm>/`
 
-`build-delta-manifest.py` derives each section's `added` / `updated` counts and `deleted` primary-key list from the dataset's `gkm_change_log`, and records `baseline_release`, `compare_release`, `pipeline_version`, and `counts`. The uploader then resolves `checkpoint_full` — the newest monthly full currently in `datasets/` — so a consumer knows which full bundle the delta chain replays onto. See [Weekly Deltas](../data-access/weekly-deltas.md) for the manifest shape and the consumer replay model.
+`build-delta-manifest.py` derives each section's `added` / `updated` counts and `deleted` primary-key list from the dataset's `gkm_change_log`, and records `baseline_release`, `compare_release`, `pipeline_version`, and `counts`. The uploader then resolves `checkpoint_full` — the official monthly that precedes the delta, the newest one whose `source_release` is earlier than the delta's release — so a consumer knows which monthly the delta chain replays onto. See [Weekly Deltas](../data-access/weekly-deltas.md) for the manifest shape and the consumer replay model.
 
 ---
 
 ## R2 bucket CORS policy
 
-The release browsers on the Downloads pages — the [Monthly Full Bundles](../data-access/monthly-full.md), [Weekly Deltas](../data-access/weekly-deltas.md), and [Parquet Files](../data-access/parquet.md) child pages, plus the Downloads hub's Latest Release view — each do a cross-origin `fetch()` of `index.json` from the docs site. That only works if the public R2 bucket serves a CORS policy allowing `GET` from other origins — otherwise the browsers block the read and can't populate (they then show a network/CORS message with a `curl` fallback).
+The release browsers on the Downloads pages — the [Monthly Full Bundles](../data-access/monthly-full.md), [Weekly Full Bundles](../data-access/weekly-full.md), [Weekly Deltas](../data-access/weekly-deltas.md), and [Parquet Files](../data-access/parquet.md) child pages, plus the Downloads hub's Latest Release view — each do a cross-origin `fetch()` of `index.json` from the docs site. That only works if the public R2 bucket serves a CORS policy allowing `GET` from other origins — otherwise the browsers block the read and can't populate (they then show a network/CORS message with a `curl` fallback).
 
 The policy is checked in at [`src/scripts/r2-cors.json`](https://github.com/clingen-data-model/clinvar-gkm/blob/main/src/scripts/r2-cors.json) (`GET`/`HEAD` from `*` — appropriate for public, read-only data). It is **not** applied by the release scripts, because their object-scoped `r2` upload token cannot read or write bucket configuration (`PutBucketCors` → `AccessDenied`). Apply it once with an **Admin Read & Write** R2 token:
 

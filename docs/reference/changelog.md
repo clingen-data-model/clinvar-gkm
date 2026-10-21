@@ -9,10 +9,11 @@ tagged source of each.
 
 <!-- set the release date when 1.1.0 is tagged -->
 
-A **breaking** release, shipped in place under `/v1/` during the
-[initial-stabilization period](versioning.md); see
+A **breaking** release during the [initial-stabilization period](versioning.md); see
 [ADR 0006](../decisions/0006-ship-1.1.0-in-place-under-v1.md). It reorganizes the proposition sections and
-carries a set of corrections, all delivered through one full rebuild that rewrites every published file.
+carries a set of corrections, all delivered through one full rebuild that rewrites every published file. It is
+published under a new line folder, **`v1/1.1/`**, in a new R2 layout that mirrors NCBI's ClinVar FTP site (ADR
+0009; see [New R2 layout](#new-r2-layout-110) below). Every download URL changes.
 
 - **Breaking: propositions are grouped by meaning.** The four proposition sections and Parquet tables, which
   were grouped by the shape of their object (`varcond-proposition`, `varcustom-proposition`,
@@ -212,22 +213,52 @@ References inside the JSON bundle and the `data` columns still use `#/<section>/
 
 **Republish**: 1.1.0 is not a patch. All 16 BigQuery datasets behind the published releases were rebuilt in
 full. Then the 4 monthly full bundles (2026-07 … 2026-10, and `00-latest`) and the 15 weekly deltas
-(2026-07-06 … 2026-10-11) were re-assembled in place under `/v1/`. Every published bundle therefore carries
-every change above, including the new proposition sections. File contents and checksums change, so
+(2026-07-06 … 2026-10-11) were re-assembled and published under `v1/1.1/`. Every published bundle therefore
+carries every change above, including the new proposition sections. File contents and checksums change, so
 re-download anything fetched before 1.1.0. Copies downloaded earlier keep the old forms; the
 [Query the Data](../parquet/index.md) pages note where they differ.
 
-**Parquet becomes latest-only.** Parquet is derived from the bundle and regenerated each release, so it is no
-longer kept per release: the dated monthly sets (`v1/datasets/parquet/<YYYY-MM>/`) and every per-delta set
-(`v1/deltas/<YYYY-MMDD>/parquet/`) are deleted, and one set is published at `v1/datasets/parquet/00-latest/`,
-built from the newest release (2026-10-11 for 1.1.0, not the 2026-10 monthly) and rebuilt every release. Its
-`source.json`, and the index's single `datasets.parquet` entry (`derived: true`, `source_release`), name the
-release it was built from. The index's delta entries lose their `parquet` list.
+### New R2 layout { #new-r2-layout-110 }
 
-**Checksums and archive.** Every bundle now has a `<file>.sha256` sidecar, and the index lists each bundle's
-`sha256`; the root manifest's `schema` reads `1.1.0` (it said `1.0.0`). The 1.0.1 generation is kept under
-`archive/1.0.1/`: every 1.0.1 bundle, delta manifest, index and feed, and the Parquet set built from its latest
-bundle, with a `MANIFEST.json` (sha256 per file) and a `README.txt`.
+The published files move to a layout modelled on NCBI's ClinVar XML folder (`xml/`, `xml/weekly_release/`,
+`xml/archive/YYYY/`); see [How the layout mirrors NCBI](../data-access/download.md#how-the-layout-mirrors-ncbi).
+The old `v1/datasets/`, `v1/deltas/` and `archive/1.0.1/` paths are removed, so update any script or bookmark:
+
+| Before 1.1.0 | From 1.1.0 |
+| --- | --- |
+| `v1/index.json` | `v1/1.1/index.json` (the root `index.json` lists each line) |
+| `v1/datasets/clinvar-gkm_YYYY-MM.json.gz`, `…_00-latest.json.gz` | `v1/1.1/clinvar-gkm_YYYY-MM.json.gz`, `v1/1.1/clinvar-gkm_00-latest.json.gz` |
+| — (no weekly full) | `v1/1.1/weekly/clinvar-gkm_YYYY-MMDD.json.gz` and `weekly/clinvar-gkm_00-latest_weekly.json.gz`, current month only |
+| `v1/deltas/YYYY-MMDD/clinvar-gkm-delta_YYYY-MMDD.json.gz` | `v1/1.1/deltas/clinvar-gkm-delta_YYYY-MMDD.json.gz` (current month); `deltas/YYYY-MM/…` (earlier months) |
+| `v1/deltas/YYYY-MMDD/manifest.json` | `…/clinvar-gkm-delta_YYYY-MMDD.manifest.json`, beside its bundle |
+| `v1/deltas/00-latest/` | removed; the newest delta is listed in `index.json`, and the newest weekly full is `weekly/clinvar-gkm_00-latest_weekly.json.gz` |
+| `v1/archives/YYYY/` | `v1/1.1/archive/YYYY/` (monthlies, plus `deltas/YYYY-MM/`) |
+| `v1/datasets/parquet/…` | `v1/1.1/parquet/` (one dataset) |
+| `archive/1.0.1/` | `v1/1.0/` (the frozen 1.0.1 line) |
+
+- **Weekly full bundles are new.** A full bundle is published for every weekly release and kept for the
+  current month. When a new month's first release is published, the previous month's weekly fulls are deleted
+  and its deltas move to `deltas/YYYY-MM/`; at a new year, the year's monthlies and deltas move to
+  `archive/YYYY/`. Any past week can be rebuilt from a monthly plus deltas; see
+  [Rebuild a past week](../data-access/weekly-deltas.md#rebuild-a-past-week).
+- **Replay fixes.** Each delta manifest's `checkpoint_full` now names the official monthly that precedes the
+  delta; before, every manifest named the newest monthly (`2026-10`). Each monthly's `source_release`, the
+  release it was built from, is published in `index.json`. The documented replay recipe compared months and
+  skipped deltas from the monthly's own month; it now selects deltas by release date.
+- **Checksums.** Every bundle has a `<file>.sha256` sidecar (`sha256sum -c` format), and the index lists each
+  bundle's `sha256`. The root manifest's `schema` reads `1.1.0` (it said `1.0.0`).
+
+**One Parquet dataset.** Parquet is derived from the bundle, so it is no longer kept per release: the dated
+monthly sets (`v1/datasets/parquet/<YYYY-MM>/`) and every per-delta set (`v1/deltas/<YYYY-MMDD>/parquet/`) are
+deleted. One dataset is published at `v1/1.1/parquet/`, built from the newest release (2026-10-11 for 1.1.0,
+not the 2026-10 monthly) and overwritten every release. Its `manifest.json` gives the build date, the release it
+was built from and the tool version, and the index's Parquet entry (`derived: true`, `source_release`) names the
+release too. No Parquet is kept in `archive/` or in frozen lines; past Parquet is rebuilt from the monthly
+bundles with [`clinvar-gkm-parquet`](https://github.com/clingen-data-model/clinvar-gkm-parquet), which is
+planned and not yet released. The index's delta entries lose their `parquet` list.
+
+**The 1.0.1 generation.** Every 1.0.1 bundle, delta manifest, index and feed is kept, unchanged, in the frozen
+line `v1/1.0/`, with a `MANIFEST.json` (sha256 per file) and a `README.txt`. It has no Parquet.
 
 ## 1.0.1 — 2026-10-13
 

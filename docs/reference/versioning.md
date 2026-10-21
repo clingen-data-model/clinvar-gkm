@@ -47,15 +47,19 @@ This gives you six months of fresh data on the old shape while you migrate.
 
 ## Finding and pinning a version
 
-Each major line lives under its own path (`/v2/…`) with its own `index.json`. A small **root manifest** at the
-bucket root tells you what's current, what's deprecated, and when each line ends:
+Each version line lives in its own folder, `v{major}/{major}.{minor}/` (`v1/1.1/`, later `v2/2.0/`), with its
+own `index.json`. PATCH releases add to their line's folder; a new MINOR or MAJOR starts a new folder, and the
+line it replaces is frozen, its files kept unchanged (the 1.0.1 generation is the frozen line `v1/1.0/`). Inside
+a line the layout mirrors NCBI's ClinVar FTP site; see [Downloads](../data-access/download.md#directory-structure).
+A small **root manifest** at the bucket root tells you what's current, what's deprecated, and when each line
+ends. An illustration of its shape:
 
 ```json
 {
   "active": ["1", "2"],
   "versions": {
-    "1": {"schema": "1.4.2", "status": "deprecated", "eol": "2027-04-01", "index": "/v1/index.json"},
-    "2": {"schema": "2.0.0", "status": "current",    "eol": null,          "index": "/v2/index.json"}
+    "1": {"schema": "1.4.2", "status": "deprecated", "eol": "2027-04-01", "index": "/v1/1.4/index.json"},
+    "2": {"schema": "2.0.0", "status": "current",    "eol": null,          "index": "/v2/2.0/index.json"}
   }
 }
 ```

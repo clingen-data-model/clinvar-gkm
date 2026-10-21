@@ -203,7 +203,7 @@ validate_bundle_schema(bundle, schema)
 
 # Or compile the validator once and reuse it across many bundles / deltas.
 validator = prepare_bundle_schema(schema)
-for path in ("clinvar-gkm_2026-06.json", "clinvar-gkm-delta_00-latest.json"):
+for path in ("clinvar-gkm_2026-10.json", "clinvar-gkm-delta_2026-1018.json"):
     validate_bundle_schema(json.load(open(path)), schema, validator=validator)
 ```
 

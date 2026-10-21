@@ -4,18 +4,21 @@
 
 The latest ClinVar-GKM release is available as a compressed JSON file (with Parquet files also available for analytical use):
 
-!!! warning "The monthly full is a month-start baseline, not the current week"
-    `clinvar-gkm_00-latest.json.gz` reflects the **last release of the _previous_ month** — e.g. the `2026-10` full is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. It does **not** include the current month's weekly changes. To get the current weekly state, apply the latest delta on top of it — see the [Consumer Replay Model](data-access/weekly-deltas.md#consumer-replay-model).
+!!! tip "Monthly full or weekly full?"
+    `clinvar-gkm_00-latest.json.gz` is the newest **official monthly**; it reflects the **last release of the _previous_ month** — e.g. the `2026-10` monthly is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. For the current week, download `weekly/clinvar-gkm_00-latest_weekly.json.gz` instead — see [Weekly Full Bundles](data-access/weekly-full.md).
 
 ```text
-https://data.clinvar-gkm.org/v1/datasets/
+https://data.clinvar-gkm.org/v1/1.1/
 ```
 
 Download and decompress:
 
 ```bash
-# Download the latest monthly release
-curl -O https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz
+# Download the newest official monthly release
+curl -O https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz
+
+# Or the newest weekly release
+curl -O https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz
 
 # Decompress
 gunzip clinvar-gkm_00-latest.json.gz
