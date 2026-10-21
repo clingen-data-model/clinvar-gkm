@@ -1,11 +1,11 @@
 #!/bin/bash
-# Rebuild the single LATEST ClinVar-GKM Parquet set from a dataset and publish it to
-# v1/datasets/parquet/00-latest/. Run every release, on the newest dataset (run-release.sh does this
+# Rebuild the ONE ClinVar-GKM Parquet set from a dataset and publish it to <line>parquet/ (R2_LINE, default
+# v1/1.1/), with parquet/manifest.json. Run every release, on the newest dataset (run-release.sh does this
 # after the weekly delta). Parquet is derived from the bundle and is not kept per release (ADR 0008).
 #
 #   1. export-gkm-dicts.sh --parquet-only — the FULL dict tables (not the delta), typed Parquet to GCS
 #   2. download the shards and merge them into one file per section (DuckDB)
-#   3. upload-gkm-parquet-to-r2.sh       — overwrite 00-latest/, drop stale sections, regenerate the index
+#   3. upload-gkm-parquet-to-r2.sh       — overwrite parquet/, write manifest.json, drop stale sections, regenerate the index
 #
 # Usage: ./release-gkm-parquet.sh <export_date> <dataset_version> [--start-step=N] [--dry-run] [--no-upload] [--purge]
 #

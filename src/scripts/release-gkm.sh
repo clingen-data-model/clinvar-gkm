@@ -1,18 +1,22 @@
 #!/bin/bash
 
-# Release a ClinVar-GKM monthly FULL bundle: export from BigQuery, assemble, upload to R2.
+# Release a ClinVar-GKM FULL bundle: export from BigQuery, assemble, upload to R2. A full is either the weekly
+# full of <export_date> (--weekly: <line>weekly/clinvar-gkm_YYYY-MMDD.json.gz, every release) or an official
+# monthly (--month-label=YYYY-MM: <line>clinvar-gkm_YYYY-MM.json.gz, built from its ADR 0002 source release).
+# run-release.sh normally makes the monthly a server-side copy of the weekly full instead (upload-gkm-to-r2.sh
+# --from-weekly); this script's monthly path is the re-export fallback and the republish path.
 #
 # Three steps:
 #   1. export-gkm-dicts.sh --ndjson-only — export the dictionary tables to GCS as NDJSON
 #   2. assemble-gkm-dicts.py             — assemble the NDJSON into a single JSON bundle
-#   3. upload-gkm-to-r2.sh               — upload the bundle (+ .sha256 sidecar) to Cloudflare R2
+#   3. upload-gkm-to-r2.sh               — upload the bundle (+ .sha256 sidecar) to Cloudflare R2 (R2_LINE)
 #
 # No Parquet: Parquet is a derived convenience, published only as the single latest set
 # (release-gkm-parquet.sh), never per release.
 #
 # Usage:
 #   ./release-gkm.sh <export_date> <dataset_version> [--start-step=N] [--keep-source] [--dry-run]
-#                    [--month-label=YYYY-MM] [--no-upload]
+#                    [--month-label=YYYY-MM | --weekly] [--no-upload]
 #
 # --no-upload stops after step 2 and KEEPS the staged bundle (no R2 write, no cleanup), so it can be
 # validated before publishing; resume with --start-step=3. STAGE_DIR (default /tmp) sets where it is staged.
@@ -34,6 +38,7 @@ if [[ $# -lt 2 ]]; then
   echo "  dataset_version  Dataset version (e.g. v2_5_0)"
   echo "  --start-step=N   Start at step N (1=export, 2=assemble, 3=upload)"
   echo "  --month-label=   Publish to this YYYY-MM monthly slot instead of export_date's month"
+  echo "  --weekly         Publish as the weekly full of export_date (weekly/)"
   echo "  --no-upload      Stop after step 2; keep the staged bundle (resume with --start-step=3)"
   exit 1
 fi
@@ -54,6 +59,7 @@ KEEP_SOURCE=false
 START_STEP=1
 MONTH_LABEL=""
 NO_UPLOAD=false
+WEEKLY=false
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=true ;;
@@ -61,12 +67,18 @@ for arg in "$@"; do
     --start-step=*) START_STEP="${arg#--start-step=}" ;;
     --month-label=*) MONTH_LABEL="${arg#--month-label=}" ;;
     --no-upload) NO_UPLOAD=true ;;
+    --weekly) WEEKLY=true ;;
     *)
       echo "ERROR: Unknown argument '${arg}'"
       exit 1
       ;;
   esac
 done
+
+if $WEEKLY && [[ -n "$MONTH_LABEL" ]]; then
+  echo "ERROR: --weekly and --month-label are exclusive"
+  exit 1
+fi
 
 if ! [[ "$START_STEP" =~ ^[1-3]$ ]]; then
   echo "ERROR: --start-step must be 1, 2, or 3, got '${START_STEP}'"
@@ -91,7 +103,7 @@ fi
 STAGE_DIR="${STAGE_DIR:-/tmp}"
 BUNDLE_FILE="${STAGE_DIR}/clinvar-gkm-${EXPORT_DATE}.json.gz"
 
-echo "=== ClinVar-GKM Release Pipeline (monthly full bundle) ==="
+echo "=== ClinVar-GKM Release Pipeline (full bundle: $($WEEKLY && echo weekly || echo "monthly ${MONTH_LABEL:-${EXPORT_DATE:0:7}}")) ==="
 echo "  Release date:  ${EXPORT_DATE}"
 echo "  Version:       ${DATASET_VERSION}"
 echo "  BQ dataset:    ${BQ_DATASET}"
@@ -153,7 +165,7 @@ fi
 if $NO_UPLOAD; then
   echo "=== Step 3/3: Skipped (--no-upload); staged bundle kept ==="
   echo "  Bundle:  ${BUNDLE_FILE}"
-  echo "  Publish later with: $0 ${EXPORT_DATE} ${DATASET_VERSION} --start-step=3${MONTH_LABEL:+ --month-label=${MONTH_LABEL}}"
+  echo "  Publish later with: $0 ${EXPORT_DATE} ${DATASET_VERSION} --start-step=3${MONTH_LABEL:+ --month-label=${MONTH_LABEL}}$($WEEKLY && echo ' --weekly')"
   exit 0
 fi
 
@@ -164,6 +176,9 @@ if $DRY_RUN; then
 fi
 if [[ -n "${MONTH_LABEL}" ]]; then
   UPLOAD_ARGS+=("--month-label=${MONTH_LABEL}")
+fi
+if $WEEKLY; then
+  UPLOAD_ARGS+=("--weekly")
 fi
 
 "${SCRIPT_DIR}/upload-gkm-to-r2.sh" "${UPLOAD_ARGS[@]}"
