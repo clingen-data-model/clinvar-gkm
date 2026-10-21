@@ -66,7 +66,7 @@ A resolved RCV proposition contains:
 | `predicate` | string | Predicate matching the underlying SCVs (e.g., `isCausalFor`) |
 | `object` | string | `#/condition/clinvar.trait:{id}` or `#/conditionSet/clinvar.traitset:{id}` reference — the specific condition for this RCV |
 
-The key difference from VCV propositions: the `object` references the specific condition for this RCV accession, sourced from the representative SCV's condition mapping. VCV propositions may carry multiple condition references from contributing SCVs.
+The key difference from VCV propositions: the `object` references the specific condition for this RCV accession, sourced from the representative SCV's condition mapping. A VCV proposition with several conditions references one `OR` condition set minted for the aggregate (see [VCV Statements](vcv-statements.md#proposition)).
 
 ---
 

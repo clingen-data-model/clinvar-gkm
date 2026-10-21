@@ -97,7 +97,7 @@ Extensions on proposition qualifier objects, preserving the original submitter-p
 | Extension | Type | Description |
 |---|---|---|
 | `submittedGeneSymbols` | array&lt;string&gt; | Gene symbols originally submitted by the submitter, verbatim, in submitted order. Present on `geneContextQualifier` when the submitter provided gene information. May differ from the normalized gene symbol. |
-| `geneContextSource` | string | Where the `geneContextQualifier` gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized` (the placeholder, named with the submitter's symbol). Present on every `geneContextQualifier`. The schema accepts only these four values. Added in this release. |
+| `geneContextSource` | string | Where the `geneContextQualifier` gene came from. Present on every `geneContextQualifier`. The schema accepts only these four values: `submittedSymbolMatches` (the submitter's symbols include the qualifier's symbol), `submittedSymbolDiffers` (the submitter gave symbols, none equal to the qualifier's symbol), `inferredFromVariant` (the submitter gave no symbols) and `submittedNotNormalized` (the variant has no single representative gene; the qualifier is a placeholder named with the submitter's symbol). Symbols are compared after trimming spaces and ignoring case. Added in this release. See the [gene context FAQ](../../reference/faq.md#where-does-an-scv-propositions-gene-context-come-from). |
 | `submittedModeOfInheritance` | string | Mode of inheritance text as originally submitted. Present on all `modeOfInheritanceQualifier` objects. Preserved alongside the normalized HPO coding. |
 | `submittedClassification` | string | Original submitted classification text that triggered the penetrance qualifier derivation. Present on all `penetranceQualifier` objects. |
 
@@ -105,18 +105,42 @@ Extensions on proposition qualifier objects, preserving the original submitter-p
 
 ### Example
 
-Gene context qualifier with submitted gene symbols:
+Gene context qualifier inferred from the variant — the submitter gave no gene symbols (`SCV001571657-PATH`):
 
 ```json
 {
+  "type": "MappableConcept",
   "conceptType": "gene",
   "name": "KRAS",
-  "primaryCoding": { "code": "3845", "name": "KRAS", "system": "https://www.ncbi.nlm.nih.gov/gene/" },
+  "primaryCoding": {
+    "code": "3845",
+    "name": "KRAS",
+    "system": "https://www.ncbi.nlm.nih.gov/gene/",
+    "iris": ["https://identifiers.org/ncbigene:3845", "https://www.ncbi.nlm.nih.gov/gene/3845"]
+  },
+  "mappings": [
+    {
+      "coding": {
+        "code": "6407",
+        "system": "https://www.genenames.org",
+        "iris": ["https://identifiers.org/hgnc:6407", "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/6407"]
+      },
+      "relation": "exactMatch"
+    }
+  ],
   "extensions": [
-    { "name": "submittedGeneSymbols", "value": ["KRAS"] },
-    { "name": "geneContextSource", "value": "submittedSymbolMatches" }
+    { "name": "geneContextSource", "value": "inferredFromVariant" }
   ]
 }
+```
+
+When the submitter gives gene symbols, the qualifier also carries `submittedGeneSymbols`, e.g. the `SCV004565358-TR` target proposition (`primaryCoding` and `mappings` omitted):
+
+```json
+"extensions": [
+  { "name": "submittedGeneSymbols", "value": ["EGFR"] },
+  { "name": "geneContextSource", "value": "submittedSymbolMatches" }
+]
 ```
 
 ---

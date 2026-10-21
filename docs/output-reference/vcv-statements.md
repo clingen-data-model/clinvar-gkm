@@ -84,7 +84,7 @@ A resolved VCV proposition contains:
 | `id` | string | Proposition ID (e.g., `VCV000012582-G-PATH-CP`) |
 | `subject` | string | `#/variation/clinvar:{id}` reference |
 | `predicate` | string | Predicate matching the underlying SCVs (e.g., `isCausalFor`) |
-| `object` | array | Unique condition references from contributing SCVs (`#/condition/` and/or `#/conditionSet/`) |
+| `object` | string | One reference to the conditions of the contributing SCVs. A single condition is `#/condition/clinvar.trait:{id}`, or `#/conditionSet/clinvar.traitset:{id}` when it is a ClinVar trait set. Several conditions are `#/conditionSet/clinvar.conditionset:vcv-{md5}`: a ConceptSet minted for the aggregate, with `membershipOperator: "OR"` and one `#/condition/` or `#/conditionSet/` reference per condition. Omitted when the contributing SCVs carry no condition |
 
 ---
 

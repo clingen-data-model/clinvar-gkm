@@ -27,8 +27,8 @@ Each record is a VA-Spec `Statement` with the following top-level fields:
 | `quality` | object | Concept struct with `conceptType: "Quality"` and `name` (the submission level label). See [Quality](#quality) |
 | `description` | string | Free-text interpretation summary (when provided by the submitter) |
 | `contributions` | array | Submitter and date information with `#/submitter/` references. See [Contributions](#contributions) |
-| `specifiedBy` | object | The classification method/guideline used, with the Document that describes it. See [Citations](#citations) |
-| `reportedIn` | array | Supporting publications — one Document per ClinVar citation. See [Citations](#citations) |
+| `specifiedBy` | object | The classification method/guideline used. Its `reportedIn` is the method's citation Document, built like the statement's (including `documentType`). See [Citations](#citations) |
+| `reportedIn` | array | Supporting citations — one Document per ClinVar citation: a PubMed, DOI or Bookshelf reference, or a URL-only citation such as a CIViC evidence link. A Document carries `documentType` when ClinVar gives a citation type. See [Citations](#citations) |
 | `extensions` | array of [Extension](#extensions) | ClinVar-specific metadata (0..*). See [Extensions](#extensions) |
 | `hasEvidenceLines` | array | Evidence lines for somatic clinical impact assertions. See [Evidence Lines](#evidence-lines) |
 
@@ -146,8 +146,8 @@ The `contributions` array records the submitter and key dates. Each contribution
 }
 ```
 
-- `name` is ClinVar's short label for the citation and `documentType` is ClinVar's citation type, both verbatim
-- `urls` holds every resolvable URL, ClinVar's own URL first; a citation ClinVar gives only as a URL is `{"type": "Document", "urls": [...]}`
+- `name` is ClinVar's short label for the citation and `documentType` is ClinVar's citation type (`general`, `practice guideline`, `review`, `Suggested Reading` or `file in FileTrack`), both verbatim and present only when ClinVar gives them. The same holds for the method citation in `specifiedBy.reportedIn`
+- `urls` holds every resolvable URL, ClinVar's own URL first; a citation ClinVar gives only as a URL — a CIViC evidence link, for example — is `{"type": "Document", "urls": ["https://civicdb.org/links/evidence/4846"]}`
 - A citation that is only free text has no `pmid`, `doi` or `urls`. Its text is kept verbatim in the `clinvarCitationText` extension. Such text is often not a reference, e.g. a list of ACMG criteria.
 
 The pipeline never changes ClinVar's citation data silently. When an invalid id is repaired, the Document's extensions keep the original:
@@ -284,7 +284,7 @@ Extensions on proposition qualifier objects (`geneContextQualifier`, `modeOfInhe
 | Extension Name | Value Type | Description |
 |---|---|---|
 | `submittedGeneSymbols` | array of `string` | Gene symbols originally submitted by the submitter, verbatim, in submitted order. Present on `geneContextQualifier` when the submitter provided gene information. May differ from the normalized gene symbol. |
-| `geneContextSource` | `string` | Where the `geneContextQualifier` gene came from. Present on every `geneContextQualifier`. `submittedSymbolMatches`: the submitter's symbols include the qualifier's symbol. `submittedSymbolDiffers`: the submitter gave symbols, but none equals the qualifier's symbol; most are previous symbols of the same gene, so the genes are not necessarily different. `inferredFromVariant`: the submitter gave no symbols. `submittedNotNormalized`: the variant has no single representative gene, so the qualifier is a placeholder whose `name` is the submitter's symbol (several are joined with `, `) and which has no `primaryCoding`. Symbols are compared after trimming spaces and ignoring case. The schema accepts only these four values (`ClinvarGeneContextQualifier`), on every proposition type. Added in this release; earlier placeholders are named `submitted genes were not normalized`. |
+| `geneContextSource` | `string` | Where the `geneContextQualifier` gene came from. Present on every `geneContextQualifier`. `submittedSymbolMatches`: the submitter's symbols include the qualifier's symbol. `submittedSymbolDiffers`: the submitter gave symbols, but none equals the qualifier's symbol; most are previous symbols of the same gene, so the genes are not necessarily different. `inferredFromVariant`: the submitter gave no symbols. `submittedNotNormalized`: the variant has no single representative gene, so the qualifier is a placeholder whose `name` is the submitter's symbol (several are joined with `, `) and which has no `primaryCoding`. Symbols are compared after trimming spaces and ignoring case. The schema accepts only these four values (`ClinvarGeneContextQualifier`), on every proposition type. Added in this release; earlier placeholders are named `submitted genes were not normalized`. See the [gene context FAQ](../reference/faq.md#where-does-an-scv-propositions-gene-context-come-from). |
 | `submittedModeOfInheritance` | `string` | Mode of inheritance text as originally submitted. Present on all `modeOfInheritanceQualifier` objects. Preserved alongside the normalized HPO coding. |
 | `submittedClassification` | `string` | Original submitted classification text that triggered the penetrance qualifier derivation. Present on all `penetranceQualifier` objects. |
 
