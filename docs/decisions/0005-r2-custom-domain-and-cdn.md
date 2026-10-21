@@ -3,6 +3,8 @@
 - **Status:** Accepted
 - **Date:** 2026-10-13
 - **Spec (if any):** —
+- **Amended:** 2026-10-20 by [ADR 0009](0009-r2-layout-mirrors-ncbi-clinvar.md): the published paths changed;
+  see [Layout change (ADR 0009)](#layout-change-adr-0009).
 
 ## Context
 
@@ -84,6 +86,9 @@ there are **two** index files plus a feed — the mutable matcher must catch all
 - Mutable (rewritten every release): root `/index.json`, `/v1/index.json`, `/v1/feed.xml`,
   `/v1/datasets/clinvar-gkm_00-latest.json.gz`, and everything under any `/00-latest/` tree
   (`/v1/deltas/00-latest/…`, `/v1/datasets/parquet/00-latest/…`).
+
+These are the paths before ADR 0009; the new paths are listed under
+[Layout change (ADR 0009)](#layout-change-adr-0009).
 
 Two rules; **last matching rule wins**, so keep the pointer rule *below* the immutable rule:
 
@@ -232,3 +237,31 @@ additive; not required for anything to work.
 Only the `v1/` tree is live. The bucket root holds just the thin `index.json` manifest (ADR 0004) alongside
 `v1/`; the pre-`v1/` root `datasets/` and `deltas/` trees plus root `README.txt` were deleted on 2026-10-13.
 All uploaders (including `backfill-monthly-to-r2.sh`) and the docs now reference `v1/…` paths.
+
+### Layout change (ADR 0009)
+
+[ADR 0009](0009-r2-layout-mirrors-ncbi-clinvar.md) replaces the `/v1/` layout above with per-line folders
+modelled on NCBI's ClinVar FTP: `v1/1.1/` holds the official monthlies and `clinvar-gkm_00-latest.json.gz`,
+`weekly/` (the current month's weekly fulls and `clinvar-gkm_00-latest_weekly.json.gz`), `deltas/` (current
+month at the top, earlier months in `deltas/YYYY-MM/`), `archive/YYYY/` and one `parquet/` dataset; the 1.0.1
+generation becomes the frozen line `v1/1.0/`. What changes here (the release runbook carries the exact rule
+expressions):
+
+- **Immutable rule.** Still matches everything not caught by the later rules: dated monthlies, weekly fulls,
+  deltas, delta manifests, `.sha256` sidecars, `archive/YYYY/` and frozen line folders. The path list above
+  no longer applies.
+- **Mutable-pointer rule.** Its `00-latest` / `index.json` / `feed.xml` matchers still work:
+  `clinvar-gkm_00-latest_weekly.json.gz` contains `00-latest`, and each line's `index.json` and `feed.xml` keep
+  those names.
+- **Latest-Parquet rule.** The "Latest Parquet: cache 1 day" rule (added 2026-10-18; edge 1 day, browser 1 h)
+  matches `/v1/datasets/parquet/00-latest/`, which no longer exists. It must match the line's `parquet/`
+  folder instead, including the Parquet manifest file. Without the change the overwritten Parquet would fall
+  under the 1-month immutable rule.
+- **Purges.** Routine releases now overwrite (the Parquet dataset), move (deltas at month rollover, monthlies
+  and deltas at year rollover) and delete (weekly fulls at month rollover) published paths. Each is followed
+  by a purge of the old paths; `--purge` above is no longer only for the rare in-place overwrite.
+- **Path allowlist** (WAF custom rule, documented on PR #173). Every published path stays under `/v1/`, so no
+  new prefix is needed. `/archive/` can be removed once `archive/1.0.1/` has moved to `v1/1.0/` and been
+  deleted.
+- **Bucket layout note.** The "Only the `v1/` tree is live" note still holds; the old `v1/datasets/`,
+  `v1/deltas/` and dated Parquet trees and `archive/1.0.1/` are deleted in the ADR 0009 cleanup.
