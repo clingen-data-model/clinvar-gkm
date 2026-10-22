@@ -1,0 +1,79 @@
+name: Download statistics
+
+# Collects one UTC day of per-path download counts for data.clinvar-gkm.org from
+# Cloudflare GraphQL Analytics and appends them to stats/YYYY-MM.csv on the orphan
+# branch ops/download-stats. No IP addresses are stored, only counts. See ADR 0008.
+#
+# Cloudflare keeps about 31 days of data, so a missed day can be re-collected with
+# workflow_dispatch (date input) only within that window.
+#
+# deploy-docs.yml runs on pushes to main only, so commits to ops/download-stats
+# never deploy the site (and pushes made with GITHUB_TOKEN trigger no workflows).
+
+on:
+  schedule:
+    - cron: '23 3 * * *'   # 03:23 UTC: the previous UTC day is complete
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'UTC day to collect, YYYY-MM-DD (default: yesterday; at most ~31 days ago)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: download-stats
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    # Secrets live in the 'download-stats' environment, which only the main branch may use, so a workflow
+    # pushed on another branch cannot read them without review.
+    environment: download-stats
+    env:
+      STATS_BRANCH: ops/download-stats
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Collect one day of download statistics
+        env:
+          CF_ANALYTICS_TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN }}
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+          CF_EXCLUDE_IPS: ${{ secrets.CF_EXCLUDE_IPS }}
+          INPUT_DATE: ${{ inputs.date }}
+        run: |
+          DAY="${INPUT_DATE:-$(date -u -d yesterday +%F)}"
+          echo "DAY=${DAY}" >> "$GITHUB_ENV"
+          ./src/scripts/collect-download-stats.sh --date "$DAY" --out "${RUNNER_TEMP}/day.csv"
+
+      - name: Append to stats/YYYY-MM.csv on the stats branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin "$STATS_BRANCH" >/dev/null; then
+            git fetch --depth=1 origin "$STATS_BRANCH"
+            git worktree add "${RUNNER_TEMP}/stats" FETCH_HEAD
+            git -C "${RUNNER_TEMP}/stats" checkout -B "$STATS_BRANCH"
+          else
+            git worktree add --detach "${RUNNER_TEMP}/stats"
+            git -C "${RUNNER_TEMP}/stats" checkout --orphan "$STATS_BRANCH"
+            git -C "${RUNNER_TEMP}/stats" rm -rfq .
+          fi
+          cd "${RUNNER_TEMP}/stats" || exit 1
+          mkdir -p stats
+          f="stats/${DAY:0:7}.csv"
+          [ -f "$f" ] || head -n 1 "${RUNNER_TEMP}/day.csv" > "$f"
+          # Re-collecting a day replaces its rows instead of duplicating them.
+          grep -v "^\"${DAY}\"," "$f" > "${RUNNER_TEMP}/month.csv" || true
+          tail -n +2 "${RUNNER_TEMP}/day.csv" >> "${RUNNER_TEMP}/month.csv"
+          mv "${RUNNER_TEMP}/month.csv" "$f"
+          git add "$f"
+          if git diff --cached --quiet; then
+            echo "No change for ${DAY}"
+            exit 0
+          fi
+          git commit -q -m "stats: ${DAY}"
+          git push origin "HEAD:${STATS_BRANCH}"
