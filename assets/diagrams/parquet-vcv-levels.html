@@ -114,7 +114,7 @@
 <h1>Reading a variant's statements</h1>
 <p class="lede">
   One VCV (or RCV) statement id carries three axes — <b>Germline vs Somatic</b>, the <b>proposition type</b>, and
-  the <b>aggregate level</b> — each mapped to a concrete field. Figures are from the 14&nbsp;Oct&nbsp;2026 release.
+  the <b>aggregate level</b> — each mapped to a concrete field. Figures are from the 2026-10-18 release.
 </p>
 <nav class="mini" aria-label="Diagrams in this frame"><ol>
   <li><a href="#d-1"><span class="arr" aria-hidden="true">▸</span>1 · Statement id</a></li>
@@ -129,13 +129,13 @@
   that carries it.</p>
 <figure>
   <div class="frame">
-  <svg class="d w820" viewBox="0 0 820 216" role="img" aria-label="A VCV statement id, VCV000012871.93-G-PATH-CP, decomposed into four parts: the accession-and-version is the record, G means germline, PATH is the classification, CP is the aggregate level. Each part lists the fields that carry it.">
+  <svg class="d w820" viewBox="0 0 820 216" role="img" aria-label="A VCV statement id, VCV000012871.94-G-PATH-CP, decomposed into four parts: the accession-and-version is the record, G means germline, PATH is the classification, CP is the aggregate level. Each part lists the fields that carry it.">
     <rect class="b g" x="24" y="14" width="300" height="30" rx="7"/>
-    <text class="sl" x="40" y="34">VCV000012871.93-G-PATH-CP</text>
+    <text class="sl" x="40" y="34">VCV000012871.94-G-PATH-CP</text>
     <text class="mn" x="344" y="33">one statement id, read left to right</text>
 
     <rect class="b" x="24" y="64" width="160" height="26" rx="5"/>
-    <text class="sl" x="34" y="81">VCV000012871.93</text>
+    <text class="sl" x="34" y="81">VCV000012871.94</text>
     <text class="mn" x="200" y="81">accession . version</text>
     <text class="sl" x="430" y="81">→ the VCV / RCV record</text>
 
@@ -167,8 +167,8 @@
   <table>
     <thead><tr><th>Lane</th><th>Code</th><th>Proposition type</th><th class="num">Roots</th></tr></thead>
     <tbody>
-      <tr><td class="lane-g">G</td><td class="m">PATH</td><td class="m">VariantPathogenicityProposition</td><td class="num">4,390,392</td></tr>
-      <tr><td class="lane-g">G</td><td class="m">NP</td><td class="m">ClinvarNotProvidedProposition</td><td class="num">27,920</td></tr>
+      <tr><td class="lane-g">G</td><td class="m">PATH</td><td class="m">VariantPathogenicityProposition</td><td class="num">4,434,756</td></tr>
+      <tr><td class="lane-g">G</td><td class="m">NP</td><td class="m">ClinvarNotProvidedProposition</td><td class="num">27,921</td></tr>
       <tr><td class="lane-g">G</td><td class="m">DR</td><td class="m">ClinvarDrugResponseProposition</td><td class="num">2,760</td></tr>
       <tr><td class="lane-g">G</td><td class="m">OTH</td><td class="m">ClinvarOtherProposition</td><td class="num">2,171</td></tr>
       <tr><td class="lane-g">G</td><td class="m">RF</td><td class="m">ClinvarRiskFactorProposition</td><td class="num">1,072</td></tr>
@@ -184,10 +184,8 @@
 </div>
 <details class="q"><summary>Query — decode a variant's statement ids, with proposition type, quality, and classification</summary>
 <pre><span class="c">-- the axes fall out of the id; join the proposition for its type, read quality + classification</span>
-WITH prop AS (
-    SELECT id, type FROM 'varcond-proposition.parquet'
-    UNION ALL SELECT id, type FROM 'vartumor-proposition.parquet'
-    UNION ALL SELECT id, type FROM 'varcustom-proposition.parquet'
+WITH prop AS (                    <span class="c">-- the four proposition tables share one schema</span>
+    SELECT id, type FROM read_parquet('proposition*.parquet')
 )
 SELECT regexp_extract(v.id, '-([GS])-', 1)                                      AS lane,
        regexp_extract(v.id, '-[GS]-([A-Z]+)', 1)                                AS class_code,
@@ -214,7 +212,7 @@ G     PATH        root   VariantPathogenicityProposition  expert panel          
   <div class="frame">
   <svg class="d w820" viewBox="0 0 820 128" role="img" aria-label="Two lanes. Germline, 99.9 percent, is direct: variation to proposition to statement. Somatic, 0.09 percent, is oncogenicity (direct) plus somatic clinical impact, which adds evidence lines.">
     <rect class="b g" x="24" y="20" width="372" height="88" rx="8"/>
-    <text class="hd" x="40" y="42">GERMLINE</text><text class="ct" x="150" y="42">9,071,578 · 99.9 %</text>
+    <text class="hd" x="40" y="42">GERMLINE</text><text class="ct" x="150" y="42">9,157,780 · 99.9 %</text>
     <text class="sl" x="40" y="66">variation → proposition → statement</text>
     <text class="ct" x="40" y="84">direct: PATH + the custom types (see table above)</text>
     <text class="ct" x="40" y="98">classification.name carries the call</text>
@@ -277,17 +275,13 @@ G     PATH        root   VariantPathogenicityProposition  expert panel          
 SELECT tp.type AS evidence_target_proposition, tp.predicate,
        e.evidenceOutcome.name AS tier, count(*) n
 FROM 'evidenceLine.parquet' e
-JOIN (
-    SELECT id, type, predicate FROM 'varcond-proposition.parquet'
-    UNION ALL
-    SELECT id, type, predicate FROM 'vartherapy-proposition.parquet'
-) tp ON tp.id = e.target_proposition_id
+JOIN 'propositionSomaticClinicalImpact.parquet' tp ON tp.id = e.target_proposition_id
 GROUP BY 1, 2, 3 ORDER BY n DESC;</pre>
 <div class="out">evidence_target_proposition            predicate                           tier       n
 VariantDiagnosticProposition           isDiagnosticInclusionCriterionFor   Level A/B  987
 VariantDiagnosticProposition           isDiagnosticInclusionCriterionFor   Level C/D  534
 VariantPrognosticProposition           associatedWithBetterOutcomeFor      Level C/D   19
-VariantTherapeuticResponseProposition  predictsSensitivityTo               Level A/B    8
+VariantPrognosticProposition           associatedWithBetterOutcomeFor      Level A/B    8
 … 6 more rows</div>
 </details>
 
@@ -348,7 +342,7 @@ VariantTherapeuticResponseProposition  predictsSensitivityTo               Level
     its SCVs the same way; the root cites <strong>zero</strong> SCVs. The call comes from the highest level that
     has submissions: a variant whose best are criteria-provided contributes <code>CP</code> and ignores the
     <code>NOCP</code> below it — but a variant whose best submissions are <code>NOCP</code> contributes
-    <code>NOCP</code>. 138,188 variants top out at <code>NOCP</code>; 7,578 at <code>NOCL</code>. Flagged
+    <code>NOCP</code>. 136,595 variants top out at <code>NOCP</code>; 7,529 at <code>NOCL</code>. Flagged
     submissions are set apart.
   </figcaption>
 </figure>
@@ -367,15 +361,15 @@ SELECT s.quality.name AS review_status,
 FROM 'scv.parquet' s GROUP BY 1, 2 ORDER BY precedence DESC;</pre>
 <div class="out">review_status                     precedence   n
 practice guidelines                    5         2,503
-expert panel                           4        22,876
-criteria provided                      3     6,255,083
-no assertion criteria provided         2       422,249
-no classification                      1        28,992
-flagged                                0         3,308</div>
+expert panel                           4        23,151
+criteria provided                      3     6,380,199
+no assertion criteria provided         2       415,483
+no classification                      1        28,994
+flagged                                0         3,451</div>
 </details>
 
 <p class="foot">Every count, table, and query output here — including the id examples and the mapping table — is
-  from the ClinVar-GKM <b>2026-10-14</b> monthly release. Figures change between releases, so don't assume they
+  from the ClinVar-GKM <b>2026-10-18</b> release. Figures change between releases, so don't assume they
   are the latest. See <a href="../../data-access/parquet/" target="_top">Downloads &rarr; Parquet Files</a> for
   current releases.</p>
 </div>

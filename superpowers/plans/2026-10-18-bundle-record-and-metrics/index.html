@@ -1,0 +1,4981 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="ClinVar data transformation pipeline to GA4GH GKS format">
+      
+      
+      
+        <link rel="canonical" href="https://dataexchange.clinicalgenome.org/clinvar-gkm/superpowers/plans/2026-10-18-bundle-record-and-metrics/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.59">
+    
+    
+      
+        <title>Bundle Record and Download Metrics Plan - ClinVar-GKM</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../../assets/stylesheets/classic/main.38807bfb.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/classic/palette.c7ab7c71.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#bundle-record-and-download-metrics-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="ClinVar-GKM" class="md-header__button md-logo" aria-label="ClinVar-GKM" data-md-component="logo">
+      <img src="../../../assets/images/clingen-logo-white.svg" alt="ClinVar-GKM" height="40">
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <a href="../../.." class="md-header__topic" style="text-decoration: none; color: inherit;">
+          <span class="md-ellipsis">
+            ClinVar-GKM
+          </span>
+        </a>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Bundle Record and Download Metrics Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    <a href="https://www.ga4gh.org" title="GA4GH" target="_blank" rel="noopener" class="md-header__ga4gh">
+      <img src="../../../assets/images/ga4gh-logo.svg" alt="GA4GH" height="40">
+    </a>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/clingen-data-model/clinvar-gkm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    clingen-data-model/clinvar-gkm
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../.." class="md-tabs__link">
+          
+  
+  Home
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../data-access/download/" class="md-tabs__link">
+          
+  
+  Get the Data
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../output-reference/overview/" class="md-tabs__link">
+          
+  
+  Understand the Data
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../parquet/" class="md-tabs__link">
+          
+  
+  Use the Data
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../pipeline/" class="md-tabs__link">
+          
+  
+  How It's Built
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../reference/roadmap/" class="md-tabs__link">
+          
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="ClinVar-GKM" class="md-nav__button md-logo" aria-label="ClinVar-GKM" data-md-component="logo">
+      
+  <img src="../../../assets/images/clingen-logo-white.svg" alt="ClinVar-GKM">
+
+    </a>
+    ClinVar-GKM
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/clingen-data-model/clinvar-gkm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    clingen-data-model/clinvar-gkm
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../.." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Home
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reading-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How to Read These Docs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../data-use/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Data Use and Citation
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../stay-informed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stay Informed
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get the Data
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get the Data
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../data-access/download/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Downloads
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../data-access/monthly-full/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Monthly Full Bundles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../data-access/weekly-full/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Weekly Full Bundles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../data-access/weekly-deltas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Weekly Deltas
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../data-access/parquet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Parquet Files
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../data-access/release-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How Releases Work
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Understand the Data
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Understand the Data
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Output Format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/cat-vrs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Variations
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/scv-statements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SCV Statements
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/vcv-statements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  VCV Statements
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/rcv-statements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  RCV Statements
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/id-references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ID References
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../data-access/examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Examples
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../output-reference/classes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Data Model
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_8" id="__nav_3_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Data Model
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_8_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_8_2" id="__nav_3_8_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Variations
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_8_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_8_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Variations
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/variations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Variations
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarCategoricalVariant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarCategoricalVariant
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarCanonicalAllele/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarCanonicalAllele
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarCategoricalCnvChange/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarCategoricalCnvChange
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarCategoricalCnvCount/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarCategoricalCnvCount
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarNonConstrainedVariant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarNonConstrainedVariant
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/HgvsListItem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  HgvsListItem
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/GeneListItem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GeneListItem
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_8_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_8_3" id="__nav_3_8_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Propositions
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Propositions
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/propositions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Propositions
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarGermlineCustomProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarGermlineCustomProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarGeneContextQualifier/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarGeneContextQualifier
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarRiskFactorProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarRiskFactorProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarProtectiveProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarProtectiveProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarDrugResponseProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarDrugResponseProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarAffectsProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarAffectsProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarAssociationProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarAssociationProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarConfersSensitivityProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarConfersSensitivityProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarOtherProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarOtherProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarNotProvidedProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarNotProvidedProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarConflictingDataFromSubmitterProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarConflictingDataFromSubmitterProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarUndefinedProposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarUndefinedProposition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_8_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_8_4" id="__nav_3_8_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Statements
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_8_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_8_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Statements
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/statements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Statements
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarStatement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarStatement
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarScvStatement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarScvStatement
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarVcvStatement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarVcvStatement
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarRcvStatement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarRcvStatement
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/SubmittedConditionMapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SubmittedConditionMapping
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_8_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_8_5" id="__nav_3_8_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Evidence
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_8_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_8_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Evidence
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Evidence Lines
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../output-reference/classes/ClinvarSomaticEvidenceLine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinvarSomaticEvidenceLine
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../profiles/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Mapping & Vocabularies
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_9" id="__nav_3_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Mapping & Vocabularies
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../profiles/statement-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Statement Types
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../profiles/classifications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Classifications
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../profiles/propositions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Propositions
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../profiles/review-status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Review Status
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Use the Data
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Use the Data
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../parquet/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Query the Data
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Query the Data
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../parquet/table-anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Anatomy of a Table
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../parquet/tables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  The 22 Tables
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../parquet/joining/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Joining Tables
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../parquet/recipes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Recipes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../parquet/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Working at Scale
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../parquet/other-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Beyond DuckDB
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  User Stories
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  User Stories
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-story/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Harmonizing by VRS Identity
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-story-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Auditing a Submitter's Footprint
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../pipeline/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How It's Built
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  How It's Built
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../pipeline/variation-identity/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Variation Identity
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Variation Identity
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/variation-identity/variation-loc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sequence Locations
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/variation-identity/variation-hgvs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  HGVS Expressions
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/variation-identity/variation-xref/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Cross-References
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/variation-identity/variation-identity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Variation Identity Table
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/vrs-processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  VRS Processing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../pipeline/cat-vrs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Cat-VRS
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Cat-VRS
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/cat-vrs/catvar-extensions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Categorical Variant Extensions
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../pipeline/conditions-and-traits/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Conditions & Traits
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Conditions & Traits
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/conditions-and-traits/condition-mapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Condition Mapping
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/conditions-and-traits/traits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Traits
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/conditions-and-traits/condition-sets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Condition Sets
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/conditions-and-traits/condition-extensions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Condition Extensions
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../pipeline/scv-statements/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SCV Statements
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_6" id="__nav_5_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  SCV Statements
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/scv-statements/scv-records/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SCV Records
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/scv-statements/propositions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Propositions
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/scv-statements/final-statements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Final Statements
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/scv-statements/scv-extensions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SCV Extensions
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../pipeline/vcv-statements/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  VCV Statements
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_7" id="__nav_5_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  VCV Statements
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/vcv-statements/vcv-aggregation-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Aggregation Rules
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/vcv-statements/vcv-proc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  VCV Procedures
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/vcv-statements/vcv-extensions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  VCV Extensions
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../pipeline/rcv-statements/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  RCV Statements
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_8" id="__nav_5_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  RCV Statements
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/rcv-statements/rcv-proc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  RCV Procedures
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/rcv-statements/rcv-extensions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  RCV Extensions
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Export & Distribute
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline/sub-bundle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sub-Bundle Extraction
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Roadmap
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/versioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Versioning & Releases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Changelog
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/release-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Release Validation
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/gks-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GA4GH Standards
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Known Issues
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  FAQ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Glossary
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../reference/presentations/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Presentations
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_9" id="__nav_6_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Presentations
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/presentations/clinvar-gkm-primer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ClinVar-GKM Primer
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/presentations/clinvar-gkm-unlocks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What It Unlocks
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tasks-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tasks at a glance
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-daily-download-stats-collection" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. Daily download-stats collection
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-101-generation-becomes-the-frozen-line-v110" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. 1.0.1 generation becomes the frozen line <code>v1/1.0/</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-layout-manifest-and-index-changes-on-10-at-the-110-republish" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. Layout, manifest and index changes (on <code>1.0</code>, at the 1.1.0 republish)
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-layout-and-parquet-is-derived-doc-notes-on-main-with-task-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4. Layout and "Parquet is derived" doc notes (on <code>main</code>, with task 3)
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-parquet-rebuild-tool-clinvar-gkm-parquet" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5. Parquet rebuild tool (<code>clinvar-gkm-parquet</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-v220-line-runbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6. <code>v2/2.0/</code> line runbook
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-metrics-review-60-days" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7. Metrics review (60 days)
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+  
+
+
+<h1 id="bundle-record-and-download-metrics-plan">Bundle Record and Download Metrics Plan<a class="headerlink" href="#bundle-record-and-download-metrics-plan" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Status: proposed (2026-10-18).</strong> Governed by
+<a href="../../../decisions/0008-bundles-are-the-public-record/">ADR 0008</a>. Written against <code>main</code> @ <code>ed2eede</code> and <code>1.0</code>
+@ <code>b6ce46e</code>. <strong>Amended 2026-10-20</strong> for <a href="../../../decisions/0009-r2-layout-mirrors-ncbi-clinvar/">ADR 0009</a>
+(R2 layout mirrors NCBI ClinVar): tasks 2–6 follow the new layout. Every live R2 write is a separately
+user-confirmed step.</p>
+<p><strong>Superseded in part by the 2026-10-21 maintainer decisions.</strong> 1.1.0 is GA
+(<a href="../../../decisions/0008-bundles-are-the-public-record/">ADR 0008</a> (a)); superseded lines are frozen and kept
+indefinitely with status <code>frozen</code> (ADR 0008 (b)); retention is not a metrics question, only promotion is
+(ADR 0008 (f)); a content-only correction opens a new MINOR line
+(<a href="../../../decisions/0009-r2-layout-mirrors-ncbi-clinvar/">ADR 0009</a> §5). Where the body below mentions
+<code>LINE_EOL</code> / <code>eol</code>, <code>LINE_STATUS=superseded</code> / <code>SUPERSEDED_BY=2</code>, "once GA is confirmed", the freeze-vs-window
+open point, or the retention and live-window triggers, those decisions replace it. The body is kept as
+written.</p>
+<p><strong>For agentic workers:</strong> REQUIRED: Use superpowers:subagent-driven-development or superpowers:executing-plans.
+Steps use checkbox (<code>- [ ]</code>) syntax.</p>
+</blockquote>
+<p><strong>Goal:</strong> Treat the JSON bundles as the public record. Measure downloads, keep every superseded generation,
+let users identify the generation they hold, label Parquet as derived, and have a runbook ready for the first
+<code>v2/2.0/</code> line.</p>
+<hr />
+<h2 id="tasks-at-a-glance">Tasks at a glance<a class="headerlink" href="#tasks-at-a-glance" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Task</th>
+<th>When</th>
+<th>Branch</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Daily download-stats collection</td>
+<td>now</td>
+<td><code>main</code></td>
+<td>this PR</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1.0.1 generation → frozen line <code>v1/1.0/</code></td>
+<td>before the 1.1.0 republish</td>
+<td>— (R2 only)</td>
+<td>archived; move to do</td>
+</tr>
+<tr>
+<td>3</td>
+<td>ADR 0009 layout; sha256, <code>source_release</code>, <code>checkpoint_full</code>, line status in manifests</td>
+<td>at the 1.1.0 republish</td>
+<td><code>1.0</code> (<code>feat/r2-ncbi-layout</code>)</td>
+<td>in progress</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Layout and "Parquet is derived" doc notes</td>
+<td>with task 3</td>
+<td><code>main</code> (#146)</td>
+<td>in progress</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Parquet rebuild tool (<code>clinvar-gkm-parquet</code>)</td>
+<td>after 1.1.0</td>
+<td>own repo</td>
+<td>design (its PR #1)</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>v2/2.0/</code> line runbook</td>
+<td>before the first post-GA breaking change</td>
+<td><code>main</code></td>
+<td>to do</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Metrics review</td>
+<td>60 days after collection starts</td>
+<td>—</td>
+<td>scheduled</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-daily-download-stats-collection">1. Daily download-stats collection<a class="headerlink" href="#1-daily-download-stats-collection" title="Permanent link">&para;</a></h2>
+<p>Delivered with this plan:</p>
+<ul>
+<li><code>src/scripts/collect-download-stats.sh</code> queries Cloudflare GraphQL <code>httpRequestsAdaptiveGroups</code> for one UTC
+  day (default yesterday, <code>--date YYYY-MM-DD</code>) on host <code>data.clinvar-gkm.org</code>. It writes
+  <code>date,path,status,requests,bytes,distinct_clients</code> to a CSV. Client IPs are used only in memory to count
+  distinct clients; they are never stored. <code>--bq</code> also loads the rows into
+  <code>clingen-dev:clinvar_ingest.gkm_download_stats</code> (created if missing; a re-run replaces that day's rows).
+  <code>CF_EXCLUDE_IPS</code> leaves out maintainer IPs.</li>
+<li><code>src/scripts/summarize-download-stats.py</code> estimates complete downloads per bundle as 2xx bytes served ÷ the
+  object's size, with separate tables for monthly fulls and deltas and a summary of every other file.</li>
+<li><code>.github/workflows/download-stats.yml</code> runs daily at 03:23 UTC (and on <code>workflow_dispatch</code> with an optional
+  <code>date</code>) and appends the day to <code>stats/YYYY-MM.csv</code> on the orphan branch <code>ops/download-stats</code>.
+  <code>deploy-docs.yml</code> only runs on pushes to <code>main</code>, so these commits never deploy the site.</li>
+</ul>
+<p>Steps after merge:</p>
+<ul>
+<li>[ ] Add the repository secrets <code>CF_ANALYTICS_TOKEN</code> and <code>CF_ZONE_ID</code> (and optionally <code>CF_EXCLUDE_IPS</code>).</li>
+<li>[ ] Backfill from 2026-10-14, the first day the custom domain served. Cloudflare keeps about 31 days, so
+  <strong>2026-10-14 must be collected by about 2026-11-13</strong>:
+  <code>gh workflow run download-stats.yml -f date=2026-10-14</code>, then 15, 16, 17 and 18. Start each run after the
+  previous one finishes (<code>gh run watch</code>): the workflow's concurrency group keeps only one pending run and
+  cancels an older pending one.</li>
+<li>[ ] Check the first scheduled run created <code>ops/download-stats</code> with <code>stats/2026-10.csv</code>.</li>
+</ul>
+<hr />
+<h2 id="2-101-generation-becomes-the-frozen-line-v110">2. 1.0.1 generation becomes the frozen line <code>v1/1.0/</code><a class="headerlink" href="#2-101-generation-becomes-the-frozen-line-v110" title="Permanent link">&para;</a></h2>
+<p>The 1.0.1 JSON bundles were copied to <code>archive/1.0.1/</code> on 2026-10-18 (40 objects, 24.3 GB: 5 fulls including
+<code>00-latest</code>, 16 deltas and manifests, an <code>index.json</code> / <code>feed.xml</code> snapshot), with a <code>MANIFEST.json</code> (sha256
+per file) and a <code>README.txt</code>. Under <a href="../../../decisions/0009-r2-layout-mirrors-ncbi-clinvar/">ADR 0009</a> it
+moves to the frozen line folder <code>v1/1.0/</code>, and <code>archive/1.0.1/</code> is deleted. The 1.0.1 generation keeps no
+Parquet.</p>
+<ul>
+<li>[ ] Confirm the archive holds the 4 dated monthly fulls, the 15 dated deltas and their manifests, and
+  record whether the <code>00-latest</code> copies are included.</li>
+<li>[ ] Verify each <code>MANIFEST.json</code> sha256 against the copied objects.</li>
+<li>[ ] Move <code>archive/1.0.1/</code> to <code>v1/1.0/</code> (dry run first, confirmed step), re-verify the sha256s, then delete
+  <code>archive/1.0.1/</code> and purge it from the CDN. The <code>MANIFEST.json</code> paths and <code>README.txt</code> name <code>v1/1.0/</code>.</li>
+<li>[ ] Record the frozen line in the 1.1.0 changelog entry and the completion notice: where it is, what it holds,
+  and that it is the 1.0.1 generation.</li>
+</ul>
+<hr />
+<h2 id="3-layout-manifest-and-index-changes-on-10-at-the-110-republish">3. Layout, manifest and index changes (on <code>1.0</code>, at the 1.1.0 republish)<a class="headerlink" href="#3-layout-manifest-and-index-changes-on-10-at-the-110-republish" title="Permanent link">&para;</a></h2>
+<p>The publishing scripts are changed on <code>feat/r2-ncbi-layout</code> (base <code>1.0</code>) to write the ADR 0009 layout under
+<code>v1/1.1/</code>. What they must produce, for the docs and the gates:</p>
+<p><strong>Why sidecars, not object metadata:</strong> the uploaders copy every object of 2 GB or more (every monthly full
+and its <code>00-latest</code> pointer) with <code>aws s3 cp --copy-props none</code>, because R2 lacks <code>GetObjectTagging</code>. That copy
+drops user metadata, so a checksum stored as metadata would be lost. A <code>&lt;file&gt;.sha256</code> sidecar
+(<code>sha256sum -c</code> format) survives every copy and every move.</p>
+<ul>
+<li>[ ] <strong>Monthlies</strong> at the line's top level: <code>clinvar-gkm_YYYY-MM.json.gz</code> + <code>.sha256</code>, and
+  <code>clinvar-gkm_00-latest.json.gz</code> + <code>.sha256</code>. The year rollover moves a year's monthlies and sidecars to
+  <code>archive/YYYY/</code>.</li>
+<li>[ ] <strong>Weekly fulls</strong> in <code>weekly/</code>: <code>clinvar-gkm_YYYY-MMDD.json.gz</code> + <code>.sha256</code> for every release, and
+  <code>clinvar-gkm_00-latest_weekly.json.gz</code> + <code>.sha256</code>. The month rollover deletes the finished month's.</li>
+<li>[ ] <strong>Deltas</strong> in <code>deltas/</code>: <code>clinvar-gkm-delta_YYYY-MMDD.json.gz</code>, its <code>.sha256</code> and its manifest. The month
+  rollover moves the finished month to <code>deltas/YYYY-MM/</code>; the year rollover moves those folders to
+  <code>archive/YYYY/deltas/YYYY-MM/</code>.</li>
+<li>[ ] <strong>Delta manifest.</strong> <code>checkpoint_full</code> names the official monthly that <strong>precedes</strong> the delta (today
+  every manifest names <code>2026-10</code>, the newest monthly, so a replay can't find its base). Add
+  <code>bundle = {"path", "size", "sha256"}</code>. <code>build-delta-manifest.py</code> stays BigQuery-only; the uploader patches
+  the file fields.</li>
+<li>[ ] <strong>Parquet</strong> in <code>parquet/</code>: one dataset, overwritten every release, with a manifest file giving the build
+  date, the source release and the tool version (<code>source.json</code> is replaced). No Parquet anywhere else.</li>
+<li>[ ] <strong><code>generate-r2-index.sh</code></strong> writes <code>v1/1.1/index.json</code>:<ul>
+<li>every monthly entry gets <code>sha256</code> (from its sidecar; <code>null</code> when there is none) and <strong><code>source_release</code></strong>,
+  the release the monthly was built from (ADR 0002);</li>
+<li>every delta entry gets <code>"bundle": {"path", "size", "sha256"}</code> and the path of its manifest, in whichever
+  folder the delta now sits;</li>
+<li>the weekly fulls, the <code>archive/YYYY/</code> contents and the Parquet dataset are listed;</li>
+<li>the Parquet entry gets <code>"derived": true</code>, and the index a top-level
+  <code>"parquet_note": "Derived from the bundle; may be regenerated (ADR 0008)."</code>;</li>
+<li>top level: <code>"schema_version"</code>, <code>"status"</code>, <code>"superseded_by"</code>, <code>"eol"</code>, from <code>LINE_STATUS</code> /
+  <code>SUPERSEDED_BY</code> / <code>LINE_EOL</code> env vars (defaults <code>current</code>, <code>null</code>, <code>null</code>).</li>
+</ul>
+</li>
+<li>[ ] <strong>Root manifest.</strong> Replace the hard-coded <code>"schema": "1.0.0"</code> with <code>SCHEMA_VERSION</code> read from
+  <code>assemble-gkm-dicts.py</code> (overridable by env). List each line folder (<code>v1/1.1/</code> current, <code>v1/1.0/</code> frozen
+  with <code>superseded_by</code> and <code>eol</code>). It replaces the <code>"archives"</code> pointer to <code>archive/1.0.1/</code> planned earlier.</li>
+<li>[ ] <strong><code>r2-readme.txt</code>.</strong> Describe the layout, the rollovers, the <code>.sha256</code> sidecars and the Parquet note.</li>
+<li>[ ] <strong>CDN</strong> (<a href="../../../decisions/0005-r2-custom-domain-and-cdn/#layout-change-adr-0009">ADR 0005</a>): point the
+  "Latest Parquet" cache rule at the <code>parquet/</code> folder; purge old paths after every move and delete and the
+  Parquet folder after every release; drop <code>/archive/</code> from the path allowlist after the 1.0.1 move.</li>
+<li>[ ] <strong>Cleanup:</strong> delete the old <code>v1/datasets/</code>, <code>v1/deltas/</code> and dated Parquet trees (confirmed step, dry
+  run first, then purge).</li>
+<li>[ ] Gate: <code>generate-r2-index.sh --dry-run</code> output validates with <code>jq</code>; every monthly entry has a 64-hex
+  <code>sha256</code> and a <code>source_release</code>; every delta's <code>checkpoint_full</code> names the newest monthly whose
+  <code>source_release</code> is earlier than the delta's <code>release</code>.</li>
+</ul>
+<hr />
+<h2 id="4-layout-and-parquet-is-derived-doc-notes-on-main-with-task-3">4. Layout and "Parquet is derived" doc notes (on <code>main</code>, with task 3)<a class="headerlink" href="#4-layout-and-parquet-is-derived-doc-notes-on-main-with-task-3" title="Permanent link">&para;</a></h2>
+<p>Done on PR #146 for the ADR 0009 layout:</p>
+<ul>
+<li>[ ] <strong><code>docs/data-access/*</code></strong> (download, monthly full, weekly deltas, Parquet, release model, index): every
+  path under <code>v1/1.1/</code>; the weekly-full deletion and how to rebuild a past week; the single Parquet dataset,
+  its manifest file, and rebuilding past versions with <code>clinvar-gkm-parquet</code> (planned); a note on how the
+  layout mirrors NCBI.</li>
+<li>[ ] <strong>Delta replay recipe</strong> (<code>weekly-deltas.md</code>): to rebuild week W, take the newest monthly whose
+  <code>source_release</code> ≤ W, then apply the deltas whose <code>release</code> is later than that <code>source_release</code> and ≤ W,
+  checking the chain. The old recipe compared months and skipped same-month deltas.</li>
+<li>[ ] <strong><code>docs/assets/js/r2-browser.js</code></strong> and <strong><code>docs/assets/duckdb-console.html</code></strong> read the new index and
+  Parquet paths.</li>
+<li>[ ] <strong><code>docs/reference/versioning.md</code>.</strong> New section "The public record": bundles immutable from 1.1.0 except
+  weekly fulls, frozen lines such as <code>v1/1.0/</code>, sha256 sidecars, how to check a local copy
+  (<code>sha256sum -c</code>), Parquet is derived. Update the root-manifest example. Update the "Initial-stabilization
+  period" admonition once GA is confirmed (ADR 0008 (a)).</li>
+<li>[ ] <code>zensical build --clean --strict</code> and <code>python src/scripts/check-site-links.py</code> pass.</li>
+</ul>
+<hr />
+<h2 id="5-parquet-rebuild-tool-clinvar-gkm-parquet">5. Parquet rebuild tool (<code>clinvar-gkm-parquet</code>)<a class="headerlink" href="#5-parquet-rebuild-tool-clinvar-gkm-parquet" title="Permanent link">&para;</a></h2>
+<p>ADR 0008 (e) needs a tool a user can run on a <strong>published bundle</strong>. It is
+<a href="https://github.com/clingen-data-model/clinvar-gkm-parquet"><code>clinvar-gkm-parquet</code></a>, a separate repo with its own
+version cadence (design plan on its PR #1). Each tool version declares the bundle <code>schema_version</code>s it accepts
+and the Parquet table spec it produces. Workstream 1 of the
+<a href="../2026-10-18-pipeline-simplification/#3-workstream-1-parquet-built-from-the-bundle-output">simplification plan</a>
+then pins the tool so the pipeline and users build Parquet the same way.</p>
+<p>Steps:</p>
+<ul>
+<li>[ ] Build the tool against the 1.1.0 BigQuery-exported Parquet as its oracle (<code>EXCEPT ALL</code> in both directions
+  = 0 rows per table, with the same schema).</li>
+<li>[ ] The tool writes the Parquet manifest file (build date, source release, tool version) that the published
+  <code>v1/1.1/parquet/</code> dataset carries.</li>
+<li>[ ] The tool reads inputs in the ADR 0009 layout: monthlies at the line's top level, <code>weekly/</code>, <code>deltas/</code>
+  with its <code>YYYY-MM/</code> folders, and <code>archive/YYYY/</code>. To rebuild a past week it uses the replay rule in task 4,
+  using <code>checkpoint_full</code> and each monthly's <code>source_release</code>.</li>
+<li>[ ] ClinVar-GKM pins a tool version and the release builds <code>parquet/</code> with it.</li>
+<li>[ ] Docs: a "Rebuild Parquet from a bundle" page linked from the Parquet page.</li>
+<li>[ ] <strong>Decision:</strong> which bundles the tool accepts. Parquet published before the tool (1.0.x, and 1.1.0,
+  whose Parquet is built by BigQuery SQL) cannot be reproduced bit-for-bit. Options: the tool accepts only
+  1.1.0 bundles and later; or it also reads the 1.0.x section layout (<code>var*-proposition</code>) in <code>v1/1.0/</code> and
+  rebuilds it in the 1.1.0 table shape.</li>
+</ul>
+<hr />
+<h2 id="6-v220-line-runbook">6. <code>v2/2.0/</code> line runbook<a class="headerlink" href="#6-v220-line-runbook" title="Permanent link">&para;</a></h2>
+<p>A runbook for ADR 0008 (b), to write before the first breaking change after GA. It covers:</p>
+<ul>
+<li>[ ] The RFC (ADR 0004 §8) and its 4-week window.</li>
+<li>[ ] Building <code>v2/2.0/</code> in full with <code>R2_PREFIX=v2/2.0/</code> (the uploaders and <code>generate-r2-index.sh</code> read it;
+  <code>run-release.sh</code> needs it passed through and a per-line stop rule).</li>
+<li>[ ] <code>generate-r2-index.sh</code>: the root manifest lists more than one line (today it hard-codes the single <code>v1</code>
+  entry); <code>active</code> becomes <code>["1", "2"]</code> and then <code>["2"]</code>.</li>
+<li>[ ] Freezing <code>v1/1.x/</code>: <code>LINE_STATUS=superseded</code>, <code>SUPERSEDED_BY=2</code>, <code>LINE_EOL=&lt;date&gt;</code> written to
+  the line's <code>index.json</code> and the root manifest; no more uploads to it. The same steps freeze a line folder
+  when a new MINOR opens (ADR 0009 §1).</li>
+<li>[ ] The switch-over notice: email list, Discussions <em>Announcements</em>, the feed, the changelog.</li>
+<li>[ ] CDN check: the ADR 0005 cache rules match by <code>00-latest</code> / <code>index.json</code> / <code>feed.xml</code>, not by <code>v1/</code>, so they
+  already cover <code>v2/</code>; the latest-Parquet rule must also match <code>v2/2.0/parquet/</code>; verify with
+  <code>cf-cache-status</code>.</li>
+<li>[ ] Docs: <code>reference/versioning.md</code>, the download pages and the console point at the current line.</li>
+<li>[ ] Depends on ADR 0008's open point: freeze at the switch-over, or keep ADR 0004 §3's 6-month live window.</li>
+</ul>
+<hr />
+<h2 id="7-metrics-review-60-days">7. Metrics review (60 days)<a class="headerlink" href="#7-metrics-review-60-days" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] <strong>When:</strong> 60 days after the first collected day. With the backfill from 2026-10-14, that is about
+  <strong>2026-12-13</strong>.</li>
+<li>[ ] Run <code>summarize-download-stats.py</code> on <code>stats/2026-10.csv</code> … <code>stats/2026-12.csv</code> from <code>ops/download-stats</code>,
+  per month.</li>
+<li>[ ] Decide N for ADR 0008 (f), then apply the triggers: archive retention and promotion, and freeze vs
+  parallel window for the next breaking change (ADR 0008 (b)).</li>
+<li>[ ] Decide whether to keep collecting daily and whether to load the CSVs into BigQuery (<code>--bq</code>).</li>
+<li>[ ] Move ADR 0008 from Proposed to Accepted (or amend it) with the numbers.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../../..","features":["navigation.tabs","navigation.tabs.sticky","navigation.sections","navigation.indexes","navigation.top","search.suggest","search.highlight","content.code.copy","toc.follow"],"search":"../../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.6970bfe9.min.js"></script>
+      
+        <script src="../../../assets/js/r2-browser.js"></script>
+      
+    
+  </body>
+</html>

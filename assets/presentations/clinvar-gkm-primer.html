@@ -386,7 +386,7 @@
           <div class="card"><div class="big">1 JSON</div><p>A single bundle of ~20 cross-linked sections, plus typed <b>Parquet</b> (one file per section).</p></div>
           <div class="card"><div class="big">100%</div><p>Every variation, SCV, VCV &amp; RCV from the matching ClinVar XML release.</p></div>
           <div class="card"><div class="big">~1–2 d</div><p>Published within a day or two of each ClinVar release; synced to ClinVar's cadence.</p></div>
-          <div class="card"><div class="big">CC0</div><p>Public-domain dedication — same terms as the source ClinVar data. No auth, no egress fees.</p></div>
+          <div class="card"><div class="big">CC0</div><p>Public-domain dedication for the code and the published data; the source ClinVar data comes from NCBI. No auth, no egress fees.</p></div>
         </div>
         <div style="margin-top:20px" class="card">
           <p style="font-size:16px;color:var(--ink)"><b>Built and maintained by the ClinGen driver project</b> — and a real-world validation
@@ -485,14 +485,14 @@
             <div class="head"><div class="skey">scv</div><div class="otype">ClinvarScvStatement · va-spec Statement</div></div>
             <div class="dbody">
               <div class="eid">clinvar.submission:SCV001571657.2</div>
-              <div class="ref"><b>proposition</b> <span class="arrow">→</span> <span class="to">#/varcond-proposition/</span></div>
+              <div class="ref"><b>proposition</b> <span class="arrow">→</span> <span class="to">#/propositionPathogenicity/</span></div>
               <div class="ref"><b>contributions[].agent</b> <span class="arrow">→</span> <span class="to">#/submitter/</span></div>
               <div class="ref"><b>hasEvidenceLines[]</b> <span class="arrow">→</span> <span class="to">#/evidenceLine/</span></div>
             </div>
           </div>
           <div class="conn"><div class="l"></div><div class="r">proposition 1..1</div><div class="a"></div></div>
           <div class="drawer">
-            <div class="head"><div class="skey">varcond-proposition</div><div class="otype">VariantPathogenicityProposition</div></div>
+            <div class="head"><div class="skey">propositionPathogenicity</div><div class="otype">VariantPathogenicityProposition</div></div>
             <div class="dbody">
               <div class="eid">SCV001571657-PATH</div>
               <div class="ref"><b>subject</b> <span class="arrow">→</span> <span class="to">#/variation/</span></div>
@@ -504,7 +504,7 @@
           <div class="card" style="background:var(--box)">
             <p style="font-size:14px;color:var(--ink);line-height:1.6" class="mono">
               { <b>scv, vcv, rcv, evidenceLine,</b><br>
-              &nbsp; <b>varcond-</b> / <b>vartumor-</b> / <b>vartherapy-</b> / <b>varcustom-proposition,</b><br>
+              &nbsp; <b>propositionPathogenicity</b> / <b>Oncogenicity</b> / <b>SomaticClinicalImpact</b> / <b>ClinvarCustom,</b><br>
               &nbsp; <b>condition, conditionSet, therapy, therapyGroup, submitter,</b><br>
               &nbsp; <b>variation, allele, location, sequenceReference,</b><br>
               &nbsp; <b>gene, copyNumberCount, copyNumberChange</b> }
@@ -602,12 +602,12 @@
               <div class="eid">clinvar.submission:SCV00&hellip; <span style="opacity:.6">(illustrative)</span></div>
               <div class="ref"><b>classification</b>: <span style="color:var(--ink)">Pathogenic</span> <span class="chip" tabindex="0" style="padding:1px 7px;font-size:11px;vertical-align:middle">direction / strength<span class="tip"><b>Direction</b> = supports / disputes / neutral; <b>Strength</b> = definitive / likely / strong / potential.</span></span></div>
               <div class="ref"><b>quality</b>: <span style="color:var(--ink)">criteria provided</span> <span class="chip" tabindex="0" style="padding:1px 7px;font-size:11px;vertical-align:middle">review status<span class="tip"><b>quality</b> <span style="opacity:.7">(va-spec — a newer attribute)</span> — the SCV's <b>review status</b> / submission level (e.g. "criteria provided", "expert panel"). It maps to ClinVar's star rating and <b>drives aggregation</b>: the highest review status wins when SCVs roll up into a VCV / RCV.</span></span></div>
-              <div class="ref"><b>proposition</b> <span class="arrow">→</span> <span class="to">#/varcond-proposition/</span></div>
+              <div class="ref"><b>proposition</b> <span class="arrow">→</span> <span class="to">#/propositionPathogenicity/</span></div>
             </div>
           </div>
           <div class="conn"><div class="l"></div><div class="r">proposition</div><div class="a"></div></div>
           <div class="drawer">
-            <div class="head"><div class="skey">varcond-proposition</div><div class="otype">VariantPathogenicityProposition</div></div>
+            <div class="head"><div class="skey">propositionPathogenicity</div><div class="otype">VariantPathogenicityProposition</div></div>
             <div class="dbody">
               <div class="ref"><b>subject</b> <span class="arrow">→</span> <span class="to">#/variation/clinvar:10</span></div>
               <div class="ref"><b>predicate</b>: <span class="mono" style="color:var(--ink)">isCausalFor</span></div>
