@@ -21,7 +21,8 @@ to stay informed.
 A change to a **string value's format** that leaves the schema shape untouched (same fields and types) is
 **not** a schema version change — it is recorded in the [Changelog](changelog.md). A content-only correction
 that must **rewrite published bundles** is still released as a new MINOR line, even when the schema shape is
-unchanged; a PATCH never rewrites a published file.
+unchanged. The new line's schema `$id` version and every bundle's `schema_version` move to that MINOR too, so a
+bundle's `schema_version` always names the line folder it was published in. A PATCH never rewrites a published file.
 
 !!! note "Upstream standards are insulated"
     ClinVar-GKM builds on the GA4GH GKM schemas (VRS, Cat-VRS, VA-Spec). When one of those bumps, the
