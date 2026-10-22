@@ -71,7 +71,7 @@ A single variant usually has several VCV statements: one per classification type
 
 <iframe src="../assets/diagrams/parquet-vcv-levels.html" style="width:100%; height:760px; border:1px solid rgba(128,128,128,.25); border-radius:6px;" title="Reading a variant's statements" loading="lazy"></iframe>
 
-The same facts as text. A statement id reads `<accession>.<version>-<lane>-<code>[-<level>]`, for example `VCV000012871.93-G-PATH-CP`.
+The same facts as text. A statement id reads `<accession>.<version>-<lane>-<code>[-<level>]`, for example `VCV000012871.94-G-PATH-CP`.
 
 **Lane and classification code.** The lane is `G` (germline) or `S` (somatic). The code is shorthand for the proposition type, and says which proposition table holds the proposition:
 
