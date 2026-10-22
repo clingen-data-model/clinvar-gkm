@@ -152,7 +152,9 @@ schema shape (a content-only change, which ADR 0004 §1 does not count as a sche
 as a **new MINOR line folder**: for example, 1.2.0 is published into `v1/1.2/`, and `v1/1.1/` is frozen and kept
 (ADR 0008 (b), (c)). A **PATCH** (1.1.x) only ever **adds** new dated files to the current line folder and never
 rewrites one. This amends ADR 0004 §1 for that case: a release that rewrites published bundles takes a MINOR
-number even when the schema shape is unchanged.
+number even when the schema shape is unchanged. The new line's schema `$id` version and every bundle's `schema_version` move to
+that MINOR (for example `1.2.0`) as well (*decided 2026-10-22*), so a bundle's `schema_version` always names
+the line folder it was published in.
 
 ## Consequences
 
