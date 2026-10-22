@@ -5,6 +5,9 @@ ClinVar-GKM provides a standardized, machine-readable representation of [ClinVar
 !!! warning "1.1.0 moved every download URL"
     1.1.0 (released <!-- YYYY-MM-DD at tag -->) moved every download URL to `v1/1.1/` and renamed the proposition sections — see the [changelog migration notes](reference/changelog.md#110).
 
+!!! info "New here?"
+    [**How to Read These Docs**](reading-guide.md) maps each section to what it gives you, with three reading paths: understanding the data from ClinVar's website, following how ClinVar's XML becomes this format, and building a pipeline or application on it.
+
 !!! tip "New to GKM datasets? Start with the GKM Starter Kit"
     The GA4GH [**GKM Starter Kit**](https://ga4gh.github.io/gkm-starter-kit/) is a practical entry point for working with GKM data. It brings together the [reference libraries](https://ga4gh.github.io/gkm-starter-kit/latest/tools/reference-implementations/) (vrs-python, cat-vrs-python, va-spec-python), the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) for loading and exploring published bundles, and [user stories](https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/) from projects putting GKM to work. clinvar-gkm is a GKM data producer — those tools work directly on its bundles.
 
@@ -196,6 +199,7 @@ See the [Pipeline Overview](pipeline/index.md) for the full workflow.
 
 ## Next Steps
 
+- [How to Read These Docs](reading-guide.md) — a map of the docs and a reading path for your needs
 - [Output Format](output-reference/overview.md) — detailed guide to the bundle format
 - [Variations](output-reference/cat-vrs.md) — how ClinVar variations are represented
 - [SCV Statements](output-reference/scv-statements.md) — submitted classification statements

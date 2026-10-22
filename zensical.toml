@@ -11,6 +11,7 @@ extra_javascript = ["assets/js/r2-browser.js"]
 strict = true
 nav = [
   { Home = "index.md" },
+  { "How to Read These Docs" = "reading-guide.md" },
   { Downloads = [
     "data-access/download.md",
     { "Monthly Full Bundles" = "data-access/monthly-full.md" },
