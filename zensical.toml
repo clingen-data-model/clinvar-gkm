@@ -134,6 +134,7 @@ nav = [
     { Roadmap = "reference/roadmap.md" },
     { "Versioning & Releases" = "reference/versioning.md" },
     { Changelog = "reference/changelog.md" },
+    { "Release Validation" = "reference/release-validation.md" },
     { "GA4GH Standards" = "reference/gks-standards.md" },
     { "Known Issues" = "reference/known-issues.md" },
     { FAQ = "reference/faq.md" },

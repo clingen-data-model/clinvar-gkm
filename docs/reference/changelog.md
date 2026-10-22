@@ -252,20 +252,9 @@ References inside the JSON bundle and the `data` columns still use `#/<section>/
 - `conditionSet.data` is null-stripped like every other `data` column: a set with no `conceptSetType`
   omits the key instead of carrying `"conceptSetType": null`.
 
-**Validation** — the rebuilt data was checked before publishing:
-
-- The official GA4GH gkm-toolkit (`ga4gh.gkm` 0.4.0) validated, in strict mode, the real staged 2026-06-27
-  full bundle and all 16 deltas: PASS.
-- Proposition reference integrity passed on all 17 datasets: every pointer names the section its proposition
-  is in, with no old-section or dangling pointer.
-- An expected-difference check against snapshots taken before the rebuild explained every difference on 16
-  datasets by a change listed above.
-- The delta-reconstruction oracle (prior release + delta = next release) found no difference (`0,0,0`) on
-  every section for all 16 pairs, including the cross-version pair 2026-08-22 → 2026-08-29.
-- No staged bundle carries a null or empty value, except the null bound of a VRS `Range`, which VRS uses for an
-  open-ended coordinate.
-
-<!-- validation: add 10-18 full strict result, structural checks, bundle↔Parquet at publish -->
+**Validation** — the rebuilt datasets and the real staged bundles were gated before publishing (reference
+integrity, expected difference, delta reconstruction, strict GA4GH gkm-toolkit validation, bundle ↔ Parquet).
+See [Release Validation](release-validation.md) for the gates and the results.
 
 **Known issues** — see [Known Issues](known-issues.md) for the current list. In short: in the 2026-10-18
 release, VRS normalization returned an error for 6 variations; 16 HGVS expressions in ClinVar's XML are
