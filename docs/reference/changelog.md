@@ -5,9 +5,7 @@ A running record of every schema change and data re-release on the 1.x line. See
 [GitHub Releases](https://github.com/clingen-data-model/clinvar-gkm/releases) page for the
 tagged source of each.
 
-## 1.1.0
-
-<!-- set the release date when 1.1.0 is tagged -->
+## 1.1.0 — <!-- YYYY-MM-DD at tag --> { #110 }
 
 A **breaking** release during the [initial-stabilization period](versioning.md); see
 [ADR 0006](../decisions/0006-ship-1.1.0-in-place-under-v1.md). It reorganizes the proposition sections and
@@ -32,17 +30,32 @@ published under a new line folder, **`v1/1.1/`**, in a new R2 layout that mirror
   each record must carry one of the concrete `Clinvar*` types (every published record already does). The
   Parquet entries below name the pre-1.1.0 tables.
 - **Breaking: version.** The schema `$id` version and the bundle `schema_version` move `1.0.1 → 1.1.0`.
-- **Corrective**: everything else below. The schema change to `ClinvarCategoricalVariant` accepts every valid
-  record; the data corrections fix HGVS syntax, duplicate allele keys, RCV propositions without an object,
+- **Corrective**: everything else below. The schema changes accept every published record; the data corrections fix HGVS syntax, duplicate allele keys, RCV propositions without an object,
   condition pointers, condition names, citations, gene context and array order; and the Parquet changes add bare-id and typed columns and
   make every Parquet value match the bundle.
 
-**Schema change** — no change to valid instances:
+!!! warning "Do not mix 1.0.1 and 1.1.0 files"
+    Do not apply 1.1.0 deltas to a 1.0.1 monthly. Replay `v1/1.1/` deltas only onto a `v1/1.1/` monthly, and
+    the frozen `v1/1.0/` deltas only onto a `v1/1.0/` monthly. To be told about future releases, join the email
+    list [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm); see
+    [Versioning & Releases](versioning.md#stay-informed-have-a-say).
+
+**Schema changes** — no published record changes:
 
 - The four `ClinvarCategoricalVariant` branches are now mutually exclusive, each keyed on its constraint
   (`DefiningAlleleConstraint`, `CopyCountConstraint`, `CopyChangeConstraint`, or no `constraints`). Before, real
   variants matched more than one branch and failed the `oneOf`. The bundle schema now validates the
   `variation` section through `ClinvarCategoricalVariant`.
+- The nine ClinVar `*Properties` mixins (`ClinvarScvStatementProperties`, `ClinvarAggregateStatementProperties`,
+  `ClinvarCategoricalVariantProperties` and six more) are now `abstract`. They were emitted closed
+  (`additionalProperties: false`) inside `allOf`, so a strict validator rejected the fields their GA4GH base
+  classes supply. Each record is still closed by its class's `unevaluatedProperties: false`. This works around
+  [ga4gh/gkm-metaschema#88](https://github.com/ga4gh/gkm-metaschema/issues/88) (#153).
+- `GeneListItem` now describes the published shape, `{gene, relationship_type, source}`, all three required:
+  `gene` is a `#/gene/` reference and `source` is `calculated` or `submitted`. It used to list
+  `entrez_gene_id`, `hgnc_id`, `symbol` and `iris`, which no published record carries (#153).
+- `ClinvarCanonicalAllele.definingContext` is removed. Cat-VRS 1.1.1's closed `CanonicalAllele` cannot accept
+  it, and no record carried it (#153).
 
 **Data-shape correction** — 14 variants (16 HGVS expressions) had `clinvarHgvsList` entries with syntax
 `hgvs.?`, which VRS doesn't allow. ClinVar's submitted text had no HGVS type letter. It is now kept as an
@@ -65,8 +78,9 @@ since merged. Each allele now has exactly one record:
   expressions the other variations would have used as the name are still in `expressions`.
 - Each variation keeps its own `variation` record, which points to the shared allele.
 
-Expression order and the `name` are now fully deterministic. Ties are broken by value, which changes the name of
-2 alleles that had tied expressions.
+Expression order and the `name` are now fully deterministic. When equivalent ClinVar HGVS spellings tie for the
+name, the tie is broken by value. That changes the `name` of the few alleles with tied expressions; the number
+depends on the release (1 or 2 per release, 2 in 2026-10-11).
 
 **RCV propositions without an object** — in the 2026-10-04 and 2026-10-11 releases, the 4 propositions of
 `RCV000001117` (`-G-PATH`, `-G-PATH-CP`, `-G-NP`, `-G-NP-NOCL`) had no `object` and failed validation. This
@@ -85,7 +99,7 @@ for the 2026-10-11 release):
   members are now `#/condition/…` or, for a nested TraitSet, `#/conditionSet/…`.
 
 The ids themselves are unchanged, including every `vcv-` set id. A pointer-following reader (the
-[GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/tools/gkm-toolkit/getting-started/), `sub-bundle.py`)
+[GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/), `sub-bundle.py`)
 now reaches these conditions. The `submittedCondition` and `submittedConditionSet` extension values stay bare
 CURIEs: they record what was submitted, not a reference. In Parquet, the typed id columns (`object_condition_id`,
 `object_id`, `object_tumor_type_id`, `conditionSet.concepts`) are unchanged bare ids; only the `data` columns
@@ -103,7 +117,7 @@ the trait's Alternate name (the first alphabetically). No value is made up, and 
   trait record is empty, but the RCV's TraitSet names each `not provided`.
 
 When an SCV's submitted condition has no name, its classification `description` uses the condition's name. In
-173 SCVs it changes from `for unspecified condition` to the ClinVar name.
+173 SCVs of the 2026-10-11 release it changes from `for unspecified condition` to the ClinVar name.
 
 **Citations** — SCV `reportedIn` and `specifiedBy.reportedIn` now hold **one Document per ClinVar citation**,
 with no citation dropped and no ClinVar value changed silently. Counts are for the 2026-09-28 release:
@@ -168,6 +182,23 @@ name-derived genes below are new. Counts are for the 2026-09-28 release, before 
 The gene context stays on the proposition. This is a data change only: the schema already allows extensions
 on the qualifier. See [Qualifier Extensions](../output-reference/scv-statements.md#qualifier-extensions).
 
+**Upstream gene-context fixes** — two defects in the upstream `single_gene_variation` table
+([clinvar-ingest-bq-tools](https://github.com/clingen-data-model/clinvar-ingest-bq-tools)) were fixed and
+backfilled before the rebuild, so 1.1.0 carries them. Counts are for the 2026-09-28 release:
+
+- **Haplotypes and genotypes in one gene**
+  ([bq-tools #38](https://github.com/clingen-data-model/clinvar-ingest-bq-tools/issues/38)): when all of a
+  haplotype's or genotype's alleles share one gene, it was rejected, so 63 SCV propositions had the placeholder
+  or no gene context. They now get the shared gene; variation 3737 (FH Aarhus), for example, gets LDLR.
+- **Gene ids missing from the gene table**
+  ([bq-tools #39](https://github.com/clingen-data-model/clinvar-ingest-bq-tools/issues/39), fixed by #41 and
+  #42): 37 SCV propositions lost their gene context because the variant's gene was not in the upstream gene
+  table. Genes such as SMIM48 and LINC03103 now resolve. Genes with no HGNC id (`LOC*`) and NCBI-discontinued
+  ids (such as STRTS) stay excluded by design, so not every one of the 37 regains a gene.
+
+Both are tracked, with the other upstream defects found during 1.1.0, in
+[#164](https://github.com/clingen-data-model/clinvar-gkm/issues/164).
+
 **Array order** — several arrays had no fixed order, so two builds of the same release could list the same
 items in a different order. Each now has one fixed order, and every build gives the same bytes. Only the order
 changes; no value is added, removed or changed. Counts are for the 2026-10-11 release:
@@ -180,6 +211,11 @@ changes; no value is added, removed or changed. Counts are for the 2026-10-11 re
   order.
 - VCV and RCV `evidenceLine` (688,701 and 358,507): `hasEvidenceItems` lists SCVs in id order and
   non-contributing statements in priority order.
+
+Values picked from several equal candidates are made deterministic the same way: the sequence reference and
+cross-reference IRI system of a variant, a condition's `primaryCoding`, `membershipOperator` and merged trait
+attributes, and the representative expression source in variation identity. On 2026-10-11 none of these picks
+changed a published value.
 
 **Parquet** — typed columns now hold bare ids, as the other id columns already did:
 
@@ -198,6 +234,9 @@ changes; no value is added, removed or changed. Counts are for the 2026-10-11 re
 - `location` gains `loc_start_min`, `loc_start_max`, `loc_end_min` and `loc_end_max`: the bounds of each
   coordinate, set from the range when ClinVar gives an uncertain start or end (about 72,000 rows, mostly
   copy-number variants), where `loc_start` / `loc_end` are NULL. See [`location`](../parquet/tables.md#location).
+- `scv`, `vcv` and `rcv` gain `proposition_section`: the proposition table their `proposition_id` is in
+  (`propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact` or
+  `propositionClinvarCustom`), taken from the statement's pointer (#171).
 
 References inside the JSON bundle and the `data` columns still use `#/<section>/` pointers.
 
@@ -210,6 +249,27 @@ References inside the JSON bundle and the `data` columns still use `#/<section>/
   The column type is unchanged.
 - `conditionSet.data` is null-stripped like every other `data` column: a set with no `conceptSetType`
   omits the key instead of carrying `"conceptSetType": null`.
+
+**Validation** — the rebuilt data was checked before publishing:
+
+- The official GA4GH gkm-toolkit (`ga4gh.gkm` 0.4.0) validated, in strict mode, the real staged 2026-06-27
+  full bundle and all 16 deltas: PASS.
+- Proposition reference integrity passed on all 17 datasets: every pointer names the section its proposition
+  is in, with no old-section or dangling pointer.
+- An expected-difference check against snapshots taken before the rebuild explained every difference on 16
+  datasets by a change listed above.
+- The delta-reconstruction oracle (prior release + delta = next release) found no difference (`0,0,0`) on
+  every section for all 16 pairs, including the cross-version pair 2026-08-22 → 2026-08-29.
+- No staged bundle carries a null or empty value, except the null bound of a VRS `Range`, which VRS uses for an
+  open-ended coordinate.
+
+<!-- validation: add 10-18 full strict result, structural checks, bundle↔Parquet at publish -->
+
+**Known issues** — see [Known Issues](known-issues.md) for the current list. In short: in the 2026-10-18
+release, VRS normalization returned an error for 6 variations; 16 HGVS expressions in ClinVar's XML are
+malformed and were reported to ClinVar; and DOIs that VA-Spec's pattern rejects are kept in `clinvarDoi`.
+Upstream defects and their workarounds are tracked in
+[#164](https://github.com/clingen-data-model/clinvar-gkm/issues/164).
 
 **Republish**: 1.1.0 is not a patch. All 17 BigQuery datasets behind the published releases were rebuilt in
 full. Then the 4 monthly full bundles (2026-07 … 2026-10, and `00-latest`), October's 3 weekly full bundles

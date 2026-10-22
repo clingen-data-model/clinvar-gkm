@@ -3,6 +3,11 @@
 !!! info "Presented at GA4GH Connect — October 2, 2026"
     This primer was prepared for **GA4GH Connect** (October 2, 2026) to introduce ClinVar-GKM to the GKS community.
 
+!!! warning "Download URLs predate 1.1.0"
+    The download URLs and the per-release Parquet in this deck's Downloads slide predate 1.1.0. See
+    [Downloads](../../data-access/download.md) for the current layout and the [Changelog](../changelog.md#110) for
+    what changed.
+
 A ~8-minute (15-slide) introduction to ClinVar-GKM for a technical audience that knows ClinVar but is new to
 **VA-Spec** and the **GKM** model. It covers how ClinVar's complete data is organized today (shown with the
 real VCV XML schema), how the newest GKM standards
