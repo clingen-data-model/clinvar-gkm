@@ -28,6 +28,17 @@
   .caption { font-size: 12px; color: var(--ink-soft); margin: 0 0 12px; line-height: 1.5; }
   .caption code { font-family: ui-monospace, monospace; font-size: 11px; color: var(--ink); }
 
+  /* pinned title + description, the same treatment as the Parquet diagrams: sticky, with a light tint of
+     the diagram accent spanning the frame so the header reads as part of this scrolling frame */
+  .top { position: sticky; top: 0; z-index: 10;
+    --hdr-bg: var(--hdr); --hdr-bg: color-mix(in srgb, var(--accent) 9%, var(--bg));
+    background: var(--hdr-bg);
+    box-shadow: 0 0 0 100vmax var(--hdr-bg); clip-path: inset(0 -100vmax);   /* full-bleed to the frame edges */
+    margin: -20px -20px 14px; padding: 14px 20px 8px;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent) 28%, var(--bg)); }
+  .top .caption { margin-bottom: 0; }
+  @media (max-width: 520px) { .top .caption { font-size: 11px; } }
+
   .skeleton { font-family: ui-monospace, monospace; font-size: 10.5px; line-height: 1.7; color: var(--ink-soft);
     background: var(--box); border: 1px solid var(--line); border-radius: 5px; padding: 10px 12px; margin: 0 0 18px; }
   .skeleton .k { color: var(--ink); font-weight: 600; }
@@ -77,8 +88,10 @@
 </style>
 
 <div class="wrap">
+  <header class="top">
   <div class="title-row"><h1>ClinVar-GKM bundle &mdash; section map</h1><span class="src">clinvar-gkm_&hellip;.json</span></div>
   <p class="caption">The release bundle is a single JSON object of <b>named sections</b>; each section is a dictionary mapping a typed id to one object. Objects link across sections with <code>#/section/id</code> JSON pointers &mdash; each drawer lists its outgoing references as <code>field &rarr; #/section/</code>. Each drawer links to its reference page; see <a href="../../output-reference/id-references/" target="_top">ID References</a> for the full pointer catalog.</p>
+  </header>
 
   <div class="skeleton">
 <span class="c">// one JSON object, 20 named sections, each { id: object }</span><br>
