@@ -116,7 +116,7 @@
 <header class="top">
 <h1>ClinVar-GKM parquet — table map</h1>
 <p class="lede">
-  22 tables, 90.2&nbsp;M rows (14&nbsp;Oct&nbsp;2026 monthly release). Six small areas you can hold in your head
+  22 tables, 91.5&nbsp;M rows (2026-10-18 release). Six small areas you can hold in your head
   one at a time; the joins between them are on the <a href="../../parquet/joining/" target="_top">Joining Tables</a> page.
 </p>
 <nav class="mini" aria-label="Diagrams in this frame"><ol>
@@ -144,18 +144,18 @@
     <text class="lb p" x="432" y="340" text-anchor="middle">evidence_items[]</text>
 
     <a class="tl" href="../../parquet/tables/#1-variant" target="_top"><title>Column reference: 1 · Variant</title><rect class="b g" x="24" y="48" width="204" height="58" rx="9"/>
-    <text class="nm" x="40" y="72">1 · Variant</text><text class="ct" x="40" y="88">4.65 M + 4 VRS tables</text></a>
+    <text class="nm" x="40" y="72">1 · Variant</text><text class="ct" x="40" y="88">4.69 M + 4 VRS tables</text></a>
     <a class="tl" href="../../parquet/tables/#3-proposition" target="_top"><title>Column reference: 3 · Proposition</title><rect class="b g" x="348" y="48" width="204" height="58" rx="9"/>
-    <text class="nm" x="364" y="72">3 · Proposition</text><text class="ct" x="364" y="88">27.7 M · 4 tables, one shape</text></a>
+    <text class="nm" x="364" y="72">3 · Proposition</text><text class="ct" x="364" y="88">28.1 M · 4 tables, one shape</text></a>
     <a class="tl" href="../../parquet/tables/#2-condition-therapy" target="_top"><title>Column reference: 2 · Condition &amp; therapy</title><rect class="b g" x="672" y="48" width="204" height="58" rx="9"/>
     <text class="nm" x="688" y="72">2 · Condition &amp; therapy</text><text class="ct" x="688" y="88">4 tables, 2 of them leaves</text></a>
 
     <a class="tl" href="../../parquet/tables/#4-scv" target="_top"><title>Column reference: 4 · SCV</title><rect class="b g" x="60" y="232" width="180" height="58" rx="9"/>
-    <text class="nm" x="76" y="256">4 · SCV</text><text class="ct" x="76" y="272">6.74 M submissions</text></a>
+    <text class="nm" x="76" y="256">4 · SCV</text><text class="ct" x="76" y="272">6.85 M submissions</text></a>
     <a class="tl" href="../../parquet/tables/#5-rcv" target="_top"><title>Column reference: 5 · RCV</title><rect class="b g" x="360" y="232" width="180" height="58" rx="9"/>
-    <text class="nm" x="376" y="256">5 · RCV</text><text class="ct" x="376" y="272">11.84 M aggregates</text></a>
+    <text class="nm" x="376" y="256">5 · RCV</text><text class="ct" x="376" y="272">12.06 M aggregates</text></a>
     <a class="tl" href="../../parquet/tables/#6-vcv" target="_top"><title>Column reference: 6 · VCV</title><rect class="b g" x="660" y="232" width="180" height="58" rx="9"/>
-    <text class="nm" x="676" y="256">6 · VCV</text><text class="ct" x="676" y="272">9.08 M aggregates</text></a>
+    <text class="nm" x="676" y="256">6 · VCV</text><text class="ct" x="676" y="272">9.17 M aggregates</text></a>
 
     <path class="e" d="M228,77 H344" marker-end="url(#a)"/>
     <path class="e poly" d="M672,77 H556" marker-end="url(#ap)"/>
@@ -187,12 +187,12 @@ UNION ALL SELECT 'propositionPathogenicity', count(*) FROM 'propositionPathogeni
 UNION ALL SELECT 'scv', count(*) FROM 'scv.parquet'
 UNION ALL SELECT 'rcv', count(*) FROM 'rcv.parquet'
 UNION ALL SELECT 'vcv', count(*) FROM 'vcv.parquet';</pre>
-<div class="out">variation                  4,647,675
-condition                     23,162
-propositionPathogenicity  27,447,072
-scv                        6,735,011
-rcv                       11,839,428
-vcv                        9,079,449</div>
+<div class="out">variation                  4,691,827
+condition                     23,414
+propositionPathogenicity  27,868,969
+scv                        6,853,781
+rcv                       12,056,355
+vcv                        9,165,651</div>
 </details>
 
 <!-- ============ AREA 1 ============ -->
@@ -204,25 +204,25 @@ vcv                        9,079,449</div>
     <text class="lb" x="575" y="26" text-anchor="middle">location_id</text>
 
     <a class="tl" href="../../parquet/tables/#variation" target="_top"><title>Column reference: variation</title><rect class="b g" x="24" y="120" width="170" height="46" rx="7"/>
-    <text class="nm" x="38" y="142">variation</text><text class="ct" x="38" y="157">4,647,675</text></a>
+    <text class="nm" x="38" y="142">variation</text><text class="ct" x="38" y="157">4,691,827</text></a>
 
     <a class="tl" href="../../parquet/tables/#allele" target="_top"><title>Column reference: allele</title><rect class="b" x="330" y="48" width="180" height="46" rx="7"/>
-    <text class="nm" x="344" y="70">allele</text><text class="ct" x="344" y="85">4,554,562 · VA.</text></a>
+    <text class="nm" x="344" y="70">allele</text><text class="ct" x="344" y="85">4,598,672 · VA.</text></a>
     <a class="tl" href="../../parquet/tables/#copyNumberCount" target="_top"><title>Column reference: copyNumberCount</title><rect class="b" x="330" y="120" width="180" height="46" rx="7"/>
-    <text class="nm" x="344" y="142">copyNumberCount</text><text class="ct" x="344" y="157">47,453 · CN.</text></a>
+    <text class="nm" x="344" y="142">copyNumberCount</text><text class="ct" x="344" y="157">47,466 · CN.</text></a>
     <a class="tl" href="../../parquet/tables/#copyNumberChange" target="_top"><title>Column reference: copyNumberChange</title><rect class="b" x="330" y="192" width="180" height="46" rx="7"/>
-    <text class="nm" x="344" y="214">copyNumberChange</text><text class="ct" x="344" y="229">31,717 · CX.</text></a>
+    <text class="nm" x="344" y="214">copyNumberChange</text><text class="ct" x="344" y="229">31,722 · CX.</text></a>
 
     <a class="tl" href="../../parquet/tables/#location" target="_top"><title>Column reference: location</title><rect class="b" x="640" y="120" width="180" height="46" rx="7"/>
-    <text class="nm" x="654" y="142">location</text><text class="ct" x="654" y="157">4,177,664</text></a>
+    <text class="nm" x="654" y="142">location</text><text class="ct" x="654" y="157">4,215,441</text></a>
     <a class="tl" href="../../parquet/tables/#sequenceReference" target="_top"><title>Column reference: sequenceReference</title><rect class="b" x="640" y="224" width="180" height="46" rx="7"/>
-    <text class="nm" x="654" y="246">sequenceReference</text><text class="ct" x="654" y="261">215</text></a>
+    <text class="nm" x="654" y="246">sequenceReference</text><text class="ct" x="654" y="261">214</text></a>
     <text class="lb" x="742" y="196">sequence_reference_id</text>
 
     <a class="tl" href="../../parquet/tables/#gene" target="_top"><title>Column reference: gene</title><rect class="b" x="24" y="258" width="170" height="46" rx="7"/>
-    <text class="nm" x="38" y="280">gene</text><text class="ct" x="38" y="295">92,972</text></a>
+    <text class="nm" x="38" y="280">gene</text><text class="ct" x="38" y="295">92,989</text></a>
     <text class="lb n" x="212" y="272">extensions[].value_gene_array[]</text>
-    <text class="lb n" x="212" y="284">.gene · 7.35 M refs · 100 %</text>
+    <text class="lb n" x="212" y="284">.gene · 7.40 M refs · 100 %</text>
 
     <path class="e poly" d="M194,134 C250,134 268,71 326,71" marker-end="url(#ap)"/>
     <path class="e poly" d="M194,143 H326" marker-end="url(#ap)"/>
@@ -237,8 +237,8 @@ vcv                        9,079,449</div>
   <figcaption>
     <code>members[]</code> and <code>constraints[]</code> both leave <code>variation</code>; the VRS prefix picks
     the table (<code>VA.</code> allele, <code>CN.</code> count, <code>CX.</code> change) and each branch is
-    exactly 100 %. The green edge is a gene reference by NCBI CURIE inside a JSON extension — 7,346,154 refs
-    covering all 92,972 genes.
+    exactly 100 %. The green edge is a gene reference by NCBI CURIE inside a JSON extension — 7,397,007 refs
+    covering all 92,989 genes.
   </figcaption>
 </figure>
 <details class="q"><summary>Query — drill one variant through VRS (members[] → allele → location → sequenceReference)</summary>
@@ -259,15 +259,15 @@ WHERE v.id = 'clinvar:51592';</pre>
 <figure>
   <div class="frame">
   <svg class="d w820" viewBox="0 0 860 246" role="img" aria-label="The condition and therapy area: conditionSet references condition through a concepts array, and therapyGroup references therapy the same way. Both resolve fully.">
-    <text class="lb" x="261" y="48" text-anchor="middle">concepts[] · 281,065 refs</text>
-    <text class="lb p" x="261" y="128" text-anchor="middle">30,032 nested set members</text>
+    <text class="lb" x="261" y="48" text-anchor="middle">concepts[] · 323,922 refs</text>
+    <text class="lb p" x="261" y="128" text-anchor="middle">33,077 nested set members</text>
     <text class="lb n" x="556" y="128" text-anchor="middle">members[] · 56 refs · 100 %</text>
 
     <a class="tl" href="../../parquet/tables/#condition" target="_top"><title>Column reference: condition</title><rect class="b g" x="24" y="62" width="190" height="46" rx="7"/>
-    <text class="nm" x="38" y="84">condition</text><text class="ct" x="38" y="99">23,162 · clinvar.trait:</text></a>
+    <text class="nm" x="38" y="84">condition</text><text class="ct" x="38" y="99">23,414 · clinvar.trait:</text></a>
 
     <a class="tl" href="../../parquet/tables/#conditionSet" target="_top"><title>Column reference: conditionSet</title><rect class="b" x="308" y="62" width="190" height="46" rx="7"/>
-    <text class="nm" x="322" y="84">conditionSet</text><text class="ct" x="322" y="99">88,883 total</text></a>
+    <text class="nm" x="322" y="84">conditionSet</text><text class="ct" x="322" y="99">100,706 total</text></a>
 
     <a class="tl" href="../../parquet/tables/#therapy" target="_top"><title>Column reference: therapy</title><rect class="b" x="592" y="20" width="200" height="46" rx="7"/>
     <text class="nm" x="606" y="42">therapy</text><text class="ct" x="606" y="57">38 · clinvar.therapy:</text></a>
@@ -275,8 +275,8 @@ WHERE v.id = 'clinvar:51592';</pre>
     <text class="nm" x="606" y="172">therapyGroup</text><text class="ct" x="606" y="187">10 · therapygroup:</text></a>
 
     <rect class="b" x="308" y="150" width="190" height="60" rx="7"/>
-    <text class="ct" x="322" y="170">5,345 accessioned traitset:</text>
-    <text class="ct" x="322" y="184">83,538 minted conditionset:</text>
+    <text class="ct" x="322" y="170">5,404 accessioned traitset:</text>
+    <text class="ct" x="322" y="184">95,302 minted conditionset:</text>
     <text class="ct" x="322" y="198">all present · 0 dangling</text>
 
     <path class="e" d="M308,85 H218" marker-end="url(#a)"/>
@@ -285,7 +285,7 @@ WHERE v.id = 'clinvar:51592';</pre>
   </svg>
   </div>
   <figcaption>
-    <code>conditionSet</code> holds two kinds of row: 5,345 accessioned ClinVar TraitSets and 83,538 sets
+    <code>conditionSet</code> holds two kinds of row: 5,404 accessioned ClinVar TraitSets and 95,302 sets
     minted for VCV-level aggregates. <code>therapyGroup</code> fans out the same way through its
     <code>members[]</code> column of <code>clinvar.therapy:</code> ids. Releases before 1.1.0 have no
     <code>members</code> column: the members are only inside the JSON <code>value</code>.
@@ -324,15 +324,15 @@ clinvar.conditionset:vcv-50aae75…  OR   Charcot-Marie-Tooth disease type 2; no
     <text class="ct" x="432" y="188">qualifiers</text>
 
     <a class="tl" href="../../parquet/tables/#variation" target="_top"><title>Column reference: variation</title><rect class="b" x="24" y="82" width="162" height="46" rx="7"/>
-    <text class="nm" x="38" y="104">variation</text><text class="ct" x="38" y="119">4,647,675</text></a>
+    <text class="nm" x="38" y="104">variation</text><text class="ct" x="38" y="119">4,691,827</text></a>
     <path class="e" d="M248,105 H190" marker-end="url(#a)"/>
 
     <a class="tl" href="../../parquet/tables/#condition" target="_top"><title>Column reference: condition</title><rect class="b" x="588" y="44" width="212" height="42" rx="7"/>
-    <text class="nm" x="602" y="65">condition</text><text class="ct" x="602" y="78">24.75 M refs · trait:</text></a>
+    <text class="nm" x="602" y="65">condition</text><text class="ct" x="602" y="78">25.11 M refs · trait:</text></a>
     <a class="tl" href="../../parquet/tables/#conditionSet" target="_top"><title>Column reference: conditionSet</title><rect class="b" x="588" y="98" width="212" height="56" rx="7"/>
     <text class="nm" x="602" y="119">conditionSet</text></a>
-    <text class="ct" x="602" y="132">1.27 M refs · traitset:</text>
-    <text class="ct" x="602" y="145">1.63 M refs · conditionset:</text>
+    <text class="ct" x="602" y="132">1.28 M refs · traitset:</text>
+    <text class="ct" x="602" y="145">1.68 M refs · conditionset:</text>
     <rect class="b" x="588" y="166" width="212" height="42" rx="7"/>
     <text class="nm" x="602" y="187">therapy / therapyGroup</text><text class="ct" x="602" y="200">13 refs · therapeutic response only</text>
 
@@ -341,7 +341,7 @@ clinvar.conditionset:vcv-50aae75…  OR   Charcot-Marie-Tooth disease type 2; no
     <path class="e poly" d="M504,164 C548,164 552,187 584,187" marker-end="url(#ap)"/>
 
     <a class="tl" href="../../parquet/tables/#gene" target="_top"><title>Column reference: gene</title><rect class="b" x="252" y="256" width="162" height="46" rx="7"/>
-    <text class="nm" x="266" y="278">gene</text><text class="ct" x="266" y="293">by name · 24.2 % of rows</text></a>
+    <text class="nm" x="266" y="278">gene</text><text class="ct" x="266" y="293">by name · 24.3 % of rows</text></a>
     <path class="e nat" d="M300,238 V252" marker-end="url(#a)"/>
   </svg>
   </div>
@@ -393,10 +393,10 @@ clinvar.trait:16789                not specified</div>
     <text class="ct" x="38" y="132">proposition</text><text class="ct" x="38" y="147">area 3 · seam C</text>
 
     <a class="tl" href="../../parquet/tables/#scv" target="_top"><title>Column reference: scv</title><rect class="b g" x="266" y="110" width="180" height="46" rx="7"/>
-    <text class="nm" x="280" y="132">scv</text><text class="ct" x="280" y="147">6,735,011</text></a>
+    <text class="nm" x="280" y="132">scv</text><text class="ct" x="280" y="147">6,853,781</text></a>
 
     <a class="tl" href="../../parquet/tables/#submitter" target="_top"><title>Column reference: submitter</title><rect class="b" x="604" y="40" width="210" height="46" rx="7"/>
-    <text class="nm" x="618" y="62">submitter</text><text class="ct" x="618" y="77">3,532 · 20.2 M refs</text></a>
+    <text class="nm" x="618" y="62">submitter</text><text class="ct" x="618" y="77">3,565 · 20.6 M refs</text></a>
     <a class="tl" href="../../parquet/tables/#evidenceLine" target="_top"><title>Column reference: evidenceLine</title><rect class="b" x="604" y="144" width="210" height="46" rx="7"/>
     <text class="nm" x="618" y="166">evidenceLine</text><text class="ct" x="618" y="181">1,568 · shared PK</text></a>
     <rect class="b" x="604" y="212" width="210" height="46" rx="7"/>
@@ -425,17 +425,17 @@ WHERE s.proposition_id IN (
     SELECT id FROM read_parquet('proposition*.parquet') WHERE subject_variant_id = 'clinvar:51592')
 LIMIT 12;</pre>
 <div class="out">classification           submitter
-Benign                   Color Diagnostics, LLC DBA Color Health
-Benign                   All of Us Research Program, National Institutes of Health
-Benign                   Labcorp Genetics (formerly Invitae), Labcorp
-Benign                   ARUP Laboratories, Molecular Genetics and Genomics
-Likely benign            Institute for Biomarker Research, Medical Diagnostic Laboratories
-Benign                   Counsyl
-Uncertain significance   Breast Cancer Information Core (BIC) (BRCA2)
-…  (many submitters; classifications span Benign / Likely benign / Uncertain significance)</div>
+Likely benign            Blueprint Genetics
+Benign                   Genome Diagnostics Laboratory, University Medical Center Utrecht
+Benign                   Clinical Genetics DNA and cytogenetics Diagnostics Lab, Erasmus MC, Erasmus Medical Center
+Benign                   BRCAlab, Lund University
+Benign                   Department of Pathology and Laboratory Medicine, Sinai Health System
+Benign                   Clinical Genetics Laboratory, Department of Pathology, Netherlands Cancer Institute
+Benign                   Ambry Genetics
+…  (many submitters; classifications span Benign / Likely benign / Uncertain significance / not provided)</div>
 </details>
 
-<p class="foot">Every count, table, and query output here is from the ClinVar-GKM <b>2026-10-14</b> monthly
+<p class="foot">Every count, table, and query output here is from the ClinVar-GKM <b>2026-10-18</b>
   release — figures change between releases, so don't assume they are the latest. See
   <a href="../../data-access/parquet/" target="_top">Downloads &rarr; Parquet Files</a> for current releases.</p>
 </div>
