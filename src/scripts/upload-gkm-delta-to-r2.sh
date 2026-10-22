@@ -10,8 +10,9 @@
 #
 # Before the upload the manifest is completed (r2_layout.py patch-manifest):
 #   checkpoint_full  the newest official monthly whose source_release <= this delta's baseline_release, i.e. the
-#                    full a consumer replays this delta (and the ones after it) onto: {release, name, path,
-#                    source_release, sha256}. Monthlies are therefore uploaded before the deltas that follow them.
+#                    full a consumer replays this delta (and the ones after it) onto: {path, release, month,
+#                    sha256}, where release is the monthly's source_release (a date) and month its YYYY-MM label
+#                    (r2_layout.checkpoint_for). Monthlies are therefore uploaded before the deltas that follow them.
 #   sha256, bundle   the bundle's sha256, name, path and size
 #   schema_version   the bundle's own schema_version
 # and the chain is checked: baseline_release must equal the release of the newest delta before this one in the
