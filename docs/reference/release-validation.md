@@ -39,18 +39,17 @@ full bundles, 16 deltas and one Parquet dataset built from 2026-10-18.
 | Proposition structure and reference integrity | **PASS** on 17/17 datasets |
 | Expected difference | **PASS** on 16/16 datasets: every difference attributed to a shipped fix |
 | Delta reconstruction | **PASS** on 16/16 pairs, `0,0,0` (no missing, extra or differing rows) on all 21 tables, including the cross-version pair 2026-08-22 → 2026-08-29 |
-| Strict GA4GH validation | **PASS** on the 2026-06-27 full and all 16 deltas, `failing: 0` |
-| No null or empty values | **PASS** |
+| No null or empty values | **PASS** on the 4 monthly full bundles and the 16 deltas |
 
-<!-- pending: Strict GA4GH validation of the 2026-10-18 weekly full and the 2026-09 (08-29) and 2026-10 (09-28) monthlies — add the results at publication -->
+<!-- pending: Strict GA4GH validation of the 2026-06-27 full, the 16 deltas and the 2026-10-18 weekly full — add the results at publication -->
+<!-- pending: No null or empty values on the 3 weekly fulls — add at publication -->
 <!-- pending: Structural check of the other fulls — add the result at publication -->
 <!-- pending: Bundle ↔ Parquet (2026-10-18) — add the result at publication -->
 
 !!! note "Pending at publication"
     These results are added when 1.1.0 is published:
 
-    - Strict GA4GH validation of the 2026-10-18 weekly full
-    - Strict GA4GH validation of two more monthlies: 2026-09 (built from 2026-08-29) and 2026-10 (built from
-      2026-09-28)
+    - Strict GA4GH validation of the 2026-06-27 full, the 16 deltas and the 2026-10-18 weekly full
+    - No null or empty values on the 3 weekly full bundles
     - Structural check of the other full bundles
     - Bundle ↔ Parquet for the Parquet dataset built from 2026-10-18
