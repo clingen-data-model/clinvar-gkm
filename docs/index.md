@@ -3,7 +3,7 @@
 ClinVar-GKM provides a standardized, machine-readable representation of [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) release data using the **GKM (Genomic Knowledge Model)** schema set — VRS, Cat-VRS, and VA-Spec — from the GA4GH [Genomic Knowledge Standards](https://www.ga4gh.org/genomic-knowledge-standards/) workstream. It is developed and maintained by the [ClinGen](https://clinicalgenome.org/) driver project.
 
 !!! tip "New to GKM datasets? Start with the GKM Starter Kit"
-    The GA4GH [**GKM Starter Kit**](https://ga4gh.github.io/gkm-starter-kit/) is a practical entry point for working with GKM data. It brings together the [reference libraries](https://ga4gh.github.io/gkm-starter-kit/tools/reference-implementations/) (vrs-python, cat-vrs-python, va-spec-python), the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/tools/gkm-toolkit/getting-started/) for loading and exploring published bundles, and [user stories](https://ga4gh.github.io/gkm-starter-kit/user-stories/) from projects putting GKM to work. clinvar-gkm is a GKM data producer — those tools work directly on its bundles.
+    The GA4GH [**GKM Starter Kit**](https://ga4gh.github.io/gkm-starter-kit/) is a practical entry point for working with GKM data. It brings together the [reference libraries](https://ga4gh.github.io/gkm-starter-kit/latest/tools/reference-implementations/) (vrs-python, cat-vrs-python, va-spec-python), the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) for loading and exploring published bundles, and [user stories](https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/) from projects putting GKM to work. clinvar-gkm is a GKM data producer — those tools work directly on its bundles.
 
 ## Why ClinVar-GKM
 
@@ -50,7 +50,7 @@ New releases are produced within a day or two after ClinVar's XML releases and a
 ## Getting Started
 
 !!! tip "Prefer tables to JSON?"
-    Every release is also published as **22 typed Parquet tables** you can query with SQL, with no database and no data loading. [**Query the Data**](parquet/index.md) starts with a live query console in your browser and works up to joins, recipes and large-scale analysis.
+    The latest release is also published as one set of **22 typed [Parquet](data-access/parquet.md) tables**, rebuilt every week, that you can query with SQL, with no database and no data loading. [**Query the Data**](parquet/index.md) starts with a live query console in your browser and works up to joins, recipes and large-scale analysis.
 
 ### Download the Latest Release
 
@@ -128,7 +128,7 @@ The SCV statements for this variant reference it via `#/variation/clinvar:10` in
 
 **Propositions** define the relationship being classified — a variant's causal role for a condition, its oncogenic potential, or its clinical impact. Each proposition has a type (e.g., `VariantPathogenicityProposition`), a predicate (e.g., `isCausalFor`), a subject variant, and an object condition.
 
-**Conditions** represent the diseases or phenotypes that classifications are made against. Single conditions reference `#/condition/clinvar.trait:{id}`, while multi-condition sets reference `#/conditionSet/clinvar.traitSet:{id}`.
+**Conditions** represent the diseases or phenotypes that classifications are made against. Single conditions reference `#/condition/clinvar.trait:{id}`, while multi-condition sets reference `#/conditionSet/clinvar.traitset:{id}`.
 
 ---
 
@@ -179,13 +179,13 @@ parquet/                                     one Parquet dataset, overwritten ev
 
 ### Release Notes
 
-Pipeline changes that affect the structure or content of the output are documented in the `release_notes/` directory. These notes cover additions, bug fixes, or schema changes specific to the ClinVar-GKM pipeline — they do not replicate ClinVar's own release notes.
+Pipeline changes that affect the structure or content of the output are recorded in the [Changelog](reference/changelog.md), and each tagged release is listed on [GitHub Releases](https://github.com/clingen-data-model/clinvar-gkm/releases). They cover changes specific to the ClinVar-GKM pipeline and do not replicate ClinVar's own release notes.
 
 ---
 
 ## How It Works
 
-The pipeline runs on **Google BigQuery** using SQL stored procedures, with an external VRS Python processing step. The two most expensive stages — variation identity and VRS processing — run **incrementally**, recomputing only the variations that changed since the prior release and carrying the rest forward. A per-release change log drives the weekly delta published to R2.
+The pipeline runs on **Google BigQuery** using SQL stored procedures, with an external VRS Python processing step. The two most expensive stages — variation identity and VRS processing — run **incrementally**, recomputing only the variations that changed since the prior release and carrying the rest forward. From 1.1.0 the downstream GKM procedures rebuild in full every week. A per-release change log drives the weekly delta published to R2.
 
 See the [Pipeline Overview](pipeline/index.md) for the full workflow.
 

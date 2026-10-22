@@ -22,8 +22,8 @@ wrong?" into a query that produces a fresh report each time ClinVar updates.
 
 !!! tip "New to GKM datasets?"
     The GA4GH [**GKM Starter Kit**](https://ga4gh.github.io/gkm-starter-kit/) is the best place to get
-    oriented — it collects the reference libraries, the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/tools/gkm-toolkit/getting-started/)
-    for loading and exploring bundles, and [other user stories](https://ga4gh.github.io/gkm-starter-kit/user-stories/)
+    oriented — it collects the reference libraries, the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/)
+    for loading and exploring bundles, and [other user stories](https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/)
     showing how projects put GKM to work.
 
 ---
@@ -75,8 +75,8 @@ single DuckDB query flags the records that need a second look:
 
 ```sql
 -- Everything submitter 196472 has in ClinVar, flagged for review.
--- (scv.parquet, varcond-proposition.parquet, condition.parquet from
---  v1/1.1/parquet/ — rebuilt from the newest release every week.)
+-- (scv.parquet, the four proposition*.parquet tables and condition.parquet
+--  from v1/1.1/parquet/ — rebuilt from the newest release every week.)
 WITH mine AS (
   SELECT
     s.id,
@@ -87,11 +87,12 @@ WITH mine AS (
        FROM unnest(s.contributions) AS t(c)
       WHERE c.activityType = 'evaluated')      AS last_evaluated
   FROM 'scv.parquet' s
-  JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
-  LEFT JOIN 'condition.parquet' cond   ON p.object_condition_id = cond.id
+  JOIN read_parquet('proposition*.parquet') p ON s.proposition_id = p.id
+  LEFT JOIN 'condition.parquet' cond
+         ON p.object_type = 'condition' AND p.object_id = cond.id
   WHERE list_contains(
           [c.contributor FOR c IN s.contributions],
-          '#/submitter/clinvar.submitter:196472')
+          'clinvar.submitter:196472')
 )
 SELECT
   id, classification, review_status, condition_name, last_evaluated,
@@ -107,12 +108,15 @@ ORDER BY last_evaluated;
 ```
 
 The column shapes follow the bundle's JSON field names; run `DESCRIBE SELECT * FROM 'scv.parquet'` to
-confirm them for a given release. The same idea extends to therapies: swap `varcond-proposition` for
-`vartherapy-proposition` (its `object_therapy` and `condition_qualifier_id` columns) and join the
-`therapy` / `therapyGroup` sections to spot a malformed or unexpected drug or drug combination.
+confirm them for a given release. The four proposition tables share one column schema, so
+`read_parquet('proposition*.parquet')` covers every SCV; a condition-set object (`object_type` =
+`conditionSet`) has no `condition.parquet` row and is flagged for a look. The same idea extends to therapies:
+filter the propositions on `object_type IN ('therapy', 'therapyGroup')` and join `object_id` to the
+`therapy` / `therapyGroup` tables (with `condition_qualifier_id` for the tumor type) to spot a malformed or
+unexpected drug or drug combination.
 
-Because `00-latest` refreshes every month, running the query on each release and diffing against the
-previous month's output turns the audit into a standing report — new stale rows, newly flagged statuses,
+Because the Parquet dataset is rebuilt from every weekly release, running the query each week and diffing
+against the previous run's output turns the audit into a standing report — new stale rows, newly flagged statuses,
 and newly odd conditions surface on their own.
 
 ## The tools used
@@ -138,4 +142,4 @@ and newly odd conditions surface on their own.
 - **Extract your own** — maintainers can run the [sub-bundle](pipeline/sub-bundle.md) tool by
   `--submitter`; anyone can filter the Parquet by their submitter id as shown above.
 - **See more GKM use cases** — the GKM Starter Kit's
-  [user stories](https://ga4gh.github.io/gkm-starter-kit/user-stories/).
+  [user stories](https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/).

@@ -64,7 +64,7 @@ Every bundle has a `<file>.sha256` sidecar.
 
 ## Release Notes
 
-Pipeline changes that affect the structure or content of the output are documented in the `release_notes/` directory. These notes cover additions, bug fixes, or schema changes specific to the ClinVar-GKM pipeline — they do not replicate ClinVar's own release notes.
+Pipeline changes that affect the structure or content of the output are recorded in the [Changelog](../reference/changelog.md), and each tagged release is listed on [GitHub Releases](https://github.com/clingen-data-model/clinvar-gkm/releases). They cover changes specific to the ClinVar-GKM pipeline and do not replicate ClinVar's own release notes.
 
 ---
 
@@ -91,15 +91,13 @@ The primary release format is a **gzip-compressed JSON file** (`.json.gz`). Type
   "propositionSomaticClinicalImpact": { ... },
   "propositionClinvarCustom": { ... },
   "evidenceLine": { ... },
-  "vcv_evidenceLine": { ... },
-  "rcv_evidenceLine": { ... },
   "scv": { ... },
   "vcv": { ... },
   "rcv": { ... }
 }
 ```
 
-Each section is a keyed collection — the key is the object's unique identifier, and the value is the complete object. Objects reference each other using `#/` JSON pointer strings.
+Each section is a keyed collection — the key is the object's unique identifier, and the value is the complete object. Objects reference each other using `#/` JSON pointer strings. SCV, VCV and RCV evidence lines share the one `evidenceLine` section; only the Parquet keeps them in separate tables (`evidenceLine`, `vcv_evidenceLine`, `rcv_evidenceLine`).
 
 See [Output Format](../output-reference/overview.md) for detailed documentation of each section.
 

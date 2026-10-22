@@ -77,6 +77,12 @@ The bundles are built from ClinVar's XML releases, so the layout follows [NCBI's
 
 Each ClinVar-GKM monthly `clinvar-gkm_YYYY-MM` lines up with ClinVar's `ClinVarVCVRelease_YYYY-MM`, and each weekly full or delta with the ClinVar weekly release of the same date.
 
+### Troubleshooting
+
+- **HTTP 403.** The CDN serves only the root `index.json` and paths under `/v1/`; a path allowlist answers every other path with 403, not 404. A 403 usually means a URL from before the current layout, such as a bucket-root `datasets/…` path. Look up the file's current path in the line's `index.json`.
+- **HTTP 404 under `/v1/`.** The file is not there: a weekly full deleted at month end, a delta moved to `deltas/YYYY-MM/`, or a monthly moved to `archive/YYYY/`. See [When files move](#when-files-move).
+- **HTTP 429.** Requests are rate-limited. Download whole files and query them locally rather than issuing many small range requests.
+
 ---
 
 ## Feedback

@@ -19,7 +19,7 @@ to stay informed.
 | **PATCH** (`1.0.1`) | Cosmetic | No change to valid instances — documentation, metadata, or generator fixes. |
 
 A change to a **string value's format** that leaves the schema shape untouched (same fields and types) is
-**not** a schema version change — it is recorded in the release notes.
+**not** a schema version change — it is recorded in the [Changelog](changelog.md).
 
 !!! note "Upstream standards are insulated"
     ClinVar-GKM builds on the GA4GH GKM schemas (VRS, Cat-VRS, VA-Spec). When one of those bumps, the
@@ -77,10 +77,12 @@ the latest**, follow the line whose `status` is `current`. Every bundle also car
 
 ## Release notes
 
-- Every **monthly full** ships a downloadable **release-notes** document alongside its files — what ClinVar
-  changed, record counts, and notable anomalies. Weekly deltas reference the current monthly's notes.
-- Each major line keeps a running **CHANGELOG** of every schema change (MAJOR/MINOR/PATCH) with dates and
-  migration pointers.
+- The [Changelog](changelog.md) records every schema change (MAJOR/MINOR/PATCH) and every data re-release,
+  with dates and migration pointers.
+- Each tagged release is listed on [GitHub Releases](https://github.com/clingen-data-model/clinvar-gkm/releases)
+  with its source.
+- Each weekly delta's manifest gives its per-section added, updated and deleted counts; see
+  [Weekly Deltas](../data-access/weekly-deltas.md).
 
 ## Stay informed & have a say
 

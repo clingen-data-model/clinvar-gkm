@@ -16,13 +16,13 @@ ClinVar up against any other VRS-aware dataset, without translating coordinates.
 - **Implementer** — ClinGen / ClinVar-GKM (a transformation of NCBI ClinVar)
 - **Products** — VRS, Cat-VRS, VA-Spec, GKM-Core
 - **Pattern** — Cross-source variant harmonization
-- **Tools** — [vrs-python](https://github.com/ga4gh/vrs-python), [va-spec-python](https://github.com/ga4gh/va-spec-python), and the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/tools/gkm-toolkit/); the published clinvar-gkm [bundle](data-access/download.md)
+- **Tools** — [vrs-python](https://github.com/ga4gh/vrs-python), [va-spec-python](https://github.com/ga4gh/va-spec-python), and the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/); the published clinvar-gkm [bundle](data-access/download.md)
 - **Status** — Release candidate
 
 !!! tip "New to GKM datasets?"
     The GA4GH [**GKM Starter Kit**](https://ga4gh.github.io/gkm-starter-kit/) is the best place to get
-    oriented — it collects the reference libraries, the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/tools/gkm-toolkit/getting-started/)
-    for loading and exploring bundles, and [other user stories](https://ga4gh.github.io/gkm-starter-kit/user-stories/)
+    oriented — it collects the reference libraries, the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/)
+    for loading and exploring bundles, and [other user stories](https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/)
     showing how projects put GKM to work. clinvar-gkm is one such producer.
 
 ---
@@ -65,11 +65,11 @@ variant, which resolves down to a VRS allele:
   "type": "Statement",
   "classification": { "name": "Pathogenic", "primaryCoding": { "code": "pathogenic", "system": "ACMG Guidelines, 2015" } },
   "quality": { "conceptType": "Quality", "name": "expert panel" },
-  "proposition": "#/varcond-proposition/SCV004101425-PATH",
+  "proposition": "#/propositionPathogenicity/SCV004101425-PATH",
   "contributions": [ { "contributor": "#/submitter/clinvar.submitter:509268", "activityType": "evaluated", "date": "2024-06-11" } ]
 }
 
-// varcond-proposition/  — what it asserts
+// propositionPathogenicity/  — what it asserts
 { "type": "VariantPathogenicityProposition", "predicate": "isCausalFor",
   "subject": "#/variation/clinvar:17662", "object": "#/condition/clinvar.trait:76328" }
 
@@ -87,7 +87,7 @@ its strength, review status, submitter, and condition straight from the bundle.
   to join against clinvar-gkm's `allele` section (GKM-Core + VRS).
 - **[va-spec-python](https://github.com/ga4gh/va-spec-python)** — construct and validate the classification
   `Statement`s / `Proposition`s as typed Python models.
-- **[GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/tools/gkm-toolkit/)** (`ga4gh.gkm`) — load a
+- **[GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/)** (`ga4gh.gkm`) — load a
   published bundle, follow `#/…` pointers, and export a connected slice, without writing the resolution
   yourself.
 - **The clinvar-gkm [bundle](data-access/download.md)** — the monthly full plus weekly deltas on Cloudflare R2.
@@ -100,4 +100,4 @@ its strength, review status, submitter, and condition straight from the bundle.
 - **Pull one variant's full graph** — maintainers can use the
   [Sub-Bundle Extraction](pipeline/sub-bundle.md) tool to slice a self-contained example like the one above.
 - **See more GKM use cases** — the GKM Starter Kit's
-  [user stories](https://ga4gh.github.io/gkm-starter-kit/user-stories/).
+  [user stories](https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/).
