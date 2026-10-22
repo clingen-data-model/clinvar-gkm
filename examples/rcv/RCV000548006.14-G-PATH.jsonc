@@ -87,23 +87,23 @@
       "mappings": [
         {
           "coding": {
-            "code": "536391",
+            "code": "0021060",
             "iris": [
-              "https://identifiers.org/orphanet:536391",
-              "http://www.orpha.net/ORDO/Orphanet_536391"
+              "http://purl.obolibrary.org/obo/MONDO_0021060",
+              "https://identifiers.org/mondo:0021060"
             ],
-            "system": "https://www.orpha.net/"
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "code": "0021060",
+            "code": "536391",
             "iris": [
-              "https://identifiers.org/mondo:0021060",
-              "http://purl.obolibrary.org/obo/MONDO_0021060"
+              "http://www.orpha.net/ORDO/Orphanet_536391",
+              "https://identifiers.org/orphanet:536391"
             ],
-            "system": "https://mondo.monarchinitiative.org/"
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         }
@@ -112,8 +112,8 @@
       "primaryCoding": {
         "code": "C5555857",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C5555857",
-          "https://identifiers.org/medgen:C5555857"
+          "https://identifiers.org/medgen:C5555857",
+          "https://www.ncbi.nlm.nih.gov/medgen/C5555857"
         ],
         "name": "RASopathy",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"

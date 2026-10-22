@@ -46,7 +46,7 @@
           "id": "VCV000012582.69-S-ONCO-CP",
           "proposition": {
             "id": "VCV000012582-S-ONCO-CP",
-            "object": "clinvar.trait:32759",
+            "object": "#/condition/clinvar.trait:32759",
             "predicate": "isOncogenicFor",
             "subject": "#/variation/clinvar:12582",
             "type": "VariantOncogenicityProposition"
@@ -76,7 +76,71 @@
   "id": "VCV000012582.69-S-ONCO",
   "proposition": {
     "id": "VCV000012582-S-ONCO",
-    "object": "clinvar.trait:32759",
+    "object": {
+      "aliases": [
+        "tumor",
+        "Neoplasms",
+        "Neoplasm (disease)"
+      ],
+      "conceptType": "Disease",
+      "id": "clinvar.trait:32759",
+      "mappings": [
+        {
+          "coding": {
+            "code": "0002664",
+            "iris": [
+              "http://purl.obolibrary.org/obo/HP_0002664",
+              "https://identifiers.org/HP:0002664"
+            ],
+            "system": "https://hpo.jax.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "D009369",
+            "iris": [
+              "https://identifiers.org/mesh:D009369",
+              "https://www.ncbi.nlm.nih.gov/mesh/?term=D009369"
+            ],
+            "system": "https://id.nlm.nih.gov/mesh/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "0005070",
+            "iris": [
+              "http://purl.obolibrary.org/obo/MONDO_0005070",
+              "https://identifiers.org/mondo:0005070"
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "108369006",
+            "iris": [
+              "https://identifiers.org/snomedct:108369006"
+            ],
+            "system": "https://www.snomed.org/"
+          },
+          "relation": "relatedMatch"
+        }
+      ],
+      "name": "Neoplasm",
+      "primaryCoding": {
+        "code": "C0027651",
+        "iris": [
+          "https://identifiers.org/medgen:C0027651",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0027651"
+        ],
+        "name": "Neoplasm",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
+    },
     "predicate": "isOncogenicFor",
     "subject": "#/variation/clinvar:12582",
     "type": "VariantOncogenicityProposition"

@@ -228,7 +228,7 @@ BEGIN
             ANY_VALUE(conflict_detectable) as conflict_detectable,
             MIN(classif_type_order) as tier_priority,
             MIN(prop_display_order) as prop_display_order,
-            ARRAY_AGG(DISTINCT full_scv_id) as full_scv_ids,
+            ARRAY_AGG(DISTINCT full_scv_id ORDER BY full_scv_id) as full_scv_ids,
             COUNT(DISTINCT submitter_id) as unique_submitter_count,
             COUNT(full_scv_id) as scv_count,
             -- Per-record attributes that are NOT functionally determined by the group
@@ -278,15 +278,15 @@ BEGIN
       ),
       conflict_strings AS (
           SELECT variation_id, rcv_accession, trait_set_id, statement_group, prop_type, submission_level, tier_grouping,
-                 STRING_AGG(classif_label, '/' ORDER BY classif_type_order) as agg_classif_label,
-                 STRING_AGG(FORMAT('%s(%d)', classif_label, scv_count), '; ' ORDER BY classif_type_order) as agg_string,
+                 STRING_AGG(classif_label, '/' ORDER BY classif_type_order, classif_label, significance) as agg_classif_label,
+                 STRING_AGG(FORMAT('%s(%d)', classif_label, scv_count), '; ' ORDER BY classif_type_order, classif_label, significance) as agg_string,
                  COUNT(DISTINCT significance) as significance_count
           FROM label_counts
           GROUP BY 1, 2, 3, 4, 5, 6, 7
       ),
       somatic_conditions AS (
           SELECT b.variation_id, b.rcv_accession, b.trait_set_id, b.statement_group, b.prop_type, b.submission_level, b.classif_type as tier_grouping,
-                 ARRAY_AGG(DISTINCT trait_name IGNORE NULLS) as unique_traits
+                 ARRAY_AGG(DISTINCT trait_name IGNORE NULLS ORDER BY trait_name) as unique_traits
           FROM `{P}.temp_rcv_base_data` b
           JOIN `{S}.gkm_scv_condition_sets` scs_sc ON b.scv_id = scs_sc.scv_id
           CROSS JOIN UNNEST(
@@ -379,7 +379,7 @@ BEGIN
             ARRAY_AGG(STRUCT(
               tier_priority, prop_display_order, actual_agg_classif_label,
               agg_label_conflicting_explanation, unique_traits, full_scv_ids, id, tier_grouping
-            ) ORDER BY tier_priority ASC, ARRAY_LENGTH(full_scv_ids) DESC) as findings
+            ) ORDER BY tier_priority ASC, ARRAY_LENGTH(full_scv_ids) DESC, id) as findings
           FROM {CLASS_SRC}
           WHERE tier_grouping IS NOT NULL
           GROUP BY 1, 2, 3, 4, 5, 6, 7
@@ -391,7 +391,8 @@ BEGIN
             sb.findings[OFFSET(0)].agg_label_conflicting_explanation as agg_label_conflicting_explanation,
             sb.findings[OFFSET(0)].unique_traits as top_unique_traits,
             ARRAY(SELECT DISTINCT f.id FROM UNNEST(sb.findings) f WITH OFFSET i WHERE i = 0) as contributing_tier_ids,
-            ARRAY(SELECT DISTINCT f.id FROM UNNEST(sb.findings) f WITH OFFSET i WHERE i > 0) as non_contributing_tier_ids,
+            -- findings order (tier priority); ids are unique within findings (one per tier_grouping)
+            ARRAY(SELECT f.id FROM UNNEST(sb.findings) f WITH OFFSET i WHERE i > 0 ORDER BY i) as non_contributing_tier_ids,
             ARRAY(
               SELECT DISTINCT t FROM UNNEST(sb.findings) as f WITH OFFSET i CROSS JOIN UNNEST(f.unique_traits) as t
               WHERE i > 0 AND t NOT IN UNNEST(sb.findings[OFFSET(0)].unique_traits)
@@ -466,7 +467,7 @@ BEGIN
       non_contributing AS (
           SELECT
             rcv_accession, statement_group, prop_type,
-            ARRAY_AGG(STRUCT(source_id as layer_id, submission_level, agg_label, agg_label_conflicting_explanation)) as non_contributing_details
+            ARRAY_AGG(STRUCT(source_id as layer_id, submission_level, agg_label, agg_label_conflicting_explanation) ORDER BY rnk, source_id) as non_contributing_details
           FROM ranked_levels
           WHERE rnk > 1
           GROUP BY 1, 2, 3

@@ -2,7 +2,10 @@
 # export-gkm-dicts.sh
 # Export all GKS dictionary tables to GCS as NDJSON and/or Parquet
 #
-# Usage: ./export-gkm-dicts.sh <dataset> <gcs_bucket> [prefix] [--parquet-only] [--delta]
+# Usage: ./export-gkm-dicts.sh <dataset> <gcs_bucket> [prefix] [--parquet-only | --ndjson-only] [--delta]
+#
+# --ndjson-only exports the bundle NDJSON and no Parquet: the monthly full and delta releases publish no
+# Parquet (only the single latest set, built by release-gkm-parquet.sh with --parquet-only).
 # Example: ./export-gkm-dicts.sh clinvar_2025_06_08 clinvar-gkm gkm-dicts
 # Example: ./export-gkm-dicts.sh clinvar_2025_06_08 clinvar-gkm gkm-dicts --parquet-only
 
@@ -13,10 +16,12 @@ DATASET="${1:?Usage: $0 <dataset> <gcs_bucket> [prefix] [--parquet-only] [--delt
 BUCKET="${2:?Usage: $0 <dataset> <gcs_bucket> [prefix] [--parquet-only] [--delta]}"
 PREFIX="${3:-gkm-dicts}"
 PARQUET_ONLY=false
+NDJSON_ONLY=false
 DELTA=false
 for arg in "$@"; do
   case "$arg" in
     --parquet-only) PARQUET_ONLY=true ;;
+    --ndjson-only) NDJSON_ONLY=true ;;
     --delta) DELTA=true ;;
   esac
 done
@@ -84,22 +89,14 @@ export_variation_ndjson() {
     FROM \`${DATASET}.${table}\`"
 }
 
-extract_parquet() {
-  # Raw Parquet export via bq extract — for tables with no FK columns to clean.
-  local table="$1"
-  local basename="$2"
-  local sharded="${basename%.parquet}-*.parquet"
-  echo "  Exporting ${table} -> ${sharded} (Parquet)"
-  bq extract --destination_format PARQUET --compression SNAPPY \
-    "${DATASET}.${table}" "${GCS_PARQUET_PATH}/${sharded}"
-}
-
 extract_parquet_typed() {
   # Export via EXPORT DATA using a SQL schema file from parquet-schemas/.
   # Schema files define typed columns, FK cleanup, and data column.
-  # The {DATASET} placeholder is substituted with the target dataset.
+  # The {DATASET} placeholder is substituted with the target dataset, and {SECTION} with the optional
+  # third argument (the shared proposition.sql template is exported once per proposition section).
   local basename="$1"
   local sql_file="$2"
+  local section="${3:-}"
   local sharded="${basename%.parquet}-*.parquet"
   local schema_path="${SCHEMA_DIR}/${sql_file}"
   if [[ ! -f "${schema_path}" ]]; then
@@ -109,16 +106,18 @@ extract_parquet_typed() {
   local sql
   sql=$(<"${schema_path}")
   sql="${sql//\{DATASET\}/${DATASET}}"
+  sql="${sql//\{SECTION\}/${section}}"
   if $DELTA; then
     # Typed-Parquet can't use src_table() (the table name is embedded inside the schema SQL,
-    # not passed as a CLI arg). Every parquet-schemas/*.sql references exactly ONE
-    # {DATASET}.gkm_dict_* table and never uses "gkm_dict_" in any alias/column/literal, so
-    # this qualified-reference rewrite is safe. Invariant future schema authors must preserve.
+    # not passed as a CLI arg). Every {DATASET}.gkm_dict_* table a parquet-schemas/*.sql
+    # references (proposition.sql references the three proposition dicts) has a delta_gkm_dict_* counterpart,
+    # and no schema file uses "gkm_dict_" in any alias/column/literal, so rewriting every
+    # qualified reference is safe. Invariant future schema authors must preserve.
     sql="${sql//.gkm_dict_/.delta_gkm_dict_}"
   fi
-  echo "  Exporting ${sql_file%.sql} -> ${sharded} (Parquet via EXPORT DATA)"
-  # ${COLLAPSE_UDF} makes collapse_ext_values(...) available to schema files whose `data` column
-  # needs the extension value_xxx -> value collapse (proposition groups, scv, evidenceLine).
+  echo "  Exporting ${section:-${sql_file%.sql}} -> ${sharded} (Parquet via EXPORT DATA)"
+  # ${COLLAPSE_UDF} makes collapse_ext_values(...) (the extension value_xxx -> value collapse),
+  # is_blank(...) (all-null placeholder test) and bundle_cleanup(...) available to every schema file.
   bq query --use_legacy_sql=false --nouse_cache \
     "${COLLAPSE_UDF}
     EXPORT DATA OPTIONS(
@@ -130,21 +129,31 @@ extract_parquet_typed() {
     ${sql}"
 }
 
-# Proposition delivery-group split (Phase 2): the 3 per-level proposition dicts are delivered as 4
-# datatype-homogeneous sections. Group is keyed on the proposition `type` (va-spec 2026-09: custom +
-# standard alike carry the real type name in `type`) — the SAME canonical mapping the statement procs use.
-# Quoted heredoc so nothing ($., single quotes) expands in bash.
-PROP_GROUP_CASE=$(cat <<'SQL'
-CASE
-  WHEN JSON_VALUE(value, '$.type') LIKE 'Clinvar%' THEN 'varcustom'
-  WHEN JSON_VALUE(value, '$.type') = 'VariantOncogenicityProposition' THEN 'vartumor'
-  WHEN JSON_VALUE(value, '$.type') = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-  WHEN JSON_VALUE(value, '$.type') IN
-    ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition','VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-  ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', JSON_VALUE(value, '$.type')))
-END
-SQL
-)
+# Proposition sections (1.1.0, by meaning): the 3 per-level proposition dicts are delivered as the 4
+# sections below. A row's section is clinvar_ingest.gkm_proposition_section(type), the ONE canonical
+# mapping (src/procedures/gkm-proposition-section-func.sql) the statement procs use for their pointers.
+# The function raises on an unmapped type, so the export fails loudly instead of dropping rows.
+PROP_SECTIONS="propositionPathogenicity propositionOncogenicity propositionSomaticClinicalImpact propositionClinvarCustom"
+# shellcheck disable=SC2016  # literal BigQuery backticks, not command substitution
+PROP_SECTION_FN='`clinvar_ingest.gkm_proposition_section`'
+
+# Belt and braces before any proposition export: every proposition row maps to one of PROP_SECTIONS, so
+# the exported sections sum to the three dicts' total (a new section added to the function but not to
+# PROP_SECTIONS would otherwise be dropped silently). Delta-aware via src_table.
+assert_proposition_sections() {
+  local in_list="" section
+  for section in ${PROP_SECTIONS}; do in_list="${in_list:+${in_list},}'${section}'"; done
+  echo "  Asserting every proposition maps to one of: ${PROP_SECTIONS}"
+  bq query --use_legacy_sql=false --nouse_cache --quiet \
+    "ASSERT (
+      SELECT COUNTIF(${PROP_SECTION_FN}(JSON_VALUE(value, '\$.type')) IN (${in_list})) = COUNT(*)
+      FROM (
+        SELECT value FROM \`${DATASET}.$(src_table gkm_dict_proposition)\`
+        UNION ALL SELECT value FROM \`${DATASET}.$(src_table gkm_dict_rcv_proposition)\`
+        UNION ALL SELECT value FROM \`${DATASET}.$(src_table gkm_dict_vcv_proposition)\`
+      )
+    ) AS 'proposition rows map to a section outside PROP_SECTIONS'"
+}
 
 # Extension value collapse (conformance): the pipeline stores typed extension values as `value_<type>`
 # (value_string, value_boolean, value_submitted_condition, ...) so gkm_json_proc can nullify-by-type and
@@ -152,7 +161,17 @@ SQL
 # populated `value_*` key (JSON_STRIP_NULLS already dropped the rest) to `value` in every extension object
 # (any object with a `name` sibling), at any nesting depth. The gkm_dict_* tables keep `value_*`; only the
 # bundle export is collapsed. Prepend ${COLLAPSE_UDF} to any query that uses collapse_ext_values(...).
+# It also defines:
+#   is_blank(x)        TRUE when x is NULL or holds only nulls / empty arrays / empty structs at every depth
+#                      (what JSON_STRIP_NULLS remove_empty drops). Typed-Parquet schema files use it to drop
+#                      all-null placeholder structs and array elements the bundle does not carry.
+#   bundle_cleanup(j)  the assembler's exact record cleanup (gkm_json_cleanup.py strip_empty, then the
+#                      value_* collapse) for KV `data`/`value` columns, which the bundle cleans only in the
+#                      assembler. Unlike JSON_STRIP_NULLS it KEEPS list elements, so a VRS Range [null, n]
+#                      keeps its null bound (JSON_STRIP_NULLS would turn it into [n]).
 COLLAPSE_UDF=$(cat <<'SQL'
+CREATE TEMP FUNCTION is_blank(x ANY TYPE) AS (
+  JSON_TYPE(JSON_STRIP_NULLS(TO_JSON(x), remove_empty => TRUE)) = 'null');
 CREATE TEMP FUNCTION collapse_ext_values(j STRING)
 RETURNS STRING
 LANGUAGE js AS r"""
@@ -166,13 +185,38 @@ LANGUAGE js AS r"""
   }
   const p = JSON.parse(j); walk(p); return JSON.stringify(p);
 """;
+CREATE TEMP FUNCTION bundle_cleanup(j STRING)
+RETURNS STRING
+LANGUAGE js AS r"""
+  if (j == null) return null;
+  function strip(v){
+    if (Array.isArray(v)) return v.map(strip);
+    if (v && typeof v === "object"){
+      const o = {};
+      for (const k of Object.keys(v)){
+        const s = strip(v[k]);
+        if (!(s === null || (typeof s === "object" && Object.keys(s).length === 0))) o[k] = s;
+      }
+      return o;
+    }
+    return v;
+  }
+  function walk(o){
+    if (Array.isArray(o)){ for (const x of o) walk(x); return; }
+    if (o && typeof o === "object"){
+      if ("name" in o){ for (const k of Object.keys(o)){ if (k.indexOf("value_")===0){ o["value"]=o[k]; delete o[k]; } } }
+      for (const k of Object.keys(o)) walk(o[k]);
+    }
+  }
+  const p = strip(JSON.parse(j)); walk(p); return JSON.stringify(p);
+""";
 SQL
 )
 
-export_proposition_group_ndjson() {
-  local group="$1"
-  local sharded="${group}-proposition-*.ndjson.gz"
-  echo "  Exporting proposition group ${group} -> ${sharded} (NDJSON via EXPORT DATA)"
+export_proposition_section_ndjson() {
+  local section="$1"
+  local sharded="${section}-*.ndjson.gz"
+  echo "  Exporting proposition section ${section} -> ${sharded} (NDJSON via EXPORT DATA)"
   bq query --use_legacy_sql=false --nouse_cache \
     "${COLLAPSE_UDF}
     EXPORT DATA OPTIONS(
@@ -182,12 +226,10 @@ export_proposition_group_ndjson() {
       overwrite=true
     ) AS
     SELECT key, SAFE.PARSE_JSON(collapse_ext_values(TO_JSON_STRING(value))) AS value FROM (
-      SELECT key, value, ${PROP_GROUP_CASE} AS _grp FROM (
-        SELECT key, value FROM \`${DATASET}.$(src_table gkm_dict_proposition)\`
-        UNION ALL SELECT key, value FROM \`${DATASET}.$(src_table gkm_dict_rcv_proposition)\`
-        UNION ALL SELECT key, value FROM \`${DATASET}.$(src_table gkm_dict_vcv_proposition)\`
-      )
-    ) WHERE _grp = '${group}'"
+      SELECT key, value FROM \`${DATASET}.$(src_table gkm_dict_proposition)\`
+      UNION ALL SELECT key, value FROM \`${DATASET}.$(src_table gkm_dict_rcv_proposition)\`
+      UNION ALL SELECT key, value FROM \`${DATASET}.$(src_table gkm_dict_vcv_proposition)\`
+    ) WHERE ${PROP_SECTION_FN}(JSON_VALUE(value, '\$.type')) = '${section}'"
 }
 
 # NDJSON export of a passthrough dict table with its `extensions` column value-collapsed for the bundle.
@@ -209,6 +251,8 @@ export_ndjson_ext_collapse() {
         TO_JSON_STRING(JSON_STRIP_NULLS(TO_JSON(extensions), remove_empty => TRUE)))) AS extensions)
     FROM \`${DATASET}.${table}\`"
 }
+
+assert_proposition_sections
 
 if ! $PARQUET_ONLY; then
   echo "Exporting NDJSON files to ${GCS_PATH}"
@@ -239,16 +283,15 @@ if ! $PARQUET_ONLY; then
   extract "$(src_table gkm_dict_submitter)" submitter.ndjson.gz
   export_ndjson_ext_collapse "$(src_table gkm_dict_evidence_line)" evidenceLine.ndjson.gz
 
-  # Proposition delivery groups (Phase 2): the 3 per-level proposition dicts are split into 4
-  # datatype-homogeneous sections by the canonical group mapping. Delta-aware — the helper reads
-  # $(src_table gkm_dict_*proposition), so --delta mode emits proposition deltas split into the 4
-  # group sections (build-delta-manifest.py resolves each changed key to its group section to match).
-  export_proposition_group_ndjson varcond
-  export_proposition_group_ndjson vartumor
-  export_proposition_group_ndjson vartherapy
-  export_proposition_group_ndjson varcustom
+  # Proposition sections (1.1.0, by meaning): the 3 per-level proposition dicts are split into the
+  # PROP_SECTIONS by the canonical function. Delta-aware: the helper reads
+  # $(src_table gkm_dict_*proposition), so --delta mode emits proposition deltas split the same way
+  # (build-delta-manifest.py resolves each changed key to its section with the same function).
+  for section in ${PROP_SECTIONS}; do
+    export_proposition_section_ndjson "${section}"
+  done
 
-  # VCV/RCV evidence line dictionaries (propositions handled by the group split above)
+  # VCV/RCV evidence line dictionaries (propositions handled by the section split above)
   extract "$(src_table gkm_dict_vcv_evidence_line)" vcv_evidenceLine.ndjson.gz
   extract "$(src_table gkm_dict_rcv_evidence_line)" rcv_evidenceLine.ndjson.gz
 
@@ -256,6 +299,12 @@ if ! $PARQUET_ONLY; then
   export_ndjson_ext_collapse "$(src_table gkm_dict_scv)" scv.ndjson.gz
   extract "$(src_table gkm_dict_vcv)" vcv.ndjson.gz
   extract "$(src_table gkm_dict_rcv)" rcv.ndjson.gz
+fi
+
+if $NDJSON_ONLY; then
+  echo "Done (--ndjson-only: no Parquet)."
+  echo "  NDJSON:  ${GCS_PATH}/"
+  exit 0
 fi
 
 echo ""
@@ -271,7 +320,7 @@ extract_parquet_typed gene.parquet gene.sql
 extract_parquet_typed variation.parquet variation.sql
 
 # Conditions
-extract_parquet "$(src_table gkm_dict_condition)" condition.parquet
+extract_parquet_typed condition.parquet condition.sql
 extract_parquet_typed conditionSet.parquet conditionSet.sql
 
 # Therapies (key/value JSON dicts -> two string columns key,value). Typed export casts the
@@ -283,11 +332,12 @@ extract_parquet_typed therapyGroup.parquet therapyGroup.sql
 extract_parquet_typed submitter.parquet submitter.sql
 extract_parquet_typed evidenceLine.parquet evidenceLine.sql
 
-# Proposition delivery groups (Phase 2): 4 typed group tables replace the 3 per-level tables.
-extract_parquet_typed varcond-proposition.parquet varcond-proposition.sql
-extract_parquet_typed vartumor-proposition.parquet vartumor-proposition.sql
-extract_parquet_typed vartherapy-proposition.parquet vartherapy-proposition.sql
-extract_parquet_typed varcustom-proposition.parquet varcustom-proposition.sql
+# Proposition sections (1.1.0, by meaning): one table per section, all with the one shared column schema
+# of proposition.sql, so read_parquet('proposition*.parquet') unions them. Same split and fail-loud
+# function as the NDJSON export; assert_proposition_sections (above) covered every row.
+for section in ${PROP_SECTIONS}; do
+  extract_parquet_typed "${section}.parquet" proposition.sql "${section}"
+done
 
 # VCV/RCV evidence lines
 extract_parquet_typed vcv_evidenceLine.parquet vcv_evidenceLine.sql

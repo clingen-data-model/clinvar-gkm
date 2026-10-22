@@ -121,12 +121,12 @@
       "mappings": [
         {
           "coding": {
-            "code": "99860",
+            "code": "0004812",
             "iris": [
-              "https://identifiers.org/orphanet:99860",
-              "http://www.orpha.net/ORDO/Orphanet_99860"
+              "http://purl.obolibrary.org/obo/HP_0004812",
+              "https://identifiers.org/HP:0004812"
             ],
-            "system": "https://www.orpha.net/"
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
@@ -134,8 +134,8 @@
           "coding": {
             "code": "0020511",
             "iris": [
-              "https://identifiers.org/mondo:0020511",
-              "http://purl.obolibrary.org/obo/MONDO_0020511"
+              "http://purl.obolibrary.org/obo/MONDO_0020511",
+              "https://identifiers.org/mondo:0020511"
             ],
             "system": "https://mondo.monarchinitiative.org/"
           },
@@ -143,12 +143,12 @@
         },
         {
           "coding": {
-            "code": "0004812",
+            "code": "99860",
             "iris": [
-              "https://identifiers.org/HP:0004812",
-              "http://purl.obolibrary.org/obo/HP_0004812"
+              "http://www.orpha.net/ORDO/Orphanet_99860",
+              "https://identifiers.org/orphanet:99860"
             ],
-            "system": "https://hpo.jax.org/"
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
@@ -167,8 +167,8 @@
       "primaryCoding": {
         "code": "C0349636",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C0349636",
-          "https://identifiers.org/medgen:C0349636"
+          "https://identifiers.org/medgen:C0349636",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0349636"
         ],
         "name": "Precursor B-cell acute lymphoblastic leukemia",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"

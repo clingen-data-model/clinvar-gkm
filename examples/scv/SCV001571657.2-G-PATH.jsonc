@@ -90,6 +90,12 @@
   "proposition": {
     "geneContextQualifier": {
       "conceptType": "gene",
+      "extensions": [
+        {
+          "name": "geneContextSource",
+          "value": "inferredFromVariant"
+        }
+      ],
       "mappings": [
         {
           "coding": {
@@ -130,12 +136,12 @@
       "mappings": [
         {
           "coding": {
-            "code": "519",
+            "code": "0004808",
             "iris": [
-              "https://identifiers.org/orphanet:519",
-              "http://www.orpha.net/ORDO/Orphanet_519"
+              "http://purl.obolibrary.org/obo/HP_0004808",
+              "https://identifiers.org/HP:0004808"
             ],
-            "system": "https://www.orpha.net/"
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
@@ -154,42 +160,10 @@
           "coding": {
             "code": "0018874",
             "iris": [
-              "https://identifiers.org/mondo:0018874",
-              "http://purl.obolibrary.org/obo/MONDO_0018874"
+              "http://purl.obolibrary.org/obo/MONDO_0018874",
+              "https://identifiers.org/mondo:0018874"
             ],
             "system": "https://mondo.monarchinitiative.org/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "601626",
-            "iris": [
-              "https://www.omim.org/entry/601626",
-              "https://identifiers.org/mim:601626"
-            ],
-            "system": "https://www.omim.org/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "0004808",
-            "iris": [
-              "https://identifiers.org/HP:0004808",
-              "http://purl.obolibrary.org/obo/HP_0004808"
-            ],
-            "system": "https://hpo.jax.org/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "17788007",
-            "iris": [
-              "https://identifiers.org/snomedct:17788007"
-            ],
-            "system": "https://www.snomed.org/"
           },
           "relation": "relatedMatch"
         },
@@ -202,14 +176,46 @@
             "system": "https://www.ncbi.nlm.nih.gov/books/"
           },
           "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "601626",
+            "iris": [
+              "https://identifiers.org/mim:601626",
+              "https://www.omim.org/entry/601626"
+            ],
+            "system": "https://www.omim.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "519",
+            "iris": [
+              "http://www.orpha.net/ORDO/Orphanet_519",
+              "https://identifiers.org/orphanet:519"
+            ],
+            "system": "https://www.orpha.net/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "17788007",
+            "iris": [
+              "https://identifiers.org/snomedct:17788007"
+            ],
+            "system": "https://www.snomed.org/"
+          },
+          "relation": "relatedMatch"
         }
       ],
       "name": "Acute myeloid leukemia",
       "primaryCoding": {
         "code": "C0023467",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C0023467",
-          "https://identifiers.org/medgen:C0023467"
+          "https://identifiers.org/medgen:C0023467",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0023467"
         ],
         "name": "Acute myeloid leukemia",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"

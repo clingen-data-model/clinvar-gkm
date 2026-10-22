@@ -117,23 +117,23 @@
       "mappings": [
         {
           "coding": {
-            "code": "398961",
+            "code": "0005601",
             "iris": [
-              "https://identifiers.org/orphanet:398961",
-              "http://www.orpha.net/ORDO/Orphanet_398961"
+              "http://purl.obolibrary.org/obo/MONDO_0005601",
+              "https://identifiers.org/mondo:0005601"
             ],
-            "system": "https://www.orpha.net/"
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "code": "0005601",
+            "code": "398961",
             "iris": [
-              "https://identifiers.org/mondo:0005601",
-              "http://purl.obolibrary.org/obo/MONDO_0005601"
+              "http://www.orpha.net/ORDO/Orphanet_398961",
+              "https://identifiers.org/orphanet:398961"
             ],
-            "system": "https://mondo.monarchinitiative.org/"
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         }
@@ -142,8 +142,8 @@
       "primaryCoding": {
         "code": "C1335167",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C1335167",
-          "https://identifiers.org/medgen:C1335167"
+          "https://identifiers.org/medgen:C1335167",
+          "https://www.ncbi.nlm.nih.gov/medgen/C1335167"
         ],
         "name": "Ovarian mucinous adenocarcinoma",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"

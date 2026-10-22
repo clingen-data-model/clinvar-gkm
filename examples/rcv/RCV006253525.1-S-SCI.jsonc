@@ -117,23 +117,23 @@
       "mappings": [
         {
           "coding": {
-            "code": "0005008",
+            "code": "0040275",
             "iris": [
-              "https://identifiers.org/mondo:0005008",
-              "http://purl.obolibrary.org/obo/MONDO_0005008"
+              "http://purl.obolibrary.org/obo/HP_0040275",
+              "https://identifiers.org/HP:0040275"
             ],
-            "system": "https://mondo.monarchinitiative.org/"
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "code": "0040275",
+            "code": "0005008",
             "iris": [
-              "https://identifiers.org/HP:0040275",
-              "http://purl.obolibrary.org/obo/HP_0040275"
+              "http://purl.obolibrary.org/obo/MONDO_0005008",
+              "https://identifiers.org/mondo:0005008"
             ],
-            "system": "https://hpo.jax.org/"
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         }
@@ -142,8 +142,8 @@
       "primaryCoding": {
         "code": "C1319315",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C1319315",
-          "https://identifiers.org/medgen:C1319315"
+          "https://identifiers.org/medgen:C1319315",
+          "https://www.ncbi.nlm.nih.gov/medgen/C1319315"
         ],
         "name": "Adenocarcinoma of the large intestine",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"

@@ -36,10 +36,12 @@
 --
 --   Determinism: this proc has NO group-by / ANY_VALUE over the agg rows — the outputs are
 --   row-wise projections of the (already-deterministic) agg tables, and the array
---   projections (ARRAY(SELECT … FROM UNNEST(…))) preserve the stored array order. No
+--   projections (ARRAY(SELECT … FROM UNNEST(…) WITH OFFSET o ORDER BY o)) preserve the
+--   stored array order (UNNEST alone does not guarantee it). No
 --   determinism fix was needed for carry-forward to hold.
 --
---   Pointer vs inline: subjectVariant (#/variation), proposition (#/proposition),
+--   Pointer vs inline: subjectVariant (#/variation), proposition (#/<section>, the section from
+--   gkm_proposition_section),
 --   evidenceItems (#/scv, #/vcv) and hasEvidenceLines (#/evidenceLine) are all pointers.
 --   The proposition's objectCondition is the INLINE agg.unique_conditions array (already
 --   materialized deterministically in the agg table). This is safe under carry-forward: an
@@ -218,15 +220,10 @@ BEGIN
           ) AS extensions
         ) AS classification,
 
-        FORMAT('#/%s-proposition/%s',
-          CASE
-            WHEN cpt.gks_type LIKE 'Clinvar%' THEN 'varcustom'
-            WHEN cpt.gks_type = 'VariantOncogenicityProposition' THEN 'vartumor'
-            WHEN cpt.gks_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-            WHEN cpt.gks_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
-                                  'VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gks_type))
-          END,
+        -- Section from the canonical mapping (gkm-proposition-section-func.sql), on the same resolved
+        -- type the proposition record carries (the dict build's IFNULL fallback to Undefined).
+        FORMAT('#/%s/%s',
+          `clinvar_ingest.gkm_proposition_section`(IFNULL(cpt.gks_type, 'ClinvarUndefinedProposition')),
           agg.prop_id) AS proposition,
 
         IF(
@@ -291,15 +288,10 @@ BEGIN
           ) AS extensions
         ) AS classification,
 
-        FORMAT('#/%s-proposition/%s',
-          CASE
-            WHEN cpt.gks_type LIKE 'Clinvar%' THEN 'varcustom'
-            WHEN cpt.gks_type = 'VariantOncogenicityProposition' THEN 'vartumor'
-            WHEN cpt.gks_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-            WHEN cpt.gks_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
-                                  'VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gks_type))
-          END,
+        -- Section from the canonical mapping (gkm-proposition-section-func.sql), on the same resolved
+        -- type the proposition record carries (the dict build's IFNULL fallback to Undefined).
+        FORMAT('#/%s/%s',
+          `clinvar_ingest.gkm_proposition_section`(IFNULL(cpt.gks_type, 'ClinvarUndefinedProposition')),
           agg.prop_id) AS proposition,
 
         IF(
@@ -369,15 +361,10 @@ BEGIN
           ) AS extensions
         ) AS classification,
 
-        FORMAT('#/%s-proposition/%s',
-          CASE
-            WHEN cpt.gks_type LIKE 'Clinvar%' THEN 'varcustom'
-            WHEN cpt.gks_type = 'VariantOncogenicityProposition' THEN 'vartumor'
-            WHEN cpt.gks_type = 'VariantTherapeuticResponseProposition' THEN 'vartherapy'
-            WHEN cpt.gks_type IN ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition',
-                                  'VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond'
-            ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', cpt.gks_type))
-          END,
+        -- Section from the canonical mapping (gkm-proposition-section-func.sql), on the same resolved
+        -- type the proposition record carries (the dict build's IFNULL fallback to Undefined).
+        FORMAT('#/%s/%s',
+          `clinvar_ingest.gkm_proposition_section`(IFNULL(cpt.gks_type, 'ClinvarUndefinedProposition')),
           agg.prop_id) AS proposition,
 
         IF(
@@ -423,7 +410,8 @@ BEGIN
         STRUCT('MappableConcept' AS type, 'Strength' AS conceptType, 'Contributing' AS name) AS strengthOfEvidenceProvided,
         ARRAY(
           SELECT FORMAT('#/scv/clinvar.submission:%s', scv_id)
-          FROM UNNEST(agg.full_scv_ids) AS scv_id
+          FROM UNNEST(agg.full_scv_ids) AS scv_id WITH OFFSET o
+          ORDER BY o
         ) AS hasEvidenceItems
       FROM `{S}.gkm_vcv_classification_agg` agg
       WHERE TRUE
@@ -439,7 +427,8 @@ BEGIN
         STRUCT('MappableConcept' AS type, 'Strength' AS conceptType, 'Contributing' AS name) AS strengthOfEvidenceProvided,
         ARRAY(
           SELECT FORMAT('#/vcv/%s', stmt_id)
-          FROM UNNEST(agg.contributing_statement_ids) AS stmt_id
+          FROM UNNEST(agg.contributing_statement_ids) AS stmt_id WITH OFFSET o
+          ORDER BY o
         ) AS hasEvidenceItems
       FROM `{S}.gkm_vcv_priority_agg` agg
       WHERE TRUE
@@ -455,7 +444,8 @@ BEGIN
         STRUCT('MappableConcept' AS type, 'Strength' AS conceptType, 'Non-contributing' AS name) AS strengthOfEvidenceProvided,
         ARRAY(
           SELECT FORMAT('#/vcv/%s', stmt_id)
-          FROM UNNEST(agg.non_contributing_statement_ids) AS stmt_id
+          FROM UNNEST(agg.non_contributing_statement_ids) AS stmt_id WITH OFFSET o
+          ORDER BY o
         ) AS hasEvidenceItems
       FROM `{S}.gkm_vcv_priority_agg` agg
       WHERE ARRAY_LENGTH(agg.non_contributing_statement_ids) > 0
@@ -484,7 +474,8 @@ BEGIN
         STRUCT('MappableConcept' AS type, 'Strength' AS conceptType, 'Non-contributing' AS name) AS strengthOfEvidenceProvided,
         ARRAY(
           SELECT FORMAT('#/vcv/%s', nc.layer_id)
-          FROM UNNEST(agg.non_contributing_details) AS nc
+          FROM UNNEST(agg.non_contributing_details) AS nc WITH OFFSET o
+          ORDER BY o
         ) AS hasEvidenceItems
       FROM `{S}.gkm_vcv_aggregate_contribution` agg
       WHERE agg.non_contributing_details IS NOT NULL AND ARRAY_LENGTH(agg.non_contributing_details) > 0
@@ -500,7 +491,10 @@ BEGIN
     -- Dictionary table - VCV propositions (global, keyed by proposition id)
     -- Collects propositions from all 3 layers (classification, priority, agg).
     -- {PROP_HEAD}: real table in full mode, {P}.stg_* in incremental. {PFILTER} restricts
-    -- each arm to impacted VCVs; objectCondition is the inline agg.unique_conditions array.
+    -- each arm to impacted VCVs. object is always a '#/' pointer: unique_conditions holds the
+    -- bare CURIEs of the SCV submittedCondition extension, so a single condition is re-wrapped
+    -- as #/condition/ (clinvar.trait:) or #/conditionSet/ (clinvar.traitset:), as the SCV and
+    -- RCV procs do; several conditions point at the synthetic vcv- ConditionSet below.
     -------------------------------------------------------------------------
     SET dict_vcv_proposition_query = REPLACE("""
       {PROP_HEAD}
@@ -531,7 +525,8 @@ BEGIN
       FROM (
         SELECT a.*,
           IF(ARRAY_LENGTH(a.unique_conditions) = 0, CAST(NULL AS STRING),
-            IF(ARRAY_LENGTH(a.unique_conditions) = 1, a.unique_conditions[OFFSET(0)],
+            IF(ARRAY_LENGTH(a.unique_conditions) = 1,
+              FORMAT(IF(STARTS_WITH(a.unique_conditions[OFFSET(0)], 'clinvar.traitset:'), '#/conditionSet/%s', '#/condition/%s'), a.unique_conditions[OFFSET(0)]),
               CONCAT('#/conditionSet/clinvar.conditionset:vcv-', TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(a.unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|')))))) AS obj_ref
         FROM `{S}.gkm_vcv_classification_agg` a
       ) agg
@@ -565,7 +560,8 @@ BEGIN
       FROM (
         SELECT a.*,
           IF(ARRAY_LENGTH(a.unique_conditions) = 0, CAST(NULL AS STRING),
-            IF(ARRAY_LENGTH(a.unique_conditions) = 1, a.unique_conditions[OFFSET(0)],
+            IF(ARRAY_LENGTH(a.unique_conditions) = 1,
+              FORMAT(IF(STARTS_WITH(a.unique_conditions[OFFSET(0)], 'clinvar.traitset:'), '#/conditionSet/%s', '#/condition/%s'), a.unique_conditions[OFFSET(0)]),
               CONCAT('#/conditionSet/clinvar.conditionset:vcv-', TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(a.unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|')))))) AS obj_ref
         FROM `{S}.gkm_vcv_priority_agg` a
       ) agg
@@ -599,7 +595,8 @@ BEGIN
       FROM (
         SELECT a.*,
           IF(ARRAY_LENGTH(a.unique_conditions) = 0, CAST(NULL AS STRING),
-            IF(ARRAY_LENGTH(a.unique_conditions) = 1, a.unique_conditions[OFFSET(0)],
+            IF(ARRAY_LENGTH(a.unique_conditions) = 1,
+              FORMAT(IF(STARTS_WITH(a.unique_conditions[OFFSET(0)], 'clinvar.traitset:'), '#/conditionSet/%s', '#/condition/%s'), a.unique_conditions[OFFSET(0)]),
               CONCAT('#/conditionSet/clinvar.conditionset:vcv-', TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(a.unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|')))))) AS obj_ref
         FROM `{S}.gkm_vcv_aggregate_contribution` a
       ) agg
@@ -619,7 +616,10 @@ BEGIN
     -- object/objectCondition is a SINGLE Condition|ConditionSet|iriReference, so a
     -- multi-condition VCV references ONE content-keyed ConditionSet (membershipOperator
     -- 'OR'; concepts may themselves be #/conditionSet/ pointers — nesting is allowed).
-    -- The id digest here MUST match the obj_ref computed in the proposition build above.
+    -- The id digest here MUST match the obj_ref computed in the proposition build above. It is
+    -- taken over the sorted BARE CURIEs (keeps vcv- ids stable across releases); the stored
+    -- concepts are the same members, in the same (bare-CURIE) order, re-wrapped as
+    -- #/condition/ or #/conditionSet/ pointers.
     -- Rebuild the dict as (trait-set rows) UNION (synthetic vcv- rows) so it is idempotent
     -- across re-runs. NOTE: reads the three gkm_vcv_*_agg tables — in incremental mode those
     -- are carried-forward GLOBAL (impacted recomputed ∪ unimpacted carried forward), so this
@@ -639,7 +639,10 @@ BEGIN
         'OR' AS membershipOperator
       FROM (
         SELECT
-          ARRAY(SELECT c FROM UNNEST(unique_conditions) c WHERE c IS NOT NULL ORDER BY c) AS sc,
+          ARRAY(
+            SELECT FORMAT(IF(STARTS_WITH(c, 'clinvar.traitset:'), '#/conditionSet/%s', '#/condition/%s'), c)
+            FROM UNNEST(unique_conditions) c WHERE c IS NOT NULL ORDER BY c
+          ) AS sc,
           TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|'))) AS id_digest
         FROM (
           SELECT unique_conditions FROM `{S}.gkm_vcv_classification_agg`
