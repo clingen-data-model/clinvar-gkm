@@ -6,6 +6,15 @@
 > (R2 layout mirrors NCBI ClinVar): tasks 2–6 follow the new layout. Every live R2 write is a separately
 > user-confirmed step.
 >
+> **Superseded in part by the 2026-10-21 maintainer decisions.** 1.1.0 is GA
+> ([ADR 0008](../../decisions/0008-bundles-are-the-public-record.md) (a)); superseded lines are frozen and kept
+> indefinitely with status `frozen` (ADR 0008 (b)); retention is not a metrics question, only promotion is
+> (ADR 0008 (f)); a content-only correction opens a new MINOR line
+> ([ADR 0009](../../decisions/0009-r2-layout-mirrors-ncbi-clinvar.md) §5). Where the body below mentions
+> `LINE_EOL` / `eol`, `LINE_STATUS=superseded` / `SUPERSEDED_BY=2`, "once GA is confirmed", the freeze-vs-window
+> open point, or the retention and live-window triggers, those decisions replace it. The body is kept as
+> written.
+>
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development or superpowers:executing-plans.
 > Steps use checkbox (`- [ ]`) syntax.
 
