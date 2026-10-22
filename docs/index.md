@@ -206,7 +206,15 @@ See the [Pipeline Overview](pipeline/index.md) for the full workflow.
 - [Data Model](output-reference/classes/index.md) — class hierarchy and schema reference
 - [Pipeline Overview](pipeline/index.md) — how the data is produced from ClinVar XML
 - [Examples](data-access/examples.md) — annotated JSON examples
+- [Data Use and Citation](data-use.md) — the ClinVar disclaimer, how to cite, and what to carry when you redistribute
 
-## License
+## Data Use, Citation and License
 
-The code and the published data — the transformed bundles and Parquet files — are released under [CC0 1.0 Universal](https://github.com/clingen-data-model/clinvar-gkm/blob/main/LICENSE) (public domain dedication). The underlying ClinVar data comes from NCBI; see ClinVar's [disclaimer and data use policy](https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/#disclaimer).
+ClinVar-GKM re-represents [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) data, which comes from NCBI at the U.S. National Library of Medicine. ClinVar's [disclaimer and data use policy](https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/#disclaimer) applies to this data and to anyone who uses or redistributes it:
+
+- **Not for direct clinical use.** ClinVar's information "is not intended for direct diagnostic use or medical decision-making without review by a genetics professional."
+- **Attribute and cite ClinVar** as the data source, as ClinVar asks, and cite ClinVar-GKM ([DOI 10.5281/zenodo.18343663](https://doi.org/10.5281/zenodo.18343663)) if you used these files.
+- **License.** The code and the published files — the transformed bundles and Parquet sets — are dedicated to the public domain under [CC0 1.0 Universal](https://github.com/clingen-data-model/clinvar-gkm/blob/main/LICENSE). CC0 covers ClinGen's contribution and adds no restriction; NCBI's and ClinVar's policies still apply to the ClinVar content.
+- **No endorsement.** ClinVar-GKM is not an NCBI, NLM or NIH product and is not endorsed by them.
+
+[**Data Use and Citation**](data-use.md) gives the citations, what to carry with the data when you redistribute it, and the policy text behind each point.

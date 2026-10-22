@@ -5,6 +5,9 @@ ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas
 !!! warning "1.1.0 moved every download URL"
     1.1.0 (released <!-- YYYY-MM-DD at tag -->) moved every download URL to `v1/1.1/` and renamed the proposition sections — see the [changelog migration notes](../reference/changelog.md#110).
 
+!!! info "Before you use or share the data"
+    These files carry ClinVar data from NCBI. ClinVar's disclaimer applies: the data is not for direct diagnostic use or medical decision-making without review by a genetics professional. Attribute ClinVar as the data source, cite ClinVar-GKM, and carry the attribution and disclaimer with any copy you redistribute. The CC0 dedication covers ClinGen's transformation only. See [Data Use and Citation](../data-use.md).
+
 ---
 
 ## Latest Release

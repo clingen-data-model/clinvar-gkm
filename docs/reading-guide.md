@@ -9,6 +9,7 @@ These docs serve three kinds of reader. Some want to understand the data, often 
 | Section | What it gives you | Read it when |
 | --- | --- | --- |
 | [Home](index.md) | What ClinVar-GKM is, the key concepts, and a first download | You are new to the project |
+| [Data Use and Citation](data-use.md) | The ClinVar disclaimer, how to cite ClinVar and ClinVar-GKM, the license, and what to carry when you redistribute | Before you use, publish or share the data |
 | [Downloads](data-access/download.md) | The files: monthly and weekly full bundles, weekly deltas, Parquet, and [how releases work](data-access/release-model.md) | You need the data, or need to keep a copy current |
 | [Query the Data](parquet/index.md) | The 22 Parquet tables, a browser query console, joins, recipes, and working at scale | You prefer SQL and tables to JSON |
 | [User Stories](user-story.md) | Two end-to-end worked problems | You want to see the data used for a real task |
