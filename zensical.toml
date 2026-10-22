@@ -48,6 +48,7 @@ nav = [
         "output-reference/classes/propositions.md",
         { ClinvarProposition = "output-reference/classes/ClinvarProposition.md" },
         { ClinvarGermlineCustomProposition = "output-reference/classes/ClinvarGermlineCustomProposition.md" },
+        { ClinvarGeneContextQualifier = "output-reference/classes/ClinvarGeneContextQualifier.md" },
         { ClinvarRiskFactorProposition = "output-reference/classes/ClinvarRiskFactorProposition.md" },
         { ClinvarProtectiveProposition = "output-reference/classes/ClinvarProtectiveProposition.md" },
         { ClinvarDrugResponseProposition = "output-reference/classes/ClinvarDrugResponseProposition.md" },

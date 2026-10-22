@@ -89,21 +89,10 @@
           "mappings": [
             {
               "coding": {
-                "code": "268114",
-                "iris": [
-                  "https://identifiers.org/orphanet:268114",
-                  "http://www.orpha.net/ORDO/Orphanet_268114"
-                ],
-                "system": "https://www.orpha.net/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
                 "code": "0013767",
                 "iris": [
-                  "https://identifiers.org/mondo:0013767",
-                  "http://purl.obolibrary.org/obo/MONDO_0013767"
+                  "http://purl.obolibrary.org/obo/MONDO_0013767",
+                  "https://identifiers.org/mondo:0013767"
                 ],
                 "system": "https://mondo.monarchinitiative.org/"
               },
@@ -113,10 +102,21 @@
               "coding": {
                 "code": "614470",
                 "iris": [
-                  "https://www.omim.org/entry/614470",
-                  "https://identifiers.org/mim:614470"
+                  "https://identifiers.org/mim:614470",
+                  "https://www.omim.org/entry/614470"
                 ],
                 "system": "https://www.omim.org/"
+              },
+              "relation": "relatedMatch"
+            },
+            {
+              "coding": {
+                "code": "268114",
+                "iris": [
+                  "http://www.orpha.net/ORDO/Orphanet_268114",
+                  "https://identifiers.org/orphanet:268114"
+                ],
+                "system": "https://www.orpha.net/"
               },
               "relation": "relatedMatch"
             }
@@ -125,8 +125,8 @@
           "primaryCoding": {
             "code": "C2674723",
             "iris": [
-              "https://www.ncbi.nlm.nih.gov/medgen/C2674723",
-              "https://identifiers.org/medgen:C2674723"
+              "https://identifiers.org/medgen:C2674723",
+              "https://www.ncbi.nlm.nih.gov/medgen/C2674723"
             ],
             "name": "Autoimmune lymphoproliferative syndrome type 4",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -147,12 +147,12 @@
           "mappings": [
             {
               "coding": {
-                "code": "519",
+                "code": "0004808",
                 "iris": [
-                  "https://identifiers.org/orphanet:519",
-                  "http://www.orpha.net/ORDO/Orphanet_519"
+                  "http://purl.obolibrary.org/obo/HP_0004808",
+                  "https://identifiers.org/HP:0004808"
                 ],
-                "system": "https://www.orpha.net/"
+                "system": "https://hpo.jax.org/"
               },
               "relation": "relatedMatch"
             },
@@ -171,42 +171,10 @@
               "coding": {
                 "code": "0018874",
                 "iris": [
-                  "https://identifiers.org/mondo:0018874",
-                  "http://purl.obolibrary.org/obo/MONDO_0018874"
+                  "http://purl.obolibrary.org/obo/MONDO_0018874",
+                  "https://identifiers.org/mondo:0018874"
                 ],
                 "system": "https://mondo.monarchinitiative.org/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "601626",
-                "iris": [
-                  "https://www.omim.org/entry/601626",
-                  "https://identifiers.org/mim:601626"
-                ],
-                "system": "https://www.omim.org/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "0004808",
-                "iris": [
-                  "https://identifiers.org/HP:0004808",
-                  "http://purl.obolibrary.org/obo/HP_0004808"
-                ],
-                "system": "https://hpo.jax.org/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "17788007",
-                "iris": [
-                  "https://identifiers.org/snomedct:17788007"
-                ],
-                "system": "https://www.snomed.org/"
               },
               "relation": "relatedMatch"
             },
@@ -219,14 +187,46 @@
                 "system": "https://www.ncbi.nlm.nih.gov/books/"
               },
               "relation": "relatedMatch"
+            },
+            {
+              "coding": {
+                "code": "601626",
+                "iris": [
+                  "https://identifiers.org/mim:601626",
+                  "https://www.omim.org/entry/601626"
+                ],
+                "system": "https://www.omim.org/"
+              },
+              "relation": "relatedMatch"
+            },
+            {
+              "coding": {
+                "code": "519",
+                "iris": [
+                  "http://www.orpha.net/ORDO/Orphanet_519",
+                  "https://identifiers.org/orphanet:519"
+                ],
+                "system": "https://www.orpha.net/"
+              },
+              "relation": "relatedMatch"
+            },
+            {
+              "coding": {
+                "code": "17788007",
+                "iris": [
+                  "https://identifiers.org/snomedct:17788007"
+                ],
+                "system": "https://www.snomed.org/"
+              },
+              "relation": "relatedMatch"
             }
           ],
           "name": "Acute myeloid leukemia",
           "primaryCoding": {
             "code": "C0023467",
             "iris": [
-              "https://www.ncbi.nlm.nih.gov/medgen/C0023467",
-              "https://identifiers.org/medgen:C0023467"
+              "https://identifiers.org/medgen:C0023467",
+              "https://www.ncbi.nlm.nih.gov/medgen/C0023467"
             ],
             "name": "Acute myeloid leukemia",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -242,34 +242,12 @@
           "mappings": [
             {
               "coding": {
-                "code": "1340",
-                "iris": [
-                  "https://identifiers.org/orphanet:1340",
-                  "http://www.orpha.net/ORDO/Orphanet_1340"
-                ],
-                "system": "https://www.orpha.net/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
                 "code": "0014112",
                 "iris": [
-                  "https://identifiers.org/mondo:0014112",
-                  "http://purl.obolibrary.org/obo/MONDO_0014112"
+                  "http://purl.obolibrary.org/obo/MONDO_0014112",
+                  "https://identifiers.org/mondo:0014112"
                 ],
                 "system": "https://mondo.monarchinitiative.org/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "615278",
-                "iris": [
-                  "https://www.omim.org/entry/615278",
-                  "https://identifiers.org/mim:615278"
-                ],
-                "system": "https://www.omim.org/"
               },
               "relation": "relatedMatch"
             },
@@ -282,14 +260,36 @@
                 "system": "https://www.ncbi.nlm.nih.gov/books/"
               },
               "relation": "relatedMatch"
+            },
+            {
+              "coding": {
+                "code": "615278",
+                "iris": [
+                  "https://identifiers.org/mim:615278",
+                  "https://www.omim.org/entry/615278"
+                ],
+                "system": "https://www.omim.org/"
+              },
+              "relation": "relatedMatch"
+            },
+            {
+              "coding": {
+                "code": "1340",
+                "iris": [
+                  "http://www.orpha.net/ORDO/Orphanet_1340",
+                  "https://identifiers.org/orphanet:1340"
+                ],
+                "system": "https://www.orpha.net/"
+              },
+              "relation": "relatedMatch"
             }
           ],
           "name": "Cardiofaciocutaneous syndrome 2",
           "primaryCoding": {
             "code": "C3809005",
             "iris": [
-              "https://www.ncbi.nlm.nih.gov/medgen/C3809005",
-              "https://identifiers.org/medgen:C3809005"
+              "https://identifiers.org/medgen:C3809005",
+              "https://www.ncbi.nlm.nih.gov/medgen/C3809005"
             ],
             "name": "Cardiofaciocutaneous syndrome 2",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -302,21 +302,10 @@
           "mappings": [
             {
               "coding": {
-                "code": "1333",
-                "iris": [
-                  "https://identifiers.org/orphanet:1333",
-                  "http://www.orpha.net/ORDO/Orphanet_1333"
-                ],
-                "system": "https://www.orpha.net/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
                 "code": "0015278",
                 "iris": [
-                  "https://identifiers.org/mondo:0015278",
-                  "http://purl.obolibrary.org/obo/MONDO_0015278"
+                  "http://purl.obolibrary.org/obo/MONDO_0015278",
+                  "https://identifiers.org/mondo:0015278"
                 ],
                 "system": "https://mondo.monarchinitiative.org/"
               },
@@ -326,10 +315,21 @@
               "coding": {
                 "code": "260350",
                 "iris": [
-                  "https://www.omim.org/entry/260350",
-                  "https://identifiers.org/mim:260350"
+                  "https://identifiers.org/mim:260350",
+                  "https://www.omim.org/entry/260350"
                 ],
                 "system": "https://www.omim.org/"
+              },
+              "relation": "relatedMatch"
+            },
+            {
+              "coding": {
+                "code": "1333",
+                "iris": [
+                  "http://www.orpha.net/ORDO/Orphanet_1333",
+                  "https://identifiers.org/orphanet:1333"
+                ],
+                "system": "https://www.orpha.net/"
               },
               "relation": "relatedMatch"
             }
@@ -338,8 +338,8 @@
           "primaryCoding": {
             "code": "C2931038",
             "iris": [
-              "https://www.ncbi.nlm.nih.gov/medgen/C2931038",
-              "https://identifiers.org/medgen:C2931038"
+              "https://identifiers.org/medgen:C2931038",
+              "https://www.ncbi.nlm.nih.gov/medgen/C2931038"
             ],
             "name": "Familial pancreatic carcinoma",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -356,6 +356,17 @@
           "mappings": [
             {
               "coding": {
+                "code": "0012126",
+                "iris": [
+                  "http://purl.obolibrary.org/obo/HP_0012126",
+                  "https://identifiers.org/HP:0012126"
+                ],
+                "system": "https://hpo.jax.org/"
+              },
+              "relation": "relatedMatch"
+            },
+            {
+              "coding": {
                 "code": "D013274",
                 "iris": [
                   "https://identifiers.org/mesh:D013274",
@@ -369,8 +380,8 @@
               "coding": {
                 "code": "0001056",
                 "iris": [
-                  "https://identifiers.org/mondo:0001056",
-                  "http://purl.obolibrary.org/obo/MONDO_0001056"
+                  "http://purl.obolibrary.org/obo/MONDO_0001056",
+                  "https://identifiers.org/mondo:0001056"
                 ],
                 "system": "https://mondo.monarchinitiative.org/"
               },
@@ -380,21 +391,10 @@
               "coding": {
                 "code": "613659",
                 "iris": [
-                  "https://www.omim.org/entry/613659",
-                  "https://identifiers.org/mim:613659"
+                  "https://identifiers.org/mim:613659",
+                  "https://www.omim.org/entry/613659"
                 ],
                 "system": "https://www.omim.org/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "0012126",
-                "iris": [
-                  "https://identifiers.org/HP:0012126",
-                  "http://purl.obolibrary.org/obo/HP_0012126"
-                ],
-                "system": "https://hpo.jax.org/"
               },
               "relation": "relatedMatch"
             },
@@ -413,8 +413,8 @@
           "primaryCoding": {
             "code": "C0024623",
             "iris": [
-              "https://www.ncbi.nlm.nih.gov/medgen/C0024623",
-              "https://identifiers.org/medgen:C0024623"
+              "https://identifiers.org/medgen:C0024623",
+              "https://www.ncbi.nlm.nih.gov/medgen/C0024623"
             ],
             "name": "Gastric cancer",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -430,34 +430,12 @@
           "mappings": [
             {
               "coding": {
-                "code": "648",
-                "iris": [
-                  "https://identifiers.org/orphanet:648",
-                  "http://www.orpha.net/ORDO/Orphanet_648"
-                ],
-                "system": "https://www.orpha.net/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
                 "code": "0012371",
                 "iris": [
-                  "https://identifiers.org/mondo:0012371",
-                  "http://purl.obolibrary.org/obo/MONDO_0012371"
+                  "http://purl.obolibrary.org/obo/MONDO_0012371",
+                  "https://identifiers.org/mondo:0012371"
                 ],
                 "system": "https://mondo.monarchinitiative.org/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "609942",
-                "iris": [
-                  "https://www.omim.org/entry/609942",
-                  "https://identifiers.org/mim:609942"
-                ],
-                "system": "https://www.omim.org/"
               },
               "relation": "relatedMatch"
             },
@@ -470,14 +448,36 @@
                 "system": "https://www.ncbi.nlm.nih.gov/books/"
               },
               "relation": "relatedMatch"
+            },
+            {
+              "coding": {
+                "code": "609942",
+                "iris": [
+                  "https://identifiers.org/mim:609942",
+                  "https://www.omim.org/entry/609942"
+                ],
+                "system": "https://www.omim.org/"
+              },
+              "relation": "relatedMatch"
+            },
+            {
+              "coding": {
+                "code": "648",
+                "iris": [
+                  "http://www.orpha.net/ORDO/Orphanet_648",
+                  "https://identifiers.org/orphanet:648"
+                ],
+                "system": "https://www.orpha.net/"
+              },
+              "relation": "relatedMatch"
             }
           ],
           "name": "Noonan syndrome 3",
           "primaryCoding": {
             "code": "C1860991",
             "iris": [
-              "https://www.ncbi.nlm.nih.gov/medgen/C1860991",
-              "https://identifiers.org/medgen:C1860991"
+              "https://identifiers.org/medgen:C1860991",
+              "https://www.ncbi.nlm.nih.gov/medgen/C1860991"
             ],
             "name": "Noonan syndrome 3",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -501,12 +501,12 @@
           "mappings": [
             {
               "coding": {
-                "code": "2612",
+                "code": "0010817",
                 "iris": [
-                  "https://identifiers.org/orphanet:2612",
-                  "http://www.orpha.net/ORDO/Orphanet_2612"
+                  "http://purl.obolibrary.org/obo/HP_0010817",
+                  "https://identifiers.org/HP:0010817"
                 ],
-                "system": "https://www.orpha.net/"
+                "system": "https://hpo.jax.org/"
               },
               "relation": "relatedMatch"
             },
@@ -514,8 +514,8 @@
               "coding": {
                 "code": "0008097",
                 "iris": [
-                  "https://identifiers.org/mondo:0008097",
-                  "http://purl.obolibrary.org/obo/MONDO_0008097"
+                  "http://purl.obolibrary.org/obo/MONDO_0008097",
+                  "https://identifiers.org/mondo:0008097"
                 ],
                 "system": "https://mondo.monarchinitiative.org/"
               },
@@ -525,8 +525,8 @@
               "coding": {
                 "code": "163200",
                 "iris": [
-                  "https://www.omim.org/entry/163200",
-                  "https://identifiers.org/mim:163200"
+                  "https://identifiers.org/mim:163200",
+                  "https://www.omim.org/entry/163200"
                 ],
                 "system": "https://www.omim.org/"
               },
@@ -534,12 +534,12 @@
             },
             {
               "coding": {
-                "code": "0010817",
+                "code": "2612",
                 "iris": [
-                  "https://identifiers.org/HP:0010817",
-                  "http://purl.obolibrary.org/obo/HP_0010817"
+                  "http://www.orpha.net/ORDO/Orphanet_2612",
+                  "https://identifiers.org/orphanet:2612"
                 ],
-                "system": "https://hpo.jax.org/"
+                "system": "https://www.orpha.net/"
               },
               "relation": "relatedMatch"
             },
@@ -558,8 +558,8 @@
           "primaryCoding": {
             "code": "C4552097",
             "iris": [
-              "https://www.ncbi.nlm.nih.gov/medgen/C4552097",
-              "https://identifiers.org/medgen:C4552097"
+              "https://identifiers.org/medgen:C4552097",
+              "https://www.ncbi.nlm.nih.gov/medgen/C4552097"
             ],
             "name": "Linear nevus sebaceous syndrome",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -572,21 +572,10 @@
           "mappings": [
             {
               "coding": {
-                "code": "3339",
-                "iris": [
-                  "https://identifiers.org/orphanet:3339",
-                  "http://www.orpha.net/ORDO/Orphanet_3339"
-                ],
-                "system": "https://www.orpha.net/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
                 "code": "0010854",
                 "iris": [
-                  "https://identifiers.org/mondo:0010854",
-                  "http://purl.obolibrary.org/obo/MONDO_0010854"
+                  "http://purl.obolibrary.org/obo/MONDO_0010854",
+                  "https://identifiers.org/mondo:0010854"
                 ],
                 "system": "https://mondo.monarchinitiative.org/"
               },
@@ -596,10 +585,21 @@
               "coding": {
                 "code": "600268",
                 "iris": [
-                  "https://www.omim.org/entry/600268",
-                  "https://identifiers.org/mim:600268"
+                  "https://identifiers.org/mim:600268",
+                  "https://www.omim.org/entry/600268"
                 ],
                 "system": "https://www.omim.org/"
+              },
+              "relation": "relatedMatch"
+            },
+            {
+              "coding": {
+                "code": "3339",
+                "iris": [
+                  "http://www.orpha.net/ORDO/Orphanet_3339",
+                  "https://identifiers.org/orphanet:3339"
+                ],
+                "system": "https://www.orpha.net/"
               },
               "relation": "relatedMatch"
             }
@@ -608,8 +608,8 @@
           "primaryCoding": {
             "code": "C1838329",
             "iris": [
-              "https://www.ncbi.nlm.nih.gov/medgen/C1838329",
-              "https://identifiers.org/medgen:C1838329"
+              "https://identifiers.org/medgen:C1838329",
+              "https://www.ncbi.nlm.nih.gov/medgen/C1838329"
             ],
             "name": "Toriello-Lacassie-Droste syndrome",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -626,12 +626,12 @@
           "mappings": [
             {
               "coding": {
-                "code": "46724",
+                "code": "0002408",
                 "iris": [
-                  "https://identifiers.org/orphanet:46724",
-                  "http://www.orpha.net/ORDO/Orphanet_46724"
+                  "http://purl.obolibrary.org/obo/HP_0002408",
+                  "https://identifiers.org/HP:0002408"
                 ],
-                "system": "https://www.orpha.net/"
+                "system": "https://hpo.jax.org/"
               },
               "relation": "relatedMatch"
             },
@@ -639,8 +639,8 @@
               "coding": {
                 "code": "0007154",
                 "iris": [
-                  "https://identifiers.org/mondo:0007154",
-                  "http://purl.obolibrary.org/obo/MONDO_0007154"
+                  "http://purl.obolibrary.org/obo/MONDO_0007154",
+                  "https://identifiers.org/mondo:0007154"
                 ],
                 "system": "https://mondo.monarchinitiative.org/"
               },
@@ -650,8 +650,8 @@
               "coding": {
                 "code": "108010",
                 "iris": [
-                  "https://www.omim.org/entry/108010",
-                  "https://identifiers.org/mim:108010"
+                  "https://identifiers.org/mim:108010",
+                  "https://www.omim.org/entry/108010"
                 ],
                 "system": "https://www.omim.org/"
               },
@@ -659,12 +659,12 @@
             },
             {
               "coding": {
-                "code": "0002408",
+                "code": "46724",
                 "iris": [
-                  "https://identifiers.org/HP:0002408",
-                  "http://purl.obolibrary.org/obo/HP_0002408"
+                  "http://www.orpha.net/ORDO/Orphanet_46724",
+                  "https://identifiers.org/orphanet:46724"
                 ],
-                "system": "https://hpo.jax.org/"
+                "system": "https://www.orpha.net/"
               },
               "relation": "relatedMatch"
             },
@@ -683,8 +683,8 @@
           "primaryCoding": {
             "code": "C0917804",
             "iris": [
-              "https://www.ncbi.nlm.nih.gov/medgen/C0917804",
-              "https://identifiers.org/medgen:C0917804"
+              "https://identifiers.org/medgen:C0917804",
+              "https://www.ncbi.nlm.nih.gov/medgen/C0917804"
             ],
             "name": "Cerebral arteriovenous malformation",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -702,10 +702,21 @@
           "mappings": [
             {
               "coding": {
+                "code": "D001749",
+                "iris": [
+                  "https://identifiers.org/mesh:D001749",
+                  "https://www.ncbi.nlm.nih.gov/mesh/?term=D001749"
+                ],
+                "system": "https://id.nlm.nih.gov/mesh/"
+              },
+              "relation": "relatedMatch"
+            },
+            {
+              "coding": {
                 "code": "0001187",
                 "iris": [
-                  "https://identifiers.org/mondo:0001187",
-                  "http://purl.obolibrary.org/obo/MONDO_0001187"
+                  "http://purl.obolibrary.org/obo/MONDO_0001187",
+                  "https://identifiers.org/mondo:0001187"
                 ],
                 "system": "https://mondo.monarchinitiative.org/"
               },
@@ -715,8 +726,8 @@
               "coding": {
                 "code": "109800",
                 "iris": [
-                  "https://www.omim.org/entry/109800",
-                  "https://identifiers.org/mim:109800"
+                  "https://identifiers.org/mim:109800",
+                  "https://www.omim.org/entry/109800"
                 ],
                 "system": "https://www.omim.org/"
               },
@@ -731,25 +742,14 @@
                 "system": "https://www.snomed.org/"
               },
               "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "D001749",
-                "iris": [
-                  "https://identifiers.org/mesh:D001749",
-                  "https://www.ncbi.nlm.nih.gov/mesh/?term=D001749"
-                ],
-                "system": "https://id.nlm.nih.gov/mesh/"
-              },
-              "relation": "relatedMatch"
             }
           ],
           "name": "Malignant tumor of urinary bladder",
           "primaryCoding": {
             "code": "C0005684",
             "iris": [
-              "https://www.ncbi.nlm.nih.gov/medgen/C0005684",
-              "https://identifiers.org/medgen:C0005684"
+              "https://identifiers.org/medgen:C0005684",
+              "https://www.ncbi.nlm.nih.gov/medgen/C0005684"
             ],
             "name": "Malignant tumor of urinary bladder",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -767,21 +767,10 @@
           "mappings": [
             {
               "coding": {
-                "code": "227535",
-                "iris": [
-                  "https://identifiers.org/orphanet:227535",
-                  "http://www.orpha.net/ORDO/Orphanet_227535"
-                ],
-                "system": "https://www.orpha.net/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
                 "code": "0016419",
                 "iris": [
-                  "https://identifiers.org/mondo:0016419",
-                  "http://purl.obolibrary.org/obo/MONDO_0016419"
+                  "http://purl.obolibrary.org/obo/MONDO_0016419",
+                  "https://identifiers.org/mondo:0016419"
                 ],
                 "system": "https://mondo.monarchinitiative.org/"
               },
@@ -789,22 +778,11 @@
             },
             {
               "coding": {
-                "code": "114480",
+                "code": "GTR000558503",
                 "iris": [
-                  "https://www.omim.org/entry/114480",
-                  "https://identifiers.org/mim:114480"
+                  "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000558503"
                 ],
-                "system": "https://www.omim.org/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "254843006",
-                "iris": [
-                  "https://identifiers.org/snomedct:254843006"
-                ],
-                "system": "https://www.snomed.org/"
+                "system": "https://www.ncbi.nlm.nih.gov/gtr/"
               },
               "relation": "relatedMatch"
             },
@@ -850,11 +828,33 @@
             },
             {
               "coding": {
-                "code": "GTR000558503",
+                "code": "114480",
                 "iris": [
-                  "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000558503"
+                  "https://identifiers.org/mim:114480",
+                  "https://www.omim.org/entry/114480"
                 ],
-                "system": "https://www.ncbi.nlm.nih.gov/gtr/"
+                "system": "https://www.omim.org/"
+              },
+              "relation": "relatedMatch"
+            },
+            {
+              "coding": {
+                "code": "227535",
+                "iris": [
+                  "http://www.orpha.net/ORDO/Orphanet_227535",
+                  "https://identifiers.org/orphanet:227535"
+                ],
+                "system": "https://www.orpha.net/"
+              },
+              "relation": "relatedMatch"
+            },
+            {
+              "coding": {
+                "code": "254843006",
+                "iris": [
+                  "https://identifiers.org/snomedct:254843006"
+                ],
+                "system": "https://www.snomed.org/"
               },
               "relation": "relatedMatch"
             }
@@ -863,8 +863,8 @@
           "primaryCoding": {
             "code": "C0346153",
             "iris": [
-              "https://www.ncbi.nlm.nih.gov/medgen/C0346153",
-              "https://identifiers.org/medgen:C0346153"
+              "https://identifiers.org/medgen:C0346153",
+              "https://www.ncbi.nlm.nih.gov/medgen/C0346153"
             ],
             "name": "Familial cancer of breast",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -883,8 +883,8 @@
               "coding": {
                 "code": "0008903",
                 "iris": [
-                  "https://identifiers.org/mondo:0008903",
-                  "http://purl.obolibrary.org/obo/MONDO_0008903"
+                  "http://purl.obolibrary.org/obo/MONDO_0008903",
+                  "https://identifiers.org/mondo:0008903"
                 ],
                 "system": "https://mondo.monarchinitiative.org/"
               },
@@ -894,8 +894,8 @@
               "coding": {
                 "code": "211980",
                 "iris": [
-                  "https://www.omim.org/entry/211980",
-                  "https://identifiers.org/mim:211980"
+                  "https://identifiers.org/mim:211980",
+                  "https://www.omim.org/entry/211980"
                 ],
                 "system": "https://www.omim.org/"
               },
@@ -916,8 +916,8 @@
           "primaryCoding": {
             "code": "C0242379",
             "iris": [
-              "https://www.ncbi.nlm.nih.gov/medgen/C0242379",
-              "https://identifiers.org/medgen:C0242379"
+              "https://identifiers.org/medgen:C0242379",
+              "https://www.ncbi.nlm.nih.gov/medgen/C0242379"
             ],
             "name": "Lung cancer",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"

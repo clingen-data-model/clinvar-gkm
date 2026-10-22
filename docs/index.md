@@ -3,7 +3,7 @@
 ClinVar-GKM provides a standardized, machine-readable representation of [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) release data using the **GKM (Genomic Knowledge Model)** schema set — VRS, Cat-VRS, and VA-Spec — from the GA4GH [Genomic Knowledge Standards](https://www.ga4gh.org/genomic-knowledge-standards/) workstream. It is developed and maintained by the [ClinGen](https://clinicalgenome.org/) driver project.
 
 !!! warning "1.1.0 moved every download URL"
-    1.1.0 (released <!-- YYYY-MM-DD at tag -->) moved every download URL to `v1/1.1/` and renamed the proposition sections — see the [changelog migration notes](reference/changelog.md#110).
+    1.1.0 (released 2026-10-22) moved every download URL to `v1/1.1/` and renamed the proposition sections — see the [changelog migration notes](reference/changelog.md#110).
 
 !!! info "New here?"
     [**How to Read These Docs**](reading-guide.md) maps each section to what it gives you, with three reading paths: understanding the data from ClinVar's website, following how ClinVar's XML becomes this format, and building a pipeline or application on it.

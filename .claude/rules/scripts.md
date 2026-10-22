@@ -73,6 +73,18 @@ record cleanup across the BQ export functions.
   `#/condition/`, never the set). Filter in BOTH the NDJSON (`extract_ndjson_where`) and typed-Parquet
   (`conditionSet.sql WHERE`) exports.
 
+**Parquet derives from the bundle.** Every Parquet row and value must be recomputable from the published
+bundle alone (one or more sections). Derived forms are fine: bare ids, casts, Range bounds, flattened/split
+extensions, join and lookup tables. Mirror in `parquet-schemas/*.sql` every row filter and record cleanup the
+assembler applies (the `>1` conditionSet filter, strip/collapse). Typed nested columns must not carry all-null
+structs or array elements the bundle lacks (use the `is_blank` prelude helper). If Parquet needs a fact the
+bundle doesn't carry, add it to the bundle first. Verify with an id-set diff plus a recompute of the typed
+columns and `data` against the REAL published delta bundle.
+
+- `JSON_STRIP_NULLS` is not the assembler's `strip_empty`: it removes nulls *inside* arrays, so a VRS Range
+  `[null, n]` becomes `[n]`. For a KV `value` that the bundle cleans only in the assembler, use the
+  `bundle_cleanup` prelude UDF (an exact port of `gkm_json_cleanup.py`).
+
 **Conformance validation (do this, not a shortcut):** validate the REAL published full + delta bundles with the
 official GA4GH **gkm-toolkit** `validate_bundle_schema` plus a registry built by `load_registry` over the whole
 `schema/` tree (dual-keyed: full `$id` AND root-relative path). Do NOT trust `sub-bundle.py` output as proof —

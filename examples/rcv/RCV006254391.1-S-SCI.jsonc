@@ -119,8 +119,8 @@
           "coding": {
             "code": "0850196",
             "iris": [
-              "https://identifiers.org/mondo:0850196",
-              "http://purl.obolibrary.org/obo/MONDO_0850196"
+              "http://purl.obolibrary.org/obo/MONDO_0850196",
+              "https://identifiers.org/mondo:0850196"
             ],
             "system": "https://mondo.monarchinitiative.org/"
           },
@@ -131,8 +131,8 @@
       "primaryCoding": {
         "code": "C4331965",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C4331965",
-          "https://identifiers.org/medgen:C4331965"
+          "https://identifiers.org/medgen:C4331965",
+          "https://www.ncbi.nlm.nih.gov/medgen/C4331965"
         ],
         "name": "Medulloblastoma WNT activated",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"

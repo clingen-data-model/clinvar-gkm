@@ -1,5 +1,5 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
-$id: "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/clinvar-proposition-source.yaml"
+$id: "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-proposition-source.yaml"
 title: ClinVar-GKM custom proposition types
 description: >-
   Custom proposition types for ClinVar submission categories that do not have
@@ -23,10 +23,66 @@ namespaces:
   cat-vrs: /ga4gh/schema/cat-vrs/1.1.1/json/
   va-spec: /ga4gh/schema/va-spec/1.1.0/json/
   domain-entities: /ga4gh/schema/va-spec/1.1.0/json/
-  clinvar-gkm: /clingen/schema/clinvar-gkm/1.0.1/json/
+  clinvar-gkm: /clingen/schema/clinvar-gkm/1.1.0/json/
 
 $defs:
+  # ─── Gene context qualifier ───
+
+  ExtensionGeneContextSource:
+    type: object
+    maturity: trial use
+    description: >-
+      Where the gene on a SCV proposition's geneContextQualifier came from, compared with
+      the gene symbols the submitter gave.
+    protectedClassOf: ClinvarGeneContextQualifier
+    properties:
+      name:
+        type: string
+        const: geneContextSource
+        description: Must be 'geneContextSource'.
+      value:
+        type: string
+        enum:
+          - submittedSymbolMatches
+          - submittedSymbolDiffers
+          - inferredFromVariant
+          - submittedNotNormalized
+        description: >-
+          submittedSymbolMatches: the submitter's symbols include the qualifier's symbol.
+          submittedSymbolDiffers: the submitter gave symbols, but none equals the qualifier's
+          symbol (most are previous symbols of the same gene). inferredFromVariant: the
+          submitter gave no symbols. submittedNotNormalized: the variant has no single
+          representative gene, so the qualifier is a placeholder named with the submitter's
+          symbol(s). Symbols are compared trimmed and case-insensitively.
+
+  ClinvarGeneContextQualifier:
+    maturity: trial use
+    description: >-
+      The gene context qualifier on a ClinVar SCV proposition: a gene MappableConcept. When it
+      carries a 'geneContextSource' extension, that extension's value MUST be one of the four
+      values defined by ExtensionGeneContextSource. Other extensions (e.g.
+      'submittedGeneSymbols') are not constrained here.
+    allOf:
+      - $refCurie: gkm.core:MappableConcept
+    properties:
+      extensions:
+        type: array
+        ordered: false
+        items:
+          $refCurie: gkm.core:Extension
+          if:
+            properties:
+              name:
+                const: geneContextSource
+            required: [name]
+          then:
+            $ref: "#/$defs/ExtensionGeneContextSource"
+        description: >-
+          Extensions on the qualifier. An item named 'geneContextSource' must match
+          ExtensionGeneContextSource.
+
   ClinvarGermlineCustomPropositionProperties:
+    abstract: true
     type: object
     maturity: trial use
     description: >-
@@ -47,7 +103,7 @@ $defs:
         description: The condition for which the variant is associated.
       geneContextQualifier:
         oneOf:
-          - $refCurie: gkm.core:MappableConcept
+          - $ref: "#/$defs/ClinvarGeneContextQualifier"
           - $refCurie: gkm.core:iriReference
         description: >-
           Reports a gene impacted by the variant, which may contribute to the association

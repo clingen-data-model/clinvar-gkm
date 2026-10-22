@@ -1,15 +1,38 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarGkmBundle",
+  "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGkmBundle",
   "title": "ClinVar-GKM Bundle",
   "description": "A ClinVar-GKM bundle: a single JSON object whose root properties are named sections, each a non-empty map from a typed record id to a GKM object. Objects cross-reference each other by '#/<section>/<id>' JSON pointers. The same shape covers the monthly full bundle, the weekly delta, and sub-bundle extracts, so no individual section is required (a delta or sub-bundle carries only the sections it touches). Beyond this schema, a producer must also guarantee that every bundle-local '#/...' pointer resolves within the bundle.",
   "type": "object",
   "minProperties": 1,
   "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "Every proposition section (any section whose name contains 'proposition'): a proposition's geneContextQualifier must match ClinvarGeneContextQualifier, which restricts the 'geneContextSource' extension value to its four defined values. This also covers the GA4GH VA-Spec proposition types, whose own schemas leave qualifier extensions open. It sits in allOf so it does not widen the root's additionalProperties.",
+      "patternProperties": {
+        "proposition": {
+          "additionalProperties": {
+            "properties": {
+              "geneContextQualifier": {
+                "anyOf": [
+                  {
+                    "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGeneContextQualifier"
+                  },
+                  {
+                    "$ref": "https://w3id.org/ga4gh/schema/gkm-core/1.3.0/json/iriReference"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "1.0.1",
+      "const": "1.1.0",
       "description": "The clinvar-gkm bundle schema version this bundle conforms to (semver; matches this schema's $id version). Lets a consumer identify the version from the bundle alone. See ADR 0004. Optional so sub-bundle extracts may omit it; full and delta releases always emit it."
     },
     "sequenceReference": {
@@ -91,23 +114,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^clinvar:[0-9]+$": {
-          "anyOf": [
-            {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarCategoricalVariant"
-            },
-            {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarCanonicalAllele"
-            },
-            {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarNonConstrainedVariant"
-            },
-            {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarCategoricalCnvChange"
-            },
-            {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarCategoricalCnvCount"
-            }
-          ]
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCategoricalVariant"
         }
       },
       "additionalProperties": false
@@ -172,35 +179,22 @@
       },
       "additionalProperties": false
     },
-    "varcond-proposition": {
+    "propositionPathogenicity": {
       "type": "object",
-      "title": "varcond-proposition",
-      "description": "Variant\u00d7condition propositions (pathogenicity, clinical significance, diagnostic, prognostic).",
+      "title": "propositionPathogenicity",
+      "description": "Variant pathogenicity propositions (germline classifications, SCV/RCV/VCV).",
       "minProperties": 1,
       "patternProperties": {
         "^(SCV|VCV|RCV).+": {
-          "anyOf": [
-            {
-              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantPathogenicityProposition"
-            },
-            {
-              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantClinicalSignificanceProposition"
-            },
-            {
-              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantDiagnosticProposition"
-            },
-            {
-              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantPrognosticProposition"
-            }
-          ]
+          "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantPathogenicityProposition"
         }
       },
       "additionalProperties": false
     },
-    "vartumor-proposition": {
+    "propositionOncogenicity": {
       "type": "object",
-      "title": "vartumor-proposition",
-      "description": "Variant\u00d7tumorType propositions (oncogenicity).",
+      "title": "propositionOncogenicity",
+      "description": "Variant oncogenicity propositions (SCV/RCV/VCV).",
       "minProperties": 1,
       "patternProperties": {
         "^(SCV|VCV|RCV).+": {
@@ -209,58 +203,68 @@
       },
       "additionalProperties": false
     },
-    "vartherapy-proposition": {
+    "propositionSomaticClinicalImpact": {
       "type": "object",
-      "title": "vartherapy-proposition",
-      "description": "Variant\u00d7therapy propositions (therapeutic response).",
-      "minProperties": 1,
-      "patternProperties": {
-        "^(SCV|VCV|RCV).+": {
-          "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantTherapeuticResponseProposition"
-        }
-      },
-      "additionalProperties": false
-    },
-    "varcustom-proposition": {
-      "type": "object",
-      "title": "varcustom-proposition",
-      "description": "Custom ClinVar variant\u00d7condition propositions.",
+      "title": "propositionSomaticClinicalImpact",
+      "description": "Somatic clinical impact propositions: clinical significance (SCV/RCV/VCV) and the diagnostic, prognostic and therapeutic-response propositions that SCV evidence lines target.",
       "minProperties": 1,
       "patternProperties": {
         "^(SCV|VCV|RCV).+": {
           "anyOf": [
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarGermlineCustomProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantClinicalSignificanceProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarRiskFactorProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantDiagnosticProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarProtectiveProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantPrognosticProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarDrugResponseProposition"
+              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantTherapeuticResponseProposition"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "propositionClinvarCustom": {
+      "type": "object",
+      "title": "propositionClinvarCustom",
+      "description": "ClinVar custom germline propositions (the Clinvar*Proposition types, incl. ClinvarUndefinedProposition), SCV/RCV/VCV.",
+      "minProperties": 1,
+      "patternProperties": {
+        "^(SCV|VCV|RCV).+": {
+          "anyOf": [
+            {
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarRiskFactorProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarAffectsProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarProtectiveProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarAssociationProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarDrugResponseProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarConfersSensitivityProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarAffectsProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarOtherProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarAssociationProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarNotProvidedProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarConfersSensitivityProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarConflictingDataFromSubmitterProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarOtherProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarUndefinedProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarNotProvidedProposition"
+            },
+            {
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarConflictingDataFromSubmitterProposition"
+            },
+            {
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarUndefinedProposition"
             }
           ]
         }
@@ -279,7 +283,7 @@
               "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/EvidenceLine"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarSomaticEvidenceLine"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarSomaticEvidenceLine"
             }
           ]
         }
@@ -293,7 +297,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^clinvar\\.submission:SCV[0-9]+\\.[0-9]+$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarScvStatement"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarScvStatement"
         }
       },
       "additionalProperties": false
@@ -305,7 +309,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^VCV[0-9]+\\..+": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarVcvStatement"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarVcvStatement"
         }
       },
       "additionalProperties": false
@@ -317,7 +321,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^RCV[0-9]+\\..+": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.0.1/json/ClinvarRcvStatement"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarRcvStatement"
         }
       },
       "additionalProperties": false

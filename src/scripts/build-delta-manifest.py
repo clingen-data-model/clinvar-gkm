@@ -33,20 +33,14 @@ TABLE_SECTION = {
     "gkm_dict_rcv": "rcv",
 }
 
-# The 3 proposition dicts are delivered as 4 datatype-homogeneous bundle sections (Phase 2), so a
-# proposition change-log row maps to a section by its ROW CONTENT, not just its table. Each key encodes
-# its type code ({scv}-CODE / accession-...-PROPTYPE-...), so a type change is a new key (A) + old key
-# gone (D) — never a group-migrating U — so A/U resolve the group from the CURRENT table and D from the
-# BASELINE table. This CASE mirrors export-gkm-dicts.sh PROP_GROUP_CASE + assemble SECTIONS.
+# The 3 proposition dicts are delivered as 4 bundle sections by meaning (1.1.0), so a proposition
+# change-log row maps to a section by its ROW CONTENT, not just its table. Each key encodes its type code
+# ({scv}-CODE / accession-...-PROPTYPE-...), so a type change is a new key (A) + old key gone (D), never a
+# section-migrating U: A/U resolve the section from the CURRENT table and D from the BASELINE table. The
+# section is clinvar_ingest.gkm_proposition_section(type), the one canonical mapping the statement procs
+# and export-gkm-dicts.sh use; it raises on an unmapped type.
 PROP_TABLES = ("gkm_dict_proposition", "gkm_dict_vcv_proposition", "gkm_dict_rcv_proposition")
-GROUP_SECTION_CASE = """CASE
-    WHEN COALESCE(JSON_VALUE(p.value,'$.customPropositionType'), JSON_VALUE(p.value,'$.type')) LIKE 'Clinvar%' THEN 'varcustom-proposition'
-    WHEN COALESCE(JSON_VALUE(p.value,'$.customPropositionType'), JSON_VALUE(p.value,'$.type')) = 'VariantOncogenicityProposition' THEN 'vartumor-proposition'
-    WHEN COALESCE(JSON_VALUE(p.value,'$.customPropositionType'), JSON_VALUE(p.value,'$.type')) = 'VariantTherapeuticResponseProposition' THEN 'vartherapy-proposition'
-    WHEN COALESCE(JSON_VALUE(p.value,'$.customPropositionType'), JSON_VALUE(p.value,'$.type')) IN
-      ('VariantPathogenicityProposition','VariantClinicalSignificanceProposition','VariantDiagnosticProposition','VariantPrognosticProposition') THEN 'varcond-proposition'
-    ELSE ERROR(FORMAT('unmapped proposition type for delivery grouping: %t', COALESCE(JSON_VALUE(p.value,'$.customPropositionType'), JSON_VALUE(p.value,'$.type'))))
-  END"""
+PROP_SECTION_EXPR = "`clinvar_ingest.gkm_proposition_section`(JSON_VALUE(p.value,'$.type'))"
 PROJECT = os.environ.get("CLOUDSDK_CORE_PROJECT", "clingen-dev")
 
 
@@ -87,13 +81,13 @@ def main():
         f"WHERE table_name IN ({','.join(repr(t) for t in nonprop)})"
     )
 
-    # Proposition tables: resolve each changed key to its group section by row content.
+    # Proposition tables: resolve each changed key to its section by row content.
     # A/U keys exist in the CURRENT tables; D keys exist only in the BASELINE tables.
     prop_in = ",".join(repr(t) for t in PROP_TABLES)
     cur_union = " UNION ALL ".join(
         f"SELECT key, value FROM `{ds}.{t}`" for t in PROP_TABLES)
     prop_sql = (
-        f"SELECT cl.change_type, cl.pk, {GROUP_SECTION_CASE} AS section "
+        f"SELECT cl.change_type, cl.pk, {PROP_SECTION_EXPR} AS section "
         f"FROM `{ds}.gkm_change_log` cl JOIN ({cur_union}) p ON p.key = cl.pk "
         f"WHERE cl.table_name IN ({prop_in}) AND cl.change_type IN ('A','U')"
     )
@@ -107,7 +101,7 @@ def main():
         base_union = " UNION ALL ".join(
             f"SELECT key, value FROM `{base_ds}.{t}`" for t in PROP_TABLES)
         prop_sql += (
-            f" UNION ALL SELECT cl.change_type, cl.pk, {GROUP_SECTION_CASE} AS section "
+            f" UNION ALL SELECT cl.change_type, cl.pk, {PROP_SECTION_EXPR} AS section "
             f"FROM `{ds}.gkm_change_log` cl JOIN ({base_union}) p ON p.key = cl.pk "
             f"WHERE cl.table_name IN ({prop_in}) AND cl.change_type = 'D'"
         )

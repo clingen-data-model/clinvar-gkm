@@ -124,7 +124,7 @@ BEGIN
         m as (
           SELECT
             x.variation_id,
-            ARRAY_AGG(STRUCT(x.system, x.code, x.relation)) as mappings
+            ARRAY_AGG(STRUCT(x.system, x.code, x.relation) ORDER BY x.system, x.code) as mappings
           FROM x
           GROUP BY x.variation_id
         )""";
@@ -220,8 +220,8 @@ BEGIN
         SELECT
           x.variation_id,
           x.variation_name,
-          STRING_AGG(DISTINCT a.attribute.type) AS copy_type,
-          STRING_AGG(DISTINCT a.attribute.value) AS copy_value
+          STRING_AGG(DISTINCT a.attribute.type ORDER BY a.attribute.type) AS copy_type,
+          STRING_AGG(DISTINCT a.attribute.value ORDER BY a.attribute.value) AS copy_value
         FROM (
           SELECT
             v.id AS variation_id,
@@ -270,7 +270,8 @@ BEGIN
             ARRAY(
               SELECT
                 CAST(elem AS INT64)
-                FROM UNNEST(SPLIT(cn.copy_value)) AS elem
+                FROM UNNEST(SPLIT(cn.copy_value)) AS elem WITH OFFSET o
+                ORDER BY o
             ),
             null
           ) AS range_copies,
@@ -541,7 +542,8 @@ BEGIN
             h.nucleotide,
             h.protein )
           ORDER BY
-            h.protein DESC
+            h.protein DESC,
+            h.nucleotide
         ) as expr
       FROM h
       JOIN h_top
@@ -909,7 +911,7 @@ BEGIN
           from (
             select
               vm.*,
-              row_number() over (partition by vm.variation_id order by vm.precedence, vm.assembly_version desc, vm.issue, vm.accession) as rn
+              row_number() over (partition by vm.variation_id order by vm.precedence, vm.assembly_version desc, vm.issue, vm.accession, vm.chr, vm.variant_length) as rn
             from {P}.temp_variation_members vm
             )
           where rn = 1
@@ -1064,7 +1066,7 @@ BEGIN
         m as (
           SELECT
             x.variation_id,
-            ARRAY_AGG(STRUCT(x.system, x.code, x.relation)) as mappings
+            ARRAY_AGG(STRUCT(x.system, x.code, x.relation) ORDER BY x.system, x.code) as mappings
           FROM x
           GROUP BY x.variation_id
         )

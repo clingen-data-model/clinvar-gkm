@@ -78,7 +78,10 @@ All ClinVar proposition types are subtypes of the VA-Spec `SubjectVariantProposi
 - `subject` — the variant being classified, as a `#/variation/` reference
 - `object` — the asserted object, as a reference: a `#/condition/` or `#/conditionSet/` for most types; a `#/therapy/` or `#/therapyGroup/` for `VariantTherapeuticResponseProposition` (drug therapies are content-addressed and deduplicated into the `therapy` / `therapyGroup` bundle sections)
 - `conditionQualifier` — for `VariantTherapeuticResponseProposition`, the `#/condition/` or `#/conditionSet/` the therapeutic response is asserted in (since `object` carries the therapy)
-- `geneContextQualifier` — the gene impacted by the variant (embedded)
+- `geneContextQualifier` — the gene impacted by the variant (embedded). Its `geneContextSource` extension may
+  only be `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`
+  (see [ClinvarGeneContextQualifier](ClinvarGeneContextQualifier.md)). The bundle schema applies this to every
+  proposition type, including the VA-Spec ones.
 - `alleleOriginQualifier` — germline, somatic, or mosaic origin
 
 See the individual class pages for the complete information model including all inherited fields.

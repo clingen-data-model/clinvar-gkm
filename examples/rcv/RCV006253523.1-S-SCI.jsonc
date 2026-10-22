@@ -119,8 +119,8 @@
           "coding": {
             "code": "0858939",
             "iris": [
-              "https://identifiers.org/mondo:0858939",
-              "http://purl.obolibrary.org/obo/MONDO_0858939"
+              "http://purl.obolibrary.org/obo/MONDO_0858939",
+              "https://identifiers.org/mondo:0858939"
             ],
             "system": "https://mondo.monarchinitiative.org/"
           },
@@ -131,8 +131,8 @@
       "primaryCoding": {
         "code": "C5669918",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C5669918",
-          "https://identifiers.org/medgen:C5669918"
+          "https://identifiers.org/medgen:C5669918",
+          "https://www.ncbi.nlm.nih.gov/medgen/C5669918"
         ],
         "name": "Diffuse pediatric-type high-grade glioma, H3-wildtype and IDH-wildtype",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"

@@ -99,6 +99,12 @@
   "proposition": {
     "geneContextQualifier": {
       "conceptType": "gene",
+      "extensions": [
+        {
+          "name": "geneContextSource",
+          "value": "inferredFromVariant"
+        }
+      ],
       "mappings": [
         {
           "coding": {
@@ -134,21 +140,10 @@
       "mappings": [
         {
           "coding": {
-            "code": "97290",
-            "iris": [
-              "https://identifiers.org/orphanet:97290",
-              "http://www.orpha.net/ORDO/Orphanet_97290"
-            ],
-            "system": "https://www.orpha.net/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
             "code": "0011578",
             "iris": [
-              "https://identifiers.org/mondo:0011578",
-              "http://purl.obolibrary.org/obo/MONDO_0011578"
+              "http://purl.obolibrary.org/obo/MONDO_0011578",
+              "https://identifiers.org/mondo:0011578"
             ],
             "system": "https://mondo.monarchinitiative.org/"
           },
@@ -158,10 +153,21 @@
           "coding": {
             "code": "605642",
             "iris": [
-              "https://www.omim.org/entry/605642",
-              "https://identifiers.org/mim:605642"
+              "https://identifiers.org/mim:605642",
+              "https://www.omim.org/entry/605642"
             ],
             "system": "https://www.omim.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "97290",
+            "iris": [
+              "http://www.orpha.net/ORDO/Orphanet_97290",
+              "https://identifiers.org/orphanet:97290"
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         }
@@ -170,8 +176,8 @@
       "primaryCoding": {
         "code": "C1854104",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C1854104",
-          "https://identifiers.org/medgen:C1854104"
+          "https://identifiers.org/medgen:C1854104",
+          "https://www.ncbi.nlm.nih.gov/medgen/C1854104"
         ],
         "name": "Familial papillary thyroid carcinoma with renal papillary neoplasia",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -189,6 +195,7 @@
   },
   "reportedIn": [
     {
+      "documentType": "general",
       "pmid": "19633549",
       "type": "Document",
       "urls": [

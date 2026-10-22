@@ -23,5 +23,4 @@ Some ClinvarCanonicalAllele attributes are inherited from [CanonicalAllele](http
 | `members` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener } \| `ClinvarAllele`[] (unordered) | 0..m | A non-exhaustive list of VRS variation contexts that satisfy the constraints of this categorical variant. |
 | `constraints` | [Constraint](https://va-spec.ga4gh.org/en/1.1.0/appendices/imported-models/constraint.html#constraint){ target=_blank rel=noopener }[] (unordered) | 0..m |  |
 | `mappings` | [ConceptMapping](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/elements/concept-mapping.html#conceptmapping){ target=_blank rel=noopener }[] (unordered) | 0..m | A list of mappings to concepts in terminologies or code systems. Each mapping should include a coding and a relation. |
-| `definingContext` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener } \| `ClinvarAllele` | 0..1 |  |
 
