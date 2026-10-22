@@ -1,0 +1,154 @@
+{
+  "repo": "cat-vrs",
+  "tag": "1.1.0",
+  "name": "1.1.0",
+  "published_at": "2026-09-01T14:01:45",
+  "schema_count": 16,
+  "maturity_summary": {
+    "draft": 9,
+    "trial use": 7
+  },
+  "schemas": {
+    "AdjacencyConstraint": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/AdjacencyConstraint",
+      "maturity": "draft",
+      "description": "Components that define a molecular adjacency of congruent elements.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/AdjacencyConstraint",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/AdjacencyConstraint"
+    },
+    "CanonicalAllele": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/CanonicalAllele",
+      "maturity": "trial use",
+      "description": "A canonical allele is defined by an Allele that is representative of a collection of congruent Alleles, each of which depict the same nucleic acid on different underlying reference sequences. Congruent representations of an Allele often exist across different genome assemblies and associated cDNA transcript representations.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/CanonicalAllele",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/CanonicalAllele"
+    },
+    "CategoricalCnv": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/CategoricalCnv",
+      "maturity": "draft",
+      "description": "A representation of the constraints for matching knowledge about CNVs.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/CategoricalCnv",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/CategoricalCnv"
+    },
+    "CategoricalVariant": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/CategoricalVariant",
+      "maturity": "trial use",
+      "description": "A representation of a categorically-defined domain for variation, in which individual Constraintual variation instances may be members of the domain.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/CategoricalVariant",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/CategoricalVariant"
+    },
+    "Constraint": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/Constraint",
+      "maturity": "trial use",
+      "description": "Constraints are used to construct an intensional semantics of categorical variant types.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/Constraint",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/Constraint"
+    },
+    "CopyChangeConstraint": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/CopyChangeConstraint",
+      "maturity": "draft",
+      "description": "The relative assessment of the change in copies that members of this categorical variant satisfy.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/CopyChangeConstraint",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/CopyChangeConstraint"
+    },
+    "CopyCountConstraint": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/CopyCountConstraint",
+      "maturity": "trial use",
+      "description": "The exact or range of copies that members of this categorical variant must satisfy.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/CopyCountConstraint",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/CopyCountConstraint"
+    },
+    "DefiningAlleleConstraint": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/DefiningAlleleConstraint",
+      "maturity": "trial use",
+      "description": "The defining allele and its associated relationships that are congruent with member variants.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/DefiningAlleleConstraint",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/DefiningAlleleConstraint"
+    },
+    "DefiningLocationConstraint": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/DefiningLocationConstraint",
+      "maturity": "trial use",
+      "description": "The defining location and its associated relationships that are congruent with member locations.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/DefiningLocationConstraint",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/DefiningLocationConstraint"
+    },
+    "FeatureContextConstraint": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/FeatureContextConstraint",
+      "maturity": "draft",
+      "description": "The feature that members of this categorical variant are associated with.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/FeatureContextConstraint",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/FeatureContextConstraint"
+    },
+    "FunctionConstraint": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/FunctionConstraint",
+      "maturity": "draft",
+      "description": "A classification of the protein functional consequence that characterizes members of this categorical variant.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/FunctionConstraint",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/FunctionConstraint"
+    },
+    "FunctionVariant": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/FunctionVariant",
+      "maturity": "draft",
+      "description": "A representation of the constraints for matching knowledge about function variants; e.g., gain-of-function or loss-of-function.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/FunctionVariant",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/FunctionVariant"
+    },
+    "FunctionalDomain": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/FunctionalDomain",
+      "maturity": "draft",
+      "description": "A sequence location whose presence or absence is used to define an adjacency.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/FunctionalDomain",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/FunctionalDomain"
+    },
+    "GeneFusion": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/GeneFusion",
+      "maturity": "draft",
+      "description": "A representation of the joining of two genes resulting in a chimeric transcript and/or novel interaction between a rearranged regulatory elements with the expression of a partner gene product (a regulatory fusion).",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/GeneFusion",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/GeneFusion"
+    },
+    "ProteinSequenceConsequence": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/ProteinSequenceConsequence",
+      "maturity": "trial use",
+      "description": "A change that occurs in a protein sequence as a result of genomic changes. Due to the degenerate nature of the genetic code, there are often several genomic changes that can cause a protein sequence consequence. The protein sequence consequence, like a CanonicalAllele, is defined by an Allele that is representative of a collection of congruent Protein Alleles that share the same altered codon(s).",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/ProteinSequenceConsequence",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/ProteinSequenceConsequence"
+    },
+    "UnspecifiedElement": {
+      "$id": "https://w3id.org/ga4gh/schema/cat-vrs/1.1.0/json/UnspecifiedElement",
+      "maturity": "draft",
+      "description": "Represents an unspecified element that satisfies the described adjacency.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/cat-vrs/json/UnspecifiedElement",
+      "github_url": "https://github.com/ga4gh/cat-vrs/blob/1.1.0/schema/cat-vrs/json/UnspecifiedElement"
+    }
+  },
+  "release_notes": "## What's Changed\r\n* docs: fix some typos by @jsstevenson in https://github.com/ga4gh/cat-vrs/pull/153\r\n* #109: Adding Issue and Pull Request templates by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/156\r\n* docs: fix some typos by @jsstevenson in https://github.com/ga4gh/cat-vrs/pull/160\r\n* #96 and #101: Documentation updates: Implementation Guide, Releases, and Roadmap by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/158\r\n* #131: Adjust CODEOWNERS file by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/163\r\n* #154: Not all examples were being tested by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/155\r\n* #170: fix `Constraint` description by @jsstevenson in https://github.com/ga4gh/cat-vrs/pull/175\r\n* #14: Draft FunctionConstraint and FunctionVariant Recipe by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/164\r\n* docs: (#149) remove html margin-top blocks by @jsstevenson in https://github.com/ga4gh/cat-vrs/pull/183\r\n* fixed contains line of function variant recipe by @DanielPuthawala in https://github.com/ga4gh/cat-vrs/pull/180\r\n* #190 Docs: remove disclaimer by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/192\r\n* docs: fix build warnings by @jsstevenson in https://github.com/ga4gh/cat-vrs/pull/182\r\n* Docs: auto update copyright year, aligned copyright text with other GKS products by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/185\r\n* Issue 197: Removed duplicate requirements.txt files by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/198\r\n* fix: use correct img.shields.io link for docs badge by @korikuzma in https://github.com/ga4gh/cat-vrs/pull/204\r\n* docs: update pull request template for improved clarity and formatting by @SalemBajjali in https://github.com/ga4gh/cat-vrs/pull/200\r\n* 177 adjacency constraint by @DanielPuthawala in https://github.com/ga4gh/cat-vrs/pull/178\r\n* Issue 191: Align readthedocs with VRS and VA-Spec style of one concept per page by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/195\r\n* #208: add description for type in Constraint.heritableProperties by @kushagramodanwal in https://github.com/ga4gh/cat-vrs/pull/209\r\n* #212: Updated hardcoded github_version in docs/source/conf.py by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/213\r\n* #212: Update github_version for \"stable\" readthedocs version by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/214\r\n* #205: add GKS Think Tank information to Getting Involved page by @kushagramodanwal in https://github.com/ga4gh/cat-vrs/pull/210\r\n* Updating Cat-VRS Quickstart documentation by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/219\r\n* #159: Move examples out of schema directory by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/223\r\n* #206 roadmap update by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/225\r\n* Added calzone assets by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/227\r\n* #189 Add full example pages to the readthedocs by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/229\r\n* Discussion templates for proposing a new feature or modifying an existing one by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/237\r\n* #207 Implementation Guidance for all concepts by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/232\r\n* chore: add citation file by @jsstevenson in https://github.com/ga4gh/cat-vrs/pull/244\r\n* chore: add citation file by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/245\r\n* Bump to 1.1.0-ballot.2026-07.1 and align examples with new MappableCo\u2026 by @larrybabb in https://github.com/ga4gh/cat-vrs/pull/246\r\n* Bump schema versions for 2026-07 ballot and align examples by @larrybabb in https://github.com/ga4gh/cat-vrs/pull/249\r\n* #250 Release notes for 1.1.0 release by @brendanreardon in https://github.com/ga4gh/cat-vrs/pull/251\r\n* 1.1.0 ballot.2026 07 by @larrybabb in https://github.com/ga4gh/cat-vrs/pull/253\r\n\r\n## New Contributors\r\n* @kushagramodanwal made their first contribution in https://github.com/ga4gh/cat-vrs/pull/209\r\n\r\n**Full Changelog**: https://github.com/ga4gh/cat-vrs/compare/1.0.0...1.1.0",
+  "release_url": "https://github.com/ga4gh/cat-vrs/releases/tag/1.1.0",
+  "previous_release": "1.0.0",
+  "dependencies": [
+    {
+      "product": "gkm-core",
+      "release": "1.2.0"
+    },
+    {
+      "product": "vrs",
+      "release": "2.1.0"
+    }
+  ]
+}

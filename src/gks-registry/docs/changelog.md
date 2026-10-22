@@ -76,6 +76,28 @@ Changes to schemas between releases, organized by repository.
 - CanonicalAllele: description: updated
 - CopyChangeConstraint: description: updated
 
+### 1.1.0-ballot.2026.07.1 (from 1.1.0-snapshot.2026-02.3)
+
+**Added:**
+- AdjacencyConstraint
+- FunctionalDomain
+- GeneFusion
+- UnspecifiedElement
+
+### 1.1.0 (from 1.0.0)
+
+**Added:**
+- AdjacencyConstraint
+- FunctionConstraint
+- FunctionVariant
+- FunctionalDomain
+- GeneFusion
+- UnspecifiedElement
+
+**Modified:**
+- CanonicalAllele: description: updated
+- CopyChangeConstraint: description: updated
+
 
 ## gks-core
 
@@ -205,6 +227,19 @@ Changes to schemas between releases, organized by repository.
 
 **Added:**
 - ConceptSet
+
+### 1.2.0 (from 1.1.0)
+
+**Removed:**
+- Coding
+- ConceptMapping
+- ConceptSet
+- Extension
+- MappableConcept
+- code
+- date
+- datetime
+- iriReference
 
 
 ## va-spec
@@ -370,6 +405,99 @@ Changes to schemas between releases, organized by repository.
 - VariantOncogenicityEvidenceLine: description: updated
 - VariantPathogenicityEvidenceLine: description: updated
 
+### 1.1.0-snapshot.2026-02.1 (from 1.0.1)
+
+**Added:**
+- AmpAscoCapEvidenceLine
+- DiagnosticEvidenceLine
+- PrognosticEvidenceLine
+- TherapeuticEvidenceLine
+- VariantClinicalSignificanceProposition
+- VariantClinicalSignificanceStatement
+- VariantOncogenicityStatement
+
+**Removed:**
+- VariantDiagnosticStudyStatement
+- VariantOncogenicityStudyStatement
+- VariantPrognosticStudyStatement
+- VariantTherapeuticResponseStudyStatement
+
+### 1.1.0-ballot.2026-07.1 (from 1.1.0-snapshot.2026-06.1)
+
+**Added:**
+- ComputationalVariantFunctionalImpactAnalysisResult
+- GeneDiseaseValidityProposition
+- Therapy
+- VariantMolecularConsequenceProposition
+
+**Removed:**
+- Therapeutic
+
+**Modified:**
+- Condition: description: updated
+- ConditionSet: description: updated
+- TherapyGroup: description: updated
+
+### 1.1.0-ballot.2026-07.2 (from 1.1.0-ballot.2026-07.1)
+
+**Added:**
+- CustomProposition
+
+### 1.1.0-ballot.2026-09.1 (from 1.1.0-ballot.2026-07.2)
+
+**Added:**
+- AmpAscoCapStatement
+- DataItem
+- DiagnosticStatement
+- GeneticContextVariantProposition
+- InformationEntity
+- PrognosticStatement
+- Proposition
+- TherapeuticStatement
+
+**Removed:**
+- AmpAscoCapEvidenceLine
+- CustomProposition
+- DiagnosticEvidenceLine
+- EvidenceLine
+- PrognosticEvidenceLine
+- TherapeuticEvidenceLine
+
+**Modified:**
+- Contribution: description: updated
+
+### 1.1.0 (from 1.0.1)
+
+**Added:**
+- AmpAscoCapEvidenceLine
+- ComputationalVariantFunctionalImpactAnalysisResult
+- DataItem
+- DiagnosticEvidenceLine
+- GeneDiseaseValidityProposition
+- GeneticContextVariantProposition
+- InformationEntity
+- PrognosticEvidenceLine
+- Proposition
+- TherapeuticEvidenceLine
+- Therapy
+- VariantClinicalSignificanceProposition
+- VariantClinicalSignificanceStatement
+- VariantMolecularConsequenceProposition
+- VariantOncogenicityStatement
+
+**Removed:**
+- Therapeutic
+- VariantDiagnosticStudyStatement
+- VariantOncogenicityStudyStatement
+- VariantPrognosticStudyStatement
+- VariantTherapeuticResponseStudyStatement
+
+**Modified:**
+- Condition: description: updated
+- ConditionSet: description: updated
+- Contribution: description: updated
+- TherapyGroup: description: updated
+
 
 ## vrs
 
@@ -404,10 +532,20 @@ Changes to schemas between releases, organized by repository.
 - SequenceLocation: ga4gh_prefix: `none` → `VSL`
 - Text: ga4gh_prefix: `none` → `VT`
 
-### 1.0.0 (from 1.0.0-rc.2)
+### 1.0.0 (initial)
 
-**Removed:**
-- B64UDigest
+**Added:**
+- Allele (`VA`)
+- CURIE
+- DateTime
+- Interval
+- Location
+- SequenceLocation (`VSL`)
+- SequenceState
+- SimpleInterval
+- State
+- Text (`VT`)
+- Variation
 
 ### 1.1.0 (from 1.0.0)
 
@@ -693,4 +831,24 @@ Changes to schemas between releases, organized by repository.
 
 **Modified:**
 - SequenceExpression: description: updated
+
+### 2.1.0 (from 2.0.1)
+
+**Added:**
+- RelativeAllele (`RA`)
+- RelativeSequenceLocation (`RSL`)
+- SequenceOffsetLocation
+
+**Modified:**
+- SequenceExpression: description: updated
+
+### 2.1.1-ballot.2026-09.1 (from 2.1.0)
+
+**Added:**
+- Ga4ghIdentifiableObject
+
+### 2.1.1 (from 2.1.0)
+
+**Added:**
+- Ga4ghIdentifiableObject
 

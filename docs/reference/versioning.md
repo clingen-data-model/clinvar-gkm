@@ -81,7 +81,8 @@ the latest**, follow the line whose `status` is `current`. Every bundle also car
     - **Watch the GitHub repository** (Custom → Releases & Discussions) for release announcements and change
       proposals.
     - **Subscribe to the release feed** (RSS/Atom, generated from `index.json`) in any feed reader.
-    - *An email subscription list, for consumers who prefer not to use GitHub, is planned — not yet available.*
+    - **Join the email list** [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm), a Google Group for release announcements, change notices and RFCs about
+      the repository, the data releases, tools and documentation. No GitHub account needed.
 
 Before any breaking change (after the schema reaches **GA**), we open a **Request for Comment (RFC)** — a
 proposal with its rationale and migration impact — notify subscribers, and hold a **minimum 4-week comment
