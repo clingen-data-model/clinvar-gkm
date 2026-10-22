@@ -1,7 +1,7 @@
 # Joining Tables
 
 !!! info "Release"
-    Outputs, counts and timings on this page are from the **2026-10 monthly release** (published 14 Oct 2026), run with DuckDB 1.5 on a laptop against downloaded files. Re-run a query to get today's numbers.
+    Outputs and counts on this page are from the **2026-10-18 release**. Timings were measured on the 2026-10 monthly release (published 14 Oct 2026), with DuckDB 1.5 on a laptop against downloaded files. Re-run a query to get today's numbers.
 
 The 22 tables connect in five places, the **seams**. Two are plain foreign keys. The other three hide the trap that causes most wrong answers: a column whose values point at **more than one table**, distinguished only by the id's prefix or a type column. Join just one branch and the rows for the others disappear without an error.
 
@@ -11,7 +11,7 @@ Every query on this page runs against **downloaded** files; the joins read multi
 
 ## Seam A · Variant → Proposition
 
-Every proposition has a subject, and every subject is a [`variation`](tables.md#variation) id: 27,655,456 references, all resolving. The four proposition tables share one column schema (from 1.1.0), so one glob reads them all as a single table, `subject_variant_id` included. `filename = true` adds the file each row came from:
+Every proposition has a subject, and every subject is a [`variation`](tables.md#variation) id: 28,077,355 references, all resolving. The four proposition tables share one column schema (from 1.1.0), so one glob reads them all as a single table, `subject_variant_id` included. `filename = true` adds the file each row came from:
 
 ```sql
 -- One variant, every proposition, from all four tables
@@ -42,8 +42,8 @@ A proposition's object is in `object_id`, and `object_type` names the table it p
 
 | `object_type` | Joins to | References |
 | --- | --- | ---: |
-| `condition` | [`condition`](tables.md#condition).`id` (`clinvar.trait:<n>`) | 24,751,730 |
-| `conditionSet` | [`conditionSet`](tables.md#conditionSet).`id`: an accessioned ClinVar TraitSet (`clinvar.traitset:<n>`) or a set minted for a VCV aggregate (`clinvar.conditionset:vcv-<md5>`) | 2,903,713 |
+| `condition` | [`condition`](tables.md#condition).`id` (`clinvar.trait:<n>`) | 25,113,007 |
+| `conditionSet` | [`conditionSet`](tables.md#conditionSet).`id`: an accessioned ClinVar TraitSet (`clinvar.traitset:<n>`) or a set minted for a VCV aggregate (`clinvar.conditionset:vcv-<md5>`) | 2,964,335 |
 | `therapy` | [`therapy`](tables.md#therapy).`key` | 6 |
 | `therapyGroup` | [`therapyGroup`](tables.md#therapyGroup).`key` | 7 |
 
@@ -76,7 +76,7 @@ clinvar.conditionset:vcv-c620785e2025efde81bdd15c814fa83d  conditionSet  Epiderm
 ```
 
 !!! warning "The trap"
-    `JOIN 'condition.parquet' c ON c.id = p.object_id` (an inner join to `condition` only) keeps **24,556,081** of the 27,447,072 `propositionPathogenicity` rows. The **2.9 million** whose object is a set (10.5 %) silently disappear.
+    `JOIN 'condition.parquet' c ON c.id = p.object_id` (an inner join to `condition` only) keeps **24,917,355** of the 27,868,969 `propositionPathogenicity` rows. The **2.95 million** whose object is a set (10.6 %) silently disappear.
 
 ### Expanding a set to its member names
 
@@ -98,7 +98,7 @@ clinvar.traitset:10013  AND                 clinvar.trait:2965; clinvar.trait:73
 To get names, `unnest` the list and join each member to `condition`, as `set_names` does above. Two more things matter:
 
 - **`membershipOperator` changes what the set asserts.** `AND` means the members together (a TraitSet describing one patient presentation); `OR` means any of them (every set minted for a VCV aggregate is `OR`). Carry it as its own column next to the names.
-- **A minted set can contain a TraitSet.** 26,033 of the 83,538 minted sets list a `clinvar.traitset:` id among their members, so expansion goes one level deeper than it looks. It never goes further; TraitSets contain only traits.
+- **A minted set can contain a TraitSet.** 28,744 of the 95,302 minted sets list a `clinvar.traitset:` id among their members, so expansion goes one level deeper than it looks. It never goes further; TraitSets contain only traits.
 
 This version handles the nesting:
 
@@ -132,7 +132,7 @@ That set's members are two traits and `clinvar.traitset:55931`, whose own member
 
 ## Seam C · Proposition → Statements (1 : 1)
 
-Each statement table (`scv`, `rcv`, `vcv`) has a `proposition_id`, and a proposition has **at most one** statement: 27,653,888 references, 27,653,888 distinct ids. Treat the proposition as a side table of its statement.
+Each statement table (`scv`, `rcv`, `vcv`) has a `proposition_id`, and a proposition has **at most one** statement: 28,075,787 references, 28,075,787 distinct ids. Treat the proposition as a side table of its statement.
 
 A proposition id's classification code names its table (`PATH` → `propositionPathogenicity`, `ONCO` → `propositionOncogenicity`, and so on; see the [code table](tables.md#reading-a-variants-statements)). A query over every statement spans all four, so join the glob:
 
@@ -153,16 +153,16 @@ GROUP BY ALL ORDER BY s.tier, statements DESC;
 
 ```text
 tier  prop_table                        statements
-rcv   propositionPathogenicity          11,753,254
+rcv   propositionPathogenicity          11,970,181
 rcv   propositionClinvarCustom              77,087
 rcv   propositionSomaticClinicalImpact       5,239
 rcv   propositionOncogenicity                3,848
-scv   propositionPathogenicity           6,692,530
+scv   propositionPathogenicity           6,811,300
 scv   propositionClinvarCustom              38,805
 scv   propositionOncogenicity                1,924
 scv   propositionSomaticClinicalImpact       1,752
-vcv   propositionPathogenicity           9,001,288
-vcv   propositionClinvarCustom              70,290
+vcv   propositionPathogenicity           9,087,488
+vcv   propositionClinvarCustom              70,292
 vcv   propositionSomaticClinicalImpact       4,048
 vcv   propositionOncogenicity                3,823
 ```
@@ -170,7 +170,7 @@ vcv   propositionOncogenicity                3,823
 Each tier's four rows sum to its exact row count, and nothing is `UNRESOLVED`. The 1,568 other `propositionSomaticClinicalImpact` rows (the diagnostic, prognostic and therapeutic-response propositions) have no statement: they are reached through SCI evidence lines (`evidenceLine.target_proposition_id`).
 
 !!! warning "The trap"
-    Joining statements to `propositionPathogenicity` alone drops **42,481** SCVs, **86,174** RCV statements and **78,161** VCV statements: every non-pathogenicity germline call, every somatic clinical-impact call and every oncogenicity call.
+    Joining statements to `propositionPathogenicity` alone drops **42,481** SCVs, **86,174** RCV statements and **78,163** VCV statements: every non-pathogenicity germline call, every somatic clinical-impact call and every oncogenicity call.
 
 The [column-reference entry for `scv`](tables.md#scv) lists what each statement carries. To query statements directly by their proposition's subject, object or qualifiers without repeating this join, [materialize it once](performance.md#materialize-join-tables).
 
@@ -237,7 +237,7 @@ VCV000000010   VCV000000010.141-G-OTH-CP   clinvar.submission:SCV000227124.6
 VCV000000010   VCV000000010.141-G-PATH-CP  clinvar.submission:SCV000219176.11
 ```
 
-The build takes under a second and yields **6,735,011** pairs, exactly one per SCV: every SCV is cited by exactly one VCV level statement. Keep `vcv_statement_id`, not just the accession; its suffix is what tells a `-CP` submission from a `-NOCP` or `-EP` one. Swap `vcv` for `rcv` to map SCVs to RCV accessions.
+The build takes under a second and yields **6,853,781** pairs, exactly one per SCV: every SCV is cited by exactly one VCV level statement. Keep `vcv_statement_id`, not just the accession; its suffix is what tells a `-CP` submission from a `-NOCP` or `-EP` one. Swap `vcv` for `rcv` to map SCVs to RCV accessions.
 
 A useful identity: a VCV accession's number **is** the variation id. `VCV000000010` is `clinvar:10`, with no exceptions across all 9 million VCV propositions.
 
@@ -263,6 +263,6 @@ Every one of these returns a plausible answer with no error. Check them first wh
     ```
 
 !!! danger "The gene context is not the variant's genes"
-    `gene_context_name` is a gene **symbol**, and symbols are not unique (`BTBD8` names two NCBI genes), so join on `gene_context_id`, its `ncbigene:` id (from 1.1.0). Both are filled in only on SCV propositions (6,655,967 of them) and are **NULL on every VCV and RCV proposition**, so filtering aggregates by them returns nothing. Both name **one representative gene per variant**, chosen upstream, not the genes the submitter named (those are in `submitted_gene_symbols`); see [Gene context](tables.md#gene-context). To find a gene's variants, use the variant's gene list, which carries `ncbigene:` ids, as in the [PubMed-ids-for-a-gene recipe](recipes.md#pubmed-ids-for-a-gene).
+    `gene_context_name` is a gene **symbol**, and symbols are not unique (`BTBD8` names two NCBI genes), so join on `gene_context_id`, its `ncbigene:` id (from 1.1.0). Both are filled in only on SCV propositions (6,815,040 of them) and are **NULL on every VCV and RCV proposition**, so filtering aggregates by them returns nothing. Both name **one representative gene per variant**, chosen upstream, not the genes the submitter named (those are in `submitted_gene_symbols`); see [Gene context](tables.md#gene-context). To find a gene's variants, use the variant's gene list, which carries `ncbigene:` ids, as in the [PubMed-ids-for-a-gene recipe](recipes.md#pubmed-ids-for-a-gene).
 
 Next: [Recipes](recipes.md) puts these joins to work on real questions.
