@@ -41,7 +41,7 @@ Items marked **Planned** are not currently included in the v1 release. If this d
 !!! note "Functional Data Submissions"
     Functional data is submitted to ClinVar as an SCV and may or may not be associated with a germline or somatic classification record. Functional data SCVs are excluded from the v1 release regardless of whether they are linked to a classification SCV. They will be included in a future release when functional data support is added.
 
-Feedback and feature requests are welcome via the [GitHub issue tracker](https://github.com/clingen-data-model/clinvar-gkm/issues). For release announcements and change notices, join the email list [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm); see [Versioning & Releases](reference/versioning.md#stay-informed-have-a-say) for other ways to follow along.
+Feedback and feature requests are welcome via the [GitHub issue tracker](https://github.com/clingen-data-model/clinvar-gkm/issues). For release announcements and change notices, join the email list [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm). [**Stay Informed**](stay-informed.md) explains how to join and what the list announces: new releases, version changes, and events where ClinVar-GKM is presented.
 
 New releases are produced within a day or two after ClinVar's XML releases and are intended to be synchronized with ClinVar's release dates.
 

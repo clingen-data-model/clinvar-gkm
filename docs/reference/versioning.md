@@ -114,7 +114,8 @@ latest**, follow the line whose `status` is `current`. Every bundle also carries
       proposals.
     - **Subscribe to the release feed** (Atom, each line's `feed.xml`, e.g. `https://data.clinvar-gkm.org/v1/1.1/feed.xml`) in any feed reader.
     - **Join the email list** [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm), a Google Group for release announcements, change notices and RFCs about
-      the repository, the data releases, tools and documentation. No GitHub account needed.
+      the repository, the data releases, tools and documentation. No GitHub account needed; see
+      [Stay Informed](../stay-informed.md) for how to join.
 
 Before any breaking change, we open a **Request for Comment (RFC)** — a proposal with its rationale and
 migration impact — send subscribers an advance notice, and hold a **minimum 4-week comment window** so

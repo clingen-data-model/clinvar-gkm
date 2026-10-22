@@ -87,4 +87,4 @@ Before you depend on a release, check the [Changelog](reference/changelog.md) fo
 
 - **Questions and ideas:** [GitHub Discussions](https://github.com/clingen-data-model/clinvar-gkm/discussions). The [Roadmap](reference/roadmap.md) is built from them.
 - **Problems with the data:** [GitHub Issues](https://github.com/clingen-data-model/clinvar-gkm/issues).
-- **Release announcements:** the [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm) mailing list.
+- **Release announcements, version changes and events:** the [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm) email list. [Stay Informed](stay-informed.md) explains how to join.
