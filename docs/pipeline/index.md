@@ -2,7 +2,7 @@
 
 The ClinVar-GKM pipeline transforms ClinVar XML release data into the GKM (Genomic Knowledge Model) schema set (VRS, Cat-VRS, VA-Spec) through a series of BigQuery stored procedures with an external VRS Python processing step.
 
-The two most expensive stages — [Variation Identity](variation-identity/index.md) and [VRS Processing](vrs-processing.md) — support **incremental** processing: they recompute only the variations that changed since the prior release and carry the rest forward, driven by the release-to-release diff (`dataset_diff_on`). The remaining stored procedures currently run as full rebuilds each release.
+The two most expensive stages — [Variation Identity](variation-identity/index.md) and [VRS Processing](vrs-processing.md) — run **incrementally**: they recompute only the variations that changed since the prior release and carry the rest forward, driven by the release-to-release diff (`dataset_diff_on`). The downstream `gkm_*` procedures also have incremental wrappers, but from 1.1.0 the weekly run builds them in full (`run-release.sh <date> --full-procs`). The incremental wrappers proved no cheaper (about 0.22 TiB billed per dataset, against about 0.20 TiB for a full build) and fell back to a full build without saying so; [ADR 0007](../decisions/0007-pipeline-principles-and-simplification.md) workstream 3 decides their future.
 
 ## Pipeline Steps
 
@@ -59,10 +59,11 @@ The pipeline executes in the following order. Each step is a BigQuery stored pro
 └──────────────┬───────────────┘
                │
 ┌──────────────▼───────────────┐
-│ 9. Export & Distribute       │  export-gkm-dicts.sh
-│    Export NDJSON + Parquet    │  assemble-gkm-dicts.py
-│    to GCS, assemble JSON     │  release-gkm.sh
-│    bundle, upload to R2      │  → R2 public bucket
+│ 9. Export & Distribute       │  release-gkm.sh (fulls),
+│    Export NDJSON to GCS,     │  release-gkm-delta.sh,
+│    assemble JSON bundles,    │  release-gkm-parquet.sh
+│    upload to R2; rebuild     │  → R2 public bucket
+│    the latest Parquet        │
 └──────────────────────────────┘
 ```
 
@@ -80,7 +81,7 @@ The whole release can be run end-to-end with the `run-release.sh` orchestrator, 
 ./src/scripts/run-release.sh YYYY-MM-DD --start-step 5   # resume from a stage (1-5)
 ```
 
-`--full` propagates version-invalidation across stages 1–2; use it for the first release or after a `variation_identity` transform change or a vrsify-pin bump. `--full-procs` builds only the stage-4 gkm procedures full (catvar, SCV, RCV, VCV): variation identity, the export, vrsification and the `gkm_vrs` load stay incremental, so only the changed variations are re-normalized. Weekly runs after 1.1.0 use `--full-procs` until [ADR 0007](../decisions/0007-pipeline-principles-and-simplification.md) workstream 3 decides on the incremental procedures, which were seen to fall back to full builds without saying so. `--full` implies `--full-procs`. `--dry-run` runs the build stages but has the final release stage only print what it would upload — use it for test runs. The vrsify stage (stage 3) requires local SeqRepo / UTA / gene-normalizer services — see [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/src/vrsify) — so on hosts without them, run the BigQuery-side stages with `--start-step` and run vrsify separately.
+`--full` propagates version-invalidation across stages 1–2; use it for the first release or after a `variation_identity` transform change or a vrsify-pin bump. `--full-procs` builds only the stage-4 gkm procedures full (catvar, SCV, RCV, VCV): variation identity, the export, vrsification and the `gkm_vrs` load stay incremental, so only the changed variations are re-normalized. Weekly runs after 1.1.0 use `--full-procs` until [ADR 0007](../decisions/0007-pipeline-principles-and-simplification.md) workstream 3 decides on the incremental procedures, which were seen to fall back to full builds without saying so. `--full` implies `--full-procs`. `--dry-run` runs the build stages but has the final release stage only print what it would upload — use it for test runs. The vrsify stage (stage 3) requires local SeqRepo and gene-normalizer services and a reachable UTA database — see [VRS Processing](vrs-processing.md#running-vrsify) and [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/src/vrsify) — so on hosts without them, run the BigQuery-side stages with `--start-step` and run vrsify separately.
 
 The individual stages are documented below.
 
@@ -100,44 +101,52 @@ CALL `clinvar_ingest.variation_identity`(CURRENT_DATE(), FALSE);
 
 Export, process externally with vrs-python, and load back — incremental by default (only changed variations are vrsified; unchanged `gkm_vrs` results carry forward). See [VRS Processing](vrs-processing.md).
 
-### Step 3: Cat-VRS through JSON Output
+### Step 3: Cat-VRS through the Change Log
 
-From the BigQuery console:
+`vrs-to-bq-table.sh` runs these after loading `gkm_vrs`. The full builds, in the order it calls them, from the BigQuery console:
 
 ```sql
+CALL `clinvar_ingest.gkm_catvar_proc`(CURRENT_DATE(), FALSE);
 CALL `clinvar_ingest.gkm_scv_condition_proc`(CURRENT_DATE(), FALSE);
 CALL `clinvar_ingest.gkm_scv_statement_proc`(CURRENT_DATE(), FALSE);
-CALL `clinvar_ingest.gkm_vcv_proc`(CURRENT_DATE(), FALSE);
-CALL `clinvar_ingest.gkm_vcv_statement_proc`(CURRENT_DATE(), FALSE);
 CALL `clinvar_ingest.gkm_rcv_proc`(CURRENT_DATE(), FALSE);
 CALL `clinvar_ingest.gkm_rcv_statement_proc`(CURRENT_DATE(), FALSE);
+CALL `clinvar_ingest.gkm_vcv_proc`(CURRENT_DATE(), FALSE);
+CALL `clinvar_ingest.gkm_vcv_statement_proc`(CURRENT_DATE(), FALSE);
+CALL `clinvar_ingest.gkm_change_log`(CURRENT_DATE());
+CALL `clinvar_ingest.gkm_delta_build`(CURRENT_DATE());
 -- NOTE: gkm_json_proc is retired (Plan 4) — its JSON-render tables were unpublished;
 -- the gkm_dict_* tables are the published product and are built by the procs above.
 ```
 
+The statement procedures name each proposition's bundle section with the UDF `clinvar_ingest.gkm_proposition_section(type)`, which must be deployed with them. The script also runs `gkm_scv_changed` and `gkm_rcvvcv_changed`, which build the changed-id sets, before the SCV and RCV/VCV procedures; without `--full-procs` it calls each procedure's `_incremental` wrapper instead of its full build.
+
 ### Step 4: Export & Distribute
 
-The `gkm_dict_*` tables are the published product. The monthly full bundle and the weekly delta are published by separate scripts:
+The `gkm_dict_*` tables are the published product. Full bundles, deltas and the latest Parquet are published by separate scripts:
 
 ```bash
-# Monthly full bundle (export, assemble, download Parquet, upload to R2)
-./src/scripts/release-gkm.sh 2026-06-14 v2_5_0
+# Weekly full bundle (export NDJSON, assemble, upload to weekly/)
+./src/scripts/release-gkm.sh 2026-10-18 v2_6_0 --weekly
 
 # Weekly delta (added + updated records + change manifest)
-./src/scripts/release-gkm-delta.sh 2026-06-14 v2_5_0
+./src/scripts/release-gkm-delta.sh 2026-10-18 v2_6_0
+
+# Latest Parquet (typed EXPORT DATA, merge shards, overwrite parquet/)
+./src/scripts/release-gkm-parquet.sh 2026-10-18 v2_6_0
 ```
 
-Steps 1 and 2 can also be run individually. Steps 3–4 (Parquet download, shard merging, and upload) are handled internally by `release-gkm.sh` — use `--start-step` to resume from a specific step.
+`release-gkm.sh` exports bundle NDJSON only (`export-gkm-dicts.sh --ndjson-only`), assembles it and uploads the bundle; it writes no Parquet. Its steps can be run individually, and `--start-step` resumes it from a step:
 
 ```bash
-# 1. Export dictionary tables to GCS (NDJSON + Parquet)
-./src/scripts/export-gkm-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gkm gkm-dicts
+# 1. Export dictionary tables to GCS (bundle NDJSON only)
+./src/scripts/export-gkm-dicts.sh clinvar_2026_10_18_v2_6_0 clinvar-gkm gkm-dicts --ndjson-only
 
 # 2. Assemble NDJSON into JSON bundle
-python3 ./src/scripts/assemble-gkm-dicts.py gs://clinvar-gkm/gkm-dicts/ 2026-06-14
+python3 ./src/scripts/assemble-gkm-dicts.py gs://clinvar-gkm/gkm-dicts/ 2026-10-18
 
-# 3-4. Download Parquet, merge shards, upload to R2
-./src/scripts/release-gkm.sh 2026-06-14 v2_5_0 --start-step=3
+# 3. Upload to R2
+./src/scripts/release-gkm.sh 2026-10-18 v2_6_0 --weekly --start-step=3
 ```
 
 See [Export](export.md) for details on each step.

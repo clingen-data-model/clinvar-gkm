@@ -1,6 +1,6 @@
 # Export & Distribute
 
-The final pipeline step exports the `gkm_dict_*` tables from BigQuery, assembles them into a single keyed JSON bundle, and uploads to Cloudflare R2 for public distribution. A separate step rebuilds the single latest Parquet set from every release.
+The final pipeline step exports the `gkm_dict_*` tables from BigQuery, assembles them into a single keyed JSON bundle, and uploads to Cloudflare R2 for public distribution. A separate step rebuilds the single latest Parquet set from each release's dataset.
 
 The `gkm_dict_*` tables **are** the published product — they are built directly by the statement procedures (steps 5–7) and the change-log step (step 8). The retired `gkm_json_proc` is not part of this path; its inlined JSON-render tables were never published. See [Retired: gkm_json_proc](#retired-gkm_json_proc).
 
@@ -16,30 +16,32 @@ Distribution follows a **full + delta** model:
 
 ## Workflow
 
-The export and distribution process uses four steps, executed in sequence. The `release-gkm.sh` wrapper runs all four automatically, or each step can be run individually.
+The export and distribution process has five steps. `release-gkm.sh` runs Steps 1, 2 and 4 for a full bundle, `release-gkm-parquet.sh` runs Step 3, and `release-gkm-delta.sh` runs Step 5; `run-release.sh` calls all three for every release. Each step can also be run on its own.
 
 ### Step 1: Export Dictionaries to GCS
 
-`export-gkm-dicts.sh` exports all dictionary and statement tables from BigQuery to Google Cloud Storage in two formats:
+`export-gkm-dicts.sh` exports the dictionary and statement tables from BigQuery to Google Cloud Storage in two formats:
 
-- **NDJSON** — sharded, gzip-compressed files for JSON bundle assembly (`gkm-dicts/`)
-- **Parquet** — Snappy-compressed files exported natively via `bq extract` (`gkm-dicts-parquet/`)
+- **NDJSON** — sharded, gzip-compressed files for bundle assembly (`gkm-dicts/`). Most tables use `bq extract`; `variation`, `conditionSet`, `evidenceLine`, `scv` and the proposition sections use `EXPORT DATA` queries, which filter rows, keep `INT64` values numeric, or collapse the typed extension values to `value`.
+- **Parquet** — typed, Snappy-compressed files written by `EXPORT DATA` queries from the SQL files in `src/scripts/parquet-schemas/` (`gkm-dicts-parquet/`).
 
 ```bash
-./src/scripts/export-gkm-dicts.sh <dataset> <gcs_bucket> [prefix] [--parquet-only]
+./src/scripts/export-gkm-dicts.sh <dataset> <gcs_bucket> [prefix] [--ndjson-only | --parquet-only] [--delta]
 ```
 
 ```bash
-# Export both NDJSON and Parquet
-./src/scripts/export-gkm-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gkm gkm-dicts
+# Bundle NDJSON only (what release-gkm.sh and release-gkm-delta.sh run)
+./src/scripts/export-gkm-dicts.sh clinvar_2026_10_18_v2_6_0 clinvar-gkm gkm-dicts --ndjson-only
 
-# Export Parquet only (skip NDJSON)
-./src/scripts/export-gkm-dicts.sh clinvar_2026_06_14_v2_5_0 clinvar-gkm gkm-dicts --parquet-only
+# Parquet only (what release-gkm-parquet.sh runs)
+./src/scripts/export-gkm-dicts.sh clinvar_2026_10_18_v2_6_0 clinvar-gkm gkm-dicts --parquet-only
 ```
 
-The script exports the following 19 tables:
+Bundles get NDJSON only; Parquet is exported only for the single latest set (Step 3). `--delta` reads the `delta_gkm_dict_*` tables instead.
 
-| Table | NDJSON Output | Parquet Output |
+The three proposition tables are exported as the four proposition sections. `clinvar_ingest.gkm_proposition_section(type)` names each row's section, and the export first asserts that every proposition maps to one of them, so an unmapped type fails the export instead of dropping rows. The script writes these 22 outputs:
+
+| Source table | NDJSON output | Parquet output |
 | --- | --- | --- |
 | `gkm_dict_sequence_reference` | `sequenceReference-*.ndjson.gz` | `sequenceReference.parquet` |
 | `gkm_dict_location` | `location-*.ndjson.gz` | `location.parquet` |
@@ -49,19 +51,19 @@ The script exports the following 19 tables:
 | `gkm_dict_gene` | `gene-*.ndjson.gz` | `gene.parquet` |
 | `gkm_dict_variation` | `variation-*.ndjson.gz` | `variation.parquet` |
 | `gkm_dict_condition` | `condition-*.ndjson.gz` | `condition.parquet` |
-| `gkm_dict_condition_set` | `conditionSet-*.ndjson.gz` | `conditionSet.parquet` |
+| `gkm_dict_condition_set` | `conditionSet-*.ndjson.gz` (sets with 2 or more members) | `conditionSet.parquet` |
+| `gkm_dict_therapy` | `therapy-*.ndjson.gz` | `therapy.parquet` |
+| `gkm_dict_therapygroup` | `therapyGroup-*.ndjson.gz` | `therapyGroup.parquet` |
 | `gkm_dict_submitter` | `submitter-*.ndjson.gz` | `submitter.parquet` |
-| `gkm_dict_proposition` | `proposition-*.ndjson.gz` | `proposition.parquet` |
 | `gkm_dict_evidence_line` | `evidenceLine-*.ndjson.gz` | `evidenceLine.parquet` |
-| `gkm_dict_vcv_proposition` | `vcv_proposition-*.ndjson.gz` | `vcv_proposition.parquet` |
+| `gkm_dict_proposition`, `gkm_dict_vcv_proposition`, `gkm_dict_rcv_proposition` | `propositionPathogenicity-*`, `propositionOncogenicity-*`, `propositionSomaticClinicalImpact-*`, `propositionClinvarCustom-*.ndjson.gz` | `propositionPathogenicity.parquet`, `propositionOncogenicity.parquet`, `propositionSomaticClinicalImpact.parquet`, `propositionClinvarCustom.parquet` |
 | `gkm_dict_vcv_evidence_line` | `vcv_evidenceLine-*.ndjson.gz` | `vcv_evidenceLine.parquet` |
-| `gkm_dict_rcv_proposition` | `rcv_proposition-*.ndjson.gz` | `rcv_proposition.parquet` |
 | `gkm_dict_rcv_evidence_line` | `rcv_evidenceLine-*.ndjson.gz` | `rcv_evidenceLine.parquet` |
 | `gkm_dict_scv` | `scv-*.ndjson.gz` | `scv.parquet` |
 | `gkm_dict_vcv` | `vcv-*.ndjson.gz` | `vcv.parquet` |
 | `gkm_dict_rcv` | `rcv-*.ndjson.gz` | `rcv.parquet` |
 
-BigQuery `EXTRACT` shards large NDJSON tables across multiple files automatically. Parquet files are exported as single files per table; BigQuery may auto-shard very large tables with numeric suffixes.
+BigQuery shards large tables across multiple files automatically, in both formats.
 
 ### Step 2: Assemble Bundle
 

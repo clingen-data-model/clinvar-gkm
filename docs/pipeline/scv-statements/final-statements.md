@@ -14,9 +14,10 @@ The step uses several CTEs to prepare intermediate data before the final SELECT.
 
 Derives a single human-readable condition name string from `gkm_scv_condition_sets` for use in the classification description extension:
 
-- **Single condition** -- uses the condition's `name` field directly
+- **Named submitted condition** -- uses the submitted condition's `name` directly
 - **ConditionSet with 2+ conditions** -- produces `"N conditions"` (e.g., `"3 conditions"`)
-- **No condition** -- falls back to `"unspecified condition"`
+- **Single submitted condition with no name** (e.g. a coded-only submission) -- uses the `name` of the ClinVar condition it maps to in `gkm_dict_condition`, the name ClinVar shows (from 1.1.0, #162)
+- **Otherwise** -- falls back to `"unspecified condition"`
 
 ### temp_scv_citation_docs
 

@@ -21,7 +21,7 @@ Extracts gene context from the upstream `single_gene_variation` table: one repre
     - `submittedSymbolDiffers` — the submitter gave symbols, none equal to it (mostly previous symbols of the same gene)
     - `inferredFromVariant` — the submitter gave no symbols
 
-When no single-gene match exists for a variation but the submitter gave symbols, the qualifier is a placeholder. Its `name` is the submitter's symbol: several are joined with `, ` in submitted order. It has no `primaryCoding` or `mappings`, keeps `submittedGeneSymbols`, and has `geneContextSource` = `submittedNotNormalized`. Releases before this one name the placeholder `submitted genes were not normalized`.
+When no single-gene match exists for a variation but the submitter gave symbols, the qualifier is a placeholder. Its `name` is the submitter's symbol: several are joined with `, ` in submitted order. It has no `primaryCoding` or `mappings`, keeps `submittedGeneSymbols`, and has `geneContextSource` = `submittedNotNormalized`. Releases before 1.1.0 name the placeholder `submitted genes were not normalized`.
 
 The schema accepts only these four `geneContextSource` values. `ClinvarGeneContextQualifier` defines them, and the bundle schema applies it to every proposition type, including the VA-Spec ones.
 

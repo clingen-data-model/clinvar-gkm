@@ -12,7 +12,7 @@ The [ClinvarSomaticEvidenceLine](ClinvarSomaticEvidenceLine.md) profiles the VA-
 
 | Statement Category | Has Evidence Lines? |
 | --- | --- |
-| Germline classification (PATH, RF, PROT, etc.) | No |
+| Germline classification (PATH, RF, PROTECT, etc.) | No |
 | Oncogenicity (ONCO) | No |
 | Somatic clinical impact (SCI) — Tier I or II | Yes |
 | Somatic clinical impact (SCI) — Tier III or IV | No (no clinical assertion type) |

@@ -124,7 +124,7 @@ seq_ref = resolve(bundle, location["sequenceReference"])
 ```
 
 !!! tip "Resolving references without writing code"
-    The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/tools/gkm-toolkit/getting-started/)
+    The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/)
     (`ga4gh.gkm`) loads a published bundle and follows `#/…` pointers for you — traversing and exporting
     connected records without the manual `resolve()` above.
 

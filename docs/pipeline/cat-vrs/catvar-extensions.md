@@ -27,7 +27,7 @@ Extensions on the top-level `CategoricalVariant` record.
 | `vrsPreProcessingIssue` | string | Issues detected during VRS pre-processing of the variation's input expressions. Present only when issues exist. May contain multiple issues separated by newlines. |
 | `vrsProcessingException` | string | Errors returned by the external VRS Python processing service. Present only when errors occurred during VRS resolution. |
 | `clinvarHgvsList` | array<br/>[HgvsListItem](#hgvs-list) | Complete list of HGVS expressions from ClinVar for this variation, including nucleotide and protein expressions, molecular consequences (SO terms), and MANE transcript designations. See [HGVS List](#hgvs-list) custom extension structure below. |
-| `clinvarGeneList` | array<br/>[GeneListItem](#gene-list) | Gene associations for this variation from ClinVar, including Entrez gene IDs, HGNC IDs, gene symbols, relationship types, and identifier IRIs. See [Gene List](#gene-list) custom extension structure below. |
+| `clinvarGeneList` | array<br/>[GeneListItem](#gene-list) | Gene associations for this variation from ClinVar: a `#/gene/` reference to each gene's MappableConcept, with ClinVar's relationship type and source. See [Gene List](#gene-list) custom extension structure below. |
 
 </div>
 
@@ -73,15 +73,9 @@ A complete `extensions` array for a successfully resolved CategoricalVariant:
     "name": "clinvarGeneList",
     "value": [
       {
-        "entrez_gene_id": "2475",
-        "hgnc_id": "HGNC:3942",
-        "symbol": "MTOR",
+        "gene": "#/gene/ncbigene:2475",
         "relationship_type": "within single gene",
-        "source": "calculated",
-        "iris": [
-          "https://identifiers.org/hgnc:3942",
-          "https://www.ncbi.nlm.nih.gov/gene/2475"
-        ]
+        "source": "calculated"
       }
     ]
   }
@@ -143,7 +137,7 @@ The `clinvarHgvsList` extension contains an array of HGVS expression objects, ea
 
 | Field | Type | Description |
 |---|---|---|
-| `nucleotideExpression` | object | The nucleotide HGVS expression with `syntax` (e.g., `hgvs.c`, `hgvs.g`) and `value` (the HGVS string). |
+| `nucleotideExpression` | object | The nucleotide HGVS expression with `syntax` (e.g., `hgvs.c`, `hgvs.g`) and `value` (the HGVS string). From 1.1.0, when ClinVar supplies an expression with no HGVS type letter, its submitted text is kept, unaltered, in this expression's `extensions`: `invalidClinvarExpression` (the submitted text) with `expressionMerged: true` when ClinVar also supplies a valid expression for the accession, which is the one listed; otherwise `originalClinvarExpression` (the submitted text) with `expressionRepaired: true`, on a listed expression with the type letter restored. |
 | `nucleotideType` | string | The type of nucleotide expression as reported by ClinVar (e.g., `coding`, `genomic`, `genomic, top-level`). |
 | `maneSelect` | boolean | `true` if this transcript is designated as MANE Select. Absent when not applicable. |
 | `manePlus` | boolean | `true` if this transcript is designated as MANE Plus Clinical. Absent when not applicable. |
@@ -154,17 +148,14 @@ The `clinvarHgvsList` extension contains an array of HGVS expression objects, ea
 
 ### Gene List
 
-The `clinvarGeneList` extension contains an array of gene association objects. Each object includes:
+The `clinvarGeneList` extension contains an array of gene association objects ([GeneListItem](../../output-reference/classes/GeneListItem.md)). Gene details (symbol, NCBI Gene id, HGNC mapping) are on the referenced gene MappableConcept in the `gene` section. Each object has all three fields:
 
 <div class="field-table" markdown>
 
 | Field | Type | Description |
 |---|---|---|
-| `entrez_gene_id` | string | NCBI Entrez Gene identifier. |
-| `hgnc_id` | string | HGNC gene identifier (e.g., `HGNC:1234`). May be null for genes without an HGNC assignment. |
-| `symbol` | string | The gene symbol (e.g., `BRCA1`, `MTOR`). |
-| `relationship_type` | string | The relationship between the variation and the gene as reported by ClinVar (e.g., `within single gene`, `genes overlapped by variant`). |
-| `source` | string | The source of the gene association (e.g., `submitted`, `calculated`). |
-| `iris` | array | Identifier IRIs for the gene, including links to identifiers.org (HGNC and/or NCBI Gene) and NCBI Gene pages. |
+| `gene` | string | `#/gene/ncbigene:{id}` reference to the gene MappableConcept in the `gene` bundle section. |
+| `relationship_type` | string | The relationship between the variation and the gene as reported by ClinVar: `within single gene`, `within multiple genes by overlap`, `genes overlapped by variant`, `near gene, upstream`, `near gene, downstream` or `asserted, but not computed`. |
+| `source` | string | The source of the gene association: `submitted` or `calculated`. |
 
 </div>

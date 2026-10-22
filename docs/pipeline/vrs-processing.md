@@ -4,7 +4,7 @@
 
 VRS processing is the manual step between [Variation Identity](variation-identity/index.md) extraction and [Cat-VRS](cat-vrs/index.md) generation. It translates the selected SPDI or HGVS expression for each variation's defining allele into a GA4GH VRS (Variation Representation Specification) object — producing a computable, digest-identified representation of the variant.
 
-The step is driven by two scripts in this project with an external vrs-python step between them: `src/scripts/export-vi-table-to-gcs.sh` exports the input, [clinvar-gk-python](https://github.com/clingen-data-model/clinvar-gk-python) resolves VRS, and `src/scripts/vrs-to-bq-table.sh` transforms the output, loads `gkm_vrs`, and runs the downstream procedures. Export and publish (the R2 bundle + Parquet) are a separate final stage handled by `release-gkm.sh`. The whole release, including this step, can be run end-to-end via `run-release.sh` (see [Single-command run](index.md#single-command-run)); only the vrs-python resolution requires local services.
+The step is driven by two scripts in this project with an external vrs-python step between them: `src/scripts/export-vi-table-to-gcs.sh` exports the input, [clinvar-gk-python](https://github.com/clingen-data-model/clinvar-gk-python) resolves VRS, and `src/scripts/vrs-to-bq-table.sh` transforms the output, loads `gkm_vrs`, and runs the downstream procedures. Export and publish are a separate final stage: `release-gkm.sh` (full bundles), `release-gkm-delta.sh` (deltas) and `release-gkm-parquet.sh` (the latest Parquet). The whole release, including this step, can be run end-to-end via `run-release.sh` (see [Single-command run](index.md#single-command-run)); only the vrs-python resolution requires local services.
 
 **This step is incremental.** vrs-python resolution is per-variation (no cross-variation dependency), so diffing `variation_identity` between releases is a clean driver: the export sends only the variations whose `variation_identity` changed since the prior release (~0.3% of a weekly release, versus the whole ~4.5M snapshot), and the `gkm_vrs` load carries the prior release's results forward for the unchanged variations. This is where the largest cost reduction in the whole pipeline lands, because vrs-python is the most expensive stage.
 
@@ -42,6 +42,10 @@ For each input record, the tool attempts to resolve the `source` expression into
 - **CopyNumberCount** — resolves the location and attaches the `copies` value
 
 Each output record pairs the original `variation_identity` input (`in`) with the VRS resolution result (`out`).
+
+#### Running vrsify { #running-vrsify }
+
+In the pipeline, `run-release.sh` runs this step as `src/vrsify/vrsify.sh YYYY-MM-DD`, which calls the resolver installed as a pinned dependency (`src/vrsify/requirements.txt`) instead of the `misc/clinvar-vrsification` script. `vrsify.sh` exits before starting unless four variables are set: `SEQREPO_ROOT_DIR`, `SEQREPO_DATAPROXY_URL`, `HGVS_SEQREPO_DIR` and `GENE_NORM_DB_URL`. It does not check `UTA_DB_URL`, and its comments describe UTA as needed only for liftover. The resolver still reaches UTA for some records; when `UTA_DB_URL` is unset, the UTA client falls back to the public UTA endpoint, which timed out on 33 records in the 2026-10-18 run. Export `UTA_DB_URL` pointing at a reachable UTA, in practice a local container from the variation-normalizer compose setup in [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/src/vrsify).
 
 **Output:** `vi-normalized-no-liftover.jsonl.gz` on GCS.
 
@@ -102,7 +106,7 @@ The `out.location` record includes the flattened position fields: `start`, `end`
 !!! warning "Limited Scope"
     VRS processing currently resolves only the **single best expression** per variation — the defining allele for each Canonical Allele as selected by the [precedence hierarchy](variation-identity/index.md#precedence-hierarchy). Only variations that vrs-python can handle are successfully resolved; the remainder carry errors in the output.
 
-The full release now runs from a single command — `src/scripts/run-release.sh` chains variation identity, the export, this vrsify stage (via `src/vrsify/vrsify.sh`), and the transform/load/procedures/publish stages. See [Single-command run](index.md#single-command-run). The vrsify resolver is installed as a pinned dependency rather than forked (see [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/src/vrsify)); it still requires the local SeqRepo / UTA / gene-normalizer services.
+The full release now runs from a single command — `src/scripts/run-release.sh` chains variation identity, the export, this vrsify stage (via `src/vrsify/vrsify.sh`), and the transform/load/procedures/publish stages. See [Single-command run](index.md#single-command-run). The vrsify resolver is installed as a pinned dependency rather than forked (see [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/src/vrsify)); it still requires local SeqRepo and gene-normalizer services and a reachable UTA (see [Running vrsify](#running-vrsify)).
 
 One area of improvement remains planned:
 
