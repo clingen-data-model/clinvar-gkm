@@ -14,26 +14,73 @@ The step uses several CTEs to prepare intermediate data before the final SELECT.
 
 Derives a single human-readable condition name string from `gkm_scv_condition_sets` for use in the classification description extension:
 
-- **Single condition** -- uses the condition's `name` field directly
+- **Named submitted condition** -- uses the submitted condition's `name` directly
 - **ConditionSet with 2+ conditions** -- produces `"N conditions"` (e.g., `"3 conditions"`)
-- **No condition** -- falls back to `"unspecified condition"`
+- **Single submitted condition with no name** (e.g. a coded-only submission) -- uses the `name` of the ClinVar condition it maps to in `gkm_dict_condition`, the name ClinVar shows (from 1.1.0, #162)
+- **Otherwise** -- falls back to `"unspecified condition"`
 
-### scv_citation / scv_citations
+### temp_scv_citation_docs
 
-Aggregates citation records with source-specific URL resolution:
+Builds one VA-Spec `Document` per ClinVar citation. The same rules apply to the submission's citations (`reportedIn`) and to the assertion method's citations (`specifiedBy.reportedIn`). A ClinVar citation can list several ids for one publication; ACMG 2015, for example, lists a DOI, a PubMed id and a PMC id. They become **one** Document:
 
-| Source | URL Format |
+| Document field | From the ClinVar citation |
+|---|---|
+| `pmid` | The `PubMed` id (`PMID` is accepted as an alias) |
+| `doi` | The `DOI` id, when it matches VA-Spec's `doi` pattern and has no whitespace |
+| `urls` | Every resolvable URL, in a fixed order: ClinVar's own `url`, then PubMed, PMC, DOI and Bookshelf (table below) |
+| `name` | The citation's `abbrev`, e.g. `ACMG, 2015` or `GeneReviews` |
+| `documentType` | The citation's `type`, verbatim: `general`, `practice guideline`, `review`, `Suggested Reading`, `file in FileTrack` |
+
+| Source | URL format |
 |---|---|
 | PubMed | `https://pubmed.ncbi.nlm.nih.gov/{id}` |
-| PMC | `https://www.ncbi.nlm.nih.gov/pmc/articles/{id}` |
-| DOI | `https://doi.org/{id}` |
+| PMC | `https://europepmc.org/article/PMC/{id}` |
+| DOI | `https://doi.org/{doi}`, with characters that are not URL-safe percent-encoded |
 | BookShelf | `https://www.ncbi.nlm.nih.gov/books/{id}` |
 
-Citations are collected into an array for the `reportedIn` field of the final statement.
+`urls` only ever holds `http(s)` URLs, never a bare id or CURIE. Citations with only a URL become `{urls: [url]}`.
 
-### scv_method
+ClinVar's original values are never changed silently. Only invalid values are repaired, and the Document's `extensions` keep the originals:
 
-Builds the assertion method record for the `specifiedBy` field. Includes the method type, method name, and a linked citation document when the assertion method references a publication.
+| Extension | Value | When |
+|---|---|---|
+| `clinvarCitationText` | string | The citation has free text. A text-only citation becomes a Document whose only content is this extension. The text is often not a reference at all, e.g. a list of ACMG criteria. |
+| `originalClinvarCitation` | string | The id was repaired; the value is the id as ClinVar has it |
+| `originalClinvarCitationSource` | string | The id was moved to another source; the value is ClinVar's source |
+| `citationRepaired` | `true` | Any repair was made |
+| `clinvarDoi` | string | A valid DOI that VA-Spec's `doi` pattern rejects, such as SICI DOIs (`10.1002/(SICI)…`). `doi` stays empty and the DOI's `doi.org` URL is in `urls`. |
+| `invalidClinvarCitation` | string | An id that cannot be used, e.g. a DOI of `https`. No `doi` or URL is derived from it. |
+| `unmappedClinvarCitation` | string | `<source>:<id>` for a source the pipeline does not recognize |
+
+The repairs:
+
+- **DOI with a prefix or stray characters**: whitespace, a leading `https://doi.org/`, `http://dx.doi.org/`, `doi.org/`, `doi:`, `doi/` or `org/`, and a trailing `.` are removed. The result must match the DOI pattern, or the id is unusable (`invalidClinvarCitation`).
+- **DOI source with a PubMed or PMC id**: a DOI-sourced id that is all digits becomes `pmid`; one shaped `PMC<digits>` becomes a PMC URL. Both keep `originalClinvarCitationSource`.
+
+**Output:** `temp_scv_citation_docs` — internal temporary table consumed by `temp_scv_citations` and `temp_scv_method`.
+
+### temp_scv_citations
+
+Collects the submission's citation Documents into the `reportedIn` array, ordered by PubMed id and then by content. Identical Documents collapse to one.
+
+### temp_scv_method
+
+Builds the assertion method record for the `specifiedBy` field: the method type, the method name and, when the assertion method cites a publication, its Document. `Method.reportedIn` holds one Document. When ClinVar lists more than one citation for the method, the first, in ClinVar's order, goes on the method. The rest go in the Method's own extension `additionalClinvarMethodCitations`, whose `value` is an array of Documents built by the same rules:
+
+```json
+{
+  "type": "Method",
+  "methodType": "research",
+  "name": "Submitter's publication",
+  "reportedIn": { "type": "Document", "pmid": "29116469", "urls": ["https://pubmed.ncbi.nlm.nih.gov/29116469"] },
+  "extensions": [
+    {
+      "name": "additionalClinvarMethodCitations",
+      "value": [ { "type": "Document", "pmid": "29907814", "urls": ["https://pubmed.ncbi.nlm.nih.gov/29907814"] } ]
+    }
+  ]
+}
+```
 
 ---
 
@@ -51,8 +98,8 @@ Builds the assertion method record for the `specifiedBy` field. Includes the met
 | `direction` | SCV | `supports` or `disputes` |
 | `description` | SCV | Classification comment text |
 | `contributions` | SCV | Three Contribution entries: submitted, created, and evaluated |
-| `specifiedBy` | CTE | Assertion method with linked citation document |
-| `reportedIn` | CTE | Array of citation documents |
+| `specifiedBy` | `temp_scv_method` | Assertion method with its citation Document |
+| `reportedIn` | `temp_scv_citations` | Array of citation Documents, one per ClinVar citation |
 | `extensions` | SCV | Array of SCV-level extensions (see below) |
 | `hasEvidenceLines` | Step 6 | Somatic evidence lines with target proposition and outcome |
 

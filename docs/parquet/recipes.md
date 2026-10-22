@@ -43,7 +43,8 @@ This scans every variant's HGVS list: about **4.5 s** and **1.4 GB**. For a GRCh
 ```sql
 SELECT v.id, v.name
 FROM 'allele.parquet' a
-JOIN 'variation.parquet' v ON list_contains(v.members, a.id)
+JOIN (SELECT id, name, unnest(members) AS member FROM 'variation.parquet') v
+     ON v.member = a.id                   -- an equality join; list_contains() in ON plans a nested loop
 WHERE a.name = 'NC_000013.11:g.32338445A>C';
 ```
 
@@ -52,10 +53,8 @@ WHERE a.name = 'NC_000013.11:g.32338445A>C';
 One row for each VCV root statement (one per classification type) and each RCV (one per condition), with the condition names resolved:
 
 ```sql
-WITH prop AS (
-  SELECT id, type, subject_variant_id AS variant_id, object_condition_id AS object_id FROM 'varcond-proposition.parquet'
-  UNION ALL SELECT id, type, subject_id,         object_id            FROM 'varcustom-proposition.parquet'
-  UNION ALL SELECT id, type, subject_variant_id, object_tumor_type_id FROM 'vartumor-proposition.parquet'
+WITH prop AS (                    -- all four proposition tables: one shared schema, one glob
+  SELECT id, type, subject_variant_id AS variant_id, object_id FROM read_parquet('proposition*.parquet')
 ),
 set_names AS (
   SELECT cs.id, string_agg(c.name, '; ' ORDER BY c.name) AS member_names
@@ -95,10 +94,8 @@ Drop the root-statement filter to see each level statement as well (`-EP`, `-CP`
 Who submitted, what they said, at what level, for which condition, and when they last evaluated it:
 
 ```sql
-WITH prop AS (
-  SELECT id, type, subject_variant_id AS variant_id, object_condition_id AS object_id FROM 'varcond-proposition.parquet'
-  UNION ALL SELECT id, type, subject_id,         object_id            FROM 'varcustom-proposition.parquet'
-  UNION ALL SELECT id, type, subject_variant_id, object_tumor_type_id FROM 'vartumor-proposition.parquet'
+WITH prop AS (                    -- all four proposition tables: one shared schema, one glob
+  SELECT id, type, subject_variant_id AS variant_id, object_id FROM read_parquet('proposition*.parquet')
 ),
 set_names AS (
   SELECT cs.id, string_agg(c.name, '; ' ORDER BY c.name) AS member_names
@@ -140,12 +137,8 @@ PubMed ids appear only on **SCVs** (individual submissions), in `scv.reportedIn[
 WITH v AS (
   SELECT id, name FROM 'variation.parquet' WHERE id = 'clinvar:10'         -- <- your variant
 ),
--- the four proposition tables spell the subject column differently; union them once
-prop AS (
-  SELECT id, subject_variant_id AS variant_id FROM 'varcond-proposition.parquet'
-  UNION ALL SELECT id, subject_id         FROM 'varcustom-proposition.parquet'
-  UNION ALL SELECT id, subject_variant_id FROM 'vartumor-proposition.parquet'
-  UNION ALL SELECT id, subject_variant_id FROM 'vartherapy-proposition.parquet'
+prop AS (                                     -- all four proposition tables, one glob
+  SELECT id, subject_variant_id AS variant_id FROM read_parquet('proposition*.parquet')
 ),
 cites AS (                                    -- one row per (SCV, cited PubMed id)
   SELECT p.variant_id, s.id AS scv_id, unnest(s.reportedIn).pmid AS pmid
@@ -187,17 +180,22 @@ Every variant with a submission for one condition, with how submitters classifie
 WITH target AS (
   SELECT id FROM 'condition.parquet' WHERE name = 'Marfan syndrome'          -- <- your condition
 ),
+members AS (                      -- one row per (condition set, member id)
+  SELECT cs.id AS set_id, cid AS member_id
+  FROM 'conditionSet.parquet' cs, unnest(cs.concepts) AS t(cid)
+),
+sets AS (                         -- the sets that list the condition directly
+  SELECT m.set_id AS id FROM members m JOIN target ON target.id = m.member_id
+),
 objects AS (                      -- the condition itself, plus every set that contains it (one level of nesting)
   SELECT id FROM target
   UNION
-  SELECT cs.id FROM 'conditionSet.parquet' cs
-  WHERE list_has_any(cs.concepts, (SELECT list(id) FROM target))
-     OR list_has_any(cs.concepts, (SELECT list(ts.id) FROM 'conditionSet.parquet' ts
-                                    WHERE list_has_any(ts.concepts, (SELECT list(id) FROM target))))
+  SELECT id FROM sets
+  UNION
+  SELECT m.set_id FROM members m JOIN sets ON sets.id = m.member_id
 ),
 prop AS (
-  SELECT id, subject_variant_id AS variant_id, object_condition_id AS object_id FROM 'varcond-proposition.parquet'
-  UNION ALL SELECT id, subject_id, object_id FROM 'varcustom-proposition.parquet'
+  SELECT id, subject_variant_id AS variant_id, object_id FROM read_parquet('proposition*.parquet')
 )
 SELECT p.variant_id, v.name AS variant_name,
        count(*) AS scvs,
@@ -310,46 +308,52 @@ WITH seq AS (
   SELECT id FROM 'sequenceReference.parquet' WHERE name = 'NC_000013.11'    -- <- chromosome (RefSeq accession)
 ),
 loc AS (
-  SELECT id, loc_start, loc_end FROM 'location.parquet'
+  SELECT id, loc_start_min, loc_start_max, loc_end_min, loc_end_max FROM 'location.parquet'
   WHERE sequence_reference_id = (SELECT id FROM seq)
-    AND loc_start < 32338500 AND loc_end > 32338400                         -- <- window
+    AND loc_start_max < 32338500 AND loc_end_min > 32338400                 -- <- window
 ),
 vrs AS (
   SELECT id, location_id FROM 'allele.parquet'
   UNION ALL SELECT id, location_id FROM 'copyNumberCount.parquet'
   UNION ALL SELECT id, location_id FROM 'copyNumberChange.parquet'
 )
-SELECT v.id, v.name, l.loc_start, l.loc_end
+SELECT v.id, v.name, l.loc_start_min, l.loc_start_max, l.loc_end_min, l.loc_end_max
 FROM vrs
 JOIN loc l ON l.id = vrs.location_id
 JOIN (SELECT id, name, unnest(members) AS member FROM 'variation.parquet') v ON v.member = vrs.id
-ORDER BY l.loc_start, v.id;
+ORDER BY l.loc_start_max, v.id;
 ```
 
 ```text
-id               name                                                      loc_start  loc_end
-clinvar:373831   Single allele                                             32326577   32340895
-clinvar:920251   NM_000059.4(BRCA2):c.4006_4050dup (p.Phe1336_His1350dup)  32338360   32338405
-clinvar:3825390  NM_000059.4(BRCA2):c.4046_4047delinsC (p.Ile1349fs)       32338400   32338402
+id              name                                              loc_start_min  loc_start_max  loc_end_min  loc_end_max
+clinvar:146305  GRCh38/hg38 13q11-34(chr13:18445862-114327173)x1  NULL           18445861       114327173    NULL
+clinvar:151282  GRCh38/hg38 13q11-34(chr13:18456040-114340285)x3  NULL           18456039       114340285    NULL
+clinvar:59851   GRCh38/hg38 13q11-34(chr13:18565048-114327173)x3  NULL           18565047       114327173    NULL
 …
 ```
 
-208 variants in this 100-base window. Locations whose start or end is an uncertain range have a NULL `loc_start` or `loc_end`, so this query skips them; their range is in `location.data`.
+243 variants in this 100-base window. 35 of them are copy-number variants whose start or end is an uncertain range, like the three above: ClinVar knows the deleted or duplicated span covers at least `[loc_start_max, loc_end_min)`, but not how far beyond it. For a definite coordinate the min and max columns are equal.
+
+The query matches on the span each variant **certainly** covers. To include every variant that **may** reach the window, match on the outer bounds instead, treating NULL as unbounded: `coalesce(loc_start_min, 0) < 32338500 AND coalesce(loc_end_max, 9e9) > 32338400` (638 variants here).
+
+!!! note "From release 1.1.0"
+    The `loc_start_min` … `loc_end_max` columns exist in `location.parquet` from release 1.1.0. On earlier releases, filter on `loc_start` and `loc_end` instead (`loc_start < 32338500 AND loc_end > 32338400`); that finds 208 variants here, because it skips every location whose start or end is an uncertain range (their range is only in `location.data`).
 
 ## Gene rollup of ClinVar's calls { #gene-rollup }
 
 ClinVar's germline pathogenicity call for every variant in a gene. Genes come from the variant's ClinVar gene list (`ncbigene:` ids), not the free-text `gene_context_name`, which [isn't a reliable gene join](joining.md#joins-that-lie).
 
 ```sql
-WITH v AS (
-  SELECT id
-  FROM 'variation.parquet'
-  WHERE list_contains(
-          flatten([[g.gene FOR g IN e.value_gene_array
-                    IF g.relationship_type IN ('within single gene', 'within multiple genes by overlap',
-                                               'asserted, but not computed')]
-                   FOR e IN extensions IF e.name = 'clinvarGeneList']),
-          '#/gene/' || (SELECT id FROM 'gene.parquet' WHERE name = 'MYH7'))     -- <- your gene symbol
+WITH v AS (                       -- variants whose ClinVar gene list names the gene
+  SELECT x.id
+  FROM (SELECT id,
+               unnest(flatten([[replace(g.gene, '#/gene/', '') FOR g IN e.value_gene_array   -- bare ncbigene: id
+                                IF g.relationship_type IN ('within single gene', 'within multiple genes by overlap',
+                                                           'asserted, but not computed')]
+                               FOR e IN extensions IF e.name = 'clinvarGeneList'])) AS gene_id
+        FROM 'variation.parquet') x
+  JOIN 'gene.parquet' gene ON gene.id = x.gene_id      -- an equality join, so DuckDB plans a fast hash join
+  WHERE gene.name = 'MYH7'                                                    -- <- your gene symbol
 )
 SELECT classification.name AS clinvar_call, count(*) AS variants
 FROM 'vcv.parquet'
@@ -370,7 +374,7 @@ Pathogenic                                       96
 …
 ```
 
-About **5 s** and **1.6 GB**, nearly all of it reading the gene lists in the 4 GB `variation.parquet`. The `relationship_type` filter drops large copy-number variants that merely overlap the gene and variants near it; remove it to include them.
+About **5 s** and **1.6 GB**, nearly all of it reading the gene lists in the 4 GB `variation.parquet`. The `relationship_type` filter drops large copy-number variants that merely overlap the gene and variants near it; remove it to include them. The `replace(…, '#/gene/', '')` lets the query run on any release: before 1.1.0 each gene was a `#/gene/ncbigene:…` pointer, and on the bare `ncbigene:` ids from 1.1.0 on it changes nothing.
 
 !!! tip "Reach into nested lists with `[… FOR … IN …]`, not `unnest`"
     The gene filter above uses a list comprehension. Written instead with `unnest(extensions)` and `unnest(value_gene_array)`, the same filter returns the same 5,942 variants but takes about **37 s** and **2.5 GB**, because `unnest` expands every variant's whole extension list into rows first.
@@ -381,21 +385,19 @@ The gene filter from the rollup, joined to the PubMed query:
 
 ```sql
 WITH v AS (                                  -- variants whose ClinVar gene list names the gene
-  SELECT id, name
-  FROM 'variation.parquet'
-  WHERE list_contains(
-          flatten([[g.gene FOR g IN e.value_gene_array
-                    -- drop large CNVs that merely overlap the gene, and near-gene variants:
-                    IF g.relationship_type IN ('within single gene', 'within multiple genes by overlap',
-                                               'asserted, but not computed')]
-                   FOR e IN extensions IF e.name = 'clinvarGeneList']),
-          '#/gene/' || (SELECT id FROM 'gene.parquet' WHERE name = 'MYH7'))     -- <- your gene symbol
+  SELECT x.id, x.name
+  FROM (SELECT id, name,
+               unnest(flatten([[replace(g.gene, '#/gene/', '') FOR g IN e.value_gene_array   -- bare ncbigene: id
+                                -- drop large CNVs that merely overlap the gene, and near-gene variants:
+                                IF g.relationship_type IN ('within single gene', 'within multiple genes by overlap',
+                                                           'asserted, but not computed')]
+                               FOR e IN extensions IF e.name = 'clinvarGeneList'])) AS gene_id
+        FROM 'variation.parquet') x
+  JOIN 'gene.parquet' gene ON gene.id = x.gene_id      -- an equality join, so DuckDB plans a fast hash join
+  WHERE gene.name = 'MYH7'                                                     -- <- your gene symbol
 ),
 prop AS (
-  SELECT id, subject_variant_id AS variant_id FROM 'varcond-proposition.parquet'
-  UNION ALL SELECT id, subject_id         FROM 'varcustom-proposition.parquet'
-  UNION ALL SELECT id, subject_variant_id FROM 'vartumor-proposition.parquet'
-  UNION ALL SELECT id, subject_variant_id FROM 'vartherapy-proposition.parquet'
+  SELECT id, subject_variant_id AS variant_id FROM read_parquet('proposition*.parquet')
 ),
 cites AS (
   SELECT p.variant_id, s.id AS scv_id, unnest(s.reportedIn).pmid AS pmid
@@ -421,8 +423,7 @@ Spreadsheets and many tools can't read Parquet, and you rarely want a whole tabl
 -- Expert-panel and practice-guideline submissions, with their variant
 COPY (
   WITH prop AS (
-    SELECT id, subject_variant_id AS variant_id FROM 'varcond-proposition.parquet'
-    UNION ALL SELECT id, subject_id FROM 'varcustom-proposition.parquet'
+    SELECT id, subject_variant_id AS variant_id FROM read_parquet('proposition*.parquet')
   )
   SELECT replace(s.id, 'clinvar.submission:', '') AS scv,
          p.variant_id,

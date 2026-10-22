@@ -20,7 +20,7 @@ Each record is a `Statement` with the following top-level fields:
 | --- | --- | --- |
 | `id` | string | RCV layer ID — e.g., `RCV001781420.1-G-PATH-CP` |
 | `type` | string | Always `Statement` |
-| `proposition` | string | `#/{group}-proposition/{id}` reference to the aggregate proposition (group = `varcond`/`vartumor`/`varcustom` by datatype) |
+| `proposition` | string | `#/proposition<Meaning>/{id}` reference to the aggregate proposition (the section is set by the proposition `type`; see [ID References](id-references.md)) |
 | `classification` | object | MappableConcept — the aggregate classification label. See [Classification](#classification) |
 | `strength` | object | MappableConcept — the aggregate evidence strength |
 | `direction` | string | `supports`, `disputes`, or `neutral` — derived from the aggregate classification |
@@ -54,7 +54,7 @@ For somatic clinical impact (SCI) propositions, the classification label may inc
 
 ## Proposition
 
-RCV propositions are delivered across the four `*-proposition` bundle sections (`varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`) by their (subject, object) datatype signature. Each RCV statement references its proposition via `#/{group}-proposition/{id}`.
+RCV propositions are delivered across the four proposition bundle sections (`propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact`, `propositionClinvarCustom`) by meaning. Each RCV statement references its proposition via `#/proposition<Meaning>/{id}`.
 
 A resolved RCV proposition contains:
 
@@ -66,7 +66,7 @@ A resolved RCV proposition contains:
 | `predicate` | string | Predicate matching the underlying SCVs (e.g., `isCausalFor`) |
 | `object` | string | `#/condition/clinvar.trait:{id}` or `#/conditionSet/clinvar.traitset:{id}` reference — the specific condition for this RCV |
 
-The key difference from VCV propositions: the `object` references the specific condition for this RCV accession, sourced from the representative SCV's condition mapping. VCV propositions may carry multiple condition references from contributing SCVs.
+The key difference from VCV propositions: the `object` references the specific condition for this RCV accession, sourced from the representative SCV's condition mapping. A VCV proposition with several conditions references one `OR` condition set minted for the aggregate (see [VCV Statements](vcv-statements.md#proposition)).
 
 ---
 

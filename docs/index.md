@@ -2,8 +2,14 @@
 
 ClinVar-GKM provides a standardized, machine-readable representation of [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) release data using the **GKM (Genomic Knowledge Model)** schema set — VRS, Cat-VRS, and VA-Spec — from the GA4GH [Genomic Knowledge Standards](https://www.ga4gh.org/genomic-knowledge-standards/) workstream. It is developed and maintained by the [ClinGen](https://clinicalgenome.org/) driver project.
 
+!!! warning "1.1.0 moved every download URL"
+    1.1.0 (released 2026-10-22) moved every download URL to `v1/1.1/` and renamed the proposition sections — see the [changelog migration notes](reference/changelog.md#110).
+
+!!! info "New here?"
+    [**How to Read These Docs**](reading-guide.md) maps each section to what it gives you, with three reading paths: understanding the data from ClinVar's website, following how ClinVar's XML becomes this format, and building a pipeline or application on it.
+
 !!! tip "New to GKM datasets? Start with the GKM Starter Kit"
-    The GA4GH [**GKM Starter Kit**](https://ga4gh.github.io/gkm-starter-kit/) is a practical entry point for working with GKM data. It brings together the [reference libraries](https://ga4gh.github.io/gkm-starter-kit/tools/reference-implementations/) (vrs-python, cat-vrs-python, va-spec-python), the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/tools/gkm-toolkit/getting-started/) for loading and exploring published bundles, and [user stories](https://ga4gh.github.io/gkm-starter-kit/user-stories/) from projects putting GKM to work. clinvar-gkm is a GKM data producer — those tools work directly on its bundles.
+    The GA4GH [**GKM Starter Kit**](https://ga4gh.github.io/gkm-starter-kit/) is a practical entry point for working with GKM data. It brings together the [reference libraries](https://ga4gh.github.io/gkm-starter-kit/latest/tools/reference-implementations/) (vrs-python, cat-vrs-python, va-spec-python), the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) for loading and exploring published bundles, and [user stories](https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/) from projects putting GKM to work. clinvar-gkm is a GKM data producer — those tools work directly on its bundles.
 
 ## Why ClinVar-GKM
 
@@ -35,7 +41,7 @@ Items marked **Planned** are not currently included in the v1 release. If this d
 !!! note "Functional Data Submissions"
     Functional data is submitted to ClinVar as an SCV and may or may not be associated with a germline or somatic classification record. Functional data SCVs are excluded from the v1 release regardless of whether they are linked to a classification SCV. They will be included in a future release when functional data support is added.
 
-Feedback and feature requests are welcome via the [GitHub issue tracker](https://github.com/clingen-data-model/clinvar-gkm/issues). For release announcements and change notices, join the email list [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm); see [Versioning & Releases](reference/versioning.md#stay-informed-have-a-say) for other ways to follow along.
+Feedback and feature requests are welcome via the [GitHub issue tracker](https://github.com/clingen-data-model/clinvar-gkm/issues). For release announcements and change notices, join the email list [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm). [**Stay Informed**](stay-informed.md) explains how to join and what the list announces: new releases, version changes, and events where ClinVar-GKM is presented.
 
 New releases are produced within a day or two after ClinVar's XML releases and are intended to be synchronized with ClinVar's release dates.
 
@@ -50,15 +56,15 @@ New releases are produced within a day or two after ClinVar's XML releases and a
 ## Getting Started
 
 !!! tip "Prefer tables to JSON?"
-    Every release is also published as **22 typed Parquet tables** you can query with SQL, with no database and no data loading. [**Query the Data**](parquet/index.md) starts with a live query console in your browser and works up to joins, recipes and large-scale analysis.
+    The latest release is also published as one set of **22 typed [Parquet](data-access/parquet.md) tables**, rebuilt every week, that you can query with SQL, with no database and no data loading. [**Query the Data**](parquet/index.md) starts with a live query console in your browser and works up to joins, recipes and large-scale analysis.
 
 ### Download the Latest Release
 
 The latest ClinVar-GKM release is available as a single compressed JSON file:
 
 ```bash
-# Download the latest monthly release
-curl -O https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz
+# Download the newest official monthly release
+curl -O https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz
 
 # Decompress
 gunzip clinvar-gkm_00-latest.json.gz
@@ -80,17 +86,17 @@ The release file is a single JSON object with **bundle sections** at the root le
   "therapy":           { "clinvar.therapy:{sha256}": { ... } },
   "therapyGroup":      { "clinvar.therapygroup:{sha256}": { ... } },
   "submitter":            { "clinvar.submitter:500139": { ... } },
-  "varcond-proposition":  { "SCV001234567-PATH": { ... } },
-  "vartumor-proposition": { "SCV002345678-ONCO": { ... } },
-  "vartherapy-proposition": { "SCV003456789-TR": { ... } },
-  "varcustom-proposition": { "SCV004567890-RF": { ... } },
+  "propositionPathogenicity":         { "SCV001234567-PATH": { ... } },
+  "propositionOncogenicity":          { "SCV002345678-ONCO": { ... } },
+  "propositionSomaticClinicalImpact": { "SCV003456789-TR": { ... } },
+  "propositionClinvarCustom":         { "SCV004567890-RF": { ... } },
   "scv":                  { "clinvar.submission:SCV001234567.1": { ... } },
   "vcv":               { "VCV000012582.63-G-PATH-CP": { ... } },
   "rcv":               { "RCV000012345.8-G-PATH-CP": { ... } }
 }
 ```
 
-Objects reference each other using `#/` JSON pointer strings. For example, an allele references its location as `"#/location/ga4gh:SL.xyz789"`, and an SCV statement references its proposition as `"#/varcond-proposition/SCV001234567-PATH"`. Propositions are delivered in four datatype-specific sections (`varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`) — the pointer names the section the proposition lives in.
+Objects reference each other using `#/` JSON pointer strings. For example, an allele references its location as `"#/location/ga4gh:SL.xyz789"`, and an SCV statement references its proposition as `"#/propositionPathogenicity/SCV001234567-PATH"`. Propositions are delivered in four sections grouped by meaning (`propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact`, `propositionClinvarCustom`) — the pointer names the section the proposition lives in.
 
 See [Output Format](output-reference/overview.md) for the full structure and reference patterns.
 
@@ -114,7 +120,7 @@ To find the classification statements for a specific variant, start with the var
 }
 ```
 
-The SCV statements for this variant reference it via `#/variation/clinvar:10` in their propositions. To find them, look for entries in the proposition sections (`varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`) where `subject` (or `subject`, for custom) matches, then find the corresponding `scv` entries that reference those propositions.
+The SCV statements for this variant reference it via `#/variation/clinvar:10` in their propositions. To find them, look for entries in the proposition sections (`propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact`, `propositionClinvarCustom`) where `subject` matches, then find the corresponding `scv` entries that reference those propositions.
 
 ### Key Concepts
 
@@ -128,67 +134,64 @@ The SCV statements for this variant reference it via `#/variation/clinvar:10` in
 
 **Propositions** define the relationship being classified — a variant's causal role for a condition, its oncogenic potential, or its clinical impact. Each proposition has a type (e.g., `VariantPathogenicityProposition`), a predicate (e.g., `isCausalFor`), a subject variant, and an object condition.
 
-**Conditions** represent the diseases or phenotypes that classifications are made against. Single conditions reference `#/condition/clinvar.trait:{id}`, while multi-condition sets reference `#/conditionSet/clinvar.traitSet:{id}`.
+**Conditions** represent the diseases or phenotypes that classifications are made against. Single conditions reference `#/condition/clinvar.trait:{id}`, while multi-condition sets reference `#/conditionSet/clinvar.traitset:{id}`.
 
 ---
 
 ## Data Access
 
-ClinVar-GKM is distributed as a **monthly full bundle** plus **weekly deltas**. Each is a gzip-compressed JSON file with typed Parquet (one file per section). The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
+ClinVar-GKM is distributed as **official monthly full bundles**, **weekly full bundles** and **weekly deltas**, laid out like NCBI's ClinVar XML folder, plus one typed Parquet dataset (one file per section) for the latest release. Each bundle is a gzip-compressed JSON file. The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
 
 ### Release Schedule
 
-- **Weekly deltas** are published for every ClinVar release under `deltas/<yyyy-mmdd>/` — each carries only the records added or updated since the prior release, plus a `manifest.json` listing per-section adds, updates, and deletes
-- **Monthly full bundles** are published once a month under `datasets/`, aligned to ClinVar's own monthly VCV releases — each `ClinVarVCVRelease_YYYY-MM` triggers our `clinvar-gkm_YYYY-MM` full, built from the most recent weekly release before ClinVar's monthly cut
-- At the start of each year, the previous year's monthly full bundles move to `archives/`
+- **Weekly releases**: for every ClinVar weekly release, a weekly full bundle in `weekly/` and a delta in `deltas/` (the records added or updated since the prior release, plus a manifest listing per-section adds, updates, and deletes). `weekly/` keeps the current month only
+- **Official monthly full bundles** are published once a month, aligned to ClinVar's own monthly VCV releases — each `ClinVarVCVRelease_YYYY-MM` triggers our `clinvar-gkm_YYYY-MM` full, built from the most recent weekly release before ClinVar's monthly cut
+- At the start of each month, the previous month's deltas move to `deltas/YYYY-MM/` and its weekly fulls are deleted (the last one once the new month's monthly is published); at the start of each year, the previous year's monthlies and deltas move to `archive/YYYY/`
 
-The stable filenames `clinvar-gkm_00-latest.json.gz` (monthly full) and `clinvar-gkm-delta_00-latest.json.gz` (weekly delta) always point to the most recent full and delta respectively. To reconstruct the current state, take the latest monthly full and replay the weekly deltas published since it.
+The stable filenames `clinvar-gkm_00-latest.json.gz` (official monthly) and `weekly/clinvar-gkm_00-latest_weekly.json.gz` (weekly full) always point to the newest of each. Any past week can be rebuilt from a monthly plus the deltas after it.
 
 ### Downloads
 
-Download the most recent monthly full bundle:
+Download the newest official monthly and the newest weekly full:
 
 ```bash
-curl -O https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz
+curl -O https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz
+curl -O https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz
 ```
 
-Download the most recent weekly delta and its manifest:
-
-```bash
-curl -O https://data.clinvar-gkm.org/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz
-curl -O https://data.clinvar-gkm.org/v1/deltas/00-latest/manifest.json
-```
-
-See [How Releases Work](data-access/release-model.md) for the release model and manifest, and [Weekly Deltas](data-access/weekly-deltas.md) for the consumer replay model.
+See [How Releases Work](data-access/release-model.md) for the release model, and [Weekly Deltas](data-access/weekly-deltas.md) for the deltas and the replay recipe.
 
 ### Directory Structure
 
+All paths are under the current line folder, `v1/1.1/`:
+
 ```text
-datasets/
-  clinvar-gkm_00-latest.json.gz              latest monthly full bundle
-  clinvar-gkm_yyyy-mm.json.gz                monthly full bundles (current year)
+clinvar-gkm_00-latest.json.gz                newest official monthly full
+clinvar-gkm_yyyy-mm.json.gz                  official monthly fulls (current year)
 
-deltas/00-latest/
-  clinvar-gkm-delta_00-latest.json.gz        latest weekly delta bundle
-  manifest.json                              latest delta manifest
+weekly/
+  clinvar-gkm_00-latest_weekly.json.gz       newest weekly full
+  clinvar-gkm_yyyy-mmdd.json.gz              weekly fulls (current month only)
 
-deltas/yyyy-mmdd/
-  clinvar-gkm-delta_yyyy-mmdd.json.gz        weekly delta bundle (added + updated records)
-  manifest.json                              per-release change manifest
+deltas/
+  clinvar-gkm-delta_yyyy-mmdd.json.gz        weekly deltas (current month)
+  clinvar-gkm-delta_yyyy-mmdd.manifest.json  per-release change manifest
+  yyyy-mm/                                   earlier months of the current year
 
-archives/{yyyy}/
-  clinvar-gkm_yyyy-mm.json.gz                monthly full bundles from prior years
+archive/yyyy/                                prior years: monthlies and deltas/yyyy-mm/
+
+parquet/                                     one Parquet dataset, overwritten every release
 ```
 
 ### Release Notes
 
-Pipeline changes that affect the structure or content of the output are documented in the `release_notes/` directory. These notes cover additions, bug fixes, or schema changes specific to the ClinVar-GKM pipeline — they do not replicate ClinVar's own release notes.
+Pipeline changes that affect the structure or content of the output are recorded in the [Changelog](reference/changelog.md), and each tagged release is listed on [GitHub Releases](https://github.com/clingen-data-model/clinvar-gkm/releases). They cover changes specific to the ClinVar-GKM pipeline and do not replicate ClinVar's own release notes.
 
 ---
 
 ## How It Works
 
-The pipeline runs on **Google BigQuery** using SQL stored procedures, with an external VRS Python processing step. The two most expensive stages — variation identity and VRS processing — run **incrementally**, recomputing only the variations that changed since the prior release and carrying the rest forward. A per-release change log drives the weekly delta published to R2.
+The pipeline runs on **Google BigQuery** using SQL stored procedures, with an external VRS Python processing step. The two most expensive stages — variation identity and VRS processing — run **incrementally**, recomputing only the variations that changed since the prior release and carrying the rest forward. From 1.1.0 the downstream GKM procedures rebuild in full every week. A per-release change log drives the weekly delta published to R2.
 
 See the [Pipeline Overview](pipeline/index.md) for the full workflow.
 
@@ -196,13 +199,22 @@ See the [Pipeline Overview](pipeline/index.md) for the full workflow.
 
 ## Next Steps
 
+- [How to Read These Docs](reading-guide.md) — a map of the docs and a reading path for your needs
 - [Output Format](output-reference/overview.md) — detailed guide to the bundle format
 - [Variations](output-reference/cat-vrs.md) — how ClinVar variations are represented
 - [SCV Statements](output-reference/scv-statements.md) — submitted classification statements
 - [Data Model](output-reference/classes/index.md) — class hierarchy and schema reference
 - [Pipeline Overview](pipeline/index.md) — how the data is produced from ClinVar XML
 - [Examples](data-access/examples.md) — annotated JSON examples
+- [Data Use and Citation](data-use.md) — the ClinVar disclaimer, how to cite, and what to carry when you redistribute
 
-## License
+## Data Use, Citation and License
 
-This project is licensed under [CC0 1.0 Universal](https://github.com/clingen-data-model/clinvar-gkm/blob/main/LICENSE) (public domain dedication). The output data carries the same terms as the source ClinVar data.
+ClinVar-GKM re-represents [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) data, which comes from NCBI at the U.S. National Library of Medicine. ClinVar's [disclaimer and data use policy](https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/#disclaimer) applies to this data and to anyone who uses or redistributes it:
+
+- **Not for direct clinical use.** ClinVar's information "is not intended for direct diagnostic use or medical decision-making without review by a genetics professional."
+- **Attribute and cite ClinVar** as the data source, as ClinVar asks, and cite ClinVar-GKM ([DOI 10.5281/zenodo.18343663](https://doi.org/10.5281/zenodo.18343663)) if you used these files.
+- **License.** The code and the published files — the transformed bundles and Parquet sets — are dedicated to the public domain under [CC0 1.0 Universal](https://github.com/clingen-data-model/clinvar-gkm/blob/main/LICENSE). CC0 covers ClinGen's contribution and adds no restriction; NCBI's and ClinVar's policies still apply to the ClinVar content.
+- **No endorsement.** ClinVar-GKM is not an NCBI, NLM or NIH product and is not endorsed by them.
+
+[**Data Use and Citation**](data-use.md) gives the citations, what to carry with the data when you redistribute it, and the policy text behind each point.

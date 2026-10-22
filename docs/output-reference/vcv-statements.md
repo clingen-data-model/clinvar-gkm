@@ -18,7 +18,7 @@ Each record is a `Statement` with the following top-level fields:
 | --- | --- | --- |
 | `id` | string | VCV layer ID — e.g., `VCV000012582.63-G-PATH-CP` |
 | `type` | string | Always `Statement` |
-| `proposition` | string | `#/{group}-proposition/{id}` reference to the aggregate proposition (group = `varcond`/`vartumor`/`varcustom` by datatype) |
+| `proposition` | string | `#/proposition<Meaning>/{id}` reference to the aggregate proposition (the section is set by the proposition `type`; see [ID References](id-references.md)) |
 | `classification` | object | MappableConcept — the aggregate classification label. See [Classification](#classification) |
 | `strength` | object | MappableConcept — the aggregate evidence strength. See [Strength](#strength) |
 | `direction` | string | `supports`, `disputes`, or `neutral` — derived from the aggregate classification |
@@ -74,7 +74,7 @@ For single-SCV aggregations, the strength is passed through from the contributin
 
 ## Proposition
 
-VCV propositions are delivered across the four `*-proposition` bundle sections (`varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`) by their (subject, object) datatype signature. Each VCV statement references its proposition via `#/{group}-proposition/{id}`.
+VCV propositions are delivered across the four proposition bundle sections (`propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact`, `propositionClinvarCustom`) by meaning. Each VCV statement references its proposition via `#/proposition<Meaning>/{id}`.
 
 A resolved VCV proposition contains:
 
@@ -84,7 +84,7 @@ A resolved VCV proposition contains:
 | `id` | string | Proposition ID (e.g., `VCV000012582-G-PATH-CP`) |
 | `subject` | string | `#/variation/clinvar:{id}` reference |
 | `predicate` | string | Predicate matching the underlying SCVs (e.g., `isCausalFor`) |
-| `object` | array | Unique condition references from contributing SCVs (`#/condition/` and/or `#/conditionSet/`) |
+| `object` | string | One reference to the conditions of the contributing SCVs. A single condition is `#/condition/clinvar.trait:{id}`, or `#/conditionSet/clinvar.traitset:{id}` when it is a ClinVar trait set. Several conditions are `#/conditionSet/clinvar.conditionset:vcv-{md5}`: a ConceptSet minted for the aggregate, with `membershipOperator: "OR"` and one `#/condition/` or `#/conditionSet/` reference per condition. Omitted when the contributing SCVs carry no condition |
 
 ---
 

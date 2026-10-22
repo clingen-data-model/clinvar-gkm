@@ -154,7 +154,7 @@ Each item in the `clinvarHgvsList` extension array represents one HGVS expressio
 
 | Field | Type | Description |
 |---|---|---|
-| `nucleotideExpression` | object | The nucleotide HGVS expression with `syntax` (e.g., `hgvs.c`, `hgvs.g`) and `value` (the HGVS string). |
+| `nucleotideExpression` | object | The nucleotide HGVS expression with `syntax` (e.g., `hgvs.c`, `hgvs.g`) and `value` (the HGVS string). From 1.1.0, when ClinVar supplies an expression with no HGVS type letter, its submitted text is kept, unaltered, in this expression's `extensions`: `invalidClinvarExpression` (the submitted text) with `expressionMerged: true` when ClinVar also supplies a valid expression for the accession, which is the one listed; otherwise `originalClinvarExpression` (the submitted text) with `expressionRepaired: true`, on a listed expression with the type letter restored. |
 | `nucleotideType` | `string` | The type of nucleotide expression as reported by ClinVar (e.g., `coding`, `genomic`, `genomic, top-level`). |
 | `maneSelect` | `boolean` | `true` if this transcript is designated as MANE Select. Absent when not applicable. |
 | `manePlus` | `boolean` | `true` if this transcript is designated as MANE Plus Clinical. Absent when not applicable. |

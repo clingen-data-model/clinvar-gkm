@@ -1,25 +1,30 @@
 # Parquet Files
 
-Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Deltas](weekly-deltas.md) · [How Releases Work](release-model.md)
+Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-full.md) · [Weekly Deltas](weekly-deltas.md) · [How Releases Work](release-model.md)
 
 !!! tip "Want to query the files, not just download them?"
     This page covers where the Parquet files live and how to keep a set current. [**Query the Data**](../parquet/index.md) teaches querying them: a live in-browser console, every table's columns, how the tables join, and runnable recipes.
 
-Typed Parquet files are produced for each monthly full and organized by month, mirroring the JSON bundle lifecycle. Each monthly full lands in a dated directory `datasets/parquet/YYYY-MM/`, and `datasets/parquet/00-latest/` always points at the newest monthly full (stable URL). At year boundaries, prior-year month sets move to `archives/{YYYY}/parquet/YYYY-MM/` and are retained indefinitely. Because each month set is preserved, a delta chain's `checkpoint_full` monthly Parquet stays available for [reconstruction](#applying-deltas-keeping-a-parquet-set-current) after later months publish. The weekly delta Parquet (changed records only) lives separately under `deltas/<YYYY-MMDD>/parquet/`.
+!!! info "Parquet is derived from the bundle and overwritten every release"
+    The JSON bundles are the release record. Parquet is a convenience: every value in it can be recomputed from the bundle. **One** Parquet dataset is published, rebuilt every release (weekly) from the newest weekly release and overwritten in place. There are no dated, per-delta or archived Parquet sets.
 
-## Monthly full sets
+The dataset lives at one stable path, `v1/1.1/parquet/`, one file per section, with a `manifest.json` beside it:
 
-<div class="r2-browser" data-r2-type="parquet-monthly"></div>
+```text
+v1/1.1/parquet/
+  {section}.parquet      22 files, one per bundle section
+  manifest.json          build date, source release and dataset, builder, schema version, each file's size and sha256
+```
 
-## Weekly Parquet deltas
+The manifest names the release the dataset was built from, so check it before comparing results with a bundle (the index's Parquet entry carries the same `source_release`). For an earlier state, see [Earlier releases](#earlier-releases).
 
-Changed-rows delta Parquet (not a full set) — one group per weekly release, carrying only the sections that changed that week.
+## The latest set
 
-<div class="r2-browser" data-r2-type="parquet-weekly"></div>
+<div class="r2-browser" data-r2-type="parquet-latest"></div>
 
 ## Available Parquet files
 
-Each Parquet file contains one bundle section with typed, query-friendly columns extracted from the JSON objects. Nearly every section includes an `id` column (the object identifier) and a `data` column (the full JSON object as a string), plus additional typed columns for key fields — enabling efficient filtering and aggregation without parsing JSON. The exceptions: `condition` has no `data` column, and `therapy` / `therapyGroup` have only `key` (the id) and `value` (the JSON object). The [column reference](../parquet/tables.md#column-reference) lists every column of every section.
+Each Parquet file contains one bundle section with typed, query-friendly columns extracted from the JSON objects. Nearly every section includes an `id` column (the object identifier) and a `data` column (the full JSON object as a string), plus additional typed columns for key fields — enabling efficient filtering and aggregation without parsing JSON. The exception: `therapy` and `therapyGroup` name the id column `key` and hold the JSON object in `value`. Before 1.1.0, `condition` had no `data` column and `therapy` / `therapyGroup` had only `key` and `value`. The [column reference](../parquet/tables.md#column-reference) lists every column of every section.
 
 Available Parquet files (22 sections):
 
@@ -37,10 +42,10 @@ Available Parquet files (22 sections):
 | `therapy.parquet` | Therapy records (drug therapies, content-addressed) |
 | `therapyGroup.parquet` | TherapyGroup records (combination therapies) |
 | `submitter.parquet` | Submitter organization records |
-| `varcond-proposition.parquet` | Variant×condition propositions (Pathogenicity, ClinicalSignificance, Diagnostic, Prognostic) |
-| `vartumor-proposition.parquet` | Variant×tumorType propositions (Oncogenicity) |
-| `vartherapy-proposition.parquet` | Variant×therapy propositions (TherapeuticResponse) |
-| `varcustom-proposition.parquet` | Custom variant×condition propositions |
+| `propositionPathogenicity.parquet` | Pathogenicity propositions |
+| `propositionOncogenicity.parquet` | Oncogenicity propositions |
+| `propositionSomaticClinicalImpact.parquet` | Somatic clinical impact propositions (ClinicalSignificance, and the Diagnostic, Prognostic and TherapeuticResponse targets of SCI evidence lines) |
+| `propositionClinvarCustom.parquet` | ClinVar custom propositions (the `Clinvar*` types) |
 | `evidenceLine.parquet` | SCV evidence line records |
 | `vcv_evidenceLine.parquet` | VCV evidence line records |
 | `rcv_evidenceLine.parquet` | RCV evidence line records |
@@ -61,19 +66,20 @@ Download individual sections or all files at once:
 
 ??? example "Download sections with curl"
     ```bash
-    # 00-latest = the newest monthly full; swap for a dated month (e.g. .../parquet/2026-06) to pin a release.
-    BASE="https://data.clinvar-gkm.org/v1/datasets/parquet/00-latest"
+    # The one published Parquet dataset, overwritten every release; manifest.json names its release.
+    BASE="https://data.clinvar-gkm.org/v1/1.1/parquet"
     mkdir -p clinvar-gkm-parquet && cd clinvar-gkm-parquet
+    curl -O "${BASE}/manifest.json"
 
     # Download specific sections
     curl -O "${BASE}/scv.parquet"
-    curl -O "${BASE}/varcond-proposition.parquet"
+    curl -O "${BASE}/propositionPathogenicity.parquet"
     curl -O "${BASE}/condition.parquet"
 
     # Or download all 22 sections
     for section in sequenceReference location allele copyNumberCount copyNumberChange \
                    gene variation condition conditionSet therapy therapyGroup submitter \
-                   varcond-proposition vartumor-proposition vartherapy-proposition varcustom-proposition \
+                   propositionPathogenicity propositionOncogenicity propositionSomaticClinicalImpact propositionClinvarCustom \
                    evidenceLine vcv_evidenceLine rcv_evidenceLine \
                    scv vcv rcv; do
       curl -O "${BASE}/${section}.parquet"
@@ -114,11 +120,11 @@ Download individual sections or all files at once:
     ```bash
     # Join SCVs with propositions to find pathogenic variants for a specific condition
     duckdb -c "
-      SELECT s.id, s.classification.name AS classification, p.predicate, p.object_condition_id
+      SELECT s.id, s.classification.name AS classification, p.predicate, p.object_id
       FROM 'scv.parquet' s
-      JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
+      JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
       WHERE s.classification.name = 'Pathogenic'
-        AND p.object_condition_id LIKE '%clinvar.trait:9580%'
+        AND p.object_id = 'clinvar.trait:9580'
       LIMIT 10;
     "
     ```
@@ -171,7 +177,7 @@ Statement sections (`scv`, `vcv`, `rcv`) share a common set of typed columns:
 | --- | --- | --- |
 | `id` | string | Statement identifier |
 | `type` | string | Statement type |
-| `proposition_id` | string | FK to the matching proposition Parquet — one of `varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`, per the proposition's datatype |
+| `proposition_id` | string | FK to the matching proposition Parquet — one of `propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact`, `propositionClinvarCustom`, by the proposition's type; `read_parquet('proposition*.parquet')` covers all four |
 | `classification` | struct (MappableConcept) | Use `classification.name` (or `classification.primaryCoding.code`) — e.g., "Pathogenic" |
 | `strength` | struct (MappableConcept) | Use `strength.name` — e.g., "definitive", "likely" |
 | `direction` | string | Evidence direction ("supports", "disputes", "neutral") |
@@ -180,15 +186,15 @@ Statement sections (`scv`, `vcv`, `rcv`) share a common set of typed columns:
 | `extensions` | string | JSON array of extensions |
 | `data` | string | Full JSON object |
 
-SCV statements include additional columns: `description`, `contributions`, `reported_in`, `specified_by`.
+SCV statements include additional columns: `description`, `contributions`, `reportedIn` and `specifiedBy`. `reportedIn` is a list of citation Documents, one per ClinVar citation, and `specifiedBy.reportedIn` is the assertion method's Document. From 1.1.0 each Document also has `name`, `documentType` and `extensions`; see [`scv`](../parquet/tables.md#scv).
 
-The four proposition sections are typed per datatype: `varcond-proposition` (`subject_variant_id`, `predicate`, `object_condition_id`, `type`, `gene_context_name`, `mode_of_inheritance`, `penetrance`), `vartumor-proposition` (`object_tumor_type_id`, …), `vartherapy-proposition` (`object_therapy`, `condition_qualifier_id`, …), and `varcustom-proposition` (`subject_id`, `object_id`, `gene_context_name`, `mode_of_inheritance`, `penetrance`) — enabling JOINs across statements, variants, and conditions without parsing JSON.
+The four proposition tables share **one column schema** (from 1.1.0): `id`, `type`, `predicate`, `subject_variant_id`, `object_id`, `object_type`, `condition_qualifier_id`, `gene_context_id`, `gene_context_name`, `submitted_gene_symbols`, `gene_context_source`, `mode_of_inheritance`, `penetrance` and `data`, so `read_parquet('proposition*.parquet')` reads them as one table. This enables JOINs across statements, variants, and conditions without parsing JSON. See [Gene context](../parquet/tables.md#gene-context) for what the gene context is (one representative gene per variant, not a submitter-asserted gene), and [The shared columns](../parquet/tables.md#proposition-columns) for each column.
 
 Run `DESCRIBE` in DuckDB to see the full schema for any section.
 
-These examples demonstrate cross-section JOINs using typed columns. Most analytical queries can be answered without parsing JSON — the varcond proposition's `gene_context_name` column carries the gene symbol directly, and the condition's `primaryCoding` struct carries the MedGen code. (These queries join `scv.parquet` to `varcond-proposition.parquet`, the variant×condition group that holds pathogenicity and clinical-significance propositions; the other three proposition groups — `vartumor`, `vartherapy`, `varcustom` — have their own typed columns.)
+These examples demonstrate cross-section JOINs using typed columns. Most analytical queries can be answered without parsing JSON — the proposition's `gene_context_name` column carries the gene symbol directly, and the condition's `primaryCoding` struct carries the MedGen code. (These queries join `scv.parquet` to `propositionPathogenicity.parquet`; swap in `read_parquet('proposition*.parquet')` to include every kind of claim, since the four tables have the same columns.)
 
-For how the sections join — including the prefix-dispatched columns where a single-table join silently drops rows — see [Joining Tables](../parquet/joining.md); for task-oriented queries, see [Recipes](../parquet/recipes.md).
+For how the sections join — including the columns that point at more than one table, where a single-table join silently drops rows — see [Joining Tables](../parquet/joining.md); for task-oriented queries, see [Recipes](../parquet/recipes.md).
 
 ??? example "Example cross-section queries (SQL)"
     **All SCVs for a gene — detailed view:**
@@ -205,8 +211,8 @@ For how the sections join — including the prefix-dispatched columns where a si
         c.name AS condition_name,
         c.primaryCoding.code AS condition_code
     FROM 'scv.parquet' s
-    JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
-    LEFT JOIN 'condition.parquet' c ON p.object_condition_id = c.id
+    JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
+    LEFT JOIN 'condition.parquet' c ON p.object_id = c.id
     WHERE p.gene_context_name = 'BRCA1'
     ORDER BY s.classification.name;
     ```
@@ -222,7 +228,7 @@ For how the sections join — including the prefix-dispatched columns where a si
         s.direction,
         COUNT(*) AS scv_count
     FROM 'scv.parquet' s
-    JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
+    JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
     WHERE p.gene_context_name = 'BRCA2'
     GROUP BY ALL
     ORDER BY scv_count DESC;
@@ -238,8 +244,8 @@ For how the sections join — including the prefix-dispatched columns where a si
         s.quality.name AS review_status,
         c.name AS condition_name
     FROM 'scv.parquet' s
-    JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
-    LEFT JOIN 'condition.parquet' c ON p.object_condition_id = c.id
+    JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
+    LEFT JOIN 'condition.parquet' c ON p.object_id = c.id
     WHERE p.gene_context_name = 'TP53'
       AND s.quality.name IN ('criteria provided', 'reviewed by expert panel')
     ORDER BY s.classification.name;
@@ -254,7 +260,7 @@ For how the sections join — including the prefix-dispatched columns where a si
         s.classification.name AS classification,
         COUNT(*) AS n
     FROM 'scv.parquet' s
-    JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
+    JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
     WHERE p.gene_context_name IN ('BRCA1', 'BRCA2', 'TP53', 'MLH1')
       AND s.quality.name = 'criteria provided'
     GROUP BY gene, s.classification.name
@@ -272,7 +278,7 @@ For how the sections join — including the prefix-dispatched columns where a si
         json_extract_string(s.data, '$.contributions[0].agent.name') AS submitter,
         json_extract_string(s.data, '$.specifiedBy.name') AS method
     FROM 'scv.parquet' s
-    JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
+    JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
     WHERE p.gene_context_name = 'BRCA1'
       AND s.classification.name = 'Pathogenic'
       AND s.quality.name = 'reviewed by expert panel'
@@ -287,191 +293,12 @@ When to use each access path:
 | Typed columns + `json_extract_string` | Ad-hoc queries needing submitter names, HGVS, methods | Slightly slower; syntax is verbose |
 | Parse `data` column in application code | Bulk processing needing many nested fields | Full flexibility; requires application-side JSON parsing |
 
-## Reconstitute a full Parquet view for any week in a month
+## Earlier releases { #earlier-releases }
 
-The monthly full Parquet set is a month-start baseline. To get a complete Parquet view as of any **week** in a month, bootstrap from the checkpoint monthly full set that **the target week's own `manifest.json` names** — its `checkpoint_full` records the monthly full that was current when that week was uploaded — then apply each weekly delta in order, up to the week you want. (Read the checkpoint from the target week's manifest, not from `deltas/00-latest/manifest.json`: the `00-latest` checkpoint advances as new monthly fulls publish, so it reflects today's month, not the target week's era.) Each weekly delta Parquet carries only the **added and updated** rows for a section; that week's `manifest.json` carries the `sections.<section>.deleted` ids. Applying one week is, per section: **drop every row whose `id` appears in the delta or in that section's `deleted` list, then append the delta rows.** Apply the weeks oldest→newest until you reach the target week, verifying `baseline_release == prior compare_release` at each step; if the chain breaks, re-bootstrap from the monthly full rather than applying a partial chain.
+Only the current Parquet dataset is published; it is overwritten every release, and weekly deltas, archives and frozen lines carry no Parquet. To work with an earlier state:
 
-This is the same contiguity rule as the [JSON replay](weekly-deltas.md#consumer-replay-model) — only the per-section apply differs (a keyed Parquet upsert instead of a dict merge).
+- **Rebuild it from the bundles.** Every official monthly stays published (in `archive/YYYY/` after its year ends) with a `.sha256` sidecar, and so does every delta. Rebuild the bundle for the week you need with the [replay recipe](weekly-deltas.md#rebuild-a-past-week), then read the sections you need.
+- **Convert a bundle to Parquet with `clinvar-gkm-parquet` (planned).** [`clinvar-gkm-parquet`](https://github.com/clingen-data-model/clinvar-gkm-parquet) is a separate, versioned tool that builds this Parquet layout from a published bundle and writes the same `manifest.json`. It is in design and not yet released; until it is, earlier Parquet can't be downloaded or rebuilt in this layout.
+- **The 1.0.1 generation** is the frozen line `v1/1.0/`: its bundles and delta manifests, with no Parquet.
 
-### Applying Deltas (keeping a Parquet set current)
-
-The weekly delta ships typed Parquet too, so you can maintain a current Parquet set without re-downloading the full monthly bundle. The model mirrors the [JSON replay](weekly-deltas.md#consumer-replay-model): start from the checkpoint monthly full, then apply each weekly delta in order.
-
-Each delta is a per-section **keyed upsert plus a delete list**:
-
-- `deltas/<YYYY-MMDD>/parquet/<section>.parquet` holds the **added and updated** rows for that section (keyed by `id`). Sections with no adds/updates have no file.
-- `deltas/<YYYY-MMDD>/manifest.json` holds the **deletes** — `sections.<section>.deleted` is the list of `id` values removed this release. Deletes are **not** in the Parquet.
-
-Every section Parquet — full and delta alike — exposes an `id` column, and the manifest's `deleted` keys are those same `id` values, so applying a delta is: **drop from the full every row whose `id` appears in the delta or in the delete list, then append the delta rows.** Because the full and delta Parquet for a section are produced by the identical schema, their columns line up exactly (`UNION ALL BY NAME`).
-
-??? example "Download the checkpoint full + delta pieces"
-    ```bash
-    BASE="https://data.clinvar-gkm.org"
-
-    # 1. The checkpoint monthly full named by the delta's manifest (e.g. 2026-06).
-    curl -s "${BASE}/v1/deltas/00-latest/manifest.json" -o manifest.json
-    CKPT=$(python3 -c "import json;print(json.load(open('manifest.json'))['checkpoint_full']['release'])")
-
-    # 2. The checkpoint full Parquet set -> full/, and the delta set -> delta/.
-    mkdir -p full delta
-    for section in sequenceReference location allele copyNumberCount copyNumberChange \
-                   gene variation condition conditionSet therapy therapyGroup submitter \
-                   varcond-proposition vartumor-proposition vartherapy-proposition varcustom-proposition \
-                   evidenceLine vcv_evidenceLine rcv_evidenceLine scv vcv rcv; do
-      curl -sf "${BASE}/v1/datasets/parquet/${CKPT}/${section}.parquet" -o "full/${section}.parquet"  || true
-      curl -sf "${BASE}/v1/deltas/00-latest/parquet/${section}.parquet" -o "delta/${section}.parquet" || true
-    done
-    ```
-
-??? example "Apply one week (DuckDB)"
-    ```python
-    import duckdb, json, os, shutil
-
-    con = duckdb.connect()
-    manifest = json.load(open("manifest.json"))
-
-    # Start from a copy of the checkpoint full set; overwrite only the changed sections.
-    shutil.copytree("full", "updated", dirs_exist_ok=True)
-
-    for section, info in manifest["sections"].items():
-        full    = f"full/{section}.parquet"      # checkpoint (baseline) section
-        delta   = f"delta/{section}.parquet"     # added + updated rows (may be absent)
-        out     = f"updated/{section}.parquet"
-        deleted = info["deleted"]                # ids removed this release
-        has_delta = os.path.exists(delta)
-
-        if not os.path.exists(full):
-            # Section new since the checkpoint: the delta rows ARE the section.
-            if has_delta:
-                shutil.copyfile(delta, out)
-            continue
-
-        if not has_delta:
-            # Deletes only — filter the baseline, nothing to append.
-            con.execute("""
-                COPY (SELECT * FROM read_parquet(?) WHERE id NOT IN (SELECT unnest(?)))
-                TO ? (FORMAT PARQUET)
-            """, [full, deleted, out])
-        else:
-            # Drop updated + deleted keys from the baseline, then append the delta rows.
-            con.execute("""
-                COPY (
-                    SELECT * FROM read_parquet(?)                        -- baseline full
-                    WHERE id NOT IN (SELECT id FROM read_parquet(?))     -- drop updated keys
-                      AND id NOT IN (SELECT unnest(?))                   -- drop deleted keys
-                    UNION ALL BY NAME
-                    SELECT * FROM read_parquet(?)                        -- append added + updated
-                ) TO ? (FORMAT PARQUET)
-            """, [full, delta, deleted, delta, out])
-
-    # `updated/<section>.parquet` now reflects the release the manifest names.
-    ```
-
-??? example "Chain to a specific week (Python)"
-    ```python
-    import duckdb, json, os, urllib.request
-
-    BASE = "https://data.clinvar-gkm.org"
-    TARGET_WEEK = "2026-07-20"   # ClinVar release date (YYYY-MM-DD) to reconstruct up to (inclusive)
-
-    SECTIONS = [
-        "sequenceReference", "location", "allele", "copyNumberCount", "copyNumberChange",
-        "gene", "variation", "condition", "conditionSet", "therapy", "therapyGroup", "submitter",
-        "varcond-proposition", "vartumor-proposition", "vartherapy-proposition", "varcustom-proposition",
-        "evidenceLine", "vcv_evidenceLine", "rcv_evidenceLine", "scv", "vcv", "rcv",
-    ]
-
-    con = duckdb.connect()
-
-
-    def fetch_json(url):
-        with urllib.request.urlopen(url) as r:
-            return json.load(r)
-
-
-    # 1. Read the checkpoint from the TARGET_WEEK's OWN manifest — its `checkpoint_full` records the
-    #    monthly full that was current when that week was uploaded. Do NOT use deltas/00-latest here:
-    #    its checkpoint advances as new monthly fulls publish, so it reflects today's month, not this
-    #    week's era, and the delta filter below would then match nothing for an older target week.
-    y, mo, day = TARGET_WEEK.split("-")
-    target_dir = f"{y}-{mo}{day}"                # "2026-07-20" -> "2026-0720"
-    checkpoint = fetch_json(f"{BASE}/v1/deltas/{target_dir}/manifest.json")["checkpoint_full"]
-    checkpoint_month = checkpoint["release"]     # "2026-06"
-
-    # 2. Download that checkpoint's full Parquet set into updated/ as the starting state.
-    #    The Parquet set sits in a `parquet/<month>/` dir beside the checkpoint bundle;
-    #    checkpoint["path"] is v1/-prefixed (datasets/ for the current year, archives/<YYYY>/ older),
-    #    so derive the Parquet dir from it directly.
-    ckpt_dir = checkpoint["path"].rsplit("/", 1)[0]   # drop the bundle filename
-    parquet_base = f"{BASE}/{ckpt_dir}/parquet/{checkpoint_month}"
-    os.makedirs("updated", exist_ok=True)
-    for section in SECTIONS:
-        try:
-            urllib.request.urlretrieve(f"{parquet_base}/{section}.parquet", f"updated/{section}.parquet")
-        except Exception:
-            pass   # a section absent from the checkpoint first appears when a delta introduces it
-
-    # 3. From the index, take the dated weekly deltas AFTER the checkpoint month, oldest -> newest,
-    #    up to and including TARGET_WEEK.
-    index = fetch_json(f"{BASE}/v1/index.json")
-    deltas = sorted(
-        (d for d in index["deltas"]
-         if d["release"] != "latest"
-         and d["release"][:7] > checkpoint_month
-         and d["release"] <= TARGET_WEEK),
-        key=lambda d: d["release"],
-    )
-
-    # 4. Replay each delta's Parquet (added/updated rows) + manifest deletes, verifying the chain.
-    prev_compare = None
-    for d in deltas:
-        manifest = fetch_json(f"{BASE}/{d['manifest']}")
-        if prev_compare is not None and manifest["baseline_release"] != prev_compare:
-            raise SystemExit(
-                f"broken chain before {manifest['release']}: re-bootstrap from a monthly full"
-            )
-
-        present = set(d.get("parquet") or [])   # sections with a delta Parquet this week
-        for section, info in manifest["sections"].items():
-            out = f"updated/{section}.parquet"
-            deleted = info["deleted"]
-            delta_local = None
-            if section in present:
-                delta_local = f"updated/.delta_{section}.parquet"
-                urllib.request.urlretrieve(
-                    f"{BASE}/{d['path']}parquet/{section}.parquet", delta_local
-                )
-
-            if not os.path.exists(out):
-                # Section new since the checkpoint: the delta rows ARE the section.
-                if delta_local:
-                    os.replace(delta_local, out)
-                continue
-
-            tmp = out + ".tmp"
-            if delta_local is None:
-                # Deletes only — filter the baseline, nothing to append.
-                con.execute("""
-                    COPY (SELECT * FROM read_parquet(?) WHERE id NOT IN (SELECT unnest(?)))
-                    TO ? (FORMAT PARQUET)
-                """, [out, deleted, tmp])
-            else:
-                con.execute("""
-                    COPY (
-                        SELECT * FROM read_parquet(?)
-                        WHERE id NOT IN (SELECT id FROM read_parquet(?))
-                          AND id NOT IN (SELECT unnest(?))
-                        UNION ALL BY NAME
-                        SELECT * FROM read_parquet(?)
-                    ) TO ? (FORMAT PARQUET)
-                """, [out, delta_local, deleted, delta_local, tmp])
-            os.replace(tmp, out)
-            if delta_local and os.path.exists(delta_local):
-                os.remove(delta_local)
-
-        prev_compare = manifest["compare_release"]
-
-    # updated/<section>.parquet now reflects the TARGET_WEEK release.
-    ```
-
-A single-file convenience alternative: because the pipeline also refreshes `datasets/parquet/00-latest/` on every monthly full, you can skip replay entirely and pull the current full set directly — replay is for reconstructing a *specific* historical release or minimizing download size between monthly fulls.
+Parquet downloaded from an earlier release keeps its old tables and columns; see the [changelog](../reference/changelog.md) for what changed.

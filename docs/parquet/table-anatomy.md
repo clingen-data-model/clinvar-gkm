@@ -44,7 +44,7 @@ Run the same `DESCRIBE` on `scv.parquet` and most of its columns are `STRUCT`s: 
 
 Every row has an `id`, and its shape tells you which table it belongs to (`clinvar.trait:2645` is a condition, `clinvar:51592` a variant; see [Ids tell you where to look](tables.md#ids-tell-you-where-to-look)). Ids are how tables connect, and they are how you look up one row.
 
-Two tables spell it differently: `therapy` and `therapyGroup` have just a `key` column (the id) and a `value` column (the JSON object).
+Two tables spell it differently: in `therapy` and `therapyGroup` the id column is `key`, and the JSON object is in `value`.
 
 ## The `data` column holds everything else
 
@@ -69,7 +69,7 @@ ga4gh:VA.E8L_Ltq8nC8OPjbEk1jasgkF9SXDKEkf  NC_000017.11:g.8173472G>A    A    17-
 …
 ```
 
-`->>` returns text, and `->` returns JSON that you can `CAST` to a typed list or struct, as `expressions` is here. `condition` is the exception: it has no `data` column.
+`->>` returns text, and `->` returns JSON that you can `CAST` to a typed list or struct, as `expressions` is here. In `therapy` and `therapyGroup` the same JSON is in `value`. Before 1.1.0, `condition` had no `data` column.
 
 ## Reading a `STRUCT` column
 
@@ -112,19 +112,19 @@ clinvar.trait:2645  Marfan syndrome  C0024796    FBN1-Related Marfan Syndrome  5
 
 This is the one warning on this page that costs real time if ignored. Parquet stores each column separately and compressed. A query reads only the columns it names, so naming fewer columns means reading less. `SELECT *` names them all, and on a big table "all" is mostly the `data` column.
 
-Here is `scv.parquet`, by column:
+Here is `scv.parquet` in the 2026-10-18 release, by column:
 
 | Column | On disk | In memory (uncompressed) |
 | --- | ---: | ---: |
-| `data` | 2.04 GB | **15.38 GB** |
-| `description` | 0.40 GB | 2.17 GB |
-| `extensions` | 0.37 GB | 1.54 GB |
-| `classification` | 0.12 GB | 0.91 GB |
+| `data` | 2.10 GB | **15.71 GB** |
+| `description` | 0.42 GB | 2.21 GB |
+| `extensions` | 0.39 GB | 1.64 GB |
+| `classification` | 0.12 GB | 0.92 GB |
 | `id` | 0.06 GB | 0.25 GB |
-| everything else | 0.11 GB | 0.27 GB |
-| **whole table** | **3.10 GB** | **20.5 GB** |
+| everything else | 0.13 GB | 0.30 GB |
+| **whole table** | **3.21 GB** | **21.0 GB** |
 
-A 3 GB file becomes about **20 GB** once decompressed, three quarters of it the `data` column. `SELECT * FROM 'scv.parquet'`, or loading it whole into pandas, asks for all of it. On a laptop the machine swaps until it is unusable or the process is killed; in the browser console the tab runs out of memory.
+A 3 GB file becomes about **21 GB** once decompressed, three quarters of it the `data` column. `SELECT * FROM 'scv.parquet'`, or loading it whole into pandas, asks for all of it. On a laptop the machine swaps until it is unusable or the process is killed; in the browser console the tab runs out of memory.
 
 The fix is always the same: **name the columns you need**, and leave `data` out unless you need something only it holds. The sizes of every table are in the [column reference](tables.md#column-reference).
 

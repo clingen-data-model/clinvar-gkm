@@ -26,22 +26,25 @@ Distribution follows a **full + delta** model:
 
 | Product | Cadence | Contents |
 | --- | --- | --- |
-| **Monthly full** | Monthly | Every record for the release — JSON bundle + typed Parquet |
-| **Weekly delta** | Every ClinVar release | Only records added or updated since the prior release, plus a `manifest.json` of per-section adds, updates, and deletes |
+| **Official monthly full** | Monthly, lined up with ClinVar's monthly release | Every record for the release (JSON bundle) |
+| **Weekly full** | Every ClinVar release; kept for the current month only | Every record for that week's release (JSON bundle) |
+| **Weekly delta** | Every ClinVar release | Only records added or updated since the prior release, plus a manifest of per-section adds, updates, and deletes |
+| **Parquet** | Overwritten every release | One typed Parquet dataset of the newest release, derived from the bundle |
 
-A consumer reconstructs current state by taking the latest monthly full and replaying the weekly deltas published since.
+The R2 layout mirrors NCBI's ClinVar FTP site: official monthlies at the top, `weekly/` for the current month's weekly fulls, `archive/YYYY/` for prior years, plus `deltas/` and `parquet/`. Monthlies and deltas are the durable record; any past week is rebuilt by replaying the deltas onto the monthly before it.
 
 ## Data Access
 
 Releases are hosted on **Cloudflare R2** — free, no authentication, no egress fees. The stable "latest" URLs always point at the newest release:
 
-- **Latest monthly full (JSON):** <https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz>
-- **Latest weekly delta (JSON):** <https://data.clinvar-gkm.org/v1/deltas/00-latest/clinvar-gkm-delta_00-latest.json.gz>
-- **Release index:** <https://data.clinvar-gkm.org/index.json>
+- **Latest official monthly (JSON):** <https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz>
+- **Latest weekly full (JSON):** <https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz>
+- **Parquet:** <https://data.clinvar-gkm.org/v1/1.1/parquet/> (one file per table, plus `manifest.json`)
+- **Release index:** <https://data.clinvar-gkm.org/index.json> (lists each version line and its `index.json`, which lists every file, including the weekly deltas)
 
-See the [Downloads guide](https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/download/) for Parquet, dated releases, the delta replay model, and curl / Python / DuckDB examples. Sample records for each section are in the [`examples/`](examples/) directory.
+See the [Downloads guide](https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/download/) for the directory layout, dated releases, the delta replay model, and curl / Python / DuckDB examples. Sample records for each section are in the [`examples/`](examples/) directory.
 
-**Stay informed:** join the email list [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm) for release announcements and change notices, or watch this repository's Releases and Discussions.
+**Stay informed:** join the email list [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm) for release announcements, version changes and events ([how to join](https://dataexchange.clinicalgenome.org/clinvar-gkm/stay-informed/)), or watch this repository's Releases and Discussions.
 
 > **Operators:** the distribution domain (`data.clinvar-gkm.org`), CDN cache rules, rate-limiting, cost controls, and the cache-purge workflow are documented in [ADR 0005](docs/decisions/0005-r2-custom-domain-and-cdn.md).
 
@@ -78,14 +81,30 @@ examples/                    Sample output organized by type (cat-vrs, scv, vcv,
 docs/                        Zensical documentation source
 ```
 
+## Data Use and Disclaimer
+
+ClinVar-GKM re-represents [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) data, which comes from NCBI at the U.S. National Library of Medicine. ClinVar's [disclaimer and data use policy](https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/#disclaimer) applies to this data and to anyone who uses or redistributes it:
+
+- **Not for direct clinical use.** ClinVar's information "is not intended for direct diagnostic use or medical decision-making without review by a genetics professional."
+- **Attribute ClinVar** as the data source, and carry that attribution and the disclaimer with any copy you redistribute.
+- **No endorsement.** ClinVar-GKM is not an NCBI, NLM or NIH product and is not endorsed by them.
+
+See [Data Use and Citation](https://dataexchange.clinicalgenome.org/clinvar-gkm/data-use/) for the full guidance and the policy text behind it.
+
 ## Citation
 
-If you use this project, please cite it:
+If you use ClinVar-GKM data, cite ClinVar, as ClinVar asks, and cite this project.
 
-> Babb, L., Ferriter, K., & O'Neill, T. (2026). *ClinVar-GKM* (Version 1.0.0) [Software]. <https://doi.org/10.5281/zenodo.18343663>
+ClinVar (the newest of the [ClinVar publications](https://www.ncbi.nlm.nih.gov/clinvar/intro/)):
 
-See [CITATION.cff](CITATION.cff) for machine-readable citation metadata.
+> Landrum MJ, Chitipiralla S, Kaur K, et al. ClinVar: updates to support classifications of both germline and somatic variants. *Nucleic Acids Res.* 2025;53(D1):D1313–D1321. <https://doi.org/10.1093/nar/gkae1090>
+
+ClinVar-GKM:
+
+> Babb, L., Ferriter, K., & O'Neill, T. (2026). *ClinVar-GKM* [Software]. <https://doi.org/10.5281/zenodo.18343663>
+
+See [CITATION.cff](CITATION.cff) for machine-readable citation metadata, and name the release you used (for example the bundle file name).
 
 ## License
 
-This project is licensed under [CC0 1.0 Universal](LICENSE) (public domain dedication), covering both the code and data outputs. This aligns with FAIR data principles and common practices in the genomics and bioinformatics community.
+This project is licensed under [CC0 1.0 Universal](LICENSE) (public domain dedication), covering both the code and the published data (the transformed bundles and Parquet files). CC0 covers ClinGen's contribution and adds no restriction; it does not change NCBI's or ClinVar's policies, which still apply to the ClinVar content in the files. CC0 aligns with FAIR data principles and common practices in the genomics and bioinformatics community.

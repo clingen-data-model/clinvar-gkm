@@ -22,10 +22,10 @@ This design eliminates duplication (a sequence reference shared by thousands of 
   "therapy":           { "<key>": { ... }, ... },
   "therapyGroup":      { "<key>": { ... }, ... },
   "submitter":            { "<key>": { ... }, ... },
-  "varcond-proposition":  { "<key>": { ... }, ... },
-  "vartumor-proposition": { "<key>": { ... }, ... },
-  "vartherapy-proposition": { "<key>": { ... }, ... },
-  "varcustom-proposition": { "<key>": { ... }, ... },
+  "propositionPathogenicity":         { "<key>": { ... }, ... },
+  "propositionOncogenicity":          { "<key>": { ... }, ... },
+  "propositionSomaticClinicalImpact": { "<key>": { ... }, ... },
+  "propositionClinvarCustom":         { "<key>": { ... }, ... },
   "evidenceLine":         { "<key>": { ... }, ... },
   "scv":               { "<key>": { ... }, ... },
   "vcv":               { "<key>": { ... }, ... },
@@ -69,14 +69,14 @@ These sections contain the condition, therapy, submitter, and proposition refere
 
 **`submitter`** — Submitting organizations with name and identifier. Keyed by `clinvar.submitter:{submitter_id}` (e.g., `clinvar.submitter:500139`).
 
-**`varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`** — Classification propositions defining what a statement asserts (proposition type, predicate, subject, object, qualifiers). Propositions are delivered in four datatype-homogeneous sections keyed by their (subject, object) signature so each is a fully-typed table:
+**`propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact`, `propositionClinvarCustom`** — Classification propositions defining what a statement asserts (proposition type, predicate, subject, object, qualifiers). Propositions are delivered in four sections grouped by **meaning** (what kind of claim the proposition makes), so a section holds one kind of claim at every level (SCV, VCV, RCV):
 
-- **`varcond-proposition`** — variant×condition (standard): `VariantPathogenicity`, `VariantClinicalSignificance`, `VariantDiagnostic`, `VariantPrognostic`; `subject` → `object`.
-- **`vartumor-proposition`** — variant×tumorType (standard): `VariantOncogenicity`; `subject` → `object`.
-- **`vartherapy-proposition`** — variant×therapy (standard): `VariantTherapeuticResponse`; `subject` → `object` where `object` references the therapy (`#/therapy/` single, or `#/therapyGroup/` combination), and the condition moves to `conditionQualifier` (`#/condition/` or `#/conditionSet/`).
-- **`varcustom-proposition`** — custom variant×condition: the 10 `Clinvar*` types (e.g. `ClinvarRiskFactorProposition`, `ClinvarDrugResponseProposition`) — open subtypes of the VA-Spec `SubjectVariantProposition` base, each carrying its own real `type` name; `subject` → `object` with typed qualifiers (`geneContextQualifier`, `modeOfInheritanceQualifier`, `penetranceQualifier`).
+- **`propositionPathogenicity`** — `VariantPathogenicityProposition` (germline classifications); `subject` → `object` (a `#/condition/` or `#/conditionSet/`), with typed qualifiers on SCVs (`geneContextQualifier`, `modeOfInheritanceQualifier`, `penetranceQualifier`).
+- **`propositionOncogenicity`** — `VariantOncogenicityProposition`; `subject` → `object` (the tumor type, a `#/condition/` or `#/conditionSet/`).
+- **`propositionSomaticClinicalImpact`** — `VariantClinicalSignificanceProposition` (SCV, VCV, RCV) and the `VariantDiagnosticProposition`, `VariantPrognosticProposition` and `VariantTherapeuticResponseProposition` that SCV evidence lines target. For Therapeutic Response, `object` references the therapy (`#/therapy/` single, or `#/therapyGroup/` combination) and the condition moves to `conditionQualifier` (`#/condition/` or `#/conditionSet/`); the others point `object` at a condition.
+- **`propositionClinvarCustom`** — the 9 `Clinvar*` types (e.g. `ClinvarRiskFactorProposition`, `ClinvarDrugResponseProposition`) plus `ClinvarUndefinedProposition` — open subtypes of the VA-Spec `SubjectVariantProposition` base, each carrying its own real `type` name; `subject` → `object` with typed qualifiers (`geneContextQualifier`, `modeOfInheritanceQualifier`, `penetranceQualifier`).
 
-Each contains SCV, VCV, and RCV propositions of that signature. Keyed by proposition ID (e.g., `SCV001234567-PATH` for SCVs, `VCV000012582.63-G-PATH-CP` for VCVs). A `#/{section}-proposition/{id}` pointer names the exact section a proposition lives in.
+Each contains the SCV, VCV, and RCV propositions of its kind. Keyed by proposition ID (e.g., `SCV001234567-PATH` for SCVs, `VCV000012582.63-G-PATH-CP` for VCVs). A `#/proposition<Meaning>/{id}` pointer names the exact section a proposition lives in; the section is a function of the proposition `type` alone.
 
 ### Statement Sections
 
@@ -108,10 +108,10 @@ Objects reference each other using `#/{section}/{key}` strings instead of embedd
 | `#/condition/{key}` | `#/condition/clinvar.trait:9580` | Condition object |
 | `#/conditionSet/{key}` | `#/conditionSet/clinvar.traitset:1234` | Condition set object |
 | `#/submitter/{key}` | `#/submitter/clinvar.submitter:500139` | Submitter object |
-| `#/varcond-proposition/{key}` | `#/varcond-proposition/SCV001234567-PATH` | Proposition object (variant×condition) |
-| `#/vartumor-proposition/{key}` | `#/vartumor-proposition/SCV002345678-ONCO` | Proposition object (variant×tumorType) |
-| `#/vartherapy-proposition/{key}` | `#/vartherapy-proposition/SCV003456789-TR` | Proposition object (variant×therapy) |
-| `#/varcustom-proposition/{key}` | `#/varcustom-proposition/SCV004567890-RF` | Proposition object (custom) |
+| `#/propositionPathogenicity/{key}` | `#/propositionPathogenicity/SCV001234567-PATH` | Proposition object (pathogenicity) |
+| `#/propositionOncogenicity/{key}` | `#/propositionOncogenicity/SCV002345678-ONCO` | Proposition object (oncogenicity) |
+| `#/propositionSomaticClinicalImpact/{key}` | `#/propositionSomaticClinicalImpact/SCV003456789-TR` | Proposition object (somatic clinical impact) |
+| `#/propositionClinvarCustom/{key}` | `#/propositionClinvarCustom/SCV004567890-RF` | Proposition object (ClinVar custom) |
 | `#/scv/{key}` | `#/scv/clinvar.submission:SCV001234567.1` | SCV statement object |
 | `#/vcv/{key}` | `#/vcv/VCV000012582.63-G-PATH-CP` | VCV statement object |
 | `#/rcv/{key}` | `#/rcv/RCV000012345.8-G-PATH-CP` | RCV statement object |
@@ -203,7 +203,7 @@ validate_bundle_schema(bundle, schema)
 
 # Or compile the validator once and reuse it across many bundles / deltas.
 validator = prepare_bundle_schema(schema)
-for path in ("clinvar-gkm_2026-06.json", "clinvar-gkm-delta_00-latest.json"):
+for path in ("clinvar-gkm_2026-10.json", "clinvar-gkm-delta_2026-1018.json"):
     validate_bundle_schema(json.load(open(path)), schema, validator=validator)
 ```
 
@@ -215,9 +215,9 @@ API references for exact signatures and options.
 
 ## Parquet Output
 
-In addition to the JSON bundle, the assembler can produce **typed Parquet files** — one per bundle section — using the `--parquet-dir` flag. Parquet files use columnar storage with named, typed columns for each section's fields, making them suitable for analytical workloads, DuckDB, pandas, or Apache Spark.
+In addition to the JSON bundle, the latest release is published as **typed Parquet files**, one per table (22 tables: the bundle sections, with the VCV and RCV evidence lines in their own tables). They are written by BigQuery `EXPORT DATA` queries, not by the assembler, and use columnar storage with named, typed columns for each section's fields, making them suitable for analytical workloads, DuckDB, pandas, or Apache Spark.
 
-See [Export & Distribute](../pipeline/export.md#parquet-output) for how the Parquet files are produced. To query them — every table's columns, how the tables join, and runnable recipes — see [Query the Data](../parquet/index.md).
+See [Export & Distribute](../pipeline/export.md#step-3-rebuild-the-latest-parquet) for how the Parquet files are produced (derived from the bundle, latest release only). To query them — every table's columns, how the tables join, and runnable recipes — see [Query the Data](../parquet/index.md).
 
 ---
 

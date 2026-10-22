@@ -57,6 +57,8 @@ spec):
   here, and every live-R2 write stays a separately user-confirmed step.
 - Breaking changes cost ~2× pipeline/storage during a window and require a 4-week RFC post-GA — a deliberate
   trade for consumer stability.
+- The first breaking change under the §5 stabilization exception, the 1.1.0 proposition reorganization, is
+  recorded in [ADR 0006](0006-ship-1.1.0-in-place-under-v1.md).
 - The prompting change (the `submittedCondition` CURIE de-pointer) is content-only, so it ships under the
   stabilization window without a version bump; this policy governs the first *breaking* change after GA.
 - Accepted additions: a bundle-level `schema_version` field (bundles self-identify) and a Home-page release

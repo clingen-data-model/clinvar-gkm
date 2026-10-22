@@ -19,6 +19,7 @@ importing them so they don't bloat every session's context.
 - [0003 — Roadmap generated from label-authorized discussions](0003-roadmap-from-labeled-discussions.md)
 - [0004 — Schema versioning & release change-management](0004-schema-versioning-and-release-management.md)
 - [0005 — R2 distribution domain, CDN caching, and fee protection](0005-r2-custom-domain-and-cdn.md)
+- [0006 — Ship the proposition reorganization as 1.1.0, in place under `/v1/`](0006-ship-1.1.0-in-place-under-v1.md)
 - [0007 — Pipeline principles and simplification](0007-pipeline-principles-and-simplification.md)
 - [0008 — Bundles are the public record: immutability, archives, version lines and download metrics](0008-bundles-are-the-public-record.md)
 - [0009 — R2 layout mirrors NCBI ClinVar](0009-r2-layout-mirrors-ncbi-clinvar.md)

@@ -22,8 +22,8 @@ wrong?" into a query that produces a fresh report each time ClinVar updates.
 
 !!! tip "New to GKM datasets?"
     The GA4GH [**GKM Starter Kit**](https://ga4gh.github.io/gkm-starter-kit/) is the best place to get
-    oriented — it collects the reference libraries, the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/tools/gkm-toolkit/getting-started/)
-    for loading and exploring bundles, and [other user stories](https://ga4gh.github.io/gkm-starter-kit/user-stories/)
+    oriented — it collects the reference libraries, the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/)
+    for loading and exploring bundles, and [other user stories](https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/)
     showing how projects put GKM to work.
 
 ---
@@ -56,8 +56,9 @@ ClinVar-GKM makes the whole submission set queryable and self-describing:
 - **The whole release is typed Parquet** — one file per bundle section, each with an `id`, typed columns
   for the common fields, and the full JSON object — so filtering *your* SCVs and joining them to
   conditions, therapies, and variants is ordinary SQL.
-- **Releases are dated and incremental.** `datasets/parquet/00-latest/` always points at the newest
-  monthly full, so the same audit re-runs against each release and its results can be diffed over time.
+- **Releases are dated and incremental.** The Parquet dataset at `v1/1.1/parquet/` is rebuilt from the
+  newest release every week, so the same audit re-runs against each release and its results can be diffed
+  over time.
 
 ## The data
 
@@ -65,17 +66,19 @@ To make this concrete, the repository ships
 **[`nch-igm-bundle.json.gz`](https://github.com/clingen-data-model/clinvar-gkm/blob/main/nch-igm-bundle.json.gz)** —
 the complete GKM extract of one real submitter, the IGM Clinical Laboratory at Nationwide Children's
 Hospital (submitter `196472`): **all 2,443 of their SCVs** plus every variation, condition, therapy,
-proposition, and submitter record those statements reference, in a single self-contained 1.4 MB file. It
-is exactly "everything one submitter has in ClinVar," and it is the shape an audit consumes. (It was
-produced with the maintainer [sub-bundle](pipeline/sub-bundle.md) tool — `sub-bundle.py --submitter 196472`.)
+proposition, and submitter record those statements reference, in a single self-contained 1.6 MB file. It
+is exactly "everything one submitter has in ClinVar," and it is the shape an audit consumes. It was
+regenerated from the 2026-10-18 release with the maintainer [sub-bundle](pipeline/sub-bundle.md) tool —
+`sub-bundle.py --submitter 196472` — so it carries the 1.1.0 proposition sections and `schema_version`
+`1.1.0`, and it passes strict GA4GH gkm-toolkit validation (6,432 records, 0 failing).
 
 For the recurring, release-over-release audit, a submitter works from the published Parquet instead. A
 single DuckDB query flags the records that need a second look:
 
 ```sql
 -- Everything submitter 196472 has in ClinVar, flagged for review.
--- (scv.parquet, varcond-proposition.parquet, condition.parquet from
---  datasets/parquet/00-latest/ — the newest monthly full.)
+-- (scv.parquet, the four proposition*.parquet tables and condition.parquet
+--  from v1/1.1/parquet/ — rebuilt from the newest release every week.)
 WITH mine AS (
   SELECT
     s.id,
@@ -86,11 +89,12 @@ WITH mine AS (
        FROM unnest(s.contributions) AS t(c)
       WHERE c.activityType = 'evaluated')      AS last_evaluated
   FROM 'scv.parquet' s
-  JOIN 'varcond-proposition.parquet' p ON s.proposition_id = p.id
-  LEFT JOIN 'condition.parquet' cond   ON p.object_condition_id = cond.id
+  JOIN read_parquet('proposition*.parquet') p ON s.proposition_id = p.id
+  LEFT JOIN 'condition.parquet' cond          -- CASE keeps this an equi-join (fast); an AND in ON plans a nested loop
+         ON cond.id = CASE WHEN p.object_type = 'condition' THEN p.object_id END
   WHERE list_contains(
           [c.contributor FOR c IN s.contributions],
-          '#/submitter/clinvar.submitter:196472')
+          'clinvar.submitter:196472')
 )
 SELECT
   id, classification, review_status, condition_name, last_evaluated,
@@ -106,12 +110,15 @@ ORDER BY last_evaluated;
 ```
 
 The column shapes follow the bundle's JSON field names; run `DESCRIBE SELECT * FROM 'scv.parquet'` to
-confirm them for a given release. The same idea extends to therapies: swap `varcond-proposition` for
-`vartherapy-proposition` (its `object_therapy` and `condition_qualifier_id` columns) and join the
-`therapy` / `therapyGroup` sections to spot a malformed or unexpected drug or drug combination.
+confirm them for a given release. The four proposition tables share one column schema, so
+`read_parquet('proposition*.parquet')` covers every SCV; a condition-set object (`object_type` =
+`conditionSet`) has no `condition.parquet` row and is flagged for a look. The same idea extends to therapies:
+filter the propositions on `object_type IN ('therapy', 'therapyGroup')` and join `object_id` to the
+`therapy` / `therapyGroup` tables (with `condition_qualifier_id` for the tumor type) to spot a malformed or
+unexpected drug or drug combination.
 
-Because `00-latest` refreshes every month, running the query on each release and diffing against the
-previous month's output turns the audit into a standing report — new stale rows, newly flagged statuses,
+Because the Parquet dataset is rebuilt from every weekly release, running the query each week and diffing
+against the previous run's output turns the audit into a standing report — new stale rows, newly flagged statuses,
 and newly odd conditions surface on their own.
 
 ## The tools used
@@ -127,8 +134,8 @@ and newly odd conditions surface on their own.
 
 ## How to explore this
 
-- **Get the data** — [Parquet Files](data-access/parquet.md) (the Parquet section under
-  `datasets/parquet/00-latest/`).
+- **Get the data** — [Parquet Files](data-access/parquet.md) (the one Parquet dataset, at
+  `v1/1.1/parquet/`).
 - **See one submitter's whole footprint** — open
   [`nch-igm-bundle.json.gz`](https://github.com/clingen-data-model/clinvar-gkm/blob/main/nch-igm-bundle.json.gz)
   (2,443 SCVs, self-contained).
@@ -137,4 +144,4 @@ and newly odd conditions surface on their own.
 - **Extract your own** — maintainers can run the [sub-bundle](pipeline/sub-bundle.md) tool by
   `--submitter`; anyone can filter the Parquet by their submitter id as shown above.
 - **See more GKM use cases** — the GKM Starter Kit's
-  [user stories](https://ga4gh.github.io/gkm-starter-kit/user-stories/).
+  [user stories](https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/).

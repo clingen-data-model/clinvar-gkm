@@ -10,28 +10,21 @@ extra_css = ["stylesheets/extra.css"]
 extra_javascript = ["assets/js/r2-browser.js"]
 strict = true
 nav = [
-  { Home = "index.md" },
-  { Downloads = [
+  { Home = [
+    "index.md",
+    { "How to Read These Docs" = "reading-guide.md" },
+    { "Data Use and Citation" = "data-use.md" },
+    { "Stay Informed" = "stay-informed.md" },
+  ] },
+  { "Get the Data" = [
     "data-access/download.md",
     { "Monthly Full Bundles" = "data-access/monthly-full.md" },
+    { "Weekly Full Bundles"  = "data-access/weekly-full.md" },
     { "Weekly Deltas"        = "data-access/weekly-deltas.md" },
     { "Parquet Files"        = "data-access/parquet.md" },
     { "How Releases Work"    = "data-access/release-model.md" },
   ] },
-  { "Query the Data" = [
-    "parquet/index.md",
-    { "Anatomy of a Table"    = "parquet/table-anatomy.md" },
-    { "The 22 Tables"         = "parquet/tables.md" },
-    { "Joining Tables"        = "parquet/joining.md" },
-    { Recipes                 = "parquet/recipes.md" },
-    { "Working at Scale"      = "parquet/performance.md" },
-    { "Beyond DuckDB"         = "parquet/other-tools.md" },
-  ] },
-  { "User Stories" = [
-    { "Harmonizing by VRS Identity" = "user-story.md" },
-    { "Auditing a Submitter's Footprint" = "user-story-audit.md" },
-  ] },
-  { "Data Guide" = [
+  { "Understand the Data" = [
     { "Output Format" = "output-reference/overview.md" },
     { Variations = "output-reference/cat-vrs.md" },
     { "SCV Statements" = "output-reference/scv-statements.md" },
@@ -39,48 +32,48 @@ nav = [
     { "RCV Statements" = "output-reference/rcv-statements.md" },
     { "ID References" = "output-reference/id-references.md" },
     { Examples = "data-access/examples.md" },
-  ] },
-  { "Data Model" = [
-    "output-reference/classes/index.md",
-    { Variations = [
-      "output-reference/classes/variations.md",
-      { ClinvarCategoricalVariant = "output-reference/classes/ClinvarCategoricalVariant.md" },
-      { ClinvarCanonicalAllele = "output-reference/classes/ClinvarCanonicalAllele.md" },
-      { ClinvarCategoricalCnvChange = "output-reference/classes/ClinvarCategoricalCnvChange.md" },
-      { ClinvarCategoricalCnvCount = "output-reference/classes/ClinvarCategoricalCnvCount.md" },
-      { ClinvarNonConstrainedVariant = "output-reference/classes/ClinvarNonConstrainedVariant.md" },
-      { HgvsListItem = "output-reference/classes/HgvsListItem.md" },
-      { GeneListItem = "output-reference/classes/GeneListItem.md" },
+    { "Data Model" = [
+      "output-reference/classes/index.md",
+      { Variations = [
+        "output-reference/classes/variations.md",
+        { ClinvarCategoricalVariant = "output-reference/classes/ClinvarCategoricalVariant.md" },
+        { ClinvarCanonicalAllele = "output-reference/classes/ClinvarCanonicalAllele.md" },
+        { ClinvarCategoricalCnvChange = "output-reference/classes/ClinvarCategoricalCnvChange.md" },
+        { ClinvarCategoricalCnvCount = "output-reference/classes/ClinvarCategoricalCnvCount.md" },
+        { ClinvarNonConstrainedVariant = "output-reference/classes/ClinvarNonConstrainedVariant.md" },
+        { HgvsListItem = "output-reference/classes/HgvsListItem.md" },
+        { GeneListItem = "output-reference/classes/GeneListItem.md" },
+      ] },
+      { Propositions = [
+        "output-reference/classes/propositions.md",
+        { ClinvarProposition = "output-reference/classes/ClinvarProposition.md" },
+        { ClinvarGermlineCustomProposition = "output-reference/classes/ClinvarGermlineCustomProposition.md" },
+        { ClinvarGeneContextQualifier = "output-reference/classes/ClinvarGeneContextQualifier.md" },
+        { ClinvarRiskFactorProposition = "output-reference/classes/ClinvarRiskFactorProposition.md" },
+        { ClinvarProtectiveProposition = "output-reference/classes/ClinvarProtectiveProposition.md" },
+        { ClinvarDrugResponseProposition = "output-reference/classes/ClinvarDrugResponseProposition.md" },
+        { ClinvarAffectsProposition = "output-reference/classes/ClinvarAffectsProposition.md" },
+        { ClinvarAssociationProposition = "output-reference/classes/ClinvarAssociationProposition.md" },
+        { ClinvarConfersSensitivityProposition = "output-reference/classes/ClinvarConfersSensitivityProposition.md" },
+        { ClinvarOtherProposition = "output-reference/classes/ClinvarOtherProposition.md" },
+        { ClinvarNotProvidedProposition = "output-reference/classes/ClinvarNotProvidedProposition.md" },
+        { ClinvarConflictingDataFromSubmitterProposition = "output-reference/classes/ClinvarConflictingDataFromSubmitterProposition.md" },
+        { ClinvarUndefinedProposition = "output-reference/classes/ClinvarUndefinedProposition.md" },
+      ] },
+      { Statements = [
+        "output-reference/classes/statements.md",
+        { ClinvarStatement = "output-reference/classes/ClinvarStatement.md" },
+        { ClinvarScvStatement = "output-reference/classes/ClinvarScvStatement.md" },
+        { ClinvarVcvStatement = "output-reference/classes/ClinvarVcvStatement.md" },
+        { ClinvarRcvStatement = "output-reference/classes/ClinvarRcvStatement.md" },
+        { SubmittedConditionMapping = "output-reference/classes/SubmittedConditionMapping.md" },
+      ] },
+      { Evidence = [
+        "output-reference/classes/evidence.md",
+        { ClinvarSomaticEvidenceLine = "output-reference/classes/ClinvarSomaticEvidenceLine.md" },
+      ] },
     ] },
-    { Propositions = [
-      "output-reference/classes/propositions.md",
-      { ClinvarProposition = "output-reference/classes/ClinvarProposition.md" },
-      { ClinvarGermlineCustomProposition = "output-reference/classes/ClinvarGermlineCustomProposition.md" },
-      { ClinvarGeneContextQualifier = "output-reference/classes/ClinvarGeneContextQualifier.md" },
-      { ClinvarRiskFactorProposition = "output-reference/classes/ClinvarRiskFactorProposition.md" },
-      { ClinvarProtectiveProposition = "output-reference/classes/ClinvarProtectiveProposition.md" },
-      { ClinvarDrugResponseProposition = "output-reference/classes/ClinvarDrugResponseProposition.md" },
-      { ClinvarAffectsProposition = "output-reference/classes/ClinvarAffectsProposition.md" },
-      { ClinvarAssociationProposition = "output-reference/classes/ClinvarAssociationProposition.md" },
-      { ClinvarConfersSensitivityProposition = "output-reference/classes/ClinvarConfersSensitivityProposition.md" },
-      { ClinvarOtherProposition = "output-reference/classes/ClinvarOtherProposition.md" },
-      { ClinvarNotProvidedProposition = "output-reference/classes/ClinvarNotProvidedProposition.md" },
-      { ClinvarConflictingDataFromSubmitterProposition = "output-reference/classes/ClinvarConflictingDataFromSubmitterProposition.md" },
-      { ClinvarUndefinedProposition = "output-reference/classes/ClinvarUndefinedProposition.md" },
-    ] },
-    { Statements = [
-      "output-reference/classes/statements.md",
-      { ClinvarStatement = "output-reference/classes/ClinvarStatement.md" },
-      { ClinvarScvStatement = "output-reference/classes/ClinvarScvStatement.md" },
-      { ClinvarVcvStatement = "output-reference/classes/ClinvarVcvStatement.md" },
-      { ClinvarRcvStatement = "output-reference/classes/ClinvarRcvStatement.md" },
-      { SubmittedConditionMapping = "output-reference/classes/SubmittedConditionMapping.md" },
-    ] },
-    { Evidence = [
-      "output-reference/classes/evidence.md",
-      { ClinvarSomaticEvidenceLine = "output-reference/classes/ClinvarSomaticEvidenceLine.md" },
-    ] },
-    { Profiles = [
+    { "Mapping & Vocabularies" = [
       "profiles/index.md",
       { "Statement Types" = "profiles/statement-types.md" },
       { Classifications = "profiles/classifications.md" },
@@ -88,7 +81,22 @@ nav = [
       { "Review Status" = "profiles/review-status.md" },
     ] },
   ] },
-  { Pipeline = [
+  { "Use the Data" = [
+    { "Query the Data" = [
+      "parquet/index.md",
+      { "Anatomy of a Table"    = "parquet/table-anatomy.md" },
+      { "The 22 Tables"         = "parquet/tables.md" },
+      { "Joining Tables"        = "parquet/joining.md" },
+      { Recipes                 = "parquet/recipes.md" },
+      { "Working at Scale"      = "parquet/performance.md" },
+      { "Beyond DuckDB"         = "parquet/other-tools.md" },
+    ] },
+    { "User Stories" = [
+      { "Harmonizing by VRS Identity" = "user-story.md" },
+      { "Auditing a Submitter's Footprint" = "user-story-audit.md" },
+    ] },
+  ] },
+  { "How It's Built" = [
     "pipeline/index.md",
     { "Variation Identity" = [
       "pipeline/variation-identity/index.md",
@@ -134,6 +142,7 @@ nav = [
     { Roadmap = "reference/roadmap.md" },
     { "Versioning & Releases" = "reference/versioning.md" },
     { Changelog = "reference/changelog.md" },
+    { "Release Validation" = "reference/release-validation.md" },
     { "GA4GH Standards" = "reference/gks-standards.md" },
     { "Known Issues" = "reference/known-issues.md" },
     { FAQ = "reference/faq.md" },

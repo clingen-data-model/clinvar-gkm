@@ -4,18 +4,21 @@
 
 The latest ClinVar-GKM release is available as a compressed JSON file (with Parquet files also available for analytical use):
 
-!!! warning "The monthly full is a month-start baseline, not the current week"
-    `clinvar-gkm_00-latest.json.gz` reflects the **last release of the _previous_ month** — e.g. the `2026-10` full is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. It does **not** include the current month's weekly changes. To get the current weekly state, apply the latest delta on top of it — see the [Consumer Replay Model](data-access/weekly-deltas.md#consumer-replay-model).
+!!! tip "Monthly full or weekly full?"
+    `clinvar-gkm_00-latest.json.gz` is the newest **official monthly**; it reflects the **last release of the _previous_ month** — e.g. the `2026-10` monthly is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. For the current week, download `weekly/clinvar-gkm_00-latest_weekly.json.gz` instead — see [Weekly Full Bundles](data-access/weekly-full.md).
 
 ```text
-https://data.clinvar-gkm.org/v1/datasets/
+https://data.clinvar-gkm.org/v1/1.1/
 ```
 
 Download and decompress:
 
 ```bash
-# Download the latest monthly release
-curl -O https://data.clinvar-gkm.org/v1/datasets/clinvar-gkm_00-latest.json.gz
+# Download the newest official monthly release
+curl -O https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz
+
+# Or the newest weekly release
+curl -O https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz
 
 # Decompress
 gunzip clinvar-gkm_00-latest.json.gz
@@ -41,17 +44,17 @@ The release file is a single JSON object with **bundle sections** at the root le
   "therapy":           { "clinvar.therapy:{sha256}": { ... } },
   "therapyGroup":      { "clinvar.therapygroup:{sha256}": { ... } },
   "submitter":            { "clinvar.submitter:500139": { ... } },
-  "varcond-proposition":  { "SCV001234567-PATH": { ... } },
-  "vartumor-proposition": { "SCV002345678-ONCO": { ... } },
-  "vartherapy-proposition": { "SCV003456789-TR": { ... } },
-  "varcustom-proposition": { "SCV004567890-RF": { ... } },
+  "propositionPathogenicity":         { "SCV001234567-PATH": { ... } },
+  "propositionOncogenicity":          { "SCV002345678-ONCO": { ... } },
+  "propositionSomaticClinicalImpact": { "SCV003456789-TR": { ... } },
+  "propositionClinvarCustom":         { "SCV004567890-RF": { ... } },
   "scv":                  { "clinvar.submission:SCV001234567.1": { ... } },
   "vcv":               { "VCV000012582.63-G-PATH-CP": { ... } },
   "rcv":               { "RCV000012345.8-G-PATH-CP": { ... } }
 }
 ```
 
-Objects reference each other using `#/` JSON pointer strings. For example, an allele references its location as `"#/location/ga4gh:SL.xyz789"`, and an SCV statement references its proposition as `"#/varcond-proposition/SCV001234567-PATH"`. Propositions are delivered in four datatype-specific sections (`varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`) — the pointer names the section the proposition lives in.
+Objects reference each other using `#/` JSON pointer strings. For example, an allele references its location as `"#/location/ga4gh:SL.xyz789"`, and an SCV statement references its proposition as `"#/propositionPathogenicity/SCV001234567-PATH"`. Propositions are delivered in four sections grouped by meaning (`propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact`, `propositionClinvarCustom`) — the pointer names the section the proposition lives in.
 
 See [Output Format](output-reference/overview.md) for the full structure and reference patterns.
 
@@ -77,7 +80,7 @@ To find the classification statements for a specific variant, start with the var
 }
 ```
 
-The SCV statements for this variant reference it via `#/variation/clinvar:10` in their propositions. To find them, look for entries in the proposition sections (`varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`) where `subject` (or `subject`, for custom) matches, then find the corresponding `scv` entries that reference those propositions.
+The SCV statements for this variant reference it via `#/variation/clinvar:10` in their propositions. To find them, look for entries in the proposition sections (`propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact`, `propositionClinvarCustom`) where `subject` matches, then find the corresponding `scv` entries that reference those propositions.
 
 ---
 
@@ -93,7 +96,7 @@ The SCV statements for this variant reference it via `#/variation/clinvar:10` in
 
 **Propositions** define the relationship being classified — a variant's causal role for a condition, its oncogenic potential, or its clinical impact. Each proposition has a type (e.g., `VariantPathogenicityProposition`), a predicate (e.g., `isCausalFor`), a subject variant, and an object condition.
 
-**Conditions** represent the diseases or phenotypes that classifications are made against. Single conditions reference `#/condition/clinvar.trait:{id}`, while multi-condition sets reference `#/conditionSet/clinvar.traitSet:{id}`.
+**Conditions** represent the diseases or phenotypes that classifications are made against. Single conditions reference `#/condition/clinvar.trait:{id}`, while multi-condition sets reference `#/conditionSet/clinvar.traitset:{id}`.
 
 ---
 
@@ -101,5 +104,5 @@ The SCV statements for this variant reference it via `#/variation/clinvar:10` in
 
 - [Output Format](output-reference/overview.md) — detailed guide to the bundle format
 - [Pipeline Overview](pipeline/index.md) — how the data is produced from ClinVar XML
-- [Statement Profiles](profiles/index.md) — the 14 statement types and their classifications
+- [Mapping & Vocabularies](profiles/index.md) — the 14 statement types and their classifications
 - [Examples](data-access/examples.md) — annotated JSON examples

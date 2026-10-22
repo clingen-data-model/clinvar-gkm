@@ -1,27 +1,43 @@
 # How Releases Work
 
-Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Deltas](weekly-deltas.md) · [Parquet Files](parquet.md)
+Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-full.md) · [Weekly Deltas](weekly-deltas.md) · [Parquet Files](parquet.md)
 
-ClinVar-GKM releases are hosted on Cloudflare R2 object storage. All downloads are free with no authentication required and no egress fees.
+ClinVar-GKM releases are hosted on Cloudflare R2 object storage. All downloads are free with no authentication required and no egress fees. The layout follows NCBI's ClinVar XML folder, with monthlies at the top, `weekly/` and `archive/YYYY/`; see [How the layout mirrors NCBI](download.md#how-the-layout-mirrors-ncbi).
 
 Distribution follows a **full + delta** model:
 
-- The complete **monthly full bundle** — a gzip-compressed JSON file (plus typed Parquet, one file per section) — is published once a month. It contains every variation, statement, proposition, condition, and supporting reference record for that release.
-- A **weekly delta** is published for every ClinVar release. Each delta carries only the records that were added or updated since the prior release, in the same section structure as the full bundle, alongside a `manifest.json` that lists per-section adds, updates, and deletes.
+- An **official monthly full bundle** — a gzip-compressed JSON file — is published once a month, lined up with ClinVar's monthly release. It contains every variation, statement, proposition, condition, and supporting reference record.
+- A **weekly full bundle** is published for every ClinVar weekly release, and kept for the current month only.
+- A **weekly delta** is published for every ClinVar weekly release. Each delta carries only the records that were added or updated since the prior release, in the same section structure as the full bundle, alongside a manifest that lists per-section adds, updates, and deletes.
 
-A consumer that wants the current state takes the latest monthly full and replays the weekly deltas published since it. See the [Consumer Replay Model](weekly-deltas.md#consumer-replay-model) for the replay model, and the [`manifest.json` field reference](weekly-deltas.md#manifestjson) on the Weekly Deltas page.
+The monthlies and the deltas are the durable record. A consumer that wants the state at any week takes a monthly full and replays the deltas after it; see [Rebuild a past week](weekly-deltas.md#rebuild-a-past-week) and the [manifest field reference](weekly-deltas.md#manifestjson).
 
-!!! warning "The monthly full is a month-start baseline, not the current week"
-    `clinvar-gkm_00-latest.json.gz` reflects the **last release of the _previous_ month** — e.g. the `2026-10` full is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. It does **not** include the current month's weekly changes. To get the current weekly state, apply the latest delta on top of it — see the [Consumer Replay Model](weekly-deltas.md#consumer-replay-model).
+!!! warning "The official monthly is a month-start baseline, not the current week"
+    `clinvar-gkm_00-latest.json.gz` reflects the **last release of the _previous_ month** — e.g. the `2026-10` monthly is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. For the current week, use the newest [weekly full](weekly-full.md), or replay the deltas onto the monthly.
 
 ---
 
 ## Release Cadence
 
-A **weekly delta** is published for every ClinVar release, typically within 1-2 days of each ClinVar XML release. Each delta lands under `deltas/<YYYY-MMDD>/` and is mirrored at `deltas/00-latest/`.
+A **weekly release** is published for every ClinVar XML release, typically within 1-2 days of it. It writes the weekly full `weekly/clinvar-gkm_YYYY-MMDD.json.gz`, refreshes `weekly/clinvar-gkm_00-latest_weekly.json.gz`, and writes the delta `deltas/clinvar-gkm-delta_YYYY-MMDD.json.gz` with its manifest. All paths are under the line folder, `v1/1.1/`.
 
-A **monthly full bundle** is published once a month, aligned to ClinVar's own monthly VCV releases. When ClinVar posts `ClinVarVCVRelease_YYYY-MM.xml.gz` at its [XML index](https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/) (early in month `YYYY-MM`), our `clinvar-gkm_YYYY-MM` full is built from the most recent weekly release **before** ClinVar's monthly cut datetime — so e.g. the `2026-07` full comes from the `2026-06-27` release, the last one before ClinVar's `_2026-07` cut. That upload writes `datasets/clinvar-gkm_YYYY-MM.json.gz` and its Parquet month set `datasets/parquet/YYYY-MM/`, and refreshes the `datasets/clinvar-gkm_00-latest.json.gz` and `datasets/parquet/00-latest/` pointers. Each delta manifest's `checkpoint_full` records which monthly full its chain replays onto — and because each Parquet month set is retained, that checkpoint's Parquet stays reconstructable after later months publish.
+An **official monthly full** is published once a month, lined up with ClinVar's monthly VCV release. When ClinVar posts `ClinVarVCVRelease_YYYY-MM.xml.gz` at its [XML index](https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/) (early in month `YYYY-MM`), our `clinvar-gkm_YYYY-MM` full is built from the most recent weekly release **before** ClinVar's monthly cut datetime — so e.g. the `2026-07` monthly comes from the `2026-06-27` release. That release is published as the monthly's `source_release` in `index.json`. The upload writes `clinvar-gkm_YYYY-MM.json.gz` and refreshes the `clinvar-gkm_00-latest.json.gz` pointer. Each delta manifest's `checkpoint_full` names the official monthly that precedes the delta.
 
-At year boundaries, the prior year's monthly full bundles and Parquet month sets are moved to `archives/{YYYY}/` (`archives/{YYYY}/parquet/YYYY-MM/` for Parquet). All monthly archives are retained indefinitely.
+Every bundle has a `.sha256` checksum sidecar. From 1.1.0, a monthly or delta file is never rewritten; see the exceptions below.
 
-There is no weekly full bundle — weekly changes are distributed as deltas only. Consumers that need the full weekly state reconstruct it by replaying deltas onto the latest monthly full, as shown in the [Consumer Replay Model](weekly-deltas.md#consumer-replay-model).
+## Month and Year Rollover
+
+| When | What happens |
+| --- | --- |
+| The first release of a **new month** is published | The finished month's deltas move from `deltas/` into `deltas/YYYY-MM/`. The finished month's **weekly fulls are deleted**, as NCBI deletes its weekly releases, except the newest: it is kept until the new month's official monthly is published (the monthly is normally a copy of it), then deleted. |
+| The first release of a **new year** is published | The finished year's monthlies move into `archive/YYYY/`, and its delta folders into `archive/YYYY/deltas/YYYY-MM/`. |
+
+A move changes a file's folder, never its bytes, name or checksum. Deleting the weekly fulls is the one deliberate exception to "published bundles are never removed": every deleted week can be rebuilt exactly from a monthly plus deltas ([Rebuild a past week](weekly-deltas.md#rebuild-a-past-week)).
+
+## Parquet
+
+**Parquet is derived from the bundle.** One Parquet dataset is published, at `v1/1.1/parquet/`, rebuilt from the newest weekly release and **overwritten every release**. Its `manifest.json` gives the build date, the release and dataset it was built from, the builder, the schema version, and every file's size and sha256. No Parquet is kept per month, per delta, in `archive/` or in frozen lines. Past Parquet is rebuilt from the monthly bundles with [`clinvar-gkm-parquet`](https://github.com/clingen-data-model/clinvar-gkm-parquet), a separate tool that is planned but not yet released. See [Parquet Files](parquet.md).
+
+## Version Lines
+
+Each version line has its own folder: `v1/1.1/` for 1.1.x. A PATCH release (1.1.x) only adds new dated files to `v1/1.1/`. A new MINOR — including a content-only correction that must rewrite published bundles — starts `v1/1.2/`, and a new MAJOR starts `v2/2.0/`. The line it replaces is frozen and kept indefinitely, with its files unchanged. The 1.0.1 generation is the frozen line `v1/1.0/`, with bundles and delta manifests only (no Parquet). The root `index.json` lists every line and its status; see [Versioning & Releases](../reference/versioning.md).

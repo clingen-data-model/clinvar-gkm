@@ -17,6 +17,7 @@ All ClinVar-GKM identifiers use a prefix namespace to indicate the resource type
 | `clinvar.submitter:` | Submitter organization | `clinvar.submitter:{submitter_id}` | `clinvar.submitter:508027` |
 | `clinvar.trait:` | Condition / trait | `clinvar.trait:{trait_id}` | `clinvar.trait:9580` |
 | `clinvar.traitset:` | Condition set | `clinvar.traitset:{trait_set_id}` | `clinvar.traitset:1234` |
+| `clinvar.conditionset:` | Condition set minted for a VCV aggregate | `clinvar.conditionset:vcv-{md5}` | `clinvar.conditionset:vcv-c620785e2025efde81bdd15c814fa83d` |
 | `clinvar.therapy:` | Therapy (drug/procedure) | `clinvar.therapy:{sha256}` | `clinvar.therapy:ab221549…d1c2b` |
 | `clinvar.therapygroup:` | Therapy group (combination) | `clinvar.therapygroup:{sha256}` | `clinvar.therapygroup:df1d8467…9f05c` |
 | `ncbigene:` | Gene | `ncbigene:{gene_id}` | `ncbigene:3077` |
@@ -48,10 +49,10 @@ Objects reference each other using `#/{section}/{key}` strings. To resolve a ref
 | `#/therapy/{key}` | `#/therapy/clinvar.therapy:ab221549…d1c2b` | `therapy` |
 | `#/therapyGroup/{key}` | `#/therapyGroup/clinvar.therapygroup:df1d8467…9f05c` | `therapyGroup` |
 | `#/submitter/{key}` | `#/submitter/clinvar.submitter:500139` | `submitter` |
-| `#/varcond-proposition/{key}` | `#/varcond-proposition/SCV001234567-PATH` | `varcond-proposition` |
-| `#/vartumor-proposition/{key}` | `#/vartumor-proposition/SCV002345678-ONCO` | `vartumor-proposition` |
-| `#/vartherapy-proposition/{key}` | `#/vartherapy-proposition/SCV003456789-TR` | `vartherapy-proposition` |
-| `#/varcustom-proposition/{key}` | `#/varcustom-proposition/SCV004567890-RF` | `varcustom-proposition` |
+| `#/propositionPathogenicity/{key}` | `#/propositionPathogenicity/SCV001234567-PATH` | `propositionPathogenicity` |
+| `#/propositionOncogenicity/{key}` | `#/propositionOncogenicity/SCV002345678-ONCO` | `propositionOncogenicity` |
+| `#/propositionSomaticClinicalImpact/{key}` | `#/propositionSomaticClinicalImpact/SCV003456789-TR` | `propositionSomaticClinicalImpact` |
+| `#/propositionClinvarCustom/{key}` | `#/propositionClinvarCustom/SCV004567890-RF` | `propositionClinvarCustom` |
 | `#/scv/{key}` | `#/scv/clinvar.submission:SCV001234567.1` | `scv` |
 | `#/vcv/{key}` | `#/vcv/VCV000012582.63-G-PATH-CP` | `vcv` |
 | `#/evidenceLine/{key}` | `#/evidenceLine/VCV000012582.63-G-PATH-CP.contributing` | `evidenceLine` |
@@ -71,16 +72,28 @@ Objects reference each other using `#/{section}/{key}` strings. To resolve a ref
 | Pathogenicity / Oncogenicity / Custom / Diagnostic / Prognostic | `object` | `#/condition/` or `#/conditionSet/` |
 | Therapeutic Response | `object` | `#/therapy/` or `#/therapyGroup/` |
 | Therapeutic Response | `conditionQualifier` | `#/condition/` or `#/conditionSet/` |
-| ConditionSet | `concepts[]` | `#/condition/` |
+| ConditionSet | `concepts[]` | `#/condition/`, or `#/conditionSet/` for a TraitSet nested in a minted `vcv-` set |
 | TherapyGroup | `concepts[]` | `#/therapy/` |
-| SCV Statement | `proposition` | `#/{varcond,vartumor,vartherapy,varcustom}-proposition/` |
+| SCV Statement | `proposition` | `#/proposition{Pathogenicity,Oncogenicity,SomaticClinicalImpact,ClinvarCustom}/` |
 | SCV Statement | `contributions[].contributor` | `#/submitter/` |
-| VCV Statement | `proposition` | `#/{varcond,vartumor,vartherapy,varcustom}-proposition/` |
+| VCV Statement | `proposition` | `#/proposition{Pathogenicity,Oncogenicity,SomaticClinicalImpact,ClinvarCustom}/` |
 | SCV Statement | `hasEvidenceLines[]` | `#/evidenceLine/` |
 | VCV Statement | `hasEvidenceLines[]` | `#/evidenceLine/` |
-| RCV Statement | `proposition` | `#/{varcond,vartumor,vartherapy,varcustom}-proposition/` |
+| RCV Statement | `proposition` | `#/proposition{Pathogenicity,Oncogenicity,SomaticClinicalImpact,ClinvarCustom}/` |
 | RCV Statement | `hasEvidenceLines[]` | `#/evidenceLine/` |
 | EvidenceLine | `hasEvidenceItems[]` | `#/scv/`, `#/vcv/`, or `#/rcv/` |
+
+!!! note "Releases before 1.1.0 had two bare-id references"
+    From 1.1.0 every field above is a `#/` pointer. Before, two condition references were bare ids: a VCV
+    proposition's `object` when the VCV had a single condition (`clinvar.trait:2478` rather than
+    `#/condition/clinvar.trait:2478`; about 7.5 million propositions), and the `concepts` of the condition sets
+    minted for VCV aggregates (`clinvar.conditionset:vcv-…`). A bare id names the same record: look up
+    `clinvar.trait:` ids in `condition` and `clinvar.traitset:` ids in `conditionSet`. A bundle downloaded before
+    the 1.1.0 republish still has the old form.
+
+    The `condition`, `conditionSet`, `direct_match` and `normalized_match` values in the `submittedCondition` and
+    `submittedConditionSet` extensions are bare CURIEs by design. They record what was submitted and how it was
+    matched; they are not references.
 
 ### Resolution Example
 
@@ -111,7 +124,7 @@ seq_ref = resolve(bundle, location["sequenceReference"])
 ```
 
 !!! tip "Resolving references without writing code"
-    The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/tools/gkm-toolkit/getting-started/)
+    The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/)
     (`ga4gh.gkm`) loads a published bundle and follows `#/…` pointers for you — traversing and exporting
     connected records without the manual `resolve()` above.
 
@@ -128,7 +141,7 @@ SCV proposition IDs combine the SCV accession with an uppercase proposition type
 | Component | Description | Examples |
 | --- | --- | --- |
 | `scv_id` | SCV accession (without version) | `SCV001234567` |
-| `PROP_CODE` | Uppercase proposition type code | `PATH`, `ONCO`, `SCI`, `ASSOC`, `RF`, `DR`, `NP`, `OTH`, `PROT`, `AFF`, `CS`, `CONF`, `UNDEF` |
+| `PROP_CODE` | Uppercase proposition type code | `PATH`, `ONCO`, `SCI`, `ASSOC`, `RF`, `DR`, `NP`, `OTH`, `PROTECT`, `AFF`, `CS`, `CDFS`, `UNDEF` |
 
 Examples: `SCV001234567-PATH`, `SCV004565358-PROG`, `SCV004565358-TR`
 

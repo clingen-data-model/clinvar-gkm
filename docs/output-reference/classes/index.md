@@ -23,7 +23,7 @@ The map renders at full size in a scrollable frame — scroll within it to follo
 - **The pill** is an example object id (the dictionary key within the section)
 - **`field → #/section/`** lines are the outgoing cross-section references an object in that section carries
 - **Solid arrows** trace the primary reference flow between section clusters; **dashed** arrows are optional or back-references (e.g., evidence items pointing back at statements)
-- The four `*-proposition` sections are datatype-homogeneous **delivery groups** of the proposition content, keyed by proposition type
+- The four `proposition*` sections group the propositions by **meaning** (pathogenicity, oncogenicity, somatic clinical impact, ClinVar custom); a proposition's section is a function of its `type`
 
 ---
 
@@ -45,7 +45,7 @@ See [Variations](variations.md) for the full variant type hierarchy and extensio
 
 ## Supporting Classes
 
-These classes represent the conditions, submitters, and propositions that support classification statements. Conditions and submitters use upstream GA4GH types. Proposition content is delivered in **four datatype-homogeneous sections** keyed by proposition type — together they hold all 13 [ClinvarProposition](ClinvarProposition.md) types.
+These classes represent the conditions, submitters, and propositions that support classification statements. Conditions and submitters use upstream GA4GH types. Proposition content is delivered in **four sections grouped by meaning**, keyed by proposition type — together they hold all 13 [ClinvarProposition](ClinvarProposition.md) types.
 
 | Class | Bundle Section | Key Pattern | Description |
 | --- | --- | --- | --- |
@@ -54,12 +54,12 @@ These classes represent the conditions, submitters, and propositions that suppor
 | Therapy | `therapy` | `clinvar.therapy:{sha256}` | Drug therapy (content-addressed); `object` of therapeutic propositions via `#/therapy/` |
 | TherapyGroup | `therapyGroup` | `clinvar.therapygroup:{sha256}` | Combination therapy whose `concepts` reference `#/therapy/` members |
 | Submitter | `submitter` | `clinvar.submitter:{id}` | Submitting organization |
-| [ClinvarProposition](ClinvarProposition.md) | `varcond-proposition` | `{scv_id}-{CODE}` | Variant–condition propositions: Pathogenicity, Clinical Significance, Diagnostic, Prognostic |
-| [ClinvarProposition](ClinvarProposition.md) | `vartumor-proposition` | `{scv_id}-ONCO` | Variant–tumor-type Oncogenicity propositions |
-| [ClinvarProposition](ClinvarProposition.md) | `vartherapy-proposition` | `{scv_id}-TR` | Variant–therapy Therapeutic Response propositions |
-| [ClinvarProposition](ClinvarProposition.md) | `varcustom-proposition` | `{scv_id}-{CODE}` | ClinVar-specific proposition types (Risk Factor, Protective, Drug Response, …) |
+| [ClinvarProposition](ClinvarProposition.md) | `propositionPathogenicity` | `{scv_id}-PATH` | Pathogenicity propositions |
+| [ClinvarProposition](ClinvarProposition.md) | `propositionOncogenicity` | `{scv_id}-ONCO` | Oncogenicity propositions |
+| [ClinvarProposition](ClinvarProposition.md) | `propositionSomaticClinicalImpact` | `{scv_id}-{CODE}` | Somatic clinical impact propositions: Clinical Significance, Diagnostic, Prognostic, Therapeutic Response |
+| [ClinvarProposition](ClinvarProposition.md) | `propositionClinvarCustom` | `{scv_id}-{CODE}` | ClinVar-specific proposition types (Risk Factor, Protective, Drug Response, …, Undefined) |
 
-See [Propositions](propositions.md) for the full type/code/predicate reference and [ID References](../id-references.md) for how the delivery groups are keyed.
+See [Propositions](propositions.md) for the full type/code/predicate reference and [ID References](../id-references.md) for how the proposition sections are keyed.
 
 ---
 

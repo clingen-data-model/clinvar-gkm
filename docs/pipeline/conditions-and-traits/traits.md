@@ -14,7 +14,7 @@ The procedure executes as a single query with two CTEs within a loop over the ta
 
 The `traits` CTE selects distinct trait records from the `trait` table, extracting:
 
-- Trait `id`, `type`, and preferred `name`
+- Trait `id`, `type`, and `name` (see [Condition name](#condition-name))
 - Alternate names concatenated into a comma-separated `synonyms` string
 - Cross-references parsed from the raw `xrefs` field via the `clinvar_ingest.parseXRefItems` UDF
 
@@ -43,6 +43,30 @@ The final query joins traits with their cross-references and aggregates into one
   - `clinvarTraitType` — the trait type (e.g., Disease, Finding, PhenotypeInstruction)
 
 **Output:** `temp_gkm_trait` — one row per trait with structured codings, mappings, and extensions. <span class="role-badge badge-internal">Internal</span>
+
+---
+
+## Condition name
+
+Every condition gets a `name` from ClinVar. No name is made up. The `name` is the first of these that ClinVar
+supplies:
+
+1. **The trait's Preferred name** from the `trait` table. Most traits have one.
+2. **The Preferred name in the RCV's TraitSet** (`rcv_mapping.trait_set_content`), for a trait whose `trait` row
+   has no Preferred name. Only the RCV trait sets that contain such a trait are parsed.
+3. **The trait's Alternate name**, the first one alphabetically, when ClinVar gives the trait no Preferred name
+   anywhere. That name also stays in `aliases`, so a condition named this way has its `name` in `aliases` too.
+
+In the 1.1.0 data (2026-10-11 release), 58 conditions need a fallback:
+
+| Source of `name` | Conditions | Example |
+| --- | ---: | --- |
+| RCV TraitSet Preferred name | 7 | `clinvar.trait:78166` → `not provided` |
+| Alternate name | 51 | `clinvar.trait:9800` → `Apolipoprotein c-ii variants, molecular defect unknown` |
+
+The 7 RCV-named traits have an empty `trait` row: no name, xrefs or content. ClinVar's RCV TraitSet names each
+of them `not provided`. Before 1.1.0, all 58 had neither `name` nor `primaryCoding` and failed `MappableConcept`
+validation.
 
 ---
 

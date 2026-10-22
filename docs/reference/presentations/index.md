@@ -4,6 +4,8 @@ Slide decks for introducing and explaining ClinVar-GKM to different audiences. E
 interactive HTML presentation that runs in the browser — navigate with the arrow keys, and press `?` inside a
 deck for the full list of shortcuts.
 
+Upcoming events and talks are announced on the email list; see [Stay Informed](../../stay-informed.md).
+
 ## Available presentations
 
 | Presentation | Event | Audience | Length |

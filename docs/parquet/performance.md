@@ -1,13 +1,13 @@
 # Working at Scale
 
 !!! info "Release"
-    Timings, sizes and counts on this page are from the **2026-10 monthly release** (published 14 Oct 2026), measured with DuckDB 1.5 on a laptop. Your numbers will differ with the release and your machine.
+    Timings and measured results on this page are from the **2026-10 monthly release** (published 14 Oct 2026), measured with DuckDB 1.5 on a laptop. File and column sizes are from the **2026-10-18 release**. Your numbers will differ with the release and your machine.
 
-Nine tables are over 500 MB: `variation` (4.1 GB), `scv` (3.1 GB), `varcond-proposition` (1.4 GB), `allele` (1.1 GB), `location`, and the RCV and VCV statements and evidence lines (0.5–0.9 GB each). The other thirteen are each under 10 MB. A handful of habits keeps queries over the big ones fast on a laptop.
+Nine tables are over 500 MB: `variation` (3.9 GB), `scv` (3.2 GB), `propositionPathogenicity` (1.5 GB), `allele` (1.1 GB), `location`, and the RCV and VCV statements and evidence lines (0.5–0.9 GB each). The other thirteen are each about 11 MB or less. A handful of habits keeps queries over the big ones fast on a laptop.
 
 ## Name your columns { #name-your-columns }
 
-Parquet stores each column separately, and a query reads only the columns it names. This is the single biggest lever you have. In `scv.parquet` the `data` column is 2 GB of the 3.1 GB on disk and 15 GB of the 20 GB in memory ([the breakdown](table-anatomy.md#never-select-on-a-big-table)). A query that leaves it out reads a quarter of the file; one that names two small fields reads almost none of it.
+Parquet stores each column separately, and a query reads only the columns it names. This is the single biggest lever you have. In `scv.parquet` the `data` column is 2.1 GB of the 3.2 GB on disk and 15.7 GB of the 21 GB in memory ([the breakdown](table-anatomy.md#never-select-on-a-big-table)). A query that leaves it out reads a quarter of the file; one that names two small fields reads almost none of it.
 
 To see where any table's bytes are, ask its metadata. This reads only the file footer:
 
@@ -30,6 +30,10 @@ The difference is large. Finding the variants in one gene by filtering `variatio
 
 Use comprehensions rather than lambda functions (`list_filter(l, x -> …)`). DuckDB 1.5 deprecates that arrow syntax, and the replacement (`lambda x: …`) is too new for the browser console's engine. Comprehensions work in both.
 
+## Join on a plain equality { #equi-joins }
+
+DuckDB joins two big tables fast, with a **hash join**, when the `ON` clause is one equality between them. Add a second condition (`ON p.object_type = 'condition' AND c.id = p.object_id`), or join through a function (`ON list_contains(v.members, a.id)`), and DuckDB 1.5 plans a **nested-loop join** instead, which compares row against row and runs for over an hour on `propositionPathogenicity`. Fold the extra condition into the key, `ON c.id = CASE WHEN p.object_type = 'condition' THEN p.object_id END`, or `unnest` the list in a subquery and join on the plain column. [Seam B](joining.md#seam-b-proposition-condition-or-conditionset) shows the first; [Find the variant](recipes.md#find-the-variant) shows the second. Put `EXPLAIN` in front of a query to check before you run it: `HASH_JOIN` is the fast kind; `NESTED_LOOP_JOIN`, `BLOCKWISE_NL_JOIN` and `PIECEWISE_MERGE_JOIN` are the slow kinds.
+
 ## Local or remote { #local-or-remote }
 
 DuckDB reads Parquet over HTTPS with **range requests**: it fetches the file's footer first, then only the byte ranges of the row groups and columns a query needs. That makes some remote queries as cheap as local ones and others impossible:
@@ -39,7 +43,7 @@ DuckDB reads Parquet over HTTPS with **range requests**: it fetches the file's f
 | `DESCRIBE`, `count(*)`, `parquet_metadata(…)` | footer only | yes, in under a second on any table |
 | `LIMIT n` without a filter | footer + first row group | yes |
 | Any query on a small table (`condition`, `gene`, `submitter`, `therapy`, …) | a few | yes |
-| A filter, `GROUP BY` or join over a big table | one per row group per column; 55 row groups in `scv`, 223 in `varcond-proposition` | **slowly**: 10–35 s per query, reading hundreds of MB; download for repeated or heavier work |
+| A filter, `GROUP BY` or join over a big table | one per row group per column; 55 row groups in `scv`, about 223 in `propositionPathogenicity` | **slowly**: 10–35 s per query, reading hundreds of MB; download for repeated or heavier work |
 
 The published files are not sorted by any lookup key, so even a filter for a single variant or SCV has to read every row group of the filtered column. The CDN in front of `data.clinvar-gkm.org` allows **250 requests per 10 seconds** per client IP and blocks for 10 seconds past that (HTTP 429). From the command line, single-table scans and two-table joins on the big tables now complete within it (a `GROUP BY` over all of `scv` in about 30 s; a variant's PubMed ids in about 25 s), but each reads hundreds of megabytes, so repeated or larger work belongs on a downloaded copy.
 
@@ -91,34 +95,18 @@ duckdb clinvar-gkm.duckdb < materialize.sql
 -- materialize.sql
 SET preserve_insertion_order = false;   -- lets DuckDB build large tables with less memory
 
--- 1. One proposition table: the four tables, columns aligned to one shape.
+-- 1. One proposition table: the four tables share one column schema, so one glob reads them all.
 CREATE OR REPLACE TABLE prop AS
 SELECT id, type AS proposition_type, predicate,
-       subject_variant_id AS variant_id, object_condition_id AS object_id,
-       gene_context_name, mode_of_inheritance, penetrance
-FROM 'varcond-proposition.parquet'
-UNION ALL BY NAME
-SELECT id, type AS proposition_type, predicate,
-       subject_id AS variant_id, object_id,
-       gene_context_name, mode_of_inheritance, penetrance
-FROM 'varcustom-proposition.parquet'
-UNION ALL BY NAME
-SELECT id, type AS proposition_type, predicate,
-       subject_variant_id AS variant_id, object_tumor_type_id AS object_id,
-       gene_context_name
-FROM 'vartumor-proposition.parquet'
-UNION ALL BY NAME
-SELECT id, type AS proposition_type, predicate,
-       subject_variant_id AS variant_id,
-       regexp_replace(trim(object_therapy, '"'), '^#/[A-Za-z]+/', '') AS object_id,   -- pointer -> bare id
-       gene_context_name, condition_qualifier_id
-FROM 'vartherapy-proposition.parquet';
+       subject_variant_id AS variant_id, object_id, object_type,
+       gene_context_name, gene_context_id, mode_of_inheritance, penetrance, condition_qualifier_id
+FROM read_parquet('proposition*.parquet');
 
 -- 2. SCV statements with their proposition's subject, object and qualifiers inlined,
 --    sorted by variant so a lookup by variant touches one small slice of the table.
 CREATE OR REPLACE TABLE scv_by_variant AS
-SELECT p.variant_id, p.object_id, p.proposition_type, p.predicate,
-       p.gene_context_name, p.mode_of_inheritance, p.penetrance, p.condition_qualifier_id,
+SELECT p.variant_id, p.object_id, p.object_type, p.proposition_type, p.predicate,
+       p.gene_context_name, p.gene_context_id, p.mode_of_inheritance, p.penetrance, p.condition_qualifier_id,
        s.id                     AS scv_id,
        s.classification.name    AS classification,
        s.quality.name           AS submission_level,
@@ -195,7 +183,7 @@ A materialized table can go back out as Parquet. Because the rows are sorted by 
 COPY scv_by_variant TO 'scv_by_variant.parquet' (FORMAT parquet);
 ```
 
-The result is about **107 MB**, versus 3.1 GB for `scv.parquet`. A `WHERE variant_id = 'clinvar:10'` lookup reads **1 of its 55 row groups**. The same layout is what would make per-variant queries practical over the network, where every row group read is a request.
+The result is about **107 MB**, versus 3.2 GB for `scv.parquet`. A `WHERE variant_id = 'clinvar:10'` lookup reads **1 of its 55 row groups**. The same layout is what would make per-variant queries practical over the network, where every row group read is a request.
 
 ## Errors that look worse than they are { #confusing-errors }
 

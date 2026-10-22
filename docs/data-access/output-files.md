@@ -1,6 +1,6 @@
 # Output File
 
-ClinVar-GKM is published as **gzip-compressed JSON files** in the bundle format — a **monthly full bundle** containing all data for a release, plus a **weekly delta** carrying only the records changed since the prior release. Typed **Parquet files** (one per bundle section) accompany both for analytical workloads.
+ClinVar-GKM is published as **gzip-compressed JSON files** in the bundle format — a **monthly full bundle** and **weekly full bundles** containing all data for a release, plus a **weekly delta** carrying only the records changed since the prior release. For analytical workloads, one set of typed **Parquet files** (one per bundle section) is derived from the newest release, published under `v1/1.1/parquet/` and rebuilt every release; deltas have no Parquet. See [Parquet Files](parquet.md).
 
 ---
 
@@ -26,38 +26,53 @@ See [Output Format](../output-reference/overview.md) for the full bundle structu
 
 ### Latest Release
 
-!!! warning "The monthly full is a month-start baseline, not the current week"
-    `clinvar-gkm_00-latest.json.gz` reflects the **last release of the _previous_ month** — e.g. the `2026-10` full is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. It does **not** include the current month's weekly changes. To get the current weekly state, apply the latest delta on top of it — see the [Consumer Replay Model](weekly-deltas.md#consumer-replay-model).
+!!! tip "Monthly full or weekly full?"
+    `clinvar-gkm_00-latest.json.gz` reflects the **last release of the _previous_ month** — e.g. the `2026-10` monthly is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. For the current week, use `clinvar-gkm_00-latest_weekly.json.gz` — see [Weekly Full Bundles](weekly-full.md).
 
-Stable filenames that always point to the most recent full and delta:
+Stable filenames that always point to the newest official monthly and the newest weekly full:
 
 ```text
-clinvar-gkm_00-latest.json.gz               (latest monthly full)
-clinvar-gkm-delta_00-latest.json.gz         (latest weekly delta)
+clinvar-gkm_00-latest.json.gz               (newest official monthly)
+weekly/clinvar-gkm_00-latest_weekly.json.gz (newest weekly full)
 ```
 
-The `00-` prefix ensures these sort before dated files in directory listings.
+The `00-` prefix ensures these sort before dated files in directory listings, as in NCBI's `ClinVarVCVRelease_00-latest.xml.gz`.
 
 ### Monthly Full Bundles
 
-Monthly full bundles include the year and month:
+Official monthly full bundles include the year and month:
 
 ```text
-datasets/clinvar-gkm_yyyy-mm.json.gz
+clinvar-gkm_yyyy-mm.json.gz                 (current year, at the top of the line folder)
+archive/yyyy/clinvar-gkm_yyyy-mm.json.gz    (prior years)
 ```
 
-For example, `clinvar-gkm_2026-06.json.gz` for the June 2026 release.
+For example, `clinvar-gkm_2026-10.json.gz` for ClinVar's October 2026 monthly release.
+
+### Weekly Full Bundles
+
+Weekly full bundles include the ClinVar release year, month, and day, and are kept for the current month only:
+
+```text
+weekly/clinvar-gkm_yyyy-mmdd.json.gz
+```
+
+For example, `weekly/clinvar-gkm_2026-1018.json.gz` for the October 18, 2026 release.
 
 ### Weekly Deltas
 
-Each weekly delta lives in a release directory named with the ClinVar release year, month, and day:
+Each weekly delta is a bundle and a manifest named with the ClinVar release year, month, and day:
 
 ```text
-deltas/yyyy-mmdd/clinvar-gkm-delta_yyyy-mmdd.json.gz
-deltas/yyyy-mmdd/manifest.json
+deltas/clinvar-gkm-delta_yyyy-mmdd.json.gz          (current month)
+deltas/clinvar-gkm-delta_yyyy-mmdd.manifest.json
+deltas/yyyy-mm/clinvar-gkm-delta_yyyy-mmdd.*        (earlier months of the current year)
+archive/yyyy/deltas/yyyy-mm/clinvar-gkm-delta_*     (prior years)
 ```
 
-For example, `deltas/2026-0614/clinvar-gkm-delta_2026-0614.json.gz` for the June 14, 2026 release. The delta bundle carries only added and updated records; deletes and per-section change counts are recorded in the accompanying `manifest.json`. See [Weekly Deltas](weekly-deltas.md) for the delta model and consumer replay example.
+For example, `deltas/clinvar-gkm-delta_2026-1018.json.gz` for the October 18, 2026 release, which moves to `deltas/2026-10/` when November's first release is published. The delta bundle carries only added and updated records; deletes and per-section change counts are recorded in the accompanying manifest. See [Weekly Deltas](weekly-deltas.md) for the delta model and replay recipe.
+
+Every bundle has a `<file>.sha256` sidecar. All paths are relative to the line folder, `https://data.clinvar-gkm.org/v1/1.1/`.
 
 ---
 
@@ -121,10 +136,10 @@ Each release file contains the following bundle sections:
 | `therapy` | Drug therapies (content-addressed, referenced by therapeutic propositions) |
 | `therapyGroup` | Combination (multi-drug) therapy groups |
 | `submitter` | Submitting organizations |
-| `varcond-proposition` | Classification propositions, variant×condition (SCV, VCV, RCV) |
-| `vartumor-proposition` | Classification propositions, variant×tumorType (Oncogenicity) |
-| `vartherapy-proposition` | Classification propositions, variant×therapy (TherapeuticResponse) |
-| `varcustom-proposition` | Classification propositions, custom variant×condition (the 10 `Clinvar*` types) |
+| `propositionPathogenicity` | Pathogenicity propositions (germline; SCV, VCV, RCV) |
+| `propositionOncogenicity` | Oncogenicity propositions (SCV, VCV, RCV) |
+| `propositionSomaticClinicalImpact` | Somatic clinical impact propositions: Clinical Significance (SCV, VCV, RCV), and the Diagnostic, Prognostic and Therapeutic Response propositions that SCV evidence lines target |
+| `propositionClinvarCustom` | ClinVar custom propositions: the 9 `Clinvar*` types plus `ClinvarUndefinedProposition` (SCV, VCV, RCV) |
 | `evidenceLine` | Evidence lines (SCV, VCV, and RCV) |
 | `scv` | Submitted classification statements |
 | `vcv` | Variation-level aggregate statements |
