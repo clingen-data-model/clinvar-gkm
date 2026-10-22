@@ -83,8 +83,8 @@
       "primaryCoding": {
         "code": "CN230736",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/CN230736",
-          "https://identifiers.org/medgen:CN230736"
+          "https://identifiers.org/medgen:CN230736",
+          "https://www.ncbi.nlm.nih.gov/medgen/CN230736"
         ],
         "name": "Cardiovascular phenotype",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"

@@ -99,6 +99,12 @@
   "proposition": {
     "geneContextQualifier": {
       "conceptType": "gene",
+      "extensions": [
+        {
+          "name": "geneContextSource",
+          "value": "inferredFromVariant"
+        }
+      ],
       "mappings": [
         {
           "coding": {
@@ -135,12 +141,12 @@
       "mappings": [
         {
           "coding": {
-            "code": "521",
+            "code": "0005506",
             "iris": [
-              "https://identifiers.org/orphanet:521",
-              "http://www.orpha.net/ORDO/Orphanet_521"
+              "http://purl.obolibrary.org/obo/HP_0005506",
+              "https://identifiers.org/HP:0005506"
             ],
-            "system": "https://www.orpha.net/"
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
@@ -159,8 +165,8 @@
           "coding": {
             "code": "0011996",
             "iris": [
-              "https://identifiers.org/mondo:0011996",
-              "http://purl.obolibrary.org/obo/MONDO_0011996"
+              "http://purl.obolibrary.org/obo/MONDO_0011996",
+              "https://identifiers.org/mondo:0011996"
             ],
             "system": "https://mondo.monarchinitiative.org/"
           },
@@ -170,8 +176,8 @@
           "coding": {
             "code": "608232",
             "iris": [
-              "https://www.omim.org/entry/608232",
-              "https://identifiers.org/mim:608232"
+              "https://identifiers.org/mim:608232",
+              "https://www.omim.org/entry/608232"
             ],
             "system": "https://www.omim.org/"
           },
@@ -179,12 +185,12 @@
         },
         {
           "coding": {
-            "code": "0005506",
+            "code": "521",
             "iris": [
-              "https://identifiers.org/HP:0005506",
-              "http://purl.obolibrary.org/obo/HP_0005506"
+              "http://www.orpha.net/ORDO/Orphanet_521",
+              "https://identifiers.org/orphanet:521"
             ],
-            "system": "https://hpo.jax.org/"
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         }
@@ -193,8 +199,8 @@
       "primaryCoding": {
         "code": "C0279543",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C0279543",
-          "https://identifiers.org/medgen:C0279543"
+          "https://identifiers.org/medgen:C0279543",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0279543"
         ],
         "name": "Chronic myeloid leukemia",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"

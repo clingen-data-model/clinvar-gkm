@@ -74,8 +74,27 @@
     "id": "VCV000007105-G-DR",
     "object": {
       "concepts": [
-        "clinvar.trait:36871",
-        "clinvar.trait:61004"
+        {
+          "conceptType": "Condition",
+          "id": "clinvar.trait:36871",
+          "name": "ivacaftor / lumacaftor response - Efficacy",
+          "primaryCoding": {
+            "code": "CN322746",
+            "iris": [
+              "https://identifiers.org/medgen:CN322746",
+              "https://www.ncbi.nlm.nih.gov/medgen/CN322746"
+            ],
+            "name": "ivacaftor / lumacaftor response - Efficacy",
+            "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+          },
+          "type": "MappableConcept"
+        },
+        {
+          "conceptType": "Condition",
+          "id": "clinvar.trait:61004",
+          "name": "ivacaftor / tezacaftor response - Efficacy",
+          "type": "MappableConcept"
+        }
       ],
       "id": "clinvar.conditionset:vcv-31b7744bc2e4d046583eb8516fd475b2",
       "membershipOperator": "OR",

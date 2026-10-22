@@ -78,8 +78,8 @@
       "primaryCoding": {
         "code": "CN322746",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/CN322746",
-          "https://identifiers.org/medgen:CN322746"
+          "https://identifiers.org/medgen:CN322746",
+          "https://www.ncbi.nlm.nih.gov/medgen/CN322746"
         ],
         "name": "ivacaftor / lumacaftor response - Efficacy",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
