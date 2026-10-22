@@ -44,3 +44,23 @@ full bundles, 16 deltas and one Parquet dataset built from 2026-10-18.
 | No null or empty values | **PASS** on all 4 monthly and 3 weekly full bundles and the 16 deltas |
 | Bundle ↔ Parquet | **PASS** for 2026-10-18: all 20 sections have equal counts and ids (0 in the bundle only, 0 in Parquet only); 183,368 sampled records' `data` equal |
 
+
+### Verification reports
+
+The strict GA4GH validation of the published files produces a stamped report for each file. Each report records:
+
+- the UTC run time;
+- the tool and schema versions;
+- the file's published URL and the sha256 of the bytes validated, checked against the published `.sha256`;
+- per section, the records and failures and the schema those records are validated against;
+- every check, and any warnings.
+
+The 1.1.0 reports are attached to the [1.1.0 GitHub Release](https://github.com/clingen-data-model/clinvar-gkm/releases/tag/1.1.0):
+
+| File | Result | Report |
+| --- | --- | --- |
+| `weekly/clinvar-gkm_2026-1018.json.gz` (the newest full bundle) | **PASS**: 91,491,982 records in 20 sections, 0 failing | [Markdown](https://github.com/clingen-data-model/clinvar-gkm/releases/download/1.1.0/clinvar-gkm_2026-1018.validation.md) · [JSON](https://github.com/clingen-data-model/clinvar-gkm/releases/download/1.1.0/clinvar-gkm_2026-1018.validation.json) |
+| `deltas/clinvar-gkm-delta_2026-1018.json.gz` | **PASS**: 215,170 records in 15 sections, 0 failing | [Markdown](https://github.com/clingen-data-model/clinvar-gkm/releases/download/1.1.0/clinvar-gkm-delta_2026-1018.validation.md) · [JSON](https://github.com/clingen-data-model/clinvar-gkm/releases/download/1.1.0/clinvar-gkm-delta_2026-1018.validation.json) |
+
+Reports for the other full bundles and deltas will be added as they are produced. The report option is being
+contributed to the GA4GH GKM Toolkit ([ga4gh/gkm-starter-kit#128](https://github.com/ga4gh/gkm-starter-kit/pull/128)).
