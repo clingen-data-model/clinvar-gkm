@@ -4409,17 +4409,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#path-allowlist-rule-security-waf-custom-rules" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Path allowlist rule (Security → WAF → Custom rules)
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#spend-alert-and-kill-switch" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -4669,22 +4658,6 @@ only — real exposure is pennies (free egress + $0.36 / million Class B, 10M/mo
 spend cap</strong>. An account-wide <strong>budget alert at $10/month</strong> is configured (Manage Account → Billing → Billable
 Usage → budget alert; email only, it does not pause usage). R2-specific Usage Based Billing alerts
 (Alerts → Overview → Add) may need a paid plan.</p>
-<h3 id="path-allowlist-rule-security-waf-custom-rules">Path allowlist rule (Security → WAF → Custom rules)<a class="headerlink" href="#path-allowlist-rule-security-waf-custom-rules" title="Permanent link">&para;</a></h3>
-<p>Added 2026-10-18, active:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Name:  PATH ALLOWLIST - block requests outside published data paths
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>When:  http.host eq "data.clinvar-gkm.org" and not (
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>         starts_with(path, "/v1/") or starts_with(path, "/archive/") or
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>         starts_with(path, "/.well-known/") or path in {"/" "/index.json"})
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>Then:  Block
-</code></pre></div>
-<p>Scanners probe hostnames for paths such as <code>/wp-config.php</code>, <code>/.git/config</code> and <code>/actuator/health</code> (about
-1,600 such requests in the first four days). This rule blocks them at the edge with a 403, before they reach
-R2, so they cost no Class B operations. Unlike Browser Integrity Check, which is <strong>off</strong> for this zone because
-it rejected Python's default <code>urllib</code> user agent (HTTP 403, error 1010), it cannot be bypassed by faking a
-header. Tested on 2026-10-18:
-- index files, bundles, Parquet (including 206 range reads), the archive and CORS preflight are served;
-- scanner paths, stray documentation-site paths and the retired flat-root <code>/datasets/…</code> return 403.</p>
-<p><strong>When a new top-level path is published, add it to the rule.</strong></p>
 <h3 id="spend-alert-and-kill-switch">Spend alert and kill switch<a class="headerlink" href="#spend-alert-and-kill-switch" title="Permanent link">&para;</a></h3>
 <p>R2 has no hard spend cap and the budget alert only emails, so pausing is manual. What can grow the bill:
 Class B reads that miss the cache (mostly range requests on files over 512 MB, which always go to R2), our
@@ -4696,9 +4669,9 @@ own writes (Class A) and storage. Egress is $0.</p>
    Security → Events / Analytics (top IPs, ASNs, paths). If it is one client or network, block only that
    with a WAF custom rule on <code>ip.src</code> or <code>ip.geoip.asnum</code>.</li>
 <li><strong>Pause all public reads with one command:</strong>
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>./src/scripts/cdn-kill-switch.sh<span class="w"> </span>on<span class="w">       </span><span class="c1"># block every request to data.clinvar-gkm.org at the edge</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>./src/scripts/cdn-kill-switch.sh<span class="w"> </span>status<span class="w">   </span><span class="c1"># rule state + a probe of /v1/index.json (403 = blocked)</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>./src/scripts/cdn-kill-switch.sh<span class="w"> </span>off<span class="w">      </span><span class="c1"># restore service</span>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>./src/scripts/cdn-kill-switch.sh<span class="w"> </span>on<span class="w">       </span><span class="c1"># block every request to data.clinvar-gkm.org at the edge</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>./src/scripts/cdn-kill-switch.sh<span class="w"> </span>status<span class="w">   </span><span class="c1"># rule state + a probe of /v1/index.json (403 = blocked)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>./src/scripts/cdn-kill-switch.sh<span class="w"> </span>off<span class="w">      </span><span class="c1"># restore service</span>
 </code></pre></div>
    It flips one WAF custom rule ("KILL SWITCH - block all public data"); cached hits are blocked too, so
    nothing reaches R2. Nothing in R2 changes. It needs <code>CF_ZONE_ID</code> and <code>CF_WAF_TOKEN</code> in
@@ -4726,17 +4699,17 @@ dated path(s) just written:</p>
 </ul>
 <p><code>--purge</code> requires a <strong>zone-scoped</strong> Cloudflare API token with <strong>Cache Purge</strong> permission (the object-scoped
 <code>r2</code> token cannot purge), plus the zone id:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CF_ZONE_ID</span><span class="o">=</span>&lt;clinvar-gkm.org<span class="w"> </span>zone<span class="w"> </span>id&gt;
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CF_PURGE_TOKEN</span><span class="o">=</span>&lt;zone-scoped<span class="w"> </span>token<span class="w"> </span>with<span class="w"> </span>Cache<span class="w"> </span>Purge&gt;
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>./upload-gkm-delta-to-r2.sh<span class="w"> </span><span class="m">2026</span>-07-06<span class="w"> </span>delta.json.gz<span class="w"> </span>manifest.json<span class="w"> </span>--purge
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CF_ZONE_ID</span><span class="o">=</span>&lt;clinvar-gkm.org<span class="w"> </span>zone<span class="w"> </span>id&gt;
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CF_PURGE_TOKEN</span><span class="o">=</span>&lt;zone-scoped<span class="w"> </span>token<span class="w"> </span>with<span class="w"> </span>Cache<span class="w"> </span>Purge&gt;
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>./upload-gkm-delta-to-r2.sh<span class="w"> </span><span class="m">2026</span>-07-06<span class="w"> </span>delta.json.gz<span class="w"> </span>manifest.json<span class="w"> </span>--purge
 </code></pre></div>
 <p>Without <code>--purge</code> nothing changes (routine behavior). With <code>--purge</code> but no token, the script <strong>warns and
 skips</strong> (non-fatal). Overridable host via <code>CF_PUBLIC_HOST</code> (default <code>data.clinvar-gkm.org</code>). All purge
 methods (URL, prefix, hostname, tag, everything) are available on all plans since 2025-04. Manual
 equivalent:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"https://api.cloudflare.com/client/v4/zones/</span><span class="si">${</span><span class="nv">CF_ZONE_ID</span><span class="si">}</span><span class="s2">/purge_cache"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer </span><span class="si">${</span><span class="nv">CF_PURGE_TOKEN</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span>--data<span class="w"> </span><span class="s1">'{"prefixes":["data.clinvar-gkm.org/v1/datasets/"]}'</span><span class="w">   </span><span class="c1"># or {"purge_everything":true}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"https://api.cloudflare.com/client/v4/zones/</span><span class="si">${</span><span class="nv">CF_ZONE_ID</span><span class="si">}</span><span class="s2">/purge_cache"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer </span><span class="si">${</span><span class="nv">CF_PURGE_TOKEN</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span>--data<span class="w"> </span><span class="s1">'{"prefixes":["data.clinvar-gkm.org/v1/datasets/"]}'</span><span class="w">   </span><span class="c1"># or {"purge_everything":true}</span>
 </code></pre></div></p>
 <h3 id="cors">CORS<a class="headerlink" href="#cors" title="Permanent link">&para;</a></h3>
 <p>Bucket CORS is applied out-of-band (<code>apply-r2-cors.sh</code> with an admin token, or the dashboard; policy in
