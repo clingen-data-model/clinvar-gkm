@@ -181,20 +181,45 @@
     });
   }
 
+  // Deltas by year, not by bucket folder: the current year (the newest delta's year) open, then an
+  // "Archived years" group with one collapsible list per earlier year. Newest first everywhere; links use
+  // each file's own path, so month and year rollovers never break them.
+  function deltaRow(d) {
+    var size = d.bundle && d.bundle.size, path = deltaBundlePath(d);
+    return el("div", { className: "r2-file" }, [
+      el("a", { href: url(path), text: baseName(path) }),
+      size ? meta(formatSize(size)) : null,
+      d.manifest ? el("span", { className: "r2-size" }, [el("a", { href: url(d.manifest), text: "manifest" })]) : null,
+      dateBadge(d.modified)
+    ]);
+  }
+  function count(n) { return meta(n + (n === 1 ? " delta" : " deltas")); }
+
   function renderDeltas(mount, list) {
-    byFolder(list, deltaBundlePath).forEach(function (g, i) {
-      var f = folder(relDir(g.dir), i === 0);
-      g.items.slice().sort(function (a, b) { return b.release.localeCompare(a.release); }).forEach(function (d) {
-        var size = d.bundle && d.bundle.size;
-        f.appendChild(el("div", { className: "r2-file" }, [
-          el("a", { href: url(deltaBundlePath(d)), text: d.release }),
-          size ? meta(formatSize(size)) : null,
-          d.manifest ? el("span", { className: "r2-size" }, [el("a", { href: url(d.manifest), text: "manifest" })]) : null,
-          dateBadge(d.modified)
-        ]));
-      });
-      mount.appendChild(f);
+    if (!list.length) { mount.appendChild(el("div", { className: "r2-file", text: "No weekly deltas listed yet." })); return; }
+    var years = {};
+    list.forEach(function (d) { var y = String(d.release).slice(0, 4); (years[y] = years[y] || []).push(d); });
+    var order = Object.keys(years).sort().reverse(), current = order[0];
+    var newest = function (a, b) { return b.release.localeCompare(a.release); };
+
+    var cur = folder(current + " (current year)", true, count(years[current].length));
+    years[current].slice().sort(newest).forEach(function (d) { cur.appendChild(deltaRow(d)); });
+    mount.appendChild(cur);
+
+    var past = order.slice(1);
+    var arch = folder("Archived years", false,
+      meta(past.length ? past.length + (past.length === 1 ? " year" : " years") : "none yet"));
+    if (!past.length) {
+      arch.appendChild(el("div", { className: "r2-file",
+        text: "None yet. When the first release of a new year is published, the previous year's deltas move to archive/YYYY/deltas/." }));
+    }
+    past.forEach(function (y) {
+      var f = folder(y, false, count(years[y].length));
+      f.className += " r2-year";
+      years[y].slice().sort(newest).forEach(function (d) { f.appendChild(deltaRow(d)); });
+      arch.appendChild(f);
     });
+    mount.appendChild(arch);
   }
 
   // The one published Parquet dataset: derived from the bundle and overwritten every release.

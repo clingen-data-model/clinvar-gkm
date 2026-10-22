@@ -4,6 +4,8 @@ Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-f
 
 <div class="r2-browser" data-r2-type="deltas"></div>
 
+The list groups deltas by year, newest first: the current year is open, and each earlier year is a collapsible list under **Archived years**.
+
 A weekly delta is published for every ClinVar release. Each delta is a bundle, its `.sha256` checksum and its manifest. The current month's deltas sit directly in `v1/1.1/deltas/`; earlier months of the year are in `deltas/YYYY-MM/`, and prior years in `archive/YYYY/deltas/YYYY-MM/`:
 
 ```text
