@@ -159,6 +159,28 @@ spend cap**. An account-wide **budget alert at $10/month** is configured (Manage
 Usage → budget alert; email only, it does not pause usage). R2-specific Usage Based Billing alerts
 (Alerts → Overview → Add) may need a paid plan.
 
+### Path allowlist rule (Security → WAF → Custom rules)
+
+Added 2026-10-18, active:
+
+```
+Name:  PATH ALLOWLIST - block requests outside published data paths
+When:  http.host eq "data.clinvar-gkm.org" and not (
+         starts_with(path, "/v1/") or starts_with(path, "/archive/") or
+         starts_with(path, "/.well-known/") or path in {"/" "/index.json"})
+Then:  Block
+```
+
+Scanners probe hostnames for paths such as `/wp-config.php`, `/.git/config` and `/actuator/health` (about
+1,600 such requests in the first four days). This rule blocks them at the edge with a 403, before they reach
+R2, so they cost no Class B operations. Unlike Browser Integrity Check, which is **off** for this zone because
+it rejected Python's default `urllib` user agent (HTTP 403, error 1010), it cannot be bypassed by faking a
+header. Tested on 2026-10-18:
+- index files, bundles, Parquet (including 206 range reads), the archive and CORS preflight are served;
+- scanner paths, stray documentation-site paths and the retired flat-root `/datasets/…` return 403.
+
+**When a new top-level path is published, add it to the rule.**
+
 ### Spend alert and kill switch
 
 R2 has no hard spend cap and the budget alert only emails, so pausing is manual. What can grow the bill:
