@@ -202,4 +202,4 @@ See the [Pipeline Overview](pipeline/index.md) for the full workflow.
 
 ## License
 
-This project is licensed under [CC0 1.0 Universal](https://github.com/clingen-data-model/clinvar-gkm/blob/main/LICENSE) (public domain dedication). The output data carries the same terms as the source ClinVar data.
+The code and the published data — the transformed bundles and Parquet files — are released under [CC0 1.0 Universal](https://github.com/clingen-data-model/clinvar-gkm/blob/main/LICENSE) (public domain dedication). The underlying ClinVar data comes from NCBI; see ClinVar's [disclaimer and data use policy](https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/#disclaimer).

@@ -91,4 +91,4 @@ See [CITATION.cff](CITATION.cff) for machine-readable citation metadata.
 
 ## License
 
-This project is licensed under [CC0 1.0 Universal](LICENSE) (public domain dedication), covering both the code and data outputs. This aligns with FAIR data principles and common practices in the genomics and bioinformatics community.
+This project is licensed under [CC0 1.0 Universal](LICENSE) (public domain dedication), covering both the code and the published data (the transformed bundles and Parquet files). The underlying ClinVar data comes from NCBI; see ClinVar's [disclaimer and data use policy](https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/#disclaimer). CC0 aligns with FAIR data principles and common practices in the genomics and bioinformatics community.
