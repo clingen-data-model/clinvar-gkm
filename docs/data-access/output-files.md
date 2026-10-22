@@ -1,6 +1,6 @@
 # Output File
 
-ClinVar-GKM is published as **gzip-compressed JSON files** in the bundle format — a **monthly full bundle** containing all data for a release, plus a **weekly delta** carrying only the records changed since the prior release. Typed **Parquet files** (one per bundle section) accompany both for analytical workloads.
+ClinVar-GKM is published as **gzip-compressed JSON files** in the bundle format — a **monthly full bundle** and **weekly full bundles** containing all data for a release, plus a **weekly delta** carrying only the records changed since the prior release. For analytical workloads, one set of typed **Parquet files** (one per bundle section) is derived from the newest release, published under `v1/1.1/parquet/` and rebuilt every release; deltas have no Parquet. See [Parquet Files](parquet.md).
 
 ---
 
