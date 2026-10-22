@@ -361,8 +361,9 @@ WITH set_names AS (
 )
 SELECT DISTINCT p.object_id, coalesce(c.name, sn.member_names) AS condition
 FROM 'propositionPathogenicity.parquet' p
-LEFT JOIN 'condition.parquet' c  ON p.object_type = 'condition'    AND c.id  = p.object_id
-LEFT JOIN set_names           sn ON p.object_type = 'conditionSet' AND sn.id = p.object_id
+<span class="c">-- CASE keeps each join an equi-join (fast); an AND in ON plans a nested loop</span>
+LEFT JOIN 'condition.parquet' c  ON c.id  = CASE WHEN p.object_type = 'condition'    THEN p.object_id END
+LEFT JOIN set_names           sn ON sn.id = CASE WHEN p.object_type = 'conditionSet' THEN p.object_id END
 WHERE p.subject_variant_id = 'clinvar:51592'            -- NM_000059.4(BRCA2):c.4090A>C
   AND coalesce(c.name, sn.member_names) IS NOT NULL
 ORDER BY condition LIMIT 12;</pre>

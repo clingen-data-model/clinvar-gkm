@@ -43,7 +43,8 @@ This scans every variant's HGVS list: about **4.5 s** and **1.4 GB**. For a GRCh
 ```sql
 SELECT v.id, v.name
 FROM 'allele.parquet' a
-JOIN 'variation.parquet' v ON list_contains(v.members, a.id)
+JOIN (SELECT id, name, unnest(members) AS member FROM 'variation.parquet') v
+     ON v.member = a.id                   -- an equality join; list_contains() in ON plans a nested loop
 WHERE a.name = 'NC_000013.11:g.32338445A>C';
 ```
 
@@ -179,13 +180,19 @@ Every variant with a submission for one condition, with how submitters classifie
 WITH target AS (
   SELECT id FROM 'condition.parquet' WHERE name = 'Marfan syndrome'          -- <- your condition
 ),
+members AS (                      -- one row per (condition set, member id)
+  SELECT cs.id AS set_id, cid AS member_id
+  FROM 'conditionSet.parquet' cs, unnest(cs.concepts) AS t(cid)
+),
+sets AS (                         -- the sets that list the condition directly
+  SELECT m.set_id AS id FROM members m JOIN target ON target.id = m.member_id
+),
 objects AS (                      -- the condition itself, plus every set that contains it (one level of nesting)
   SELECT id FROM target
   UNION
-  SELECT cs.id FROM 'conditionSet.parquet' cs
-  WHERE list_has_any(cs.concepts, (SELECT list(id) FROM target))
-     OR list_has_any(cs.concepts, (SELECT list(ts.id) FROM 'conditionSet.parquet' ts
-                                    WHERE list_has_any(ts.concepts, (SELECT list(id) FROM target))))
+  SELECT id FROM sets
+  UNION
+  SELECT m.set_id FROM members m JOIN sets ON sets.id = m.member_id
 ),
 prop AS (
   SELECT id, subject_variant_id AS variant_id, object_id FROM read_parquet('proposition*.parquet')
@@ -337,15 +344,16 @@ The query matches on the span each variant **certainly** covers. To include ever
 ClinVar's germline pathogenicity call for every variant in a gene. Genes come from the variant's ClinVar gene list (`ncbigene:` ids), not the free-text `gene_context_name`, which [isn't a reliable gene join](joining.md#joins-that-lie).
 
 ```sql
-WITH v AS (
-  SELECT id
-  FROM 'variation.parquet'
-  WHERE list_contains(
-          flatten([[replace(g.gene, '#/gene/', '') FOR g IN e.value_gene_array   -- bare ncbigene: id
-                    IF g.relationship_type IN ('within single gene', 'within multiple genes by overlap',
-                                               'asserted, but not computed')]
-                   FOR e IN extensions IF e.name = 'clinvarGeneList']),
-          (SELECT id FROM 'gene.parquet' WHERE name = 'MYH7'))                 -- <- your gene symbol
+WITH v AS (                       -- variants whose ClinVar gene list names the gene
+  SELECT x.id
+  FROM (SELECT id,
+               unnest(flatten([[replace(g.gene, '#/gene/', '') FOR g IN e.value_gene_array   -- bare ncbigene: id
+                                IF g.relationship_type IN ('within single gene', 'within multiple genes by overlap',
+                                                           'asserted, but not computed')]
+                               FOR e IN extensions IF e.name = 'clinvarGeneList'])) AS gene_id
+        FROM 'variation.parquet') x
+  JOIN 'gene.parquet' gene ON gene.id = x.gene_id      -- an equality join, so DuckDB plans a fast hash join
+  WHERE gene.name = 'MYH7'                                                    -- <- your gene symbol
 )
 SELECT classification.name AS clinvar_call, count(*) AS variants
 FROM 'vcv.parquet'
@@ -377,15 +385,16 @@ The gene filter from the rollup, joined to the PubMed query:
 
 ```sql
 WITH v AS (                                  -- variants whose ClinVar gene list names the gene
-  SELECT id, name
-  FROM 'variation.parquet'
-  WHERE list_contains(
-          flatten([[replace(g.gene, '#/gene/', '') FOR g IN e.value_gene_array   -- bare ncbigene: id
-                    -- drop large CNVs that merely overlap the gene, and near-gene variants:
-                    IF g.relationship_type IN ('within single gene', 'within multiple genes by overlap',
-                                               'asserted, but not computed')]
-                   FOR e IN extensions IF e.name = 'clinvarGeneList']),
-          (SELECT id FROM 'gene.parquet' WHERE name = 'MYH7'))                 -- <- your gene symbol
+  SELECT x.id, x.name
+  FROM (SELECT id, name,
+               unnest(flatten([[replace(g.gene, '#/gene/', '') FOR g IN e.value_gene_array   -- bare ncbigene: id
+                                -- drop large CNVs that merely overlap the gene, and near-gene variants:
+                                IF g.relationship_type IN ('within single gene', 'within multiple genes by overlap',
+                                                           'asserted, but not computed')]
+                               FOR e IN extensions IF e.name = 'clinvarGeneList'])) AS gene_id
+        FROM 'variation.parquet') x
+  JOIN 'gene.parquet' gene ON gene.id = x.gene_id      -- an equality join, so DuckDB plans a fast hash join
+  WHERE gene.name = 'MYH7'                                                     -- <- your gene symbol
 ),
 prop AS (
   SELECT id, subject_variant_id AS variant_id FROM read_parquet('proposition*.parquet')

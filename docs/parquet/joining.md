@@ -60,8 +60,9 @@ WITH set_names AS (
 SELECT DISTINCT p.object_id, p.object_type,
     coalesce(c.name, sn.member_names, 'UNRESOLVED') AS condition_name
 FROM 'propositionPathogenicity.parquet' p
-LEFT JOIN 'condition.parquet' c  ON p.object_type = 'condition'    AND c.id  = p.object_id
-LEFT JOIN set_names           sn ON p.object_type = 'conditionSet' AND sn.id = p.object_id
+-- CASE keeps each join an equi-join (fast); an AND in ON plans a nested loop
+LEFT JOIN 'condition.parquet' c  ON c.id  = CASE WHEN p.object_type = 'condition'    THEN p.object_id END
+LEFT JOIN set_names           sn ON sn.id = CASE WHEN p.object_type = 'conditionSet' THEN p.object_id END
 WHERE p.object_id IN (
     'clinvar.trait:16789', 'clinvar.traitset:10013',
     'clinvar.conditionset:vcv-c620785e2025efde81bdd15c814fa83d')

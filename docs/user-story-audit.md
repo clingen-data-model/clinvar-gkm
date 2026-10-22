@@ -90,8 +90,8 @@ WITH mine AS (
       WHERE c.activityType = 'evaluated')      AS last_evaluated
   FROM 'scv.parquet' s
   JOIN read_parquet('proposition*.parquet') p ON s.proposition_id = p.id
-  LEFT JOIN 'condition.parquet' cond
-         ON p.object_type = 'condition' AND p.object_id = cond.id
+  LEFT JOIN 'condition.parquet' cond          -- CASE keeps this an equi-join (fast); an AND in ON plans a nested loop
+         ON cond.id = CASE WHEN p.object_type = 'condition' THEN p.object_id END
   WHERE list_contains(
           [c.contributor FOR c IN s.contributions],
           'clinvar.submitter:196472')

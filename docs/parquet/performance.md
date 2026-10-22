@@ -30,6 +30,10 @@ The difference is large. Finding the variants in one gene by filtering `variatio
 
 Use comprehensions rather than lambda functions (`list_filter(l, x -> …)`). DuckDB 1.5 deprecates that arrow syntax, and the replacement (`lambda x: …`) is too new for the browser console's engine. Comprehensions work in both.
 
+## Join on a plain equality { #equi-joins }
+
+DuckDB joins two big tables fast, with a **hash join**, when the `ON` clause is one equality between them. Add a second condition (`ON p.object_type = 'condition' AND c.id = p.object_id`), or join through a function (`ON list_contains(v.members, a.id)`), and DuckDB 1.5 plans a **nested-loop join** instead, which compares row against row and runs for over an hour on `propositionPathogenicity`. Fold the extra condition into the key, `ON c.id = CASE WHEN p.object_type = 'condition' THEN p.object_id END`, or `unnest` the list in a subquery and join on the plain column. [Seam B](joining.md#seam-b-proposition-condition-or-conditionset) shows the first; [Find the variant](recipes.md#find-the-variant) shows the second. Put `EXPLAIN` in front of a query to check before you run it: `HASH_JOIN` is the fast kind; `NESTED_LOOP_JOIN`, `BLOCKWISE_NL_JOIN` and `PIECEWISE_MERGE_JOIN` are the slow kinds.
+
 ## Local or remote { #local-or-remote }
 
 DuckDB reads Parquet over HTTPS with **range requests**: it fetches the file's footer first, then only the byte ranges of the row groups and columns a query needs. That makes some remote queries as cheap as local ones and others impossible:
