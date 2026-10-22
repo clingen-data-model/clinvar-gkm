@@ -30,9 +30,11 @@ url: 'https://dataexchange.clinicalgenome.org/clinvar-gkm/'
 doi: 10.5281/zenodo.18343663
 abstract: >-
   ClinVar-GKM is a data transformation pipeline that
-  converts ClinVar release data into its GA4GH GKS (Genomic
-  Knowledge Standards) equivalent. It is developed and
-  maintained by the ClinGen driver project.
+  converts ClinVar release data into the GA4GH GKM (Genomic
+  Knowledge Model) schema set: VRS, Cat-VRS and VA-Spec. It is
+  developed and maintained by the ClinGen driver project. The
+  underlying data come from NCBI's ClinVar; please also cite
+  ClinVar (see references).
 keywords:
   - ClinGen
   - ClinVar
@@ -48,5 +50,20 @@ keywords:
   - BigQuery
 license: CC0-1.0
 license-url: https://github.com/clingen-data-model/clinvar-gkm/blob/main/LICENSE
-version: 1.0.0
-date-released: '2026-10-01'
+version: 1.1.0
+date-released: '2026-10-22'
+references:
+  - type: article
+    title: 'ClinVar: updates to support classifications of both germline and somatic variants'
+    authors:
+      - family-names: Landrum
+        given-names: Melissa J.
+      - name: et al.
+    journal: Nucleic Acids Research
+    volume: 53
+    issue: D1
+    start: D1313
+    end: D1321
+    year: 2025
+    doi: 10.1093/nar/gkae1090
+    notes: 'PMID: 39578691. Cite ClinVar as the source of the underlying data.'
