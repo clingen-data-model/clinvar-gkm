@@ -1,306 +1,267 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reading-guide/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/data-access/download/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/data-use/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/data-access/monthly-full/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/stay-informed/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/data-access/weekly-deltas/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/download/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/data-access/parquet/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/monthly-full/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/data-access/release-model/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/weekly-full/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/user-story/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/weekly-deltas/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/user-story-audit/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/parquet/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/overview/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/release-model/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/cat-vrs/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/overview/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/scv-statements/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/cat-vrs/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/vcv-statements/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/scv-statements/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/rcv-statements/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/vcv-statements/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/id-references/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/rcv-statements/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/data-access/examples/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/id-references/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/examples/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/variations/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarCategoricalVariant/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/variations/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarCanonicalAllele/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarCategoricalVariant/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarCategoricalCnvChange/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarCanonicalAllele/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarCategoricalCnvCount/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarCategoricalCnvChange/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarNonConstrainedVariant/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarCategoricalCnvCount/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/HgvsListItem/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarNonConstrainedVariant/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/GeneListItem/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/HgvsListItem/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/propositions/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/GeneListItem/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarProposition/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/propositions/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarGermlineCustomProposition/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarProposition/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarGeneContextQualifier/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarGermlineCustomProposition/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarRiskFactorProposition/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarGeneContextQualifier/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarProtectiveProposition/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarRiskFactorProposition/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarDrugResponseProposition/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarProtectiveProposition/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarAffectsProposition/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarDrugResponseProposition/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarAssociationProposition/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarAffectsProposition/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarConfersSensitivityProposition/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarAssociationProposition/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarOtherProposition/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarConfersSensitivityProposition/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarNotProvidedProposition/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarOtherProposition/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarConflictingDataFromSubmitterProposition/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarNotProvidedProposition/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarUndefinedProposition/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarConflictingDataFromSubmitterProposition/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/statements/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarUndefinedProposition/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarStatement/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/statements/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarScvStatement/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarStatement/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarVcvStatement/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarScvStatement/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarRcvStatement/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarVcvStatement/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/SubmittedConditionMapping/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarRcvStatement/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/evidence/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/SubmittedConditionMapping/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/ClinvarSomaticEvidenceLine/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/evidence/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/profiles/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/ClinvarSomaticEvidenceLine/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/profiles/statement-types/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/profiles/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/profiles/classifications/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/profiles/statement-types/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/profiles/propositions/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/profiles/classifications/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/profiles/review-status/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/profiles/propositions/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/profiles/review-status/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/variation-identity/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/variation-identity/variation-loc/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/table-anatomy/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/variation-identity/variation-hgvs/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/tables/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/variation-identity/variation-xref/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/joining/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/variation-identity/variation-identity/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/recipes/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/vrs-processing/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/performance/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/cat-vrs/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/other-tools/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/cat-vrs/catvar-extensions/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/user-story/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/conditions-and-traits/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/user-story-audit/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/conditions-and-traits/condition-mapping/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/conditions-and-traits/traits/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/variation-identity/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/conditions-and-traits/condition-sets/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/variation-identity/variation-loc/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/conditions-and-traits/condition-extensions/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/variation-identity/variation-hgvs/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/scv-statements/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/variation-identity/variation-xref/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/scv-statements/scv-records/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/variation-identity/variation-identity/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/scv-statements/propositions/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/vrs-processing/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/scv-statements/final-statements/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/cat-vrs/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/scv-statements/scv-extensions/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/cat-vrs/catvar-extensions/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/vcv-statements/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/conditions-and-traits/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/vcv-statements/vcv-aggregation-rules/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/conditions-and-traits/condition-mapping/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/vcv-statements/vcv-proc/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/conditions-and-traits/traits/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/vcv-statements/vcv-extensions/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/conditions-and-traits/condition-sets/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/rcv-statements/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/conditions-and-traits/condition-extensions/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/rcv-statements/rcv-proc/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/scv-statements/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/rcv-statements/rcv-extensions/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/scv-statements/scv-records/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/export/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/scv-statements/propositions/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/pipeline/sub-bundle/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/scv-statements/final-statements/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/roadmap/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/scv-statements/scv-extensions/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/versioning/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/vcv-statements/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/changelog/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/vcv-statements/vcv-aggregation-rules/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/gks-standards/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/vcv-statements/vcv-proc/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/known-issues/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/vcv-statements/vcv-extensions/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/glossary/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/rcv-statements/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/presentations/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/rcv-statements/rcv-proc/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/presentations/clinvar-gkm-primer/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/rcv-statements/rcv-extensions/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/export/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/sub-bundle/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/roadmap/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/versioning/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/changelog/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/release-validation/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/gks-standards/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/known-issues/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/faq/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/glossary/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/presentations/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/presentations/clinvar-gkm-primer/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/presentations/clinvar-gkm-unlocks/</loc>
+        <loc>https://clingen-data-model.github.io/clinvar-gkm/reference/presentations/clinvar-gkm-unlocks/</loc>
       </url>
 </urlset>
