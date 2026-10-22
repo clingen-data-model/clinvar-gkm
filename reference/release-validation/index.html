@@ -4354,6 +4354,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1.1.0 Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verification-reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Verification reports
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -4662,6 +4679,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1.1.0 Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verification-reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Verification reports
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -4783,6 +4817,39 @@ full bundles, 16 deltas and one Parquet dataset built from 2026-10-18.</p>
 </tr>
 </tbody>
 </table>
+<h3 id="verification-reports">Verification reports<a class="headerlink" href="#verification-reports" title="Permanent link">&para;</a></h3>
+<p>The strict GA4GH validation of the published files produces a stamped report for each file. Each report records:</p>
+<ul>
+<li>the UTC run time;</li>
+<li>the tool and schema versions;</li>
+<li>the file's published URL and the sha256 of the bytes validated, checked against the published <code>.sha256</code>;</li>
+<li>per section, the records and failures and the schema those records are validated against;</li>
+<li>every check, and any warnings.</li>
+</ul>
+<p>The 1.1.0 reports are attached to the <a href="https://github.com/clingen-data-model/clinvar-gkm/releases/tag/1.1.0">1.1.0 GitHub Release</a>:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Result</th>
+<th>Report</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>weekly/clinvar-gkm_2026-1018.json.gz</code> (the newest full bundle)</td>
+<td><strong>PASS</strong>: 91,491,982 records in 20 sections, 0 failing</td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/releases/download/1.1.0/clinvar-gkm_2026-1018.validation.md">Markdown</a> · <a href="https://github.com/clingen-data-model/clinvar-gkm/releases/download/1.1.0/clinvar-gkm_2026-1018.validation.json">JSON</a></td>
+</tr>
+<tr>
+<td><code>deltas/clinvar-gkm-delta_2026-1018.json.gz</code></td>
+<td><strong>PASS</strong>: 215,170 records in 15 sections, 0 failing</td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/releases/download/1.1.0/clinvar-gkm-delta_2026-1018.validation.md">Markdown</a> · <a href="https://github.com/clingen-data-model/clinvar-gkm/releases/download/1.1.0/clinvar-gkm-delta_2026-1018.validation.json">JSON</a></td>
+</tr>
+</tbody>
+</table>
+<p>Reports for the other full bundles and deltas will be added as they are produced. The report option is being
+contributed to the GA4GH GKM Toolkit (<a href="https://github.com/ga4gh/gkm-starter-kit/pull/128">ga4gh/gkm-starter-kit#128</a>).</p>
 
 
 
