@@ -4,10 +4,22 @@
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/</loc>
       </url>
       <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reading-guide/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/data-use/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/stay-informed/</loc>
+      </url>
+      <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/download/</loc>
       </url>
       <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/monthly-full/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/weekly-full/</loc>
       </url>
       <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/weekly-deltas/</loc>
@@ -17,33 +29,6 @@
       </url>
       <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/release-model/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/table-anatomy/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/tables/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/joining/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/recipes/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/performance/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/other-tools/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/user-story/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/user-story-audit/</loc>
       </url>
       <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/overview/</loc>
@@ -175,6 +160,33 @@
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/profiles/review-status/</loc>
       </url>
       <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/table-anatomy/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/tables/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/joining/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/recipes/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/performance/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/parquet/other-tools/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/user-story/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/user-story-audit/</loc>
+      </url>
+      <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/</loc>
       </url>
       <url>
@@ -266,6 +278,9 @@
       </url>
       <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/changelog/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/release-validation/</loc>
       </url>
       <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/gks-standards/</loc>
