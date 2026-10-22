@@ -1,30 +1,28 @@
 # How to Read These Docs
 
-These docs serve three kinds of reader. Some want to understand the data, often starting from what they already know of ClinVar's website. Some want to know how ClinVar's XML becomes this format. Some are building a pipeline or an application on top of it. Find yours below, follow its path as far as you need, and use the section map to jump around.
+These docs serve three kinds of reader. Some want to understand the data, often starting from what they already know of ClinVar's website. Some want to know how ClinVar's XML becomes this format. Some are building a pipeline or an application on top of it. Find yours below, follow its path as far as you need, and use the tab map to jump around.
 
 ---
 
 ## The sections at a glance
 
-| Section | What it gives you | Read it when |
+The site has six tabs, one per reader goal:
+
+| Tab | What it gives you | Read it when |
 | --- | --- | --- |
-| [Home](index.md) | What ClinVar-GKM is, the key concepts, and a first download | You are new to the project |
-| [Data Use and Citation](data-use.md) | The ClinVar disclaimer, how to cite ClinVar and ClinVar-GKM, the license, and what to carry when you redistribute | Before you use, publish or share the data |
-| [Downloads](data-access/download.md) | The files: monthly and weekly full bundles, weekly deltas, Parquet, and [how releases work](data-access/release-model.md) | You need the data, or need to keep a copy current |
-| [Query the Data](parquet/index.md) | The 22 Parquet tables, a browser query console, joins, recipes, and working at scale | You prefer SQL and tables to JSON |
-| [User Stories](user-story.md) | Two end-to-end worked problems | You want to see the data used for a real task |
-| [Data Guide](output-reference/overview.md) | What each part of the bundle means: variations, SCV, VCV and RCV statements, ID references, and annotated examples | You want to understand the data itself |
-| [Data Model](output-reference/classes/index.md) | Every class and field, generated from the schemas, plus the [profiles](profiles/index.md) that map ClinVar's statement types, classifications and review status | You need exact field definitions or validation rules |
-| [Pipeline](pipeline/index.md) | Each step from ClinVar's XML to the published bundle | You want to know how a value was produced |
+| [Home](index.md) | What ClinVar-GKM is and its key concepts, plus this guide, [Data Use and Citation](data-use.md) (the ClinVar disclaimer, how to cite, the license) and [Stay Informed](stay-informed.md) (the announcement list) | You are new to the project, or about to use, publish or share the data |
+| [Get the Data](data-access/download.md) | The files: monthly and weekly full bundles, weekly deltas, Parquet, and [how releases work](data-access/release-model.md) | You need the data, or need to keep a copy current |
+| [Understand the Data](output-reference/overview.md) | What each part of the bundle means: variations, SCV, VCV and RCV statements, ID references and annotated examples. Also the [Data Model](output-reference/classes/index.md), every class and field generated from the schemas, and [Mapping & Vocabularies](profiles/index.md), which maps ClinVar's statement types, classifications and review status | You want to understand the data, or need exact field definitions |
+| [Use the Data](parquet/index.md) | [Query the Data](parquet/index.md) (the 22 Parquet tables, a browser query console, joins, recipes and working at scale) and two end-to-end [User Stories](user-story.md) | You want to work with the data in SQL, or see it used for a real task |
+| [How It's Built](pipeline/index.md) | Each step from ClinVar's XML to the published bundle | You want to know how a value was produced |
 | Reference | [Versioning](reference/versioning.md), [Changelog](reference/changelog.md), [Release Validation](reference/release-validation.md), [Known Issues](reference/known-issues.md), [FAQ](reference/faq.md), [Glossary](reference/glossary.md) and more | You need what changed, what is guaranteed, or a definition |
 
-The sections build on each other:
+The tabs build on each other:
 
-- **Downloads** delivers the files.
-- The **Data Guide** explains what is in them.
-- The **Data Model** defines every field exactly.
-- **Query the Data** offers the same content as tables.
-- The **Pipeline** explains how each value was derived from ClinVar.
+- **Get the Data** delivers the files.
+- **Understand the Data** explains what is in them and defines every field exactly.
+- **Use the Data** offers the same content as tables you can query.
+- **How It's Built** explains how each value was derived from ClinVar.
 - **Reference** records what changes between releases and what each release guarantees.
 
 ---
@@ -65,7 +63,7 @@ The [Pipeline Overview](pipeline/index.md) walks the whole release. ClinVar's XM
 4. [SCV Statements](pipeline/scv-statements/index.md), then [VCV Statements](pipeline/vcv-statements/index.md) with their [aggregation rules](pipeline/vcv-statements/vcv-aggregation-rules.md), then [RCV Statements](pipeline/rcv-statements/index.md).
 5. [Export & Distribute](pipeline/export.md): bundle assembly, weekly deltas, Parquet and publication.
 
-When a value in the data surprises you, the matching pipeline step says where it came from. The [Profiles](profiles/index.md) record the mapping rules. [Release Validation](reference/release-validation.md) lists the checks every release passes before publication. Design decisions are recorded as ADRs, for example [ADR 0007](decisions/0007-pipeline-principles-and-simplification.md) on pipeline principles.
+When a value in the data surprises you, the matching pipeline step says where it came from. [Mapping & Vocabularies](profiles/index.md) records the mapping rules. [Release Validation](reference/release-validation.md) lists the checks every release passes before publication. Design decisions are recorded as ADRs, for example [ADR 0007](decisions/0007-pipeline-principles-and-simplification.md) on pipeline principles.
 
 ---
 

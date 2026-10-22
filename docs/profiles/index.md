@@ -1,6 +1,6 @@
-# Statement Profiles
+# Mapping & Vocabularies
 
-This section describes the fundamental aspects of how ClinVar data is organized and transformed into GKS standard statements within the ClinVar-GKM pipeline.
+Formerly *Statement Profiles*. This section describes the fundamental aspects of how ClinVar data is organized and transformed into GKS standard statements within the ClinVar-GKM pipeline.
 
 ## Overview
 

@@ -104,5 +104,5 @@ The SCV statements for this variant reference it via `#/variation/clinvar:10` in
 
 - [Output Format](output-reference/overview.md) — detailed guide to the bundle format
 - [Pipeline Overview](pipeline/index.md) — how the data is produced from ClinVar XML
-- [Statement Profiles](profiles/index.md) — the 14 statement types and their classifications
+- [Mapping & Vocabularies](profiles/index.md) — the 14 statement types and their classifications
 - [Examples](data-access/examples.md) — annotated JSON examples
