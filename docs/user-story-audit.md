@@ -66,9 +66,11 @@ To make this concrete, the repository ships
 **[`nch-igm-bundle.json.gz`](https://github.com/clingen-data-model/clinvar-gkm/blob/main/nch-igm-bundle.json.gz)** —
 the complete GKM extract of one real submitter, the IGM Clinical Laboratory at Nationwide Children's
 Hospital (submitter `196472`): **all 2,443 of their SCVs** plus every variation, condition, therapy,
-proposition, and submitter record those statements reference, in a single self-contained 1.4 MB file. It
-is exactly "everything one submitter has in ClinVar," and it is the shape an audit consumes. (It was
-produced with the maintainer [sub-bundle](pipeline/sub-bundle.md) tool — `sub-bundle.py --submitter 196472`.)
+proposition, and submitter record those statements reference, in a single self-contained 1.6 MB file. It
+is exactly "everything one submitter has in ClinVar," and it is the shape an audit consumes. It was
+regenerated from the 2026-10-18 release with the maintainer [sub-bundle](pipeline/sub-bundle.md) tool —
+`sub-bundle.py --submitter 196472` — so it carries the 1.1.0 proposition sections and `schema_version`
+`1.1.0`, and it passes strict GA4GH gkm-toolkit validation (6,432 records, 0 failing).
 
 For the recurring, release-over-release audit, a submitter works from the published Parquet instead. A
 single DuckDB query flags the records that need a second look:
