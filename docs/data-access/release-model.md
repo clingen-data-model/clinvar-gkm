@@ -40,4 +40,4 @@ A move changes a file's folder, never its bytes, name or checksum. Deleting the 
 
 ## Version Lines
 
-Each version line has its own folder: `v1/1.1/` for 1.1.x. A new MINOR starts `v1/1.2/` and a new MAJOR starts `v2/2.0/`. The line it replaces is frozen, with its files kept unchanged. The 1.0.1 generation is the frozen line `v1/1.0/`, with bundles and delta manifests only (no Parquet). The root `index.json` lists every line and its status; see [Versioning & Releases](../reference/versioning.md).
+Each version line has its own folder: `v1/1.1/` for 1.1.x. A PATCH release (1.1.x) only adds new dated files to `v1/1.1/`. A new MINOR — including a content-only correction that must rewrite published bundles — starts `v1/1.2/`, and a new MAJOR starts `v2/2.0/`. The line it replaces is frozen and kept indefinitely, with its files unchanged. The 1.0.1 generation is the frozen line `v1/1.0/`, with bundles and delta manifests only (no Parquet). The root `index.json` lists every line and its status; see [Versioning & Releases](../reference/versioning.md).

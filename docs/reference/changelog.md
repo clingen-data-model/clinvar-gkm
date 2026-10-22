@@ -7,9 +7,11 @@ tagged source of each.
 
 ## 1.1.0 — <!-- YYYY-MM-DD at tag --> { #110 }
 
-A **breaking** release during the [initial-stabilization period](versioning.md); see
-[ADR 0006](../decisions/0006-ship-1.1.0-in-place-under-v1.md). It reorganizes the proposition sections and
-carries a set of corrections, all delivered through one full rebuild that rewrites every published file. It is
+A **breaking** release during the
+[initial-stabilization period](versioning.md#110-and-general-availability); see
+[ADR 0006](../decisions/0006-ship-1.1.0-in-place-under-v1.md). 1.1.0 ends that period: it is **generally
+available (GA)**, its published files are immutable, and a later breaking change opens `v2/`. It reorganizes
+the proposition sections and carries a set of corrections, all delivered through one full rebuild that rewrites every published file. It is
 published under a new line folder, **`v1/1.1/`**, in a new R2 layout that mirrors NCBI's ClinVar FTP site (ADR
 0009; see [New R2 layout](#new-r2-layout-110) below). Every download URL changes.
 
@@ -329,7 +331,7 @@ it from `v1/1.0/index.json`.
 ## 1.0.1 — 2026-10-13
 
 A schema-conformance release shipped in place during the
-[initial-stabilization period](versioning.md). Every published bundle (full **and** delta) now validates
+[initial-stabilization period](versioning.md#110-and-general-availability). Every published bundle (full **and** delta) now validates
 against the [`schema/clinvar-gkm/`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/schema/clinvar-gkm)
 schemas with the official GA4GH gkm-toolkit — the largest published delta went from thousands of
 non-conforming records to **zero**. All data was rebuilt, oracle-gated (full-vs-incremental and

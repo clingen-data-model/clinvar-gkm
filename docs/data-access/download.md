@@ -26,7 +26,7 @@ Browse history and archives: [Monthly Full Bundles](monthly-full.md) · [Weekly 
 ## Directory Structure
 
 !!! note "Versioned layout"
-    The root `index.json` is a thin **version manifest** that lists the release lines and points to each line's index. Each line has its own folder, `v{major}/{major}.{minor}/`. The current line is **`1.1`**, served under **`v1/1.1/`**, with its release index at `v1/1.1/index.json`. PATCH releases (1.1.x) add to the same folder; a new MINOR starts `v1/1.2/` and a new MAJOR starts `v2/2.0/`. A replaced line is frozen: its files stay, unchanged. The 1.0.1 generation is the frozen line `v1/1.0/`.
+    The root `index.json` is a thin **version manifest** that lists the release lines and points to each line's index. Each line has its own folder, `v{major}/{major}.{minor}/`. The current line is **`1.1`**, served under **`v1/1.1/`**, with its release index at `v1/1.1/index.json`. PATCH releases (1.1.x) add to the same folder; a new MINOR starts `v1/1.2/` and a new MAJOR starts `v2/2.0/`. A replaced line is frozen and kept indefinitely: its files stay, unchanged. The 1.0.1 generation is the frozen line `v1/1.0/`.
 
 ```text
 index.json                                    version manifest (each line -> its index)
