@@ -28,17 +28,6 @@
   .caption { font-size: 12px; color: var(--ink-soft); margin: 0 0 12px; line-height: 1.5; }
   .caption code { font-family: ui-monospace, monospace; font-size: 11px; color: var(--ink); }
 
-  /* pinned title + description, the same treatment as the Parquet diagrams: sticky, with a light tint of
-     the diagram accent spanning the frame so the header reads as part of this scrolling frame */
-  .top { position: sticky; top: 0; z-index: 10;
-    --hdr-bg: var(--hdr); --hdr-bg: color-mix(in srgb, var(--accent) 9%, var(--bg));
-    background: var(--hdr-bg);
-    box-shadow: 0 0 0 100vmax var(--hdr-bg); clip-path: inset(0 -100vmax);   /* full-bleed to the frame edges */
-    margin: -20px -20px 14px; padding: 14px 20px 8px;
-    border-bottom: 1px solid color-mix(in srgb, var(--accent) 28%, var(--bg)); }
-  .top .caption { margin-bottom: 0; }
-  @media (max-width: 520px) { .top .caption { font-size: 11px; } }
-
   .skeleton { font-family: ui-monospace, monospace; font-size: 10.5px; line-height: 1.7; color: var(--ink-soft);
     background: var(--box); border: 1px solid var(--line); border-radius: 5px; padding: 10px 12px; margin: 0 0 18px; }
   .skeleton .k { color: var(--ink); font-weight: 600; }
@@ -88,15 +77,13 @@
 </style>
 
 <div class="wrap">
-  <header class="top">
   <div class="title-row"><h1>ClinVar-GKM bundle &mdash; section map</h1><span class="src">clinvar-gkm_&hellip;.json</span></div>
   <p class="caption">The release bundle is a single JSON object of <b>named sections</b>; each section is a dictionary mapping a typed id to one object. Objects link across sections with <code>#/section/id</code> JSON pointers &mdash; each drawer lists its outgoing references as <code>field &rarr; #/section/</code>. Each drawer links to its reference page; see <a href="../../output-reference/id-references/" target="_top">ID References</a> for the full pointer catalog.</p>
-  </header>
 
   <div class="skeleton">
 <span class="c">// one JSON object, 20 named sections, each { id: object }</span><br>
 { <span class="k">"scv"</span>, <span class="k">"vcv"</span>, <span class="k">"rcv"</span>, <span class="k">"evidenceLine"</span>,
-&nbsp;&nbsp;<span class="k">"propositionPathogenicity"</span>, <span class="k">"propositionOncogenicity"</span>, <span class="k">"propositionSomaticClinicalImpact"</span>, <span class="k">"propositionClinvarCustom"</span>,
+&nbsp;&nbsp;<span class="k">"varcond-proposition"</span>, <span class="k">"vartumor-proposition"</span>, <span class="k">"vartherapy-proposition"</span>, <span class="k">"varcustom-proposition"</span>,
 &nbsp;&nbsp;<span class="k">"condition"</span>, <span class="k">"conditionSet"</span>, <span class="k">"therapy"</span>, <span class="k">"therapyGroup"</span>, <span class="k">"submitter"</span>,
 &nbsp;&nbsp;<span class="k">"variation"</span>, <span class="k">"allele"</span>, <span class="k">"location"</span>, <span class="k">"sequenceReference"</span>, <span class="k">"gene"</span>, <span class="k">"copyNumberCount"</span>, <span class="k">"copyNumberChange"</span> }
   </div>
@@ -112,7 +99,7 @@
           <div class="body">
             <div class="eid">clinvar.submission:SCV001571657.2</div>
             <div class="refs">
-              <div class="ref"><b>proposition</b> &rarr; <span class="to">#/proposition&hellip;/</span></div>
+              <div class="ref"><b>proposition</b> &rarr; <span class="to">#/&hellip;-proposition/</span></div>
               <div class="ref"><b>contributor</b> &rarr; <span class="to">#/submitter/</span></div>
               <div class="ref"><b>hasEvidenceLines[]</b> &rarr; <span class="to">#/evidenceLine/</span></div>
             </div>
@@ -123,7 +110,7 @@
           <div class="body">
             <div class="eid">VCV000012582.63-G-PATH-CP</div>
             <div class="refs">
-              <div class="ref"><b>proposition</b> &rarr; <span class="to">#/proposition&hellip;/</span></div>
+              <div class="ref"><b>proposition</b> &rarr; <span class="to">#/&hellip;-proposition/</span></div>
               <div class="ref"><b>hasEvidenceLines[]</b> &rarr; <span class="to">#/evidenceLine/</span></div>
             </div>
           </div>
@@ -133,7 +120,7 @@
           <div class="body">
             <div class="eid">RCV000012345.8-G-PATH-CP</div>
             <div class="refs">
-              <div class="ref"><b>proposition</b> &rarr; <span class="to">#/proposition&hellip;/</span></div>
+              <div class="ref"><b>proposition</b> &rarr; <span class="to">#/&hellip;-proposition/</span></div>
               <div class="ref"><b>hasEvidenceLines[]</b> &rarr; <span class="to">#/evidenceLine/</span></div>
             </div>
           </div>
@@ -154,10 +141,10 @@
 
     <!-- ===================== PROPOSITIONS ===================== -->
     <div class="frame">
-      <span class="frame-label">Propositions &mdash; 4 sections by meaning, keyed by type</span>
+      <span class="frame-label">Propositions &mdash; 4 delivery groups, keyed by type</span>
       <div class="grid2">
         <a class="sec" href="../../output-reference/classes/ClinvarProposition/" target="_top">
-          <div class="head"><div class="skey">proposition<wbr>Pathogenicity</div><div class="otype">VariantPathogenicityProposition</div></div>
+          <div class="head"><div class="skey">varcond-<wbr>proposition</div><div class="otype">Pathogenicity / ClinSig / Diagnostic / Prognostic</div></div>
           <div class="body">
             <div class="eid">SCV001234567-PATH</div>
             <div class="refs">
@@ -167,7 +154,7 @@
           </div>
         </a>
         <a class="sec" href="../../output-reference/classes/ClinvarProposition/" target="_top">
-          <div class="head"><div class="skey">proposition<wbr>Oncogenicity</div><div class="otype">VariantOncogenicityProposition</div></div>
+          <div class="head"><div class="skey">vartumor-<wbr>proposition</div><div class="otype">VariantOncogenicityProposition</div></div>
           <div class="body">
             <div class="eid">SCV002345678-ONCO</div>
             <div class="refs">
@@ -177,19 +164,18 @@
           </div>
         </a>
         <a class="sec" href="../../output-reference/classes/ClinvarProposition/" target="_top">
-          <div class="head"><div class="skey">proposition<wbr>SomaticClinicalImpact</div><div class="otype">ClinSig / Diagnostic / Prognostic / TherapeuticResponse</div></div>
+          <div class="head"><div class="skey">vartherapy-<wbr>proposition</div><div class="otype">VariantTherapeuticResponseProposition</div></div>
           <div class="body">
             <div class="eid">SCV003456789-TR</div>
             <div class="refs">
               <div class="ref"><b>subject</b> &rarr; <span class="to">#/variation/</span></div>
-              <div class="ref"><b>object</b> &rarr; <span class="to">#/condition|conditionSet/</span></div>
-              <div class="ref"><b>object</b> (TR) &rarr; <span class="to">#/therapy|therapyGroup/</span></div>
-              <div class="ref"><b>conditionQualifier</b> (TR) &rarr; <span class="to">#/condition/</span></div>
+              <div class="ref"><b>object</b> &rarr; <span class="to">#/therapy|therapyGroup/</span></div>
+              <div class="ref"><b>conditionQualifier</b> &rarr; <span class="to">#/condition/</span></div>
             </div>
           </div>
         </a>
         <a class="sec" href="../../output-reference/classes/ClinvarProposition/" target="_top">
-          <div class="head"><div class="skey">proposition<wbr>ClinvarCustom</div><div class="otype">Clinvar*Proposition &middot; 10 ClinVar types</div></div>
+          <div class="head"><div class="skey">varcustom-<wbr>proposition</div><div class="otype">Clinvar*Proposition &middot; 10 ClinVar types</div></div>
           <div class="body">
             <div class="eid">SCV004567890-RF</div>
             <div class="refs">
