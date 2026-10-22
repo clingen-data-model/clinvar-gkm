@@ -1,7 +1,7 @@
 # The 22 Tables
 
 !!! info "Release"
-    Counts and sizes on this page are from the **2026-10 monthly release** (published 14 Oct 2026). They change with every release; the queries give you today's numbers.
+    Counts and sizes on this page are from the **2026-10-18 release**. They change with every release; the queries give you today's numbers.
 
 The Parquet release is **22 tables**, one per bundle section. They fall into six areas that you can learn one at a time. Variants and conditions are the nouns. Propositions say what is claimed about them. Statements say who claimed it, and how confidently.
 
@@ -77,8 +77,8 @@ The same facts as text. A statement id reads `<accession>.<version>-<lane>-<code
 
 | Lane | Code | Proposition type | Proposition table | Root statements |
 | --- | --- | --- | --- | ---: |
-| G | `PATH` | `VariantPathogenicityProposition` | `propositionPathogenicity` | 4,390,392 |
-| G | `NP` | `ClinvarNotProvidedProposition` | `propositionClinvarCustom` | 27,920 |
+| G | `PATH` | `VariantPathogenicityProposition` | `propositionPathogenicity` | 4,434,756 |
+| G | `NP` | `ClinvarNotProvidedProposition` | `propositionClinvarCustom` | 27,921 |
 | G | `DR` | `ClinvarDrugResponseProposition` | `propositionClinvarCustom` | 2,760 |
 | G | `OTH` | `ClinvarOtherProposition` | `propositionClinvarCustom` | 2,171 |
 | G | `RF` | `ClinvarRiskFactorProposition` | `propositionClinvarCustom` | 1,072 |
@@ -127,7 +127,7 @@ Three tables break the pattern:
 
 Every table can be queried straight from `https://data.clinvar-gkm.org/v1/1.1/parquet/<table>.parquet`, without downloading it. How well that works depends on what you ask:
 
-- **Cheap on any table:** `DESCRIBE`, `count(*)`, and `LIMIT` reads. These touch only the file's footer or its first chunk, so they return in under a second even on the 3 GB `scv.parquet`.
+- **Cheap on any table:** `DESCRIBE`, `count(*)`, and `LIMIT` reads. These touch only the file's footer or its first chunk, so they return in under a second even on the 3.2 GB `scv.parquet`.
 - **Fine on small tables:** full scans of anything up to tens of megabytes (`condition`, `gene`, `submitter`, `therapy`, the somatic propositions).
 - **Download first for big tables:** a full scan or `GROUP BY` over `scv`, `variation`, `propositionPathogenicity`, or the aggregates reads every row group, one request each, in a burst. Remotely that takes tens of seconds and hundreds of megabytes, and a heavier query can still hit the CDN's limit of 250 requests per 10 seconds (**HTTP 429**). Download the table once and query it locally. See [Working at Scale](performance.md#local-or-remote).
 
@@ -135,9 +135,7 @@ The sizes in the reference below tell you which category a table is in.
 
 ## Column reference { #column-reference }
 
-<!-- regenerate after 1.1.0 export -->
-
-Every column of every table, from `DESCRIBE` on the release. Types are shown compactly: `STRUCT(a, b)` lists only the top-level fields, and `[]` marks a list. Expand **Full nested types** under a table for the complete DuckDB type, or run `DESCRIBE SELECT * FROM '<table>.parquet'` yourself.
+Every column of every table, from `DESCRIBE` on the 2026-10-18 release, with that release's row counts and file sizes (decimal units: 1 MB is 1,000,000 bytes). Types are shown compactly: `STRUCT(a, b)` lists only the top-level fields, and `[]` marks a list. Expand **Full nested types** under a table for the complete DuckDB type, or run `DESCRIBE SELECT * FROM '<table>.parquet'` yourself.
 
 Read a `STRUCT` field with a dot (`classification.name`) and a list with `unnest(…)` or an index (`members[1]`). [Anatomy of a Table](table-anatomy.md) walks through both.
 
@@ -147,7 +145,7 @@ Read a `STRUCT` field with a dot (`classification.name`) and a list with `unnest
 
 ClinVar's variants, one row per ClinVar Variation id, as Cat-VRS **CategoricalVariant** records. The subject of every proposition. Each row points at the concrete VRS variant(s) that define it.
 
-`variation.parquet` · **4,647,675** rows · 4.1 GB
+`variation.parquet` · **4,691,827** rows · 3.9 GB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -162,7 +160,7 @@ ClinVar's variants, one row per ClinVar Variation id, as Cat-VRS **CategoricalVa
 
 ??? note "Full nested types — `variation`"
     ```text
-    extensions  STRUCT("name" VARCHAR, value_string VARCHAR, value_boolean BOOLEAN, value_coding BIGINT, value_hgvs_array STRUCT(nucleotideExpression STRUCT(syntax VARCHAR, "value" VARCHAR), nucleotideType VARCHAR, maneSelect BOOLEAN, manePlus BOOLEAN, proteinExpression STRUCT(syntax VARCHAR, "value" VARCHAR), molecularConsequence STRUCT(code VARCHAR, "system" VARCHAR, "name" VARCHAR, iris VARCHAR[])[])[], value_gene_array STRUCT(gene VARCHAR, relationship_type VARCHAR, "source" VARCHAR)[])[]
+    extensions  STRUCT("name" VARCHAR, value_string VARCHAR, value_boolean BOOLEAN, value_coding BIGINT, value_hgvs_array STRUCT(nucleotideExpression STRUCT(syntax VARCHAR, "value" VARCHAR, "extensions" STRUCT("name" VARCHAR, value_string VARCHAR, value_boolean BOOLEAN)[]), nucleotideType VARCHAR, maneSelect BOOLEAN, manePlus BOOLEAN, proteinExpression STRUCT(syntax VARCHAR, "value" VARCHAR), molecularConsequence STRUCT(code VARCHAR, "system" VARCHAR, "name" VARCHAR, iris VARCHAR[])[])[], value_gene_array STRUCT(gene VARCHAR, relationship_type VARCHAR, "source" VARCHAR)[])[]
     mappings  STRUCT(coding STRUCT("system" VARCHAR, code VARCHAR, iris VARCHAR[]), relation VARCHAR)[]
     constraints  STRUCT("type" VARCHAR, allele VARCHAR, "location" VARCHAR, copies BIGINT, copyChange VARCHAR, matchCharacteristic STRUCT("type" VARCHAR, primaryCoding STRUCT(code VARCHAR, "system" VARCHAR, iris VARCHAR[])), relations STRUCT("type" VARCHAR, primaryCoding STRUCT(code VARCHAR, "system" VARCHAR, iris VARCHAR[]))[])[]
     ```
@@ -171,7 +169,7 @@ ClinVar's variants, one row per ClinVar Variation id, as Cat-VRS **CategoricalVa
 
 VRS **Allele** records — a specific sequence change at a location. Reached from `variation.members[]` / `constraints[].allele` (`ga4gh:VA.` prefix).
 
-`allele.parquet` · **4,554,562** rows · 1.1 GB
+`allele.parquet` · **4,598,672** rows · 1.1 GB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -186,7 +184,7 @@ VRS **Allele** records — a specific sequence change at a location. Reached fro
 
 VRS **CopyNumberCount** records — an absolute copy count over a region (`ga4gh:CN.` prefix).
 
-`copyNumberCount.parquet` · **47,453** rows · 8.7 MB
+`copyNumberCount.parquet` · **47,466** rows · 8.7 MB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -201,7 +199,7 @@ VRS **CopyNumberCount** records — an absolute copy count over a region (`ga4gh
 
 VRS **CopyNumberChange** records — a relative copy gain or loss over a region (`ga4gh:CX.` prefix).
 
-`copyNumberChange.parquet` · **31,717** rows · 5.8 MB
+`copyNumberChange.parquet` · **31,722** rows · 5.8 MB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -216,7 +214,7 @@ VRS **CopyNumberChange** records — a relative copy gain or loss over a region 
 
 VRS **SequenceLocation** records — a span on a reference sequence, shared by alleles and copy-number variants.
 
-`location.parquet` · **4,177,664** rows · 611.7 MB
+`location.parquet` · **4,215,441** rows · 714.9 MB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -232,7 +230,7 @@ VRS **SequenceLocation** records — a span on a reference sequence, shared by a
 | `loc_end_min` | `BIGINT` | Lower bound of the end. Equals `loc_end` for a definite end, otherwise the range's `min`. Never NULL. *From 1.1.0.* |
 | `loc_end_max` | `BIGINT` | Upper bound of the end. Equals `loc_end` for a definite end. For an uncertain range it is the range's `max`, or NULL when the range is open (`[min, null]`, unbounded above). *From 1.1.0.* |
 
-`loc_start_max` and `loc_end_min` bound the span the variant certainly covers, and are set on every row, so window queries can use them without skipping uncertain-range locations (about 72,000 rows, mostly copy-number variants). `loc_start_min` and `loc_end_max` bound the widest span it may cover.
+`loc_start_max` and `loc_end_min` bound the span the variant certainly covers, and are set on every row, so window queries can use them without skipping uncertain-range locations (71,973 rows in 2026-10-18, all of them copy-number variant locations). `loc_start_min` and `loc_end_max` bound the widest span it may cover.
 
 !!! note "Why `loc_start` and `loc_end`, not `start` and `end`"
     In the bundle and in `data`, these fields are VRS's `start` and `end`. The typed columns carry a `loc_`
@@ -245,7 +243,7 @@ VRS **SequenceLocation** records — a span on a reference sequence, shared by a
 
 The reference sequences locations are placed on — RefSeq chromosomes, transcripts, and other sequences, keyed by their GA4GH refget id. A **leaf**: it references nothing.
 
-`sequenceReference.parquet` · **215** rows · 29.1 KB
+`sequenceReference.parquet` · **214** rows · 28.9 KB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -261,7 +259,7 @@ The reference sequences locations are placed on — RefSeq chromosomes, transcri
 
 Genes referenced by variants' gene lists and by propositions' `gene_context_id`, keyed by NCBI Gene id. A **leaf**.
 
-`gene.parquet` · **92,972** rows · 5.4 MB
+`gene.parquet` · **92,989** rows · 5.4 MB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -276,7 +274,7 @@ Genes referenced by variants' gene lists and by propositions' `gene_context_id`,
 
 ClinVar's conditions (traits) — diseases, phenotypes, findings — one row per ClinVar trait. The object of most propositions. A **leaf**. **camelCase column names** (`conceptType`, `primaryCoding`), unlike the other tables.
 
-`condition.parquet` · **23,162** rows · 2.0 MB
+`condition.parquet` · **23,414** rows · 4.7 MB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -299,7 +297,7 @@ ClinVar's conditions (traits) — diseases, phenotypes, findings — one row per
 
 Sets of conditions a single proposition is about. Two kinds of row share the table: **accessioned** ClinVar TraitSets (`clinvar.traitset:`) and sets **minted** for VCV-level aggregates (`clinvar.conditionset:vcv-…`).
 
-`conditionSet.parquet` · **88,883** rows · 9.7 MB
+`conditionSet.parquet` · **100,706** rows · 11.0 MB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -314,7 +312,7 @@ Sets of conditions a single proposition is about. Two kinds of row share the tab
 
 Drug therapies named by therapeutic-response propositions. A **leaf**. **The id column is `key`**, not `id`, and the JSON object is in `value`, not `data`.
 
-`therapy.parquet` · **38** rows · 4.0 KB
+`therapy.parquet` · **38** rows · 4.8 KB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -327,7 +325,7 @@ Drug therapies named by therapeutic-response propositions. A **leaf**. **The id 
 
 Combination therapies — a set of `therapy` members. Same `key`/`value` shape as `therapy`, plus typed columns for the operator and members.
 
-`therapyGroup.parquet` · **10** rows · 4.9 KB
+`therapyGroup.parquet` · **10** rows · 8.0 KB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -342,10 +340,10 @@ From 1.1.0 propositions are grouped by **meaning**, in four tables that share **
 
 | Table | Proposition types (id codes) | Rows | Size |
 | --- | --- | ---: | ---: |
-| [`propositionPathogenicity`](#propositionPathogenicity) | `VariantPathogenicityProposition` (`PATH`) | **27,447,072** | about 1.45 GB |
-| [`propositionClinvarCustom`](#propositionClinvarCustom) | the 9 `Clinvar*` types and `ClinvarUndefinedProposition` (`NP`, `DR`, `OTH`, `RF`, `ASSOC`, `AFF`, `CDFS`, `PROTECT`, `CS`, `UNDEF`) | **186,182** | about 10 MB |
-| [`propositionSomaticClinicalImpact`](#propositionSomaticClinicalImpact) | `VariantClinicalSignificanceProposition` (`SCI`), `VariantDiagnosticProposition` (`DIAG`), `VariantPrognosticProposition` (`PROG`), `VariantTherapeuticResponseProposition` (`TR`) | **12,607** | about 0.7 MB |
-| [`propositionOncogenicity`](#propositionOncogenicity) | `VariantOncogenicityProposition` (`ONCO`) | **9,595** | about 0.45 MB |
+| [`propositionPathogenicity`](#propositionPathogenicity) | `VariantPathogenicityProposition` (`PATH`) | **27,868,969** | 1.5 GB |
+| [`propositionClinvarCustom`](#propositionClinvarCustom) | the 9 `Clinvar*` types and `ClinvarUndefinedProposition` (`NP`, `DR`, `OTH`, `RF`, `ASSOC`, `AFF`, `CDFS`, `PROTECT`, `CS`, `UNDEF`) | **186,184** | 10.4 MB |
+| [`propositionSomaticClinicalImpact`](#propositionSomaticClinicalImpact) | `VariantClinicalSignificanceProposition` (`SCI`), `VariantDiagnosticProposition` (`DIAG`), `VariantPrognosticProposition` (`PROG`), `VariantTherapeuticResponseProposition` (`TR`) | **12,607** | 738.0 KB |
+| [`propositionOncogenicity`](#propositionOncogenicity) | `VariantOncogenicityProposition` (`ONCO`) | **9,595** | 457.3 KB |
 
 #### The shared columns { #proposition-columns }
 
@@ -370,27 +368,27 @@ Every proposition table has exactly these columns, in this order. A column that 
 
 #### `propositionPathogenicity` { #propositionPathogenicity }
 
-Germline **pathogenicity** claims (`VariantPathogenicityProposition`, predicate `isCausalFor`) at every level. By far the largest table. `object_type` is `condition` or `conditionSet` (2,890,991 rows, mostly VCV propositions over several conditions). 6,652,661 SCV rows carry a gene-context qualifier.
+Germline **pathogenicity** claims (`VariantPathogenicityProposition`, predicate `isCausalFor`) at every level. By far the largest table. `object_type` is `condition` or `conditionSet` (2,951,614 rows, mostly VCV propositions over several conditions). 6,771,946 SCV rows carry a gene-context qualifier.
 
-`propositionPathogenicity.parquet` · **27,447,072** rows · about 1.45 GB
+`propositionPathogenicity.parquet` · **27,868,969** rows · 1.5 GB
 
 #### `propositionClinvarCustom` { #propositionClinvarCustom }
 
 ClinVar's **non-pathogenicity germline** classifications, which have no standard VA-Spec proposition: not provided, drug response, risk factor, association, affects, protective, confers sensitivity, other, conflicting data from submitters, plus `ClinvarUndefinedProposition`, the fallback for a classification that maps to no defined type (no rows so far). `object_type` is `condition` or `conditionSet`.
 
-`propositionClinvarCustom.parquet` · **186,182** rows · about 10 MB
+`propositionClinvarCustom.parquet` · **186,184** rows · 10.4 MB
 
 #### `propositionSomaticClinicalImpact` { #propositionSomaticClinicalImpact }
 
 Somatic **clinical impact**: the clinical significance (`SCI`) that SCV, VCV and RCV statements classify, and the diagnostic (`DIAG`), prognostic (`PROG`) and therapeutic-response (`TR`) propositions that SCI evidence lines target. No statement classifies a `DIAG`, `PROG` or `TR` proposition directly; they are reached through [`evidenceLine.target_proposition_id`](#evidenceLine). The 13 `TR` rows have a `therapy` or `therapyGroup` object and a `condition_qualifier_id`; every other row's object is a `condition` or `conditionSet`.
 
-`propositionSomaticClinicalImpact.parquet` · **12,607** rows · about 0.7 MB
+`propositionSomaticClinicalImpact.parquet` · **12,607** rows · 738.0 KB
 
 #### `propositionOncogenicity` { #propositionOncogenicity }
 
 Somatic **oncogenicity** claims (`VariantOncogenicityProposition`, predicate `isOncogenicFor`). The object is the tumor type: almost always a `condition`, but 12 rows name a minted `conditionSet`.
 
-`propositionOncogenicity.parquet` · **9,595** rows · about 0.45 MB
+`propositionOncogenicity.parquet` · **9,595** rows · 457.3 KB
 
 #### Migrating from 1.0 { #proposition-migration }
 
@@ -408,24 +406,24 @@ Renamed columns: `varcond-proposition.object_condition_id`, `vartumor-propositio
 
 #### Gene context { #gene-context }
 
-`gene_context_name`, `gene_context_id`, `submitted_gene_symbols` and `gene_context_source` describe a proposition's `geneContextQualifier`. They are filled in only on **SCV** propositions; every VCV and RCV proposition has NULLs and an empty list. In the 2026-10 release, 6,655,967 SCV propositions carry the qualifier, 6,652,661 of them in `propositionPathogenicity`.
+`gene_context_name`, `gene_context_id`, `submitted_gene_symbols` and `gene_context_source` describe a proposition's `geneContextQualifier`. They are filled in only on **SCV** propositions; every VCV and RCV proposition has NULLs and an empty list. In 2026-10-18, 6,815,040 SCV propositions carry the qualifier, 6,771,946 of them in `propositionPathogenicity`.
 
 - **One representative gene per variant.** The qualifier comes from the variant, not from the submission. Upstream, clinvar-ingest-bq-tools picks one gene for each variant with its [single-gene method](https://github.com/clingen-data-model/clinvar-ingest-bq-tools/blob/main/docs/methods/single-gene-variation.md): a point-in-time priority procedure that starts from MANE transcripts and gene symbols in the variant's name, then ClinVar's gene associations. A few genes it picks come only from a variant's name and are not ones ClinVar associates; those are not in `gene.parquet`, so `gene_context_id` won't join for them. Every SCV of the variant gets that same gene. The submitter did **not** assert it, and the Parquet doesn't say which step chose it.
 - **`gene_context_id`** is that gene's own NCBI Gene coding (`primaryCoding.code`), written `ncbigene:<n>` so it joins `gene.id` directly. `gene_context_name` is the same gene's symbol. The id is never looked up from a symbol.
-- **`submitted_gene_symbols`** is what the submitter named, verbatim. It can list several genes, and may leave out the representative gene: 27,817 SCVs in the 2026-10 release do. From this release the symbols are in submitted order; earlier releases list them in no fixed order.
+- **`submitted_gene_symbols`** is what the submitter named, verbatim. It can list several genes, and may leave out the representative gene: 28,653 SCVs in 2026-10-18 do. From this release the symbols are in submitted order; earlier releases list them in no fixed order.
 - **`gene_context_source`** says where the gene came from. It is filled in on every SCV proposition that has the qualifier. *From this release.*
 
-    | Value | Meaning | 2026-09-28 |
+    | Value | Meaning | 2026-10-18 |
     | --- | --- | ---: |
-    | `submittedSymbolMatches` | The submitter's symbols include the qualifier's symbol, possibly with other genes. | 5,781,920 |
-    | `submittedSymbolDiffers` | The submitter gave symbols, but none equals the qualifier's symbol. Most are a previous symbol of the same gene (`GBA` for `GBA1`); the genes are not necessarily different. | 27,671 |
-    | `inferredFromVariant` | The submitter gave no symbols. | 881,325 |
-    | `submittedNotNormalized` | The placeholder: the variant has no single representative gene. | 4,814 |
+    | `submittedSymbolMatches` | The submitter's symbols include the qualifier's symbol, possibly with other genes. | 5,890,310 |
+    | `submittedSymbolDiffers` | The submitter gave symbols, but none equals the qualifier's symbol. Most are a previous symbol of the same gene (`GBA` for `GBA1`); the genes are not necessarily different. | 28,507 |
+    | `inferredFromVariant` | The submitter gave no symbols. | 891,616 |
+    | `submittedNotNormalized` | The placeholder: the variant has no single representative gene. | 4,607 |
 
-    Symbols are compared after trimming spaces and ignoring case (`C19ORF12` matches `C19orf12`). That is why `submittedSymbolDiffers` counts 27,671, not the 27,817 above, which compared exactly.
-- **The placeholder.** When the variant has no single representative gene but the submitter named genes, `gene_context_name` is the submitter's symbol and `gene_context_id` is NULL. The name is not a normalized gene, and `gene_context_source` is `submittedNotNormalized`. Several symbols are joined with `, ` in submitted order (5 SCVs, e.g. `DLK1, MEG3`). The submitter's genes are still in `submitted_gene_symbols`. There are 4,814 of these SCVs: 4,763 in `propositionPathogenicity` and 51 in `propositionClinvarCustom`. Releases before this one name every placeholder with the literal `submitted genes were not normalized`.
+    Symbols are compared after trimming spaces and ignoring case (`C19ORF12` matches `C19orf12`). That is why `submittedSymbolDiffers` counts 28,507, not the 28,653 above, which compared exactly.
+- **The placeholder.** When the variant has no single representative gene but the submitter named genes, `gene_context_name` is the submitter's symbol and `gene_context_id` is NULL. The name is not a normalized gene, and `gene_context_source` is `submittedNotNormalized`. Several symbols are joined with `, ` in submitted order (5 SCVs, e.g. `DLK1, MEG3`). The submitter's genes are still in `submitted_gene_symbols`. There are 4,607 of these SCVs in 2026-10-18: 4,570 in `propositionPathogenicity` and 37 in `propositionClinvarCustom`. Releases before this one name every placeholder with the literal `submitted genes were not normalized`.
 
-    Because a placeholder's name is now a submitted symbol, a filter such as `gene_context_name = 'TP53'` also matches placeholders. In 2026-09-28 that is 29 `TP53` rows (78 for `BRCA1`, `BRCA2`, `TP53` and `MLH1` together). To get only normalized genes, filter on `gene_context_id`, or exclude `gene_context_source = 'submittedNotNormalized'`.
+    Because a placeholder's name is now a submitted symbol, a filter such as `gene_context_name = 'TP53'` also matches placeholders. In 2026-10-18 that is 29 `TP53` rows (77 for `BRCA1`, `BRCA2`, `TP53` and `MLH1` together). To get only normalized genes, filter on `gene_context_id`, or exclude `gene_context_source = 'submittedNotNormalized'`.
 
 Releases before 1.1.0 have only `gene_context_name`; the id and symbols are in `data` (`geneContextQualifier.primaryCoding.code`, and the `submittedGeneSymbols` extension). `gene_context_source` and its `geneContextSource` extension start with this release.
 
@@ -437,7 +435,7 @@ This is **not** the variant's gene list. The gene list (`clinvarGeneList` in `va
 
 **SCV** statements — each submitter's classification of a variant, one row per ClinVar submission (SCV accession). The leaves every aggregate cites.
 
-`scv.parquet` · **6,735,011** rows · 3.1 GB
+`scv.parquet` · **6,853,781** rows · 3.2 GB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -472,7 +470,7 @@ This is **not** the variant's gene list. The gene list (`clinvarGeneList` in `va
 
 SCV-level evidence lines — used only by somatic **clinical impact (SCI)** submissions. Each points at the specific impact (therapeutic response, diagnostic, prognostic) and carries its AMP/ASCO/CAP tier.
 
-`evidenceLine.parquet` · **1,568** rows · 150.1 KB
+`evidenceLine.parquet` · **1,568** rows · 154.1 KB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -494,7 +492,7 @@ SCV-level evidence lines — used only by somatic **clinical impact (SCI)** subm
 
 The organizations that submit to ClinVar. A **leaf**, referenced from `scv.contributions[].contributor`.
 
-`submitter.parquet` · **3,532** rows · 273.0 KB
+`submitter.parquet` · **3,565** rows · 278.5 KB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -509,7 +507,7 @@ The organizations that submit to ClinVar. A **leaf**, referenced from `scv.contr
 
 **RCV** aggregate statements — ClinVar's rollup of SCVs for one variant **and one condition**. Each RCV accession yields a root statement plus one statement per contributing level.
 
-`rcv.parquet` · **11,839,428** rows · 847.1 MB
+`rcv.parquet` · **12,056,355** rows · 861.9 MB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -537,7 +535,7 @@ The organizations that submit to ClinVar. A **leaf**, referenced from `scv.contr
 
 Evidence lines of RCV statements: which statements each RCV statement cites, and whether they contribute.
 
-`rcv_evidenceLine.parquet` · **11,939,549** rows · 627.9 MB
+`rcv_evidenceLine.parquet` · **12,156,097** rows · 643.9 MB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -559,7 +557,7 @@ Evidence lines of RCV statements: which statements each RCV statement cites, and
 
 **VCV** aggregate statements — ClinVar's rollup of SCVs for one variant across all its conditions. Same shape as `rcv`.
 
-`vcv.parquet` · **9,079,449** rows · 657.5 MB
+`vcv.parquet` · **9,165,651** rows · 667.2 MB
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -587,7 +585,7 @@ Evidence lines of RCV statements: which statements each RCV statement cites, and
 
 Evidence lines of VCV statements. Same shape as `rcv_evidenceLine`.
 
-`vcv_evidenceLine.parquet` · **9,291,483** rows · 508.4 MB
+`vcv_evidenceLine.parquet` · **9,375,111** rows · 512.3 MB
 
 | Column | Type | Description |
 | --- | --- | --- |

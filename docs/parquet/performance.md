@@ -1,13 +1,13 @@
 # Working at Scale
 
 !!! info "Release"
-    Timings, sizes and counts on this page are from the **2026-10 monthly release** (published 14 Oct 2026), measured with DuckDB 1.5 on a laptop. Your numbers will differ with the release and your machine.
+    Timings and measured results on this page are from the **2026-10 monthly release** (published 14 Oct 2026), measured with DuckDB 1.5 on a laptop. File and column sizes are from the **2026-10-18 release**. Your numbers will differ with the release and your machine.
 
-Nine tables are over 500 MB: `variation` (4.1 GB), `scv` (3.1 GB), `propositionPathogenicity` (1.45 GB), `allele` (1.1 GB), `location`, and the RCV and VCV statements and evidence lines (0.5–0.9 GB each). The other thirteen are each about 10 MB or less. A handful of habits keeps queries over the big ones fast on a laptop.
+Nine tables are over 500 MB: `variation` (3.9 GB), `scv` (3.2 GB), `propositionPathogenicity` (1.5 GB), `allele` (1.1 GB), `location`, and the RCV and VCV statements and evidence lines (0.5–0.9 GB each). The other thirteen are each about 11 MB or less. A handful of habits keeps queries over the big ones fast on a laptop.
 
 ## Name your columns { #name-your-columns }
 
-Parquet stores each column separately, and a query reads only the columns it names. This is the single biggest lever you have. In `scv.parquet` the `data` column is 2 GB of the 3.1 GB on disk and 15 GB of the 20 GB in memory ([the breakdown](table-anatomy.md#never-select-on-a-big-table)). A query that leaves it out reads a quarter of the file; one that names two small fields reads almost none of it.
+Parquet stores each column separately, and a query reads only the columns it names. This is the single biggest lever you have. In `scv.parquet` the `data` column is 2.1 GB of the 3.2 GB on disk and 15.7 GB of the 21 GB in memory ([the breakdown](table-anatomy.md#never-select-on-a-big-table)). A query that leaves it out reads a quarter of the file; one that names two small fields reads almost none of it.
 
 To see where any table's bytes are, ask its metadata. This reads only the file footer:
 
@@ -179,7 +179,7 @@ A materialized table can go back out as Parquet. Because the rows are sorted by 
 COPY scv_by_variant TO 'scv_by_variant.parquet' (FORMAT parquet);
 ```
 
-The result is about **107 MB**, versus 3.1 GB for `scv.parquet`. A `WHERE variant_id = 'clinvar:10'` lookup reads **1 of its 55 row groups**. The same layout is what would make per-variant queries practical over the network, where every row group read is a request.
+The result is about **107 MB**, versus 3.2 GB for `scv.parquet`. A `WHERE variant_id = 'clinvar:10'` lookup reads **1 of its 55 row groups**. The same layout is what would make per-variant queries practical over the network, where every row group read is a request.
 
 ## Errors that look worse than they are { #confusing-errors }
 

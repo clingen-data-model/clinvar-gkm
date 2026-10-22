@@ -116,10 +116,10 @@ From 1.1.0, the first two gaps are closed and the third is labeled:
 - Inferred genes are marked `geneContextSource` = `inferredFromVariant`.
 - Placeholder names carry the submitter's symbol and are marked `submittedNotNormalized`. A placeholder is still
   not a normalized gene, so filter on `primaryCoding` (or the Parquet `gene_context_id`) when you need one.
-  Filtering on `name` alone now also matches placeholders: 29 `TP53` placeholders in 2026-09-28, for example.
+  Filtering on `name` alone now also matches placeholders: 29 `TP53` placeholders in 2026-10-18, for example.
 - `submittedSymbolDiffers` says only that the symbols differ, not that the genes do. With the case-insensitive
-  comparison it covers 27,671 propositions in 2026-09-28. The other 146 of the 27,817 differ only by case and
-  are now `submittedSymbolMatches`.
+  comparison it covers 28,507 propositions in 2026-10-18, where an exact comparison finds 28,653. The other 146
+  differ only by case and are now `submittedSymbolMatches`.
 
 ### How to see it in the data
 

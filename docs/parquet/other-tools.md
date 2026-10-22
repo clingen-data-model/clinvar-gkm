@@ -17,7 +17,7 @@ benign                  2,807
 …
 ```
 
-Whatever the tool, the rule from [Anatomy of a Table](table-anatomy.md#never-select-on-a-big-table) holds: **read only the columns you need.** `scv.parquet` is 3.1 GB on disk and about 20 GB once loaded whole.
+Whatever the tool, the rule from [Anatomy of a Table](table-anatomy.md#never-select-on-a-big-table) holds: **read only the columns you need.** `scv.parquet` is 3.2 GB on disk and about 21 GB once loaded whole (2026-10-18 release).
 
 ## Python
 
@@ -68,7 +68,7 @@ pandas reads Parquet through pyarrow, with the same `columns=`:
 ```python
 import pandas as pd
 
-# columns= is essential: without it pandas loads every column, about 20 GB for scv
+# columns= is essential: without it pandas loads every column, about 21 GB for scv
 df = pd.read_parquet("scv.parquet",
                      columns=["classification.primaryCoding.code", "quality.name"])
 print(df.columns.tolist())                               # ['code', 'name']
@@ -76,7 +76,7 @@ print(df.loc[df["name"] == "expert panel", "code"].value_counts().head())
 ```
 
 !!! warning "Never `pd.read_parquet` a big table without `columns=`"
-    It loads every column, including the multi-GB `data` column, into memory. On `scv.parquet` that is about 20 GB. The process is killed or the machine swaps.
+    It loads every column, including the multi-GB `data` column, into memory. On `scv.parquet` that is about 21 GB. The process is killed or the machine swaps.
 
 ### polars
 
