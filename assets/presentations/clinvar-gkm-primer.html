@@ -265,7 +265,7 @@
           <span class="tag-s">CC0 / open data</span>
         </div>
         <div class="docsite">Full documentation — every topic links to its page:
-          <a href="https://clingen-data-model.github.io/clinvar-gkm/" target="_blank" rel="noopener">clingen-data-model.github.io/clinvar-gkm</a></div>
+          <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/" target="_blank" rel="noopener">dataexchange.clinicalgenome.org/clinvar-gkm</a></div>
       </div>
       <div class="foot">Use <b>←</b> / <b>→</b> to navigate · press <b>?</b> for all shortcuts</div>
       <aside class="snotes" hidden>
@@ -311,7 +311,7 @@
             <span class="tip"><b>Provenance</b> — every value traceable to its submission and to the exact transformation that produced it.</span></span>
         </div>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/" target="_blank" rel="noopener">Home · Why ClinVar-GKM</a></span></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/" target="_blank" rel="noopener">Home · Why ClinVar-GKM</a></span></div>
       <aside class="snotes" hidden>
         <ul>
           <li>Be fair to ClinVar: the weekly XML is the complete, authoritative snapshot, and many pipelines already consume it (directly or via E-utilities). The point is NOT that it's bad.</li>
@@ -364,7 +364,7 @@
           </div>
         </div>
       </div>
-      <div class="foot">Structure per ClinVar's VCV schema (<span class="mono">ClinVar_VCV.xsd</span>), document order; element set abbreviated, ids illustrative. &middot; <span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/pipeline/" target="_blank" rel="noopener">Pipeline</a></span></div>
+      <div class="foot">Structure per ClinVar's VCV schema (<span class="mono">ClinVar_VCV.xsd</span>), document order; element set abbreviated, ids illustrative. &middot; <span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/" target="_blank" rel="noopener">Pipeline</a></span></div>
       <aside class="snotes" hidden>
         <ul>
           <li>Tone: respectful. ClinVar's XML is comprehensive and complete — this slide shows its real structure, not a flaw.</li>
@@ -386,14 +386,14 @@
           <div class="card"><div class="big">1 JSON</div><p>A single bundle of ~20 cross-linked sections, plus typed <b>Parquet</b> (one file per section).</p></div>
           <div class="card"><div class="big">100%</div><p>Every variation, SCV, VCV &amp; RCV from the matching ClinVar XML release.</p></div>
           <div class="card"><div class="big">~1–2 d</div><p>Published within a day or two of each ClinVar release; synced to ClinVar's cadence.</p></div>
-          <div class="card"><div class="big">CC0</div><p>Public-domain dedication — same terms as the source ClinVar data. No auth, no egress fees.</p></div>
+          <div class="card"><div class="big">CC0</div><p>Public-domain dedication for the code and the published data; the source ClinVar data comes from NCBI. No auth, no egress fees.</p></div>
         </div>
         <div style="margin-top:20px" class="card">
           <p style="font-size:16px;color:var(--ink)"><b>Built and maintained by the ClinGen driver project</b> — and a real-world validation
           of the GA4GH VRS, Cat-VRS, and VA-Spec standards against real-world ClinVar data at full scale.</p>
         </div>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/overview/" target="_blank" rel="noopener">Output Format</a></span></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/overview/" target="_blank" rel="noopener">Output Format</a></span></div>
       <aside class="snotes" hidden>
         <ul>
           <li>Emphasize "the entire release" — not a sample, not just pathogenic, not just germline.</li>
@@ -426,7 +426,7 @@
           <span class="desc">Shared building blocks — <b>MappableConcept</b>, <b>ConceptSet</b>, Agent, Extension — used across all three.</span>
         </div>
       </div>
-      <div class="foot">All four freshly released · each ships a Python library (vrs-python · cat-vrs-python · va-spec-python) that parses these bundles into validated models. &middot; <span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/reference/gks-standards/" target="_blank" rel="noopener">GA4GH Standards</a></span></div>
+      <div class="foot">All four freshly released · each ships a Python library (vrs-python · cat-vrs-python · va-spec-python) that parses these bundles into validated models. &middot; <span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/gks-standards/" target="_blank" rel="noopener">GA4GH Standards</a></span></div>
       <aside class="snotes" hidden>
         <ul>
           <li>Read bottom-up: identity → categories → annotations, all on shared core types.</li>
@@ -461,7 +461,7 @@
           </div>
         </div>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/pipeline/vcv-statements/vcv-aggregation-rules/" target="_blank" rel="noopener">VCV Aggregation Rules</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/profiles/propositions/" target="_blank" rel="noopener">Propositions</a></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/vcv-statements/vcv-aggregation-rules/" target="_blank" rel="noopener">VCV Aggregation Rules</a></span> &middot; <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/profiles/propositions/" target="_blank" rel="noopener">Propositions</a></div>
       <aside class="snotes" hidden>
         <ul>
           <li>Correction to the usual diagram: SCVs aggregate UP to VCVs (by variant) and SEPARATELY to RCVs (by variant + condition). Two parallel aggregations — NOT SCV→VCV→RCV. An RCV can be associated with a VCV but does not affect the VCV's derived classification.</li>
@@ -485,14 +485,14 @@
             <div class="head"><div class="skey">scv</div><div class="otype">ClinvarScvStatement · va-spec Statement</div></div>
             <div class="dbody">
               <div class="eid">clinvar.submission:SCV001571657.2</div>
-              <div class="ref"><b>proposition</b> <span class="arrow">→</span> <span class="to">#/varcond-proposition/</span></div>
+              <div class="ref"><b>proposition</b> <span class="arrow">→</span> <span class="to">#/propositionPathogenicity/</span></div>
               <div class="ref"><b>contributions[].agent</b> <span class="arrow">→</span> <span class="to">#/submitter/</span></div>
               <div class="ref"><b>hasEvidenceLines[]</b> <span class="arrow">→</span> <span class="to">#/evidenceLine/</span></div>
             </div>
           </div>
           <div class="conn"><div class="l"></div><div class="r">proposition 1..1</div><div class="a"></div></div>
           <div class="drawer">
-            <div class="head"><div class="skey">varcond-proposition</div><div class="otype">VariantPathogenicityProposition</div></div>
+            <div class="head"><div class="skey">propositionPathogenicity</div><div class="otype">VariantPathogenicityProposition</div></div>
             <div class="dbody">
               <div class="eid">SCV001571657-PATH</div>
               <div class="ref"><b>subject</b> <span class="arrow">→</span> <span class="to">#/variation/</span></div>
@@ -504,7 +504,7 @@
           <div class="card" style="background:var(--box)">
             <p style="font-size:14px;color:var(--ink);line-height:1.6" class="mono">
               { <b>scv, vcv, rcv, evidenceLine,</b><br>
-              &nbsp; <b>varcond-</b> / <b>vartumor-</b> / <b>vartherapy-</b> / <b>varcustom-proposition,</b><br>
+              &nbsp; <b>propositionPathogenicity</b> / <b>Oncogenicity</b> / <b>SomaticClinicalImpact</b> / <b>ClinvarCustom,</b><br>
               &nbsp; <b>condition, conditionSet, therapy, therapyGroup, submitter,</b><br>
               &nbsp; <b>variation, allele, location, sequenceReference,</b><br>
               &nbsp; <b>gene, copyNumberCount, copyNumberChange</b> }
@@ -523,7 +523,7 @@
           from a validated model, not raw JSON.</p>
         </div>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/overview/" target="_blank" rel="noopener">Output Format</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/id-references/" target="_blank" rel="noopener">ID References</a></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/overview/" target="_blank" rel="noopener">Output Format</a></span> &middot; <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/id-references/" target="_blank" rel="noopener">ID References</a></div>
       <aside class="snotes" hidden>
         <ul>
           <li>Name it: this is the "GKM Bundle" — a compaction where reused components get ids and live once in section dictionaries; references are #/section/id JSON pointers, like foreign keys.</li>
@@ -578,7 +578,7 @@
           </div>
         </div>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/" target="_blank" rel="noopener">Data Model</a></span></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/" target="_blank" rel="noopener">Data Model</a></span></div>
       <aside class="snotes" hidden>
         <ul>
           <li>This is the "datatype scope" slide. The named components are exactly what consumers will exercise.</li>
@@ -602,12 +602,12 @@
               <div class="eid">clinvar.submission:SCV00&hellip; <span style="opacity:.6">(illustrative)</span></div>
               <div class="ref"><b>classification</b>: <span style="color:var(--ink)">Pathogenic</span> <span class="chip" tabindex="0" style="padding:1px 7px;font-size:11px;vertical-align:middle">direction / strength<span class="tip"><b>Direction</b> = supports / disputes / neutral; <b>Strength</b> = definitive / likely / strong / potential.</span></span></div>
               <div class="ref"><b>quality</b>: <span style="color:var(--ink)">criteria provided</span> <span class="chip" tabindex="0" style="padding:1px 7px;font-size:11px;vertical-align:middle">review status<span class="tip"><b>quality</b> <span style="opacity:.7">(va-spec — a newer attribute)</span> — the SCV's <b>review status</b> / submission level (e.g. "criteria provided", "expert panel"). It maps to ClinVar's star rating and <b>drives aggregation</b>: the highest review status wins when SCVs roll up into a VCV / RCV.</span></span></div>
-              <div class="ref"><b>proposition</b> <span class="arrow">→</span> <span class="to">#/varcond-proposition/</span></div>
+              <div class="ref"><b>proposition</b> <span class="arrow">→</span> <span class="to">#/propositionPathogenicity/</span></div>
             </div>
           </div>
           <div class="conn"><div class="l"></div><div class="r">proposition</div><div class="a"></div></div>
           <div class="drawer">
-            <div class="head"><div class="skey">varcond-proposition</div><div class="otype">VariantPathogenicityProposition</div></div>
+            <div class="head"><div class="skey">propositionPathogenicity</div><div class="otype">VariantPathogenicityProposition</div></div>
             <div class="dbody">
               <div class="ref"><b>subject</b> <span class="arrow">→</span> <span class="to">#/variation/clinvar:10</span></div>
               <div class="ref"><b>predicate</b>: <span class="mono" style="color:var(--ink)">isCausalFor</span></div>
@@ -637,7 +637,7 @@
           </div>
         </div>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/examples/" target="_blank" rel="noopener">Examples</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/profiles/review-status/" target="_blank" rel="noopener">Review Status</a></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/examples/" target="_blank" rel="noopener">Examples</a></span> &middot; <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/profiles/review-status/" target="_blank" rel="noopener">Review Status</a></div>
       <aside class="snotes" hidden>
         <ul>
           <li>HFE p.His63Asp = clinvar:10, the same example used on the docs home page. The allele digest is real.</li>
@@ -685,7 +685,7 @@
           </div>
         </div>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/profiles/" target="_blank" rel="noopener">Profiles</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/reference/gks-standards/" target="_blank" rel="noopener">GA4GH Standards</a></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/profiles/" target="_blank" rel="noopener">Profiles</a></span> &middot; <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/gks-standards/" target="_blank" rel="noopener">GA4GH Standards</a></div>
       <aside class="snotes" hidden>
         <ul>
           <li>Framing: we conform to community agreements first; our profiles only fill the gaps ClinVar needs.</li>
@@ -727,7 +727,7 @@
           </ul>
         </div>
       </div>
-      <div class="foot">Standard where possible · custom where ClinVar requires it · always schema-valid. &middot; <span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/propositions/" target="_blank" rel="noopener">Propositions</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/pipeline/scv-statements/scv-extensions/" target="_blank" rel="noopener">SCV Extensions</a></div>
+      <div class="foot">Standard where possible · custom where ClinVar requires it · always schema-valid. &middot; <span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/propositions/" target="_blank" rel="noopener">Propositions</a></span> &middot; <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/scv-statements/scv-extensions/" target="_blank" rel="noopener">SCV Extensions</a></div>
       <aside class="snotes" hidden>
         <ul>
           <li>This answers the skeptic: "my weird ClinVar field — is it lost?" No — it's in a typed extension.</li>
@@ -763,7 +763,7 @@
           <span class="chip" tabindex="0" style="margin-left:6px">manifest-driven<span class="tip"><b>manifest.json</b> lists per-section <b>A</b>dded / <b>U</b>pdated / <b>D</b>eleted keys, and names the checkpoint full to replay onto.</span></span>
         </div>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/download/" target="_blank" rel="noopener">Downloads</a></span></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/download/" target="_blank" rel="noopener">Downloads</a></span></div>
       <aside class="snotes" hidden>
         <ul>
           <li>No auth / no egress is a real adoption lever — point it out.</li>
@@ -795,7 +795,7 @@
           <div class="card"><h3>Traceable records</h3><p>Every statement links to its contributing submissions and carries provenance extensions — back to the submitter.</p></div>
         </div>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/pipeline/" target="_blank" rel="noopener">Pipeline Overview</a></span></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/" target="_blank" rel="noopener">Pipeline Overview</a></span></div>
       <aside class="snotes" hidden>
         <ul>
           <li>This is the differentiator vs. "someone's reprocessed ClinVar." Method is open and verified.</li>
@@ -830,7 +830,7 @@
           <p style="margin-top:12px; font-size:14px">Their feedback drives what matures first and which datatypes expand.</p>
         </div>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/user-story/" target="_blank" rel="noopener">User Stories</a></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap</a></span> &middot; <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/user-story/" target="_blank" rel="noopener">User Stories</a></div>
       <aside class="snotes" hidden>
         <ul>
           <li>Name the consumers (per decision). Keep claims measured: "adopting / evaluating," not "shipped."</li>
@@ -849,12 +849,12 @@
           <h3>Docs &amp; data</h3>
           <ul class="ticks" style="margin-top:6px">
             <li style="font-size:16px"><b>Docs site</b> —
-              <a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/overview/" target="_blank" rel="noopener">Data Guide</a> ·
-              <a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/" target="_blank" rel="noopener">Data Model</a> ·
-              <a href="https://clingen-data-model.github.io/clinvar-gkm/pipeline/" target="_blank" rel="noopener">Pipeline</a> ·
-              <a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/examples/" target="_blank" rel="noopener">Examples</a> ·
-              <a href="https://clingen-data-model.github.io/clinvar-gkm/reference/glossary/" target="_blank" rel="noopener">Glossary</a></li>
-            <li style="font-size:16px"><b><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/download/" target="_blank" rel="noopener">Downloads</a></b> — monthly full + weekly deltas (JSON &amp; Parquet)</li>
+              <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/overview/" target="_blank" rel="noopener">Data Guide</a> ·
+              <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/" target="_blank" rel="noopener">Data Model</a> ·
+              <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/pipeline/" target="_blank" rel="noopener">Pipeline</a> ·
+              <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/examples/" target="_blank" rel="noopener">Examples</a> ·
+              <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/glossary/" target="_blank" rel="noopener">Glossary</a></li>
+            <li style="font-size:16px"><b><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/download/" target="_blank" rel="noopener">Downloads</a></b> — monthly full + weekly deltas (JSON &amp; Parquet)</li>
             <li style="font-size:16px"><b><a href="https://ga4gh.github.io/gkm-starter-kit/" target="_blank" rel="noopener">GKM Starter Kit</a></b> + vrs-python / cat-vrs-python / va-spec-python</li>
           </ul>
         </div>
@@ -862,12 +862,12 @@
           <h3>Feedback loop</h3>
           <ul class="ticks" style="margin-top:6px">
             <li style="font-size:16px"><b><a href="https://github.com/clingen-data-model/clinvar-gkm/issues" target="_blank" rel="noopener">GitHub issues</a></b> — data questions, bugs, format requests</li>
-            <li style="font-size:16px"><b><a href="https://clingen-data-model.github.io/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap</a></b> — driven by labeled GitHub Discussions (upvote to prioritize)</li>
+            <li style="font-size:16px"><b><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap</a></b> — driven by labeled GitHub Discussions (upvote to prioritize)</li>
             <li style="font-size:16px">Tell us which <b>components</b> &amp; <b>datatypes</b> you need next</li>
           </ul>
         </div>
         <div class="card" style="grid-column:1 / -1; background:var(--box)">
-          <p style="font-size:17px;color:var(--ink)"><b><a href="https://clingen-data-model.github.io/clinvar-gkm/" target="_blank" rel="noopener">clingen-data-model.github.io/clinvar-gkm</a></b>
+          <p style="font-size:17px;color:var(--ink)"><b><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/" target="_blank" rel="noopener">dataexchange.clinicalgenome.org/clinvar-gkm</a></b>
             &nbsp;·&nbsp; <a href="https://github.com/clingen-data-model/clinvar-gkm" target="_blank" rel="noopener">github.com/clingen-data-model/clinvar-gkm</a> &nbsp;·&nbsp; CC0</p>
         </div>
       </div>
