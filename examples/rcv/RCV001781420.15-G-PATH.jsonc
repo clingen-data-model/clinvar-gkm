@@ -96,8 +96,8 @@
           "coding": {
             "code": "0009960",
             "iris": [
-              "https://identifiers.org/mondo:0009960",
-              "http://purl.obolibrary.org/obo/MONDO_0009960"
+              "http://purl.obolibrary.org/obo/MONDO_0009960",
+              "https://identifiers.org/mondo:0009960"
             ],
             "system": "https://mondo.monarchinitiative.org/"
           },
@@ -107,8 +107,8 @@
           "coding": {
             "code": "266600",
             "iris": [
-              "https://www.omim.org/entry/266600",
-              "https://identifiers.org/mim:266600"
+              "https://identifiers.org/mim:266600",
+              "https://www.omim.org/entry/266600"
             ],
             "system": "https://www.omim.org/"
           },
@@ -119,8 +119,8 @@
       "primaryCoding": {
         "code": "CN260071",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/CN260071",
-          "https://identifiers.org/medgen:CN260071"
+          "https://identifiers.org/medgen:CN260071",
+          "https://www.ncbi.nlm.nih.gov/medgen/CN260071"
         ],
         "name": "Inflammatory bowel disease 1",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"

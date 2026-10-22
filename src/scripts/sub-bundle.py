@@ -64,8 +64,8 @@ EL_BY_PREFIX = {"SCV": ("gkm_dict_evidence_line", ST),
 SECTION_ORDER = [
     "sequenceReference", "location", "allele", "copyNumberCount", "copyNumberChange",
     "gene", "variation", "condition", "conditionSet", "submitter",
-    "varcond-proposition", "vartumor-proposition", "vartherapy-proposition",
-    "varcustom-proposition", "evidenceLine", "scv", "vcv", "rcv",
+    "propositionPathogenicity", "propositionOncogenicity", "propositionSomaticClinicalImpact",
+    "propositionClinvarCustom", "evidenceLine", "scv", "vcv", "rcv",
 ]
 REF_RE = re.compile(r'"#/([A-Za-z0-9_-]+)/([^"]+)"')
 
@@ -114,7 +114,7 @@ def table_for(section, key):
     """Resolve (section, key) -> (table, mode), or None if the section is unknown."""
     if section in SIMPLE:
         return SIMPLE[section]
-    if section.endswith("-proposition"):
+    if section.startswith("proposition"):
         return PROP_BY_PREFIX.get(_side(key))
     if section == "evidenceLine":
         return EL_BY_PREFIX.get(_side(key))

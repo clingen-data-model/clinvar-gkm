@@ -1,32 +1,45 @@
 #!/bin/bash
 
-# Release ClinVar-GKM: export from BigQuery, assemble bundle, upload to R2.
+# Release a ClinVar-GKM FULL bundle: export from BigQuery, assemble, upload to R2. A full is either the weekly
+# full of <export_date> (--weekly: <line>weekly/clinvar-gkm_YYYY-MMDD.json.gz, every release) or an official
+# monthly (--month-label=YYYY-MM: <line>clinvar-gkm_YYYY-MM.json.gz, built from its ADR 0002 source release).
+# run-release.sh normally makes the monthly a server-side copy of the weekly full instead (upload-gkm-to-r2.sh
+# --from-weekly); this script's monthly path is the re-export fallback and the republish path.
 #
-# Combines four pipeline steps into a single command:
-#   1. export-gkm-dicts.sh  — export dictionary tables to GCS as NDJSON + Parquet
-#   2. assemble-gkm-dicts.py — assemble NDJSON into a single JSON bundle
-#   3. Download Parquet files from GCS to local disk
-#   4. upload-gkm-to-r2.sh  — upload bundle + Parquet to Cloudflare R2
+# Three steps:
+#   1. export-gkm-dicts.sh --ndjson-only — export the dictionary tables to GCS as NDJSON
+#   2. assemble-gkm-dicts.py             — assemble the NDJSON into a single JSON bundle
+#   3. upload-gkm-to-r2.sh               — upload the bundle (+ .sha256 sidecar) to Cloudflare R2 (R2_LINE)
+#
+# No Parquet: Parquet is a derived convenience, published only as the single latest set
+# (release-gkm-parquet.sh), never per release.
 #
 # Usage:
 #   ./release-gkm.sh <export_date> <dataset_version> [--start-step=N] [--keep-source] [--dry-run]
+#                    [--month-label=YYYY-MM | --weekly] [--no-upload]
+#
+# --no-upload stops after step 2 and KEEPS the staged bundle (no R2 write, no cleanup), so it can be
+# validated before publishing; resume with --start-step=3. STAGE_DIR (default /tmp) sets where it is staged.
 #
 # Examples:
 #   ./release-gkm.sh 2026-05-03 v2_5_0
 #   ./release-gkm.sh 2026-05-03 v2_5_0 --dry-run
 #   ./release-gkm.sh 2026-05-03 v2_5_0 --keep-source
 #   ./release-gkm.sh 2026-05-03 v2_5_0 --start-step=2  # re-run from assemble step
-#   ./release-gkm.sh 2026-05-03 v2_5_0 --start-step=4  # re-run upload only
+#   ./release-gkm.sh 2026-05-03 v2_5_0 --start-step=3  # re-run upload only
+#   ./release-gkm.sh 2026-05-03 v2_5_0 --no-upload     # stage only (export, assemble)
 
 set -e
 
 # --- Positional arguments ---
 if [[ $# -lt 2 ]]; then
-  echo "Usage: $0 <export_date> <dataset_version> [--start-step=N] [--keep-source] [--dry-run] [--month-label=YYYY-MM]"
+  echo "Usage: $0 <export_date> <dataset_version> [--start-step=N] [--keep-source] [--dry-run] [--month-label=YYYY-MM] [--no-upload]"
   echo "  export_date      ClinVar release date (YYYY-MM-DD)"
   echo "  dataset_version  Dataset version (e.g. v2_5_0)"
-  echo "  --start-step=N   Start at step N (1=export, 2=assemble, 3=download parquet, 4=upload)"
+  echo "  --start-step=N   Start at step N (1=export, 2=assemble, 3=upload)"
   echo "  --month-label=   Publish to this YYYY-MM monthly slot instead of export_date's month"
+  echo "  --weekly         Publish as the weekly full of export_date (weekly/)"
+  echo "  --no-upload      Stop after step 2; keep the staged bundle (resume with --start-step=3)"
   exit 1
 fi
 
@@ -45,12 +58,16 @@ DRY_RUN=false
 KEEP_SOURCE=false
 START_STEP=1
 MONTH_LABEL=""
+NO_UPLOAD=false
+WEEKLY=false
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=true ;;
     --keep-source) KEEP_SOURCE=true ;;
     --start-step=*) START_STEP="${arg#--start-step=}" ;;
     --month-label=*) MONTH_LABEL="${arg#--month-label=}" ;;
+    --no-upload) NO_UPLOAD=true ;;
+    --weekly) WEEKLY=true ;;
     *)
       echo "ERROR: Unknown argument '${arg}'"
       exit 1
@@ -58,8 +75,13 @@ for arg in "$@"; do
   esac
 done
 
-if ! [[ "$START_STEP" =~ ^[1-4]$ ]]; then
-  echo "ERROR: --start-step must be 1, 2, 3, or 4, got '${START_STEP}'"
+if $WEEKLY && [[ -n "$MONTH_LABEL" ]]; then
+  echo "ERROR: --weekly and --month-label are exclusive"
+  exit 1
+fi
+
+if ! [[ "$START_STEP" =~ ^[1-3]$ ]]; then
+  echo "ERROR: --start-step must be 1, 2, or 3, got '${START_STEP}'"
   exit 1
 fi
 
@@ -67,8 +89,6 @@ fi
 GCS_BUCKET="clinvar-gkm"
 GCS_DICTS_PREFIX="gkm-dicts"
 GCS_DICTS_PATH="gs://${GCS_BUCKET}/${GCS_DICTS_PREFIX}"
-GCS_PARQUET_PREFIX="${GCS_DICTS_PREFIX}-parquet"
-GCS_PARQUET_PATH="gs://${GCS_BUCKET}/${GCS_PARQUET_PREFIX}"
 DATE_UNDERSCORED="${EXPORT_DATE//-/_}"
 BQ_DATASET="clinvar_${DATE_UNDERSCORED}_${DATASET_VERSION}"
 
@@ -80,41 +100,38 @@ else
   PYTHON="python3"
 fi
 
-BUNDLE_FILE="/tmp/clinvar-gkm-${EXPORT_DATE}.json.gz"
-PARQUET_DIR="/tmp/clinvar-gkm-${EXPORT_DATE}-parquet"
+STAGE_DIR="${STAGE_DIR:-/tmp}"
+BUNDLE_FILE="${STAGE_DIR}/clinvar-gkm-${EXPORT_DATE}.json.gz"
 
-echo "=== ClinVar-GKM Release Pipeline ==="
+echo "=== ClinVar-GKM Release Pipeline (full bundle: $($WEEKLY && echo weekly || echo "monthly ${MONTH_LABEL:-${EXPORT_DATE:0:7}}")) ==="
 echo "  Release date:  ${EXPORT_DATE}"
 echo "  Version:       ${DATASET_VERSION}"
 echo "  BQ dataset:    ${BQ_DATASET}"
 echo "  GCS dicts:     ${GCS_DICTS_PATH}/"
-echo "  GCS parquet:   ${GCS_PARQUET_PATH}/"
 echo "  Bundle:        ${BUNDLE_FILE}"
-echo "  Parquet dir:   ${PARQUET_DIR}"
 $DRY_RUN && echo "  Mode:          DRY RUN"
 $KEEP_SOURCE && echo "  Keep source:   YES"
+$NO_UPLOAD && echo "  Upload:        NO (stage only)"
 [[ "$START_STEP" -gt 1 ]] && echo "  Start step:    ${START_STEP}"
 echo ""
 
 # =====================================================================
-# Step 1: Export dictionary tables from BigQuery to GCS
+# Step 1: Export dictionary tables from BigQuery to GCS (NDJSON only)
 # =====================================================================
 
 if [[ "$START_STEP" -le 1 ]]; then
-  echo "=== Step 1/4: Exporting dictionary tables ==="
+  echo "=== Step 1/3: Exporting dictionary tables ==="
   if $DRY_RUN; then
-    echo "  [dry-run] Would clear ${GCS_DICTS_PATH}/ and ${GCS_PARQUET_PATH}/, then run: export-gkm-dicts.sh ${BQ_DATASET} ${GCS_BUCKET} ${GCS_DICTS_PREFIX}"
+    echo "  [dry-run] Would clear ${GCS_DICTS_PATH}/, then run: export-gkm-dicts.sh ${BQ_DATASET} ${GCS_BUCKET} ${GCS_DICTS_PREFIX} --ndjson-only"
   else
-    # Clear gkm-dicts and gkm-parquet before export to ensure no stale shards from a prior run
+    # Clear gkm-dicts before export to ensure no stale shards from a prior run
     echo "  Clearing ${GCS_DICTS_PATH}/ ..."
     gsutil -m -q rm -r "${GCS_DICTS_PATH}/" 2>/dev/null || true
-    echo "  Clearing ${GCS_PARQUET_PATH}/ ..."
-    gsutil -m -q rm -r "${GCS_PARQUET_PATH}/" 2>/dev/null || true
-    "${SCRIPT_DIR}/export-gkm-dicts.sh" "${BQ_DATASET}" "${GCS_BUCKET}" "${GCS_DICTS_PREFIX}"
+    "${SCRIPT_DIR}/export-gkm-dicts.sh" "${BQ_DATASET}" "${GCS_BUCKET}" "${GCS_DICTS_PREFIX}" --ndjson-only
   fi
   echo ""
 else
-  echo "=== Step 1/4: Skipped (--start-step=${START_STEP}) ==="
+  echo "=== Step 1/3: Skipped (--start-step=${START_STEP}) ==="
   echo ""
 fi
 
@@ -123,11 +140,12 @@ fi
 # =====================================================================
 
 if [[ "$START_STEP" -le 2 ]]; then
-  echo "=== Step 2/4: Assembling bundle ==="
+  echo "=== Step 2/3: Assembling bundle ==="
   ASSEMBLE_ARGS=("${GCS_DICTS_PATH}/" "${EXPORT_DATE}")
   if $KEEP_SOURCE; then
     ASSEMBLE_ARGS+=("--keep-source")
   fi
+  ASSEMBLE_ARGS+=("--output" "${BUNDLE_FILE}")
 
   if $DRY_RUN; then
     echo "  [dry-run] Would run: ${PYTHON} assemble-gkm-dicts.py ${ASSEMBLE_ARGS[*]}"
@@ -136,56 +154,31 @@ if [[ "$START_STEP" -le 2 ]]; then
   fi
   echo ""
 else
-  echo "=== Step 2/4: Skipped (--start-step=${START_STEP}) ==="
+  echo "=== Step 2/3: Skipped (--start-step=${START_STEP}) ==="
   echo ""
 fi
 
 # =====================================================================
-# Step 3: Download Parquet files from GCS
+# Step 3: Upload the bundle to Cloudflare R2
 # =====================================================================
 
-if [[ "$START_STEP" -le 3 ]]; then
-  echo "=== Step 3/4: Downloading Parquet files from GCS ==="
-  if $DRY_RUN; then
-    echo "  [dry-run] Would download ${GCS_PARQUET_PATH}/ to ${PARQUET_DIR}/"
-  else
-    mkdir -p "${PARQUET_DIR}"
-    GCS_DOWNLOAD_DIR="${PARQUET_DIR}/_gcs_shards"
-    mkdir -p "${GCS_DOWNLOAD_DIR}"
-    gsutil -m cp "${GCS_PARQUET_PATH}/*.parquet" "${GCS_DOWNLOAD_DIR}/"
-
-    # Merge sharded Parquet files into one file per section.
-    # BQ export produces shards like allele-000000000000.parquet, allele-000000000001.parquet.
-    # Consumers expect a single allele.parquet per section.
-    echo "  Merging shards into single files per section..."
-    for first_shard in "${GCS_DOWNLOAD_DIR}"/*-000000000000.parquet; do
-      [ -f "$first_shard" ] || continue
-      section_base="$(basename "$first_shard" | sed 's/-000000000000\.parquet//')"
-      merged="${PARQUET_DIR}/${section_base}.parquet"
-      echo "    ${section_base} ($(ls -1 "${GCS_DOWNLOAD_DIR}/${section_base}"-*.parquet | wc -l) shards)"
-      duckdb -c "COPY (SELECT * FROM read_parquet('${GCS_DOWNLOAD_DIR}/${section_base}-*.parquet')) TO '${merged}' (FORMAT PARQUET, COMPRESSION SNAPPY);"
-    done
-    rm -rf "${GCS_DOWNLOAD_DIR}"
-
-    echo "  ${PARQUET_DIR}/ contains $(ls -1 "${PARQUET_DIR}"/*.parquet 2>/dev/null | wc -l) Parquet files"
-  fi
-  echo ""
-else
-  echo "=== Step 3/4: Skipped (--start-step=${START_STEP}) ==="
-  echo ""
+if $NO_UPLOAD; then
+  echo "=== Step 3/3: Skipped (--no-upload); staged bundle kept ==="
+  echo "  Bundle:  ${BUNDLE_FILE}"
+  echo "  Publish later with: $0 ${EXPORT_DATE} ${DATASET_VERSION} --start-step=3${MONTH_LABEL:+ --month-label=${MONTH_LABEL}}$($WEEKLY && echo ' --weekly')"
+  exit 0
 fi
 
-# =====================================================================
-# Step 4: Upload bundle and Parquet to Cloudflare R2
-# =====================================================================
-
-echo "=== Step 4/4: Uploading to R2 ==="
-UPLOAD_ARGS=("${EXPORT_DATE}" "${DATASET_VERSION}" "${BUNDLE_FILE}" "--parquet-dir=${PARQUET_DIR}")
+echo "=== Step 3/3: Uploading to R2 ==="
+UPLOAD_ARGS=("${EXPORT_DATE}" "${DATASET_VERSION}" "${BUNDLE_FILE}")
 if $DRY_RUN; then
   UPLOAD_ARGS+=("--dry-run")
 fi
 if [[ -n "${MONTH_LABEL}" ]]; then
   UPLOAD_ARGS+=("--month-label=${MONTH_LABEL}")
+fi
+if $WEEKLY; then
+  UPLOAD_ARGS+=("--weekly")
 fi
 
 "${SCRIPT_DIR}/upload-gkm-to-r2.sh" "${UPLOAD_ARGS[@]}"
@@ -193,9 +186,4 @@ fi
 # --- Cleanup ---
 if ! $DRY_RUN; then
   rm -f "${BUNDLE_FILE}"
-  rm -rf "${PARQUET_DIR}"
-  if ! $KEEP_SOURCE; then
-    echo "  Cleaning up GCS Parquet files..."
-    gsutil -m -q rm -r "${GCS_PARQUET_PATH}/" 2>/dev/null || true
-  fi
 fi

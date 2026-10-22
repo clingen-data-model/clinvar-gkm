@@ -129,6 +129,17 @@
           "mappings": [
             {
               "coding": {
+                "code": "0030358",
+                "iris": [
+                  "http://purl.obolibrary.org/obo/HP_0030358",
+                  "https://identifiers.org/HP:0030358"
+                ],
+                "system": "https://hpo.jax.org/"
+              },
+              "relation": "relatedMatch"
+            },
+            {
+              "coding": {
                 "code": "D002289",
                 "iris": [
                   "https://identifiers.org/mesh:D002289",
@@ -142,31 +153,10 @@
               "coding": {
                 "code": "0005233",
                 "iris": [
-                  "https://identifiers.org/mondo:0005233",
-                  "http://purl.obolibrary.org/obo/MONDO_0005233"
+                  "http://purl.obolibrary.org/obo/MONDO_0005233",
+                  "https://identifiers.org/mondo:0005233"
                 ],
                 "system": "https://mondo.monarchinitiative.org/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "0030358",
-                "iris": [
-                  "https://identifiers.org/HP:0030358",
-                  "http://purl.obolibrary.org/obo/HP_0030358"
-                ],
-                "system": "https://hpo.jax.org/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "254637007",
-                "iris": [
-                  "https://identifiers.org/snomedct:254637007"
-                ],
-                "system": "https://www.snomed.org/"
               },
               "relation": "relatedMatch"
             },
@@ -199,14 +189,24 @@
                 "system": "https://www.ncbi.nlm.nih.gov/gtr/"
               },
               "relation": "relatedMatch"
+            },
+            {
+              "coding": {
+                "code": "254637007",
+                "iris": [
+                  "https://identifiers.org/snomedct:254637007"
+                ],
+                "system": "https://www.snomed.org/"
+              },
+              "relation": "relatedMatch"
             }
           ],
           "name": "Non-small cell lung carcinoma",
           "primaryCoding": {
             "code": "C0007131",
             "iris": [
-              "https://www.ncbi.nlm.nih.gov/medgen/C0007131",
-              "https://identifiers.org/medgen:C0007131"
+              "https://identifiers.org/medgen:C0007131",
+              "https://www.ncbi.nlm.nih.gov/medgen/C0007131"
             ],
             "name": "Non-small cell lung carcinoma",
             "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -221,6 +221,10 @@
               "value": [
                 "EGFR"
               ]
+            },
+            {
+              "name": "geneContextSource",
+              "value": "submittedSymbolMatches"
             }
           ],
           "mappings": [
@@ -271,6 +275,10 @@
           "value": [
             "EGFR"
           ]
+        },
+        {
+          "name": "geneContextSource",
+          "value": "submittedSymbolMatches"
         }
       ],
       "mappings": [
@@ -308,6 +316,17 @@
       "mappings": [
         {
           "coding": {
+            "code": "0030358",
+            "iris": [
+              "http://purl.obolibrary.org/obo/HP_0030358",
+              "https://identifiers.org/HP:0030358"
+            ],
+            "system": "https://hpo.jax.org/"
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
             "code": "D002289",
             "iris": [
               "https://identifiers.org/mesh:D002289",
@@ -321,31 +340,10 @@
           "coding": {
             "code": "0005233",
             "iris": [
-              "https://identifiers.org/mondo:0005233",
-              "http://purl.obolibrary.org/obo/MONDO_0005233"
+              "http://purl.obolibrary.org/obo/MONDO_0005233",
+              "https://identifiers.org/mondo:0005233"
             ],
             "system": "https://mondo.monarchinitiative.org/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "0030358",
-            "iris": [
-              "https://identifiers.org/HP:0030358",
-              "http://purl.obolibrary.org/obo/HP_0030358"
-            ],
-            "system": "https://hpo.jax.org/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "254637007",
-            "iris": [
-              "https://identifiers.org/snomedct:254637007"
-            ],
-            "system": "https://www.snomed.org/"
           },
           "relation": "relatedMatch"
         },
@@ -378,14 +376,24 @@
             "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "254637007",
+            "iris": [
+              "https://identifiers.org/snomedct:254637007"
+            ],
+            "system": "https://www.snomed.org/"
+          },
+          "relation": "relatedMatch"
         }
       ],
       "name": "Non-small cell lung carcinoma",
       "primaryCoding": {
         "code": "C0007131",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C0007131",
-          "https://identifiers.org/medgen:C0007131"
+          "https://identifiers.org/medgen:C0007131",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0007131"
         ],
         "name": "Non-small cell lung carcinoma",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"
@@ -403,24 +411,10 @@
   },
   "reportedIn": [
     {
-      "pmid": "24736073",
+      "pmid": "17877814",
       "type": "Document",
       "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/24736073"
-      ]
-    },
-    {
-      "pmid": "22285168",
-      "type": "Document",
-      "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/22285168"
-      ]
-    },
-    {
-      "pmid": "27032107",
-      "type": "Document",
-      "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/27032107"
+        "https://pubmed.ncbi.nlm.nih.gov/17877814"
       ]
     },
     {
@@ -431,17 +425,38 @@
       ]
     },
     {
-      "pmid": "17877814",
-      "type": "Document",
-      "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/17877814"
-      ]
-    },
-    {
       "pmid": "21132006",
       "type": "Document",
       "urls": [
         "https://pubmed.ncbi.nlm.nih.gov/21132006"
+      ]
+    },
+    {
+      "pmid": "22285168",
+      "type": "Document",
+      "urls": [
+        "https://pubmed.ncbi.nlm.nih.gov/22285168"
+      ]
+    },
+    {
+      "pmid": "24736073",
+      "type": "Document",
+      "urls": [
+        "https://pubmed.ncbi.nlm.nih.gov/24736073"
+      ]
+    },
+    {
+      "pmid": "24868098",
+      "type": "Document",
+      "urls": [
+        "https://pubmed.ncbi.nlm.nih.gov/24868098"
+      ]
+    },
+    {
+      "pmid": "27032107",
+      "type": "Document",
+      "urls": [
+        "https://pubmed.ncbi.nlm.nih.gov/27032107"
       ]
     },
     {
@@ -452,10 +467,57 @@
       ]
     },
     {
-      "pmid": "24868098",
       "type": "Document",
       "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/24868098"
+        "https://civicdb.org/links/evidence/229"
+      ]
+    },
+    {
+      "type": "Document",
+      "urls": [
+        "https://civicdb.org/links/evidence/2994"
+      ]
+    },
+    {
+      "type": "Document",
+      "urls": [
+        "https://civicdb.org/links/evidence/3811"
+      ]
+    },
+    {
+      "type": "Document",
+      "urls": [
+        "https://civicdb.org/links/evidence/4265"
+      ]
+    },
+    {
+      "type": "Document",
+      "urls": [
+        "https://civicdb.org/links/evidence/4285"
+      ]
+    },
+    {
+      "type": "Document",
+      "urls": [
+        "https://civicdb.org/links/evidence/4290"
+      ]
+    },
+    {
+      "type": "Document",
+      "urls": [
+        "https://civicdb.org/links/evidence/4291"
+      ]
+    },
+    {
+      "type": "Document",
+      "urls": [
+        "https://civicdb.org/links/evidence/885"
+      ]
+    },
+    {
+      "type": "Document",
+      "urls": [
+        "https://identifiers.org/civic.mpid:33"
       ]
     }
   ],

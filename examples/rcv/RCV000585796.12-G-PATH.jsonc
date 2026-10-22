@@ -147,12 +147,12 @@
       "mappings": [
         {
           "coding": {
-            "code": "46724",
+            "code": "0002408",
             "iris": [
-              "https://identifiers.org/orphanet:46724",
-              "http://www.orpha.net/ORDO/Orphanet_46724"
+              "http://purl.obolibrary.org/obo/HP_0002408",
+              "https://identifiers.org/HP:0002408"
             ],
-            "system": "https://www.orpha.net/"
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
@@ -160,8 +160,8 @@
           "coding": {
             "code": "0007154",
             "iris": [
-              "https://identifiers.org/mondo:0007154",
-              "http://purl.obolibrary.org/obo/MONDO_0007154"
+              "http://purl.obolibrary.org/obo/MONDO_0007154",
+              "https://identifiers.org/mondo:0007154"
             ],
             "system": "https://mondo.monarchinitiative.org/"
           },
@@ -171,8 +171,8 @@
           "coding": {
             "code": "108010",
             "iris": [
-              "https://www.omim.org/entry/108010",
-              "https://identifiers.org/mim:108010"
+              "https://identifiers.org/mim:108010",
+              "https://www.omim.org/entry/108010"
             ],
             "system": "https://www.omim.org/"
           },
@@ -180,12 +180,12 @@
         },
         {
           "coding": {
-            "code": "0002408",
+            "code": "46724",
             "iris": [
-              "https://identifiers.org/HP:0002408",
-              "http://purl.obolibrary.org/obo/HP_0002408"
+              "http://www.orpha.net/ORDO/Orphanet_46724",
+              "https://identifiers.org/orphanet:46724"
             ],
-            "system": "https://hpo.jax.org/"
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
@@ -204,8 +204,8 @@
       "primaryCoding": {
         "code": "C0917804",
         "iris": [
-          "https://www.ncbi.nlm.nih.gov/medgen/C0917804",
-          "https://identifiers.org/medgen:C0917804"
+          "https://identifiers.org/medgen:C0917804",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0917804"
         ],
         "name": "Cerebral arteriovenous malformation",
         "system": "https://www.ncbi.nlm.nih.gov/medgen/"

@@ -1,5 +1,8 @@
 SELECT * EXCEPT(proposition, hasEvidenceLines),
   REGEXP_REPLACE(proposition, r'^#/[^/]+/', '') AS proposition_id,
+  -- The proposition table/section this statement's proposition is in (1.1.0): propositionPathogenicity,
+  -- propositionOncogenicity, propositionSomaticClinicalImpact or propositionClinvarCustom. From the pointer.
+  REGEXP_EXTRACT(proposition, r'^#/([^/]+)/') AS proposition_section,
   ARRAY(SELECT REGEXP_REPLACE(el, r'^#/[^/]+/', '') FROM UNNEST(hasEvidenceLines) AS el) AS has_evidence_lines,
   collapse_ext_values(TO_JSON_STRING(JSON_STRIP_NULLS(TO_JSON((SELECT AS STRUCT t.*)), remove_empty => TRUE))) AS data
 FROM {DATASET}.gkm_dict_rcv t

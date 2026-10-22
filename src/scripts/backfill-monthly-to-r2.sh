@@ -1,247 +1,31 @@
 #!/bin/bash
-
-# Backfill a historical monthly ClinVar-GKM release to Cloudflare R2.
+# Backfill a past official monthly ClinVar-GKM bundle into the version line (R2_LINE, default v1/1.1/).
 #
-# Use this script to upload past monthly releases that were not captured
-# by the normal pipeline. It uploads directly to the monthly destination
-# without updating the 00-latest pointer.
-#
-# Destination is derived from the export year vs. the current calendar year (all under v1/):
-#   Current year:  v1/datasets/clinvar-gkm_{YYYY}-{MM}.json.gz          (+ v1/datasets/parquet/{YYYY-MM}/)
-#   Prior year:    v1/archives/{YYYY}/clinvar-gkm_{YYYY}-{MM}.json.gz   (+ v1/archives/{YYYY}/parquet/{YYYY-MM}/)
-#
-# Pass --parquet-dir=DIR to also backfill that month's typed Parquet set to the dated
-# path (datasets/parquet/{YYYY-MM}/ or archives/{YYYY}/parquet/{YYYY-MM}/).
-#
-# The 00-latest pointers (JSON and Parquet) are NOT updated — this is a backfill, not the
-# most recent release. Run the normal upload-gkm-to-r2.sh for current releases.
+# A thin wrapper over upload-gkm-to-r2.sh --month-label, which already does what a backfill needs:
+#   * a month of the line's current year goes to <line>clinvar-gkm_YYYY-MM.json.gz, a prior year's month to
+#     <line>archive/YYYY/clinvar-gkm_YYYY-MM.json.gz (each + .sha256);
+#   * clinvar-gkm_00-latest.json.gz is repointed only when the month is the newest monthly (never by a backfill
+#     of an older month);
+#   * the index records the month's source_release (<export_date>).
+# No Parquet: Parquet is one derived set per line (ADR 0008), never per month.
 #
 # Usage:
-#   ./backfill-monthly-to-r2.sh <export_date> <dataset_version> <bundle_file> [--dry-run] [--parquet-dir=DIR] [--purge]
+#   ./backfill-monthly-to-r2.sh <export_date> <dataset_version> <bundle_file> [--month-label=YYYY-MM] [--dry-run] [--purge]
 #
-# Examples:
-#   ./backfill-monthly-to-r2.sh 2026-03-29 v2_5_0 /tmp/clinvar-gkm-2026-03-29.json.gz
-#   ./backfill-monthly-to-r2.sh 2025-11-28 v2_4_0 /tmp/clinvar-gkm-2025-11-28.json.gz --dry-run
-#   ./backfill-monthly-to-r2.sh 2026-03-29 v2_5_0 /tmp/bundle.json.gz --parquet-dir=/tmp/parquet
-
-set -e
-
-# --- Positional arguments ---
+# --month-label defaults to <export_date>'s month; ADR 0002 labels a monthly by ClinVar's month, which is often
+# the month AFTER its source release (e.g. 2026-10 <- 2026-09-28), so pass it explicitly.
+set -euo pipefail
 if [[ $# -lt 3 ]]; then
-  echo "Usage: $0 <export_date> <dataset_version> <bundle_file> [--dry-run] [--parquet-dir=DIR] [--purge]"
-  echo "  export_date      ClinVar release date (YYYY-MM-DD)"
-  echo "  dataset_version  Dataset version (e.g. v2_5_0)"
-  echo "  bundle_file      Local path to the assembled bundle (.json.gz)"
-  exit 1
+  sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 1
 fi
-
-EXPORT_DATE="$1"
-DATASET_VERSION="$2"
-BUNDLE_FILE="$3"
-shift 3
-
-# Validate date format
-if ! [[ "$EXPORT_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
-  echo "ERROR: export_date must be YYYY-MM-DD format, got '${EXPORT_DATE}'"
-  exit 1
-fi
-
-# --- Parse flags ---
-DRY_RUN=false
-PARQUET_DIR=""
-PURGE=false
+EXPORT_DATE="$1"; DATASET_VERSION="$2"; BUNDLE_FILE="$3"; shift 3
+LABEL="${EXPORT_DATE:0:7}"; PASS=()
 for arg in "$@"; do
   case "$arg" in
-    --dry-run) DRY_RUN=true ;;
-    --purge) PURGE=true ;;
-    --parquet-dir=*) PARQUET_DIR="${arg#--parquet-dir=}" ;;
-    *)
-      echo "ERROR: Unknown argument '${arg}'"
-      exit 1
-      ;;
+    --month-label=*) LABEL="${arg#--month-label=}" ;;
+    --dry-run|--purge) PASS+=("$arg") ;;
+    *) echo "ERROR: unknown argument '${arg}'" >&2; exit 1 ;;
   esac
 done
-
-# --- R2 Configuration ---
-R2_ACCOUNT_ID="09208aa33790838db213a21f630c33e7"
-R2_BUCKET="clinvar-gkm"
-R2_ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
-R2_PROFILE="r2"
-R2_PUBLIC_URL="${R2_PUBLIC_URL:-https://data.clinvar-gkm.org}"
-# Per-major release prefix (ADR 0004) — matches the other uploaders + generate-r2-index.sh,
-# so backfilled months land under v1/ (where the index generator looks), not the bucket root.
-R2_PREFIX="${R2_PREFIX:-v1/}"
-
-# --- CDN cache purge (optional; see ADR 0005) -----------------------------------------
-# A first-time backfill writes a NEW dated key — no purge needed. Pass --purge ONLY when
-# re-running a backfill over an already-published (and cached) month, so edge caches don't
-# serve stale bytes until the (long) immutable Edge TTL expires. Requires a ZONE-scoped
-# Cloudflare token with Cache Purge (the object-scoped r2 token cannot purge):
-#   export CF_ZONE_ID=...  CF_PURGE_TOKEN=...
-CF_PUBLIC_HOST="${CF_PUBLIC_HOST:-data.clinvar-gkm.org}"
-CF_ZONE_ID="${CF_ZONE_ID:-}"
-CF_PURGE_TOKEN="${CF_PURGE_TOKEN:-}"
-
-# --- Derived date components ---
-YEAR="${EXPORT_DATE:0:4}"
-MM="${EXPORT_DATE:5:2}"
-CURRENT_YEAR="$(date +%Y)"
-
-# --- Filenames ---
-MONTHLY_FILE="clinvar-gkm_${YEAR}-${MM}.json.gz"
-
-# --- Destination (JSON bundle + dated Parquet set) ---
-if [[ "$YEAR" == "$CURRENT_YEAR" ]]; then
-  DEST="datasets/${MONTHLY_FILE}"
-  PARQUET_DEST_PREFIX="datasets/parquet/${YEAR}-${MM}"
-else
-  DEST="archives/${YEAR}/${MONTHLY_FILE}"
-  PARQUET_DEST_PREFIX="archives/${YEAR}/parquet/${YEAR}-${MM}"
-fi
-
-# =====================================================================
-# Helper functions
-# =====================================================================
-
-r2_upload() {
-  local src="$1" dest="${R2_PREFIX}$2" content_type="${3:-application/gzip}"
-  if $DRY_RUN; then
-    echo "  [dry-run] upload: ${dest}"
-    return
-  fi
-  aws s3 cp "$src" "s3://${R2_BUCKET}/${dest}" \
-    --endpoint-url "${R2_ENDPOINT}" \
-    --profile "${R2_PROFILE}" \
-    --content-type "${content_type}" \
-    --quiet
-}
-
-r2_ls() {
-  local prefix="$1"
-  aws s3 ls "s3://${R2_BUCKET}/${prefix}" \
-    --endpoint-url "${R2_ENDPOINT}" \
-    --profile "${R2_PROFILE}" \
-    2>/dev/null | awk '{print $NF}' || true
-}
-
-r2_ls_with_size() {
-  local prefix="$1"
-  aws s3 ls "s3://${R2_BUCKET}/${prefix}" \
-    --endpoint-url "${R2_ENDPOINT}" \
-    --profile "${R2_PROFILE}" \
-    2>/dev/null | awk '/\.json\.gz$/ {print $3, $4}' || true
-}
-
-cf_purge() {
-  # Purge CDN-cached copies of the given host-relative prefixes (args: "host/path" each).
-  # No-op unless --purge was passed; honors DRY_RUN; never fatal (always returns 0).
-  $PURGE || return 0
-  if $DRY_RUN; then
-    local p
-    for p in "$@"; do echo "  [dry-run] purge: ${p}"; done
-    return 0
-  fi
-  if [[ -z "$CF_ZONE_ID" || -z "$CF_PURGE_TOKEN" ]]; then
-    echo "  WARNING: --purge set but CF_ZONE_ID/CF_PURGE_TOKEN not set — skipping CDN purge."
-    echo "           Overwritten paths may serve stale from cache until Edge TTL expiry."
-    return 0
-  fi
-  local prefixes="" p
-  for p in "$@"; do
-    [[ -n "$prefixes" ]] && prefixes+=","
-    prefixes+="\"${p}\""
-  done
-  echo "  Purging CDN cache: $*"
-  if curl -fsS -X POST \
-      "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
-      -H "Authorization: Bearer ${CF_PURGE_TOKEN}" \
-      -H "Content-Type: application/json" \
-      --data "{\"prefixes\":[${prefixes}]}" >/dev/null 2>&1; then
-    echo "  Purge requested."
-  else
-    echo "  WARNING: CDN purge request failed (continuing)."
-  fi
-}
-
-upload_parquet_backfill() {
-  # Backfill this month's typed Parquet to the dated path. Like the JSON backfill it does
-  # NOT touch datasets/parquet/00-latest/ — that pointer belongs to the most recent release.
-  local parquet_dir="$1"
-  if [[ -z "$parquet_dir" || ! -d "$parquet_dir" ]]; then
-    echo "  (no Parquet dir found, skipping)"
-    return
-  fi
-  echo "--- Uploading Parquet section files -> ${PARQUET_DEST_PREFIX}/ ---"
-  local uploaded=0
-  for parquet_file in "${parquet_dir}"/*.parquet; do
-    [[ -f "$parquet_file" ]] || continue
-    local section
-    section="$(basename "${parquet_file}" .parquet)"
-    echo "  ${PARQUET_DEST_PREFIX}/${section}.parquet"
-    r2_upload "${parquet_file}" "${PARQUET_DEST_PREFIX}/${section}.parquet" \
-      "application/vnd.apache.parquet"
-    (( uploaded++ )) || true
-  done
-  echo "  ${uploaded} Parquet files uploaded to ${PARQUET_DEST_PREFIX}/."
-}
-
-# =====================================================================
-# Main
-# =====================================================================
-
-echo "=== ClinVar-GKM Backfill Monthly ==="
-echo "  Release date:  ${EXPORT_DATE}"
-echo "  Version:       ${DATASET_VERSION}"
-echo "  Monthly file:  ${MONTHLY_FILE}"
-echo "  Destination:   ${DEST}"
-if $DRY_RUN; then
-  echo "  Mode:          DRY RUN"
-fi
-echo ""
-
-# --- Check bundle file ---
-echo "Checking bundle: ${BUNDLE_FILE}"
-if ! $DRY_RUN && [[ ! -f "${BUNDLE_FILE}" ]]; then
-  echo "ERROR: Bundle file not found at ${BUNDLE_FILE}"
-  exit 1
-fi
-echo ""
-
-# --- Upload monthly file ---
-echo "--- Uploading monthly release ---"
-echo "  ${DEST}"
-r2_upload "${BUNDLE_FILE}" "${DEST}"
-echo ""
-
-# --- Upload dated Parquet set (if provided) ---
-if [[ -n "${PARQUET_DIR}" ]]; then
-  upload_parquet_backfill "${PARQUET_DIR}"
-  echo ""
-fi
-
-# --- Regenerate index.json via the shared delta-aware generator ---
-# (Do NOT inline an index builder here — it would write the retired weekly-schema index and
-#  clobber the deltas-aware index.json. generate-r2-index.sh reflects current R2 state:
-#  monthly fulls + archives + deltas.)
-echo "--- Regenerating index.json ---"
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-INDEX_ARGS=()
-$DRY_RUN && INDEX_ARGS+=("--dry-run")
-"${SCRIPT_DIR}/generate-r2-index.sh" "${INDEX_ARGS[@]}"
-
-# --- Purge CDN cache for the re-published dated paths (--purge only) ---
-# Only needed when re-running a backfill over an already-published (cached) month.
-PURGE_TARGETS=("${CF_PUBLIC_HOST}/${R2_PREFIX}${DEST}")
-if [[ -n "${PARQUET_DIR}" ]]; then
-  PURGE_TARGETS+=("${CF_PUBLIC_HOST}/${R2_PREFIX}${PARQUET_DEST_PREFIX}/")
-fi
-cf_purge "${PURGE_TARGETS[@]}"
-
-# --- Summary ---
-echo ""
-echo "=== Backfill Complete ==="
-echo "  Monthly: ${R2_PUBLIC_URL}/${R2_PREFIX}${DEST}"
-if [[ -n "${PARQUET_DIR}" && -d "${PARQUET_DIR}" ]]; then
-  echo "  Parquet: ${R2_PUBLIC_URL}/${R2_PREFIX}${PARQUET_DEST_PREFIX}/"
-fi
-echo "  Index:   ${R2_PUBLIC_URL}/index.json"
+exec "$(cd "$(dirname "$0")" && pwd)/upload-gkm-to-r2.sh" "${EXPORT_DATE}" "${DATASET_VERSION}" "${BUNDLE_FILE}" \
+  "--month-label=${LABEL}" "${PASS[@]+"${PASS[@]}"}"

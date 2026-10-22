@@ -18,7 +18,7 @@
 -- Every tracked gkm_* table has a single-value primary key (verified): 'id' for the
 -- final artifacts / dict tables. `gkm_catvar` / `gkm_dict_variation` may contain
 -- exact-duplicate id rows (a separate catvar-proc data issue), so each table is
--- de-duplicated to one canonical content per pk (GROUP BY pk + ANY_VALUE) before
+-- de-duplicated to one canonical content per pk (GROUP BY pk + MIN) before
 -- diffing — the dup collapses harmlessly.
 --
 -- Comparison is two-tier for speed + order-independence: cheap raw TO_JSON_STRING
@@ -121,11 +121,11 @@ BEGIN
         SET q = """
           INSERT INTO `{S}.gkm_change_log` (table_name, change_type, pk, baseline_release, compare_release)
           WITH cur AS (
-            SELECT CAST({PK} AS STRING) AS pk, ANY_VALUE(TO_JSON_STRING(t)) AS h
+            SELECT CAST({PK} AS STRING) AS pk, MIN(TO_JSON_STRING(t)) AS h
             FROM `{S}.{T}` t GROUP BY {PK}
           ),
           base AS (
-            SELECT CAST({PK} AS STRING) AS pk, ANY_VALUE(TO_JSON_STRING(t)) AS h
+            SELECT CAST({PK} AS STRING) AS pk, MIN(TO_JSON_STRING(t)) AS h
             FROM `{BASE}.{T}` t GROUP BY {PK}
           ),
           joined AS (
