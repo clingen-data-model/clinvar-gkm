@@ -107,6 +107,8 @@
     return dated[0] || null;
   }
   function pointer(list) { return list.filter(isPointer)[0] || null; }
+  // The Parquet entry has no `modified`; its build_date (ISO timestamp, from parquet/manifest.json) stands in.
+  function parquetDate(p) { return p && (p.modified || (p.build_date ? String(p.build_date).slice(0, 10) : null)); }
   function label(name) { return String(name).replace(/^clinvar-gkm(-delta)?_|\.json\.gz$/g, ""); }
 
   // Group entries into folders by the directory of pathOf(entry); the line folder first, then newest first.
@@ -149,7 +151,7 @@
        wDated && wDated.modified, weeklyGet],
       ["Weekly delta", dNew ? dNew.release : "", dNew && dNew.modified, deltaGet],
       ["Parquet (derived)", p ? (p.source_release ? "built from " + p.source_release : "latest") : "",
-       p && p.modified, parquetGet]
+       parquetDate(p), parquetGet]
     ].filter(function (r) { return r[0] !== "Weekly full" || w.length; });
 
     var table = el("table", { className: "r2-latest" });
@@ -200,7 +202,7 @@
     if (!p) return;
     var dir = String(p.path).replace(/^\//, "").replace(/\/?$/, "/");
     var title = relDir(dir) + (p.source_release ? " (built from " + p.source_release + ")" : "");
-    var f = folder(title, true, dateBadge(p.modified));
+    var f = folder(title, true, dateBadge(parquetDate(p)));
     var manifest = p.manifest || (/00-latest/.test(dir) ? null : dir + "manifest.json");
     if (manifest) f.appendChild(fileRow(baseName(manifest), url(manifest)));
     (p.sections && p.sections.length ? p.sections : PARQUET_SECTIONS).forEach(function (s) {

@@ -13,7 +13,7 @@ The dataset lives at one stable path, `v1/1.1/parquet/`, one file per section, w
 ```text
 v1/1.1/parquet/
   {section}.parquet      22 files, one per bundle section
-  manifest.json          when the dataset was built, from which release, by which tool version
+  manifest.json          build date, source release and dataset, builder, schema version, each file's size and sha256
 ```
 
 The manifest names the release the dataset was built from, so check it before comparing results with a bundle (the index's Parquet entry carries the same `source_release`). For an earlier state, see [Earlier releases](#earlier-releases).

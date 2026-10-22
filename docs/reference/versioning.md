@@ -51,18 +51,25 @@ Each version line lives in its own folder, `v{major}/{major}.{minor}/` (`v1/1.1/
 own `index.json`. PATCH releases add to their line's folder; a new MINOR or MAJOR starts a new folder, and the
 line it replaces is frozen, its files kept unchanged (the 1.0.1 generation is the frozen line `v1/1.0/`). Inside
 a line the layout mirrors NCBI's ClinVar FTP site; see [Downloads](../data-access/download.md#directory-structure).
-A small **root manifest** at the bucket root tells you what's current, what's deprecated, and when each line
-ends. An illustration of its shape:
+A small **root manifest** at the bucket root, `index.json`, lists every line, its status and schema version,
+and where its own `index.json` and feed are. Its shape, as published for 1.1.0:
 
 ```json
 {
-  "active": ["1", "2"],
+  "manifest_version": 2,
+  "updated_at": "2026-10-21T00:00:00Z",
+  "base_url": "https://data.clinvar-gkm.org",
+  "current": "v1/1.1",
   "versions": {
-    "1": {"schema": "1.4.2", "status": "deprecated", "eol": "2027-04-01", "index": "/v1/1.4/index.json"},
-    "2": {"schema": "2.0.0", "status": "current",    "eol": null,          "index": "/v2/2.0/index.json"}
+    "1.1": {"line": "v1/1.1", "major": 1, "minor": 1, "status": "current", "schema": "1.1.0",
+            "superseded_by": null, "index": "v1/1.1/index.json", "feed": "v1/1.1/feed.xml"},
+    "1.0": {"line": "v1/1.0", "major": 1, "minor": 0, "status": "frozen", "schema": "1.0.1",
+            "superseded_by": "v1/1.1", "index": "v1/1.0/index.json", "feed": "v1/1.0/feed.xml"}
   }
 }
 ```
+
+`versions` is keyed by `{major}.{minor}`; paths are relative to `base_url`. A line is `current` or `frozen`.
 
 To **pin** to a major version, read releases from that line's `index.json` and ignore the others. To **track
 the latest**, follow the line whose `status` is `current`. Every bundle also carries a top-level
@@ -80,7 +87,7 @@ the latest**, follow the line whose `status` is `current`. Every bundle also car
 !!! tip "Subscribe"
     - **Watch the GitHub repository** (Custom → Releases & Discussions) for release announcements and change
       proposals.
-    - **Subscribe to the release feed** (RSS/Atom, generated from `index.json`) in any feed reader.
+    - **Subscribe to the release feed** (Atom, each line's `feed.xml`, e.g. `https://data.clinvar-gkm.org/v1/1.1/feed.xml`) in any feed reader.
     - **Join the email list** [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm), a Google Group for release announcements, change notices and RFCs about
       the repository, the data releases, tools and documentation. No GitHub account needed.
 

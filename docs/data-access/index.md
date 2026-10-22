@@ -24,7 +24,7 @@ The full bundle is a single JSON object containing all bundle sections — varia
 
 - **Weekly releases**: for every ClinVar weekly release, a weekly full bundle in `weekly/` and a delta in `deltas/`. `weekly/` keeps the current month only
 - **Official monthly full bundles** are published once a month at the top of the line folder, aligned to ClinVar's own monthly VCV releases — each `ClinVarVCVRelease_YYYY-MM` triggers our `clinvar-gkm_YYYY-MM` full, built from the most recent weekly release before ClinVar's monthly cut (its `source_release`)
-- **At the start of each month**, the previous month's deltas move to `deltas/YYYY-MM/` and its weekly fulls are deleted
+- **At the start of each month**, the previous month's deltas move to `deltas/YYYY-MM/` and its weekly fulls are deleted (the last one once the new month's monthly is published)
 - **At the start of each year**, the previous year's monthlies and deltas move to `archive/YYYY/`
 - The Parquet dataset (`parquet/`) is rebuilt and overwritten from every release
 
@@ -55,7 +55,7 @@ archive/yyyy/
 
 parquet/
   {section}.parquet                          the one Parquet dataset (derived; overwritten every release)
-  manifest.json                              build date, source release, tool version
+  manifest.json                              build date, source release, builder, per-file sha256
 ```
 
 Every bundle has a `<file>.sha256` sidecar.

@@ -29,14 +29,14 @@ Every bundle has a `.sha256` checksum sidecar. From 1.1.0, a monthly or delta fi
 
 | When | What happens |
 | --- | --- |
-| The first release of a **new month** is published | The finished month's deltas move from `deltas/` into `deltas/YYYY-MM/`. The finished month's **weekly fulls are deleted**, as NCBI deletes its weekly releases. |
+| The first release of a **new month** is published | The finished month's deltas move from `deltas/` into `deltas/YYYY-MM/`. The finished month's **weekly fulls are deleted**, as NCBI deletes its weekly releases, except the newest: it is kept until the new month's official monthly is published (the monthly is normally a copy of it), then deleted. |
 | The first release of a **new year** is published | The finished year's monthlies move into `archive/YYYY/`, and its delta folders into `archive/YYYY/deltas/YYYY-MM/`. |
 
 A move changes a file's folder, never its bytes, name or checksum. Deleting the weekly fulls is the one deliberate exception to "published bundles are never removed": every deleted week can be rebuilt exactly from a monthly plus deltas ([Rebuild a past week](weekly-deltas.md#rebuild-a-past-week)).
 
 ## Parquet
 
-**Parquet is derived from the bundle.** One Parquet dataset is published, at `v1/1.1/parquet/`, rebuilt from the newest weekly release and **overwritten every release**. Its `manifest.json` gives the build date, the release it was built from and the version of the tool that built it. No Parquet is kept per month, per delta, in `archive/` or in frozen lines. Past Parquet is rebuilt from the monthly bundles with [`clinvar-gkm-parquet`](https://github.com/clingen-data-model/clinvar-gkm-parquet), a separate tool that is planned but not yet released. See [Parquet Files](parquet.md).
+**Parquet is derived from the bundle.** One Parquet dataset is published, at `v1/1.1/parquet/`, rebuilt from the newest weekly release and **overwritten every release**. Its `manifest.json` gives the build date, the release and dataset it was built from, the builder, the schema version, and every file's size and sha256. No Parquet is kept per month, per delta, in `archive/` or in frozen lines. Past Parquet is rebuilt from the monthly bundles with [`clinvar-gkm-parquet`](https://github.com/clingen-data-model/clinvar-gkm-parquet), a separate tool that is planned but not yet released. See [Parquet Files](parquet.md).
 
 ## Version Lines
 

@@ -34,6 +34,7 @@ v1/
   1.1/                                        current line
     index.json                                release index for the line
     feed.xml                                  Atom feed of the line's releases
+    README.txt                                plain-text guide to the line
     clinvar-gkm_00-latest.json.gz             newest official monthly full (stable URL)
     clinvar-gkm_YYYY-MM.json.gz               official monthly fulls, current year
     weekly/
@@ -49,15 +50,15 @@ v1/
         deltas/YYYY-MM/                       deltas from prior years
     parquet/
       {section}.parquet                       ONE Parquet dataset, the latest (derived; overwritten every release)
-      manifest.json                           build date, source release and tool version
-  1.0/                                        frozen line: the 1.0.1 generation (bundles only, no Parquet)
+      manifest.json                           build date, source release, builder, per-file sha256
+  1.0/                                        frozen line: the 1.0.1 generation (bundles, delta manifests, MANIFEST.json; no Parquet)
 ```
 
 Every bundle has a `<file>.sha256` sidecar (`sha256sum -c` format), like NCBI's `.md5` files.
 
 ### When files move
 
-- **New month.** When the first release of a new month is published, the finished month's deltas move from `deltas/` into `deltas/YYYY-MM/`, and the finished month's **weekly fulls are deleted**. A past week is rebuilt from a monthly plus deltas; see [Rebuild a past week](weekly-deltas.md#rebuild-a-past-week).
+- **New month.** When the first release of a new month is published, the finished month's deltas move from `deltas/` into `deltas/YYYY-MM/`, and the finished month's **weekly fulls are deleted**. The newest of them is kept until the new month's official monthly is published, because that monthly is normally a copy of it, and is deleted as soon as the monthly is up. A past week is rebuilt from a monthly plus deltas; see [Rebuild a past week](weekly-deltas.md#rebuild-a-past-week).
 - **New year.** When the first release of a new year is published, the finished year's monthlies move into `archive/YYYY/` and its delta folders into `archive/YYYY/deltas/YYYY-MM/`.
 - A move never changes a file's bytes, name or checksum, only its folder. Scripts that need a dated file should look up its current path in the line's `index.json`.
 

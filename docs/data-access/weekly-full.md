@@ -12,7 +12,7 @@ v1/1.1/weekly/
 ```
 
 !!! warning "Weekly fulls are kept for the current month only"
-    When the first release of a new month is published, the previous month's weekly fulls are **deleted**, as NCBI deletes its weekly releases. They are a convenience copy, not the record: the official monthly that follows is built from the month's last release, and every past week can be rebuilt exactly from a monthly plus deltas. See [Rebuild a past week](weekly-deltas.md#rebuild-a-past-week). Don't hard-code a dated weekly URL in a script that runs after the month ends.
+    When the first release of a new month is published, the previous month's weekly fulls are **deleted**, as NCBI deletes its weekly releases. The newest of them stays until the new month's official monthly is published (the monthly is normally a copy of it), and is deleted as soon as the monthly is up. They are a convenience copy, not the record: the official monthly that follows is built from the month's last release, and every past week can be rebuilt exactly from a monthly plus deltas. See [Rebuild a past week](weekly-deltas.md#rebuild-a-past-week). Don't hard-code a dated weekly URL in a script that runs after the month ends.
 
 <div class="r2-browser" data-r2-type="weekly"></div>
 

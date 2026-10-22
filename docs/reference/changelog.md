@@ -211,9 +211,10 @@ References inside the JSON bundle and the `data` columns still use `#/<section>/
 - `conditionSet.data` is null-stripped like every other `data` column: a set with no `conceptSetType`
   omits the key instead of carrying `"conceptSetType": null`.
 
-**Republish**: 1.1.0 is not a patch. All 16 BigQuery datasets behind the published releases were rebuilt in
-full. Then the 4 monthly full bundles (2026-07 … 2026-10, and `00-latest`) and the 15 weekly deltas
-(2026-07-06 … 2026-10-11) were re-assembled and published under `v1/1.1/`. Every published bundle therefore
+**Republish**: 1.1.0 is not a patch. All 17 BigQuery datasets behind the published releases were rebuilt in
+full. Then the 4 monthly full bundles (2026-07 … 2026-10, and `00-latest`), October's 3 weekly full bundles
+(2026-10-04, 2026-10-11, 2026-10-18, and `00-latest_weekly`) and the 16 weekly deltas (2026-07-06 …
+2026-10-18) were re-assembled and published under `v1/1.1/`. Every published bundle therefore
 carries every change above, including the new proposition sections. File contents and checksums change, so
 re-download anything fetched before 1.1.0. Copies downloaded earlier keep the old forms; the
 [Query the Data](../parquet/index.md) pages note where they differ.
@@ -238,11 +239,13 @@ The old `v1/datasets/`, `v1/deltas/` and `archive/1.0.1/` paths are removed, so 
 
 - **Weekly full bundles are new.** A full bundle is published for every weekly release and kept for the
   current month. When a new month's first release is published, the previous month's weekly fulls are deleted
-  and its deltas move to `deltas/YYYY-MM/`; at a new year, the year's monthlies and deltas move to
+  (the newest once the new month's monthly is published) and its deltas move to `deltas/YYYY-MM/`; at a new year, the year's monthlies and deltas move to
   `archive/YYYY/`. Any past week can be rebuilt from a monthly plus deltas; see
   [Rebuild a past week](../data-access/weekly-deltas.md#rebuild-a-past-week).
-- **Replay fixes.** Each delta manifest's `checkpoint_full` now names the official monthly that precedes the
-  delta; before, every manifest named the newest monthly (`2026-10`). Each monthly's `source_release`, the
+- **Replay fixes.** Each delta manifest's `checkpoint_full` now names the official monthly the delta's chain
+  replays onto, as `{path, release, month, sha256}` with `release` the monthly's `source_release`; before,
+  every manifest named the newest monthly (`2026-10`). Manifests also carry `schema_version`, `sha256` and
+  `bundle`. Each monthly's `source_release`, the
   release it was built from, is published in `index.json`. The documented replay recipe compared months and
   skipped deltas from the monthly's own month; it now selects deltas by release date.
 - **Checksums.** Every bundle has a `<file>.sha256` sidecar (`sha256sum -c` format), and the index lists each
@@ -250,15 +253,18 @@ The old `v1/datasets/`, `v1/deltas/` and `archive/1.0.1/` paths are removed, so 
 
 **One Parquet dataset.** Parquet is derived from the bundle, so it is no longer kept per release: the dated
 monthly sets (`v1/datasets/parquet/<YYYY-MM>/`) and every per-delta set (`v1/deltas/<YYYY-MMDD>/parquet/`) are
-deleted. One dataset is published at `v1/1.1/parquet/`, built from the newest release (2026-10-11 for 1.1.0,
-not the 2026-10 monthly) and overwritten every release. Its `manifest.json` gives the build date, the release it
-was built from and the tool version, and the index's Parquet entry (`derived: true`, `source_release`) names the
-release too. No Parquet is kept in `archive/` or in frozen lines; past Parquet is rebuilt from the monthly
+deleted. One dataset is published at `v1/1.1/parquet/`, built from the newest release (2026-10-18 for 1.1.0,
+not the 2026-10 monthly) and overwritten every release. Its `manifest.json` gives the build date, the release
+and dataset it was built from, the builder and every file's sha256, and the index's Parquet entry
+(`source_release`) names the release too. No Parquet is kept in `archive/` or in frozen lines; past Parquet is rebuilt from the monthly
 bundles with [`clinvar-gkm-parquet`](https://github.com/clingen-data-model/clinvar-gkm-parquet), which is
 planned and not yet released. The index's delta entries lose their `parquet` list.
 
-**The 1.0.1 generation.** Every 1.0.1 bundle, delta manifest, index and feed is kept, unchanged, in the frozen
-line `v1/1.0/`, with a `MANIFEST.json` (sha256 per file) and a `README.txt`. It has no Parquet.
+**The 1.0.1 generation.** Every 1.0.1 bundle and delta manifest is kept, byte-identical, in the frozen line
+`v1/1.0/` (monthlies at the top, deltas under `deltas/YYYY-MM/`), with `.sha256` sidecars, a `MANIFEST.json`
+(sha256 and original key per file), a `README.txt`, and a new `index.json` and `feed.xml` in the line layout.
+It has no Parquet. Its delta manifests still name the old `v1/` paths and `checkpoint_full` `2026-10`; replay
+it from `v1/1.0/index.json`.
 
 ## 1.0.1 — 2026-10-13
 

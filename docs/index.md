@@ -140,7 +140,7 @@ ClinVar-GKM is distributed as **official monthly full bundles**, **weekly full b
 
 - **Weekly releases**: for every ClinVar weekly release, a weekly full bundle in `weekly/` and a delta in `deltas/` (the records added or updated since the prior release, plus a manifest listing per-section adds, updates, and deletes). `weekly/` keeps the current month only
 - **Official monthly full bundles** are published once a month, aligned to ClinVar's own monthly VCV releases — each `ClinVarVCVRelease_YYYY-MM` triggers our `clinvar-gkm_YYYY-MM` full, built from the most recent weekly release before ClinVar's monthly cut
-- At the start of each month, the previous month's deltas move to `deltas/YYYY-MM/` and its weekly fulls are deleted; at the start of each year, the previous year's monthlies and deltas move to `archive/YYYY/`
+- At the start of each month, the previous month's deltas move to `deltas/YYYY-MM/` and its weekly fulls are deleted (the last one once the new month's monthly is published); at the start of each year, the previous year's monthlies and deltas move to `archive/YYYY/`
 
 The stable filenames `clinvar-gkm_00-latest.json.gz` (official monthly) and `weekly/clinvar-gkm_00-latest_weekly.json.gz` (weekly full) always point to the newest of each. Any past week can be rebuilt from a monthly plus the deltas after it.
 
