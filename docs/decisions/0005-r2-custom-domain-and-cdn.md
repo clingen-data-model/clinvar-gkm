@@ -5,6 +5,9 @@
 - **Spec (if any):** —
 - **Amended:** 2026-10-20 by [ADR 0009](0009-r2-layout-mirrors-ncbi-clinvar.md): the published paths changed;
   see [Layout change (ADR 0009)](#layout-change-adr-0009).
+- **Amended:** 2026-10-21: the [Layout change (ADR 0009)](#layout-change-adr-0009) notes now match the rules in
+  `src/scripts/cf-rules.sh` on `1.0` (PR #182): `weekly/` and `README.txt` bypass the cache, and weekly fulls
+  are not cached as immutable.
 
 ## Context
 
@@ -244,24 +247,28 @@ All uploaders (including `backfill-monthly-to-r2.sh`) and the docs now reference
 modelled on NCBI's ClinVar FTP: `v1/1.1/` holds the official monthlies and `clinvar-gkm_00-latest.json.gz`,
 `weekly/` (the current month's weekly fulls and `clinvar-gkm_00-latest_weekly.json.gz`), `deltas/` (current
 month at the top, earlier months in `deltas/YYYY-MM/`), `archive/YYYY/` and one `parquet/` dataset; the 1.0.1
-generation becomes the frozen line `v1/1.0/`. What changes here (the release runbook carries the exact rule
-expressions):
+generation becomes the frozen line `v1/1.0/`. What changes here (`src/scripts/cf-rules.sh` holds the exact
+rule expressions: `show` compares them with the live rules, `apply` is a user-confirmed step):
 
-- **Immutable rule.** Still matches everything not caught by the later rules: dated monthlies, weekly fulls,
-  deltas, delta manifests, `.sha256` sidecars, `archive/YYYY/` and frozen line folders. The path list above
-  no longer applies.
-- **Mutable-pointer rule.** Its `00-latest` / `index.json` / `feed.xml` matchers still work:
-  `clinvar-gkm_00-latest_weekly.json.gz` contains `00-latest`, and each line's `index.json` and `feed.xml` keep
-  those names.
+- **Immutable rule.** Unchanged; it still matches every path, so in effect it covers everything the later
+  rules do not catch: dated monthlies, deltas, delta manifests, `.sha256` sidecars outside `weekly/`,
+  `archive/YYYY/`, and frozen line folders' bundles and `MANIFEST.json`. The path list above no longer
+  applies.
+- **Mutable-pointer rule.** Bypasses the cache for any path containing `00-latest` (which also matches
+  `clinvar-gkm_00-latest_weekly.json.gz`), ending in `/index.json`, `/feed.xml` or `/README.txt`, or containing
+  `/weekly/`. Weekly fulls and their sidecars are deleted at month rollover, so they are not cached as
+  immutable.
 - **Latest-Parquet rule.** The "Latest Parquet: cache 1 day" rule (added 2026-10-18; edge 1 day, browser 1 h)
-  matches `/v1/datasets/parquet/00-latest/`, which no longer exists. It must match the line's `parquet/`
-  folder instead, including the Parquet manifest file. Without the change the overwritten Parquet would fall
-  under the 1-month immutable rule.
+  matched `/v1/datasets/parquet/00-latest/`, which no longer exists. It now matches any path under `/v1/`
+  containing `/parquet/`, which includes `parquet/manifest.json`. Without the change the overwritten Parquet
+  would fall under the 1-month immutable rule.
 - **Purges.** Routine releases now overwrite (the Parquet dataset), move (deltas at month rollover, monthlies
-  and deltas at year rollover) and delete (weekly fulls at month rollover) published paths. Each is followed
-  by a purge of the old paths; `--purge` above is no longer only for the rare in-place overwrite.
+  and deltas at year rollover) and delete (weekly fulls at month rollover; the finished month's newest once
+  the new monthly is published) published paths. `r2-rollover.sh` purges every path it moved or deleted, and
+  `run-release.sh` purges the `parquet/` prefix after each rebuild; `--purge` above is no longer only for the
+  rare in-place overwrite.
 - **Path allowlist** (WAF custom rule, documented on PR #173). Every published path stays under `/v1/`, so no
   new prefix is needed. `/archive/` can be removed once `archive/1.0.1/` has moved to `v1/1.0/` and been
-  deleted.
+  deleted (`cf-rules.sh apply --drop-archive`).
 - **Bucket layout note.** The "Only the `v1/` tree is live" note still holds; the old `v1/datasets/`,
   `v1/deltas/` and dated Parquet trees and `archive/1.0.1/` are deleted in the ADR 0009 cleanup.

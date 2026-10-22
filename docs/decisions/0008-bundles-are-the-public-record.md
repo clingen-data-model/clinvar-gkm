@@ -3,9 +3,19 @@
 - **Status:** Proposed
 - **Date:** 2026-10-18
 - **Plan:** [`docs/superpowers/plans/2026-10-18-bundle-record-and-metrics.md`](../superpowers/plans/2026-10-18-bundle-record-and-metrics.md)
+- **Amends:** [ADR 0004](0004-schema-versioning-and-release-management.md) §3 (no live window: a superseded line
+  freezes at the switch-over and is kept indefinitely, with no EOL date) and §5 (the in-place exception ends
+  with 1.1.0); ADR 0006 (on PR #146) consequences (advance notice, (g)).
 - **Amended:** 2026-10-20 by [ADR 0009](0009-r2-layout-mirrors-ncbi-clinvar.md) (R2 layout mirrors NCBI ClinVar):
   (a) weekly fulls are an exception to immutability; (c) archives are `archive/YYYY/` inside a line, and the
   1.0.1 generation becomes the frozen line `v1/1.0/`; (e) one overwritten Parquet dataset, none in archives.
+- **Decided:** 2026-10-21 (maintainer): **1.1.0 is GA** (a); superseded lines are **frozen and kept
+  indefinitely**, status `frozen`, with no `eol`, no `deprecated` status and no deletion window (b); a
+  content-only correction that rewrites bundles opens a new MINOR line (c, ADR 0009 §5). Still open: **N** in (f).
+- **Amended:** 2026-10-21 to match the code merged on `1.0` (PR #182, `r2_layout.py`): the finished month's
+  newest weekly full is kept until the new month's monthly is published (a); the switch-over notice uses
+  `status: "frozen"` and `superseded_by` as the root and line `index.json` publish them (b); the Parquet
+  manifest fields (e).
 
 ## Context
 
@@ -36,61 +46,66 @@ data. What we know today:
 - **The 1.0.1 bundles are being archived** to `archive/1.0.1/` (the `v1/` paths mirrored below it), with a
   `MANIFEST.json` (sha256 per file) and a `README.txt`, before the 1.1.0 republish rewrites `/v1/`. Under
   ADR 0009 this generation moves to the frozen line folder `v1/1.0/`.
-- **No subscribers yet.** The email list `clinvar-gkm@broadinstitute.org` has no members, and the schema has
-  not been declared GA.
+- **No subscribers yet.** The email list `clinvar-gkm@broadinstitute.org` has no members. When this ADR was
+  proposed the schema had not been declared GA; the maintainer declared 1.1.0 GA on 2026-10-21 (a).
 
 ## Decision
 
 ### (a) The JSON bundles are the public record
 
 The monthly full and delta JSON bundles are the published record of ClinVar-GKM. **From the 1.1.0 republish
-on, a published bundle file is immutable:** the bytes behind a dated bundle path are never replaced without
-the previous bytes being kept, as described in (c). The mutable pointers are not records: `index.json`, the
-root manifest, `feed.xml` and every `00-latest` path keep moving to the newest release.
+on, a published bundle file is immutable:** the bytes behind a published bundle path are never replaced. A
+correction is published into a new line folder (c), and the folder it replaces is frozen with its bytes intact.
+The mutable pointers are not records: `index.json`, the root manifest, `feed.xml` and every `00-latest` path
+keep moving to the newest release.
 
 Two amendments from [ADR 0009](0009-r2-layout-mirrors-ncbi-clinvar.md):
 
 - **Weekly full bundles are not records.** The current month's weekly fulls under `weekly/` are a convenience
-  copy and are **deleted at month rollover**, as NCBI deletes its weekly releases. This is a deliberate
-  exception to immutability. The records are the official monthlies and the deltas, from which any past week
-  can be rebuilt exactly.
+  copy and are **deleted at month rollover**, as NCBI deletes its weekly releases. The finished month's newest
+  weekly full is kept until the new month's official monthly, a server-side copy of it, is published, and is
+  deleted then. This is a deliberate exception to immutability. The records are the official monthlies and
+  the deltas, from which any past week can be rebuilt exactly.
 - **Moves change the path, not the bytes.** At month and year rollover, deltas and monthlies move into
   `deltas/YYYY-MM/` and `archive/YYYY/`. Their bytes, names and sha256 stay the same.
 
-This **closes the ADR 0004 §5 in-place exception after 1.1.0**, which ADR 0006 extended to cover the 1.1.0
-reorganization. Closing it is, in effect, **declaring GA**: from then on every breaking change follows the
-ADR 0004 MAJOR-line and RFC process. **This is the maintainer's decision to confirm** when this ADR is
-accepted. Until it is confirmed, the 1.x line is still pre-GA.
+**1.1.0 is GA** (maintainer decision, 2026-10-21). The ADR 0004 §5 initial-stabilization period, which ADR 0006
+extended to cover the 1.1.0 reorganization, **ends with 1.1.0**: the in-place exception is closed, published
+files are immutable from 1.1.0, and every later breaking change opens a new MAJOR line (`v2/`) under the
+ADR 0004 MAJOR-line and RFC process.
 
 ### (b) A breaking change opens a new line
 
 A breaking schema change after 1.1.0 opens a new line, `v2/2.0/` (ADR 0009 §1), built in full (every monthly full and every
-delta in the window being republished) alongside `/v1/`. The old line is then **frozen**: no new releases, and
-its files stay downloadable and unchanged. It carries a switch-over notice:
+delta in the window being republished) alongside `/v1/`. The old line is then **frozen** at the switch-over: no
+new releases, and its files stay downloadable and unchanged. It carries a switch-over notice:
 
-- in its `index.json` and in the root manifest: `"status": "superseded"`, `"superseded_by": "2"` and an end
-  date (`eol`, the date the line stopped receiving releases);
+- in its `index.json` and in its entry in the root manifest's `versions`: `"status": "frozen"` and
+  `"superseded_by"` naming the line that replaced it (for example `"v2/2.0"`), as `v1/1.0` already carries
+  `"superseded_by": "v1/1.1"`;
+- in its `MANIFEST.json` and `README.txt` (c);
 - on the email list and in GitHub Discussions *Announcements*.
 
-**Open point:** ADR 0004 §3 keeps the prior line fully live (new monthlies and deltas) for 6 months before
-it freezes. The maintainer's stated aim here is to *stop* the previous line at the switch-over. The
-maintainer chooses one when accepting this ADR: freeze at the switch-over (this ADR then amends ADR 0004 §3)
-or keep the 6-month live window and freeze at its end.
+*Decided 2026-10-21 by the maintainer:* a superseded line is **frozen at the switch-over and kept
+indefinitely**. Its status is `frozen`; there is no `eol` date, no `deprecated` status and no deletion window.
+This amends ADR 0004 §3: the prior line does not stay live for a 6-month window, and the root manifest carries
+no EOL date. Only one line is current at a time; frozen lines accumulate.
 
 ### (c) A replaced generation is kept as a frozen line folder
 
 *Amended by [ADR 0009](0009-r2-layout-mirrors-ncbi-clinvar.md).* Each version line has its own folder,
-`v{major}/{major}.{minor}/`. A republish that replaces a line's bundles (a new MINOR) publishes into a new
-folder, and the folder it replaces is **frozen** in place: nothing is added, moved or deleted, and it is listed
-from the root manifest with its status. A frozen folder carries:
+`v{major}/{major}.{minor}/`. A republish that replaces a line's bundles (a new MINOR or MAJOR) publishes into a
+new folder, and the folder it replaces is **frozen** in place and kept indefinitely (b): nothing is added, moved
+or deleted, and it is listed from the root manifest with its status. A frozen folder carries:
 
 - a `MANIFEST.json` listing every file with its size and sha256;
 - a `README.txt` saying what the generation is, which release replaced it and why.
 
 The 1.0.1 generation, first copied to `archive/1.0.1/` on 2026-10-18, moves to **`v1/1.0/`**. There is no root
 `archive/<version>/` folder any more: `archive/YYYY/` now means the prior-year archive **inside** a line
-(`v1/1.1/archive/YYYY/`, monthlies plus `deltas/YYYY-MM/`). How a content-only correction that must rewrite
-bundles is published is an open point in ADR 0009 §5.
+(`v1/1.1/archive/YYYY/`, monthlies plus `deltas/YYYY-MM/`). A content-only correction that must rewrite bundles
+is published the same way, as a new MINOR line folder; a PATCH only adds new dated files (ADR 0009 §5,
+decided 2026-10-21).
 
 ### (d) Every manifest carries sha256 per file
 
@@ -104,10 +119,11 @@ Parquet is a convenience view of a bundle, not a record:
 
 - The docs and the manifests label it **"derived from the bundle; may be regenerated"**.
 - *Amended by [ADR 0009](0009-r2-layout-mirrors-ncbi-clinvar.md).* **One Parquet dataset** is published per
-  line, at `v1/1.1/parquet/`, rebuilt from the newest release and **overwritten every release**. A manifest
-  file beside it states the build date, the source release and the tool version. There is no Parquet in
-  `archive/YYYY/`, in frozen line folders (`v1/1.0/` has none) or per delta. This reverses the 2026-10-18 decision
-  to keep one Parquet set per archived generation.
+  line, at `v1/1.1/parquet/`, rebuilt from the newest release and **overwritten every release**.
+  `parquet/manifest.json` beside it gives `derived: true`, the `build_date`, the `source_release` and
+  `dataset`, the `builder` and `table_spec_version` (the tool version), the `schema_version`, and each file's
+  size and sha256. There is no Parquet in `archive/YYYY/`, in frozen line folders (`v1/1.0/` has none) or per
+  delta. This reverses the 2026-10-18 decision to keep one Parquet set per archived generation.
 - A **versioned Parquet rebuild tool**, [`clinvar-gkm-parquet`](https://github.com/clingen-data-model/clinvar-gkm-parquet)
   (planned), builds the Parquet tables from a published bundle. It is versioned on its own cadence, declares
   which bundle `schema_version`s it accepts, and the pipeline pins a version of it (ADR 0007, Workstream 1), so
@@ -121,45 +137,43 @@ Parquet is a convenience view of a bundle, not a record:
 A daily collector stores per-path request counts, bytes served and distinct-client counts for
 `data.clinvar-gkm.org` (no IP addresses). Estimated complete downloads of a bundle = bytes served ÷ its size.
 
-Archive retention and how seriously to run parallel version lines are decided from these numbers, not
-assumed. Review triggers:
+Retention and the shape of a switch-over are no longer metrics questions: frozen lines and `archive/YYYY/`
+are kept indefinitely, and a breaking change freezes the old line at the switch-over (b). The metrics decide
+how far to go beyond that:
 
-- **Keep and promote an archive** if any archived generation shows **N** or more estimated complete downloads
-  in a calendar month; consider a citable copy (for example a DOI) for it.
-- **Run the next breaking change as a full parallel line** (the ADR 0004 §3 live window) if dated bundles of
-  the current line show **N** or more estimated complete downloads a month in total; otherwise a freeze at the
-  switch-over is enough.
-- **Review archive retention yearly.** Archives are kept until a review decides otherwise.
+- **Promote a frozen line or monthly** if it shows **N** or more estimated complete downloads in a calendar
+  month: consider a citable copy (for example a DOI) for it.
 
 **N is the maintainer's decision.** The first review is 60 days after collection starts (plan, task 7).
 
 ### (g) Announcements
 
-An **advance notice** before a republish or a switch-over is required only once the email list has
-subscribers, or after GA, whichever comes first. Until then a completion notice is enough. 1.1.0 used a
-completion notice only (changelog, GitHub Release notes, Discussions); this amends the advance-notice
-requirement in ADR 0006's consequences.
+An **advance notice** before a republish or a switch-over is required once the email list has subscribers or
+after GA, whichever comes first. With 1.1.0 GA, every later republish into a new line and every switch-over
+gets an advance notice. 1.1.0 itself used a completion notice only (changelog, GitHub Release notes,
+Discussions); this amends the advance-notice requirement in ADR 0006's consequences.
 
 ## Consequences
 
 - **Storage.** One frozen generation of bundles is about 24 GB (19 dated bundles, 19.3 GB, plus the
-  `00-latest` copies, 4.8 GB): about $0.36 a month at R2's $0.015/GB-month. Only one Parquet dataset exists
-  under (e), so dropping the dated Parquet sets saves about 65 GB. Weekly fulls add at most about 24 GB at the
-  end of a month (ADR 0009). A parallel `v2/2.0/` line roughly doubles the live footprint while both exist.
+  `00-latest` copies, 4.8 GB): about $0.36 a month at R2's $0.015/GB-month. Frozen lines are kept
+  indefinitely, so this grows by one generation per new line. Only one Parquet dataset exists under (e), so
+  dropping the dated Parquet sets saves about 65 GB. Weekly fulls add at most about 24 GB at the end of a month
+  (ADR 0009). A `v2/2.0/` line adds a full live line beside the frozen `v1/` lines.
 - **Operations.** Each republish that replaces a line gains steps: freeze the old line folder, write and
   verify its `MANIFEST.json`, write its `README.txt`. Month and year rollovers move and delete files, and
   each move or delete is followed by a CDN purge of the old paths (ADR 0009). The uploaders and
-  `generate-r2-index.sh` gain sha256, `status` / `superseded_by`, each monthly's `source_release` and a
-  pointer to frozen lines. A daily GitHub Actions job collects the download stats
-  (secrets `CF_ANALYTICS_TOKEN`, `CF_ZONE_ID`); a missed day can be collected again only within the 31-day
-  retention.
+  `generate-r2-index.sh` publish sha256, `status` / `superseded_by`, each monthly's `source_release` and the
+  frozen lines in the root manifest (built in `r2_layout.py`, PR #182). A daily GitHub Actions job collects
+  the download stats (secrets `CF_ANALYTICS_TOKEN`, `CF_ZONE_ID`); a missed day can be collected again only
+  within the 31-day retention.
 - **For users.** A monthly or delta file keeps the same bytes and name, though its folder changes at month
-  and year rollover; a weekly full is gone after its month, and is rebuilt from a monthly plus deltas; a
-  superseded generation stays available as a frozen line folder (`v1/1.0/`); a checksum tells them which
-  generation they hold; a frozen line says what replaced it and from when; and they can rebuild Parquet from
-  any monthly with `clinvar-gkm-parquet`.
+  and year rollover; a weekly full is gone shortly after its month, and is rebuilt from a monthly plus
+  deltas; a superseded generation stays available indefinitely as a frozen line folder (`v1/1.0/`); a checksum
+  tells them which generation they hold; a frozen line says what replaced it; and they can rebuild Parquet
+  from any monthly with `clinvar-gkm-parquet`.
 - **Metric limits.** Cloudflare's adaptive sampling makes counts estimates. Distinct clients are counted per
   day by IP, so NAT undercounts and roaming clients overcount. Bytes ÷ size counts two half downloads as one.
   Traffic before 2026-10-14 is not measurable.
-- **Harder:** once GA is confirmed, a mistake in a published bundle can no longer be fixed quietly. It needs
-  a frozen generation and a completion notice (non-breaking), or a new line (breaking).
+- **Harder:** from 1.1.0 (GA), a mistake in a published bundle can no longer be fixed quietly. It needs a new
+  MINOR line (content-only, ADR 0009 §5) or a new MAJOR line (breaking), with an advance notice (g).
