@@ -5,7 +5,7 @@ ClinVar-GKM re-represents ClinVar data. ClinVar is produced by the National Cent
 [CC0 dedication](#license) covers what ClinGen adds. The ClinVar content inside the files remains subject to
 NCBI's and ClinVar's own policies, which apply to everyone who uses or redistributes these files.
 
-!!! warning "In short"
+!!! info "In short"
     - **Not for direct clinical use.** The ClinVar disclaimer applies to this data unchanged: the information
       "is not intended for direct diagnostic use or medical decision-making without review by a genetics
       professional." See [Clinical use](#clinical-use).
