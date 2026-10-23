@@ -127,6 +127,10 @@ You may redistribute ClinVar-GKM files, or data derived from them, under CC0. Wh
 
 ---
 
+## In the published files
+
+The same source, attribution and disclaimer are carried with the data: in each version line's `README.txt` (for example `v1/1.1/README.txt`) and in the Parquet `manifest.json` (fields `source`, `attribution`, `disclaimer`, `license`). The frozen `v1/1.0/` line is unchanged and predates them.
+
 ## No endorsement
 
 ClinVar-GKM is not an NCBI, NLM or NIH product and is not endorsed by them. NCBI's

@@ -13,10 +13,11 @@ The dataset lives at one stable path, `v1/1.1/parquet/`, one file per section, w
 ```text
 v1/1.1/parquet/
   {section}.parquet      22 files, one per bundle section
-  manifest.json          build date, source release and dataset, builder, schema version, each file's size and sha256
+  manifest.json          build date, source release and dataset, builder, schema version, each file's size and sha256,
+                         and the ClinVar source, attribution, disclaimer and license scope
 ```
 
-The manifest names the release the dataset was built from, so check it before comparing results with a bundle (the index's Parquet entry carries the same `source_release`). For an earlier state, see [Earlier releases](#earlier-releases).
+The manifest also carries the data's provenance: `source` (ClinVar at NCBI, its data use policy and a citation), `attribution`, `disclaimer` and `license` (CC0 scope), matching [Data Use and Citation](../data-use.md). The manifest names the release the dataset was built from, so check it before comparing results with a bundle (the index's Parquet entry carries the same `source_release`). For an earlier state, see [Earlier releases](#earlier-releases).
 
 ## The latest set
 
