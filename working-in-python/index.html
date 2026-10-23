@@ -5363,9 +5363,9 @@ published file, the schemas and tool versions used.</p>
 <p>Records are validated as published, <code>#/…</code> pointers included, against the full ClinVar-GKM profiles. The whole
 sample, 14,761 records, took about 2 minutes on one core; <code>variation</code> records are the slowest.</p>
 <p>The same schemas resolve by <code>$id</code> through <a href="https://w3id.org/">w3id.org</a>, so a registry can fetch them on demand
-instead of reading a local tree. The bundle schema itself still comes from the tree (or GitHub), because its own
-<code>$id</code> does not resolve. Fetching makes one request per schema, so validate a slice, here the first 25 records of
-each section:</p>
+instead of reading a local tree. The bundle schema itself can be fetched the same way, from
+<code>https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json</code>. Fetching makes one request
+per schema, so validate a slice, here the first 25 records of each section:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 <a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
 <a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>

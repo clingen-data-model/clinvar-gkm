@@ -4508,17 +4508,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#bundle-schema-id-does-not-resolve" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Bundle schema <code>$id</code> does not resolve
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#past-parquet-cannot-yet-be-rebuilt" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -4850,17 +4839,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#bundle-schema-id-does-not-resolve" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Bundle schema <code>$id</code> does not resolve
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#past-parquet-cannot-yet-be-rebuilt" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -4949,11 +4927,6 @@ the genes ClinVar associates with a variant, so such a gene has no <code>gene</c
 <code>gene_context_id</code> does not join to <code>gene.parquet</code>. In the 2026-10-11 release this is 25 variants and 31 SCV
 propositions. Genes with no HGNC id (<code>LOC*</code>) and NCBI-discontinued gene ids get no gene context, by design of
 the upstream method.</p>
-<h2 id="bundle-schema-id-does-not-resolve">Bundle schema <code>$id</code> does not resolve<a class="headerlink" href="#bundle-schema-id-does-not-resolve" title="Permanent link">&para;</a></h2>
-<p>The bundle schema's <code>$id</code>, <code>https://w3id.org/clingen/schema/clinvar-gkm/&lt;version&gt;/json/ClinvarGkmBundle</code>,
-returns 404: the file is published as <code>schema/clinvar-gkm/clinvar-gkm-bundle.schema.json</code>, not under <code>json/</code>.
-This is true for 1.0.0 and 1.0.1 as well, whose class schema <code>$id</code>s do resolve. Validators that load the
-schemas from a local copy or registry are unaffected.</p>
 <h2 id="past-parquet-cannot-yet-be-rebuilt">Past Parquet cannot yet be rebuilt<a class="headerlink" href="#past-parquet-cannot-yet-be-rebuilt" title="Permanent link">&para;</a></h2>
 <p>Only the latest Parquet set is published. Past Parquet is meant to be rebuilt from the monthly bundles with
 <a href="https://github.com/clingen-data-model/clinvar-gkm-parquet"><code>clinvar-gkm-parquet</code></a>, which has no release yet.</p>
