@@ -207,6 +207,13 @@ for path in ("clinvar-gkm_2026-10.json", "clinvar-gkm-delta_2026-1018.json"):
     validate_bundle_schema(json.load(open(path)), schema, validator=validator)
 ```
 
+!!! note "ga4gh.gkm 0.4.1 needs a schema registry"
+    The toolkit resolves `$ref`s only to the GA4GH schemas of its installed libraries, so the calls above
+    raise `BundleSerializationError` (`Unresolvable: https://w3id.org/clingen/schema/clinvar-gkm/…`) unless
+    they are given a `validator` whose registry can fetch the ClinVar-GKM profile schemas.
+    [Working in Python](../working-in-python.md#validate-a-bundle) shows one, along with loading, resolving and
+    exporting records with the toolkit and the GA4GH libraries.
+
 See the GKM Toolkit [schema-validation](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-validation/)
 and [schema-resolution](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-resolution/)
 API references for exact signatures and options.
