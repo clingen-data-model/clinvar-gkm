@@ -312,9 +312,9 @@ Records are validated as published, `#/…` pointers included, against the full 
 sample, 14,761 records, took about 2 minutes on one core; `variation` records are the slowest.
 
 The same schemas resolve by `$id` through [w3id.org](https://w3id.org/), so a registry can fetch them on demand
-instead of reading a local tree. The bundle schema itself still comes from the tree (or GitHub), because its own
-`$id` does not resolve. Fetching makes one request per schema, so validate a slice, here the first 25 records of
-each section:
+instead of reading a local tree. The bundle schema itself can be fetched the same way, from
+`https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json`. Fetching makes one request
+per schema, so validate a slice, here the first 25 records of each section:
 
 ```python
 import functools

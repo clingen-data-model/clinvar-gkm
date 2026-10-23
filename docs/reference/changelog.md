@@ -5,6 +5,16 @@ A running record of every schema change and data re-release on the 1.x line. See
 [GitHub Releases](https://github.com/clingen-data-model/clinvar-gkm/releases) page for the
 tagged source of each.
 
+## Unreleased
+
+- **Bundle schema `$id` now resolves.** The bundle schema's `$id` changes from
+  `https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGkmBundle`, which returned 404, to
+  `https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json`. The new `$id` follows the
+  same w3id pattern as the class schemas: it names the file's path under `schema/clinvar-gkm/`, so it resolves
+  to the published file. The same path also resolves for earlier versions, for example
+  `…/clinvar-gkm/1.0.1/clinvar-gkm-bundle.schema.json`. The schema shape is unchanged, so every bundle that
+  was valid stays valid, and no published file is rewritten.
+
 ## 1.1.0 — 2026-10-22 { #110 }
 
 A **breaking** release during the
