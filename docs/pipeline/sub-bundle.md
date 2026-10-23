@@ -108,6 +108,8 @@ The output is a single bundle object — the same `{ "<section>": { "<key>": <ob
 full release, ordered `sequenceReference` → … → `scv`/`vcv`/`rcv`. Every `#/…` pointer inside resolves
 to a key present in the file.
 
+The file starts with `schema_version`, read from the bundle schema's `schema_version` const, so a sub-bundle is a complete bundle that validates against the ClinVar-GKM bundle schema as-is.
+
 Records are written **one per line** — each section is keyed on its own line and every object *value* is
 emitted as a single compact line. The file stays one valid JSON document, but has roughly one line per
 record rather than one per field, so a large sub-bundle (thousands of statements) is a few thousand lines
