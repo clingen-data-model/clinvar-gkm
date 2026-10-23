@@ -180,13 +180,12 @@ pointer resolves within the bundle — is a producer-side guarantee, not express
 
 ### Validating with the GKM Toolkit
 
-Every published bundle passes strict validation against this schema before release (see
-[Release Validation](../reference/release-validation.md)). The current release of the
-[GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) (`ga4gh.gkm`) does not yet
-validate ClinVar-GKM 1.1.0 bundles: it resolves `$ref`s only against the GA4GH schemas it ships and cannot add
-the ClinVar-GKM schemas. Support is in progress upstream in
-[ga4gh/gkm-starter-kit#128](https://github.com/ga4gh/gkm-starter-kit/pull/128); until then, see
-[Working in Python](../working-in-python.md) for working with records through the GA4GH model libraries.
+The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) (`ga4gh.gkm`) validates a
+bundle against this schema when you supply the ClinVar-GKM schemas and the GA4GH schemas they reference, as a
+`validator=` for `validate_bundle_schema`. Every published bundle is validated this way before release
+([Release Validation](../reference/release-validation.md)); [Working in Python](../working-in-python.md#validate-a-bundle)
+shows the code. The toolkit's loader (`load_bundle`, `resolve`, `export`) needs
+[upstream updates](../working-in-python.md#loading-bundles) before it reads ClinVar-GKM bundles.
 
 ---
 
@@ -204,5 +203,5 @@ A `#/section/key` reference resolves with one dictionary lookup in the bundle; [
 shows a small `resolve()` helper, and [Working in Python](../working-in-python.md#load-a-bundle-and-follow-pointers)
 follows a statement down to its sequence reference. The GKM Toolkit's
 [`Bundle.export()`](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/containers/) inlines
-references for the bundles it can load; its current release does not yet load ClinVar-GKM 1.1.0 bundles
-(see [above](#validating-with-the-gkm-toolkit)).
+references for the bundles it can load; its loader does not yet read ClinVar-GKM 1.1.0 bundles
+(see [Loading bundles](../working-in-python.md#loading-bundles)).

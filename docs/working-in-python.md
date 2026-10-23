@@ -15,8 +15,8 @@ It assumes the bundle layout described in [Output Format](output-reference/overv
 !!! info "Tested with"
     Every code block on this page was run on **2026-10-22**, with Python 3.12, against 1.1.0 data: the
     sample bundle, the 2026-10-18 weekly delta, and the Parquet dataset built from 2026-10-18. Versions:
-    `ga4gh.vrs` 2.4.0a6, `ga4gh.cat_vrs` 0.8.0a6, `ga4gh.va_spec` 0.5.0a7, `pydantic` 2.14.1, `duckdb` 2.0.0,
-    `ijson` 3.6.0.
+    `ga4gh.vrs` 2.4.0a6, `ga4gh.cat_vrs` 0.8.0a6, `ga4gh.va_spec` 0.5.0a7, `ga4gh.gkm` 0.4.1,
+    `pydantic` 2.14.1, `duckdb` 2.0.0, `ijson` 3.6.0, and the ClinVar-GKM schema tree at tag `1.1.0`.
 
 ---
 
@@ -30,15 +30,17 @@ The library releases that implement exactly those versions are, as of this writi
 | `ga4gh.vrs` | 2.4.0a6 | VRS 2.1.1, GKM-Core 1.3.0 | `Allele`, `SequenceLocation`, `SequenceReference`, `CopyNumberCount`, `CopyNumberChange`; `ga4gh_identify` |
 | `ga4gh.cat_vrs` | 0.8.0a6 | Cat-VRS 1.1.1 | `CategoricalVariant` and its constraints |
 | `ga4gh.va_spec` | 0.5.0a7 | VA-Spec 1.1.0 | `Statement`, `EvidenceLine`, the proposition classes, `Agent`, `ConditionSet`, `TherapyGroup` |
+| `ga4gh.gkm` | 0.4.1 | — | the GKM Toolkit; `validate_bundle_schema` for [validating a bundle](#validate-a-bundle) |
 
 The latest stable releases (`ga4gh.vrs` 2.3.3, `ga4gh.cat_vrs` 0.7.2, `ga4gh.va_spec` 0.4.4) implement older
 schema versions (VRS 2.0.1, Cat-VRS 1.0.0, VA-Spec 1.0.1) and reject most 1.1.0 records, so pin the
-pre-releases. They require Python 3.10 or later.
+pre-releases. The libraries require Python 3.10 or later, and `ga4gh.gkm` 3.11 or later. `ga4gh.gkm` 0.4.1 pins
+the same three pre-releases.
 
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
-pip install -q "ga4gh.vrs==2.4.0a6" "ga4gh.cat_vrs==0.8.0a6" "ga4gh.va_spec==0.5.0a7"
+pip install -q "ga4gh.vrs==2.4.0a6" "ga4gh.cat_vrs==0.8.0a6" "ga4gh.va_spec==0.5.0a7" "ga4gh.gkm==0.4.1"
 pip install -q duckdb ijson    # for the Parquet and streaming examples
 ```
 
@@ -52,7 +54,7 @@ from ga4gh.core import CORE_VERSION
 from ga4gh.va_spec import VASPEC_VERSION
 from ga4gh.vrs import VRS_VERSION
 
-for package in ("ga4gh.vrs", "ga4gh.cat_vrs", "ga4gh.va_spec"):
+for package in ("ga4gh.vrs", "ga4gh.cat_vrs", "ga4gh.va_spec", "ga4gh.gkm"):
     print(f"{package:14} {version(package)}")
 print(f"VRS {VRS_VERSION}, Cat-VRS {CATVRS_VERSION}, VA-Spec {VASPEC_VERSION}, GKM-Core {CORE_VERSION}")
 ```
@@ -61,6 +63,7 @@ print(f"VRS {VRS_VERSION}, Cat-VRS {CATVRS_VERSION}, VA-Spec {VASPEC_VERSION}, G
 ga4gh.vrs      2.4.0a6
 ga4gh.cat_vrs  0.8.0a6
 ga4gh.va_spec  0.5.0a7
+ga4gh.gkm      0.4.1
 VRS 2.1.1, Cat-VRS 1.1.1, VA-Spec 1.1.0, GKM-Core 1.3.0
 ```
 
@@ -241,12 +244,126 @@ Records in the `scv`, `vcv` and `rcv` sections load as `Statement`, and `evidenc
 
 ## The GKM Toolkit
 
-The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) (`ga4gh.gkm`) loads,
-resolves, exports and validates GKM bundles. Its current release does not yet load or validate ClinVar-GKM
-1.1.0 bundles: it resolves schema references only against the GA4GH schemas it ships, and it cannot add a
-producer's schemas, such as ClinVar-GKM's. Support is in progress upstream; streaming validation with producer
-schemas is proposed in [ga4gh/gkm-starter-kit#128](https://github.com/ga4gh/gkm-starter-kit/pull/128). Until
-it is released, work with records through the GA4GH model libraries as shown on this page.
+The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) (`ga4gh.gkm`) validates a
+producer's bundle against that producer's schemas. That is its intended way to validate producer data: you supply
+the schemas, and it checks every record against them. Validation works on ClinVar-GKM 1.1.0 bundles today; the
+toolkit's loader does not yet read them (see [Loading bundles](#loading-bundles)).
+
+### Validate a bundle { #validate-a-bundle }
+
+The 1.1.0 release was validated this way: `validate_bundle_schema` with a `validator=` whose `referencing`
+registry holds the ClinVar-GKM 1.1.0 schemas and the GA4GH schemas they reference, taken from the
+`schema/` tree of this repository at tag `1.1.0`. [Release Validation](reference/release-validation.md) lists
+the results, and its [verification reports](reference/release-validation.md#verification-reports) record, per
+published file, the schemas and tool versions used.
+
+Get the schema tree. The GA4GH schemas come in through the `va-spec` submodule:
+
+```bash
+git clone -q --depth 1 --branch 1.1.0 --recurse-submodules --shallow-submodules \
+    https://github.com/clingen-data-model/clinvar-gkm.git clinvar-gkm-1.1.0
+```
+
+Register every schema in the tree by its `$id`, then validate:
+
+```python
+import os
+from collections import Counter
+from pathlib import Path
+
+from jsonschema import Draft202012Validator
+from referencing import Registry, Resource
+from ga4gh.gkm.bundles import BundleValidationError
+from ga4gh.gkm.bundles.schema_validation import validate_bundle_schema
+
+# Every schema in the 1.1.0 tree, keyed by $id: ClinVar-GKM's own and the GA4GH schemas they reference
+schemas = {}
+for directory, _, files in os.walk("clinvar-gkm-1.1.0/schema", followlinks=True):
+    for name in files:
+        try:
+            document = json.loads(Path(directory, name).read_text())
+        except (ValueError, UnicodeDecodeError):
+            continue  # Makefiles and YAML sources
+        if isinstance(document, dict) and "$id" in document:
+            schemas[document["$id"]] = Resource.from_contents(document)
+print(sorted(Counter("/".join(uri.split("/")[5:7]) for uri in schemas).items()))
+
+bundle_schema = json.loads(Path("clinvar-gkm-1.1.0/schema/clinvar-gkm/clinvar-gkm-bundle.schema.json").read_text())
+validator = Draft202012Validator(bundle_schema, registry=Registry().with_resources(schemas.items()))
+
+validate_bundle_schema(bundle, bundle_schema, validator=validator)  # raises BundleValidationError on a violation
+print("valid:", sum(len(records) for records in bundle.values() if isinstance(records, dict)), "records")
+
+broken = json.loads(json.dumps({"schema_version": "1.1.0", "scv": {scv["id"]: scv}}))
+broken["scv"][scv["id"]]["direction"] = "sideways"  # not a VA-Spec direction
+try:
+    validate_bundle_schema(broken, bundle_schema, validator=validator)
+except BundleValidationError as error:
+    print(error)
+```
+
+```text
+[('cat-vrs/1.1.1', 16), ('clinvar-gkm/1.1.0', 28), ('gkm-core/1.3.0', 11), ('va-spec/1.1.0', 40), ('vrs/2.1.1', 26)]
+valid: 14761 records
+Bundle does not match its JSON Schema at scv/clinvar.submission:SCV000864262.1/direction: 'sideways' is not one of ['supports', 'neutral', 'disputes']
+```
+
+Records are validated as published, `#/…` pointers included, against the full ClinVar-GKM profiles. The whole
+sample, 14,761 records, took about 2 minutes on one core; `variation` records are the slowest.
+
+The same schemas resolve by `$id` through [w3id.org](https://w3id.org/), so a registry can fetch them on demand
+instead of reading a local tree. The bundle schema itself still comes from the tree (or GitHub), because its own
+`$id` does not resolve. Fetching makes one request per schema, so validate a slice, here the first 25 records of
+each section:
+
+```python
+import functools
+
+import requests
+
+
+@functools.cache
+def fetch(uri):
+    return Resource.from_contents(requests.get(uri, timeout=30).json())
+
+
+fetching = Draft202012Validator(bundle_schema, registry=Registry(retrieve=fetch))
+part = {"schema_version": bundle["schema_version"]} | {
+    section: dict(list(records.items())[:25]) for section, records in bundle.items() if isinstance(records, dict)
+}
+validate_bundle_schema(part, bundle_schema, validator=fetching)
+print("valid:", sum(len(records) for records in part.values() if isinstance(records, dict)), "records;",
+      fetch.cache_info().currsize, "schemas fetched")
+```
+
+```text
+valid: 279 records; 74 schemas fetched
+```
+
+`validate_bundle_schema` takes a whole bundle in memory. For multi-GB full bundles, the release used a streaming,
+multi-process wrapper around it; that wrapper is proposed for the toolkit, as `gkm-validate-bundle`, in
+[ga4gh/gkm-starter-kit#128](https://github.com/ga4gh/gkm-starter-kit/pull/128), which is not yet released.
+
+### Loading bundles { #loading-bundles }
+
+!!! note "The toolkit's loader needs upstream updates for ClinVar-GKM 1.1.0"
+    The toolkit's loader tools (`load_bundle`, `Bundle.resolve`, `Bundle.export` and its model conversion) do
+    not yet read ClinVar-GKM 1.1.0 bundles. They need updating upstream in two ways:
+
+    1. **The most recent GKM spec versions**, which 1.1.0 data uses: GKM-Core 1.3.0, VRS 2.1.1, Cat-VRS 1.1.1
+       and VA-Spec 1.1.0. `ga4gh.gkm` 0.4.1 matches these only through the pre-release libraries above, and
+       it accepts a schema version only when it equals the installed library's.
+    2. **A way to handle producer-specific classes outside VA-Spec.** The loader resolves schema references
+       only against the GA4GH schemas it ships, cannot be given a producer's schemas, and converts records
+       only to GA4GH model classes. ClinVar-GKM extends them in `schema/clinvar-gkm/`: the ten custom
+       propositions (`ClinvarAffectsProposition` … `ClinvarUndefinedProposition`), `ClinvarGeneContextQualifier`,
+       the statement profiles `ClinvarScvStatement`, `ClinvarVcvStatement` and `ClinvarRcvStatement`, the
+       variant profile `ClinvarCategoricalVariant` (with `ClinvarCanonicalAllele`,
+       `ClinvarCategoricalCnvChange`, `ClinvarCategoricalCnvCount` and `ClinvarNonConstrainedVariant`) and
+       `ClinvarSomaticEvidenceLine`. `load_bundle` stops at the first of these references.
+
+    Until then, use the model libraries for the standard classes and plain JSON for the extended ones, as on
+    this page. Related work: [ga4gh/gkm-starter-kit#128](https://github.com/ga4gh/gkm-starter-kit/pull/128).
 
 ---
 
@@ -329,7 +446,7 @@ NM_000038.6(APC):c.3920T>A (p.Ile1307Lys)
 !!! warning "Remote reads of big tables are slow"
     The files are not sorted by id, so a filter reads the filtered column from every row group, one HTTP
     request each. On 2026-10-22, a `LIMIT 3` read of a large table took 10–25 seconds, an id lookup in
-    `location` 10–20 seconds, and the proposition → statement → variant lookup above 40–90 seconds in all.
+    `location` 10–20 seconds, and the proposition → statement → variant lookup above 40–125 seconds in all.
     The CDN allows 250 requests per 10 seconds per client. For anything beyond a handful of lookups, download
     the tables you need and query them locally ([Working at Scale](parquet/performance.md#local-or-remote)).
 
@@ -451,10 +568,10 @@ print(sum(classifications.values()), classifications.most_common(4))
 
 ### Validation
 
-Every published bundle passes strict validation against the ClinVar-GKM schemas before release; see
-[Release Validation](reference/release-validation.md). For consumers, bundle validation with producer schemas
-is the toolkit work in progress described [above](#the-gkm-toolkit). The model libraries validate each record
-against its GA4GH class as they load it, as in every example on this page.
+[Validate a bundle](#validate-a-bundle) shows the toolkit validating against the ClinVar-GKM schemas, as the
+release does; [Release Validation](reference/release-validation.md) lists the release results and links the
+published verification reports. The model libraries also validate each record against its GA4GH class as they
+load it, as in every example on this page.
 
 ### See it applied
 
