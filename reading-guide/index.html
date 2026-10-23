@@ -329,6 +329,8 @@
       
         
       
+        
+      
     
     
     
@@ -2674,6 +2676,8 @@
       
         
       
+        
+      
     
     
     
@@ -2970,6 +2974,33 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../working-in-python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Working in Python
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
       
@@ -2990,10 +3021,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
         
           
-          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
             
   
   
@@ -3010,8 +3041,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4776,8 +4807,8 @@
 </tr>
 <tr>
 <td><a href="../parquet/">Use the Data</a></td>
-<td><a href="../parquet/">Query the Data</a> (the 22 Parquet tables, a browser query console, joins, recipes and working at scale) and two end-to-end <a href="../user-story/">User Stories</a></td>
-<td>You want to work with the data in SQL, or see it used for a real task</td>
+<td><a href="../parquet/">Query the Data</a> (the 22 Parquet tables, a browser query console, joins, recipes and working at scale), <a href="../working-in-python/">Working in Python</a> (the GA4GH libraries on bundles and Parquet) and two end-to-end <a href="../user-story/">User Stories</a></td>
+<td>You want to work with the data in SQL or Python, or see it used for a real task</td>
 </tr>
 <tr>
 <td><a href="../pipeline/">How It's Built</a></td>
@@ -4877,7 +4908,7 @@
 3. Pick an interface:
    - <strong>JSON bundles:</strong> the <a href="../output-reference/overview/">Output Format</a>, <a href="../output-reference/id-references/">ID References</a> for resolving <code>#/section/id</code> pointers, and the <a href="../output-reference/classes/">Data Model</a> for exact fields and schemas.
    - <strong>Parquet:</strong> <a href="../parquet/">Query the Data</a>, from the <a href="../parquet/tables/">22 tables</a> and <a href="../parquet/joining/">joins</a> to <a href="../parquet/performance/">working at scale</a> and <a href="../parquet/other-tools/">other tools</a>.
-4. The GA4GH libraries: the <a href="https://ga4gh.github.io/gkm-starter-kit/">GKM Starter Kit</a> (vrs-python, cat-vrs-python, va-spec-python and the GKM Toolkit) works directly on these bundles. See <a href="../reference/gks-standards/">GA4GH Standards</a>.
+4. The GA4GH libraries: vrs-python, cat-vrs-python and va-spec-python, collected in the <a href="https://ga4gh.github.io/gkm-starter-kit/">GKM Starter Kit</a>, read these records directly. <a href="../working-in-python/">Working in Python</a> loads bundle and Parquet records into their models, with the library versions that read 1.1.0, and validates a bundle with the GKM Toolkit against the ClinVar-GKM schemas. See also <a href="../reference/gks-standards/">GA4GH Standards</a>.
 5. Worked problems: the <a href="../user-story/">User Stories</a>, and <a href="../pipeline/sub-bundle/">Sub-Bundle Extraction</a> for cutting a self-contained subset.</p>
 <p>Before you depend on a release, check the <a href="../reference/changelog/">Changelog</a> for migration notes and <a href="../reference/known-issues/">Known Issues</a>. The <a href="../reference/release-validation/">Release Validation</a> page lists the checks behind each release.</p>
 <hr />

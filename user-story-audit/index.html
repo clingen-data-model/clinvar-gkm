@@ -329,6 +329,8 @@
       
         
       
+        
+      
     
     
     
@@ -2569,6 +2571,8 @@
       
         
       
+        
+      
     
     
     
@@ -2869,6 +2873,33 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../working-in-python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Working in Python
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -2896,10 +2927,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="">
             
   
   
@@ -2916,8 +2947,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4820,7 +4851,7 @@ proposition, and submitter record those statements reference, in a single self-c
 is exactly "everything one submitter has in ClinVar," and it is the shape an audit consumes. It was
 regenerated from the 2026-10-18 release with the maintainer <a href="../pipeline/sub-bundle/">sub-bundle</a> tool —
 <code>sub-bundle.py --submitter 196472</code> — so it carries the 1.1.0 proposition sections and <code>schema_version</code>
-<code>1.1.0</code>, and it passes strict GA4GH gkm-toolkit validation (6,432 records, 0 failing).</p>
+<code>1.1.0</code>, and it passes strict validation against the ClinVar-GKM schemas (6,432 records, 0 failing).</p>
 <p>For the recurring, release-over-release audit, a submitter works from the published Parquet instead. A
 single DuckDB query flags the records that need a second look:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">-- Everything submitter 196472 has in ClinVar, flagged for review.</span>

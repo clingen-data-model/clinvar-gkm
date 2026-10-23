@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://dataexchange.clinicalgenome.org/clinvar-gkm/user-story/">
       
       
-        <link rel="prev" href="../parquet/other-tools/">
+        <link rel="prev" href="../working-in-python/">
       
       
         <link rel="next" href="../user-story-audit/">
@@ -324,6 +324,8 @@
   
     
       
+      
+        
       
         
       
@@ -2569,6 +2571,8 @@
       
         
       
+        
+      
     
     
     
@@ -2869,6 +2873,33 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../working-in-python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Working in Python
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -2896,10 +2927,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="">
             
   
   
@@ -2916,8 +2947,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4770,7 +4801,7 @@ ClinVar up against any other VRS-aware dataset, without translating coordinates.
 <li><strong>Implementer</strong> — ClinGen / ClinVar-GKM (a transformation of NCBI ClinVar)</li>
 <li><strong>Products</strong> — VRS, Cat-VRS, VA-Spec, GKM-Core</li>
 <li><strong>Pattern</strong> — Cross-source variant harmonization</li>
-<li><strong>Tools</strong> — <a href="https://github.com/ga4gh/vrs-python">vrs-python</a>, <a href="https://github.com/ga4gh/va-spec-python">va-spec-python</a>, and the <a href="https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/">GKM Toolkit</a>; the published clinvar-gkm <a href="../data-access/download/">bundle</a></li>
+<li><strong>Tools</strong> — <a href="https://github.com/ga4gh/vrs-python">vrs-python</a> and <a href="https://github.com/ga4gh/va-spec-python">va-spec-python</a>; the published clinvar-gkm <a href="../data-access/download/">bundle</a></li>
 <li><strong>Status</strong> — Release candidate</li>
 </ul>
 <div class="admonition tip">
@@ -4833,9 +4864,11 @@ its strength, review status, submitter, and condition straight from the bundle.<
   to join against clinvar-gkm's <code>allele</code> section (GKM-Core + VRS).</li>
 <li><strong><a href="https://github.com/ga4gh/va-spec-python">va-spec-python</a></strong> — construct and validate the classification
   <code>Statement</code>s / <code>Proposition</code>s as typed Python models.</li>
-<li><strong><a href="https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/">GKM Toolkit</a></strong> (<code>ga4gh.gkm</code>) — load a
-  published bundle, follow <code>#/…</code> pointers, and export a connected slice, without writing the resolution
-  yourself.</li>
+<li><strong><a href="https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/">GKM Toolkit</a></strong> (<code>ga4gh.gkm</code>) —
+  <a href="../working-in-python/#validate-a-bundle">validates the bundle</a> against the ClinVar-GKM schemas you supply.
+  Its loader (<code>load_bundle</code>, <code>resolve</code>, <code>export</code>) needs <a href="../working-in-python/#loading-bundles">upstream updates</a>
+  before it reads ClinVar-GKM bundles, so follow the <code>#/…</code> pointers with a dictionary lookup, as in
+  <a href="../working-in-python/">Working in Python</a>.</li>
 <li><strong>The clinvar-gkm <a href="../data-access/download/">bundle</a></strong> — the monthly full plus weekly deltas on Cloudflare R2.</li>
 </ul>
 <h2 id="how-to-explore-this">How to explore this<a class="headerlink" href="#how-to-explore-this" title="Permanent link">&para;</a></h2>

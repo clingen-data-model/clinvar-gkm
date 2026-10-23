@@ -327,6 +327,8 @@
       
         
       
+        
+      
     
     
     
@@ -2565,6 +2567,8 @@
       
         
       
+        
+      
     
     
     
@@ -2861,6 +2865,33 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../../working-in-python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Working in Python
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
       
@@ -2881,10 +2912,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
         
           
-          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
             
   
   
@@ -2901,8 +2932,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4751,7 +4782,7 @@ The changes these gates verified are listed in the <a href="../changelog/#110">1
 </tr>
 <tr>
 <td><strong>Strict GA4GH validation</strong></td>
-<td>The official GA4GH gkm-toolkit (<code>ga4gh.gkm</code> 0.4.0), in strict mode, validates every record of the real staged bundle, verbatim, against the <code>schema/</code> tree</td>
+<td>The official GA4GH gkm-toolkit's <code>validate_bundle_schema</code> (<code>ga4gh.gkm</code> 0.4.0), in strict mode, with a validator whose registry holds the repo's <code>schema/</code> tree (the ClinVar-GKM schemas and the GA4GH schemas they reference), validates every record of the real staged bundle, verbatim (<a href="../../working-in-python/#validate-a-bundle">how</a>)</td>
 <td>The first full bundle and every delta (see below)</td>
 </tr>
 <tr>
