@@ -15,7 +15,8 @@ statements pull in their contributing SCVs (via evidence-line `hasEvidenceItems`
 VCV/RCV bundle is self-contained down to the VRS sequence references.
 
 Objects get the same transform as the release export: extension `value_<type>` collapsed
-to a single `value`, and null/empty fields stripped (JSON_STRIP_NULLS).
+to a single `value`, and null/empty fields stripped (JSON_STRIP_NULLS). Like every published bundle, the
+output starts with `schema_version`, read from the bundle schema's const.
 
 Usage:
   # mixed statement ids as args
@@ -30,6 +31,7 @@ Requires the dataset to have the gkm_dict_* tables built (a completed release / 
 """
 import argparse
 import json
+from pathlib import Path
 import re
 import subprocess
 import sys
@@ -184,6 +186,14 @@ def build_store(dataset, project, seeds):
     return store
 
 
+BUNDLE_SCHEMA = Path(__file__).resolve().parents[2] / "schema" / "clinvar-gkm" / "clinvar-gkm-bundle.schema.json"
+
+
+def bundle_schema_version(path=BUNDLE_SCHEMA):
+    """The bundle schema's schema_version const: the value every published bundle carries first."""
+    return json.loads(Path(path).read_text())["properties"]["schema_version"]["const"]
+
+
 def to_bundle(store):
     """Assemble the store into an ordered {section: {key: obj}} bundle (drops misses)."""
     bundle = {}
@@ -200,7 +210,7 @@ def to_bundle(store):
     return ordered
 
 
-def dump_bundle(bundle, out):
+def dump_bundle(bundle, out, schema_version=None):
     """Write the bundle as valid JSON with one compact line per record.
 
     Sections are keyed on their own lines; each object *value* is emitted on a
@@ -211,6 +221,8 @@ def dump_bundle(bundle, out):
     """
     out.write("{\n")
     sections = list(bundle.items())
+    if schema_version is not None:   # first, as in every published bundle
+        out.write(f'  "schema_version": {json.dumps(schema_version)}' + (",\n" if sections else "\n"))
     for si, (section, items) in enumerate(sections):
         entries = list(items.items())
         out.write(f"  {json.dumps(section)}: {{")
@@ -317,7 +329,7 @@ def main():
 
     out = open(args.out, "w") if args.out else sys.stdout
     try:
-        dump_bundle(bundle, out)
+        dump_bundle(bundle, out, bundle_schema_version())
     finally:
         if args.out:
             out.close()
