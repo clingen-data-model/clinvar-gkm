@@ -59,5 +59,25 @@ Quick start
   curl -O https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz
   curl -s https://data.clinvar-gkm.org/v1/1.1/index.json
 
+Source, attribution and disclaimer
+----------------------------------
+
+These data are derived from NCBI's ClinVar (https://www.ncbi.nlm.nih.gov/clinvar/).
+
+  * Attribute ClinVar. If you use or redistribute these data, attribute ClinVar as the data source and cite
+    it, for example: Landrum MJ, et al. ClinVar: updates to support classifications of both germline and
+    somatic variants. Nucleic Acids Res. 2025;53(D1):D1313-D1321. doi:10.1093/nar/gkae1090. If you used these
+    files, also cite ClinVar-GKM: doi:10.5281/zenodo.18343663.
+  * Not for direct clinical use. ClinVar's disclaimer applies: the information is not intended for direct
+    diagnostic use or medical decision-making without review by a genetics professional. ClinVar's data use
+    policy: https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/#disclaimer
+  * No endorsement. ClinVar-GKM is not an NCBI, NLM or NIH product and is not endorsed by them.
+  * License. CC0 1.0 covers ClinGen's contribution (the code and this published transformation) only. It adds
+    no restriction, and it cannot grant rights that NCBI or ClinVar's submitters hold.
+  * Pass it on. If you redistribute these files or data derived from them, carry this attribution and
+    disclaimer with them.
+
+Data use and citation: https://dataexchange.clinicalgenome.org/clinvar-gkm/data-use/
+
 Documentation: https://dataexchange.clinicalgenome.org/clinvar-gkm/
 Source: https://github.com/clingen-data-model/clinvar-gkm

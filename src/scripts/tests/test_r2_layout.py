@@ -140,3 +140,18 @@ def test_move_10():
     assert dropped == ["v1/deltas/00-latest/manifest.json", "v1/index.json"]
     assert sidecars == {"v1/1.0/clinvar-gkm_2026-07.json.gz.sha256": "a" * 64 + "  clinvar-gkm_2026-07.json.gz\n"}
     assert new["status"] == "frozen" and new["superseded_by"] == "v1/1.1" and new["file_count"] == 2
+
+
+def test_parquet_manifest_carries_clinvar_attribution(tmp_path, monkeypatch):
+    d = tmp_path / "pq"; d.mkdir()
+    (d / "gene.parquet").write_bytes(b"PAR1x")
+    out = tmp_path / "manifest.json"
+    monkeypatch.setattr(sys, "argv", ["r2_layout.py", "parquet-manifest", "--dir", str(d), "--release", "2026-10-18",
+                                      "--dataset", "clinvar_2026_10_18_v2_6_0", "--schema-version", "1.1.0",
+                                      "--out", str(out)])
+    R.main()
+    import json
+    m = json.loads(out.read_text())
+    assert m["source"]["name"] == "ClinVar" and "ncbi.nlm.nih.gov/clinvar" in m["source"]["url"]
+    assert "genetics professional" in m["disclaimer"] and m["license"]["id"] == "CC0-1.0"
+    assert m["files"][0]["name"] == "gene.parquet" and m["source_release"] == "2026-10-18"
