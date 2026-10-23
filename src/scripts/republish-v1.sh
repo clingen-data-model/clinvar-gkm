@@ -179,6 +179,15 @@ Known issues kept as published (the files are byte-identical to 1.0.1):
   * there is no Parquet for this line.
 
 Changelog: https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/changelog/
+
+Source, attribution and disclaimer
+  Derived from NCBI's ClinVar (https://www.ncbi.nlm.nih.gov/clinvar/). Attribute ClinVar as the data source and
+  cite it (e.g. Landrum MJ, et al. Nucleic Acids Res. 2025;53(D1):D1313-D1321. doi:10.1093/nar/gkae1090); cite
+  ClinVar-GKM (doi:10.5281/zenodo.18343663) if you used these files. ClinVar's disclaimer applies: not intended
+  for direct diagnostic use or medical decision-making without review by a genetics professional
+  (https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/#disclaimer). Not an NCBI, NLM or NIH product and
+  not endorsed by them. CC0 1.0 covers ClinGen's contribution only. See
+  https://dataexchange.clinicalgenome.org/clinvar-gkm/data-use/
 EOF
 }
 
