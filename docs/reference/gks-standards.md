@@ -19,6 +19,5 @@ repository, and its official Python implementation, and notes how each is applie
 - **[GKM Starter Kit](https://github.com/ga4gh/gkm-starter-kit)** ([site](https://ga4gh.github.io/gkm-starter-kit/)) — a single community-facing entry point that helps you understand and adopt the GKS/GKM standards in practice.
 
 The three Python libraries above (`vrs-python`, `cat-vrs-python`, `va-spec-python`) let you parse ClinVar-GKM
-bundle and Parquet records directly into the standards' validated models — see the planned
-[Starter-kit documentation page](https://github.com/clingen-data-model/clinvar-gkm/discussions/100) on the
-[Roadmap](roadmap.md) for worked examples.
+bundle and Parquet records directly into the standards' validated models — see
+[Working in Python](../working-in-python.md) for worked examples and the library versions that read 1.1.0.
