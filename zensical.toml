@@ -91,6 +91,7 @@ nav = [
       { "Working at Scale"      = "parquet/performance.md" },
       { "Beyond DuckDB"         = "parquet/other-tools.md" },
     ] },
+    { "Working in Python" = "working-in-python.md" },
     { "User Stories" = [
       { "Harmonizing by VRS Identity" = "user-story.md" },
       { "Auditing a Submitter's Footprint" = "user-story-audit.md" },
