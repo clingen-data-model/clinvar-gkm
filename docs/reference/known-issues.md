@@ -76,13 +76,6 @@ the genes ClinVar associates with a variant, so such a gene has no `gene` record
 propositions. Genes with no HGNC id (`LOC*`) and NCBI-discontinued gene ids get no gene context, by design of
 the upstream method.
 
-## Bundle schema `$id` does not resolve
-
-The bundle schema's `$id`, `https://w3id.org/clingen/schema/clinvar-gkm/<version>/json/ClinvarGkmBundle`,
-returns 404: the file is published as `schema/clinvar-gkm/clinvar-gkm-bundle.schema.json`, not under `json/`.
-This is true for 1.0.0 and 1.0.1 as well, whose class schema `$id`s do resolve. Validators that load the
-schemas from a local copy or registry are unaffected.
-
 ## Past Parquet cannot yet be rebuilt
 
 Only the latest Parquet set is published. Past Parquet is meant to be rebuilt from the monthly bundles with
