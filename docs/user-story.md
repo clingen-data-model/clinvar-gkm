@@ -16,7 +16,7 @@ ClinVar up against any other VRS-aware dataset, without translating coordinates.
 - **Implementer** — ClinGen / ClinVar-GKM (a transformation of NCBI ClinVar)
 - **Products** — VRS, Cat-VRS, VA-Spec, GKM-Core
 - **Pattern** — Cross-source variant harmonization
-- **Tools** — [vrs-python](https://github.com/ga4gh/vrs-python), [va-spec-python](https://github.com/ga4gh/va-spec-python), and the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/); the published clinvar-gkm [bundle](data-access/download.md)
+- **Tools** — [vrs-python](https://github.com/ga4gh/vrs-python) and [va-spec-python](https://github.com/ga4gh/va-spec-python); the published clinvar-gkm [bundle](data-access/download.md)
 - **Status** — Release candidate
 
 !!! tip "New to GKM datasets?"
@@ -87,9 +87,10 @@ its strength, review status, submitter, and condition straight from the bundle.
   to join against clinvar-gkm's `allele` section (GKM-Core + VRS).
 - **[va-spec-python](https://github.com/ga4gh/va-spec-python)** — construct and validate the classification
   `Statement`s / `Proposition`s as typed Python models.
-- **[GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/)** (`ga4gh.gkm`) — load a
-  published bundle, follow `#/…` pointers, and export a connected slice, without writing the resolution
-  yourself.
+- **[GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/)** (`ga4gh.gkm`) — loads,
+  resolves and exports GKM bundles; its current release does not yet load ClinVar-GKM 1.1.0 bundles (support
+  in progress, [ga4gh/gkm-starter-kit#128](https://github.com/ga4gh/gkm-starter-kit/pull/128)). Follow the
+  `#/…` pointers with a dictionary lookup instead, as in [Working in Python](working-in-python.md).
 - **The clinvar-gkm [bundle](data-access/download.md)** — the monthly full plus weekly deltas on Cloudflare R2.
 
 ## How to explore this

@@ -180,43 +180,13 @@ pointer resolves within the bundle — is a producer-side guarantee, not express
 
 ### Validating with the GKM Toolkit
 
-The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) (`ga4gh.gkm`)
-validates a bundle against this schema directly. It
-[resolves](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-resolution/) the
-W3ID `$ref` URIs to the actual VRS / VA-Spec / GKM-Core class schemas and expands the bundle-local
-`#/…` pointers before [validating](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-validation/),
-so each section's objects are checked against their full class definition rather than their serialized
-pointer strings:
-
-```python
-import json
-from ga4gh.gkm.bundles.schema_validation import (
-    prepare_bundle_schema,
-    validate_bundle_schema,
-)
-
-schema = json.load(open("clinvar-gkm-bundle.schema.json"))
-
-# Validate one bundle — raises on any violation, returns None on success.
-bundle = json.load(open("clinvar-gkm_00-latest.json"))
-validate_bundle_schema(bundle, schema)
-
-# Or compile the validator once and reuse it across many bundles / deltas.
-validator = prepare_bundle_schema(schema)
-for path in ("clinvar-gkm_2026-10.json", "clinvar-gkm-delta_2026-1018.json"):
-    validate_bundle_schema(json.load(open(path)), schema, validator=validator)
-```
-
-!!! note "ga4gh.gkm 0.4.1 needs a schema registry"
-    The toolkit resolves `$ref`s only to the GA4GH schemas of its installed libraries, so the calls above
-    raise `BundleSerializationError` (`Unresolvable: https://w3id.org/clingen/schema/clinvar-gkm/…`) unless
-    they are given a `validator` whose registry can fetch the ClinVar-GKM profile schemas.
-    [Working in Python](../working-in-python.md#validate-a-bundle) shows one, along with loading, resolving and
-    exporting records with the toolkit and the GA4GH libraries.
-
-See the GKM Toolkit [schema-validation](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-validation/)
-and [schema-resolution](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-resolution/)
-API references for exact signatures and options.
+Every published bundle passes strict validation against this schema before release (see
+[Release Validation](../reference/release-validation.md)). The current release of the
+[GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) (`ga4gh.gkm`) does not yet
+validate ClinVar-GKM 1.1.0 bundles: it resolves `$ref`s only against the GA4GH schemas it ships and cannot add
+the ClinVar-GKM schemas. Support is in progress upstream in
+[ga4gh/gkm-starter-kit#128](https://github.com/ga4gh/gkm-starter-kit/pull/128); until then, see
+[Working in Python](../working-in-python.md) for working with records through the GA4GH model libraries.
 
 ---
 
@@ -230,10 +200,9 @@ See [Export & Distribute](../pipeline/export.md#step-3-rebuild-the-latest-parque
 
 ## Inlining References
 
-The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) (`ga4gh.gkm`) converts the bundle's `#/…` references into **inlined output** at the level of detail you need. Load the bundle, then call [`Bundle.export()`](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/containers/):
-
-- `export(item, deep=True)` — **complete**: every reachable reference resolved inline, producing a standalone object (a reference that closes a cycle is kept as a pointer, since JSON cannot represent a cyclic value).
-- `export(item)` (`deep=False`) — **minimal**: the object's local `#/…` pointers are preserved as-is.
-- `export()` with no argument exports the whole bundle at the chosen depth.
-
-See the GKM Toolkit's [schema resolution](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-resolution/) and [containers](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/containers/) API for details.
+A `#/section/key` reference resolves with one dictionary lookup in the bundle; [ID References](id-references.md#resolution-example)
+shows a small `resolve()` helper, and [Working in Python](../working-in-python.md#load-a-bundle-and-follow-pointers)
+follows a statement down to its sequence reference. The GKM Toolkit's
+[`Bundle.export()`](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/containers/) inlines
+references for the bundles it can load; its current release does not yet load ClinVar-GKM 1.1.0 bundles
+(see [above](#validating-with-the-gkm-toolkit)).

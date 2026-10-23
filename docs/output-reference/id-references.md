@@ -123,10 +123,12 @@ location = resolve(bundle, allele["location"])
 seq_ref = resolve(bundle, location["sequenceReference"])
 ```
 
-!!! tip "Resolving references without writing code"
-    The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/)
-    (`ga4gh.gkm`) loads a published bundle and follows `#/…` pointers for you — traversing and exporting
-    connected records without the manual `resolve()` above.
+!!! tip "From pointers to GA4GH models"
+    [Working in Python](../working-in-python.md) follows these pointers from a statement to its sequence
+    reference and loads each record into the GA4GH model libraries. The
+    [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/), which resolves and
+    exports pointers for the bundles it can load, does not yet load ClinVar-GKM 1.1.0 bundles; support is in
+    progress ([ga4gh/gkm-starter-kit#128](https://github.com/ga4gh/gkm-starter-kit/pull/128)).
 
 ---
 

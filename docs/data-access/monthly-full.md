@@ -54,5 +54,8 @@ The monthlies of the current year sit at the top of the line folder, `v1/1.1/`; 
 !!! tip "Validate a downloaded bundle"
     Every JSON bundle conforms to the [ClinVar-GKM bundle schema](../output-reference/overview.md#bundle-schema)
     (JSON Schema Draft 2020-12) — the same schema covers the monthly full, weekly deltas, and sub-bundle
-    extracts. The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) validates
-    a bundle against it in one call.
+    extracts. Every published bundle passes strict validation against it before release; see
+    [Release Validation](../reference/release-validation.md). The current
+    [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) release does not yet
+    validate ClinVar-GKM 1.1.0 bundles; support is in progress
+    ([ga4gh/gkm-starter-kit#128](https://github.com/ga4gh/gkm-starter-kit/pull/128)).

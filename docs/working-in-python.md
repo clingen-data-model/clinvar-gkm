@@ -2,9 +2,8 @@
 
 ClinVar-GKM records are GA4GH objects, so the GA4GH Python reference implementations read them directly:
 [vrs-python](https://github.com/ga4gh/vrs-python) (`ga4gh.vrs`),
-[cat-vrs-python](https://github.com/ga4gh/cat-vrs-python) (`ga4gh.cat_vrs`),
-[va-spec-python](https://github.com/ga4gh/va-spec-python) (`ga4gh.va_spec`), and the
-[GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) (`ga4gh.gkm`) from the
+[cat-vrs-python](https://github.com/ga4gh/cat-vrs-python) (`ga4gh.cat_vrs`) and
+[va-spec-python](https://github.com/ga4gh/va-spec-python) (`ga4gh.va_spec`), collected with other tools in the
 [GKM Starter Kit](https://ga4gh.github.io/gkm-starter-kit/). This page loads records from a bundle and from
 Parquet, follows their `#/section/id` pointers, builds the libraries' pydantic models from them, and
 serializes the models back to JSON.
@@ -16,88 +15,70 @@ It assumes the bundle layout described in [Output Format](output-reference/overv
 !!! info "Tested with"
     Every code block on this page was run on **2026-10-22**, with Python 3.12, against 1.1.0 data: the
     sample bundle, the 2026-10-18 weekly delta, and the Parquet dataset built from 2026-10-18. Versions:
-    `ga4gh.gkm` 0.4.1, `ga4gh.vrs` 2.4.0a6, `ga4gh.cat_vrs` 0.8.0a6, `ga4gh.va_spec` 0.5.0a7,
-    `pydantic` 2.14.1, `duckdb` 2.0.0, `ijson` 3.6.0. Outputs are trimmed where marked with `…`.
+    `ga4gh.vrs` 2.4.0a6, `ga4gh.cat_vrs` 0.8.0a6, `ga4gh.va_spec` 0.5.0a7, `pydantic` 2.14.1, `duckdb` 2.0.0,
+    `ijson` 3.6.0.
 
 ---
 
 ## Install
 
 ClinVar-GKM 1.1.0 is written to **VRS 2.1.1**, **Cat-VRS 1.1.1**, **VA-Spec 1.1.0** and **GKM-Core 1.3.0**.
-The library releases that implement those versions are, as of this writing, **pre-releases**. The GKM Toolkit
-pins them, so installing it installs the right set:
+The library releases that implement exactly those versions are, as of this writing, **pre-releases**:
 
 | Package | Version | Implements | Provides |
 | --- | --- | --- | --- |
-| `ga4gh.gkm` | 0.4.1 | — | `load_bundle`, `Bundle.resolve`/`export`, `validate_bundle_schema` |
 | `ga4gh.vrs` | 2.4.0a6 | VRS 2.1.1, GKM-Core 1.3.0 | `Allele`, `SequenceLocation`, `SequenceReference`, `CopyNumberCount`, `CopyNumberChange`; `ga4gh_identify` |
 | `ga4gh.cat_vrs` | 0.8.0a6 | Cat-VRS 1.1.1 | `CategoricalVariant` and its constraints |
 | `ga4gh.va_spec` | 0.5.0a7 | VA-Spec 1.1.0 | `Statement`, `EvidenceLine`, the proposition classes, `Agent`, `ConditionSet`, `TherapyGroup` |
 
-`ga4gh.gkm` requires Python 3.11 or later.
+The latest stable releases (`ga4gh.vrs` 2.3.3, `ga4gh.cat_vrs` 0.7.2, `ga4gh.va_spec` 0.4.4) implement older
+schema versions (VRS 2.0.1, Cat-VRS 1.0.0, VA-Spec 1.0.1) and reject most 1.1.0 records, so pin the
+pre-releases. They require Python 3.10 or later.
 
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
-pip install -q "ga4gh.gkm==0.4.1" "ga4gh.vrs==2.4.0a6" "ga4gh.cat_vrs==0.8.0a6" "ga4gh.va_spec==0.5.0a7"
+pip install -q "ga4gh.vrs==2.4.0a6" "ga4gh.cat_vrs==0.8.0a6" "ga4gh.va_spec==0.5.0a7"
 pip install -q duckdb ijson    # for the Parquet and streaming examples
 ```
 
-!!! warning "The latest stable releases do not read 1.1.0 data"
-    A plain `pip install ga4gh.vrs ga4gh.cat_vrs ga4gh.va_spec` installs the latest *stable* releases:
-    `ga4gh.vrs` 2.3.3, `ga4gh.cat_vrs` 0.7.2 and `ga4gh.va_spec` 0.4.4. They implement VRS 2.0.1,
-    Cat-VRS 1.0.0 and VA-Spec 1.0.1 and reject most 1.1.0 records. VRS records and submitters still load;
-    genes, conditions, nearly every variation, and every proposition, evidence line and statement fail. For
-    example:
-
-    ```text
-    Statement: contributions.0.contributor
-      Input should be a valid dictionary or instance of Agent [type=model_type, input_value='#/submitter/clinvar.submitter:196472', input_type=str]
-    VariantPathogenicityProposition: subjectVariant
-      Field required [type=missing, …]
-    CategoricalVariant: constraints.0.DefiningAlleleConstraint.relations.0.type
-      Extra inputs are not permitted [type=extra_forbidden, input_value='MappableConcept', input_type=str]
-    ```
-
-    Install the versions in the table above until stable releases catch up with the 1.1.0 schemas.
-
-Check what is installed and which schema versions the toolkit accepts:
+Check what is installed and which schema versions the libraries implement:
 
 ```python
 from importlib.metadata import version
-from ga4gh.gkm.bundles import supported_gkm_versions
 
-for package in ("ga4gh.gkm", "ga4gh.vrs", "ga4gh.cat_vrs", "ga4gh.va_spec"):
+from ga4gh.cat_vrs import CATVRS_VERSION
+from ga4gh.core import CORE_VERSION
+from ga4gh.va_spec import VASPEC_VERSION
+from ga4gh.vrs import VRS_VERSION
+
+for package in ("ga4gh.vrs", "ga4gh.cat_vrs", "ga4gh.va_spec"):
     print(f"{package:14} {version(package)}")
-print(supported_gkm_versions())
+print(f"VRS {VRS_VERSION}, Cat-VRS {CATVRS_VERSION}, VA-Spec {VASPEC_VERSION}, GKM-Core {CORE_VERSION}")
 ```
 
 ```text
-ga4gh.gkm      0.4.1
 ga4gh.vrs      2.4.0a6
 ga4gh.cat_vrs  0.8.0a6
 ga4gh.va_spec  0.5.0a7
-{'gkm-core': '1.3.0', 'vrs': '2.1.1', 'cat-vrs': '1.1.1', 'va-spec': '1.1.0'}
+VRS 2.1.1, Cat-VRS 1.1.1, VA-Spec 1.1.0, GKM-Core 1.3.0
 ```
 
 ---
 
 ## Get the example files
 
-The examples use three small files:
+The examples use two small files:
 
 - **`nch-igm-bundle.json.gz`** (1.6 MB): a self-contained 1.1.0 sub-bundle of every SCV from one submitter
   (IGM Clinical Laboratory, Nationwide Children's Hospital) and everything those SCVs reference, cut from
   the 2026-10-18 release with [Sub-Bundle Extraction](pipeline/sub-bundle.md). Every pointer in it
   resolves inside the file.
 - **`clinvar-gkm-delta_2026-1018.json.gz`** (24 MB): the published 2026-10-18 [weekly delta](data-access/weekly-deltas.md).
-- **`clinvar-gkm-bundle.schema.json`**: the 1.1.0 bundle schema, from the `1.1.0` tag. Its `$id` does not
-  resolve, so it is fetched from GitHub.
 
 ```bash
 curl -sLO https://github.com/clingen-data-model/clinvar-gkm/raw/main/nch-igm-bundle.json.gz
 curl -sO https://data.clinvar-gkm.org/v1/1.1/deltas/clinvar-gkm-delta_2026-1018.json.gz
-curl -sLO https://raw.githubusercontent.com/clingen-data-model/clinvar-gkm/1.1.0/schema/clinvar-gkm/clinvar-gkm-bundle.schema.json
 ```
 
 The full bundles are about 4.8 GB compressed. Don't `json.load` one; see [Large bundles](#large-bundles).
@@ -167,7 +148,7 @@ SQ.w0WZEvgJF0zf_P4yyTzjjv9oW1z61HHP NC_000023.11
 
 ## Into the GA4GH models
 
-Each section's records validate as one class from the libraries. A pointer string is accepted wherever a
+Each section's records, except the ClinVar custom propositions, validate as one class from the libraries. A pointer string is accepted wherever a
 field allows a reference: the models type it as `iriReference`, and its `.root` holds the pointer.
 
 ### VRS alleles and their identifiers
@@ -251,136 +232,21 @@ Records in the `scv`, `vcv` and `rcv` sections load as `Statement`, and `evidenc
   record holds, including the structured values such as `submittedCondition` and `clinvarHgvsList`. The
   libraries don't interpret them. [Statement extensions](output-reference/scv-statements.md) and
   [Variations](output-reference/cat-vrs.md) document each one.
-- **ClinVar custom propositions** have no class in va-spec-python. The `propositionClinvarCustom` section
+- **ClinVar custom propositions** have no class in va-spec-python yet. The `propositionClinvarCustom` section
   holds ClinVar's own germline proposition types (`ClinvarOtherProposition`, `ClinvarRiskFactorProposition`,
-  …), which extend VA-Spec's `SubjectVariantProposition`. That base class accepts them, but it ignores fields
-  it doesn't declare, so their qualifiers (`geneContextQualifier`, `modeOfInheritanceQualifier`) are
-  dropped:
-
-```python
-custom = bundle["propositionClinvarCustom"]["SCV002072498-OTH"]
-print(custom["type"], hasattr(va, custom["type"]))
-
-generic = va.SubjectVariantProposition(**custom)
-print(generic.type, sorted(set(custom) - set(generic.model_dump(exclude_none=True))))
-```
-
-```text
-ClinvarOtherProposition False
-ClinvarOtherProposition ['geneContextQualifier']
-```
-
-Keep custom propositions as dicts, or read the qualifiers from the dict, when you need them. Every
-other section loads without loss; see [Round trip](#round-trip).
+  …). Work with them as plain JSON, as the bundle and the Parquet `data` column provide them. Every other
+  section loads into a library class without loss; see [Round trip](#round-trip).
 
 ---
 
-## Load with the GKM Toolkit
+## The GKM Toolkit
 
-The toolkit's `load_bundle` checks every pointer, validates the bundle against its producer schema, and
-returns a `Bundle` whose records are typed models with their pointers resolved. It requires the producer
-schema. With `ga4gh.gkm` 0.4.1, the ClinVar-GKM bundle schema fails:
-
-```python
-from ga4gh.gkm.bundles import load_bundle
-
-try:
-    with gzip.open("nch-igm-bundle.json.gz", "rt") as f:
-        load_bundle(f, schema="clinvar-gkm-bundle.schema.json")
-except Exception as error:
-    print(type(error).__name__, error)
-```
-
-```text
-BundleSerializationError Bundle JSON Schema reference could not be resolved locally: Unresolvable: https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGeneContextQualifier
-```
-
-The toolkit resolves `$ref`s offline, and only to the GA4GH schemas of its installed libraries. The
-ClinVar-GKM profile schemas (`https://w3id.org/clingen/schema/clinvar-gkm/…`) are not among them, and 0.4.1
-has no way to add them. To load the bundle, replace each profile `$ref` with an open object schema. Sections
-whose schema is a GA4GH class keep their validation; profile-typed sections (`variation`, `scv`, `vcv`, `rcv`,
-`propositionClinvarCustom`, part of `evidenceLine`) are not validated on load. They are still typed by their
-`type` field. [Validate a bundle](#validate-a-bundle) checks them in full.
-
-```python
-import io
-
-
-def open_profiles(node):
-    """Replace each ClinVar-GKM profile $ref with an open object schema."""
-    if isinstance(node, dict):
-        if node.get("$ref", "").startswith("https://w3id.org/clingen/"):
-            return {"type": "object"}
-        return {key: open_profiles(value) for key, value in node.items()}
-    if isinstance(node, list):
-        return [open_profiles(value) for value in node]
-    return node
-
-
-with open("clinvar-gkm-bundle.schema.json") as f:
-    consumer_schema = open_profiles(json.load(f))
-
-with gzip.open("nch-igm-bundle.json.gz", "rt") as f:
-    kit = load_bundle(f, schema=io.StringIO(json.dumps(consumer_schema)))
-
-for name in kit:
-    types = sorted({type(record).__name__ for record in kit[name].values()})
-    print(f"{name:33} {len(kit[name]):5}  {', '.join(types)}")
-```
-
-```text
-sequenceReference                    24  SequenceReference
-location                           1913  SequenceLocation
-allele                             2027  Allele
-copyNumberChange                      1  CopyNumberChange
-gene                                460  MappableConcept
-variation                          2032  CategoricalVariant
-condition                           390  MappableConcept
-conditionSet                         33  ConditionSet
-submitter                             1  Agent
-propositionPathogenicity            943  VariantPathogenicityProposition
-propositionSomaticClinicalImpact   2994  VariantClinicalSignificanceProposition, VariantDiagnosticProposition
-propositionClinvarCustom              3  dict
-evidenceLine                       1497  EvidenceLine
-scv                                2443  Statement
-```
-
-Loading the 1.6 MB sample takes about 40 seconds and holds every record twice, compact and expanded. Use
-`load_bundle` for sub-bundles and small extracts, not for full bundles or deltas.
-
-Typed records come back with their pointers already resolved. `resolve` follows a pointer, and `export`
-serializes a record: with its pointers (`deep=False`, the default) or with every reachable record inlined
-(`deep=True`):
-
-```python
-typed = kit.scv["clinvar.submission:SCV000864262.1"]
-subject = typed.proposition.subject
-print(type(typed).__name__, type(typed.proposition).__name__, type(subject).__name__, subject.name)
-print(type(kit.resolve("#/allele/" + allele["id"])).__name__)
-
-shallow = kit.export(typed)
-deep = kit.export(typed, deep=True)
-print(shallow["proposition"])
-print(deep["proposition"]["subject"]["constraints"][0]["allele"]["location"]["sequenceReference"]["refgetAccession"])
-print(len(json.dumps(shallow)), len(json.dumps(deep)))
-
-standalone = va.Statement(**deep)
-print(type(standalone.proposition.subject.constraints[0].root.allele.location.sequenceReference).__name__)
-```
-
-```text
-Statement VariantPathogenicityProposition CategoricalVariant NM_018486.3(HDAC8):c.20C>T (p.Pro7Leu)
-Allele
-#/propositionPathogenicity/SCV000864262-PATH
-SQ.w0WZEvgJF0zf_P4yyTzjjv9oW1z61HHP
-2426 10434
-SequenceReference
-```
-
-A deep export is a standalone VA-Spec statement that any VA-Spec consumer can read without the bundle.
-The toolkit has the same gap as va-spec-python for custom propositions: `propositionClinvarCustom` records stay
-dicts, and a statement's inline custom proposition is a base `Proposition` without its qualifiers. `export`
-restores them from the bundle.
+The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) (`ga4gh.gkm`) loads,
+resolves, exports and validates GKM bundles. Its current release does not yet load or validate ClinVar-GKM
+1.1.0 bundles: it resolves schema references only against the GA4GH schemas it ships, and it cannot add a
+producer's schemas, such as ClinVar-GKM's. Support is in progress upstream; streaming validation with producer
+schemas is proposed in [ga4gh/gkm-starter-kit#128](https://github.com/ga4gh/gkm-starter-kit/pull/128). Until
+it is released, work with records through the GA4GH model libraries as shown on this page.
 
 ---
 
@@ -463,7 +329,7 @@ NM_000038.6(APC):c.3920T>A (p.Ile1307Lys)
 !!! warning "Remote reads of big tables are slow"
     The files are not sorted by id, so a filter reads the filtered column from every row group, one HTTP
     request each. On 2026-10-22, a `LIMIT 3` read of a large table took 10–25 seconds, an id lookup in
-    `location` 10–20 seconds, and the proposition → statement → variant lookup above 60–90 seconds in all.
+    `location` 10–20 seconds, and the proposition → statement → variant lookup above 40–90 seconds in all.
     The CDN allows 250 requests per 10 seconds per client. For anything beyond a handful of lookups, download
     the tables you need and query them locally ([Working at Scale](parquet/performance.md#local-or-remote)).
 
@@ -492,13 +358,13 @@ MODELS = {
 
 def model_for(section, record):
     if section.startswith("proposition"):
-        return getattr(va, record["type"], va.SubjectVariantProposition)
+        return getattr(va, record["type"])
     return MODELS[section]
 
 
 tally = Counter()
 for section, records in bundle.items():
-    if isinstance(records, dict):
+    if isinstance(records, dict) and section != "propositionClinvarCustom":  # plain JSON, no library class
         for record in records.values():
             dumped = model_for(section, record)(**record).model_dump(mode="json", exclude_none=True)
             tally[section, "identical" if dumped == record else "differs"] += 1
@@ -518,13 +384,11 @@ conditionSet                      identical    33
 submitter                         identical     1
 propositionPathogenicity          identical   943
 propositionSomaticClinicalImpact  identical  2994
-propositionClinvarCustom          identical     2
-propositionClinvarCustom          differs       1
 evidenceLine                      identical  1497
 scv                               differs    2443
 ```
 
-Every record comes back identical except in two cases:
+Every record comes back identical except for one field:
 
 - **Contribution dates.** VA-Spec 1.1.0 types `Contribution.date` as a date-time. The records carry a date
   (`"2019-01-22"`); the model parses it as midnight and writes it back with a time:
@@ -540,23 +404,10 @@ Every record comes back identical except in two cases:
 
     Every SCV has contribution dates, so every SCV differs in those fields only. Compare dates by their
     first ten characters, or restore them after dumping.
-- **ClinVar custom propositions** loaded with `SubjectVariantProposition` lose their qualifiers, as
-  shown [above](#extensions-and-clinvar-specific-types). Those without a qualifier round-trip identically.
 
-The same sweep over the 2026-10-18 delta (215,170 records, including `vcv` and `rcv`) gives the same result.
-All 18,138 SCVs differ only in contribution dates; 41 of the 201 custom propositions lose
-`geneContextQualifier`, one of them also `modeOfInheritanceQualifier`. Every other record is identical.
-
-The toolkit's export round-trips the same way. Its typed records carry the same date normalization:
-
-```python
-exported = kit.export()
-print([section for section in bundle if exported.get(section) != bundle[section]])
-```
-
-```text
-['scv']
-```
+The same sweep over the 2026-10-18 delta (215,170 records, including `vcv` and `rcv`) gives the same result:
+all 18,138 SCVs differ only in contribution dates, and every other record, apart from the plain-JSON custom
+propositions, is identical.
 
 Key order is not preserved: the models write fields in class-definition order. Compare parsed objects, not
 strings.
@@ -598,52 +449,12 @@ print(sum(classifications.values()), classifications.most_common(4))
 
 ## Going further
 
-### Validate a bundle { #validate-a-bundle }
+### Validation
 
-The toolkit's `validate_bundle_schema` accepts a prepared validator. Give it a `referencing` registry that
-fetches each referenced schema from its `$id` (the GA4GH and ClinVar-GKM class schemas resolve through
-[w3id.org](https://w3id.org/)), and it validates every section against the full ClinVar-GKM profiles. Records
-are validated as published, pointers included:
-
-```python
-import functools
-
-import requests
-from jsonschema import Draft202012Validator
-from referencing import Registry, Resource
-from ga4gh.gkm.bundles.schema_validation import validate_bundle_schema
-
-
-@functools.cache
-def fetch(uri):
-    return Resource.from_contents(requests.get(uri, timeout=30).json())
-
-
-with open("clinvar-gkm-bundle.schema.json") as f:
-    schema = json.load(f)
-validator = Draft202012Validator(schema, registry=Registry(retrieve=fetch))
-
-# The first 25 records of each section; raises BundleValidationError on the first violation
-part = {"schema_version": bundle["schema_version"]} | {
-    section: dict(list(records.items())[:25]) for section, records in bundle.items() if isinstance(records, dict)
-}
-validate_bundle_schema(part, schema, validator=validator)
-print("valid:", sum(len(records) for records in part.values() if isinstance(records, dict)), "records")
-```
-
-```text
-valid: 279 records
-```
-
-The first call fetches about 75 schema documents. Strict validation is CPU-bound: the whole sample
-(14,761 records) took about 5 minutes on one core, and `variation` records are the slowest. The release
-gates validate every published record with `validate_bundle_schema` and a local copy of the same schemas; see
-[Release Validation](reference/release-validation.md).
-A streaming, multi-process validator with a `gkm-validate-bundle` command is proposed for the toolkit in
-[ga4gh/gkm-starter-kit#128](https://github.com/ga4gh/gkm-starter-kit/pull/128); it is not yet released.
-The toolkit's own documentation covers
-[schema validation](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/schema-validation/)
-and [containers](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/containers/).
+Every published bundle passes strict validation against the ClinVar-GKM schemas before release; see
+[Release Validation](reference/release-validation.md). For consumers, bundle validation with producer schemas
+is the toolkit work in progress described [above](#the-gkm-toolkit). The model libraries validate each record
+against its GA4GH class as they load it, as in every example on this page.
 
 ### See it applied
 
