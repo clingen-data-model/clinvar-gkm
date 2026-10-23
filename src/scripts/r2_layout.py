@@ -66,6 +66,31 @@ _PATTERNS = [
 # Listing
 
 
+# Source, attribution and disclaimer for the published data (ClinVar is the source; see the docs' Data Use and
+# Citation page). Carried by parquet/manifest.json; the same text is in r2-readme.txt.
+ATTRIBUTION = {
+    "source": {
+        "name": "ClinVar",
+        "publisher": "National Center for Biotechnology Information (NCBI), U.S. National Library of Medicine",
+        "url": "https://www.ncbi.nlm.nih.gov/clinvar/",
+        "data_use_policy": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/#disclaimer",
+        "citation": ("Landrum MJ, et al. ClinVar: updates to support classifications of both germline and somatic "
+                     "variants. Nucleic Acids Res. 2025;53(D1):D1313-D1321. doi:10.1093/nar/gkae1090"),
+    },
+    "attribution": ("Derived from NCBI's ClinVar. If you use or redistribute these data, attribute ClinVar as the data "
+                    "source and cite it; cite ClinVar-GKM (doi:10.5281/zenodo.18343663) if you used these files."),
+    "disclaimer": ("ClinVar's disclaimer applies: the information is not intended for direct diagnostic use or "
+                   "medical decision-making without review by a genetics professional. ClinVar-GKM is not an NCBI, "
+                   "NLM or NIH product and is not endorsed by them."),
+    "license": {
+        "id": "CC0-1.0",
+        "scope": ("CC0 covers ClinGen's contribution (the code and this published transformation) only. It adds no "
+                  "restriction, and it cannot grant rights that NCBI or ClinVar's submitters hold."),
+    },
+    "data_use": "https://dataexchange.clinicalgenome.org/clinvar-gkm/data-use/",
+}
+
+
 def read_listing(path):
     """{key: (size, modified)} from `aws s3 ls --recursive` output ("DATE TIME SIZE KEY") or "SIZE KEY" lines."""
     objs = {}
@@ -611,7 +636,7 @@ def main(argv=None):
                "builder": a.builder, "table_spec_version": a.table_spec_version, "schema_version": a.schema_version,
                "note": ("One Parquet set, rebuilt from the newest release and overwritten every release. It is "
                         "derived from the JSON bundle; past states are rebuilt from the monthly bundles."),
-               "files": files}
+               **ATTRIBUTION, "files": files}
         with open(a.out, "w") as fh:
             json.dump(man, fh, indent=1)
         print(f"  parquet/manifest.json: {len(files)} files, {_gb(sum(f['size'] for f in files))}")
