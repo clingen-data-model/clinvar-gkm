@@ -4949,6 +4949,7 @@ keys once and split them across several <code>--ids-file</code> runs (see the la
 <p>The output is a single bundle object — the same <code>{ "&lt;section&gt;": { "&lt;key&gt;": &lt;object&gt; } }</code> shape as a
 full release, ordered <code>sequenceReference</code> → … → <code>scv</code>/<code>vcv</code>/<code>rcv</code>. Every <code>#/…</code> pointer inside resolves
 to a key present in the file.</p>
+<p>The file starts with <code>schema_version</code>, read from the bundle schema's <code>schema_version</code> const, so a sub-bundle is a complete bundle that validates against the ClinVar-GKM bundle schema as-is.</p>
 <p>Records are written <strong>one per line</strong> — each section is keyed on its own line and every object <em>value</em> is
 emitted as a single compact line. The file stays one valid JSON document, but has roughly one line per
 record rather than one per field, so a large sub-bundle (thousands of statements) is a few thousand lines

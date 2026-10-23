@@ -4845,9 +4845,10 @@
 <p>The dataset lives at one stable path, <code>v1/1.1/parquet/</code>, one file per section, with a <code>manifest.json</code> beside it:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>v1/1.1/parquet/
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  {section}.parquet      22 files, one per bundle section
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  manifest.json          build date, source release and dataset, builder, schema version, each file's size and sha256
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  manifest.json          build date, source release and dataset, builder, schema version, each file's size and sha256,
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                         and the ClinVar source, attribution, disclaimer and license scope
 </code></pre></div>
-<p>The manifest names the release the dataset was built from, so check it before comparing results with a bundle (the index's Parquet entry carries the same <code>source_release</code>). For an earlier state, see <a href="#earlier-releases">Earlier releases</a>.</p>
+<p>The manifest also carries the data's provenance: <code>source</code> (ClinVar at NCBI, its data use policy and a citation), <code>attribution</code>, <code>disclaimer</code> and <code>license</code> (CC0 scope), matching <a href="../../data-use/">Data Use and Citation</a>. The manifest names the release the dataset was built from, so check it before comparing results with a bundle (the index's Parquet entry carries the same <code>source_release</code>). For an earlier state, see <a href="#earlier-releases">Earlier releases</a>.</p>
 <h2 id="the-latest-set">The latest set<a class="headerlink" href="#the-latest-set" title="Permanent link">&para;</a></h2>
 <div class="r2-browser" data-r2-type="parquet-latest"></div>
 
