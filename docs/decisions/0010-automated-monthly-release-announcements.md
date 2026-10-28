@@ -30,7 +30,7 @@ depend on that machine being online and would put mail credentials on it.
 3. **Which monthly is due.** The newest official monthly of the current line, when its month is later than
    `ANNOUNCE_AFTER` (`2026-10`: monthlies published before this existed are never announced automatically) and
    later than every month already announced. A republish into a new version line therefore announces nothing.
-4. **Both channels, each exactly once.** The email goes over SMTP from a dedicated service mailbox (not a
+4. **Both channels, each exactly once.** The email goes over SMTP from `releases@clinvar-gkm.org` (not a
    person's account), and the same text is posted as a Discussion in Announcements with the workflow's
    `GITHUB_TOKEN`. Each channel is recorded in `announced.json` on the orphan branch `ops/announcements` as soon
    as it succeeds, so a re-run retries only what failed and never sends twice.
@@ -40,14 +40,26 @@ depend on that machine being online and would put mail credentials on it.
 
 ## Setup (once)
 
-1. **Sender.** Create the service mailbox, turn on 2-step verification, and create an app password for SMTP
-   (for Gmail or Google Workspace: `smtp.gmail.com`, port 587, STARTTLS).
-2. **Let it post.** In the Google Group, add the mailbox as a member (or allow it in *Who can post*) so its
-   messages aren't held for moderation.
-3. **GitHub.** Settings → Environments → New environment `announce`; limit deployment branches to `main`. Add the
-   secrets `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` (the app password) and `ANNOUNCE_FROM` (for
-   example `ClinVar-GKM <service-mailbox@example.org>`).
-4. **Test.** Set the repository variable `ANNOUNCE_TO` to your own address. Run *Monthly release announcement*
+The sender is `releases@clinvar-gkm.org`, sent through Cloudflare Email Service (Email Sending) on the account
+that holds the `clinvar-gkm.org` zone, so no person's mailbox or password is involved. Replies are forwarded by
+Email Routing to a Broad Google Group of maintainers.
+
+1. **Plan.** Email Sending to arbitrary recipients needs Workers Paid on the account.
+2. **Onboard the domain.** Compute → Email Service → Email Sending → Onboard Domain → `clinvar-gkm.org`. Cloudflare
+   adds the bounce MX, SPF and DKIM records under `cf-bounce.clinvar-gkm.org` and a DMARC record at
+   `_dmarc.clinvar-gkm.org`.
+3. **Token.** Create an account-owned API token with only **Email Sending: Edit**.
+4. **Replies.** Email Routing: a custom address `releases@clinvar-gkm.org` forwarding to the maintainers' Broad
+   group (the destination is verified once, by a link mailed to it).
+5. **Let it post.** In the `clinvar-gkm` Google Group, add `releases@clinvar-gkm.org` as a member with delivery
+   *No email* (or allow it in *Who can post*) so its messages aren't held for moderation.
+6. **GitHub.** Settings → Environments → New environment `announce`; limit deployment branches to `main`. Secrets:
+   `SMTP_HOST` = `smtp.mx.cloudflare.net`, `SMTP_PORT` = `465` (implicit TLS), `SMTP_USERNAME` = `api_token`,
+   `SMTP_PASSWORD` = the token, `ANNOUNCE_FROM` = `ClinVar-GKM Releases <releases@clinvar-gkm.org>`.
+
+Email Sending was in public beta when this was written. Moving to another SMTP provider is a change of these
+secrets only.
+7. **Test.** Set the repository variable `ANNOUNCE_TO` to your own address. Run *Monthly release announcement*
    with `month = 2026-10` and `dry_run` off: check the email, then delete the test Discussion and the `2026-10`
    entry on `ops/announcements` (or the branch). Delete `ANNOUNCE_TO` to send to the list.
 
