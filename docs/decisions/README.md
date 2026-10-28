@@ -23,3 +23,4 @@ importing them so they don't bloat every session's context.
 - [0007 — Pipeline principles and simplification](0007-pipeline-principles-and-simplification.md)
 - [0008 — Bundles are the public record: immutability, archives, version lines and download metrics](0008-bundles-are-the-public-record.md)
 - [0009 — R2 layout mirrors NCBI ClinVar](0009-r2-layout-mirrors-ncbi-clinvar.md)
+- [0010 — Automated monthly release announcements](0010-automated-monthly-release-announcements.md)
