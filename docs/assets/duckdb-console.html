@@ -84,6 +84,9 @@
   .errbox details { margin-top: 7px; }
   .errbox summary { cursor: pointer; color: var(--ink-soft); font-size: 10.5px; font-family: ui-monospace, monospace; }
   .errbox pre { margin: 6px 0 0; white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 10.5px; color: var(--ink-soft); }
+  .errbox pre.cmd { margin: 5px 0 8px; padding: 7px 9px; font-size: 11px; color: var(--ink); background: var(--box);
+    border: 1px solid var(--line); border-radius: 5px; user-select: all; }
+  .errbox .ehint + .ehint { margin-top: 6px; }
   .meta { font-size: 10.5px; color: var(--ink-soft); font-family: ui-monospace, monospace; margin-top: 5px; }
 
   .note { font-size: 11px; color: var(--ink-soft); line-height: 1.55; margin-top: 16px;
@@ -99,8 +102,8 @@
   </div>
   <p class="caption">Runs SQL <b>in your browser</b> against the published ClinVar-GKM Parquet tables over
     <code>data.clinvar-gkm.org</code> &mdash; nothing is downloaded to disk and no server runs the query. Best for
-    exploration: counts, schema, single-table and targeted lookups return in about a second. Full scans over the
-    big tables are slow over the network and may rate-limit; for those, download and query locally.</p>
+    exploration: counts, schema, single-table and targeted lookups return in about a second. A query that runs
+    longer than 10&nbsp;seconds is stopped, with the steps to download its tables and run it on your machine.</p>
 
   <div class="bar">
     <label>Release
@@ -115,6 +118,9 @@
         <option value="marfan">Find a disease by name (Marfan)</option>
         <option value="describe">Schema of the scv table (DESCRIBE)</option>
         <option value="scvcount">Count SCV statements (3&nbsp;GB, footer only)</option>
+        <option value="scv">SCV statements: classification and quality</option>
+        <option value="vcv">VCV statements: classification and quality</option>
+        <option value="rcv">RCV statements: classification and quality</option>
         <option value="therapy">List drug therapies (name is inside JSON)</option>
         <option value="bytype">Count conditions by type (GROUP BY)</option>
       </select>
@@ -143,7 +149,8 @@
     The connection runs with <code>SET threads=1</code> to stay gentle on the CDN; a parallel full scan of a big
     table can trip rate limiting (<code>HTTP 429</code>); joins across the big tables belong on your machine, <a href="../parquet/performance/#materialize-join-tables" target="_top">materialized once</a>. To keep load on the shared service light, the console
     runs <b>at most one query every 10&nbsp;seconds</b> &mdash; the Run button greys out and a countdown beside it
-    shows when the next query is available. Multiple statements separated by <code>;</code> run in order and the
+    shows when the next query is available &mdash; and <b>stops any query still running after 10&nbsp;seconds</b>
+    (the engine reloads from your browser cache on the next Run). Multiple statements separated by <code>;</code> run in order and the
     last result is shown. Output is capped at 500 rows.
   </p>
 </div>
@@ -169,6 +176,9 @@
     marfan:   `SELECT id, name\nFROM '{BASE}/condition.parquet'\nWHERE name ILIKE '%marfan%';`,
     describe: `DESCRIBE SELECT * FROM '{BASE}/scv.parquet';`,
     scvcount: `SELECT count(*) AS n_scv FROM '{BASE}/scv.parquet';`,
+    scv:      `-- classification and quality are STRUCTs: name the field. LIMIT without WHERE reads only the first row group\nSELECT id, classification.name AS classification, quality.name AS quality\nFROM '{BASE}/scv.parquet'\nLIMIT 25;`,
+    vcv:      `SELECT id, classification.name AS classification, quality.name AS quality\nFROM '{BASE}/vcv.parquet'\nLIMIT 25;`,
+    rcv:      `SELECT id, classification.name AS classification, quality.name AS quality\nFROM '{BASE}/rcv.parquet'\nLIMIT 25;`,
     therapy:  `-- therapy is content-addressed: the id column is key. value->>'name' works on every release (1.1.0+ also has a name column)\nSELECT key, value->>'name' AS name\nFROM '{BASE}/therapy.parquet'\nLIMIT 25;`,
     bytype:   `SELECT conceptType, count(*) AS n\nFROM '{BASE}/condition.parquet'\nGROUP BY 1 ORDER BY n DESC;`,
   };
@@ -217,6 +227,15 @@
   loadReleases();
 
   let dbPromise = null;
+  let dbWorker = null;
+  // Kill the engine's worker, which aborts its in-flight HTTP range requests; the next Run starts a fresh one.
+  // A running query can't be cancelled from here (the worker is busy executing it), so this is the only way to
+  // stop the network traffic.
+  function resetEngine() {
+    if (dbWorker) dbWorker.terminate();
+    dbWorker = null;
+    dbPromise = null;
+  }
   async function getConn() {
     if (!dbPromise) {
       dbPromise = (async () => {
@@ -228,7 +247,7 @@
             mainWorker: new URL('duckdb-browser-eh.worker.js', vendor).href,
           },
         });
-        const worker = new Worker(bundle.mainWorker);
+        const worker = dbWorker = new Worker(bundle.mainWorker);
         const db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(), worker);
         await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
         const conn = await db.connect();
@@ -345,6 +364,49 @@
     }, 1000);
   }
 
+  // A query still running after this long is stopped: over the network it is reading row group after row group of
+  // a big table, which is slow for the user and heavy for the shared CDN. The clock starts after the engine loads.
+  const QUERY_LIMIT_MS = 10000;
+  const TIMED_OUT = Symbol('timed out');
+  function withTimeout(promise, ms) {
+    promise.catch(() => {});   // after a timeout the worker is killed; ignore whatever this promise does then
+    let timer;
+    const expire = new Promise((_, reject) => { timer = setTimeout(() => reject(TIMED_OUT), Math.max(0, ms)); });
+    return Promise.race([promise, expire]).finally(() => clearTimeout(timer));
+  }
+
+  // Explain the stop and give the commands to run the same query locally: download each Parquet file the query
+  // names, then run it with the URLs replaced by the file names.
+  function renderTooLarge(sql) {
+    const urls = [...new Set(sql.match(/https?:\/\/[^\s'"]+\.parquet/g) || [])];
+    const files = urls.map(u => u.slice(u.lastIndexOf('/') + 1));
+    let localSql = sql;
+    urls.forEach((u, i) => { localSql = localSql.replaceAll(u, files[i]); });
+    const limit = QUERY_LIMIT_MS / 1000;
+    let steps;
+    // A glob (proposition*.parquet) can't be fetched with curl -O; fall back to the general instructions.
+    if (urls.length && !urls.some(u => /[*?[]/.test(u))) {
+      steps = '<div class="ehint">Download ' + (urls.length === 1 ? 'the table it reads' : `the ${urls.length} tables it reads`) +
+          ' (about the size listed on <a href="../data-access/parquet/" target="_top">Downloads &rarr; Parquet Files</a>):</div>' +
+        '<pre class="cmd">' + escapeHtml(urls.map(u => `curl -O "${u}"`).join('\n')) + '</pre>' +
+        '<div class="ehint">then start <a href="https://duckdb.org/docs/installation/" target="_blank" rel="noopener">DuckDB</a>' +
+          ' (<code>duckdb</code>) in the same directory and run:</div>' +
+        '<pre class="cmd">' + escapeHtml(localSql.trim()) + '</pre>';
+    } else {
+      steps = '<div class="ehint">Download the tables it reads from <a href="../data-access/parquet/" target="_top">Downloads &rarr; Parquet Files</a>' +
+        ' and run it with <a href="https://duckdb.org/docs/installation/" target="_blank" rel="noopener">DuckDB</a>, naming each file in place of its URL.</div>';
+    }
+    outEl.innerHTML = '<div class="errbox">' +
+        '<div class="eh">&#9888; This query is too large to run live in your browser.</div>' +
+        `<div class="ehint">It was still running after ${limit}&nbsp;seconds, so the console stopped it. Over the network` +
+          ' each part of a big table is a separate request, and the browser tab has little memory. On your own' +
+          ' machine the same query usually takes seconds.</div>' +
+        steps +
+        '<div class="ehint">More: <a href="../parquet/#put-the-file-on-your-machine" target="_top">Put the file on your machine</a>' +
+          ' &middot; <a href="../parquet/performance/#local-or-remote" target="_top">Local or remote</a>.' + MATERIALIZE_LINK + '</div>' +
+      '</div>';
+  }
+
   async function run() {
     if (busy) return;
     const statements = splitStatements(sqlEl.value);
@@ -359,11 +421,20 @@
       const t0 = performance.now();
       setStatus('running…', false, true);
       let last = null;
-      for (const stmt of statements) { last = await conn.query(stmt); }
+      for (const stmt of statements) {
+        const remaining = QUERY_LIMIT_MS - (performance.now() - t0);
+        last = await withTimeout(conn.query(stmt), remaining);
+      }
       const ms = Math.round(performance.now() - t0);
       renderTable(last);
       setStatus(`done in ${ms.toLocaleString()} ms`);
     } catch (e) {
+      if (e === TIMED_OUT) {
+        resetEngine();
+        renderTooLarge(sqlEl.value);
+        setStatus(`stopped after ${QUERY_LIMIT_MS / 1000}s`, true);
+        return;
+      }
       const raw = (e && (e.message || e.name)) ? (e.message || e.name) : String(e);
       const technical = (e && e.stack) ? String(e.stack) : raw;
       const info = humanizeError(raw);
