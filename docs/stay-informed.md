@@ -8,7 +8,13 @@ and you don't need a Broad Institute or GitHub account.
 
 ## What the list announces
 
-- **New releases.** When a new version is ready (for example 1.1.0), with what changed and links to the
+- **Each monthly release.** When a new [monthly full bundle](data-access/monthly-full.md) is published, an
+  automatic message gives its link and checksum and a digest of the
+  [weekly deltas](data-access/weekly-deltas.md) since the previous monthly: each one's date, the records it
+  added, updated and deleted, and a direct link. The same post appears in the repository's
+  [Discussions → Announcements](https://github.com/clingen-data-model/clinvar-gkm/discussions/categories/announcements).
+  Individual weekly releases aren't announced; follow the line's Atom feed, `feed.xml` (see [Downloads](data-access/download.md)), for those.
+- **New versions.** When a new version is ready (for example 1.1.0), with what changed and links to the
   [Changelog](reference/changelog.md) and the downloads.
 - **Version changes, in advance.** Before any breaking change, the list carries the proposal (a Request for
   Comment) and its comment window. Before a republish into a new version line, it carries a notice with the
