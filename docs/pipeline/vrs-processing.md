@@ -78,6 +78,8 @@ Because each release clones the immediately prior one, the clone lineage grows o
 !!! warning "Version-invalidation"
     The incremental carry-forward assumes the prior release's `gkm_vrs` was produced by the **same** vrs-python normalizer and the **same** `variation_identity` transform. After a change to either, run Step 1 with `--full` on the next release to reprocess and reseed every variation; the load's self-correction then does a full `--replace`. Resume incremental afterward.
 
+    A resolver pin bump that changes only how the run behaves, not the normalized output (for example, the per-variant timeout), does not need `--full`. The comment above the pin in `src/vrsify/requirements.txt` says which bumps are output-neutral.
+
 ---
 
 ## Output Table (`gkm_vrs`)
