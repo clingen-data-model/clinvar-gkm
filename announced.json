@@ -1,6 +1,7 @@
 {
   "announced": {
     "2026-10": {
+      "discussion": "https://github.com/clingen-data-model/clinvar-gkm/discussions/201",
       "email": "2026-10-30T16:53:37Z lbabb@broadinstitute.org"
     }
   }
