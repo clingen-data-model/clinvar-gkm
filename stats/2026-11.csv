@@ -1,0 +1,14 @@
+date,path,status,requests,bytes,distinct_clients
+"2026-11-01","/",302,16,10830,16
+"2026-11-01","/index.json",200,10,11004,10
+"2026-11-01","/robots.txt",403,3,7055,3
+"2026-11-01","/v1/1.0/index.json",200,4,23112,4
+"2026-11-01","/v1/1.1/clinvar-gkm_00-latest.json.gz",200,1,1766294152,1
+"2026-11-01","/v1/1.1/deltas/clinvar-gkm-delta_2026-1018.json.gz",200,1,24101545,1
+"2026-11-01","/v1/1.1/index.json",200,8,67158,8
+"2026-11-01","/v1/1.1/parquet",302,1,726,1
+"2026-11-01","/v1/deltas/2026-0727/clinvar-gkm-delta_v1/deltas/2026-0727.json.gz",404,1,7138,1
+"2026-11-01","/v1/deltas/2026-0923/parquet/condition.parquet",404,2,14225,2
+"2026-11-01","/v1/deltas/2026-0928/parquet/condition.parquet",404,3,21354,3
+"2026-11-01","/v1/deltas/2026-1004/parquet/variation.parquet",404,3,21333,3
+"2026-11-01","/v1/deltas/2026-1011/parquet/vartherapy-proposition.parquet",404,1,7114,1
