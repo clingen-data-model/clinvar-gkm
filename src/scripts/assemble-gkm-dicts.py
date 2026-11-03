@@ -26,11 +26,10 @@ Usage:
   python3 assemble-gkm-dicts.py ./gkm-dicts/ 2026-05-03
 
 Dependencies:
-  pip install orjson  # optional, 10-50x faster JSON; falls back to stdlib json
+  pip install orjson  # required: it sets the published layout
 """
 import argparse
 import gzip
-import json
 import os
 import re
 import shutil
@@ -41,22 +40,20 @@ import time
 from fnmatch import fnmatch
 from pathlib import Path
 
+# orjson is required, not an optimization: it sets the published layout (compact, raw UTF-8). The stdlib's json.dumps
+# writes the same data in different text, which clinvar-gkm-parquet's round trip refuses (2026-10-31 had to be republished).
 try:
     import orjson
-
-    def json_loads(s):
-        return orjson.loads(s)
-
-    def json_dumps_key(key):
-        return orjson.dumps(key).decode()
-
 except ImportError:
+    sys.exit(f"ERROR: {sys.executable} has no orjson, which sets the bundle's layout; pip install orjson, or run from another environment")
 
-    def json_loads(s):
-        return json.loads(s)
 
-    def json_dumps_key(key):
-        return json.dumps(key)
+def json_loads(s):
+    return orjson.loads(s)
+
+
+def json_dumps_key(key):
+    return orjson.dumps(key).decode()
 
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
