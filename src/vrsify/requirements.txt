@@ -5,10 +5,15 @@
 # are deliberate and reviewable. Its own pyproject pins the resolver stack transitively
 # (ga4gh.vrs[extras]~=2.3.1, variation-normalizer@0.15.0, gene-normalizer[pg], cool-seq-tool).
 #
-# VERSION-INVALIDATION: bumping this pin changes VRS output for every variation. After a
-# bump, run the pipeline with --full on the next release so gkm_vrs is fully reseeded
-# (see README.md and docs/pipeline/vrs-processing.md).
+# VERSION-INVALIDATION: a pin bump that changes normalized VRS output requires --full on the
+# next release so gkm_vrs is fully reseeded (see README.md and docs/pipeline/vrs-processing.md).
+# A bump that changes only how the run behaves, not the output, does not; record that here.
+#
+# a351e61 (clinvar-gk-python#36) does NOT invalidate existing output. It raises the per-variant
+# task timeout from 10 s to 60 s (--task-timeout) and gives a replaced task process fresh
+# queues, so a timed-out variant's late result can no longer be filed under the next variant.
+# Variants that finish are normalized exactly as before, so no --full rebuild is needed.
 #
 # Install:  pip install -r src/vrsify/requirements.txt      (Python >= 3.11)
 
-clinvar_gk_pilot @ git+https://github.com/clingen-data-model/clinvar-gk-python@224f87d13cb77aaa05fd671e1c3b486821df6f2f
+clinvar_gk_pilot @ git+https://github.com/clingen-data-model/clinvar-gk-python@a351e61f8994d36292616eac349972ff938f95c5

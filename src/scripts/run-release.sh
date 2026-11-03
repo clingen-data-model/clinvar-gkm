@@ -41,13 +41,15 @@
 # Stage 5 / R2 upload.
 #
 # USAGE:
-#   ./src/scripts/run-release.sh YYYY-MM-DD [--full | --full-procs] [--dry-run] [--start-step N]
+#   ./src/scripts/run-release.sh YYYY-MM-DD [--full | --full-procs] [--dry-run] [--skip-parquet] [--start-step N]
 #
 #   --full          full rebuild of stages 1-2 and every gkm proc in stage 4 (reseed the baseline);
 #                   the version-stamp gate is unaffected, so next week resumes incremental
 #   --full-procs    only the stage-4 gkm procs full; variation_identity, export, vrsify and the
 #                   gkm_vrs load stay incremental
 #   --dry-run       stage 5 (release scripts) runs in dry-run: no R2 upload / no GCS writes
+#   --skip-parquet  stage 5 leaves parquet/ untouched: it keeps the previous set, and its manifest and the
+#                   index keep saying which release that set was built from
 #   --start-step N  begin at stage N (1-5); default 1. Stage 3 (vrsify) needs the local
 #                   SeqRepo/UTA/gene-norm services — see src/vrsify/README.md.
 #
@@ -71,6 +73,7 @@ DATE=""
 FULL=false
 FULL_PROCS=false
 DRY_RUN=false
+SKIP_PARQUET=false
 START_STEP=1
 
 while [[ $# -gt 0 ]]; do
@@ -78,6 +81,7 @@ while [[ $# -gt 0 ]]; do
     --full) FULL=true; shift ;;
     --full-procs) FULL_PROCS=true; shift ;;
     --dry-run) DRY_RUN=true; shift ;;
+    --skip-parquet) SKIP_PARQUET=true; shift ;;
     --start-step) START_STEP="${2:?--start-step needs a number}"; shift 2 ;;
     --start-step=*) START_STEP="${1#*=}"; shift ;;
     -*) echo "ERROR: unknown flag: $1" >&2; exit 1 ;;
@@ -86,12 +90,12 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$DATE" ]]; then
-  echo "Usage: $0 YYYY-MM-DD [--full | --full-procs] [--dry-run] [--start-step N]" >&2
+  echo "Usage: $0 YYYY-MM-DD [--full | --full-procs] [--dry-run] [--skip-parquet] [--start-step N]" >&2
   exit 1
 fi
 
 $FULL && FULL_PROCS=true   # --full implies the procs full
-echo "=== run-release ${DATE} (full=${FULL}, full-procs=${FULL_PROCS}, dry-run=${DRY_RUN}, start-step=${START_STEP}, project=${PROJECT_ID}) ==="
+echo "=== run-release ${DATE} (full=${FULL}, full-procs=${FULL_PROCS}, dry-run=${DRY_RUN}, skip-parquet=${SKIP_PARQUET}, start-step=${START_STEP}, project=${PROJECT_ID}) ==="
 
 # --- Stage 0: dataset diff (produces {S}.diff_* — drivers for all incremental procs) ----
 # Idempotent (CREATE OR REPLACE). On the first release it emits a warning and writes no
@@ -292,10 +296,14 @@ if (( START_STEP <= 5 )); then
 
   # The one Parquet set (parquet/) is rebuilt from THIS release's dataset, the newest JSON state. Non-fatal:
   # the bundles are the record; parquet/manifest.json says which release the set was built from.
-  echo ">>> [5/5] rebuilding the Parquet set from ${DATE}"
-  # --purge clears the CDN copy of parquet/ (cached 1 day by the Parquet cache rule).
-  "${REPO_ROOT}/src/scripts/release-gkm-parquet.sh" "${REL_ARGS[@]}" --purge \
-    || echo "WARNING: Parquet rebuild from ${DATE} failed; parquet/ still holds the previous set" >&2
+  if $SKIP_PARQUET; then
+    echo ">>> [5/5] --skip-parquet: parquet/ still holds the previous set"
+  else
+    echo ">>> [5/5] rebuilding the Parquet set from ${DATE}"
+    # --purge clears the CDN copy of parquet/ (cached 1 day by the Parquet cache rule).
+    "${REPO_ROOT}/src/scripts/release-gkm-parquet.sh" "${REL_ARGS[@]}" --purge \
+      || echo "WARNING: Parquet rebuild from ${DATE} failed; parquet/ still holds the previous set" >&2
+  fi
 fi
 
 echo "=== run-release ${DATE} complete ==="
