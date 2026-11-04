@@ -156,7 +156,16 @@ There is **no weekly full bundle** — weekly changes are published as deltas (s
 ./src/scripts/release-gkm-delta.sh 2026-07-06 v2_5_0
 ```
 
-The four internal steps are: export delta tables to GCS, assemble the delta bundle, merge delta Parquet, then build the manifest (`build-delta-manifest.py`) and upload (`upload-gkm-delta-to-r2.sh`). The uploader writes:
+The internal steps are: export delta tables to GCS, assemble and strictly validate the delta bundle, then build the manifest (`build-delta-manifest.py`) and upload (`upload-gkm-delta-to-r2.sh`).
+
+!!! warning "Strict validation stops the release"
+    Every delta record is validated with the GA4GH [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) by `validate-bundle.sh` before upload. `run-release.sh` does this at the start of stage 5, so a failing delta stops the release with R2 untouched; the bundle stays in `STAGE_DIR` for inspection. The check needs [`uv`](https://docs.astral.sh/uv/) and the `va-spec` submodule (`git submodule update --init --recursive`), and `run-release.sh` confirms both at startup.
+
+    `--start-step=3` publishes the staged bundle without validating it again, so only use it on a bundle that passed.
+
+    A full bundle takes hours to validate, so it isn't checked on every release. Run `./src/scripts/validate-bundle.sh <bundle.json.gz>` on the full after a schema, export or assembler change, and for a version release.
+
+The uploader writes:
 
 - **`deltas/<yyyy-mmdd>/`** — the delta bundle (`clinvar-gkm-delta_<yyyy-mmdd>.json.gz`), `manifest.json`, and `parquet/<section>.parquet`
 - **`deltas/00-latest/`** — a server-side mirror of the most recent delta under stable filenames
