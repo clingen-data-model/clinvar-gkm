@@ -95,6 +95,16 @@ if [[ -z "$DATE" ]]; then
 fi
 
 $FULL && FULL_PROCS=true   # --full implies the procs full
+
+# Stage 5 assembles the bundles, and orjson sets their layout. Check now, not hours in: an environment activated for
+# vrsify (stage 3) may be the one the release scripts fall back to.
+if (( START_STEP <= 5 )); then
+  ASSEMBLE_PYTHON="python3"; [[ -x "${REPO_ROOT}/venv/3.12/bin/python3" ]] && ASSEMBLE_PYTHON="${REPO_ROOT}/venv/3.12/bin/python3"
+  "${ASSEMBLE_PYTHON}" -c 'import orjson' 2>/dev/null || {
+    echo "ERROR: ${ASSEMBLE_PYTHON} ($(command -v "${ASSEMBLE_PYTHON}")) has no orjson, which sets the bundle layout. pip install orjson there, or run stage 5 from another environment." >&2
+    exit 1
+  }
+fi
 echo "=== run-release ${DATE} (full=${FULL}, full-procs=${FULL_PROCS}, dry-run=${DRY_RUN}, skip-parquet=${SKIP_PARQUET}, start-step=${START_STEP}, project=${PROJECT_ID}) ==="
 
 # --- Stage 0: dataset diff (produces {S}.diff_* — drivers for all incremental procs) ----

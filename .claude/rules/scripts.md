@@ -65,6 +65,9 @@ record cleanup across the BQ export functions.
   (`parquet-schemas/*.sql`, pattern:
   `collapse_ext_values(TO_JSON_STRING(JSON_STRIP_NULLS(TO_JSON((SELECT AS STRUCT t.*)), remove_empty => TRUE)))`)
   for EVERY extension-bearing section (scv, vcv, rcv, variation, evidence lines, propositions).
+- **`orjson` sets the bundle's text** (compact, raw UTF-8), so the assembler requires it and stops without it. The
+  stdlib's `json.dumps` writes the same data in different text, which clinvar-gkm-parquet's round trip refuses. A
+  checkout without `venv/3.12` uses whatever `python3` is active, such as an environment activated for vrsify.
 - **Omit zero-entry sections** — an empty `"section": {}` fails the bundle schema's per-section
   `minProperties: 1`. The assembler opens a section lazily on its first entry so a delta section with no changes
   is dropped.
