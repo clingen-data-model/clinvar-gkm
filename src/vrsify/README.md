@@ -43,6 +43,15 @@ provisioned by this repo.
    pip install -r src/vrsify/requirements.txt
    ```
 
+   To move an existing environment to a new pin, add `--force-reinstall --no-deps`:
+
+   ```bash
+   pip install --force-reinstall --no-deps -r src/vrsify/requirements.txt
+   ```
+
+   The resolver's version is always `0.0.0`, so a plain `pip install -r` reports "already
+   satisfied" and keeps the installed commit. `--no-deps` leaves the other packages as they are.
+
 2. **SeqRepo** — a local SeqRepo snapshot (the pin was validated against `2024-12-20`).
 
 3. **variation-normalizer services** — UTA (Postgres) and gene-normalizer, typically via the
@@ -77,6 +86,9 @@ provisioned by this repo.
 Env overrides: `PARALLELISM` (default 2); `VRSIFY_CMD` (default `clinvar-gk-pilot`; set to
 `"uv run python clinvar_gk_pilot/main.py"` to run from an upstream checkout instead of the
 installed console script).
+
+`vrsify.sh` stops before resolving anything if the installed `clinvar-gk-pilot` is not the commit
+pinned in `requirements.txt`. A custom `VRSIFY_CMD` is not checked.
 
 ## Version-invalidation
 
