@@ -12,12 +12,14 @@
 #   4. vrs-to-bq             src/scripts/vrs-to-bq-table.sh
 #                            (Cloud Run transform -> load gkm_vrs -> gkm_* procs)
 #   5. release               publish to the version line R2_LINE (default v1/1.1/; layout in r2_layout.py):
+#                            release-gkm-delta.sh --no-upload (build and strictly validate the DELTA; a failure
+#                            stops here, with R2 untouched),
 #                            r2-rollover.sh (month/year rollover now that this release is posted),
 #                            release-gkm.sh --weekly (this release's weekly FULL -> weekly/),
 #                            any due official monthly (a server-side copy of its ADR 0002 source
 #                            release's weekly full, or a re-export when that is gone), r2-rollover.sh
 #                            again (drops the kept source candidate once the monthly is posted),
-#                            release-gkm-delta.sh (the weekly DELTA -> deltas/), then
+#                            release-gkm-delta.sh --start-step=3 (the weekly DELTA -> deltas/), then
 #                            release-gkm-parquet.sh (the one Parquet set -> parquet/, overwritten)
 #
 # Stages 1 and 2 are incremental by default (recompute only changed variations, carry the
@@ -104,6 +106,8 @@ if (( START_STEP <= 5 )); then
     echo "ERROR: ${ASSEMBLE_PYTHON} ($(command -v "${ASSEMBLE_PYTHON}")) has no orjson, which sets the bundle layout. pip install orjson there, or run stage 5 from another environment." >&2
     exit 1
   }
+  # Stage 5 validates the delta strictly before any upload; same reasoning.
+  $DRY_RUN || "${SCRIPT_DIR}/validate-bundle.sh" --check-setup
 fi
 echo "=== run-release ${DATE} (full=${FULL}, full-procs=${FULL_PROCS}, dry-run=${DRY_RUN}, skip-parquet=${SKIP_PARQUET}, start-step=${START_STEP}, project=${PROJECT_ID}) ==="
 
@@ -285,6 +289,11 @@ if (( START_STEP <= 5 )); then
   REL_ARGS=("${DATE}" "${DATASET_VERSION}"); $DRY_RUN && REL_ARGS+=("--dry-run")
   ROLL_ARGS=("${DATE}"); $DRY_RUN && ROLL_ARGS+=("--dry-run")
 
+  # Build and strictly validate the delta before anything on R2 changes: a failure here stops the release with the
+  # line untouched. It is uploaded below, after the monthly its checkpoint_full may resolve to.
+  echo ">>> [5/5] building and validating the weekly DELTA for ${DATE}"
+  "${REPO_ROOT}/src/scripts/release-gkm-delta.sh" "${REL_ARGS[@]}" --no-upload
+
   # Month/year rollover first: posting this release may start a new month (or year).
   echo ">>> [5/5] rollover for ${DATE}"
   "${REPO_ROOT}/src/scripts/r2-rollover.sh" "${ROLL_ARGS[@]}"
@@ -302,7 +311,7 @@ if (( START_STEP <= 5 )); then
   "${REPO_ROOT}/src/scripts/r2-rollover.sh" "${ROLL_ARGS[@]}"
 
   echo ">>> [5/5] publishing weekly DELTA for ${DATE}"
-  "${REPO_ROOT}/src/scripts/release-gkm-delta.sh" "${REL_ARGS[@]}"
+  "${REPO_ROOT}/src/scripts/release-gkm-delta.sh" "${REL_ARGS[@]}" --start-step=3
 
   # The one Parquet set (parquet/) is rebuilt from THIS release's dataset, the newest JSON state. Non-fatal:
   # the bundles are the record; parquet/manifest.json says which release the set was built from.
