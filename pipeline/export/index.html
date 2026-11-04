@@ -5115,7 +5115,14 @@ delta):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Publish the weekly delta for a release</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>./src/scripts/release-gkm-delta.sh<span class="w"> </span><span class="m">2026</span>-07-06<span class="w"> </span>v2_5_0
 </code></pre></div>
-<p>The three internal steps are: export delta tables to GCS, assemble the delta bundle, then build the manifest (<code>build-delta-manifest.py</code>) and upload (<code>upload-gkm-delta-to-r2.sh</code>). The uploader writes:</p>
+<p>The internal steps are: export delta tables to GCS, assemble and strictly validate the delta bundle, then build the manifest (<code>build-delta-manifest.py</code>) and upload (<code>upload-gkm-delta-to-r2.sh</code>).</p>
+<div class="admonition warning">
+<p class="admonition-title">Strict validation stops the release</p>
+<p>Every delta record is validated with the GA4GH <a href="https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/">GKM Toolkit</a> by <code>validate-bundle.sh</code> before upload. <code>run-release.sh</code> does this at the start of stage 5, so a failing delta stops the release with R2 untouched; the bundle stays in <code>STAGE_DIR</code> for inspection. The check needs <a href="https://docs.astral.sh/uv/"><code>uv</code></a> and the <code>va-spec</code> submodule (<code>git submodule update --init --recursive</code>), and <code>run-release.sh</code> confirms both at startup.</p>
+<p><code>--start-step=3</code> publishes the staged bundle without validating it again, so only use it on a bundle that passed.</p>
+<p>A full bundle takes hours to validate, so it isn't checked on every release. Run <code>./src/scripts/validate-bundle.sh &lt;bundle.json.gz&gt;</code> on the full after a schema, export or assembler change, and for a version release.</p>
+</div>
+<p>The uploader writes:</p>
 <ul>
 <li><strong><code>deltas/</code></strong> — the delta bundle (<code>clinvar-gkm-delta_&lt;yyyy-mmdd&gt;.json.gz</code>), its <code>.sha256</code> sidecar, and its manifest (<code>clinvar-gkm-delta_&lt;yyyy-mmdd&gt;.manifest.json</code>); the current month's deltas sit here, earlier months in <code>deltas/&lt;yyyy-mm&gt;/</code></li>
 </ul>
