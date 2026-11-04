@@ -48,6 +48,10 @@ XML index (see `docs/superpowers/specs/2026-08-24-clinvar-index-monthly-trigger-
 [ADR 0002](../../docs/decisions/0002-monthly-full-anchored-to-clinvar-index.md)). Never touch live R2 without
 explicit user confirmation.
 
+**Resolver pin:** `clinvar_gk_pilot` is always version `0.0.0`, so `pip install -r src/vrsify/requirements.txt` keeps
+the installed commit and exits 0. Move an existing environment with `--force-reinstall --no-deps`. `vrsify.sh` stops
+if the installed commit is not the pin.
+
 ## Publish-layer cleanup & bundle conformance (learned in 1.0.1)
 
 `assemble-gkm-dicts.py` + `gkm_json_cleanup.py` are the **single publish-layer cleanup point** every bundle

@@ -14,6 +14,9 @@
 # queues, so a timed-out variant's late result can no longer be filed under the next variant.
 # Variants that finish are normalized exactly as before, so no --full rebuild is needed.
 #
-# Install:  pip install -r src/vrsify/requirements.txt      (Python >= 3.11)
+# New environment:       pip install -r src/vrsify/requirements.txt      (Python >= 3.11)
+# Existing environment:  pip install --force-reinstall --no-deps -r src/vrsify/requirements.txt
+# The resolver's version is always 0.0.0, so without --force-reinstall pip keeps the installed commit.
+# vrsify.sh stops if the installed commit is not this pin.
 
 clinvar_gk_pilot @ git+https://github.com/clingen-data-model/clinvar-gk-python@a351e61f8994d36292616eac349972ff938f95c5

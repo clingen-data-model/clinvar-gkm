@@ -65,6 +65,29 @@ if (( ${#missing[@]} > 0 )); then
   exit 1
 fi
 
+# Stop if the installed resolver is not the pinned commit. Its version is always 0.0.0, so
+# `pip install -r` calls an older commit "already satisfied" and exits 0, and the run would
+# use that build with no sign of it. A custom VRSIFY_CMD names its own code, so it is not checked.
+if [[ "${VRSIFY_CMD}" == "clinvar-gk-pilot" ]]; then
+  pinned="$(sed -n 's/^clinvar_gk_pilot @ .*@\([0-9a-f]*\)$/\1/p' "${SCRIPT_DIR}/requirements.txt")"
+  resolver="$(command -v clinvar-gk-pilot || true)"
+  installed=""
+  if [[ -n "${resolver}" ]]; then
+    installed="$("$(dirname "${resolver}")/python" -I -c '
+import json
+from importlib.metadata import distribution
+print(json.loads(distribution("clinvar-gk-pilot").read_text("direct_url.json"))["vcs_info"]["commit_id"])
+' 2>/dev/null || true)"
+  fi
+  if [[ -z "${pinned}" || "${installed}" != "${pinned}" ]]; then
+    echo "ERROR: resolver does not match the pin in src/vrsify/requirements.txt" >&2
+    echo "       pinned:    ${pinned:-unreadable}" >&2
+    echo "       installed: ${installed:-unknown} (${resolver:-clinvar-gk-pilot is not on PATH})" >&2
+    echo "       To update: pip install --force-reinstall --no-deps -r src/vrsify/requirements.txt" >&2
+    exit 1
+  fi
+fi
+
 # clinvar_gk_pilot reads log_conf.json from its PROJECT_ROOT (= parents[1] of the
 # module, i.e. site-packages when pip-installed), but that file is not shipped as
 # package data — so a pip install is missing it and errors at import. Place the

@@ -80,6 +80,8 @@ Because each release clones the immediately prior one, the clone lineage grows o
 
     A resolver pin bump that changes only how the run behaves, not the normalized output (for example, the per-variant timeout), does not need `--full`. The comment above the pin in `src/vrsify/requirements.txt` says which bumps are output-neutral.
 
+    `vrsify.sh` stops if the installed resolver is not the pinned commit. To move an existing environment to a new pin, run `pip install --force-reinstall --no-deps -r src/vrsify/requirements.txt`; a plain `pip install -r` keeps the installed commit, because the resolver's version never changes.
+
 ---
 
 ## Output Table (`gkm_vrs`)
