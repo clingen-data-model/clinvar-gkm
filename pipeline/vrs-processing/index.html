@@ -4978,6 +4978,7 @@
 <p class="admonition-title">Version-invalidation</p>
 <p>The incremental carry-forward assumes the prior release's <code>gkm_vrs</code> was produced by the <strong>same</strong> vrs-python normalizer and the <strong>same</strong> <code>variation_identity</code> transform. After a change to either, run Step 1 with <code>--full</code> on the next release to reprocess and reseed every variation; the load's self-correction then does a full <code>--replace</code>. Resume incremental afterward.</p>
 <p>A resolver pin bump that changes only how the run behaves, not the normalized output (for example, the per-variant timeout), does not need <code>--full</code>. The comment above the pin in <code>src/vrsify/requirements.txt</code> says which bumps are output-neutral.</p>
+<p><code>vrsify.sh</code> stops if the installed resolver is not the pinned commit. To move an existing environment to a new pin, run <code>pip install --force-reinstall --no-deps -r src/vrsify/requirements.txt</code>; a plain <code>pip install -r</code> keeps the installed commit, because the resolver's version never changes.</p>
 </div>
 <hr />
 <h2 id="output-table-gkm_vrs">Output Table (<code>gkm_vrs</code>)<a class="headerlink" href="#output-table-gkm_vrs" title="Permanent link">&para;</a></h2>
