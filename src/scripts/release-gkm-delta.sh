@@ -6,7 +6,10 @@
 # (release-gkm-parquet.sh), never per delta.
 #
 # Usage: ./release-gkm-delta.sh <export_date> <dataset_version> [--start-step=N] [--dry-run] [--no-upload]
-#   steps: 1=export, 2=assemble, 3=manifest + upload
+#   steps: 1=export, 2=assemble + strict validation (validate-bundle.sh), 3=manifest + upload
+#
+# A bundle that fails validation stops the script before upload. --start-step=3 publishes the staged bundle without
+# validating it again, so only use it on a bundle that passed.
 #
 # --no-upload builds the manifest in step 3 but skips the R2 upload and KEEPS the staged bundle and
 # manifest (no cleanup), so they can be validated first; publish with upload-gkm-delta-to-r2.sh (or
@@ -62,6 +65,11 @@ if (( START_STEP <= 2 )); then
     echo "  [dry-run] assemble-gkm-dicts.py ${GCS_DELTAS_PATH}/ ${EXPORT_DATE} --output ${DELTA_BUNDLE}"
   else
     "${PYTHON}" "${SCRIPT_DIR}/assemble-gkm-dicts.py" "${GCS_DELTAS_PATH}/" "${EXPORT_DATE}" --output "${DELTA_BUNDLE}"
+    echo "=== [2/3] validate delta bundle ==="
+    "${SCRIPT_DIR}/validate-bundle.sh" "${DELTA_BUNDLE}" || {
+      echo "ERROR: ${DELTA_BUNDLE} failed strict validation; nothing was uploaded. The bundle is kept for inspection." >&2
+      exit 1
+    }
   fi
 fi
 
