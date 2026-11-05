@@ -4909,14 +4909,14 @@
 </code></pre></div>
 <p>Specific changes to copy from source files:</p>
 <p><strong>Step 1 (trait):</strong> Copy the query from <code>gks-trait-proc.sql</code> lines 11-134. Change:
-- <code S="S">CREATE OR REPLACE TABLE \</code>.gks_trait`<code>→</code>CREATE TEMP TABLE _SESSION.temp_gks_trait<code>- Variable name:</code>gks_trait_query<code>→</code>temp_gks_trait_query`</p>
+- <code S>CREATE OR REPLACE TABLE \</code>.gks_trait`<code>→</code>CREATE TEMP TABLE _SESSION.temp_gks_trait<code>- Variable name:</code>gks_trait_query<code>→</code>temp_gks_trait_query`</p>
 <p><strong>Step 4 (trait sets):</strong> In the condition mapping proc's step 3 query. Change:
-- <code S="S">CREATE OR REPLACE TABLE \</code>.gks_scv_trait_sets`<code>→</code>CREATE TEMP TABLE _SESSION.temp_gks_scv_trait_sets<code>- Variable name:</code>gks_scv_trait_sets_query<code>→</code>temp_gks_scv_trait_sets_query`</p>
+- <code S>CREATE OR REPLACE TABLE \</code>.gks_scv_trait_sets`<code>→</code>CREATE TEMP TABLE _SESSION.temp_gks_scv_trait_sets<code>- Variable name:</code>gks_scv_trait_sets_query<code>→</code>temp_gks_scv_trait_sets_query`</p>
 <p><strong>Steps 5-14:</strong> Copy from condition mapping proc steps 4-13. In all queries that reference <code>{S}.gks_scv_trait_sets</code>, replace with <code>_SESSION.temp_gks_scv_trait_sets</code>. This affects:
 - Step 5 (temp_all_rcv_traits) — references <code>gks_scv_trait_sets</code>
 - Step 8 (temp_all_scv_traits) — references <code>gks_scv_trait_sets</code></p>
 <p><strong>Step 15 (condition sets):</strong> Copy from <code>gks-scv-condition-set-proc.sql</code> lines 10-161. Change:
-- <code S="S">\</code>.gks_trait`<code>→</code>_SESSION.temp_gks_trait<code>-</code>`{S}.gks_scv_trait_sets`<code>→</code>_SESSION.temp_gks_scv_trait_sets<code>-</code>`{S}.gks_scv_condition_mapping`` stays unchanged (persistent table)</p>
+- <code S>\</code>.gks_trait`<code>→</code>_SESSION.temp_gks_trait<code>-</code>`{S}.gks_scv_trait_sets`<code>→</code>_SESSION.temp_gks_scv_trait_sets<code>-</code>`{S}.gks_scv_condition_mapping`` stays unchanged (persistent table)</p>
 <ul>
 <li>[ ] <strong>Step 2: Verify the file structure</strong></li>
 </ul>
