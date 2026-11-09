@@ -10,7 +10,11 @@ Rules:
   * list: strip each element's internals but KEEP elements (SQL arrays hold no NULL
     elements; dropping non-empty elements would change array length).
   * scalars: returned unchanged (0 / False / "" are preserved).
+
+order_unordered_arrays writes the arrays in UNORDERED_ARRAYS in one canonical order, so a record whose list
+comes back from the pipeline in a different order is still written with the same bytes.
 """
+import json
 
 
 def _is_empty(v):
@@ -57,4 +61,47 @@ def collapse_ext_values(value):
     elif isinstance(value, list):
         for v in value:
             collapse_ext_values(v)
+    return value
+
+
+# Arrays written in a canonical order, by section, as paths from the record's root ("a" is the record's "a" array;
+# "a[].b" is the "b" array of every element of "a"). An array belongs here only when
+#   * every schema that defines it marks it `ordered: false`, so its order carries no meaning
+#     (tests/test_gkm_json_cleanup.py checks this against schema/), and
+#   * the pipeline was seen to write it in a different order in different releases for the same record.
+# Never add an array that a schema marks `ordered: true`.
+UNORDERED_ARRAYS = {
+    # gkm-core Entity.aliases: the trait's alternate names, taken as-is from clinvar-ingest's trait.alternate_names
+    # (gkm-scv-condition-proc.sql). Between the 2026-10 monthly full and the 2026-10-18 weekly full, 1,513 conditions
+    # differed only in the order of their aliases.
+    "condition": ("aliases",),
+}
+
+
+def canonical_text(value):
+    """The sort key of an array element: its compact JSON text with keys sorted."""
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+def _order(node, steps):
+    if not steps or not isinstance(node, dict) or steps[0].rstrip("[]") not in node:
+        return
+    name = steps[0].rstrip("[]")
+    if len(steps) == 1:
+        if isinstance(node[name], list):
+            node[name].sort(key=canonical_text)
+    elif isinstance(node[name], list):
+        for item in node[name]:
+            _order(item, steps[1:])
+    else:
+        _order(node[name], steps[1:])
+
+
+def order_unordered_arrays(section, value):
+    """Sort the arrays UNORDERED_ARRAYS lists for ``section`` by their elements' canonical_text.
+
+    Mutates ``value`` in place and returns it. Elements are never added, dropped or changed, only reordered; equal
+    elements have the same text, so the result does not depend on the input order."""
+    for path in UNORDERED_ARRAYS.get(section, ()):
+        _order(value, path.split("."))
     return value
