@@ -40,8 +40,9 @@ import time
 from fnmatch import fnmatch
 from pathlib import Path
 
-# orjson is required, not an optimization: it sets the published layout (compact, raw UTF-8). The stdlib's json.dumps
-# writes the same data in different text, which clinvar-gkm-parquet's round trip refuses (2026-10-31 had to be republished).
+# orjson is required, not an optimization: it sets the published layout (compact, raw UTF-8, sorted keys). The
+# stdlib's json.dumps writes the same data in different text, which clinvar-gkm-parquet's round trip refuses (2026-10-31
+# had to be republished).
 try:
     import orjson
 except ImportError:
@@ -54,6 +55,14 @@ def json_loads(s):
 
 def json_dumps_key(key):
     return orjson.dumps(key).decode()
+
+
+def json_dumps_record(value):
+    """A record's published text: compact, raw UTF-8, object keys sorted at every depth.
+
+    Sorted keys make the text independent of the column order of the BigQuery tables and procedures, so the same
+    record serializes to the same bytes in every release."""
+    return orjson.dumps(value, option=orjson.OPT_SORT_KEYS).decode()
 
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -158,7 +167,7 @@ def stream_passthrough(filepath, key_field):
                 continue
             rec = json_loads(line)
             cleaned = collapse_ext_values(strip_empty(rec))
-            yield json_dumps_key(rec[key_field]), json_dumps_key(cleaned)
+            yield json_dumps_key(rec[key_field]), json_dumps_record(cleaned)
 
 
 def stream_kv(filepath, key_field, value_field):
@@ -175,7 +184,7 @@ def stream_kv(filepath, key_field, value_field):
             key_json = json_dumps_key(rec[key_field])
             raw = rec[value_field]
             obj = json_loads(raw) if isinstance(raw, str) else raw
-            value_json = json_dumps_key(collapse_ext_values(strip_empty(obj)))
+            value_json = json_dumps_record(collapse_ext_values(strip_empty(obj)))
             yield key_json, value_json
 
 

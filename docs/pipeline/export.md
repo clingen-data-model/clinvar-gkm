@@ -78,7 +78,17 @@ python3 ./src/scripts/assemble-gkm-dicts.py \
 
 The script assembles 20 bundle sections in a fixed order: `sequenceReference`, `location`, `allele`, `copyNumberCount`, `copyNumberChange`, `gene`, `variation`, `condition`, `conditionSet`, `therapy`, `therapyGroup`, `submitter`, `varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`, `evidenceLine`, `scv`, `vcv`, `rcv`. The `therapy` / `therapyGroup` sections hold content-addressed (deduplicated) drug therapies referenced by `VariantTherapeuticResponseProposition.object` via `#/therapy/` and `#/therapyGroup/`. Each section is a keyed object where the key is the record's unique identifier. Propositions from SCV, VCV, and RCV are delivered in **four datatype-homogeneous sections** keyed by their (subject, object) signature — `varcond-proposition` (variant×condition), `vartumor-proposition` (variant×tumorType), `vartherapy-proposition` (variant×therapy), `varcustom-proposition` (custom variant×condition); evidence line shards are merged into a single `evidenceLine` section.
 
-Install `orjson` for best performance:
+#### Record Text
+
+Every record — in a full bundle and in a delta — passes through the same cleanup and serialization in the
+assembler, so an unchanged record has the same bytes in every release:
+
+- **Cleanup** — null and empty fields are dropped, and typed extension values (`value_<type>`) collapse to `value`
+- **Text** — each record is one line of compact JSON (no insignificant whitespace, raw UTF-8) with its object keys
+  **sorted at every depth**, independent of the column order of the BigQuery tables
+- **Layout** — `schema_version` is the first top-level key, followed by the sections in the fixed order above
+
+`orjson` writes this text, so the assembler requires it and stops without it:
 
 ```bash
 pip install orjson
@@ -199,7 +209,7 @@ Or paste `r2-cors.json`'s rules into the Cloudflare dashboard: **R2 → clinvar-
 
 - **Google Cloud SDK** — `bq` and `gsutil` commands for BigQuery export and GCS operations
 - **AWS CLI** — configured with an `r2` profile for Cloudflare R2 access
-- **Python 3** — for the assembly script; `orjson` (faster JSON) recommended
+- **Python 3** — for the assembly script, with `orjson` (required: it writes the bundle text)
 - **DuckDB CLI** — for merging Parquet shards into single files per section
 - **BigQuery access** — read access to the target dataset in `clingen-dev`
 

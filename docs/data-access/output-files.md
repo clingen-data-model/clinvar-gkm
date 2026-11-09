@@ -8,6 +8,8 @@ ClinVar-GKM is published as **gzip-compressed JSON files** in the bundle format 
 
 The release file is a `.json.gz` file. The decompressed content is a single JSON object with named bundle sections at the root level — each section is a keyed collection of objects of the same class.
 
+`schema_version` is the first top-level key, and the sections follow in a fixed order. Each record is written on its own line as compact JSON (raw UTF-8) with its object keys **sorted at every depth**, so a record that has not changed has the same bytes in every release.
+
 ```bash
 # Decompress and inspect the top-level keys
 gunzip -c clinvar-gkm_00-latest.json.gz | python3 -c "
