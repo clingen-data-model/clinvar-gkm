@@ -84,6 +84,10 @@ Every record — in a full bundle and in a delta — passes through the same cle
 assembler, so an unchanged record has the same bytes in every release:
 
 - **Cleanup** — null and empty fields are dropped, and typed extension values (`value_<type>`) collapse to `value`
+- **Canonical lists** — the arrays whose order carries no meaning and has been seen to change between releases are
+  sorted by each element's compact, key-sorted JSON text; today that is `condition` `aliases` (the trait's
+  alternate names). The list is `UNORDERED_ARRAYS` in `gkm_json_cleanup.py`, and an array enters it only when
+  every schema marks it `ordered: false`. All other arrays keep the pipeline's order
 - **Text** — each record is one line of compact JSON (no insignificant whitespace, raw UTF-8) with its object keys
   **sorted at every depth**, independent of the column order of the BigQuery tables
 - **Layout** — `schema_version` is the first top-level key, followed by the sections in the fixed order above

@@ -71,3 +71,27 @@ def test_layout_is_unchanged_apart_from_key_order(tmp_path):
         "}\n"
     )
     assert list(json.loads(text)) == ["schema_version", "gene", "submitter"]
+
+
+def test_condition_aliases_in_any_order_give_the_same_bytes(tmp_path):
+    base = {"id": "clinvar.trait:454", "type": "MappableConcept", "conceptType": "Disease",
+            "name": "Spermatogenic failure 2"}
+    one = {**base, "aliases": ["ASPERMIOGENESIS FACTOR", "SPGF2"]}
+    two = {**base, "aliases": ["SPGF2", "ASPERMIOGENESIS FACTOR"]}
+    a = assemble(tmp_path / "a", {"condition-0.ndjson.gz": [one]})
+    b = assemble(tmp_path / "b", {"condition-0.ndjson.gz": [two]})
+    assert a == b
+    assert json.loads(a)["condition"]["clinvar.trait:454"]["aliases"] == ["ASPERMIOGENESIS FACTOR", "SPGF2"]
+
+
+def test_arrays_not_listed_keep_their_order(tmp_path):
+    rec = {"id": "clinvar.trait:1", "type": "MappableConcept", "aliases": ["b", "a"],
+           "mappings": [{"relation": "relatedMatch", "coding": {"code": "2"}},
+                        {"relation": "exactMatch", "coding": {"code": "1"}}]}
+    gene = {"id": "ncbigene:1", "type": "MappableConcept", "aliases": ["b", "a"]}
+    text = assemble(tmp_path, {"condition-0.ndjson.gz": [rec],
+                               "gene-0.ndjson.gz": [{"key": "ncbigene:1", "value": gene}]})
+    bundle = json.loads(text)
+    assert bundle["condition"]["clinvar.trait:1"]["aliases"] == ["a", "b"]
+    assert [m["coding"]["code"] for m in bundle["condition"]["clinvar.trait:1"]["mappings"]] == ["2", "1"]
+    assert bundle["gene"]["ncbigene:1"]["aliases"] == ["b", "a"]

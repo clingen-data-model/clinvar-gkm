@@ -66,7 +66,7 @@ def json_dumps_record(value):
 
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from gkm_json_cleanup import collapse_ext_values, strip_empty
+from gkm_json_cleanup import collapse_ext_values, order_unordered_arrays, strip_empty
 
 # The clinvar-gkm bundle schema version this assembler emits (ADR 0004). Written as the
 # bundle's first top-level key so a consumer can identify the version from the file alone.
@@ -156,24 +156,28 @@ def open_local_file(path):
     return open(path, "r", encoding="utf-8")
 
 
-def stream_passthrough(filepath, key_field):
-    """Yield (key_json, value_json) pairs; the value is the record with null/empty
-    values stripped (remove_empty parity) and typed extension value_<type> keys
-    collapsed to the polymorphic `value` at any depth."""
+def clean_record(section, rec):
+    """The publish-layer cleanup every record gets: null/empty values stripped (remove_empty parity), typed
+    extension value_<type> keys collapsed to the polymorphic `value` at any depth, and the arrays whose order
+    carries no meaning written in canonical order."""
+    return order_unordered_arrays(section, collapse_ext_values(strip_empty(rec)))
+
+
+def stream_passthrough(filepath, section, key_field):
+    """Yield (key_json, value_json) pairs; the value is the cleaned record (clean_record)."""
     with open_local_file(filepath) as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
             rec = json_loads(line)
-            cleaned = collapse_ext_values(strip_empty(rec))
-            yield json_dumps_key(rec[key_field]), json_dumps_record(cleaned)
+            yield json_dumps_key(rec[key_field]), json_dumps_record(clean_record(section, rec))
 
 
-def stream_kv(filepath, key_field, value_field):
+def stream_kv(filepath, section, key_field, value_field):
     """
     Yield (key_json, value_json) pairs from key/value NDJSON records.
-    The value (a JSON string or object) is stripped for remove_empty parity.
+    The value (a JSON string or object) is cleaned like every record (clean_record).
     """
     with open_local_file(filepath) as f:
         for line in f:
@@ -184,7 +188,7 @@ def stream_kv(filepath, key_field, value_field):
             key_json = json_dumps_key(rec[key_field])
             raw = rec[value_field]
             obj = json_loads(raw) if isinstance(raw, str) else raw
-            value_json = json_dumps_record(collapse_ext_values(strip_empty(obj)))
+            value_json = json_dumps_record(clean_record(section, obj))
             yield key_json, value_json
 
 
@@ -245,9 +249,9 @@ def assemble(source, output_path, is_gcs):
 
                 for filepath in local_files:
                     if value_field is None:
-                        pairs = stream_passthrough(filepath, key_field)
+                        pairs = stream_passthrough(filepath, section_name, key_field)
                     else:
-                        pairs = stream_kv(filepath, key_field, value_field)
+                        pairs = stream_kv(filepath, section_name, key_field, value_field)
                     for key_json, value_json in pairs:
                         if not header_written:
                             # Open the section lazily, on its first real entry, so a
