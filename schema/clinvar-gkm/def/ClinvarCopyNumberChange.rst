@@ -45,6 +45,6 @@ A record of the copyNumberChange section: a VRS CopyNumberChange whose location 
       -
       - string
       - 1..1
-      - MUST use one of the defined enumerations that are based on the corresponding EFO ontological terms for copy number variation. See Implementation Guidance for more details.
+      - The copy change: 'loss' or 'gain', the only values the pipeline writes.
 
 **Composes:** :ref:`CopyNumberChange`

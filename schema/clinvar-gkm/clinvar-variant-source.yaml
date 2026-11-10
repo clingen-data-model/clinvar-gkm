@@ -811,6 +811,13 @@ $defs:
             description: >-
               The location of the copy number change, a '#/location/<id>' pointer into this
               bundle.
+          copyChange:
+            type: string
+            enum:
+              - loss
+              - gain
+            description: >-
+              The copy change: 'loss' or 'gain', the only values the pipeline writes.
 
   # ─── Categorical variant constraints and their relation terms ───
 
@@ -975,6 +982,23 @@ $defs:
             type: integer
             description: The integral number of copies.
 
+  ClinvarCopyChangeConstraint:
+    maturity: draft
+    description: >-
+      The copy change constraint of a ClinvarCategoricalCnvChange: a CopyChangeConstraint whose
+      copy change is 'loss' or 'gain'.
+    allOf:
+      - $refCurie: cat-vrs:CopyChangeConstraint
+      - type: object
+        properties:
+          copyChange:
+            type: string
+            enum:
+              - loss
+              - gain
+            description: >-
+              The copy change: 'loss' or 'gain', the only values the pipeline writes.
+
   ClinvarVariationMapping:
     maturity: trial use
     description: >-
@@ -1087,7 +1111,7 @@ $defs:
             items:
               oneOf:
                 - $ref: "#/$defs/ClinvarDefiningLocationConstraint"
-                - $refCurie: cat-vrs:CopyChangeConstraint
+                - $ref: "#/$defs/ClinvarCopyChangeConstraint"
             description: The defining location constraint and the copy change constraint.
           members:
             type: array

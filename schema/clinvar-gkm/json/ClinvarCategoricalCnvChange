@@ -28,7 +28,7 @@
                         "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarDefiningLocationConstraint"
                      },
                      {
-                        "$ref": "/ga4gh/schema/cat-vrs/1.1.1/json/CopyChangeConstraint"
+                        "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCopyChangeConstraint"
                      }
                   ]
                },
