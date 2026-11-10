@@ -90,7 +90,7 @@
 <div class="wrap">
   <header class="top">
   <div class="title-row"><h1>ClinVar-GKM bundle &mdash; section map</h1><span class="src">clinvar-gkm_&hellip;.json</span></div>
-  <p class="caption">The release bundle is a single JSON object of <b>named sections</b>; each section is a dictionary mapping a typed id to one object. Objects link across sections with <code>#/section/id</code> JSON pointers &mdash; each drawer lists its outgoing references as <code>field &rarr; #/section/</code>. Each drawer links to its reference page; see <a href="../../output-reference/id-references/" target="_top">ID References</a> for the full pointer catalog.</p>
+  <p class="caption">The release bundle is a single JSON object of <b>named sections</b>; each section maps a typed id to one object. Objects link across sections with <code>#/section/id</code> JSON pointers &mdash; each drawer lists its outgoing references as <code>field &rarr; #/section/</code>. Each drawer links to its reference page; see <a href="../../output-reference/id-references/" target="_top">ID References</a> for the full pointer catalog.</p>
   </header>
 
   <div class="skeleton">
@@ -138,12 +138,13 @@
             </div>
           </div>
         </a>
-        <a class="sec" href="../../output-reference/classes/ClinvarSomaticEvidenceLine/" target="_top">
-          <div class="head"><div class="skey">evidenceLine</div><div class="otype">ClinvarSomaticEvidenceLine &middot; va-spec</div></div>
+        <a class="sec" href="../../output-reference/classes/evidence/" target="_top">
+          <div class="head"><div class="skey">evidenceLine</div><div class="otype">ClinvarAggregateEvidenceLine / ClinvarSomaticEvidenceLine &middot; va-spec EvidenceLine</div></div>
           <div class="body">
             <div class="eid">&hellip;-PATH-CP.contributing</div>
             <div class="refs">
-              <div class="ref"><b>hasEvidenceItems[]</b> &rarr; <span class="to">#/scv|vcv|rcv/</span></div>
+              <div class="ref"><b>hasEvidenceItems[]</b> (VCV/RCV) &rarr; <span class="to">#/scv|vcv|rcv/</span></div>
+              <div class="ref"><b>targetProposition</b> (SCV) &rarr; <span class="to">#/propositionSomaticClinicalImpact/</span></div>
             </div>
           </div>
         </a>
@@ -156,8 +157,8 @@
     <div class="frame">
       <span class="frame-label">Propositions &mdash; 4 sections by meaning, keyed by type</span>
       <div class="grid2">
-        <a class="sec" href="../../output-reference/classes/ClinvarProposition/" target="_top">
-          <div class="head"><div class="skey">proposition<wbr>Pathogenicity</div><div class="otype">VariantPathogenicityProposition</div></div>
+        <a class="sec" href="../../output-reference/classes/ClinvarVariantPathogenicityProposition/" target="_top">
+          <div class="head"><div class="skey">proposition<wbr>Pathogenicity</div><div class="otype">ClinvarVariantPathogenicityProposition</div></div>
           <div class="body">
             <div class="eid">SCV001234567-PATH</div>
             <div class="refs">
@@ -166,30 +167,30 @@
             </div>
           </div>
         </a>
-        <a class="sec" href="../../output-reference/classes/ClinvarProposition/" target="_top">
-          <div class="head"><div class="skey">proposition<wbr>Oncogenicity</div><div class="otype">VariantOncogenicityProposition</div></div>
+        <a class="sec" href="../../output-reference/classes/ClinvarVariantOncogenicityProposition/" target="_top">
+          <div class="head"><div class="skey">proposition<wbr>Oncogenicity</div><div class="otype">ClinvarVariantOncogenicityProposition</div></div>
           <div class="body">
             <div class="eid">SCV002345678-ONCO</div>
             <div class="refs">
               <div class="ref"><b>subject</b> &rarr; <span class="to">#/variation/</span></div>
-              <div class="ref"><b>object</b> &rarr; <span class="to">#/condition/</span> <span style="opacity:.7">(tumor)</span></div>
+              <div class="ref"><b>object</b> &rarr; <span class="to">#/condition|conditionSet/</span> <span style="opacity:.7">(tumor)</span></div>
             </div>
           </div>
         </a>
-        <a class="sec" href="../../output-reference/classes/ClinvarProposition/" target="_top">
-          <div class="head"><div class="skey">proposition<wbr>SomaticClinicalImpact</div><div class="otype">ClinSig / Diagnostic / Prognostic / TherapeuticResponse</div></div>
+        <a class="sec" href="../../output-reference/classes/propositions/" target="_top">
+          <div class="head"><div class="skey">proposition<wbr>SomaticClinicalImpact</div><div class="otype">ClinvarVariant&hellip; ClinSig / Diagnostic / Prognostic / TherapeuticResponse</div></div>
           <div class="body">
             <div class="eid">SCV003456789-TR</div>
             <div class="refs">
               <div class="ref"><b>subject</b> &rarr; <span class="to">#/variation/</span></div>
               <div class="ref"><b>object</b> &rarr; <span class="to">#/condition|conditionSet/</span></div>
               <div class="ref"><b>object</b> (TR) &rarr; <span class="to">#/therapy|therapyGroup/</span></div>
-              <div class="ref"><b>conditionQualifier</b> (TR) &rarr; <span class="to">#/condition/</span></div>
+              <div class="ref"><b>conditionQualifier</b> (TR) &rarr; <span class="to">#/condition|conditionSet/</span></div>
             </div>
           </div>
         </a>
-        <a class="sec" href="../../output-reference/classes/ClinvarProposition/" target="_top">
-          <div class="head"><div class="skey">proposition<wbr>ClinvarCustom</div><div class="otype">Clinvar*Proposition &middot; 10 ClinVar types</div></div>
+        <a class="sec" href="../../output-reference/classes/ClinvarGermlineCustomProposition/" target="_top">
+          <div class="head"><div class="skey">proposition<wbr>ClinvarCustom</div><div class="otype">ClinvarGermlineCustomProposition &middot; 10 ClinVar types</div></div>
           <div class="body">
             <div class="eid">SCV004567890-RF</div>
             <div class="refs">
@@ -209,43 +210,43 @@
           <span class="frame-label">Variation &mdash; VRS identity chain</span>
           <div class="frame-content">
             <a class="sec" href="../../output-reference/classes/ClinvarCategoricalVariant/" target="_top">
-              <div class="head"><div class="skey">variation</div><div class="otype">CategoricalVariant &middot; Cat-VRS</div></div>
+              <div class="head"><div class="skey">variation</div><div class="otype">ClinvarCategoricalVariant &middot; Cat-VRS</div></div>
               <div class="body">
                 <div class="eid">clinvar:12582</div>
                 <div class="refs">
-                  <div class="ref"><b>members[]</b> &rarr; <span class="to">#/allele/</span></div>
+                  <div class="ref"><b>members[]</b> &rarr; <span class="to">#/allele|copyNumberChange|copyNumberCount/</span></div>
                   <div class="ref"><b>constraints[]</b> &rarr; <span class="to">#/allele|location/</span></div>
                   <div class="ref"><b>&hellip;clinvarGeneList[].gene</b> &rarr; <span class="to">#/gene/</span></div>
                 </div>
               </div>
             </a>
             <div class="vconnector"><div class="vline"></div><span class="role">members <span class="card">0..*</span></span><div class="vline arrow"></div></div>
-            <a class="sec" href="../../output-reference/classes/ClinvarCanonicalAllele/" target="_top">
-              <div class="head"><div class="skey">allele</div><div class="otype">Allele &middot; VRS</div></div>
+            <a class="sec" href="../../output-reference/classes/ClinvarAllele/" target="_top">
+              <div class="head"><div class="skey">allele</div><div class="otype">ClinvarAllele &middot; VRS Allele</div></div>
               <div class="body">
                 <div class="eid">ga4gh:VA.ELQCnIBGqaTl&hellip;</div>
                 <div class="refs"><div class="ref"><b>location</b> &rarr; <span class="to">#/location/</span></div></div>
               </div>
             </a>
             <div class="vconnector"><div class="vline"></div><span class="role">location <span class="card">1..1</span></span><div class="vline arrow"></div></div>
-            <a class="sec" href="../../output-reference/classes/variations/" target="_top">
-              <div class="head"><div class="skey">location</div><div class="otype">SequenceLocation &middot; VRS</div></div>
+            <a class="sec" href="../../output-reference/classes/ClinvarSequenceLocation/" target="_top">
+              <div class="head"><div class="skey">location</div><div class="otype">ClinvarSequenceLocation &middot; VRS SequenceLocation</div></div>
               <div class="body">
                 <div class="eid">ga4gh:SL.Eg_6kV6Bb4FM&hellip;</div>
                 <div class="refs"><div class="ref"><b>sequenceReference</b> &rarr; <span class="to">#/sequenceReference/</span></div></div>
               </div>
             </a>
             <div class="vconnector"><div class="vline"></div><span class="role">sequenceReference <span class="card">1..1</span></span><div class="vline arrow"></div></div>
-            <a class="sec" href="../../output-reference/classes/variations/" target="_top">
-              <div class="head"><div class="skey">sequenceReference</div><div class="otype">SequenceReference &middot; VRS</div></div>
+            <a class="sec" href="../../output-reference/classes/ClinvarSequenceReference/" target="_top">
+              <div class="head"><div class="skey">sequenceReference</div><div class="otype">ClinvarSequenceReference &middot; VRS SequenceReference</div></div>
               <div class="body">
                 <div class="eid">SQ.0iKlIQk2oZLoeOG9&hellip;</div>
                 <div class="leaf">refgetAccession + moleculeType &mdash; leaf</div>
               </div>
             </a>
             <div style="height:14px"></div>
-            <a class="sec" href="../../output-reference/classes/variations/" target="_top">
-              <div class="head"><div class="skey">gene</div><div class="otype">MappableConcept &middot; gkm-core</div></div>
+            <a class="sec" href="../../output-reference/classes/ClinvarGene/" target="_top">
+              <div class="head"><div class="skey">gene</div><div class="otype">ClinvarGene &middot; gkm-core MappableConcept</div></div>
               <div class="body">
                 <div class="eid">ncbigene:3077</div>
                 <div class="leaf">NCBI Gene coding + HGNC mapping &mdash; leaf</div>
@@ -260,27 +261,27 @@
         <div class="frame">
           <span class="frame-label">Conditions, therapies &amp; submitters</span>
           <div class="frame-content">
-            <a class="sec" href="../../output-reference/classes/#supporting-classes" target="_top">
-              <div class="head"><div class="skey">conditionSet</div><div class="otype">ConditionSet &middot; ClinVar</div></div>
+            <a class="sec" href="../../output-reference/classes/ClinvarConditionSet/" target="_top">
+              <div class="head"><div class="skey">conditionSet</div><div class="otype">ClinvarConditionSet &middot; va-spec ConditionSet</div></div>
               <div class="body">
                 <div class="eid">clinvar.traitset:1234</div>
                 <div class="refs">
-                  <div class="ref"><b>members[]</b> &rarr; <span class="to">#/condition/</span></div>
-                  <div class="ref"><b>operator</b>: AND | OR</div>
+                  <div class="ref"><b>concepts[]</b> &rarr; <span class="to">#/condition|conditionSet/</span></div>
+                  <div class="ref"><b>membershipOperator</b>: AND | OR</div>
                 </div>
               </div>
             </a>
-            <div class="vconnector"><div class="vline"></div><span class="role">members <span class="card">1..*</span></span><div class="vline arrow"></div></div>
-            <a class="sec" href="../../output-reference/classes/#supporting-classes" target="_top">
-              <div class="head"><div class="skey">condition</div><div class="otype">Condition &middot; MappableConcept</div></div>
+            <div class="vconnector"><div class="vline"></div><span class="role">concepts <span class="card">1..*</span></span><div class="vline arrow"></div></div>
+            <a class="sec" href="../../output-reference/classes/ClinvarCondition/" target="_top">
+              <div class="head"><div class="skey">condition</div><div class="otype">ClinvarCondition &middot; va-spec Condition</div></div>
               <div class="body">
                 <div class="eid">clinvar.trait:9580</div>
                 <div class="leaf">MedGen primaryCoding + mappings &mdash; leaf</div>
               </div>
             </a>
             <div style="height:14px"></div>
-            <a class="sec" href="../../output-reference/id-references/" target="_top">
-              <div class="head"><div class="skey">therapyGroup</div><div class="otype">TherapyGroup (ConceptSet) &middot; va-spec</div></div>
+            <a class="sec" href="../../output-reference/classes/ClinvarTherapyGroup/" target="_top">
+              <div class="head"><div class="skey">therapyGroup</div><div class="otype">ClinvarTherapyGroup &middot; va-spec TherapyGroup</div></div>
               <div class="body">
                 <div class="eid">clinvar.therapygroup:df1d8467&hellip;</div>
                 <div class="refs">
@@ -290,16 +291,16 @@
               </div>
             </a>
             <div class="vconnector"><div class="vline"></div><span class="role">concepts <span class="card">2..*</span></span><div class="vline arrow"></div></div>
-            <a class="sec" href="../../output-reference/id-references/" target="_top">
-              <div class="head"><div class="skey">therapy</div><div class="otype">Therapy (MappableConcept) &middot; va-spec</div></div>
+            <a class="sec" href="../../output-reference/classes/ClinvarTherapy/" target="_top">
+              <div class="head"><div class="skey">therapy</div><div class="otype">ClinvarTherapy &middot; va-spec Therapy</div></div>
               <div class="body">
                 <div class="eid">clinvar.therapy:ab221549&hellip;</div>
                 <div class="leaf">drug name + conceptType &mdash; content-addressed, leaf</div>
               </div>
             </a>
             <div style="height:14px"></div>
-            <a class="sec" href="../../output-reference/classes/#supporting-classes" target="_top">
-              <div class="head"><div class="skey">submitter</div><div class="otype">Agent &middot; gkm-core</div></div>
+            <a class="sec" href="../../output-reference/classes/ClinvarSubmitter/" target="_top">
+              <div class="head"><div class="skey">submitter</div><div class="otype">ClinvarSubmitter &middot; va-spec Agent</div></div>
               <div class="body">
                 <div class="eid">clinvar.submitter:508027</div>
                 <div class="leaf">name &mdash; leaf (cited by scv contributions)</div>

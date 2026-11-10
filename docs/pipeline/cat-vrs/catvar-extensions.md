@@ -99,7 +99,7 @@ When VRS processing issues are present, the error extensions appear alongside th
 
 ## SequenceReference Extensions
 
-Extensions on `SequenceReference` objects nested within `constraints[].allele.location.sequenceReference` and `members[].location.sequenceReference`.
+Extensions on the sequence reference records of the `sequenceReference` bundle section, which a variation reaches through `#/allele/` → `#/location/` → `#/sequenceReference/` pointers.
 
 <div class="field-table" markdown>
 

@@ -23,7 +23,7 @@ Extracts gene context from the upstream `single_gene_variation` table: one repre
 
 When no single-gene match exists for a variation but the submitter gave symbols, the qualifier is a placeholder. Its `name` is the submitter's symbol: several are joined with `, ` in submitted order. It has no `primaryCoding` or `mappings`, keeps `submittedGeneSymbols`, and has `geneContextSource` = `submittedNotNormalized`. Releases before 1.1.0 name the placeholder `submitted genes were not normalized`.
 
-The schema accepts only these four `geneContextSource` values. `ClinvarGeneContextQualifier` defines them, and the bundle schema applies it to every proposition type, including the VA-Spec ones.
+The schema accepts only these four `geneContextSource` values. `ClinvarGeneContextQualifier` defines them, and every ClinVar proposition profile types its `geneContextQualifier` as a `ClinvarGeneContextQualifier`, including the profiles of the VA-Spec proposition types.
 
 The extension values are stored as typed fields (`value_string` for the symbol array, `value_enum` for the source) and collapsed to `value` at publish.
 
@@ -60,14 +60,16 @@ Assembles the SCV proposition by joining `temp_gkm_scv` with all qualifier table
 
 | Field | Description |
 |---|---|
+| `id` | `{scv_id}-{PROP_CODE}` (e.g., `SCV001234567-PATH`); `UNDEF` when the type has no code |
 | `type` | Proposition type from Step 1 mapping (e.g., `VariantPathogenicityProposition`) |
-| `subject` | Reference to the categorical variant via `clinvar:{variation_id}` |
+| `subject` | `#/variation/clinvar:{variation_id}` pointer to the categorical variant |
 | `predicate` | Predicate from Step 1 mapping (e.g., `isCausalFor`, `isOncogenicFor`) |
-| `object_single` | Single condition from the condition pipeline |
-| `object_compound` | ConditionSet for SCVs with multiple conditions |
+| `object` | `#/condition/` or `#/conditionSet/` pointer to the SCV's condition, from the submitted condition (or condition set) mapping |
 | `geneContextQualifier` | Gene concept from Step 2 |
 | `modeOfInheritanceQualifier` | Mode of inheritance from Step 3 |
 | `penetranceQualifier` | Penetrance from Step 4 |
+
+The qualifiers are joined for every SCV proposition and dropped when empty. The schema allows `modeOfInheritanceQualifier` and `penetranceQualifier` only on pathogenicity and the ClinVar-specific proposition types, not on oncogenicity or clinical significance propositions.
 
 **Output:** `temp_gkm_scv_proposition` -- one row per SCV with fully assembled proposition. <span class="role-badge badge-internal">Internal</span>
 
@@ -79,15 +81,15 @@ Builds the evidence line target proposition for somatic clinical impact assertio
 
 | Field | Description |
 |---|---|
+| `id` | `{scv_id}-{CODE}` (e.g., `SCV003456789-TR`) |
 | `type` | Target proposition type (e.g., `VariantPrognosticProposition`, `VariantTherapeuticResponseProposition`) |
-| `subject` | JSON pointer `4/proposition/subject` referencing the parent proposition's variant |
+| `subject` | `#/variation/clinvar:{variation_id}` pointer — the same variant as the parent (Step 5) proposition |
 | `predicate` | Target predicate (e.g., `associatedWithBetterOutcomeFor`, `predictsSensitivityTo`) |
-| `object` | For therapeutic assertions, a reference to the therapy: `#/therapy/clinvar.therapy:{sha256}` for a single drug, or `#/therapyGroup/clinvar.therapygroup:{sha256}` for a multi-drug combination. Therapies are extracted (`temp_gkm_scv_therapy`), content-addressed, and deduplicated into the `gkm_dict_therapy` / `gkm_dict_therapygroup` dictionaries; a TherapyGroup's `concepts` reference its member therapies via `#/therapy/` |
+| `object` | For therapeutic assertions, a reference to the therapy: `#/therapy/clinvar.therapy:{sha256}` for a single drug, or `#/therapyGroup/clinvar.therapygroup:{sha256}` for a multi-drug combination. Therapies are extracted (`temp_gkm_scv_therapy`), content-addressed, and deduplicated into the `gkm_dict_therapy` / `gkm_dict_therapygroup` tables; a TherapyGroup's `concepts` reference its member therapies via `#/therapy/`. For diagnostic and prognostic assertions, the `#/condition/` or `#/conditionSet/` pointer to the SCV's condition |
 | `conditionQualifier` | Condition moved to qualifier position for therapeutic assertions (since `object` becomes the therapy), as a `#/condition/` or `#/conditionSet/` reference |
 | `geneContextQualifier` | Gene concept from Step 2 |
-| `modeOfInheritanceQualifier` | Mode of inheritance from Step 3 |
 
-The JSON pointer `4/proposition/subject` is used instead of duplicating the variant reference, linking the target proposition back to the same variant defined in the parent (Step 5) proposition.
+Target propositions carry no `modeOfInheritanceQualifier` or `penetranceQualifier`: those qualifiers are germline-only, so this step does not emit them.
 
 **Output:** `temp_gkm_scv_target_proposition` -- one row per somatic SCV with target proposition. <span class="role-badge badge-internal">Internal</span>
 
