@@ -18,7 +18,7 @@ Some ClinvarSequenceReference attributes are inherited from [SequenceReference](
 | `name` | `string` | 0..1 | A primary name for the entity. |
 | `extensions` | [ExtensionAssembly](ClinvarSequenceReference.md#extensionassembly)[] (unordered) | 0..m | The assembly of the sequence, when it belongs to one. |
 | `refgetAccession` | `string`<br>pattern `^SQ.[0-9A-Za-z_\-]{32}$` | 1..1 | A `GA4GH RefGet <http://samtools.github.io/hts-specs/refget.html>`_ identifier for the referenced sequence, using the sha512t24u digest. |
-| `residueAlphabet` | `string`<br>one of `aa`, `na` | 0..1 | The interpretation of the character codes referred to by the refget accession, where "aa" specifies an amino acid character set, and "na" specifies a nucleic acid character set. |
+| `residueAlphabet` | `string`<br>one of `aa`, `na` | 1..1 | The interpretation of the character codes referred to by the refget accession, where "aa" specifies an amino acid character set, and "na" specifies a nucleic acid character set. |
 | `moleculeType` | `string`<br>one of `genomic`, `RNA`, `mRNA`, `protein` | 0..1 | Molecule types as `defined by RefSeq <https://www.ncbi.nlm.nih.gov/books/NBK21091/>`_ (see Table 1). MUST be one of "genomic", "RNA", "mRNA", or "protein". |
 
 **Not used by ClinVar-GKM:** `id`, `description`, `aliases`, `sequence`, `circular`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.

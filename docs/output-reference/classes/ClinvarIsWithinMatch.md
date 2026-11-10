@@ -15,7 +15,7 @@ Some ClinvarIsWithinMatch attributes are inherited from [MappableConcept](https:
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
 | `type` | `string`<br>`MappableConcept` | 1..1 | MUST be "MappableConcept". |
-| `primaryCoding` | [Coding](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/elements/coding.html#coding){ target=_blank rel=noopener }<br>`code`: `is_within`; `system`: `ga4gh-gks-term:location-match` | 0..1 | The match characteristic's code and system. |
+| `primaryCoding` | [Coding](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/elements/coding.html#coding){ target=_blank rel=noopener }<br>`code`: `is_within`; `system`: `ga4gh-gks-term:location-match` | 1..1 | The match characteristic's code and system. |
 
 **Not used by ClinVar-GKM:** `id`, `name`, `description`, `aliases`, `extensions`, `conceptType`, `mappings`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.
 

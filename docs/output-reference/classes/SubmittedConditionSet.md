@@ -15,5 +15,5 @@ The value of a submittedConditionSet extension: the submitted condition set with
 | `conditionSet` | `string` | 0..1 | The CURIE of the resolved condition set (e.g., "clinvar.traitset:123"; the key of the corresponding #/conditionSet/ bundle entry). |
 | `condition` | `string` | 0..1 | Usually absent for multi-condition submissions; when present, the CURIE of a condition (e.g., "clinvar.trait:123"; the key of the corresponding #/condition/ bundle entry). |
 | `multiple_condition_explanation` | `string` | 0..1 | ClinVar's explanation for how multiple conditions relate (maps to the ConditionSet membership operator: AND or OR). |
-| `concepts` | [SubmittedConditionMapping](SubmittedConditionMapping.md)[] (ordered) | 0..m | Array of individual submitted condition mappings, one per condition in the set. Ordered by the condition's cat_id suffix. |
+| `concepts` | [SubmittedConditionMapping](SubmittedConditionMapping.md)[] (ordered) | 1..m | Array of individual submitted condition mappings, one per condition in the set. Ordered by the condition's cat_id suffix. |
 

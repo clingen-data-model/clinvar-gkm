@@ -14,11 +14,11 @@ Some ClinvarCondition attributes are inherited from [Condition](https://va-spec.
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | 0..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
+| `id` | `string` | 1..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
 | `type` | `string`<br>`MappableConcept` | 1..1 | MUST be "MappableConcept". |
 | `name` | `string` | 0..1 | A primary name for the concept. |
 | `aliases` | `string`[] (unordered) | 0..m | Alternative name(s) for the Entity. |
-| `conceptType` | `string` \| `string` | 0..1 | A term indicating the type of concept being represented by the MappableConcept. |
+| `conceptType` | `string` \| `string` | 1..1 | A term indicating the type of concept being represented by the MappableConcept. |
 | `primaryCoding` | [ClinvarCoding](ClinvarCoding.md) | 0..1 | The condition's primary coding. |
 | `mappings` | [ClinvarConceptMapping](ClinvarConceptMapping.md)[] (unordered) | 0..m | Mappings of the condition to codes in other terminologies. |
 

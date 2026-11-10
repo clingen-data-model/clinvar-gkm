@@ -16,6 +16,6 @@ Some ClinvarDefiningLocationConstraint attributes are inherited from [DefiningLo
 | --- | --- | --- | --- |
 | `type` | `string`<br>`DefiningLocationConstraint` | 1..1 | MUST be "DefiningLocationConstraint" |
 | `location` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }<br>pointer to `#/location/<id>` | 1..1 | The defining location, a '#/location/<id>' pointer into this bundle. |
-| `relations` | [ClinvarLiftoverToRelation](ClinvarLiftoverToRelation.md)[] (unordered) | 0..m | The `liftover_to` relation. |
+| `relations` | [ClinvarLiftoverToRelation](ClinvarLiftoverToRelation.md)[] (unordered) | 1..m | The `liftover_to` relation. |
 | `matchCharacteristic` | [ClinvarIsWithinMatch](ClinvarIsWithinMatch.md) | 1..1 | The `is_within` match characteristic. |
 

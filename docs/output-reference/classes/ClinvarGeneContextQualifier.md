@@ -15,9 +15,9 @@ Some ClinvarGeneContextQualifier attributes are inherited from [MappableConcept]
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
 | `type` | `string`<br>`MappableConcept` | 1..1 | MUST be "MappableConcept". |
-| `name` | `string` | 0..1 | A primary name for the concept. |
-| `extensions` | [ExtensionGeneContextSource](ClinvarGeneContextQualifier.md#extensiongenecontextsource) \| [ExtensionSubmittedGeneSymbols](ClinvarGeneContextQualifier.md#extensionsubmittedgenesymbols)[] (unordered) | 0..m | The qualifier's extensions, each an ExtensionGeneContextSource or an ExtensionSubmittedGeneSymbols. |
-| `conceptType` | `string`<br>`gene` | 0..1 | Always 'gene'. |
+| `name` | `string` | 1..1 | A primary name for the concept. |
+| `extensions` | [ExtensionGeneContextSource](ClinvarGeneContextQualifier.md#extensiongenecontextsource) \| [ExtensionSubmittedGeneSymbols](ClinvarGeneContextQualifier.md#extensionsubmittedgenesymbols)[] (unordered) | 1..m | The qualifier's extensions, each an ExtensionGeneContextSource or an ExtensionSubmittedGeneSymbols. |
+| `conceptType` | `string`<br>`gene` | 1..1 | Always 'gene'. |
 | `primaryCoding` | [ClinvarCoding](ClinvarCoding.md) | 0..1 | The gene's NCBI Gene coding. Absent on a placeholder qualifier (geneContextSource 'submittedNotNormalized'). |
 | `mappings` | [ClinvarConceptMapping](ClinvarConceptMapping.md)[] (unordered) | 0..m | Mappings of the gene to other gene codes (its HGNC coding). Absent on a placeholder qualifier. |
 
@@ -43,5 +43,5 @@ The gene symbols the submitter gave for the SCV, as submitted.
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
 | `name` | `string`<br>`submittedGeneSymbols` | 1..1 | Must be 'submittedGeneSymbols'. |
-| `value` | `string`[] (ordered) | 0..m | The submitted gene symbols. |
+| `value` | `string`[] (ordered) | 1..m | The submitted gene symbols. |
 

@@ -34,8 +34,8 @@ Says that ClinVar-GKM repaired the citation's id.
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `name` | `string`<br>`citationRepaired` | 0..1 | Must be 'citationRepaired'. |
-| `value` | `boolean`<br>`true` | 0..1 | Always true. |
+| `name` | `string`<br>`citationRepaired` | 1..1 | Must be 'citationRepaired'. |
+| `value` | `boolean`<br>`true` | 1..1 | Always true. |
 
 ### ExtensionClinvarCitationText
 
@@ -43,8 +43,8 @@ The free text of a ClinVar citation. A citation that is only text is a Document 
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `name` | `string`<br>`clinvarCitationText` | 0..1 | Must be 'clinvarCitationText'. |
-| `value` | `string` | 0..1 | The citation text, verbatim. |
+| `name` | `string`<br>`clinvarCitationText` | 1..1 | Must be 'clinvarCitationText'. |
+| `value` | `string` | 1..1 | The citation text, verbatim. |
 
 ### ExtensionClinvarDoi
 
@@ -52,8 +52,8 @@ A valid DOI that VA-Spec's doi pattern rejects (a SICI DOI, say). The document's
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `name` | `string`<br>`clinvarDoi` | 0..1 | Must be 'clinvarDoi'. |
-| `value` | `string` | 0..1 | The DOI as ClinVar has it. |
+| `name` | `string`<br>`clinvarDoi` | 1..1 | Must be 'clinvarDoi'. |
+| `value` | `string` | 1..1 | The DOI as ClinVar has it. |
 
 ### ExtensionInvalidClinvarCitation
 
@@ -61,8 +61,8 @@ A citation id that cannot be used (a DOI of "https", say). No doi or URL is deri
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `name` | `string`<br>`invalidClinvarCitation` | 0..1 | Must be 'invalidClinvarCitation'. |
-| `value` | `string` | 0..1 | ClinVar's citation id. |
+| `name` | `string`<br>`invalidClinvarCitation` | 1..1 | Must be 'invalidClinvarCitation'. |
+| `value` | `string` | 1..1 | ClinVar's citation id. |
 
 ### ExtensionOriginalClinvarCitation
 
@@ -70,8 +70,8 @@ The citation id as ClinVar has it, when ClinVar-GKM repaired it.
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `name` | `string`<br>`originalClinvarCitation` | 0..1 | Must be 'originalClinvarCitation'. |
-| `value` | `string` | 0..1 | ClinVar's citation id. |
+| `name` | `string`<br>`originalClinvarCitation` | 1..1 | Must be 'originalClinvarCitation'. |
+| `value` | `string` | 1..1 | ClinVar's citation id. |
 
 ### ExtensionOriginalClinvarCitationSource
 
@@ -79,8 +79,8 @@ ClinVar's source of a citation id that ClinVar-GKM moved to another source.
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `name` | `string`<br>`originalClinvarCitationSource` | 0..1 | Must be 'originalClinvarCitationSource'. |
-| `value` | `string` | 0..1 | ClinVar's citation source. |
+| `name` | `string`<br>`originalClinvarCitationSource` | 1..1 | Must be 'originalClinvarCitationSource'. |
+| `value` | `string` | 1..1 | ClinVar's citation source. |
 
 ### ExtensionUnmappedClinvarCitation
 
@@ -88,6 +88,6 @@ A citation id from a source ClinVar-GKM does not map ('<source>:<id>'). No doi, 
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `name` | `string`<br>`unmappedClinvarCitation` | 0..1 | Must be 'unmappedClinvarCitation'. |
-| `value` | `string` | 0..1 | ClinVar's citation source and id, as '<source>:<id>'. |
+| `name` | `string`<br>`unmappedClinvarCitation` | 1..1 | Must be 'unmappedClinvarCitation'. |
+| `value` | `string` | 1..1 | ClinVar's citation source and id, as '<source>:<id>'. |
 

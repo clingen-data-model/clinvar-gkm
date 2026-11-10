@@ -16,5 +16,5 @@ Some ClinvarDefiningAlleleConstraint attributes are inherited from [DefiningAlle
 | --- | --- | --- | --- |
 | `type` | `string`<br>`DefiningAlleleConstraint` | 1..1 | MUST be "DefiningAlleleConstraint" |
 | `allele` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }<br>pointer to `#/allele/<id>` | 1..1 | The defining allele, a '#/allele/<id>' pointer into this bundle. |
-| `relations` | [ClinvarLiftoverToRelation](ClinvarLiftoverToRelation.md) \| [ClinvarTranscribedToRelation](ClinvarTranscribedToRelation.md)[] (unordered) | 0..m | The `liftover_to` and `transcribed_to` relations. |
+| `relations` | [ClinvarLiftoverToRelation](ClinvarLiftoverToRelation.md) \| [ClinvarTranscribedToRelation](ClinvarTranscribedToRelation.md)[] (unordered) | 1..m | The `liftover_to` and `transcribed_to` relations. |
 

@@ -15,9 +15,9 @@ Some ClinvarPenetranceQualifier attributes are inherited from [MappableConcept](
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
 | `type` | `string`<br>`MappableConcept` | 1..1 | MUST be "MappableConcept". |
-| `name` | `string`<br>one of `low`, `risk` | 0..1 | 'low' for a pathogenic or likely pathogenic, low penetrance classification; 'risk' for an established, likely or uncertain risk allele classification. |
-| `extensions` | [ExtensionSubmittedClassification](ClinvarPenetranceQualifier.md#extensionsubmittedclassification)[] (unordered) | 0..m | The submitted classification, in an ExtensionSubmittedClassification. |
-| `conceptType` | `string`<br>`penetrance` | 0..1 | Always 'penetrance'. |
+| `name` | `string`<br>one of `low`, `risk` | 1..1 | 'low' for a pathogenic or likely pathogenic, low penetrance classification; 'risk' for an established, likely or uncertain risk allele classification. |
+| `extensions` | [ExtensionSubmittedClassification](ClinvarPenetranceQualifier.md#extensionsubmittedclassification)[] (unordered) | 1..m | The submitted classification, in an ExtensionSubmittedClassification. |
+| `conceptType` | `string`<br>`penetrance` | 1..1 | Always 'penetrance'. |
 
 **Not used by ClinVar-GKM:** `id`, `description`, `aliases`, `primaryCoding`, `mappings`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.
 

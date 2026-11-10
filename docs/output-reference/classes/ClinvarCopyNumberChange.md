@@ -14,7 +14,7 @@ Some ClinvarCopyNumberChange attributes are inherited from [CopyNumberChange](ht
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | 0..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
+| `id` | `string` | 1..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
 | `type` | `string`<br>`CopyNumberChange` | 1..1 | MUST be "CopyNumberChange" |
 | `digest` | `string`<br>pattern `^[0-9A-Za-z_\-]{32}$` | 0..1 | A sha512t24u digest created using the VRS Computed Identifier algorithm. |
 | `location` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }<br>pointer to `#/location/<id>` | 1..1 | The location of the copy number change, a '#/location/<id>' pointer into this bundle. |

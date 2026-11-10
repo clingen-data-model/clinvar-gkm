@@ -14,7 +14,7 @@ Some ClinvarVariantClinicalSignificanceProposition attributes are inherited from
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | 0..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
+| `id` | `string` | 1..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
 | `type` | `string`<br>`VariantClinicalSignificanceProposition` | 1..1 | MUST be "VariantClinicalSignificanceProposition". |
 | `subject` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }<br>pointer to `#/variation/<id>` | 1..1 | The variant, a '#/variation/<id>' pointer into this bundle. |
 | `predicate` | `string`<br>`hasClinicalSignificanceFor` | 1..1 | The predicate associating the subject variant to clinical significance for the object Condition. MUST be "hasClinicalSignificanceFor". |

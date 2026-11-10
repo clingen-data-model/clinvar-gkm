@@ -14,7 +14,7 @@ Some ClinvarAffectsProposition attributes are inherited from [ClinvarGermlineCus
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | 0..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
+| `id` | `string` | 1..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
 | `type` | `string`<br>`ClinvarAffectsProposition` | 1..1 | MUST be "ClinvarAffectsProposition". |
 | `subject` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }<br>pointer to `#/variation/<id>` | 1..1 | The variant, a '#/variation/<id>' pointer into this bundle. |
 | `predicate` | `string`<br>`hasAffectFor` | 1..1 | The relationship the Proposition describes between the subject variant and object condition. MUST be "hasAffectFor". |

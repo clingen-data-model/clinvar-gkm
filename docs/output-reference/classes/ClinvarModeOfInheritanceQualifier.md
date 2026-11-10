@@ -16,8 +16,8 @@ Some ClinvarModeOfInheritanceQualifier attributes are inherited from [MappableCo
 | --- | --- | --- | --- |
 | `type` | `string`<br>`MappableConcept` | 1..1 | MUST be "MappableConcept". |
 | `name` | `string` | 0..1 | A primary name for the concept. |
-| `extensions` | [ExtensionSubmittedModeOfInheritance](ClinvarModeOfInheritanceQualifier.md#extensionsubmittedmodeofinheritance)[] (unordered) | 0..m | The submitted mode of inheritance, in an ExtensionSubmittedModeOfInheritance. |
-| `conceptType` | `string`<br>`modeOfInheritance` | 0..1 | Always 'modeOfInheritance'. |
+| `extensions` | [ExtensionSubmittedModeOfInheritance](ClinvarModeOfInheritanceQualifier.md#extensionsubmittedmodeofinheritance)[] (unordered) | 1..m | The submitted mode of inheritance, in an ExtensionSubmittedModeOfInheritance. |
+| `conceptType` | `string`<br>`modeOfInheritance` | 1..1 | Always 'modeOfInheritance'. |
 | `primaryCoding` | [ClinvarCoding](ClinvarCoding.md) | 0..1 | The HPO term whose label matches the submitted mode of inheritance (case-insensitively). Absent when no HPO term matches. |
 
 **Not used by ClinVar-GKM:** `id`, `description`, `aliases`, `mappings`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.

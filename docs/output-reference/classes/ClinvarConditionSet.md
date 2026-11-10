@@ -14,7 +14,7 @@ Some ClinvarConditionSet attributes are inherited from [ConditionSet](https://va
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | 0..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
+| `id` | `string` | 1..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
 | `type` | `string`<br>`ConceptSet` | 1..1 | MUST be "ConceptSet". |
 | `conceptSetType` | `string` | 0..1 | A term indicating the type of concept being represented by the ConceptSet. |
 | `concepts` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }[] (unordered)<br>pointer to `#/condition/<id>` or `#/conditionSet/<id>` | 2..m | The set's members, each a '#/condition/<id>' or '#/conditionSet/<id>' pointer into this bundle. |

@@ -32,6 +32,6 @@ The citations of an assertion method after its first, in ClinVar's order (the fi
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `name` | `string`<br>`additionalClinvarMethodCitations` | 0..1 | Must be 'additionalClinvarMethodCitations'. |
-| `value` | [ClinvarDocument](ClinvarDocument.md)[] (ordered) | 0..m | The further citations, each a ClinvarDocument. |
+| `name` | `string`<br>`additionalClinvarMethodCitations` | 1..1 | Must be 'additionalClinvarMethodCitations'. |
+| `value` | [ClinvarDocument](ClinvarDocument.md)[] (ordered) | 1..m | The further citations, each a ClinvarDocument. |
 

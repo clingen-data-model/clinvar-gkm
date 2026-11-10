@@ -16,7 +16,7 @@ Some ClinvarQuality attributes are inherited from [ClinvarTerm](ClinvarTerm.md).
 | --- | --- | --- | --- |
 | `type` | `string`<br>`MappableConcept` | 1..1 | MUST be "MappableConcept". |
 | `name` | `string` | 0..1 | A primary name for the concept. |
-| `conceptType` | `string`<br>`Quality` | 0..1 | Must be 'Quality'. |
+| `conceptType` | `string`<br>`Quality` | 1..1 | Must be 'Quality'. |
 
 **Not used by ClinVar-GKM:** `id`, `description`, `aliases`, `extensions`, `mappings`, `primaryCoding`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.
 

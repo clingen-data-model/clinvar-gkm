@@ -17,7 +17,7 @@ Some ClinvarAggregateClassification attributes are inherited from [MappableConce
 | `type` | `string`<br>`MappableConcept` | 1..1 | MUST be "MappableConcept". |
 | `name` | `string` | 0..1 | A primary name for the concept. |
 | `extensions` | [ExtensionConflictingExplanation](ClinvarAggregateClassification.md#extensionconflictingexplanation)[] (unordered) | 0..m | The conflicting classifications, in an ExtensionConflictingExplanation. |
-| `conceptType` | `string`<br>`Classification` | 0..1 | Must be 'Classification'. |
+| `conceptType` | `string`<br>`Classification` | 1..1 | Must be 'Classification'. |
 
 **Not used by ClinVar-GKM:** `id`, `description`, `aliases`, `primaryCoding`, `mappings`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.
 
@@ -31,6 +31,6 @@ The classifications behind a conflicting aggregate classification, with the numb
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `name` | `string`<br>`conflictingExplanation` | 0..1 | Must be 'conflictingExplanation'. |
-| `value` | `string` | 0..1 | The classifications and their submission counts, separated by '; '. |
+| `name` | `string`<br>`conflictingExplanation` | 1..1 | Must be 'conflictingExplanation'. |
+| `value` | `string` | 1..1 | The classifications and their submission counts, separated by '; '. |
 

@@ -14,11 +14,11 @@ Some ClinvarAggregateEvidenceLine attributes are inherited from [EvidenceLine](h
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | 0..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
+| `id` | `string` | 1..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
 | `type` | `string`<br>`EvidenceLine` | 1..1 | MUST be "EvidenceLine". |
-| `hasEvidenceItems` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }[] (unordered)<br>pointer to `#/scv/<id>` or `#/vcv/<id>` or `#/rcv/<id>` | 0..m | The statements the line groups, each a '#/scv/<id>', '#/vcv/<id>' or '#/rcv/<id>' pointer into this bundle. |
+| `hasEvidenceItems` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }[] (unordered)<br>pointer to `#/scv/<id>` or `#/vcv/<id>` or `#/rcv/<id>` | 1..m | The statements the line groups, each a '#/scv/<id>', '#/vcv/<id>' or '#/rcv/<id>' pointer into this bundle. |
 | `directionOfEvidenceProvided` | `string`<br>one of `supports`, `neutral` | 1..1 | 'supports' for a Contributing line, 'neutral' for a Non-contributing line. |
-| `strengthOfEvidenceProvided` | [ClinvarTerm](ClinvarTerm.md) | 0..1 | 'Contributing' or 'Non-contributing', as a ClinvarTerm of concept type 'Strength'. |
+| `strengthOfEvidenceProvided` | [ClinvarTerm](ClinvarTerm.md) | 1..1 | 'Contributing' or 'Non-contributing', as a ClinvarTerm of concept type 'Strength'. |
 
 **Not used by ClinVar-GKM:** `name`, `description`, `aliases`, `extensions`, `specifiedBy`, `contributions`, `reportedIn`, `targetProposition`, `scoreOfEvidenceProvided`, `evidenceOutcome`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.
 

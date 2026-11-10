@@ -16,7 +16,7 @@ Some ClinvarContribution attributes are inherited from [Contribution](https://va
 | --- | --- | --- | --- |
 | `type` | `string`<br>`Contribution` | 1..1 | MUST be "Contribution". |
 | `contributor` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }<br>pointer to `#/submitter/<id>` | 0..1 | The submitter, a '#/submitter/<id>' pointer into this bundle. |
-| `activityType` | `string`<br>one of `submitted`, `created`, `evaluated` | 0..1 | What the submitter did on the date: submitted (last updated), created, or evaluated the record. |
+| `activityType` | `string`<br>one of `submitted`, `created`, `evaluated` | 1..1 | What the submitter did on the date: submitted (last updated), created, or evaluated the record. |
 | `date` | [datetime](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#datetime){ target=_blank rel=noopener } | 0..1 | When the contributing activity was completed. |
 
 **Not used by ClinVar-GKM:** `id`, `name`, `description`, `aliases`, `extensions`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.

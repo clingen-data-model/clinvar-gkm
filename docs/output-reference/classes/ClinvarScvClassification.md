@@ -16,8 +16,8 @@ Some ClinvarScvClassification attributes are inherited from [MappableConcept](ht
 | --- | --- | --- | --- |
 | `type` | `string`<br>`MappableConcept` | 1..1 | MUST be "MappableConcept". |
 | `name` | `string` | 0..1 | A primary name for the concept. |
-| `extensions` | [ExtensionClassificationDescription](ClinvarScvClassification.md#extensionclassificationdescription)[] (unordered) | 0..m | The classification's description, in an ExtensionClassificationDescription. |
-| `conceptType` | `string`<br>`Classification` | 0..1 | Must be 'Classification'. |
+| `extensions` | [ExtensionClassificationDescription](ClinvarScvClassification.md#extensionclassificationdescription)[] (unordered) | 1..m | The classification's description, in an ExtensionClassificationDescription. |
+| `conceptType` | `string`<br>`Classification` | 1..1 | Must be 'Classification'. |
 | `primaryCoding` | [ClinvarTermCoding](ClinvarTermCoding.md) | 0..1 | The classification's code and its system (the guideline that defines it). |
 
 **Not used by ClinVar-GKM:** `id`, `description`, `aliases`, `mappings`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.
@@ -32,6 +32,6 @@ ClinVar's description of the SCV's classification: the condition, the review sta
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `name` | `string`<br>`description` | 0..1 | Must be 'description'. |
+| `name` | `string`<br>`description` | 1..1 | Must be 'description'. |
 | `value` | `string` | 0..1 | The description text. |
 

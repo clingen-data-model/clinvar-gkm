@@ -44,7 +44,7 @@ Gene associations for this variation from ClinVar, including Entrez gene IDs, HG
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
 | `name` | `string`<br>`clinvarGeneList` | 1..1 | Must be 'clinvarGeneList'. |
-| `value` | [GeneListItem](GeneListItem.md)[] (unordered) | 0..m | Clinvar's data structure for representing genes associated with a clinvar variant. |
+| `value` | [GeneListItem](GeneListItem.md)[] (unordered) | 1..m | Clinvar's data structure for representing genes associated with a clinvar variant. |
 
 ### ExtensionClinvarHgvsList
 
@@ -53,7 +53,7 @@ Complete list of HGVS expressions from ClinVar for a variant, including nucleoti
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
 | `name` | `string`<br>`clinvarHgvsList` | 1..1 | Must be 'clinvarHgvsList'. |
-| `value` | [HgvsListItem](HgvsListItem.md)[] (unordered) | 0..m | Clinvar's data structure for representing the HGVS expressions, mane select/plus settings and molecular consequence for dervied genomic/transcript sequence alignmnents and protein sequence projections originating from the definining allele or location for CNVs. |
+| `value` | [HgvsListItem](HgvsListItem.md)[] (unordered) | 1..m | Clinvar's data structure for representing the HGVS expressions, mane select/plus settings and molecular consequence for dervied genomic/transcript sequence alignmnents and protein sequence projections originating from the definining allele or location for CNVs. |
 
 ### ExtensionClinvarSubclassType
 

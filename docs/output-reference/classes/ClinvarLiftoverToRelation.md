@@ -15,7 +15,7 @@ Some ClinvarLiftoverToRelation attributes are inherited from [MappableConcept](h
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
 | `type` | `string`<br>`MappableConcept` | 1..1 | MUST be "MappableConcept". |
-| `primaryCoding` | [Coding](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/elements/coding.html#coding){ target=_blank rel=noopener }<br>`code`: `liftover_to`; `system`: `ga4gh-gks-term:allele-relation` | 0..1 | The relation's code and system. |
+| `primaryCoding` | [Coding](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/elements/coding.html#coding){ target=_blank rel=noopener }<br>`code`: `liftover_to`; `system`: `ga4gh-gks-term:allele-relation` | 1..1 | The relation's code and system. |
 
 **Not used by ClinVar-GKM:** `id`, `name`, `description`, `aliases`, `extensions`, `conceptType`, `mappings`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.
 

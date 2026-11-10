@@ -14,11 +14,11 @@ Some ClinvarGene attributes are inherited from [MappableConcept](https://va-spec
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | 0..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
+| `id` | `string` | 1..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
 | `type` | `string`<br>`MappableConcept` | 1..1 | MUST be "MappableConcept". |
 | `name` | `string` | 0..1 | A primary name for the concept. |
-| `conceptType` | `string` | 0..1 | A term indicating the type of concept being represented by the MappableConcept. |
-| `primaryCoding` | [ClinvarCoding](ClinvarCoding.md) | 0..1 | The gene's NCBI Gene coding. |
+| `conceptType` | `string` | 1..1 | A term indicating the type of concept being represented by the MappableConcept. |
+| `primaryCoding` | [ClinvarCoding](ClinvarCoding.md) | 1..1 | The gene's NCBI Gene coding. |
 | `mappings` | [ClinvarConceptMapping](ClinvarConceptMapping.md)[] (unordered) | 0..m | Mappings of the gene to other gene codes. |
 
 **Not used by ClinVar-GKM:** `description`, `aliases`, `extensions`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.

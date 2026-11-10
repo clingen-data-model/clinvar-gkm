@@ -283,7 +283,8 @@ def resolve_cardinality(prop_name: str, prop_attrs: dict, class_def: dict) -> st
     min_count = "1" if prop_name in required else "0"
     if prop_attrs.get("type") == "array":
         max_count = prop_attrs.get("maxItems", "m")
-        min_count = str(prop_attrs.get("minItems", 0))
+        # A required array holds at least one item (the assembler drops empty arrays).
+        min_count = str(max(prop_attrs.get("minItems", 0), int(min_count)))
     else:
         max_count = "1"
     return f"{min_count}..{max_count}"

@@ -14,12 +14,12 @@ Some ClinvarSomaticEvidenceLine attributes are inherited from [EvidenceLine](htt
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | 0..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
+| `id` | `string` | 1..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
 | `type` | `string`<br>`EvidenceLine` | 1..1 | MUST be "EvidenceLine". |
 | `extensions` | [ExtensionEvidenceLineSubmittedCondition](ClinvarSomaticEvidenceLine.md#extensionevidencelinesubmittedcondition) \| [ExtensionEvidenceLineSubmittedConditionSet](ClinvarSomaticEvidenceLine.md#extensionevidencelinesubmittedconditionset)[] (unordered) | 0..m | The submitter's original condition, in an ExtensionEvidenceLineSubmittedCondition, or conditions, in an ExtensionEvidenceLineSubmittedConditionSet. |
-| `targetProposition` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }<br>pointer to `#/propositionSomaticClinicalImpact/<id>` | 0..1 | The specific assertion, a '#/propositionSomaticClinicalImpact/<id>' pointer to a VariantTherapeuticResponseProposition, VariantDiagnosticProposition or VariantPrognosticProposition in this bundle. |
+| `targetProposition` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }<br>pointer to `#/propositionSomaticClinicalImpact/<id>` | 1..1 | The specific assertion, a '#/propositionSomaticClinicalImpact/<id>' pointer to a VariantTherapeuticResponseProposition, VariantDiagnosticProposition or VariantPrognosticProposition in this bundle. |
 | `directionOfEvidenceProvided` | `string`<br>`supports`; one of `supports`, `neutral`, `disputes` | 1..1 | Always 'supports'. |
-| `evidenceOutcome` | [ClinvarTerm](ClinvarTerm.md) | 0..1 | The evidence level for the AMP/ASCO/CAP tier, as a ClinvarTerm of concept type 'Outcome': 'Level A/B' for Tier I, 'Level C/D' for Tier II; for any other tier, the SCV's classification code. |
+| `evidenceOutcome` | [ClinvarTerm](ClinvarTerm.md) | 1..1 | The evidence level for the AMP/ASCO/CAP tier, as a ClinvarTerm of concept type 'Outcome': 'Level A/B' for Tier I, 'Level C/D' for Tier II; for any other tier, the SCV's classification code. |
 
 **Not used by ClinVar-GKM:** `name`, `description`, `aliases`, `specifiedBy`, `contributions`, `reportedIn`, `hasEvidenceItems`, `strengthOfEvidenceProvided`, `scoreOfEvidenceProvided`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.
 

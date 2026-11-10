@@ -16,7 +16,7 @@ Some ClinvarTerm attributes are inherited from [ClinvarCodedTerm](ClinvarCodedTe
 | --- | --- | --- | --- |
 | `type` | `string`<br>`MappableConcept` | 1..1 | MUST be "MappableConcept". |
 | `name` | `string` | 0..1 | A primary name for the concept. |
-| `conceptType` | `string` | 0..1 | A term indicating the type of concept being represented by the MappableConcept. |
+| `conceptType` | `string` | 1..1 | A term indicating the type of concept being represented by the MappableConcept. |
 
 **Not used by ClinVar-GKM:** `id`, `description`, `aliases`, `extensions`, `mappings`, `primaryCoding`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.
 

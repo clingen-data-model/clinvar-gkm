@@ -16,7 +16,7 @@ Some ClinvarStrength attributes are inherited from [ClinvarCodedTerm](ClinvarCod
 | --- | --- | --- | --- |
 | `type` | `string`<br>`MappableConcept` | 1..1 | MUST be "MappableConcept". |
 | `name` | `string` | 0..1 | A primary name for the concept. |
-| `conceptType` | `string`<br>`Strength` | 0..1 | Must be 'Strength'. |
+| `conceptType` | `string`<br>`Strength` | 1..1 | Must be 'Strength'. |
 | `primaryCoding` | [ClinvarTermCoding](ClinvarTermCoding.md) | 0..1 | The term's code and its system. |
 
 **Not used by ClinVar-GKM:** `id`, `description`, `aliases`, `extensions`, `mappings`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.
