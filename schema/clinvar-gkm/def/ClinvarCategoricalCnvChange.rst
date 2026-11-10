@@ -1,7 +1,7 @@
-.. admonition:: Trial Use
-    :class: note
+.. admonition:: Draft
+    :class: warning
 
-    May change in future releases. See |maturity-model|.
+    May change significantly in future releases. See |maturity-model|.
 
 **Computational Definition**
 

@@ -1,8 +1,8 @@
 # ClinvarCategoricalCnvChange
 
-!!! note "Trial Use"
+!!! warning "Draft"
 
-    May change in future releases. See the [GKM Maturity Model](https://vrs.ga4gh.org/en/2.1/appendices/maturity_model.html){ target=_blank rel=noopener }.
+    May change significantly in future releases. See the [GKM Maturity Model](https://vrs.ga4gh.org/en/2.1/appendices/maturity_model.html){ target=_blank rel=noopener }.
 
 A ClinVar copy number variant with a qualitative change indication (gain or loss). Uses a DefiningLocationConstraint with a CopyChangeConstraint from Cat-VRS CategoricalCnv.
 
@@ -23,4 +23,3 @@ Some ClinvarCategoricalCnvChange attributes are inherited from [CategoricalCnv](
 | `members` | [Variation](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/domain-entities.html#variation){ target=_blank rel=noopener } \| [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }[] (unordered) | 0..m | A non-exhaustive list of VRS Variations that satisfy the constraints of this categorical variant. |
 | `constraints` | [Constraint](https://va-spec.ga4gh.org/en/1.1.0/appendices/imported-models/constraint.html#constraint){ target=_blank rel=noopener }[] (unordered) | 0..m |  |
 | `mappings` | [ConceptMapping](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/elements/concept-mapping.html#conceptmapping){ target=_blank rel=noopener }[] (unordered) | 0..m | A list of mappings to concepts in terminologies or code systems. Each mapping should include a coding and a relation. |
-
