@@ -34,7 +34,7 @@ A term of a ClinVar vocabulary (a strength, say) as a MappableConcept: its conce
    *  - conceptType
       -
       - string
-      - 0..1
+      - 1..1
       - A term indicating the type of concept being represented by the MappableConcept.
    *  - primaryCoding
       -

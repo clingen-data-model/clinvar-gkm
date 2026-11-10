@@ -47,7 +47,7 @@ A record of the sequenceReference section: a VRS SequenceReference for an NCBI R
    *  - residueAlphabet
       -
       - string
-      - 0..1
+      - 1..1
       - The interpretation of the character codes referred to by the refget accession, where "aa" specifies an amino acid character set, and "na" specifies a nucleic acid character set.
    *  - moleculeType
       -

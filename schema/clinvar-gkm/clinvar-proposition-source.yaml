@@ -87,6 +87,7 @@ $defs:
     allOf:
       - $refCurie: gkm.core:MappableConcept
       - type: object
+        required: [conceptType, name, extensions]
         properties:
           id: false
           description: false
@@ -147,6 +148,7 @@ $defs:
     allOf:
       - $refCurie: gkm.core:MappableConcept
       - type: object
+        required: [conceptType, extensions]
         properties:
           id: false
           description: false
@@ -196,6 +198,7 @@ $defs:
     allOf:
       - $refCurie: gkm.core:MappableConcept
       - type: object
+        required: [conceptType, name, extensions]
         properties:
           id: false
           description: false
@@ -234,6 +237,7 @@ $defs:
     allOf:
       - $refCurie: va-spec:VariantPathogenicityProposition
       - type: object
+        required: [id]
         properties:
           name: false
           description: false
@@ -272,6 +276,7 @@ $defs:
     allOf:
       - $refCurie: va-spec:VariantOncogenicityProposition
       - type: object
+        required: [id]
         properties:
           name: false
           description: false
@@ -302,6 +307,7 @@ $defs:
     allOf:
       - $refCurie: va-spec:VariantClinicalSignificanceProposition
       - type: object
+        required: [id]
         properties:
           name: false
           description: false
@@ -333,6 +339,7 @@ $defs:
     allOf:
       - $refCurie: va-spec:VariantDiagnosticProposition
       - type: object
+        required: [id]
         properties:
           name: false
           description: false
@@ -364,6 +371,7 @@ $defs:
     allOf:
       - $refCurie: va-spec:VariantPrognosticProposition
       - type: object
+        required: [id]
         properties:
           name: false
           description: false
@@ -396,6 +404,7 @@ $defs:
     allOf:
       - $refCurie: va-spec:VariantTherapeuticResponseProposition
       - type: object
+        required: [id]
         properties:
           name: false
           description: false
@@ -470,6 +479,7 @@ $defs:
       - $refCurie: va-spec:SubjectVariantProposition
       - $ref: "#/$defs/ClinvarGermlineCustomPropositionProperties"
       - type: object
+        required: [id]
         properties:
           name: false
           description: false

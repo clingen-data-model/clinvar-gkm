@@ -42,7 +42,7 @@ The classification of a ClinVar VCV or RCV aggregate statement: a MappableConcep
    *  - conceptType
       -
       - string
-      - 0..1
+      - 1..1
       - Must be 'Classification'.
 
 **Composes:** :ref:`MappableConcept`

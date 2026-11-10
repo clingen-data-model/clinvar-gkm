@@ -29,7 +29,7 @@ The penetrance qualifier on a ClinVar SCV proposition, derived from a low-penetr
    *  - name
       -
       - string
-      - 0..1
+      - 1..1
       - 'low' for a pathogenic or likely pathogenic, low penetrance classification; 'risk' for an established, likely or uncertain risk allele classification.
    *  - extensions
       -
@@ -42,7 +42,7 @@ The penetrance qualifier on a ClinVar SCV proposition, derived from a low-penetr
    *  - conceptType
       -
       - string
-      - 0..1
+      - 1..1
       - Always 'penetrance'.
 
 **Composes:** :ref:`MappableConcept`

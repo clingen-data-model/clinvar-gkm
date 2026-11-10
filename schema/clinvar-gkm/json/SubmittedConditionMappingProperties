@@ -6,6 +6,10 @@
    "abstract": true,
    "type": "object",
    "maturity": "trial use",
+   "required": [
+      "id",
+      "mapping"
+   ],
    "properties": {
       "id": {
          "type": "string",
@@ -86,7 +90,10 @@
             "value": {
                "type": "string"
             }
-         }
+         },
+         "required": [
+            "type"
+         ]
       }
    }
 }

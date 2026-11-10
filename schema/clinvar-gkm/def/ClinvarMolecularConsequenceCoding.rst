@@ -24,7 +24,7 @@ A Sequence Ontology molecular consequence of a HgvsListItem: the SO code, its la
    *  - name
       -
       - string
-      - 0..1
+      - 1..1
       - The SO term label.
    *  - system
       -

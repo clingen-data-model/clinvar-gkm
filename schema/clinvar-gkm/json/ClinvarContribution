@@ -10,6 +10,9 @@
       },
       {
          "type": "object",
+         "required": [
+            "activityType"
+         ],
          "properties": {
             "id": false,
             "name": false,

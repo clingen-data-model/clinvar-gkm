@@ -29,7 +29,7 @@ The `liftover_to` relation of a ClinVar defining allele or defining location con
    *  - primaryCoding
       -
       - object
-      - 0..1
+      - 1..1
       - The relation's code and system.
 
 **Composes:** :ref:`MappableConcept`

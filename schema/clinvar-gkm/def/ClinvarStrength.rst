@@ -34,7 +34,7 @@ The strength of a ClinVar SCV statement: a ClinvarCodedTerm whose concept type i
    *  - conceptType
       -
       - string
-      - 0..1
+      - 1..1
       - Must be 'Strength'.
    *  - primaryCoding
       -

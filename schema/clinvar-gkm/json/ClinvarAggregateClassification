@@ -20,6 +20,10 @@
                "description": "The classifications and their submission counts, separated by '; '."
             }
          },
+         "required": [
+            "name",
+            "value"
+         ],
          "additionalProperties": false
       }
    },
@@ -30,6 +34,9 @@
       },
       {
          "type": "object",
+         "required": [
+            "conceptType"
+         ],
          "properties": {
             "id": false,
             "description": false,

@@ -24,7 +24,7 @@ The submitter's original condition details and how they were mapped to a ClinVar
    *  - id
       -
       - string
-      - 0..1
+      - 1..1
       - The submitted trait category assignment identifier (cat_id).
    *  - name
       -
@@ -72,7 +72,7 @@ The submitter's original condition details and how they were mapped to a ClinVar
    *  - mapping
       -
       - object
-      - 0..1
+      - 1..1
       - The mapping details used to resolve the submitted condition to a ClinVar trait, including mapping type, reference field, and value.
 
 **Composes:** :ref:`SubmittedConditionMappingProperties`

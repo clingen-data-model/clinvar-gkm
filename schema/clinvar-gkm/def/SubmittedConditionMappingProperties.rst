@@ -26,7 +26,7 @@ The properties of a submitted condition's mapping, shared by SubmittedConditionM
    *  - id
       -
       - string
-      - 0..1
+      - 1..1
       - The submitted trait category assignment identifier (cat_id).
    *  - name
       -
@@ -74,7 +74,7 @@ The properties of a submitted condition's mapping, shared by SubmittedConditionM
    *  - mapping
       -
       - object
-      - 0..1
+      - 1..1
       - The mapping details used to resolve the submitted condition to a ClinVar trait, including mapping type, reference field, and value.
 
 **Used in:** :ref:`SubmittedCondition`, :ref:`SubmittedConditionMapping`

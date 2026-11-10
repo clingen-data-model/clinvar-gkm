@@ -10,6 +10,11 @@
       },
       {
          "type": "object",
+         "required": [
+            "id",
+            "strengthOfEvidenceProvided",
+            "hasEvidenceItems"
+         ],
          "properties": {
             "name": false,
             "description": false,
@@ -36,6 +41,9 @@
                   },
                   {
                      "type": "object",
+                     "required": [
+                        "name"
+                     ],
                      "properties": {
                         "conceptType": {
                            "type": "string",

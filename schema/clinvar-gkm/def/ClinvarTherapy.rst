@@ -29,12 +29,12 @@ A record of the therapy section: a Therapy named by its submitted text. No id, d
    *  - name
       -
       - string
-      - 0..1
+      - 1..1
       - A primary name for the concept.
    *  - conceptType
       -
       - string | string
-      - 0..1
+      - 1..1
       - A term indicating the type of concept being represented by the MappableConcept.
 
 **Composes:** :ref:`Therapy`

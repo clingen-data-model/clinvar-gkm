@@ -42,6 +42,7 @@ $defs:
     allOf:
       - $refCurie: va-spec:EvidenceLine
       - type: object
+        required: [id, strengthOfEvidenceProvided, hasEvidenceItems]
         properties:
           name: false
           description: false
@@ -64,6 +65,7 @@ $defs:
             allOf:
               - $refCurie: clinvar-gkm:ClinvarTerm
               - type: object
+                required: [name]
                 properties:
                   conceptType:
                     type: string
@@ -140,6 +142,7 @@ $defs:
     allOf:
       - $refCurie: va-spec:EvidenceLine
       - type: object
+        required: [id, evidenceOutcome, targetProposition]
         properties:
           name: false
           description: false

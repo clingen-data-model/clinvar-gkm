@@ -24,7 +24,7 @@ A custom proposition describing the role of a variant as a risk factor for a con
    *  - id
       -
       - string
-      - 0..1
+      - 1..1
       - The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another.
    *  - type
       -

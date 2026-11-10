@@ -24,7 +24,7 @@ The value of a submittedCondition extension: the submitted condition's mapping, 
    *  - id
       -
       - string
-      - 0..1
+      - 1..1
       - The submitted trait category assignment identifier (cat_id).
    *  - name
       -
@@ -72,7 +72,7 @@ The value of a submittedCondition extension: the submitted condition's mapping, 
    *  - mapping
       -
       - object
-      - 0..1
+      - 1..1
       - The mapping details used to resolve the submitted condition to a ClinVar trait, including mapping type, reference field, and value.
    *  - condition
       -

@@ -41,6 +41,7 @@ $defs:
       value:
         type: string
         description: The SCV accession identifier without version suffix.
+    required: [name, value]
 
   ExtensionClinvarScvVersion:
     type: object
@@ -56,6 +57,7 @@ $defs:
       value:
         type: string
         description: The version number as a string.
+    required: [name, value]
 
   ExtensionClinvarScvReviewStatus:
     type: object
@@ -83,6 +85,7 @@ $defs:
           - "flagged submission"
         description: >-
           The ClinVar review status for the submission.
+    required: [name, value]
 
   ExtensionSubmittedScvLocalKey:
     type: object
@@ -99,6 +102,7 @@ $defs:
       value:
         type: string
         description: The submitter's local key string.
+    required: [name, value]
 
   ExtensionSubmissionLevel:
     type: object
@@ -125,6 +129,7 @@ $defs:
           Practice Guideline (PG), Expert Panel (EP), Criteria Provided (CP),
           No Criteria Provided (NOCP), No Classification Provided (NOCL), or
           Flagged Submission (FLAG). Ranked PG > EP > CP > NOCP > NOCL > FLAG.
+    required: [name, value]
 
   ExtensionSubmittedScvClassification:
     type: object
@@ -142,6 +147,7 @@ $defs:
       value:
         type: string
         description: The original submitted classification string.
+    required: [name]
 
   # ─── Submitted Condition Types ───
   # These extensions appear on both SCV statements and somatic evidence lines.
@@ -155,6 +161,7 @@ $defs:
     description: >-
       The properties of a submitted condition's mapping, shared by SubmittedConditionMapping
       and SubmittedCondition.
+    required: [id, mapping]
     properties:
       id:
         type: string
@@ -235,6 +242,7 @@ $defs:
             type: string
           value:
             type: string
+        required: [type]
 
   SubmittedConditionMapping:
     maturity: trial use
@@ -297,6 +305,7 @@ $defs:
         description: >-
           Array of individual submitted condition mappings, one per
           condition in the set. Ordered by the condition's cat_id suffix.
+    required: [concepts]
 
   ExtensionSubmittedCondition:
     type: object
@@ -317,6 +326,7 @@ $defs:
         description: >-
           The submitted condition mapping details. Includes a reference to
           the resolved condition and the full mapping provenance.
+    required: [name, value]
 
   ExtensionSubmittedConditionSet:
     type: object
@@ -337,6 +347,7 @@ $defs:
         $ref: "#/$defs/SubmittedConditionSet"
         description: >-
           The submitted condition set with mapping details for each condition.
+    required: [name, value]
 
   # ─── VCV/RCV Extension Types ───
 
@@ -366,6 +377,7 @@ $defs:
           - "no classification provided"
           - "flagged submission"
         description: The aggregate review status.
+    required: [name, value]
 
   ExtensionConflictingExplanation:
     type: object
@@ -382,6 +394,7 @@ $defs:
       value:
         type: string
         description: The classifications and their submission counts, separated by '; '.
+    required: [name, value]
 
   ClinvarAggregateClassification:
     maturity: trial use
@@ -393,6 +406,7 @@ $defs:
     allOf:
       - $refCurie: gkm.core:MappableConcept
       - type: object
+        required: [conceptType]
         properties:
           id: false
           description: false
@@ -434,6 +448,7 @@ $defs:
     allOf:
       - $refCurie: clinvar-gkm:ClinvarTerm
       - type: object
+        required: [name]
         properties:
           conceptType:
             type: string
@@ -464,6 +479,7 @@ $defs:
     allOf:
       - $refCurie: va-spec:Agent
       - type: object
+        required: [id]
         properties:
           description: false
           aliases: false
@@ -487,6 +503,7 @@ $defs:
       value:
         type: string
         description: The description text.
+    required: [name]
 
   ClinvarScvClassification:
     maturity: trial use
@@ -497,6 +514,7 @@ $defs:
     allOf:
       - $refCurie: gkm.core:MappableConcept
       - type: object
+        required: [conceptType, extensions]
         properties:
           id: false
           description: false
@@ -525,6 +543,7 @@ $defs:
     allOf:
       - $refCurie: va-spec:Contribution
       - type: object
+        required: [activityType]
         properties:
           id: false
           name: false
@@ -560,6 +579,7 @@ $defs:
       value:
         type: string
         description: The citation text, verbatim.
+    required: [name, value]
 
   ExtensionOriginalClinvarCitation:
     type: object
@@ -575,6 +595,7 @@ $defs:
       value:
         type: string
         description: ClinVar's citation id.
+    required: [name, value]
 
   ExtensionOriginalClinvarCitationSource:
     type: object
@@ -590,6 +611,7 @@ $defs:
       value:
         type: string
         description: ClinVar's citation source.
+    required: [name, value]
 
   ExtensionCitationRepaired:
     type: object
@@ -606,6 +628,7 @@ $defs:
         type: boolean
         const: true
         description: Always true.
+    required: [name, value]
 
   ExtensionClinvarDoi:
     type: object
@@ -622,6 +645,7 @@ $defs:
       value:
         type: string
         description: The DOI as ClinVar has it.
+    required: [name, value]
 
   ExtensionInvalidClinvarCitation:
     type: object
@@ -638,6 +662,7 @@ $defs:
       value:
         type: string
         description: ClinVar's citation id.
+    required: [name, value]
 
   ExtensionUnmappedClinvarCitation:
     type: object
@@ -654,6 +679,7 @@ $defs:
       value:
         type: string
         description: ClinVar's citation source and id, as '<source>:<id>'.
+    required: [name, value]
 
   ClinvarDocument:
     maturity: trial use
@@ -703,6 +729,7 @@ $defs:
         items:
           $ref: "#/$defs/ClinvarDocument"
         description: The further citations, each a ClinvarDocument.
+    required: [name, value]
 
   ClinvarMethod:
     maturity: trial use
@@ -827,6 +854,7 @@ $defs:
       - $refCurie: va-spec:Statement
       - $ref: "#/$defs/ClinvarScvStatementProperties"
       - type: object
+        required: [id, classification, quality, contributions, extensions]
         properties:
           name: false
           aliases: false
@@ -893,6 +921,7 @@ $defs:
       - $refCurie: va-spec:Statement
       - $ref: "#/$defs/ClinvarAggregateStatementProperties"
       - type: object
+        required: [id, classification, quality, hasEvidenceLines]
         properties:
           name: false
           description: false

@@ -34,7 +34,7 @@ The quality of a ClinVar statement's assessment, named from its submission level
    *  - conceptType
       -
       - string
-      - 0..1
+      - 1..1
       - Must be 'Quality'.
 
 **Composes:** :ref:`ClinvarTerm`

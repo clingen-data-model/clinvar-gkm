@@ -178,6 +178,7 @@ $defs:
     allOf:
       - $refCurie: clinvar-gkm:ClinvarCoding
       - type: object
+        required: [name, iris]
         properties:
           code:
             type: string
@@ -290,6 +291,8 @@ $defs:
           Sequence Ontology terms describing the predicted molecular consequence.
           Each entry includes `code` (SO identifier), `system`, `name` (SO term label),
           and `iris` (identifiers.org link).
+    required:
+      - nucleotideExpression
 
   GeneListItem:
     description: >-
@@ -666,6 +669,7 @@ $defs:
     allOf:
       - $refCurie: vrs:SequenceReference
       - type: object
+        required: [residueAlphabet]
         properties:
           id: false
           description: false
@@ -688,6 +692,7 @@ $defs:
     allOf:
       - $refCurie: vrs:SequenceLocation
       - type: object
+        required: [id, sequenceReference]
         properties:
           name: false
           description: false
@@ -710,6 +715,7 @@ $defs:
     allOf:
       - $refCurie: vrs:Allele
       - type: object
+        required: [id]
         properties:
           description: false
           aliases: false
@@ -774,6 +780,7 @@ $defs:
     allOf:
       - $refCurie: vrs:CopyNumberCount
       - type: object
+        required: [id]
         properties:
           name: false
           description: false
@@ -799,6 +806,7 @@ $defs:
     allOf:
       - $refCurie: vrs:CopyNumberChange
       - type: object
+        required: [id]
         properties:
           name: false
           description: false
@@ -830,6 +838,7 @@ $defs:
     allOf:
       - $refCurie: gkm.core:MappableConcept
       - type: object
+        required: [primaryCoding]
         properties:
           id: false
           name: false
@@ -862,6 +871,7 @@ $defs:
     allOf:
       - $refCurie: gkm.core:MappableConcept
       - type: object
+        required: [primaryCoding]
         properties:
           id: false
           name: false
@@ -889,6 +899,7 @@ $defs:
             required:
               - code
               - system
+              - iris
             description: The relation's code, system and IRI.
 
   ClinvarIsWithinMatch:
@@ -900,6 +911,7 @@ $defs:
     allOf:
       - $refCurie: gkm.core:MappableConcept
       - type: object
+        required: [primaryCoding]
         properties:
           id: false
           name: false
@@ -931,6 +943,7 @@ $defs:
     allOf:
       - $refCurie: cat-vrs:DefiningAlleleConstraint
       - type: object
+        required: [relations]
         properties:
           allele:
             $refCurie: gkm.core:iriReference
@@ -954,6 +967,7 @@ $defs:
     allOf:
       - $refCurie: cat-vrs:DefiningLocationConstraint
       - type: object
+        required: [relations]
         properties:
           location:
             $refCurie: gkm.core:iriReference
@@ -1028,6 +1042,7 @@ $defs:
     protectedClassOf: ClinvarCategoricalVariant
     type: object
     maturity: trial use
+    required: [id, extensions, mappings]
     properties:
       extensions:
         type: array
@@ -1070,7 +1085,7 @@ $defs:
       # (#132): this branch requires constraints, and its constraints and members are of
       # types and sections no other branch allows.
       - type: object
-        required: [constraints]
+        required: [constraints, members]
         properties:
           description: false
           aliases: false
@@ -1101,7 +1116,7 @@ $defs:
       # Discriminator (#132): this branch requires constraints, and its constraints (a
       # CopyChangeConstraint) and members (copyNumberChange) are allowed by no other branch.
       - type: object
-        required: [constraints]
+        required: [constraints, members]
         properties:
           description: false
           aliases: false
@@ -1134,7 +1149,7 @@ $defs:
       # Discriminator (#132): this branch requires constraints, and its constraints (a
       # CopyCountConstraint) and members (copyNumberCount) are allowed by no other branch.
       - type: object
-        required: [constraints]
+        required: [constraints, members]
         properties:
           description: false
           aliases: false

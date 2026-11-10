@@ -24,7 +24,7 @@ A record of the gene section: a MappableConcept for an NCBI Gene, with its prima
    *  - id
       -
       - string
-      - 0..1
+      - 1..1
       - The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another.
    *  - type
       -
@@ -39,12 +39,12 @@ A record of the gene section: a MappableConcept for an NCBI Gene, with its prima
    *  - conceptType
       -
       - string
-      - 0..1
+      - 1..1
       - A term indicating the type of concept being represented by the MappableConcept.
    *  - primaryCoding
       -
       - :ref:`ClinvarCoding`
-      - 0..1
+      - 1..1
       - The gene's NCBI Gene coding.
    *  - mappings
       -

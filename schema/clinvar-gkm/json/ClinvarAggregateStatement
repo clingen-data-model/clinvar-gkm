@@ -73,6 +73,10 @@
                "description": "The aggregate review status."
             }
          },
+         "required": [
+            "name",
+            "value"
+         ],
          "additionalProperties": false
       }
    },
@@ -86,6 +90,12 @@
       },
       {
          "type": "object",
+         "required": [
+            "id",
+            "classification",
+            "quality",
+            "hasEvidenceLines"
+         ],
          "properties": {
             "name": false,
             "description": false,

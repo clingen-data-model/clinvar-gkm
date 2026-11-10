@@ -24,6 +24,10 @@
                "description": "The further citations, each a ClinvarDocument."
             }
          },
+         "required": [
+            "name",
+            "value"
+         ],
          "additionalProperties": false
       }
    },

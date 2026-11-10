@@ -29,7 +29,7 @@ The gene context qualifier on a ClinVar SCV proposition: a gene MappableConcept 
    *  - name
       -
       - string
-      - 0..1
+      - 1..1
       - A primary name for the concept.
    *  - extensions
       -
@@ -42,7 +42,7 @@ The gene context qualifier on a ClinVar SCV proposition: a gene MappableConcept 
    *  - conceptType
       -
       - string
-      - 0..1
+      - 1..1
       - Always 'gene'.
    *  - primaryCoding
       -

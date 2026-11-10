@@ -41,5 +41,8 @@
          "description": "Sequence Ontology terms describing the predicted molecular consequence. Each entry includes `code` (SO identifier), `system`, `name` (SO term label), and `iris` (identifiers.org link)."
       }
    },
+   "required": [
+      "nucleotideExpression"
+   ],
    "additionalProperties": false
 }

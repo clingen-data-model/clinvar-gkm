@@ -29,12 +29,12 @@ The strength of a ClinVar VCV or RCV aggregate statement: a ClinvarTerm (no codi
    *  - name
       -
       - string
-      - 0..1
+      - 1..1
       - A primary name for the concept.
    *  - conceptType
       -
       - string
-      - 0..1
+      - 1..1
       - Must be 'Strength'.
 
 **Composes:** :ref:`ClinvarTerm`

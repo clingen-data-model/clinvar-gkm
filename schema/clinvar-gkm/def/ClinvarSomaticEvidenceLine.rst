@@ -24,7 +24,7 @@ The evidence line of a ClinVar somatic clinical impact (SCI) SCV statement. It l
    *  - id
       -
       - string
-      - 0..1
+      - 1..1
       - The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another.
    *  - type
       -
@@ -42,7 +42,7 @@ The evidence line of a ClinVar somatic clinical impact (SCI) SCV statement. It l
    *  - targetProposition
       -
       - :ref:`iriReference`
-      - 0..1
+      - 1..1
       - The specific assertion, a '#/propositionSomaticClinicalImpact/<id>' pointer to a VariantTherapeuticResponseProposition, VariantDiagnosticProposition or VariantPrognosticProposition in this bundle.
    *  - directionOfEvidenceProvided
       -
@@ -52,7 +52,7 @@ The evidence line of a ClinVar somatic clinical impact (SCI) SCV statement. It l
    *  - evidenceOutcome
       -
       - :ref:`ClinvarTerm`
-      - 0..1
+      - 1..1
       - The evidence level for the AMP/ASCO/CAP tier, as a ClinvarTerm of concept type 'Outcome': 'Level A/B' for Tier I, 'Level C/D' for Tier II; for any other tier, the SCV's classification code.
 
 **Composes:** :ref:`EvidenceLine`

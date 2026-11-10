@@ -39,6 +39,9 @@
       },
       {
          "type": "object",
+         "required": [
+            "residueAlphabet"
+         ],
          "properties": {
             "id": false,
             "description": false,

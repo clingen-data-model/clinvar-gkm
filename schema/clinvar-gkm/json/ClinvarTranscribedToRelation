@@ -10,6 +10,9 @@
       },
       {
          "type": "object",
+         "required": [
+            "primaryCoding"
+         ],
          "properties": {
             "id": false,
             "name": false,
@@ -41,7 +44,8 @@
                },
                "required": [
                   "code",
-                  "system"
+                  "system",
+                  "iris"
                ],
                "description": "The relation's code, system and IRI."
             }

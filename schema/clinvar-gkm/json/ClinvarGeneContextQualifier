@@ -4,6 +4,32 @@
    "title": "ClinvarGeneContextQualifier",
    "description": "The gene context qualifier on a ClinVar SCV proposition: a gene MappableConcept with the codings of a ClinvarGene, and extensions saying where its gene came from (ExtensionGeneContextSource) and which gene symbols the submitter gave (ExtensionSubmittedGeneSymbols). No id, description or aliases.",
    "$defs": {
+      "ExtensionSubmittedGeneSymbols": {
+         "type": "object",
+         "maturity": "trial use",
+         "description": "The gene symbols the submitter gave for the SCV, as submitted.",
+         "protectedClassOf": "ClinvarGeneContextQualifier",
+         "properties": {
+            "name": {
+               "type": "string",
+               "const": "submittedGeneSymbols",
+               "description": "Must be 'submittedGeneSymbols'."
+            },
+            "value": {
+               "type": "array",
+               "ordered": true,
+               "items": {
+                  "type": "string"
+               },
+               "description": "The submitted gene symbols."
+            }
+         },
+         "required": [
+            "name",
+            "value"
+         ],
+         "additionalProperties": false
+      },
       "ExtensionGeneContextSource": {
          "type": "object",
          "maturity": "trial use",
@@ -31,32 +57,6 @@
             "value"
          ],
          "additionalProperties": false
-      },
-      "ExtensionSubmittedGeneSymbols": {
-         "type": "object",
-         "maturity": "trial use",
-         "description": "The gene symbols the submitter gave for the SCV, as submitted.",
-         "protectedClassOf": "ClinvarGeneContextQualifier",
-         "properties": {
-            "name": {
-               "type": "string",
-               "const": "submittedGeneSymbols",
-               "description": "Must be 'submittedGeneSymbols'."
-            },
-            "value": {
-               "type": "array",
-               "ordered": true,
-               "items": {
-                  "type": "string"
-               },
-               "description": "The submitted gene symbols."
-            }
-         },
-         "required": [
-            "name",
-            "value"
-         ],
-         "additionalProperties": false
       }
    },
    "maturity": "trial use",
@@ -66,6 +66,11 @@
       },
       {
          "type": "object",
+         "required": [
+            "conceptType",
+            "name",
+            "extensions"
+         ],
          "properties": {
             "id": false,
             "description": false,

@@ -10,6 +10,9 @@
       },
       {
          "type": "object",
+         "required": [
+            "relations"
+         ],
          "properties": {
             "allele": {
                "pattern": "^#/allele/",

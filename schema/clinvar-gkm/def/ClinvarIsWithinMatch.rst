@@ -29,7 +29,7 @@ The match characteristic of a ClinVar defining location constraint: a MappableCo
    *  - primaryCoding
       -
       - object
-      - 0..1
+      - 1..1
       - The match characteristic's code and system.
 
 **Composes:** :ref:`MappableConcept`

@@ -4,24 +4,6 @@
    "title": "ClinvarDocument",
    "description": "A Document as ClinVar-GKM writes it for a ClinVar citation: its PubMed id, DOI and URLs, the name and document type when ClinVar gives them, and extensions that keep ClinVar's citation text and record repairs of its ids. No id, title, description or aliases.",
    "$defs": {
-      "ExtensionOriginalClinvarCitationSource": {
-         "type": "object",
-         "maturity": "trial use",
-         "description": "ClinVar's source of a citation id that ClinVar-GKM moved to another source.",
-         "protectedClassOf": "ClinvarDocument",
-         "properties": {
-            "name": {
-               "type": "string",
-               "const": "originalClinvarCitationSource",
-               "description": "Must be 'originalClinvarCitationSource'."
-            },
-            "value": {
-               "type": "string",
-               "description": "ClinVar's citation source."
-            }
-         },
-         "additionalProperties": false
-      },
       "ExtensionClinvarDoi": {
          "type": "object",
          "maturity": "trial use",
@@ -38,42 +20,32 @@
                "description": "The DOI as ClinVar has it."
             }
          },
+         "required": [
+            "name",
+            "value"
+         ],
          "additionalProperties": false
       },
-      "ExtensionUnmappedClinvarCitation": {
+      "ExtensionOriginalClinvarCitationSource": {
          "type": "object",
          "maturity": "trial use",
-         "description": "A citation id from a source ClinVar-GKM does not map ('<source>:<id>'). No doi, pmid or URL is derived from it.",
+         "description": "ClinVar's source of a citation id that ClinVar-GKM moved to another source.",
          "protectedClassOf": "ClinvarDocument",
          "properties": {
             "name": {
                "type": "string",
-               "const": "unmappedClinvarCitation",
-               "description": "Must be 'unmappedClinvarCitation'."
+               "const": "originalClinvarCitationSource",
+               "description": "Must be 'originalClinvarCitationSource'."
             },
             "value": {
                "type": "string",
-               "description": "ClinVar's citation source and id, as '<source>:<id>'."
+               "description": "ClinVar's citation source."
             }
          },
-         "additionalProperties": false
-      },
-      "ExtensionClinvarCitationText": {
-         "type": "object",
-         "maturity": "trial use",
-         "description": "The free text of a ClinVar citation. A citation that is only text is a Document whose only content is this extension.",
-         "protectedClassOf": "ClinvarDocument",
-         "properties": {
-            "name": {
-               "type": "string",
-               "const": "clinvarCitationText",
-               "description": "Must be 'clinvarCitationText'."
-            },
-            "value": {
-               "type": "string",
-               "description": "The citation text, verbatim."
-            }
-         },
+         "required": [
+            "name",
+            "value"
+         ],
          "additionalProperties": false
       },
       "ExtensionOriginalClinvarCitation": {
@@ -92,6 +64,10 @@
                "description": "ClinVar's citation id."
             }
          },
+         "required": [
+            "name",
+            "value"
+         ],
          "additionalProperties": false
       },
       "ExtensionInvalidClinvarCitation": {
@@ -110,6 +86,54 @@
                "description": "ClinVar's citation id."
             }
          },
+         "required": [
+            "name",
+            "value"
+         ],
+         "additionalProperties": false
+      },
+      "ExtensionUnmappedClinvarCitation": {
+         "type": "object",
+         "maturity": "trial use",
+         "description": "A citation id from a source ClinVar-GKM does not map ('<source>:<id>'). No doi, pmid or URL is derived from it.",
+         "protectedClassOf": "ClinvarDocument",
+         "properties": {
+            "name": {
+               "type": "string",
+               "const": "unmappedClinvarCitation",
+               "description": "Must be 'unmappedClinvarCitation'."
+            },
+            "value": {
+               "type": "string",
+               "description": "ClinVar's citation source and id, as '<source>:<id>'."
+            }
+         },
+         "required": [
+            "name",
+            "value"
+         ],
+         "additionalProperties": false
+      },
+      "ExtensionClinvarCitationText": {
+         "type": "object",
+         "maturity": "trial use",
+         "description": "The free text of a ClinVar citation. A citation that is only text is a Document whose only content is this extension.",
+         "protectedClassOf": "ClinvarDocument",
+         "properties": {
+            "name": {
+               "type": "string",
+               "const": "clinvarCitationText",
+               "description": "Must be 'clinvarCitationText'."
+            },
+            "value": {
+               "type": "string",
+               "description": "The citation text, verbatim."
+            }
+         },
+         "required": [
+            "name",
+            "value"
+         ],
          "additionalProperties": false
       },
       "ExtensionCitationRepaired": {
@@ -129,6 +153,10 @@
                "description": "Always true."
             }
          },
+         "required": [
+            "name",
+            "value"
+         ],
          "additionalProperties": false
       }
    },

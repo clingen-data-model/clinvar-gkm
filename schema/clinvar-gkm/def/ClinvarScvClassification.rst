@@ -42,7 +42,7 @@ The classification of a ClinVar SCV statement: a MappableConcept with its concep
    *  - conceptType
       -
       - string
-      - 0..1
+      - 1..1
       - Must be 'Classification'.
    *  - primaryCoding
       -

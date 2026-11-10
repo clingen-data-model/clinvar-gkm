@@ -34,7 +34,7 @@ A term of a ClinVar vocabulary with no coding (a quality, say): a ClinvarCodedTe
    *  - conceptType
       -
       - string
-      - 0..1
+      - 1..1
       - A term indicating the type of concept being represented by the MappableConcept.
 
 **Composes:** :ref:`ClinvarCodedTerm`

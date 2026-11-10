@@ -29,7 +29,7 @@ Conflicting data (1 type): ClinvarConflictingDataFromSubmitterProposition.
    *  - id
       -
       - string
-      - 0..1
+      - 1..1
       - The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another.
    *  - type
       -
@@ -91,12 +91,12 @@ Conflicting data (1 type): ClinvarConflictingDataFromSubmitterProposition.
 
                             <span style="background-color: #D3D3D3; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Draft Maturity Level">D</span>
       - :ref:`MappableConcept` | :ref:`iriReference` & :ref:`ClinvarQuality`
-      - 0..1
+      - 1..1
       - A term used to report the quality of the assessment of a Proposition taking into consideration the reliability of the method, the contributor's self-reporting of the rigor of the evaluation, and the overall robustness of the supporting or disputing evidence. This is useful when there is a consistent policy and authority that manages and a governing framework for evaluating the quality of evidence. Also known as trust rating, review status or ranking.
    *  - classification
       -
       - :ref:`MappableConcept` | :ref:`iriReference` & :ref:`ClinvarScvClassification`
-      - 0..1
+      - 1..1
       - A single term or phrase summarizing the result of direction and strength assessments of a Statement's Proposition, in terms of a classification of its subject.
    *  - hasEvidenceLines
       -

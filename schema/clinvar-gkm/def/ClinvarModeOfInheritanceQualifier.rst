@@ -42,7 +42,7 @@ The mode of inheritance qualifier on a ClinVar SCV proposition: a MappableConcep
    *  - conceptType
       -
       - string
-      - 0..1
+      - 1..1
       - Always 'modeOfInheritance'.
    *  - primaryCoding
       -

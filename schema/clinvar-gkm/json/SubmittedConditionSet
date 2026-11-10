@@ -27,5 +27,8 @@
          "description": "Array of individual submitted condition mappings, one per condition in the set. Ordered by the condition's cat_id suffix."
       }
    },
+   "required": [
+      "concepts"
+   ],
    "additionalProperties": false
 }

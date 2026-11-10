@@ -14,7 +14,8 @@
       {
          "type": "object",
          "required": [
-            "constraints"
+            "constraints",
+            "members"
          ],
          "properties": {
             "description": false,

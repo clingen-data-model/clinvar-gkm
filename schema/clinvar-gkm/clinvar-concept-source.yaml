@@ -83,6 +83,7 @@ $defs:
     allOf:
       - $refCurie: gkm.core:MappableConcept
       - type: object
+        required: [conceptType]
         properties:
           id: false
           description: false
@@ -114,6 +115,7 @@ $defs:
     allOf:
       - $refCurie: gkm.core:MappableConcept
       - type: object
+        required: [id, conceptType, primaryCoding]
         properties:
           description: false
           aliases: false
@@ -136,6 +138,7 @@ $defs:
     allOf:
       - $refCurie: domain-entities:Condition
       - type: object
+        required: [id, conceptType]
         properties:
           description: false
           extensions: false
@@ -158,6 +161,7 @@ $defs:
     allOf:
       - $refCurie: domain-entities:ConditionSet
       - type: object
+        required: [id]
         properties:
           name: false
           description: false
@@ -181,6 +185,7 @@ $defs:
     allOf:
       - $refCurie: domain-entities:Therapy
       - type: object
+        required: [conceptType, name]
         properties:
           id: false
           description: false

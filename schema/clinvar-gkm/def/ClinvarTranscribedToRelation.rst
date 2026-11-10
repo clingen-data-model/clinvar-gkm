@@ -29,7 +29,7 @@ The `transcribed_to` relation of a ClinVar defining allele constraint: a Mappabl
    *  - primaryCoding
       -
       - object
-      - 0..1
+      - 1..1
       - The relation's code, system and IRI.
 
 **Composes:** :ref:`MappableConcept`

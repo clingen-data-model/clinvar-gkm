@@ -34,7 +34,7 @@ A Contribution as ClinVar-GKM writes it: a submitter's activity on a ClinVar rec
    *  - activityType
       -
       - string
-      - 0..1
+      - 1..1
       - What the submitter did on the date: submitted (last updated), created, or evaluated the record.
    *  - date
       -

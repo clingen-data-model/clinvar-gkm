@@ -10,6 +10,9 @@
       },
       {
          "type": "object",
+         "required": [
+            "primaryCoding"
+         ],
          "properties": {
             "id": false,
             "name": false,
