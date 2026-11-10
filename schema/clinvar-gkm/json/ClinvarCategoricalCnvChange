@@ -12,22 +12,37 @@
          "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCategoricalVariant#/$defs/ClinvarCategoricalVariantProperties"
       },
       {
+         "type": "object",
          "required": [
-            "constraints"
+            "constraints",
+            "members"
          ],
          "properties": {
+            "description": false,
+            "aliases": false,
             "constraints": {
-               "contains": {
-                  "type": "object",
-                  "required": [
-                     "type"
-                  ],
-                  "properties": {
-                     "type": {
-                        "const": "CopyChangeConstraint"
+               "type": "array",
+               "ordered": false,
+               "items": {
+                  "oneOf": [
+                     {
+                        "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarDefiningLocationConstraint"
+                     },
+                     {
+                        "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCopyChangeConstraint"
                      }
-                  }
-               }
+                  ]
+               },
+               "description": "The defining location constraint and the copy change constraint."
+            },
+            "members": {
+               "type": "array",
+               "ordered": false,
+               "items": {
+                  "pattern": "^#/copyNumberChange/",
+                  "$ref": "/ga4gh/schema/gkm-core/1.3.0/json/iriReference"
+               },
+               "description": "The VRS copy number change, a '#/copyNumberChange/<id>' pointer into this bundle."
             }
          }
       }

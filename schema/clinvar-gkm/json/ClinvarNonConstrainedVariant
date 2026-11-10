@@ -2,7 +2,7 @@
    "$schema": "https://json-schema.org/draft/2020-12/schema",
    "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarNonConstrainedVariant",
    "title": "ClinvarNonConstrainedVariant",
-   "description": "A ClinVar variant that cannot be mapped to a specific VRS allele or location \u2014 haplotypes, genotypes, and other complex or ambiguously defined variants. These rely solely on the ClinVar variation ID and use the generalized Cat-VRS CategoricalVariant without VRS constraints.",
+   "description": "A ClinVar variant that cannot be mapped to a specific VRS allele or location \u2014 haplotypes, genotypes, and other complex or ambiguously defined variants. These rely solely on the ClinVar variation ID and use the generalized Cat-VRS CategoricalVariant without VRS constraints or members.",
    "maturity": "trial use",
    "allOf": [
       {
@@ -12,10 +12,12 @@
          "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCategoricalVariant#/$defs/ClinvarCategoricalVariantProperties"
       },
       {
-         "not": {
-            "required": [
-               "constraints"
-            ]
+         "type": "object",
+         "properties": {
+            "description": false,
+            "aliases": false,
+            "constraints": false,
+            "members": false
          }
       }
    ],

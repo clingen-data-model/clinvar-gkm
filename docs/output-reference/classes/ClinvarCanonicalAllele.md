@@ -8,19 +8,19 @@ A ClinVar canonical allele — the most common variant type. ClinVar identifies 
 
 **JSON Schema:** [ClinvarCanonicalAllele](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarCanonicalAllele){ target=_blank }
 
-Some ClinvarCanonicalAllele attributes are inherited from [CanonicalAllele](https://cat-vrs.ga4gh.org/en/1.1.1/concepts/Recipes/CanonicalAllele.html#canonicalallele){ target=_blank rel=noopener }, `ClinvarCanonicalAlleleProperties`, `ClinvarCategoricalVariantProperties`.
+Some ClinvarCanonicalAllele attributes are inherited from [CanonicalAllele](https://cat-vrs.ga4gh.org/en/1.1.1/concepts/Recipes/CanonicalAllele.html#canonicalallele){ target=_blank rel=noopener }, `ClinvarCategoricalVariantProperties`.
 
 ## Information Model
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | 0..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
-| `type` | `string` | 0..1 | MUST be "CategoricalVariant" |
-| `name` | `string` | 0..1 | A primary name for the entity. |
-| `description` | `string` | 0..1 | A free-text description of the Entity. |
-| `aliases` | `string`[] (unordered) | 0..m | Alternative name(s) for the Entity. |
-| `extensions` | [ExtensionClinvarHgvsList](ClinvarCategoricalVariant.md#extensionclinvarhgvslist) \| [ExtensionClinvarGeneList](ClinvarCategoricalVariant.md#extensionclinvargenelist) \| [ExtensionCategoricalVariationType](ClinvarCategoricalVariant.md#extensioncategoricalvariationtype) \| [ExtensionDefiningVrsVariationType](ClinvarCategoricalVariant.md#extensiondefiningvrsvariationtype) \| [ExtensionClinvarVariationType](ClinvarCategoricalVariant.md#extensionclinvarvariationtype) \| [ExtensionClinvarSubclassType](ClinvarCategoricalVariant.md#extensionclinvarsubclasstype) \| [ExtensionClinvarCytogeneticLocation](ClinvarCategoricalVariant.md#extensionclinvarcytogeneticlocation) \| [ExtensionVrsPreProcessingIssue](ClinvarCategoricalVariant.md#extensionvrspreprocessingissue) \| [ExtensionsVrsProcessingException](ClinvarCategoricalVariant.md#extensionsvrsprocessingexception)[] (unordered) | 0..m | A list of extensions to the entity. Extensions are not expected to be natively understood, but may be used for pre-negotiated exchange of message attributes between systems. |
-| `members` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener } \| `ClinvarAllele`[] (unordered) | 0..m | A non-exhaustive list of VRS variation contexts that satisfy the constraints of this categorical variant. |
-| `constraints` | [Constraint](https://va-spec.ga4gh.org/en/1.1.0/appendices/imported-models/constraint.html#constraint){ target=_blank rel=noopener }[] (unordered) | 0..m |  |
-| `mappings` | [ConceptMapping](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/elements/concept-mapping.html#conceptmapping){ target=_blank rel=noopener }[] (unordered) | 0..m | A list of mappings to concepts in terminologies or code systems. Each mapping should include a coding and a relation. |
+| `id` | `string` | 1..1 | The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another. |
+| `type` | `string`<br>`CategoricalVariant` | 1..1 | MUST be "CategoricalVariant" |
+| `name` | `string` | 1..1 | A primary name for the entity. |
+| `extensions` | [ExtensionClinvarHgvsList](ClinvarCategoricalVariant.md#extensionclinvarhgvslist) \| [ExtensionClinvarGeneList](ClinvarCategoricalVariant.md#extensionclinvargenelist) \| [ExtensionCategoricalVariationType](ClinvarCategoricalVariant.md#extensioncategoricalvariationtype) \| [ExtensionDefiningVrsVariationType](ClinvarCategoricalVariant.md#extensiondefiningvrsvariationtype) \| [ExtensionClinvarVariationType](ClinvarCategoricalVariant.md#extensionclinvarvariationtype) \| [ExtensionClinvarSubclassType](ClinvarCategoricalVariant.md#extensionclinvarsubclasstype) \| [ExtensionClinvarCytogeneticLocation](ClinvarCategoricalVariant.md#extensionclinvarcytogeneticlocation) \| [ExtensionVrsPreProcessingIssue](ClinvarCategoricalVariant.md#extensionvrspreprocessingissue) \| [ExtensionsVrsProcessingException](ClinvarCategoricalVariant.md#extensionsvrsprocessingexception)[] (unordered) | 1..m | A list of extensions to the entity. Extensions are not expected to be natively understood, but may be used for pre-negotiated exchange of message attributes between systems. |
+| `members` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }[] (unordered)<br>pointer to `#/allele/<id>` | 1..m | The defining allele, a '#/allele/<id>' pointer into this bundle. |
+| `constraints` | [ClinvarDefiningAlleleConstraint](ClinvarDefiningAlleleConstraint.md)[] (unordered) | 1..1 | The defining allele constraint. |
+| `mappings` | [ClinvarVariationMapping](ClinvarVariationMapping.md)[] (unordered) | 1..m | The variation's ClinVar identifier (`exactMatch`) and its cross-references to other variant resources. |
+
+**Not used by ClinVar-GKM:** `description`, `aliases`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.
 

@@ -11,9 +11,15 @@ gets a .md file in the md/ output directory with:
   - Link to generated JSON schema
 
 For classes composed via allOf, inherited fields from parent classes are
-resolved and included in the information model table.
+resolved and included in the information model table. allOf members are
+applied in order, so a ClinVar profile's narrowing wins over its GA4GH base:
+properties it sets to `false` are left out of the table and listed in a
+footnote below it, and the remaining rows show the narrowed type, the
+const/enum values, the bundle sections a pointer may target, and the
+required-ness the profile sets.
 """
 
+import json
 import os
 import pathlib
 import re
@@ -207,7 +213,68 @@ def resolve_type(prop_def: dict) -> str:
         for item in prop_def[kw]:
             parts.append(resolve_type(item))
         return " \\| ".join(parts)
+    elif "allOf" in prop_def:
+        # A narrowed type: allOf [<base $ref>, {inline narrowing}] -> the base.
+        parts = [resolve_type(i) for i in prop_def["allOf"]
+                 if "$ref" in i or "$refCurie" in i]
+        if parts:
+            return " & ".join(parts)
     return "_unspecified_"
+
+
+def _literal(value) -> str:
+    """A const/enum value as it appears in JSON (strings bare, others JSON)."""
+    return value if isinstance(value, str) else json.dumps(value)
+
+
+# A bundle pointer pattern: ^#/<section>/ or ^#/(<a>|<b>|...)/
+_POINTER_PATTERN = re.compile(r"\^#/\(?([A-Za-z]+(?:\|[A-Za-z]+)*)\)?/")
+
+
+def resolve_constraints(prop_def: dict) -> str:
+    """Value restrictions (const / enum / pattern) on a property or its items.
+
+    A pattern that limits an iriReference to bundle sections is rendered as the
+    pointer form(s) it accepts, e.g. "pointer to `#/condition/<id>` or
+    `#/conditionSet/<id>`"."""
+    if not isinstance(prop_def, dict):
+        return ""
+    target = prop_def.get("items", prop_def) if prop_def.get("type") == "array" else prop_def
+    if not isinstance(target, dict):
+        return ""
+    out = []
+    if "const" in target:
+        out.append(f"`{_literal(target['const'])}`")
+    if "enum" in target:
+        out.append("one of " + ", ".join(f"`{_literal(v)}`" for v in target["enum"]))
+    # A oneOf/anyOf of constants (e.g. a base class's conceptType choices).
+    for kw in ("oneOf", "anyOf"):
+        members = target.get(kw)
+        if isinstance(members, list) and members and all(
+                isinstance(m, dict) and ("const" in m or "enum" in m) for m in members):
+            values = [m["const"] for m in members if "const" in m]
+            values += [v for m in members for v in m.get("enum", [])]
+            out.append("one of " + ", ".join(f"`{_literal(v)}`" for v in values))
+    # An inline object narrowing (e.g. a fixed primaryCoding): its constants.
+    for sub_name, sub_def in (target.get("properties") or {}).items():
+        if not isinstance(sub_def, dict):
+            continue
+        sub = sub_def.get("items", sub_def) if sub_def.get("type") == "array" else sub_def
+        if "const" in sub:
+            out.append(f"`{sub_name}`: `{_literal(sub['const'])}`")
+        elif "enum" in sub:
+            out.append(f"`{sub_name}`: one of "
+                       + ", ".join(f"`{_literal(v)}`" for v in sub["enum"]))
+    if "pattern" in target:
+        m = _POINTER_PATTERN.fullmatch(target["pattern"])
+        if m:
+            sections = m.group(1).split("|")
+            out.append("pointer to " + " or ".join(f"`#/{sec}/<id>`" for sec in sections))
+        else:
+            out.append(f"pattern `{target['pattern']}`")
+    # Every value is inside a code span, where the Markdown table parser does
+    # not split on "|", so pipes are left unescaped (an escape would render).
+    return "; ".join(out)
 
 
 def resolve_cardinality(prop_name: str, prop_attrs: dict, class_def: dict) -> str:
@@ -216,7 +283,8 @@ def resolve_cardinality(prop_name: str, prop_attrs: dict, class_def: dict) -> st
     min_count = "1" if prop_name in required else "0"
     if prop_attrs.get("type") == "array":
         max_count = prop_attrs.get("maxItems", "m")
-        min_count = str(prop_attrs.get("minItems", 0))
+        # A required array holds at least one item (the assembler drops empty arrays).
+        min_count = str(max(prop_attrs.get("minItems", 0), int(min_count)))
     else:
         max_count = "1"
     return f"{min_count}..{max_count}"
@@ -271,18 +339,34 @@ def _find_class_in_processors(class_name: str, proc_schema) -> dict | None:
 
 def _get_class_properties(class_name: str, proc_schema) -> dict:
     """Get all properties for a class, including inherited ones via allOf."""
+    return _get_class_properties_and_forbidden(class_name, proc_schema)[0]
+
+
+def _get_class_properties_and_forbidden(class_name: str, proc_schema):
+    """Properties a class allows, and those its narrowing forbids.
+
+    allOf members are resolved in order (base first, so a later ClinVar member
+    wins). Returns (props, forbidden): forbidden lists the property names set
+    to `false`, in the order the base class defines them."""
     class_def = _find_class_in_processors(class_name, proc_schema)
     if class_def is None:
-        return {}
+        return {}, []
 
     props = {}
+    forbidden: list = []
 
-    # First, collect properties from allOf parents (inherited fields first)
+    # First, collect properties from allOf parents (inherited fields first).
+    # Inline allOf members ({type: object, properties: ...}) narrow what the
+    # parents define: `false` removes a property, anything else overrides it.
     for ref_item in class_def.get("allOf", []):
         parent_name = _resolve_ref_class_name(ref_item)
         if parent_name:
-            parent_props = _get_class_properties(parent_name, proc_schema)
+            parent_props, parent_forbidden = _get_class_properties_and_forbidden(
+                parent_name, proc_schema)
             props.update(parent_props)
+            forbidden += [n for n in parent_forbidden if n not in forbidden]
+        else:
+            _apply_narrowing(props, ref_item.get("properties") or {}, forbidden)
 
     # Then collect properties inherited via the inherits keyword
     # (already resolved by YamlSchemaProcessor into heritableProperties)
@@ -290,10 +374,77 @@ def _get_class_properties(class_name: str, proc_schema) -> dict:
     # Finally, add local properties (override inherited ones)
     for key in ("heritableProperties", "properties"):
         if key in class_def and class_def[key]:
-            props.update(class_def[key])
+            _apply_narrowing(props, class_def[key], forbidden)
             break
 
-    return props
+    # A property re-allowed by a later member is no longer forbidden.
+    forbidden = [n for n in forbidden if n not in props]
+    return props, forbidden
+
+
+_TYPE_KEYS = ("type", "$ref", "$refCurie", "oneOf", "anyOf", "allOf")
+
+
+def _apply_narrowing(props: dict, overrides: dict, forbidden: list):
+    """Apply a narrowing: `false` forbids a property (drop it, record it in
+    `forbidden` in the inherited order); an override that restates the type
+    replaces it; one that only adds restrictions (pattern/const/enum/
+    description) is merged onto the inherited definition. An override without
+    a description keeps the inherited one."""
+    order = list(props)
+    newly = [n for n, o in overrides.items() if o is False]
+    newly.sort(key=lambda n: order.index(n) if n in order else len(order))
+    for name in newly:
+        if name not in forbidden:
+            forbidden.append(name)
+    for name, override in overrides.items():
+        if override is False:
+            props.pop(name, None)
+            continue
+        inherited = props.get(name)
+        if not isinstance(override, dict) or not isinstance(inherited, dict):
+            props[name] = override
+        elif any(k in override for k in _TYPE_KEYS):
+            # The override's type replaces the inherited one; the inherited
+            # keywords it does not restate (minItems, maxItems, ...) still
+            # apply under allOf, so they are kept.
+            drop = set(_TYPE_KEYS) | ({"items"} if "items" in override else set())
+            if (override.get("type") == "object" and "$ref" not in override
+                    and "$refCurie" not in override
+                    and ("$ref" in inherited or "$refCurie" in inherited)):
+                # An inline object that narrows a referenced class (e.g. a
+                # fixed primaryCoding on a Coding): both apply, so keep the
+                # inherited reference as the type.
+                drop -= {"$ref", "$refCurie"}
+                override = {k: v for k, v in override.items() if k != "type"}
+            merged = {k: v for k, v in inherited.items() if k not in drop}
+            merged.update(override)
+            props[name] = merged
+        else:
+            props[name] = {**inherited, **override}
+
+
+def _get_class_required(class_name: str, proc_schema) -> list:
+    """Required property names, including those added by inline allOf members."""
+    class_def = _find_class_in_processors(class_name, proc_schema) or {}
+    req = list(class_def.get("required", [])) + list(class_def.get("heritableRequired", []))
+    for item in class_def.get("allOf", []):
+        parent = _resolve_ref_class_name(item)
+        if parent:
+            req += _get_class_required(parent, proc_schema)
+        else:
+            req += item.get("required", [])
+    return req
+
+
+def _write_forbidden_note(f, forbidden: list):
+    """Footnote listing the base-class properties the profile forbids."""
+    if not forbidden:
+        return
+    names = ", ".join(f"`{n}`" for n in forbidden)
+    f.write(f"**Not used by ClinVar-GKM:** {names}. The GA4GH base class defines "
+            "these properties, but this profile forbids them (`false`), so they "
+            "never appear in ClinVar-GKM bundles.\n\n")
 
 
 def _write_props_table(f, props: dict, owner_def: dict):
@@ -307,6 +458,9 @@ def _write_props_table(f, props: dict, owner_def: dict):
         flags = resolve_flags(prop_attrs)
         if flags:
             prop_type = f"{prop_type} ({flags})"
+        restriction = resolve_constraints(prop_attrs)
+        if restriction:
+            prop_type = f"{prop_type}<br>{restriction}"
         f.write(f"| `{prop_name}` | {prop_type} | {cardinality} | {desc} |\n")
     f.write("\n")
 
@@ -326,9 +480,12 @@ def _write_extension_sections(f, class_name: str, proc_schema):
         desc = ext_def.get("description", "")
         if desc:
             f.write(f"{desc}\n\n")
-        ext_props = _get_class_properties(ext, proc_schema)
+        ext_props, ext_forbidden = _get_class_properties_and_forbidden(ext, proc_schema)
         if ext_props:
-            _write_props_table(f, ext_props, ext_def)
+            owner = dict(ext_def)
+            owner["required"] = _get_class_required(ext, proc_schema)
+            _write_props_table(f, ext_props, owner)
+            _write_forbidden_note(f, ext_forbidden)
 
 
 def write_class_md(class_name: str, class_def: dict, proc_schema, out_dir: Path,
@@ -371,8 +528,9 @@ def write_class_md(class_name: str, class_def: dict, proc_schema, out_dir: Path,
                     f.write(f"- {item_type}\n")
                 f.write("\n")
 
-        # Collect all properties including inherited via allOf
-        all_props = _get_class_properties(class_name, proc_schema)
+        # Collect all properties including inherited via allOf, and those the
+        # narrowing forbids (omitted from the table, listed in a footnote).
+        all_props, forbidden = _get_class_properties_and_forbidden(class_name, proc_schema)
 
         # Identify allOf parents for the inheritance note
         allof_parents = []
@@ -403,7 +561,10 @@ def write_class_md(class_name: str, class_def: dict, proc_schema, out_dir: Path,
 
         # Information model table
         f.write("## Information Model\n\n")
-        _write_props_table(f, all_props, class_def)
+        owner = dict(class_def)
+        owner["required"] = _get_class_required(class_name, proc_schema)
+        _write_props_table(f, all_props, owner)
+        _write_forbidden_note(f, forbidden)
 
         # Extension sub-sections (Extension* classes protectedClassOf this class)
         _write_extension_sections(f, class_name, proc_schema)
