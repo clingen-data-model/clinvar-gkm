@@ -2,7 +2,13 @@ $schema: "https://json-schema.org/draft/2020-12/schema"
 $id: "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-variant-source.yaml"
 title: ClinGen's Clinvar variant profile
 description: >-
-  Profiles defined to support the clinvar GKS datasets.
+  Profiles of the GA4GH VRS and Cat-VRS classes for the records of the sequenceReference,
+  location, allele, copyNumberCount, copyNumberChange and variation bundle sections. Each
+  profile composes its GA4GH base class and narrows it to what the ClinVar-GKM pipeline
+  writes: a property the pipeline never writes is declared false, an open extension value is
+  restated as its exact shape, and a position the base allows as either an inline object or an
+  IRI is restated as the one form written (pointers carry the pattern of the sections they
+  name).
 strict: true
 
 imports:
@@ -10,6 +16,7 @@ imports:
   recipes: ../cat-vrs/recipes-source.yaml
   vrs: ../vrs/vrs-source.yaml
   gkm-core: ../gkm-core/gkm-core-source.yaml
+  clinvar-concept: ./clinvar-concept-source.yaml
 
 namespaces:
   vrs: /ga4gh/schema/vrs/2.1.1/json/
@@ -19,7 +26,215 @@ namespaces:
   clinvar-gkm: /clingen/schema/clinvar-gkm/1.1.0/json/
 
 $defs:
-  # Extension types for Clinvar variants
+  # ─── HGVS list ───
+
+  ExtensionInvalidClinvarExpression:
+    type: object
+    maturity: trial use
+    description: >-
+      A nucleotide expression ClinVar supplied with no HGVS type letter (e.g.
+      `NC_000017.10:9481617_9489649del`), kept as submitted on ClinVar's valid expression for
+      the same accession.
+    protectedClassOf: ClinvarNucleotideExpression
+    properties:
+      name:
+        type: string
+        const: invalidClinvarExpression
+        description: Must be 'invalidClinvarExpression'.
+      value:
+        type: string
+        description: The expression as ClinVar supplied it.
+    required:
+      - name
+      - value
+
+  ExtensionExpressionMerged:
+    type: object
+    maturity: trial use
+    description: >-
+      Marks a nucleotide expression that carries one or more invalidClinvarExpression
+      extensions.
+    protectedClassOf: ClinvarNucleotideExpression
+    properties:
+      name:
+        type: string
+        const: expressionMerged
+        description: Must be 'expressionMerged'.
+      value:
+        type: boolean
+        const: true
+        description: Always `true`.
+    required:
+      - name
+      - value
+
+  ExtensionOriginalClinvarExpression:
+    type: object
+    maturity: trial use
+    description: >-
+      The nucleotide expression as ClinVar supplied it (with no HGVS type letter), on the
+      repaired expression listed in its place.
+    protectedClassOf: ClinvarNucleotideExpression
+    properties:
+      name:
+        type: string
+        const: originalClinvarExpression
+        description: Must be 'originalClinvarExpression'.
+      value:
+        type: string
+        description: The expression as ClinVar supplied it.
+    required:
+      - name
+      - value
+
+  ExtensionExpressionRepaired:
+    type: object
+    maturity: trial use
+    description: >-
+      Marks a nucleotide expression that is a repair of the expression ClinVar supplied (the
+      HGVS type letter restored).
+    protectedClassOf: ClinvarNucleotideExpression
+    properties:
+      name:
+        type: string
+        const: expressionRepaired
+        description: Must be 'expressionRepaired'.
+      value:
+        type: boolean
+        const: true
+        description: Always `true`.
+    required:
+      - name
+      - value
+
+  ClinvarNucleotideExpression:
+    maturity: trial use
+    description: >-
+      The nucleotide HGVS expression of a HgvsListItem: an HGVS syntax and the expression
+      text, with extensions only when ClinVar supplied an expression with no HGVS type letter.
+      No id or syntax version.
+    allOf:
+      - $refCurie: vrs:Expression
+      - type: object
+        properties:
+          id: false
+          syntax_version: false
+          syntax:
+            type: string
+            enum:
+              - hgvs.g
+              - hgvs.m
+              - hgvs.c
+              - hgvs.n
+              - hgvs.r
+              - hgvs.p
+            description: >-
+              `hgvs.` and the HGVS type letter of the expression.
+          extensions:
+            type: array
+            ordered: false
+            items:
+              oneOf:
+                - $ref: "#/$defs/ExtensionInvalidClinvarExpression"
+                - $ref: "#/$defs/ExtensionExpressionMerged"
+                - $ref: "#/$defs/ExtensionOriginalClinvarExpression"
+                - $ref: "#/$defs/ExtensionExpressionRepaired"
+            description: >-
+              ClinVar's submitted text when it had no HGVS type letter: either
+              `invalidClinvarExpression` (one per such text) and `expressionMerged`, when this
+              is ClinVar's valid expression for the same accession, or
+              `originalClinvarExpression` and `expressionRepaired`, when this is the repaired
+              expression.
+
+  ClinvarProteinExpression:
+    maturity: trial use
+    description: >-
+      The protein HGVS expression of a HgvsListItem: an HGVS syntax and the expression text.
+      No id, extensions or syntax version.
+    allOf:
+      - $refCurie: vrs:Expression
+      - type: object
+        properties:
+          id: false
+          extensions: false
+          syntax_version: false
+          syntax:
+            type: string
+            enum:
+              - hgvs.g
+              - hgvs.m
+              - hgvs.c
+              - hgvs.n
+              - hgvs.r
+              - hgvs.p
+            description: >-
+              `hgvs.` and the HGVS type letter of the expression (`hgvs.p`).
+
+  ClinvarMolecularConsequenceCoding:
+    maturity: trial use
+    description: >-
+      A Sequence Ontology molecular consequence of a HgvsListItem: the SO code, its label as
+      the name, the SO system and one identifiers.org IRI.
+    allOf:
+      - $refCurie: clinvar-gkm:ClinvarCoding
+      - type: object
+        properties:
+          code:
+            type: string
+            enum:
+              - "SO:0001583"
+              - "SO:0001627"
+              - "SO:0001820"
+              - "SO:0001822"
+              - "SO:0002073"
+              - "SO:0001821"
+              - "SO:0001587"
+              - "SO:0001623"
+              - "SO:0001578"
+              - "SO:0002153"
+              - "SO:0001574"
+              - "SO:0001619"
+              - "SO:0002152"
+              - "SO:0001575"
+              - "SO:0001624"
+              - "SO:0001819"
+              - "SO:0001589"
+              - "SO:0001582"
+            description: The SO identifier.
+          name:
+            type: string
+            enum:
+              - missense_variant
+              - intron_variant
+              - inframe_indel
+              - inframe_deletion
+              - no_sequence_alteration
+              - inframe_insertion
+              - stop_gained
+              - 5_prime_UTR_variant
+              - stop_lost
+              - genic_upstream_transcript_variant
+              - splice_acceptor_variant
+              - non_coding_transcript_variant
+              - genic_downstream_transcript_variant
+              - splice_donor_variant
+              - 3_prime_UTR_variant
+              - synonymous_variant
+              - frameshift_variant
+              - initiator_codon_variant
+            description: The SO term label.
+          system:
+            type: string
+            const: "http://www.sequenceontology.org/"
+            description: Must be 'http://www.sequenceontology.org/'.
+          iris:
+            type: array
+            ordered: false
+            items:
+              $refCurie: gkm.core:iriReference
+              pattern: "^https://identifiers\\.org/SO:[0-9]{7}$"
+            description: The identifiers.org IRI of the SO term.
+
   HgvsListItem:
     description: >-
       A complex structure for sharing individual HGVS entries associated with Clinvar
@@ -30,7 +245,7 @@ $defs:
     maturity: trial use
     properties:
       nucleotideExpression:
-        $refCurie: vrs:Expression
+        $ref: "#/$defs/ClinvarNucleotideExpression"
         description: >-
           The nucleotide HGVS expression with `syntax` (e.g.,` hgvs.c`, `hgvs.g`)
           and `value` (the HGVS string). ClinVar's submitted text is never altered: when
@@ -62,7 +277,7 @@ $defs:
           `true` if this transcript is designated as MANE Plus Clinical. Absent or `false`
           when not applicable.
       proteinExpression:
-        $refCurie: vrs:Expression
+        $ref: "#/$defs/ClinvarProteinExpression"
         description: >-
           The protein HGVS expression with syntax (typically `hgvs.p`) and `value`. Present
           only when a protein-level expression exists for the nucleotide expression.
@@ -70,7 +285,7 @@ $defs:
         type: array
         ordered: false
         items:
-          $refCurie: gkm.core:Coding
+          $ref: "#/$defs/ClinvarMolecularConsequenceCoding"
         description: >-
           Sequence Ontology terms describing the predicted molecular consequence.
           Each entry includes `code` (SO identifier), `system`, `name` (SO term label),
@@ -85,6 +300,7 @@ $defs:
     properties:
       gene:
         $refCurie: gkm.core:iriReference
+        pattern: "^#/gene/"
         description: >-
           Reference to the gene MappableConcept in the bundle's `gene` section
           (e.g. `#/gene/ncbigene:672`).
@@ -113,6 +329,8 @@ $defs:
       - relationship_type
       - source
 
+  # ─── Categorical variant extensions ───
+
   ExtensionClinvarHgvsList:
     description: >-
       Complete list of HGVS expressions from ClinVar for a variant, including nucleotide
@@ -136,6 +354,9 @@ $defs:
           Clinvar's data structure for representing the HGVS expressions, mane select/plus settings and
           molecular consequence for dervied genomic/transcript sequence alignmnents and protein sequence
           projections originating from the definining allele or location for CNVs.
+    required:
+      - name
+      - value
 
   ExtensionClinvarGeneList:
     description: >-
@@ -157,6 +378,9 @@ $defs:
         ordered: false
         description: >-
           Clinvar's data structure for representing genes associated with a clinvar variant.
+    required:
+      - name
+      - value
 
   ExtensionCategoricalVariationType:
     description: >-
@@ -181,6 +405,9 @@ $defs:
         description: >-
           The type of categorical variant. It must be one of the following:
           `CanonicalAllele`, `CategoricalCnvChange`, `CategoricalCnvCount`, or `Undefined`.
+    required:
+      - name
+      - value
 
   ExtensionDefiningVrsVariationType:
     description: >-
@@ -208,6 +435,9 @@ $defs:
         description: >-
           The type of categorical variant. It must be one of the following: `Allele`,
           `CopyNumberChange`, `CopyNumberCount`, `Haplotype`, `Unknown`, or `Not Available`.
+    required:
+      - name
+      - value
 
   ExtensionClinvarVariationType:
     description: >-
@@ -253,6 +483,9 @@ $defs:
           'Haplotype, single variant', 'Haplotype', 'Indel', 'Insertion', 'Inversion',
           'Microsatellite', 'Phase unknown', 'protein only', 'single nucleotide variant',
           'Tandem duplication', 'Translocation', or 'Variation'.
+    required:
+      - name
+      - value
 
   ExtensionClinvarSubclassType:
     description: >-
@@ -276,6 +509,9 @@ $defs:
         description: >-
           The subclass type of the variant as provided by Clinvar. It must be one of the following:
           'Genotype', 'Haplotype', or 'SimpleAllele'.
+    required:
+      - name
+      - value
 
   # ExtensionChromosome:
   #   description: >-
@@ -314,25 +550,9 @@ $defs:
         type: string
         description: >-
           The cytogenetic location of the variant as provided by Clinvar.
-
-  ExtensionAssembly:
-    description: >-
-      An extension item for the assembly associated with a Clinvar variant.
-    protectedClassOf: ClinvarCategoricalVariant
-    type: object
-    maturity: trial use
-    properties:
-      name:
-        type: string
-        const: assembly
-        description: >-
-          Must be 'assembly'.
-      value:
-        type: string
-        enum: ["GRCh37","GRCh38","NCBI36"]
-        description: >-
-          The assembly of the variant as provided by Clinvar. It must be one of the following:
-          'GRCh37', 'GRCh38', or 'NCBI36'.
+    required:
+      - name
+      - value
 
   # ExtensionClinvarVcf:
   #   type: object
@@ -387,6 +607,9 @@ $defs:
         type: string
         description: >-
           The VRS processing errors associated with the Clinvar variant.
+    required:
+      - name
+      - value
 
   ExtensionsVrsProcessingException:
     type: object
@@ -405,113 +628,374 @@ $defs:
         type: string
         description: >-
           The VRS processing errors associated with the Clinvar variant.
+    required:
+      - name
+      - value
 
-  ClinvarSequenceReferenceProperties:
-    abstract: true
+  # ─── VRS section records: sequenceReference, location, allele, copyNumberCount, copyNumberChange ───
+
+  ExtensionAssembly:
+    description: >-
+      An extension item for the assembly of a genomic sequence reference.
+    protectedClassOf: ClinvarSequenceReference
     type: object
     maturity: trial use
-    description: >
-      The GA4GH Sequence Reference Representation(SR) profile specific to Clinvar.
-    protectedClassOf: ClinvarCategoricalVariant
     properties:
-      extensions:
-        type: array
-        ordered: false
-        items:
-          oneOf:
-            - $ref: "#/$defs/ExtensionAssembly"
+      name:
+        type: string
+        const: assembly
+        description: >-
+          Must be 'assembly'.
+      value:
+        type: string
+        enum: ["GRCh37","GRCh38","NCBI36"]
+        description: >-
+          The assembly of the sequence as provided by Clinvar. It must be one of the following:
+          'GRCh37', 'GRCh38', or 'NCBI36'.
+    required:
+      - name
+      - value
 
   ClinvarSequenceReference:
     maturity: trial use
-    description: >
-      The GA4GH Sequence Reference Representation(SR) profile specific to Clinvar.
-    protectedClassOf: ClinvarCategoricalVariant
+    description: >-
+      A record of the sequenceReference section: a VRS SequenceReference for an NCBI RefSeq
+      sequence, with its accession as the name, its molecule type and residue alphabet, and
+      its assembly in an extension when the sequence belongs to one. No id, description,
+      aliases, sequence or circular flag.
     allOf:
       - $refCurie: vrs:SequenceReference
-      - $ref: "#/$defs/ClinvarSequenceReferenceProperties"
-
-  ClinvarSequenceLocationProperties:
-    abstract: true
-    type: object
-    maturity: trial use
-    description: >-
-      The GA4GH Sequence Location Representation(SL) profile specific to Clinvar.
-    protectedClassOf: ClinvarCategoricalVariant
-    properties:
-      sequenceReference:
-        oneOf:
-          - $refCurie: gkm.core:iriReference
-          - $ref: "#/$defs/ClinvarSequenceReference"
-        description: >-
-          The reference sequence for the location.
-      extensions:
-        type: array
-        ordered: false
-        maxItems: 0
-        items:
-          $refCurie: gkm.core:Extension
+      - type: object
+        properties:
+          id: false
+          description: false
+          aliases: false
+          sequence: false
+          circular: false
+          extensions:
+            type: array
+            ordered: false
+            items:
+              $ref: "#/$defs/ExtensionAssembly"
+            description: The assembly of the sequence, when it belongs to one.
 
   ClinvarSequenceLocation:
     maturity: trial use
-    description: >
-      The GA4GH Sequence Location Representation(SL) profile specific to Clinvar.
-    protectedClassOf: ClinvarCategoricalVariant
+    description: >-
+      A record of the location section: a VRS SequenceLocation whose sequence reference is a
+      pointer to a record of the sequenceReference section. No name, description, aliases,
+      extensions or sequence.
     allOf:
       - $refCurie: vrs:SequenceLocation
-      - $ref: "#/$defs/ClinvarSequenceLocationProperties"
-
-  ClinvarAlleleProperties:
-    abstract: true
-    description: >-
-      The GA4GH Allele Representation(AR) profile specific to Clinvar.
-    protectedClassOf: ClinvarCategoricalVariant
-    type: object
-    maturity: trial use
-    properties:
-      location:
-        oneOf:
-          - $refCurie: gkm.core:iriReference
-          - $ref: "#/$defs/ClinvarSequenceLocation"
-        description: >-
-          The location of the variant.
-      # extensions:
-      #   type: array
-      #   ordered: false
-      #   items:
-      #     oneOf:
-      #       - $ref: "#/$defs/ExtensionClinvarVcf"
-      #       - $ref: "#/$defs/ExtensionClinvarHgvsType"
-        # description: >-
-        #   A list of extensions to the entity. Extensions are not expected to be natively understood,
-        #   but may be used for pre-negotiated exchange of message attributes between systems.
+      - type: object
+        properties:
+          name: false
+          description: false
+          aliases: false
+          extensions: false
+          sequence: false
+          sequenceReference:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/sequenceReference/"
+            description: >-
+              The reference sequence for the location, a '#/sequenceReference/<id>' pointer into
+              this bundle.
 
   ClinvarAllele:
     maturity: trial use
     description: >-
-      The GA4GH Allele Representation(AR) profile specific to Clinvar.
-    protectedClassOf: ClinvarCategoricalVariant
+      A record of the allele section: a VRS Allele with its name and expressions, whose
+      location is a pointer to a record of the location section. No description, aliases or
+      extensions.
     allOf:
       - $refCurie: vrs:Allele
-      - $ref: "#/$defs/ClinvarAlleleProperties"
+      - type: object
+        properties:
+          description: false
+          aliases: false
+          extensions: false
+          location:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/location/"
+            description: >-
+              The location of the allele, a '#/location/<id>' pointer into this bundle.
+          state:
+            properties:
+              id: false
+              name: false
+              description: false
+              aliases: false
+              extensions: false
+              length:
+                type: integer
+                description: The length of the reference sequence the state repeats.
+            description: >-
+              The allele's state: a LiteralSequenceExpression or a ReferenceLengthExpression
+              (whose length is an integer). No id, name, description, aliases or extensions.
+          expressions:
+            type: array
+            ordered: false
+            items:
+              $ref: "#/$defs/ClinvarAlleleExpression"
+            description: The allele's SPDI, HGVS and gnomAD expressions.
 
-  ClinvarCanonicalAlleleProperties:
-    abstract: true
-    type: object
+  ClinvarAlleleExpression:
     maturity: trial use
     description: >-
-      The GA4GH Canonical Allele Representation profile specific to Clinvar.
-    protectedClassOf: ClinvarCategoricalVariant
-    properties:
-      members:
-        type: array
-        ordered: false
-        description: >-
-          A non-exhaustive list of VRS variation contexts that satisfy the constraints of
-          this categorical variant.
-        items:
-          oneOf:
-            - $refCurie: gkm.core:iriReference
-            - $ref: "#/$defs/ClinvarAllele"
+      An expression of a ClinvarAllele: an SPDI, HGVS or gnomAD syntax and the expression text.
+      No id, extensions or syntax version.
+    allOf:
+      - $refCurie: vrs:Expression
+      - type: object
+        properties:
+          id: false
+          extensions: false
+          syntax_version: false
+          syntax:
+            type: string
+            enum:
+              - spdi
+              - gnomad
+              - hgvs.g
+              - hgvs.m
+              - hgvs.c
+              - hgvs.n
+              - hgvs.r
+              - hgvs.p
+            description: >-
+              `spdi`, `gnomad`, or `hgvs.` and the HGVS type letter of the expression.
+
+  ClinvarCopyNumberCount:
+    maturity: trial use
+    description: >-
+      A record of the copyNumberCount section: a VRS CopyNumberCount with an integer copy
+      count, whose location is a pointer to a record of the location section. No name,
+      description, aliases, extensions or expressions.
+    allOf:
+      - $refCurie: vrs:CopyNumberCount
+      - type: object
+        properties:
+          name: false
+          description: false
+          aliases: false
+          extensions: false
+          expressions: false
+          location:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/location/"
+            description: >-
+              The location of the copy number count, a '#/location/<id>' pointer into this
+              bundle.
+          copies:
+            type: integer
+            description: The integral number of copies.
+
+  ClinvarCopyNumberChange:
+    maturity: draft
+    description: >-
+      A record of the copyNumberChange section: a VRS CopyNumberChange whose location is a
+      pointer to a record of the location section. No name, description, aliases, extensions or
+      expressions.
+    allOf:
+      - $refCurie: vrs:CopyNumberChange
+      - type: object
+        properties:
+          name: false
+          description: false
+          aliases: false
+          extensions: false
+          expressions: false
+          location:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/location/"
+            description: >-
+              The location of the copy number change, a '#/location/<id>' pointer into this
+              bundle.
+
+  # ─── Categorical variant constraints and their relation terms ───
+
+  ClinvarLiftoverToRelation:
+    maturity: trial use
+    description: >-
+      The `liftover_to` relation of a ClinVar defining allele or defining location constraint:
+      a MappableConcept with only its type and primary coding (code `liftover_to`, system
+      `ga4gh-gks-term:allele-relation`, no IRIs).
+    allOf:
+      - $refCurie: gkm.core:MappableConcept
+      - type: object
+        properties:
+          id: false
+          name: false
+          description: false
+          aliases: false
+          extensions: false
+          conceptType: false
+          mappings: false
+          primaryCoding:
+            type: object
+            additionalProperties: false
+            properties:
+              code:
+                type: string
+                const: liftover_to
+              system:
+                type: string
+                const: "ga4gh-gks-term:allele-relation"
+            required:
+              - code
+              - system
+            description: The relation's code and system.
+
+  ClinvarTranscribedToRelation:
+    maturity: trial use
+    description: >-
+      The `transcribed_to` relation of a ClinVar defining allele constraint: a MappableConcept
+      with only its type and primary coding (code `transcribed_to`, system
+      `http://www.sequenceontology.org/` and the term's IRI).
+    allOf:
+      - $refCurie: gkm.core:MappableConcept
+      - type: object
+        properties:
+          id: false
+          name: false
+          description: false
+          aliases: false
+          extensions: false
+          conceptType: false
+          mappings: false
+          primaryCoding:
+            type: object
+            additionalProperties: false
+            properties:
+              code:
+                type: string
+                const: transcribed_to
+              system:
+                type: string
+                const: "http://www.sequenceontology.org/"
+              iris:
+                type: array
+                ordered: false
+                items:
+                  type: string
+                  const: "http://www.sequenceontology.org/browser/current_release/term/transcribed_to"
+            required:
+              - code
+              - system
+            description: The relation's code, system and IRI.
+
+  ClinvarIsWithinMatch:
+    maturity: trial use
+    description: >-
+      The match characteristic of a ClinVar defining location constraint: a MappableConcept
+      with only its type and primary coding (code `is_within`, system `ga4gh-gks-term:location-match`,
+      no IRIs).
+    allOf:
+      - $refCurie: gkm.core:MappableConcept
+      - type: object
+        properties:
+          id: false
+          name: false
+          description: false
+          aliases: false
+          extensions: false
+          conceptType: false
+          mappings: false
+          primaryCoding:
+            type: object
+            additionalProperties: false
+            properties:
+              code:
+                type: string
+                const: is_within
+              system:
+                type: string
+                const: "ga4gh-gks-term:location-match"
+            required:
+              - code
+              - system
+            description: The match characteristic's code and system.
+
+  ClinvarDefiningAlleleConstraint:
+    maturity: trial use
+    description: >-
+      The constraint of a ClinvarCanonicalAllele: a DefiningAlleleConstraint whose allele is a
+      pointer to a record of the allele section, related by `liftover_to` and `transcribed_to`.
+    allOf:
+      - $refCurie: cat-vrs:DefiningAlleleConstraint
+      - type: object
+        properties:
+          allele:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/allele/"
+            description: The defining allele, a '#/allele/<id>' pointer into this bundle.
+          relations:
+            type: array
+            ordered: false
+            items:
+              oneOf:
+                - $ref: "#/$defs/ClinvarLiftoverToRelation"
+                - $ref: "#/$defs/ClinvarTranscribedToRelation"
+            description: The `liftover_to` and `transcribed_to` relations.
+
+  ClinvarDefiningLocationConstraint:
+    maturity: trial use
+    description: >-
+      The location constraint of a ClinVar copy number variant: a DefiningLocationConstraint
+      whose location is a pointer to a record of the location section, matched `is_within`
+      and related by `liftover_to`.
+    allOf:
+      - $refCurie: cat-vrs:DefiningLocationConstraint
+      - type: object
+        properties:
+          location:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/location/"
+            description: The defining location, a '#/location/<id>' pointer into this bundle.
+          matchCharacteristic:
+            $ref: "#/$defs/ClinvarIsWithinMatch"
+            description: The `is_within` match characteristic.
+          relations:
+            type: array
+            ordered: false
+            items:
+              $ref: "#/$defs/ClinvarLiftoverToRelation"
+            description: The `liftover_to` relation.
+
+  ClinvarCopyCountConstraint:
+    maturity: trial use
+    description: >-
+      The copy count constraint of a ClinvarCategoricalCnvCount: a CopyCountConstraint with an
+      integer copy count.
+    allOf:
+      - $refCurie: cat-vrs:CopyCountConstraint
+      - type: object
+        properties:
+          copies:
+            type: integer
+            description: The integral number of copies.
+
+  ClinvarVariationMapping:
+    maturity: trial use
+    description: >-
+      A mapping of a ClinVar variation: a ClinvarConceptMapping whose relation is
+      `exactMatch` (the ClinVar variation), `closeMatch` (a ClinGen allele) or `relatedMatch`
+      (every other cross-reference).
+    allOf:
+      - $refCurie: clinvar-gkm:ClinvarConceptMapping
+      - type: object
+        properties:
+          relation:
+            type: string
+            enum:
+              - exactMatch
+              - closeMatch
+              - relatedMatch
+            description: >-
+              `exactMatch` for the ClinVar variation, `closeMatch` for a ClinGen allele,
+              `relatedMatch` for every other cross-reference.
+
+  # ─── Categorical variants: the four variation record shapes ───
 
   ClinvarCategoricalVariantProperties:
     abstract: true
@@ -538,6 +1022,14 @@ $defs:
         description: >-
           A list of extensions to the entity. Extensions are not expected to be natively understood,
           but may be used for pre-negotiated exchange of message attributes between systems.
+      mappings:
+        type: array
+        ordered: false
+        items:
+          $ref: "#/$defs/ClinvarVariationMapping"
+        description: >-
+          The variation's ClinVar identifier (`exactMatch`) and its cross-references to other
+          variant resources.
 
   ClinvarCanonicalAllele:
     maturity: trial use
@@ -549,19 +1041,29 @@ $defs:
       variation type, etc.) alongside the Cat-VRS CanonicalAllele structure.
     allOf:
       - $refCurie: cat-vrs:CanonicalAllele
-      - $ref: "#/$defs/ClinvarCanonicalAlleleProperties"
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
-      # Discriminator: ClinvarCategoricalVariant is a oneOf, so each branch must match only its own
-      # records. This branch requires a DefiningAlleleConstraint (#132).
-      - required: [constraints]
+      # ClinvarCategoricalVariant is a oneOf, so each branch must match only its own records
+      # (#132): this branch requires constraints, and its constraints and members are of
+      # types and sections no other branch allows.
+      - type: object
+        required: [constraints]
         properties:
+          description: false
+          aliases: false
           constraints:
-            contains:
-              type: object
-              required: [type]
-              properties:
-                type:
-                  const: DefiningAlleleConstraint
+            type: array
+            ordered: false
+            items:
+              $ref: "#/$defs/ClinvarDefiningAlleleConstraint"
+            description: The defining allele constraint.
+          members:
+            type: array
+            ordered: false
+            items:
+              $refCurie: gkm.core:iriReference
+              pattern: "^#/allele/"
+            description: >-
+              The defining allele, a '#/allele/<id>' pointer into this bundle.
 
   ClinvarCategoricalCnvChange:
     maturity: draft
@@ -571,19 +1073,30 @@ $defs:
       CopyChangeConstraint from Cat-VRS CategoricalCnv.
     allOf:
       - $refCurie: cat-vrs:CategoricalCnv
-      # - $ref: "#/$defs/ClinvarCategoricalCnvProperties"
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
-      # Discriminator: ClinvarCategoricalVariant is a oneOf, so each branch must match only its own
-      # records. This branch requires a CopyChangeConstraint (#132).
-      - required: [constraints]
+      # Discriminator (#132): this branch requires constraints, and its constraints (a
+      # CopyChangeConstraint) and members (copyNumberChange) are allowed by no other branch.
+      - type: object
+        required: [constraints]
         properties:
+          description: false
+          aliases: false
           constraints:
-            contains:
-              type: object
-              required: [type]
-              properties:
-                type:
-                  const: CopyChangeConstraint
+            type: array
+            ordered: false
+            items:
+              oneOf:
+                - $ref: "#/$defs/ClinvarDefiningLocationConstraint"
+                - $refCurie: cat-vrs:CopyChangeConstraint
+            description: The defining location constraint and the copy change constraint.
+          members:
+            type: array
+            ordered: false
+            items:
+              $refCurie: gkm.core:iriReference
+              pattern: "^#/copyNumberChange/"
+            description: >-
+              The VRS copy number change, a '#/copyNumberChange/<id>' pointer into this bundle.
 
   ClinvarCategoricalCnvCount:
     maturity: draft
@@ -593,19 +1106,30 @@ $defs:
       CategoricalCnv.
     allOf:
       - $refCurie: cat-vrs:CategoricalCnv
-      # - $ref: "#/$defs/ClinvarCategoricalCnvProperties"
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
-      # Discriminator: ClinvarCategoricalVariant is a oneOf, so each branch must match only its own
-      # records. This branch requires a CopyCountConstraint (#132).
-      - required: [constraints]
+      # Discriminator (#132): this branch requires constraints, and its constraints (a
+      # CopyCountConstraint) and members (copyNumberCount) are allowed by no other branch.
+      - type: object
+        required: [constraints]
         properties:
+          description: false
+          aliases: false
           constraints:
-            contains:
-              type: object
-              required: [type]
-              properties:
-                type:
-                  const: CopyCountConstraint
+            type: array
+            ordered: false
+            items:
+              oneOf:
+                - $ref: "#/$defs/ClinvarDefiningLocationConstraint"
+                - $ref: "#/$defs/ClinvarCopyCountConstraint"
+            description: The defining location constraint and the copy count constraint.
+          members:
+            type: array
+            ordered: false
+            items:
+              $refCurie: gkm.core:iriReference
+              pattern: "^#/copyNumberCount/"
+            description: >-
+              The VRS copy number count, a '#/copyNumberCount/<id>' pointer into this bundle.
 
   ClinvarNonConstrainedVariant:
     maturity: trial use
@@ -613,15 +1137,19 @@ $defs:
       A ClinVar variant that cannot be mapped to a specific VRS allele or
       location — haplotypes, genotypes, and other complex or ambiguously
       defined variants. These rely solely on the ClinVar variation ID and
-      use the generalized Cat-VRS CategoricalVariant without VRS constraints.
+      use the generalized Cat-VRS CategoricalVariant without VRS constraints
+      or members.
     allOf:
       - $refCurie: cat-vrs:CategoricalVariant
-      # - $ref: "#/$defs/ClinvarDescribedVariationProperties"
       - $ref: "#/$defs/ClinvarCategoricalVariantProperties"
       # Discriminator (#132): a non-constrained variant carries no constraints, so constrained
       # records can't also match this branch of ClinvarCategoricalVariant's oneOf.
-      - not:
-          required: [constraints]
+      - type: object
+        properties:
+          description: false
+          aliases: false
+          constraints: false
+          members: false
 
   ClinvarCategoricalVariant:
     maturity: trial use

@@ -6,10 +6,7 @@
    "maturity": "trial use",
    "allOf": [
       {
-         "$ref": "/ga4gh/schema/va-spec/1.1.0/json/Statement"
-      },
-      {
-         "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarAggregateStatement#/$defs/ClinvarAggregateStatementProperties"
+         "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarAggregateStatement"
       }
    ],
    "type": "object",

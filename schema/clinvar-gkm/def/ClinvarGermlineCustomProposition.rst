@@ -5,7 +5,7 @@
 
 **Computational Definition**
 
-A custom proposition type for ClinVar germline submissions that do not have a corresponding GA4GH VA-Spec proposition type. Includes ClinVar submission categories such as "risk factor", "protective", "drug response", "affects", "association", "confers sensitivity", "other", "not provided", and "conflicting data from submitters". These custom proposition types are used to represent variant-condition associations in Clin
+A custom proposition type for ClinVar germline submissions that do not have a corresponding GA4GH VA-Spec proposition type. Includes ClinVar submission categories such as "risk factor", "protective", "drug response", "affects", "association", "confers sensitivity", "other", "not provided", and "conflicting data from submitters". These custom proposition types are used to represent variant-condition associations in ClinVar. No name, description, aliases or extensions.
 
 **Information Model**
 
@@ -31,35 +31,9 @@ A custom proposition type for ClinVar germline submissions that do not have a co
       - string
       - 1..1
       - The name of the class that is instantiated by a data object representing the Entity.
-   *  - name
-      -
-      - string
-      - 0..1
-      - A primary name for the entity.
-   *  - description
-      -
-      - string
-      - 0..1
-      - A free-text description of the Entity.
-   *  - aliases
-      -
-                        .. raw:: html
-
-                            <span style="background-color: #B2DFEE; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Unordered">&#8942;</span>
-      - string
-      - 0..m
-      - Alternative name(s) for the Entity.
-   *  - extensions
-      -
-                        .. raw:: html
-
-                            <span style="background-color: #B2DFEE; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Unordered">&#8942;</span>
-      - :ref:`Extension`
-      - 0..m
-      - A list of extensions to the Entity, that allow for capture of information not directly supported by elements defined in the model.
    *  - subject
       -
-      - :ref:`MolecularVariation` | :ref:`CategoricalVariant` | :ref:`iriReference`
+      - :ref:`iriReference`
       - 1..1
       - A variant that is the subject of the Proposition.
    *  - predicate
@@ -69,24 +43,24 @@ A custom proposition type for ClinVar germline submissions that do not have a co
       - The relationship declared to hold between the subject and the object of the Proposition.
    *  - object
       -
-      - :ref:`Entity` | :ref:`iriReference`
+      - :ref:`iriReference`
       - 1..1
       - An Entity or concept that is related to the subject of a Proposition via its predicate.
    *  - geneContextQualifier
       -
-      - :ref:`ClinvarGeneContextQualifier` | :ref:`iriReference`
+      - :ref:`ClinvarGeneContextQualifier`
       - 0..1
-      - Reports a gene impacted by the variant, which may contribute to the association described in the Proposition.
+      - Reports a gene impacted by the variant, which may contribute to the association described in the Proposition (SCV propositions only).
    *  - modeOfInheritanceQualifier
       -
-      - :ref:`MappableConcept` | :ref:`iriReference`
+      - :ref:`ClinvarModeOfInheritanceQualifier`
       - 0..1
-      - Reports a pattern of inheritance expected for the effect of the variant.
+      - Reports a pattern of inheritance expected for the effect of the variant (SCV propositions only).
    *  - penetranceQualifier
       -
-      - :ref:`MappableConcept` | :ref:`iriReference`
+      - :ref:`ClinvarPenetranceQualifier`
       - 0..1
-      - Reports the penetrance of the effect - the extent to which the variant impact is expressed by carriers.
+      - Reports the penetrance of the effect - the extent to which the variant impact is expressed by carriers (SCV propositions only).
 
 **Composes:** :ref:`SubjectVariantProposition`, :ref:`ClinvarGermlineCustomPropositionProperties`
 

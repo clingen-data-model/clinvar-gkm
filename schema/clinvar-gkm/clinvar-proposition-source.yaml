@@ -1,13 +1,14 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
 $id: "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-proposition-source.yaml"
-title: ClinVar-GKM custom proposition types
+title: ClinVar-GKM proposition profiles
 description: >-
-  Custom proposition types for ClinVar submission categories that do not have
-  corresponding GA4GH VA-Spec proposition types. Standard GA4GH types
-  (VariantPathogenicityProposition, VariantOncogenicityProposition,
-  VariantClinicalSignificanceProposition, VariantDiagnosticProposition,
-  VariantPrognosticProposition, VariantTherapeuticResponseProposition)
-  are imported from VA-Spec and used directly.
+  Profiles of the VA-Spec proposition types for the records of the four proposition bundle
+  sections, the qualifiers they carry, and the custom proposition types for ClinVar
+  submission categories that have no VA-Spec proposition type. Each profile composes its
+  GA4GH base class and narrows it to what the ClinVar-GKM pipeline writes: a property the
+  pipeline never writes is declared false, the subject, object and condition qualifier are
+  pointers carrying the pattern of the sections they name, and the gene context, mode of
+  inheritance and penetrance qualifiers are inline ClinVar qualifier classes.
 strict: true
 
 imports:
@@ -16,6 +17,7 @@ imports:
   cat-vrs: ../cat-vrs/cat-vrs-source.yaml
   vrs: ../vrs/vrs-source.yaml
   gkm-core: ../gkm-core/gkm-core-source.yaml
+  clinvar-concept: ./clinvar-concept-source.yaml
 
 namespaces:
   gkm.core: /ga4gh/schema/gkm-core/1.3.0/json/
@@ -54,32 +56,373 @@ $defs:
           submitter gave no symbols. submittedNotNormalized: the variant has no single
           representative gene, so the qualifier is a placeholder named with the submitter's
           symbol(s). Symbols are compared trimmed and case-insensitively.
+    required: [name, value]
+
+  ExtensionSubmittedGeneSymbols:
+    type: object
+    maturity: trial use
+    description: >-
+      The gene symbols the submitter gave for the SCV, as submitted.
+    protectedClassOf: ClinvarGeneContextQualifier
+    properties:
+      name:
+        type: string
+        const: submittedGeneSymbols
+        description: Must be 'submittedGeneSymbols'.
+      value:
+        type: array
+        ordered: true
+        items:
+          type: string
+        description: The submitted gene symbols.
+    required: [name, value]
 
   ClinvarGeneContextQualifier:
     maturity: trial use
     description: >-
-      The gene context qualifier on a ClinVar SCV proposition: a gene MappableConcept. When it
-      carries a 'geneContextSource' extension, that extension's value MUST be one of the four
-      values defined by ExtensionGeneContextSource. Other extensions (e.g.
-      'submittedGeneSymbols') are not constrained here.
+      The gene context qualifier on a ClinVar SCV proposition: a gene MappableConcept with the
+      codings of a ClinvarGene, and extensions saying where its gene came from
+      (ExtensionGeneContextSource) and which gene symbols the submitter gave
+      (ExtensionSubmittedGeneSymbols). No id, description or aliases.
     allOf:
       - $refCurie: gkm.core:MappableConcept
+      - type: object
+        properties:
+          id: false
+          description: false
+          aliases: false
+          conceptType:
+            type: string
+            const: gene
+            description: Always 'gene'.
+          primaryCoding:
+            $refCurie: clinvar-gkm:ClinvarCoding
+            description: >-
+              The gene's NCBI Gene coding. Absent on a placeholder qualifier
+              (geneContextSource 'submittedNotNormalized').
+          mappings:
+            type: array
+            ordered: false
+            items:
+              $refCurie: clinvar-gkm:ClinvarConceptMapping
+            description: >-
+              Mappings of the gene to other gene codes (its HGNC coding). Absent on a
+              placeholder qualifier.
+          extensions:
+            type: array
+            ordered: false
+            items:
+              oneOf:
+                - $ref: "#/$defs/ExtensionGeneContextSource"
+                - $ref: "#/$defs/ExtensionSubmittedGeneSymbols"
+            description: >-
+              The qualifier's extensions, each an ExtensionGeneContextSource or an
+              ExtensionSubmittedGeneSymbols.
+
+  # ─── Mode of inheritance qualifier ───
+
+  ExtensionSubmittedModeOfInheritance:
+    type: object
+    maturity: trial use
+    description: >-
+      The mode of inheritance the submitter gave for the SCV, as submitted.
+    protectedClassOf: ClinvarModeOfInheritanceQualifier
     properties:
-      extensions:
-        type: array
-        ordered: false
-        items:
-          $refCurie: gkm.core:Extension
-          if:
-            properties:
-              name:
-                const: geneContextSource
-            required: [name]
-          then:
-            $ref: "#/$defs/ExtensionGeneContextSource"
-        description: >-
-          Extensions on the qualifier. An item named 'geneContextSource' must match
-          ExtensionGeneContextSource.
+      name:
+        type: string
+        const: submittedModeOfInheritance
+        description: Must be 'submittedModeOfInheritance'.
+      value:
+        type: string
+        description: The submitted mode of inheritance.
+    required: [name, value]
+
+  ClinvarModeOfInheritanceQualifier:
+    maturity: trial use
+    description: >-
+      The mode of inheritance qualifier on a ClinVar SCV proposition: a MappableConcept named
+      by the submitted mode of inheritance, with its HPO coding when the name matches an HPO
+      term, and the submitted value in an ExtensionSubmittedModeOfInheritance. No id,
+      description, aliases or mappings.
+    allOf:
+      - $refCurie: gkm.core:MappableConcept
+      - type: object
+        properties:
+          id: false
+          description: false
+          aliases: false
+          mappings: false
+          conceptType:
+            type: string
+            const: modeOfInheritance
+            description: Always 'modeOfInheritance'.
+          primaryCoding:
+            $refCurie: clinvar-gkm:ClinvarCoding
+            description: >-
+              The HPO term whose label matches the submitted mode of inheritance
+              (case-insensitively). Absent when no HPO term matches.
+          extensions:
+            type: array
+            ordered: false
+            items:
+              $ref: "#/$defs/ExtensionSubmittedModeOfInheritance"
+            description: The submitted mode of inheritance, in an ExtensionSubmittedModeOfInheritance.
+
+  # ─── Penetrance qualifier ───
+
+  ExtensionSubmittedClassification:
+    type: object
+    maturity: trial use
+    description: >-
+      The SCV's submitted classification that the penetrance qualifier was derived from.
+    protectedClassOf: ClinvarPenetranceQualifier
+    properties:
+      name:
+        type: string
+        const: submittedClassification
+        description: Must be 'submittedClassification'.
+      value:
+        type: string
+        description: The submitted classification (e.g. 'Likely risk allele').
+    required: [name, value]
+
+  ClinvarPenetranceQualifier:
+    maturity: trial use
+    description: >-
+      The penetrance qualifier on a ClinVar SCV proposition, derived from a low-penetrance or
+      risk-allele classification: a MappableConcept named 'low' or 'risk', with the submitted
+      classification in an ExtensionSubmittedClassification. No id, description, aliases,
+      primary coding or mappings.
+    allOf:
+      - $refCurie: gkm.core:MappableConcept
+      - type: object
+        properties:
+          id: false
+          description: false
+          aliases: false
+          primaryCoding: false
+          mappings: false
+          conceptType:
+            type: string
+            const: penetrance
+            description: Always 'penetrance'.
+          name:
+            type: string
+            enum:
+              - low
+              - risk
+            description: >-
+              'low' for a pathogenic or likely pathogenic, low penetrance classification;
+              'risk' for an established, likely or uncertain risk allele classification.
+          extensions:
+            type: array
+            ordered: false
+            items:
+              $ref: "#/$defs/ExtensionSubmittedClassification"
+            description: The submitted classification, in an ExtensionSubmittedClassification.
+
+  # ─── VA-Spec proposition profiles ───
+
+  ClinvarVariantPathogenicityProposition:
+    maturity: trial use
+    description: >-
+      A record of the propositionPathogenicity section: a VariantPathogenicityProposition
+      whose subject is a variation pointer and whose object is a condition or condition set
+      pointer. SCV propositions may carry gene context, mode of inheritance and penetrance
+      qualifiers; VCV and RCV propositions carry none. No name, description, aliases,
+      extensions or allele origin qualifier.
+    allOf:
+      - $refCurie: va-spec:VariantPathogenicityProposition
+      - type: object
+        properties:
+          name: false
+          description: false
+          aliases: false
+          extensions: false
+          alleleOriginQualifier: false
+          subject:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/variation/"
+            description: The variant, a '#/variation/<id>' pointer into this bundle.
+          object:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/(condition|conditionSet)/"
+            description: >-
+              The condition, a '#/condition/<id>' or '#/conditionSet/<id>' pointer into
+              this bundle.
+          geneContextQualifier:
+            $ref: "#/$defs/ClinvarGeneContextQualifier"
+            description: The variant's gene (SCV propositions only).
+          modeOfInheritanceQualifier:
+            $ref: "#/$defs/ClinvarModeOfInheritanceQualifier"
+            description: The submitted mode of inheritance (SCV propositions only).
+          penetranceQualifier:
+            $ref: "#/$defs/ClinvarPenetranceQualifier"
+            description: >-
+              The penetrance implied by a low-penetrance or risk-allele classification (SCV
+              propositions only).
+
+  ClinvarVariantOncogenicityProposition:
+    maturity: trial use
+    description: >-
+      A record of the propositionOncogenicity section: a VariantOncogenicityProposition whose
+      subject is a variation pointer and whose object is a condition or condition set pointer.
+      SCV propositions may carry a gene context qualifier. No name, description, aliases,
+      extensions or allele origin qualifier.
+    allOf:
+      - $refCurie: va-spec:VariantOncogenicityProposition
+      - type: object
+        properties:
+          name: false
+          description: false
+          aliases: false
+          extensions: false
+          alleleOriginQualifier: false
+          subject:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/variation/"
+            description: The variant, a '#/variation/<id>' pointer into this bundle.
+          object:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/(condition|conditionSet)/"
+            description: >-
+              The tumor type, a '#/condition/<id>' or '#/conditionSet/<id>' pointer into
+              this bundle.
+          geneContextQualifier:
+            $ref: "#/$defs/ClinvarGeneContextQualifier"
+            description: The variant's gene (SCV propositions only).
+
+  ClinvarVariantClinicalSignificanceProposition:
+    maturity: draft
+    description: >-
+      A somatic clinical impact proposition of the propositionSomaticClinicalImpact section: a
+      VariantClinicalSignificanceProposition whose subject is a variation pointer and whose
+      object is a condition or condition set pointer. SCV propositions may carry a gene
+      context qualifier. No name, description, aliases, extensions or allele origin qualifier.
+    allOf:
+      - $refCurie: va-spec:VariantClinicalSignificanceProposition
+      - type: object
+        properties:
+          name: false
+          description: false
+          aliases: false
+          extensions: false
+          alleleOriginQualifier: false
+          subject:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/variation/"
+            description: The variant, a '#/variation/<id>' pointer into this bundle.
+          object:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/(condition|conditionSet)/"
+            description: >-
+              The condition, a '#/condition/<id>' or '#/conditionSet/<id>' pointer into
+              this bundle.
+          geneContextQualifier:
+            $ref: "#/$defs/ClinvarGeneContextQualifier"
+            description: The variant's gene (SCV propositions only).
+
+  ClinvarVariantDiagnosticProposition:
+    maturity: trial use
+    description: >-
+      The target proposition of a diagnostic somatic clinical impact SCV's evidence line, in
+      the propositionSomaticClinicalImpact section: a VariantDiagnosticProposition whose
+      subject is a variation pointer and whose object is a condition or condition set
+      pointer, with the SCV's gene context qualifier. No name, description, aliases,
+      extensions or allele origin qualifier.
+    allOf:
+      - $refCurie: va-spec:VariantDiagnosticProposition
+      - type: object
+        properties:
+          name: false
+          description: false
+          aliases: false
+          extensions: false
+          alleleOriginQualifier: false
+          subject:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/variation/"
+            description: The variant, a '#/variation/<id>' pointer into this bundle.
+          object:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/(condition|conditionSet)/"
+            description: >-
+              The disease, a '#/condition/<id>' or '#/conditionSet/<id>' pointer into this
+              bundle.
+          geneContextQualifier:
+            $ref: "#/$defs/ClinvarGeneContextQualifier"
+            description: The variant's gene.
+
+  ClinvarVariantPrognosticProposition:
+    maturity: trial use
+    description: >-
+      The target proposition of a prognostic somatic clinical impact SCV's evidence line, in
+      the propositionSomaticClinicalImpact section: a VariantPrognosticProposition whose
+      subject is a variation pointer and whose object is a condition or condition set
+      pointer, with the SCV's gene context qualifier. No name, description, aliases,
+      extensions or allele origin qualifier.
+    allOf:
+      - $refCurie: va-spec:VariantPrognosticProposition
+      - type: object
+        properties:
+          name: false
+          description: false
+          aliases: false
+          extensions: false
+          alleleOriginQualifier: false
+          subject:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/variation/"
+            description: The variant, a '#/variation/<id>' pointer into this bundle.
+          object:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/(condition|conditionSet)/"
+            description: >-
+              The disease, a '#/condition/<id>' or '#/conditionSet/<id>' pointer into this
+              bundle.
+          geneContextQualifier:
+            $ref: "#/$defs/ClinvarGeneContextQualifier"
+            description: The variant's gene.
+
+  ClinvarVariantTherapeuticResponseProposition:
+    maturity: trial use
+    description: >-
+      The target proposition of a therapeutic somatic clinical impact SCV's evidence line, in
+      the propositionSomaticClinicalImpact section: a VariantTherapeuticResponseProposition
+      whose subject is a variation pointer, whose object is a therapy or therapy group
+      pointer and whose condition qualifier is a condition or condition set pointer, with the
+      SCV's gene context qualifier. No name, description, aliases, extensions or allele
+      origin qualifier.
+    allOf:
+      - $refCurie: va-spec:VariantTherapeuticResponseProposition
+      - type: object
+        properties:
+          name: false
+          description: false
+          aliases: false
+          extensions: false
+          alleleOriginQualifier: false
+          subject:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/variation/"
+            description: The variant, a '#/variation/<id>' pointer into this bundle.
+          object:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/(therapy|therapyGroup)/"
+            description: >-
+              The drug, a '#/therapy/<id>' pointer, or a combination of drugs, a
+              '#/therapyGroup/<id>' pointer into this bundle.
+          conditionQualifier:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/(condition|conditionSet)/"
+            description: >-
+              The disease context, a '#/condition/<id>' or '#/conditionSet/<id>' pointer
+              into this bundle.
+          geneContextQualifier:
+            $ref: "#/$defs/ClinvarGeneContextQualifier"
+            description: The variant's gene.
+
+  # ─── ClinVar custom propositions ───
 
   ClinvarGermlineCustomPropositionProperties:
     abstract: true
@@ -90,37 +433,30 @@ $defs:
     protectedClassOf: ClinvarGermlineCustomProposition
     properties:
       subject:
-        oneOf:
-          - $refCurie: vrs:MolecularVariation
-          - $refCurie: cat-vrs:CategoricalVariant
-          - $refCurie: gkm.core:iriReference
-        description: A variant that is the subject of the Proposition.
+        $refCurie: gkm.core:iriReference
+        pattern: "^#/variation/"
+        description: The variant, a '#/variation/<id>' pointer into this bundle.
       object:
-        oneOf:
-          - $refCurie: domain-entities:Condition
-          - $refCurie: domain-entities:ConditionSet
-          - $refCurie: gkm.core:iriReference
-        description: The condition for which the variant is associated.
+        $refCurie: gkm.core:iriReference
+        pattern: "^#/(condition|conditionSet)/"
+        description: >-
+          The condition the variant is associated with, a '#/condition/<id>' or
+          '#/conditionSet/<id>' pointer into this bundle.
       geneContextQualifier:
-        oneOf:
-          - $ref: "#/$defs/ClinvarGeneContextQualifier"
-          - $refCurie: gkm.core:iriReference
+        $ref: "#/$defs/ClinvarGeneContextQualifier"
         description: >-
           Reports a gene impacted by the variant, which may contribute to the association
-          described in the Proposition.
+          described in the Proposition (SCV propositions only).
       modeOfInheritanceQualifier:
-        oneOf:
-          - $refCurie: gkm.core:MappableConcept
-          - $refCurie: gkm.core:iriReference
+        $ref: "#/$defs/ClinvarModeOfInheritanceQualifier"
         description: >-
-          Reports a pattern of inheritance expected for the effect of the variant.
+          Reports a pattern of inheritance expected for the effect of the variant (SCV
+          propositions only).
       penetranceQualifier:
-        oneOf:
-          - $refCurie: gkm.core:MappableConcept
-          - $refCurie: gkm.core:iriReference
+        $ref: "#/$defs/ClinvarPenetranceQualifier"
         description: >-
           Reports the penetrance of the effect - the extent to which the variant impact is
-          expressed by carriers.
+          expressed by carriers (SCV propositions only).
 
   ClinvarGermlineCustomProposition:
     maturity: trial use
@@ -128,10 +464,17 @@ $defs:
       A custom proposition type for ClinVar germline submissions that do not have
       a corresponding GA4GH VA-Spec proposition type. Includes ClinVar submission
       categories such as "risk factor", "protective", "drug response", "affects", "association", "confers sensitivity", "other", "not provided", and
-      "conflicting data from submitters". These custom proposition types are used to represent variant-condition associations in Clin
+      "conflicting data from submitters". These custom proposition types are used to represent
+      variant-condition associations in ClinVar. No name, description, aliases or extensions.
     allOf:
       - $refCurie: va-spec:SubjectVariantProposition
       - $ref: "#/$defs/ClinvarGermlineCustomPropositionProperties"
+      - type: object
+        properties:
+          name: false
+          description: false
+          aliases: false
+          extensions: false
 
   ClinvarRiskFactorProposition:
     type: object
@@ -368,25 +711,3 @@ $defs:
         description: >-
           The relationship the Proposition describes between the subject variant and object
           condition. MUST be "isClinvarUndefinedAssociationFor".
-
-  ClinvarProposition:
-    maturity: trial use
-    description: >-
-      Any proposition type valid in ClinVar-GKM statements. Includes the
-      GA4GH standard proposition types (pathogenicity, oncogenicity, clinical
-      significance) and ClinVar-specific proposition types for submission
-      categories not covered by the GA4GH specifications.
-    oneOf:
-      - $refCurie: va-spec:VariantPathogenicityProposition
-      - $refCurie: va-spec:VariantOncogenicityProposition
-      - $refCurie: va-spec:VariantClinicalSignificanceProposition
-      - $ref: "#/$defs/ClinvarRiskFactorProposition"
-      - $ref: "#/$defs/ClinvarProtectiveProposition"
-      - $ref: "#/$defs/ClinvarDrugResponseProposition"
-      - $ref: "#/$defs/ClinvarAffectsProposition"
-      - $ref: "#/$defs/ClinvarAssociationProposition"
-      - $ref: "#/$defs/ClinvarConfersSensitivityProposition"
-      - $ref: "#/$defs/ClinvarOtherProposition"
-      - $ref: "#/$defs/ClinvarNotProvidedProposition"
-      - $ref: "#/$defs/ClinvarConflictingDataFromSubmitterProposition"
-      - $ref: "#/$defs/ClinvarUndefinedProposition"

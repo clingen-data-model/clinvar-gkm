@@ -6,29 +6,6 @@
   "type": "object",
   "minProperties": 1,
   "additionalProperties": false,
-  "allOf": [
-    {
-      "description": "Every proposition section (any section whose name contains 'proposition'): a proposition's geneContextQualifier must match ClinvarGeneContextQualifier, which restricts the 'geneContextSource' extension value to its four defined values. This also covers the GA4GH VA-Spec proposition types, whose own schemas leave qualifier extensions open. It sits in allOf so it does not widen the root's additionalProperties.",
-      "patternProperties": {
-        "proposition": {
-          "additionalProperties": {
-            "properties": {
-              "geneContextQualifier": {
-                "anyOf": [
-                  {
-                    "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGeneContextQualifier"
-                  },
-                  {
-                    "$ref": "https://w3id.org/ga4gh/schema/gkm-core/1.3.0/json/iriReference"
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
-    }
-  ],
   "properties": {
     "schema_version": {
       "type": "string",
@@ -38,11 +15,11 @@
     "sequenceReference": {
       "type": "object",
       "title": "sequenceReference",
-      "description": "VRS SequenceReference records (NCBI RefSeq sequences).",
+      "description": "Sequence reference records (ClinvarSequenceReference: a VRS SequenceReference for an NCBI RefSeq sequence).",
       "minProperties": 1,
       "patternProperties": {
         "^SQ\\..+": {
-          "$ref": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/SequenceReference"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarSequenceReference"
         }
       },
       "additionalProperties": false
@@ -50,11 +27,11 @@
     "location": {
       "type": "object",
       "title": "location",
-      "description": "VRS SequenceLocation records.",
+      "description": "Location records (ClinvarSequenceLocation: a VRS SequenceLocation pointing to its sequenceReference record).",
       "minProperties": 1,
       "patternProperties": {
         "^ga4gh:SL\\..+": {
-          "$ref": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/SequenceLocation"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarSequenceLocation"
         }
       },
       "additionalProperties": false
@@ -62,11 +39,11 @@
     "allele": {
       "type": "object",
       "title": "allele",
-      "description": "VRS Allele records.",
+      "description": "Allele records (ClinvarAllele: a VRS Allele pointing to its location record).",
       "minProperties": 1,
       "patternProperties": {
         "^ga4gh:VA\\..+": {
-          "$ref": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/Allele"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarAllele"
         }
       },
       "additionalProperties": false
@@ -74,11 +51,11 @@
     "copyNumberCount": {
       "type": "object",
       "title": "copyNumberCount",
-      "description": "VRS CopyNumberCount records.",
+      "description": "Copy number count records (ClinvarCopyNumberCount: a VRS CopyNumberCount pointing to its location record).",
       "minProperties": 1,
       "patternProperties": {
         "^ga4gh:CN\\..+": {
-          "$ref": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/CopyNumberCount"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCopyNumberCount"
         }
       },
       "additionalProperties": false
@@ -86,11 +63,11 @@
     "copyNumberChange": {
       "type": "object",
       "title": "copyNumberChange",
-      "description": "VRS CopyNumberChange records.",
+      "description": "Copy number change records (ClinvarCopyNumberChange: a VRS CopyNumberChange pointing to its location record).",
       "minProperties": 1,
       "patternProperties": {
         "^ga4gh:CX\\..+": {
-          "$ref": "https://w3id.org/ga4gh/schema/vrs/2.1.1/json/CopyNumberChange"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCopyNumberChange"
         }
       },
       "additionalProperties": false
@@ -98,11 +75,11 @@
     "gene": {
       "type": "object",
       "title": "gene",
-      "description": "Gene records (MappableConcept with NCBI Gene / HGNC codings).",
+      "description": "Gene records (ClinvarGene: a MappableConcept with NCBI Gene / HGNC codings).",
       "minProperties": 1,
       "patternProperties": {
         "^ncbigene:[0-9]+$": {
-          "$ref": "https://w3id.org/ga4gh/schema/gkm-core/1.3.0/json/MappableConcept"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGene"
         }
       },
       "additionalProperties": false
@@ -122,11 +99,11 @@
     "condition": {
       "type": "object",
       "title": "condition",
-      "description": "Condition / trait records (MappableConcept).",
+      "description": "Condition / trait records (ClinvarCondition).",
       "minProperties": 1,
       "patternProperties": {
         "^clinvar\\.trait:[0-9]+$": {
-          "$ref": "https://w3id.org/ga4gh/schema/gkm-core/1.3.0/json/MappableConcept"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCondition"
         }
       },
       "additionalProperties": false
@@ -138,7 +115,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^clinvar\\.(trait[sS]et|conditionset):.+": {
-          "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/ConditionSet"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarConditionSet"
         }
       },
       "additionalProperties": false
@@ -146,11 +123,11 @@
     "therapy": {
       "type": "object",
       "title": "therapy",
-      "description": "Therapy records (MappableConcept, content-addressed).",
+      "description": "Therapy records (ClinvarTherapy, content-addressed).",
       "minProperties": 1,
       "patternProperties": {
         "^clinvar\\.therapy:.+": {
-          "$ref": "https://w3id.org/ga4gh/schema/gkm-core/1.3.0/json/MappableConcept"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarTherapy"
         }
       },
       "additionalProperties": false
@@ -162,7 +139,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^clinvar\\.therapygroup:.+": {
-          "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/TherapyGroup"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarTherapyGroup"
         }
       },
       "additionalProperties": false
@@ -170,11 +147,11 @@
     "submitter": {
       "type": "object",
       "title": "submitter",
-      "description": "Submitter organization records (Agent).",
+      "description": "Submitter organization records (ClinvarSubmitter: an Agent with its id and name).",
       "minProperties": 1,
       "patternProperties": {
         "^clinvar\\.submitter:[0-9]+$": {
-          "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Agent"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarSubmitter"
         }
       },
       "additionalProperties": false
@@ -182,11 +159,11 @@
     "propositionPathogenicity": {
       "type": "object",
       "title": "propositionPathogenicity",
-      "description": "Variant pathogenicity propositions (germline classifications, SCV/RCV/VCV).",
+      "description": "Variant pathogenicity propositions (germline classifications, SCV/RCV/VCV): ClinvarVariantPathogenicityProposition.",
       "minProperties": 1,
       "patternProperties": {
         "^(SCV|VCV|RCV).+": {
-          "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantPathogenicityProposition"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarVariantPathogenicityProposition"
         }
       },
       "additionalProperties": false
@@ -194,11 +171,11 @@
     "propositionOncogenicity": {
       "type": "object",
       "title": "propositionOncogenicity",
-      "description": "Variant oncogenicity propositions (SCV/RCV/VCV).",
+      "description": "Variant oncogenicity propositions (SCV/RCV/VCV): ClinvarVariantOncogenicityProposition.",
       "minProperties": 1,
       "patternProperties": {
         "^(SCV|VCV|RCV).+": {
-          "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantOncogenicityProposition"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarVariantOncogenicityProposition"
         }
       },
       "additionalProperties": false
@@ -212,16 +189,16 @@
         "^(SCV|VCV|RCV).+": {
           "anyOf": [
             {
-              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantClinicalSignificanceProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarVariantClinicalSignificanceProposition"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantDiagnosticProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarVariantDiagnosticProposition"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantPrognosticProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarVariantPrognosticProposition"
             },
             {
-              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantTherapeuticResponseProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarVariantTherapeuticResponseProposition"
             }
           ]
         }
@@ -274,18 +251,14 @@
     "evidenceLine": {
       "type": "object",
       "title": "evidenceLine",
-      "description": "Evidence line records tying aggregate statements to their contributors.",
+      "description": "Evidence line records: the evidence lines of VCV/RCV aggregate statements (ClinvarAggregateEvidenceLine, keyed by the aggregate statement id) and of SCV somatic clinical impact statements (ClinvarSomaticEvidenceLine, keyed by the SCV id).",
       "minProperties": 1,
       "patternProperties": {
-        "^(clinvar\\.submission:SCV|VCV|RCV).+": {
-          "anyOf": [
-            {
-              "$ref": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/EvidenceLine"
-            },
-            {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarSomaticEvidenceLine"
-            }
-          ]
+        "^clinvar\\.submission:SCV[0-9]+\\.[0-9]+$": {
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarSomaticEvidenceLine"
+        },
+        "^(VCV|RCV)[0-9]+\\.": {
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarAggregateEvidenceLine"
         }
       },
       "additionalProperties": false

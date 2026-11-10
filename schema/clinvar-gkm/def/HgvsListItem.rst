@@ -23,36 +23,36 @@ A complex structure for sharing individual HGVS entries associated with Clinvar 
       - Description
    *  - nucleotideExpression
       -
-      - :ref:`Expression`
+      - :ref:`ClinvarNucleotideExpression`
       - 0..1
-      - The nucleotide HGVS expression with `syntax` (e.g.,` hgvs.c`, `hgvs.g`)  and `value` (the HGVS string).
+      - The nucleotide HGVS expression with `syntax` (e.g.,` hgvs.c`, `hgvs.g`) and `value` (the HGVS string). ClinVar's submitted text is never altered: when ClinVar supplies an expression with no HGVS type letter (e.g. `NC_000017.10:9481617_9489649del`), it is kept as an extension of the listed expression. If ClinVar also supplies a valid expression for the same accession, that one is listed with extensions `invalidClinvarExpression` (the submitted text) and `expressionMerged` (`true`). Otherwise the listed expression is a repair (the type letter restored) with extensions `originalClinvarExpression` (the submitted text) and `expressionRepaired` (`true`).
    *  - nucleotideType
       -
       - string
       - 0..1
-      - The type of nucleotide expression as reported by ClinVar (e.g., `coding`,  `genomic`, `genomic, top-level`).
+      - The type of nucleotide expression as reported by ClinVar (e.g., `coding`, `genomic`, `genomic, top-level`).
    *  - maneSelect
       -
       - boolean
       - 0..1
-      - `true` if this transcript is designated as MANE Select. Absent or `false` when  not applicable.
+      - `true` if this transcript is designated as MANE Select. Absent or `false` when not applicable.
    *  - manePlus
       -
       - boolean
       - 0..1
-      - `true` if this transcript is designated as MANE Plus Clinical. Absent or `false`  when not applicable.
+      - `true` if this transcript is designated as MANE Plus Clinical. Absent or `false` when not applicable.
    *  - proteinExpression
       -
-      - :ref:`Expression`
+      - :ref:`ClinvarProteinExpression`
       - 0..1
-      - The protein HGVS expression with syntax (typically `hgvs.p`) and `value`. Present  only when a protein-level expression exists for the nucleotide expression.
+      - The protein HGVS expression with syntax (typically `hgvs.p`) and `value`. Present only when a protein-level expression exists for the nucleotide expression.
    *  - molecularConsequence
       -
                         .. raw:: html
 
                             <span style="background-color: #B2DFEE; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Unordered">&#8942;</span>
-      - :ref:`Coding`
+      - :ref:`ClinvarMolecularConsequenceCoding`
       - 0..m
-      - Sequence Ontology terms describing the predicted molecular consequence.  Each entry includes `code` (SO identifier), `system`, `name` (SO term label),  and `iris` (identifiers.org link).
+      - Sequence Ontology terms describing the predicted molecular consequence. Each entry includes `code` (SO identifier), `system`, `name` (SO term label), and `iris` (identifiers.org link).
 
 **Used in:** :ref:`ExtensionClinvarHgvsList`

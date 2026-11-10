@@ -1,0 +1,214 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-concept-source.yaml"
+title: ClinVar-GKM concept profiles
+description: >-
+  Profiles of the GA4GH concept classes for the records of the gene, condition, conditionSet,
+  therapy and therapyGroup bundle sections, and of the codings and terms other ClinVar-GKM
+  profiles use. Each profile composes its GA4GH base class and
+  narrows it to what the ClinVar-GKM pipeline writes: a property the pipeline never writes is
+  declared false, and a position the base allows as either an inline object or an IRI is
+  restated as the one form written (pointers carry the pattern of the sections they name).
+strict: true
+
+imports:
+  domain-entities: ../va-spec/domain-entities-source.yaml
+  gkm-core: ../gkm-core/gkm-core-source.yaml
+
+namespaces:
+  gkm.core: /ga4gh/schema/gkm-core/1.3.0/json/
+  domain-entities: /ga4gh/schema/va-spec/1.1.0/json/
+  clinvar-gkm: /clingen/schema/clinvar-gkm/1.1.0/json/
+
+$defs:
+  # ─── Codings and mappings ───
+
+  ClinvarCoding:
+    maturity: trial use
+    description: >-
+      A Coding as ClinVar-GKM writes it: a code and its system, with an optional name and
+      IRIs. No id, extensions or system version.
+    allOf:
+      - $refCurie: gkm.core:Coding
+      - type: object
+        properties:
+          id: false
+          extensions: false
+          systemVersion: false
+
+  ClinvarMappingCoding:
+    maturity: trial use
+    description: >-
+      The coding of a concept mapping: a ClinvarCoding without a name.
+    allOf:
+      - $ref: "#/$defs/ClinvarCoding"
+      - type: object
+        properties:
+          name: false
+
+  ClinvarConceptMapping:
+    maturity: trial use
+    description: >-
+      A ConceptMapping as ClinVar-GKM writes it: a ClinvarMappingCoding and its relation. No
+      id or extensions.
+    allOf:
+      - $refCurie: gkm.core:ConceptMapping
+      - type: object
+        properties:
+          id: false
+          extensions: false
+          coding:
+            $ref: "#/$defs/ClinvarMappingCoding"
+            description: The coding the concept maps to.
+
+  ClinvarTermCoding:
+    maturity: trial use
+    description: >-
+      The coding of a ClinVar term: a ClinvarCoding with only its code and system. No name
+      or IRIs.
+    allOf:
+      - $ref: "#/$defs/ClinvarCoding"
+      - type: object
+        properties:
+          name: false
+          iris: false
+
+  # ─── Terms ───
+
+  ClinvarCodedTerm:
+    maturity: trial use
+    description: >-
+      A term of a ClinVar vocabulary (a strength, say) as a MappableConcept: its concept type,
+      its name and, when the term has one, a ClinvarTermCoding. No id, description, aliases,
+      mappings or extensions.
+    allOf:
+      - $refCurie: gkm.core:MappableConcept
+      - type: object
+        properties:
+          id: false
+          description: false
+          aliases: false
+          mappings: false
+          extensions: false
+          primaryCoding:
+            $ref: "#/$defs/ClinvarTermCoding"
+            description: The term's code and its system.
+
+  ClinvarTerm:
+    maturity: trial use
+    description: >-
+      A term of a ClinVar vocabulary with no coding (a quality, say): a ClinvarCodedTerm
+      with only its concept type and name.
+    allOf:
+      - $ref: "#/$defs/ClinvarCodedTerm"
+      - type: object
+        properties:
+          primaryCoding: false
+
+  # ─── Section records ───
+
+  ClinvarGene:
+    maturity: trial use
+    description: >-
+      A record of the gene section: a MappableConcept for an NCBI Gene, with its primary
+      coding and its mappings to other gene codes. No description, aliases or extensions.
+    allOf:
+      - $refCurie: gkm.core:MappableConcept
+      - type: object
+        properties:
+          description: false
+          aliases: false
+          extensions: false
+          primaryCoding:
+            $ref: "#/$defs/ClinvarCoding"
+            description: The gene's NCBI Gene coding.
+          mappings:
+            type: array
+            ordered: false
+            items:
+              $ref: "#/$defs/ClinvarConceptMapping"
+            description: Mappings of the gene to other gene codes.
+
+  ClinvarCondition:
+    maturity: trial use
+    description: >-
+      A record of the condition section: a Condition for a ClinVar trait, with its name,
+      aliases, primary coding and mappings. No description or extensions.
+    allOf:
+      - $refCurie: domain-entities:Condition
+      - type: object
+        properties:
+          description: false
+          extensions: false
+          primaryCoding:
+            $ref: "#/$defs/ClinvarCoding"
+            description: The condition's primary coding.
+          mappings:
+            type: array
+            ordered: false
+            items:
+              $ref: "#/$defs/ClinvarConceptMapping"
+            description: Mappings of the condition to codes in other terminologies.
+
+  ClinvarConditionSet:
+    maturity: trial use
+    description: >-
+      A record of the conditionSet section: a ConditionSet whose concepts are pointers to
+      records of the condition or conditionSet section. No name, description, aliases or
+      extensions.
+    allOf:
+      - $refCurie: domain-entities:ConditionSet
+      - type: object
+        properties:
+          name: false
+          description: false
+          aliases: false
+          extensions: false
+          concepts:
+            type: array
+            ordered: false
+            items:
+              $refCurie: gkm.core:iriReference
+              pattern: "^#/(condition|conditionSet)/"
+            description: >-
+              The set's members, each a '#/condition/<id>' or '#/conditionSet/<id>' pointer
+              into this bundle.
+
+  ClinvarTherapy:
+    maturity: trial use
+    description: >-
+      A record of the therapy section: a Therapy named by its submitted text. No id,
+      description, aliases, extensions, codings or mappings.
+    allOf:
+      - $refCurie: domain-entities:Therapy
+      - type: object
+        properties:
+          id: false
+          description: false
+          aliases: false
+          extensions: false
+          primaryCoding: false
+          mappings: false
+
+  ClinvarTherapyGroup:
+    maturity: trial use
+    description: >-
+      A record of the therapyGroup section: a TherapyGroup whose concepts are pointers to
+      records of the therapy section. No id, name, description, aliases, extensions or
+      concept set type.
+    allOf:
+      - $refCurie: domain-entities:TherapyGroup
+      - type: object
+        properties:
+          id: false
+          name: false
+          description: false
+          aliases: false
+          extensions: false
+          conceptSetType: false
+          concepts:
+            type: array
+            ordered: false
+            items:
+              $refCurie: gkm.core:iriReference
+              pattern: "^#/therapy/"
+            description: The group's members, each a '#/therapy/<id>' pointer into this bundle.

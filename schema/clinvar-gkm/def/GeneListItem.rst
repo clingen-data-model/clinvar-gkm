@@ -30,7 +30,7 @@ One gene associated with a ClinVar variation: a reference to the gene's Mappable
       -
       - string
       - 1..1
-      - The relationship between the variation and the gene as reported by ClinVar (e.g.,  `within single gene`, `genes overlapped by variant`).
+      - The relationship between the variation and the gene as reported by ClinVar (e.g., `within single gene`, `genes overlapped by variant`).
    *  - source
       -
       - string

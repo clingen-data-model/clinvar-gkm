@@ -12,10 +12,10 @@ imports:
   va-core: ../va-spec/va-spec-source.yaml
   domain-entities: ../va-spec/domain-entities-source.yaml
   clinvar-proposition: ./clinvar-proposition-source.yaml
-  clinvar-evidence: ./clinvar-evidence-source.yaml
   cat-vrs: ../cat-vrs/cat-vrs-source.yaml
   vrs: ../vrs/vrs-source.yaml
   gkm-core: ../gkm-core/gkm-core-source.yaml
+  clinvar-concept: ./clinvar-concept-source.yaml
 
 namespaces:
   gkm.core: /ga4gh/schema/gkm-core/1.3.0/json/
@@ -148,14 +148,13 @@ $defs:
   # They capture the submitter's original condition information and how it was
   # mapped/normalized to the ClinVar canonical condition.
 
-  SubmittedConditionMapping:
+  SubmittedConditionMappingProperties:
+    abstract: true
     type: object
     maturity: trial use
     description: >-
-      The submitter's original condition details and how they were mapped to
-      a ClinVar canonical condition. Includes the submitted name, type, MedGen
-      ID, cross-references, and the normalization path (direct match,
-      original medgen match, normalized match, resolution type, mapping details).
+      The properties of a submitted condition's mapping, shared by SubmittedConditionMapping
+      and SubmittedCondition.
     properties:
       id:
         type: string
@@ -177,7 +176,7 @@ $defs:
         type: array
         ordered: false
         items:
-          $refCurie: gkm.core:Coding
+          $refCurie: clinvar-gkm:ClinvarTermCoding
         description: >-
           Cross-references submitted by the submitter for this condition.
       original_medgen_match:
@@ -205,9 +204,20 @@ $defs:
           the key of the corresponding #/condition/ bundle entry).
       normalized_resolution:
         type: string
+        enum:
+          - "tm reftype xref medgen"
+          - "tm reftype preferred name"
+          - "tm reftype xref omim"
+          - "tm reftype xref mondo"
+          - "tm reftype xref HP"
+          - "tm reftype xref omim.ps"
+          - "tm reftype xref orpha"
+          - "tm reftype xref mesh"
+          - "random trait assignment"
         description: >-
-          How the condition normalization was resolved (e.g., "rcv-tm medgen id",
-          "rcv-tm preferred name", "random trait assignment").
+          How the condition normalization was resolved: by the trait mapping of one of the
+          submitted references ("tm reftype xref medgen", "tm reftype preferred name", ...),
+          or, when none matched, by "random trait assignment".
       mapping:
         type: object
         additionalProperties: false
@@ -217,10 +227,76 @@ $defs:
         properties:
           type:
             type: string
+            enum:
+              - "Name"
+              - "XRef"
+            description: Name when the condition was submitted by name, otherwise XRef.
           ref:
             type: string
           value:
             type: string
+
+  SubmittedConditionMapping:
+    maturity: trial use
+    description: >-
+      The submitter's original condition details and how they were mapped to
+      a ClinVar canonical condition. Includes the submitted name, type, MedGen
+      ID, cross-references, and the normalization path (direct match,
+      original medgen match, normalized match, resolution type, mapping details).
+    allOf:
+      - $ref: "#/$defs/SubmittedConditionMappingProperties"
+
+  SubmittedCondition:
+    maturity: trial use
+    description: >-
+      The value of a submittedCondition extension: the submitted condition's mapping, with the
+      condition (or, rarely, the condition set) it resolved to.
+    allOf:
+      - $ref: "#/$defs/SubmittedConditionMappingProperties"
+    properties:
+      condition:
+        type: string
+        description: >-
+          The CURIE of the resolved condition (e.g., "clinvar.trait:123";
+          the key of the corresponding #/condition/ bundle entry).
+      conditionSet:
+        type: string
+        description: >-
+          Usually absent for single-condition submissions; when a single-trait
+          submission maps to a multi-trait RCV it holds the CURIE of that
+          condition set (e.g., clinvar.traitset:123).
+
+  SubmittedConditionSet:
+    type: object
+    maturity: trial use
+    description: >-
+      The value of a submittedConditionSet extension: the submitted condition set with the
+      mapping of each of its conditions.
+    properties:
+      conditionSet:
+        type: string
+        description: >-
+          The CURIE of the resolved condition set (e.g., "clinvar.traitset:123";
+          the key of the corresponding #/conditionSet/ bundle entry).
+      condition:
+        type: string
+        description: >-
+          Usually absent for multi-condition submissions; when present, the CURIE of a
+          condition (e.g., "clinvar.trait:123"; the key of the corresponding #/condition/
+          bundle entry).
+      multiple_condition_explanation:
+        type: string
+        description: >-
+          ClinVar's explanation for how multiple conditions relate
+          (maps to the ConditionSet membership operator: AND or OR).
+      concepts:
+        type: array
+        ordered: true
+        items:
+          $ref: "#/$defs/SubmittedConditionMapping"
+        description: >-
+          Array of individual submitted condition mappings, one per
+          condition in the set. Ordered by the condition's cat_id suffix.
 
   ExtensionSubmittedCondition:
     type: object
@@ -237,23 +313,10 @@ $defs:
         const: submittedCondition
         description: Must be 'submittedCondition'.
       value:
-        type: object
+        $ref: "#/$defs/SubmittedCondition"
         description: >-
           The submitted condition mapping details. Includes a reference to
           the resolved condition and the full mapping provenance.
-        properties:
-          condition:
-            type: string
-            description: >-
-              The CURIE of the resolved condition (e.g., "clinvar.trait:123";
-              the key of the corresponding #/condition/ bundle entry).
-          conditionSet:
-            type: string
-            description: >-
-              Usually null for single-condition submissions; when a single-trait
-              submission maps to a multi-trait RCV it holds the CURIE of that
-              condition set (e.g., clinvar.traitset:123).
-        additionalProperties: true
 
   ExtensionSubmittedConditionSet:
     type: object
@@ -271,34 +334,9 @@ $defs:
         const: submittedConditionSet
         description: Must be 'submittedConditionSet'.
       value:
-        type: object
+        $ref: "#/$defs/SubmittedConditionSet"
         description: >-
           The submitted condition set with mapping details for each condition.
-        properties:
-          conditionSet:
-            type: string
-            description: >-
-              The CURIE of the resolved condition set (e.g., "clinvar.traitset:123";
-              the key of the corresponding #/conditionSet/ bundle entry).
-          condition:
-            type: string
-            description: >-
-              Always null for multi-condition submissions. Present for
-              structural consistency with submittedCondition.
-          multiple_condition_explanation:
-            type: string
-            description: >-
-              ClinVar's explanation for how multiple conditions relate
-              (maps to the ConditionSet membership operator: AND or OR).
-          concepts:
-            type: array
-            ordered: true
-            items:
-              $ref: "#/$defs/SubmittedConditionMapping"
-            description: >-
-              Array of individual submitted condition mappings, one per
-              condition in the set. Ordered by the condition's cat_id suffix.
-        additionalProperties: true
 
   # ─── VCV/RCV Extension Types ───
 
@@ -326,9 +364,368 @@ $defs:
           - "criteria provided, single submitter"
           - "no assertion criteria provided"
           - "no classification provided"
-          - "no assertion provided"
           - "flagged submission"
         description: The aggregate review status.
+
+  ExtensionConflictingExplanation:
+    type: object
+    maturity: trial use
+    description: >-
+      The classifications behind a conflicting aggregate classification, with the number of
+      submissions for each (e.g., "Pathogenic(2); Uncertain significance(1)").
+    protectedClassOf: ClinvarAggregateClassification
+    properties:
+      name:
+        type: string
+        const: conflictingExplanation
+        description: Must be 'conflictingExplanation'.
+      value:
+        type: string
+        description: The classifications and their submission counts, separated by '; '.
+
+  ClinvarAggregateClassification:
+    maturity: trial use
+    description: >-
+      The classification of a ClinVar VCV or RCV aggregate statement: a MappableConcept with
+      its concept type and the aggregate classification label as its name and, when the
+      submissions conflict, an ExtensionConflictingExplanation. No id, description, aliases,
+      coding or mappings.
+    allOf:
+      - $refCurie: gkm.core:MappableConcept
+      - type: object
+        properties:
+          id: false
+          description: false
+          aliases: false
+          primaryCoding: false
+          mappings: false
+          conceptType:
+            type: string
+            const: Classification
+            description: Must be 'Classification'.
+          extensions:
+            type: array
+            ordered: false
+            items:
+              $ref: "#/$defs/ExtensionConflictingExplanation"
+            description: The conflicting classifications, in an ExtensionConflictingExplanation.
+
+  # ─── Strength and quality terms ───
+
+  ClinvarStrength:
+    maturity: trial use
+    description: >-
+      The strength of a ClinVar SCV statement: a ClinvarCodedTerm whose concept type is
+      'Strength'.
+    allOf:
+      - $refCurie: clinvar-gkm:ClinvarCodedTerm
+      - type: object
+        properties:
+          conceptType:
+            type: string
+            const: Strength
+            description: Must be 'Strength'.
+
+  ClinvarAggregateStrength:
+    maturity: trial use
+    description: >-
+      The strength of a ClinVar VCV or RCV aggregate statement: a ClinvarTerm (no coding)
+      whose concept type is 'Strength'.
+    allOf:
+      - $refCurie: clinvar-gkm:ClinvarTerm
+      - type: object
+        properties:
+          conceptType:
+            type: string
+            const: Strength
+            description: Must be 'Strength'.
+
+  ClinvarQuality:
+    maturity: trial use
+    description: >-
+      The quality of a ClinVar statement's assessment, named from its submission level: a
+      ClinvarTerm whose concept type is 'Quality'.
+    allOf:
+      - $refCurie: clinvar-gkm:ClinvarTerm
+      - type: object
+        properties:
+          conceptType:
+            type: string
+            const: Quality
+            description: Must be 'Quality'.
+
+  # ─── Submitter ───
+
+  ClinvarSubmitter:
+    maturity: trial use
+    description: >-
+      A record of the submitter section: an Agent for a ClinVar submitter, with its id
+      and name. No description, aliases, agent type or extensions.
+    allOf:
+      - $refCurie: va-spec:Agent
+      - type: object
+        properties:
+          description: false
+          aliases: false
+          extensions: false
+          agentType: false
+
+  # ─── SCV parts: classification, contribution, method, document ───
+
+  ExtensionClassificationDescription:
+    type: object
+    maturity: trial use
+    description: >-
+      ClinVar's description of the SCV's classification: the condition, the review status and
+      the date and submitter of the assessment, as text.
+    protectedClassOf: ClinvarScvClassification
+    properties:
+      name:
+        type: string
+        const: description
+        description: Must be 'description'.
+      value:
+        type: string
+        description: The description text.
+
+  ClinvarScvClassification:
+    maturity: trial use
+    description: >-
+      The classification of a ClinVar SCV statement: a MappableConcept with its concept type,
+      name, a ClinvarTermCoding, and ClinVar's description of it in an extension. No id,
+      description, aliases or mappings.
+    allOf:
+      - $refCurie: gkm.core:MappableConcept
+      - type: object
+        properties:
+          id: false
+          description: false
+          aliases: false
+          mappings: false
+          conceptType:
+            type: string
+            const: Classification
+            description: Must be 'Classification'.
+          primaryCoding:
+            $refCurie: clinvar-gkm:ClinvarTermCoding
+            description: The classification's code and its system (the guideline that defines it).
+          extensions:
+            type: array
+            ordered: false
+            items:
+              $ref: "#/$defs/ExtensionClassificationDescription"
+            description: The classification's description, in an ExtensionClassificationDescription.
+
+  ClinvarContribution:
+    maturity: trial use
+    description: >-
+      A Contribution as ClinVar-GKM writes it: a submitter's activity on a ClinVar record, with
+      its date. The contributor is a pointer to a record of the submitter section. No id, name,
+      description, aliases or extensions.
+    allOf:
+      - $refCurie: va-spec:Contribution
+      - type: object
+        properties:
+          id: false
+          name: false
+          description: false
+          aliases: false
+          extensions: false
+          contributor:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/submitter/"
+            description: The submitter, a '#/submitter/<id>' pointer into this bundle.
+          activityType:
+            type: string
+            enum:
+              - "submitted"
+              - "created"
+              - "evaluated"
+            description: >-
+              What the submitter did on the date: submitted (last updated), created, or
+              evaluated the record.
+
+  ExtensionClinvarCitationText:
+    type: object
+    maturity: trial use
+    description: >-
+      The free text of a ClinVar citation. A citation that is only text is a Document whose
+      only content is this extension.
+    protectedClassOf: ClinvarDocument
+    properties:
+      name:
+        type: string
+        const: clinvarCitationText
+        description: Must be 'clinvarCitationText'.
+      value:
+        type: string
+        description: The citation text, verbatim.
+
+  ExtensionOriginalClinvarCitation:
+    type: object
+    maturity: trial use
+    description: >-
+      The citation id as ClinVar has it, when ClinVar-GKM repaired it.
+    protectedClassOf: ClinvarDocument
+    properties:
+      name:
+        type: string
+        const: originalClinvarCitation
+        description: Must be 'originalClinvarCitation'.
+      value:
+        type: string
+        description: ClinVar's citation id.
+
+  ExtensionOriginalClinvarCitationSource:
+    type: object
+    maturity: trial use
+    description: >-
+      ClinVar's source of a citation id that ClinVar-GKM moved to another source.
+    protectedClassOf: ClinvarDocument
+    properties:
+      name:
+        type: string
+        const: originalClinvarCitationSource
+        description: Must be 'originalClinvarCitationSource'.
+      value:
+        type: string
+        description: ClinVar's citation source.
+
+  ExtensionCitationRepaired:
+    type: object
+    maturity: trial use
+    description: >-
+      Says that ClinVar-GKM repaired the citation's id.
+    protectedClassOf: ClinvarDocument
+    properties:
+      name:
+        type: string
+        const: citationRepaired
+        description: Must be 'citationRepaired'.
+      value:
+        type: boolean
+        const: true
+        description: Always true.
+
+  ExtensionClinvarDoi:
+    type: object
+    maturity: trial use
+    description: >-
+      A valid DOI that VA-Spec's doi pattern rejects (a SICI DOI, say). The document's doi
+      stays empty and the DOI's doi.org URL is in urls.
+    protectedClassOf: ClinvarDocument
+    properties:
+      name:
+        type: string
+        const: clinvarDoi
+        description: Must be 'clinvarDoi'.
+      value:
+        type: string
+        description: The DOI as ClinVar has it.
+
+  ExtensionInvalidClinvarCitation:
+    type: object
+    maturity: trial use
+    description: >-
+      A citation id that cannot be used (a DOI of "https", say). No doi or URL is derived
+      from it.
+    protectedClassOf: ClinvarDocument
+    properties:
+      name:
+        type: string
+        const: invalidClinvarCitation
+        description: Must be 'invalidClinvarCitation'.
+      value:
+        type: string
+        description: ClinVar's citation id.
+
+  ExtensionUnmappedClinvarCitation:
+    type: object
+    maturity: trial use
+    description: >-
+      A citation id from a source ClinVar-GKM does not map ('<source>:<id>'). No doi, pmid or
+      URL is derived from it.
+    protectedClassOf: ClinvarDocument
+    properties:
+      name:
+        type: string
+        const: unmappedClinvarCitation
+        description: Must be 'unmappedClinvarCitation'.
+      value:
+        type: string
+        description: ClinVar's citation source and id, as '<source>:<id>'.
+
+  ClinvarDocument:
+    maturity: trial use
+    description: >-
+      A Document as ClinVar-GKM writes it for a ClinVar citation: its PubMed id, DOI and URLs,
+      the name and document type when ClinVar gives them, and extensions that keep ClinVar's
+      citation text and record repairs of its ids. No id, title, description or aliases.
+    allOf:
+      - $refCurie: va-spec:Document
+      - type: object
+        properties:
+          id: false
+          title: false
+          description: false
+          aliases: false
+          extensions:
+            type: array
+            ordered: false
+            items:
+              oneOf:
+                - $ref: "#/$defs/ExtensionClinvarCitationText"
+                - $ref: "#/$defs/ExtensionOriginalClinvarCitation"
+                - $ref: "#/$defs/ExtensionOriginalClinvarCitationSource"
+                - $ref: "#/$defs/ExtensionCitationRepaired"
+                - $ref: "#/$defs/ExtensionClinvarDoi"
+                - $ref: "#/$defs/ExtensionInvalidClinvarCitation"
+                - $ref: "#/$defs/ExtensionUnmappedClinvarCitation"
+            description: >-
+              ClinVar's citation text, the record of any repair of the citation's id, and
+              ids that are invalid or from an unmapped source.
+
+  ExtensionAdditionalClinvarMethodCitations:
+    type: object
+    maturity: trial use
+    description: >-
+      The citations of an assertion method after its first, in ClinVar's order (the first is
+      the method's reportedIn).
+    protectedClassOf: ClinvarMethod
+    properties:
+      name:
+        type: string
+        const: additionalClinvarMethodCitations
+        description: Must be 'additionalClinvarMethodCitations'.
+      value:
+        type: array
+        ordered: true
+        items:
+          $ref: "#/$defs/ClinvarDocument"
+        description: The further citations, each a ClinvarDocument.
+
+  ClinvarMethod:
+    maturity: trial use
+    description: >-
+      A Method as ClinVar-GKM writes it for a submission's assertion method: its method type,
+      its name and its first citation; further citations are in an extension. No id,
+      description or aliases.
+    allOf:
+      - $refCurie: va-spec:Method
+      - type: object
+        properties:
+          id: false
+          description: false
+          aliases: false
+          reportedIn:
+            $ref: "#/$defs/ClinvarDocument"
+            description: The method's first citation.
+          extensions:
+            type: array
+            ordered: false
+            items:
+              $ref: "#/$defs/ExtensionAdditionalClinvarMethodCitations"
+            description: The method's further citations, in an ExtensionAdditionalClinvarMethodCitations.
 
   # ─── Statement Profiles ───
 
@@ -341,25 +738,47 @@ $defs:
     protectedClassOf: ClinvarScvStatement
     properties:
       proposition:
+        $refCurie: gkm.core:iriReference
+        pattern: "^#/(propositionPathogenicity|propositionOncogenicity|propositionSomaticClinicalImpact|propositionClinvarCustom)/"
         description: >-
-          The proposition assessed by this SCV statement. Must be one of the
-          GA4GH standard proposition types (pathogenicity, oncogenicity,
-          clinical significance) or a ClinVar-specific proposition type
-          (risk factor, protective, drug response, affects, association,
+          The proposition assessed by this SCV statement, a pointer into one of the bundle's
+          proposition sections. It is one of the GA4GH standard proposition types
+          (pathogenicity, oncogenicity, clinical significance) or a ClinVar-specific
+          proposition type (risk factor, protective, drug response, affects, association,
           confers sensitivity, other, not provided, conflicting data).
-        oneOf:
-          - $refCurie: clinvar-gkm:ClinvarProposition
-          - $refCurie: gkm.core:iriReference
+      classification:
+        $ref: "#/$defs/ClinvarScvClassification"
+        description: The submitter's classification.
+      strength:
+        $ref: "#/$defs/ClinvarStrength"
+        description: The strength of the classification (e.g. 'Likely'), when it has one.
+      quality:
+        $ref: "#/$defs/ClinvarQuality"
+        description: The quality of the assessment, from the submission's review status.
+      contributions:
+        type: array
+        ordered: true
+        items:
+          $ref: "#/$defs/ClinvarContribution"
+        description: The submitter's submission, creation and evaluation of the record.
+      specifiedBy:
+        $ref: "#/$defs/ClinvarMethod"
+        description: The submission's assertion method.
+      reportedIn:
+        type: array
+        ordered: false
+        items:
+          $ref: "#/$defs/ClinvarDocument"
+        description: The submission's citations.
       hasEvidenceLines:
         type: array
         ordered: false
         items:
-          anyOf:
-            - $refCurie: clinvar-gkm:ClinvarSomaticEvidenceLine
-            - $refCurie: va-spec:EvidenceLine
-            - $refCurie: gkm.core:iriReference
+          $refCurie: gkm.core:iriReference
+          pattern: "^#/evidenceLine/"
         description: >-
-          Evidence lines for this SCV statement. For somatic clinical impact
+          Evidence lines for this SCV statement, each a '#/evidenceLine/<id>' pointer into
+          this bundle. For somatic clinical impact
           (SCI) statements, evidence lines carry target propositions
           (VariantTherapeuticResponseProposition, VariantDiagnosticProposition,
           or VariantPrognosticProposition) and an evidence outcome reflecting
@@ -407,6 +826,12 @@ $defs:
     allOf:
       - $refCurie: va-spec:Statement
       - $ref: "#/$defs/ClinvarScvStatementProperties"
+      - type: object
+        properties:
+          name: false
+          aliases: false
+          score: false
+          hasEvidence: false
 
   ClinvarAggregateStatementProperties:
     abstract: true
@@ -417,36 +842,42 @@ $defs:
     protectedClassOf: ClinvarAggregateStatement
     properties:
       proposition:
+        $refCurie: gkm.core:iriReference
+        pattern: "^#/(propositionPathogenicity|propositionOncogenicity|propositionSomaticClinicalImpact|propositionClinvarCustom)/"
         description: >-
-          The aggregate proposition assessed by this VCV or RCV statement.
-          Uses the same proposition types as SCV statements. The proposition
-          at the aggregate level represents the consensus or highest-priority
-          classification across contributing submissions.
-        oneOf:
-          - $refCurie: clinvar-gkm:ClinvarProposition
-          - $refCurie: gkm.core:iriReference
+          The aggregate proposition assessed by this VCV or RCV statement, a pointer into one
+          of the bundle's proposition sections. Uses the same proposition types as SCV
+          statements. The proposition at the aggregate level represents the consensus or
+          highest-priority classification across contributing submissions.
+      classification:
+        $ref: "#/$defs/ClinvarAggregateClassification"
+        description: The aggregate classification.
+      strength:
+        $ref: "#/$defs/ClinvarAggregateStrength"
+        description: The strength of the aggregate classification (e.g. 'Likely'), when it has one.
+      quality:
+        $ref: "#/$defs/ClinvarQuality"
+        description: The quality of the aggregate, from the submission level of its submissions.
       hasEvidenceLines:
         type: array
         ordered: false
         items:
-          anyOf:
-            - $refCurie: va-spec:EvidenceLine
-            - $refCurie: gkm.core:iriReference
+          $refCurie: gkm.core:iriReference
+          pattern: "^#/evidenceLine/"
         description: >-
-          Evidence lines grouping contributing submissions by review status
-          priority tier. Each evidence line contains nested sub-statements
-          (classification layer) or SCV references (aggregate contribution
-          layer). Tiers are: practice guideline (PG), expert panel (EP),
-          criteria provided (CP), no criteria provided (NOCP), no
-          classification provided (NOCL), and flagged submission (FLAG).
+          The statement's evidence lines, each a '#/evidenceLine/<id>' pointer into this
+          bundle: always its contributing evidence line and, at the priority and aggregate
+          layers, a non-contributing evidence line when there are non-contributing items.
+          The evidence line's items point to the SCV statements (classification layer) or
+          to the lower-layer aggregate statements (priority and aggregate layers).
       extensions:
         type: array
         ordered: false
         items:
-          oneOf:
-            - $ref: "#/$defs/ExtensionClinvarReviewStatus"
+          $ref: "#/$defs/ExtensionClinvarReviewStatus"
         description: >-
-          Aggregate-level extensions including the overall review status.
+          The aggregate review status, in an ExtensionClinvarReviewStatus. Absent on the
+          somatic priority-layer statements.
 
   ClinvarAggregateStatement:
     maturity: trial use
@@ -456,10 +887,21 @@ $defs:
       submissions, grouping them into evidence lines by review status priority
       tier. Concrete aggregate statements are ClinvarVcvStatement (across all
       conditions for a variant) and ClinvarRcvStatement (scoped to a single
-      condition or condition set).
+      condition or condition set). No name, description, aliases, method,
+      contributions, citations, score or direct evidence.
     allOf:
       - $refCurie: va-spec:Statement
       - $ref: "#/$defs/ClinvarAggregateStatementProperties"
+      - type: object
+        properties:
+          name: false
+          description: false
+          aliases: false
+          specifiedBy: false
+          contributions: false
+          reportedIn: false
+          score: false
+          hasEvidence: false
 
   ClinvarVcvStatement:
     maturity: trial use
@@ -471,13 +913,13 @@ $defs:
       (practice guideline, expert panel, criteria provided, no criteria provided).
 
       VCV statements use the same 13 proposition types as SCV statements.
-      Evidence lines at the VCV level contain nested sub-statements at the
-      classification layer, each carrying the same proposition type as the
-      parent but scoped to a specific priority tier. The innermost layer
-      references individual SCV submissions as evidence items.
+      Evidence lines at the VCV level point to the lower-layer VCV statements
+      (in the vcv section), each carrying the same proposition type as the
+      parent but scoped to a specific priority tier. The innermost
+      (classification) layer's evidence lines point to the individual SCV
+      statements as evidence items.
     allOf:
-      - $refCurie: va-spec:Statement
-      - $ref: "#/$defs/ClinvarAggregateStatementProperties"
+      - $ref: "#/$defs/ClinvarAggregateStatement"
 
   ClinvarRcvStatement:
     maturity: trial use
@@ -493,8 +935,7 @@ $defs:
       RCV statements are scoped to a single condition. Evidence lines at the
       RCV level follow the same priority tier structure as VCV statements.
     allOf:
-      - $refCurie: va-spec:Statement
-      - $ref: "#/$defs/ClinvarAggregateStatementProperties"
+      - $ref: "#/$defs/ClinvarAggregateStatement"
 
   ClinvarStatement:
     maturity: trial use

@@ -5,7 +5,7 @@
 
 **Computational Definition**
 
-An evidence line for ClinVar somatic clinical impact (SCI) statements. Carries a target proposition (therapeutic response, diagnostic, or prognostic) and an evidence outcome reflecting the AMP/ASCO/CAP tiered classification. SCI statements use this evidence line to link the parent VariantClinicalSignificanceProposition to specific clinical assertion types.
+The evidence line of a ClinVar somatic clinical impact (SCI) SCV statement. It links the statement's VariantClinicalSignificanceProposition to the specific assertion: its target proposition (a VariantTherapeuticResponseProposition, VariantDiagnosticProposition or VariantPrognosticProposition, in the propositionSomaticClinicalImpact section), always supported, with an evidence outcome reflecting the AMP/ASCO/CAP tier and the submitter's original condition(s) in an extension. No name, description, aliases, method, contributions, citations, evidence items, strength or score.
 
 **Information Model**
 
@@ -31,87 +31,28 @@ An evidence line for ClinVar somatic clinical impact (SCI) statements. Carries a
       - string
       - 1..1
       - MUST be "EvidenceLine".
-   *  - name
-      -
-      - string
-      - 0..1
-      - A primary name for the entity.
-   *  - description
-      -
-      - string
-      - 0..1
-      - A free-text description of the Entity.
-   *  - aliases
-      -
-                        .. raw:: html
-
-                            <span style="background-color: #B2DFEE; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Unordered">&#8942;</span>
-      - string
-      - 0..m
-      - Alternative name(s) for the Entity.
    *  - extensions
       -
                         .. raw:: html
 
                             <span style="background-color: #B2DFEE; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Unordered">&#8942;</span>
-      - :ref:`Extension`
+      - :ref:`ExtensionEvidenceLineSubmittedCondition` | :ref:`ExtensionEvidenceLineSubmittedConditionSet`
       - 0..m
-      - A list of extensions to the Entity, that allow for capture of information not directly supported by elements defined in the model.
-   *  - specifiedBy
-      -
-      - :ref:`Method` | :ref:`iriReference`
-      - 0..1
-      - A specification that describes all or part of the process that led to creation of the Information Entity
-   *  - contributions
-      -
-                        .. raw:: html
-
-                            <span style="background-color: #B2DFEE; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Ordered">&#8595;</span>
-      - :ref:`Contribution`
-      - 0..m
-      - Specific actions taken by an Agent toward the creation, modification, validation, or deprecation of an Information Entity.
-   *  - reportedIn
-      -
-                        .. raw:: html
-
-                            <span style="background-color: #B2DFEE; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Unordered">&#8942;</span>
-      - :ref:`Document` | :ref:`iriReference`
-      - 0..m
-      - A document in which the the Information Entity is reported.
+      - The submitter's original condition, in an ExtensionEvidenceLineSubmittedCondition, or conditions, in an ExtensionEvidenceLineSubmittedConditionSet.
    *  - targetProposition
       -
-      - :ref:`Proposition` | :ref:`iriReference`
+      - :ref:`iriReference`
       - 0..1
-      - The possible fact against which evidence items contained in an Evidence Line were collectively evaluated, in determining the overall strength and direction of support they provide. For example, in an ACMG Guideline-based assessment of variant pathogenicity, the support provided by distinct lines of evidence are assessed against a target proposition that the variant is pathogenic for a specific disease.
-   *  - hasEvidenceItems
-      -
-                        .. raw:: html
-
-                            <span style="background-color: #B2DFEE; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Unordered">&#8942;</span>
-      - :ref:`InformationEntity` | :ref:`iriReference`
-      - 0..m
-      - An individual piece of information that was evaluated as evidence in building the argument represented by an Evidence Line.
+      - The specific assertion, a '#/propositionSomaticClinicalImpact/<id>' pointer to a VariantTherapeuticResponseProposition, VariantDiagnosticProposition or VariantPrognosticProposition in this bundle.
    *  - directionOfEvidenceProvided
       -
       - string
       - 1..1
-      - The direction of support that the Evidence Line is determined to provide toward its target Proposition (supports, disputes, neutral)
-   *  - strengthOfEvidenceProvided
-      -
-      - :ref:`MappableConcept` | :ref:`iriReference`
-      - 0..1
-      - The strength of support that an Evidence Line is determined to provide for or against its target Proposition, evaluated relative to the direction indicated by the directionOfEvidenceProvided value.
-   *  - scoreOfEvidenceProvided
-      -
-      - number
-      - 0..1
-      - A quantitative score indicating the strength of support that an Evidence Line is determined to provide for or against its target Proposition, evaluated relative to the direction indicated by the directionOfEvidenceProvided value.
+      - Always 'supports'.
    *  - evidenceOutcome
       -
-      - :ref:`MappableConcept` | :ref:`iriReference`
+      - :ref:`ClinvarTerm`
       - 0..1
-      - A term summarizing the overall outcome of the evidence assessment represented by the Evidence Line, in terms of the direction and strength of support it provides for or against the target Proposition.
+      - The evidence level for the AMP/ASCO/CAP tier, as a ClinvarTerm of concept type 'Outcome': 'Level A/B' for Tier I, 'Level C/D' for Tier II; for any other tier, the SCV's classification code.
 
-**Composes:** :ref:`EvidenceLine`, :ref:`ClinvarSomaticEvidenceLineProperties`
-
-**Used in:** :ref:`ClinvarScvStatementProperties`
+**Composes:** :ref:`EvidenceLine`
