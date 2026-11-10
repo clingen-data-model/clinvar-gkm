@@ -43,28 +43,28 @@ $defs:
           text) and `expressionRepaired` (`true`).
       nucleotideType:
         type: string
-        enum: 
+        enum:
           - "genomic, top-level"
           - "genomic"
           - "coding"
           - "non-coding"
         description: >-
-          The type of nucleotide expression as reported by ClinVar (e.g., `coding`, 
+          The type of nucleotide expression as reported by ClinVar (e.g., `coding`,
           `genomic`, `genomic, top-level`).
       maneSelect:
         type: boolean
         description: >-
-          `true` if this transcript is designated as MANE Select. Absent or `false` when 
+          `true` if this transcript is designated as MANE Select. Absent or `false` when
           not applicable.
       manePlus:
         type: boolean
         description: >-
-          `true` if this transcript is designated as MANE Plus Clinical. Absent or `false` 
+          `true` if this transcript is designated as MANE Plus Clinical. Absent or `false`
           when not applicable.
       proteinExpression:
         $refCurie: vrs:Expression
         description: >-
-          The protein HGVS expression with syntax (typically `hgvs.p`) and `value`. Present 
+          The protein HGVS expression with syntax (typically `hgvs.p`) and `value`. Present
           only when a protein-level expression exists for the nucleotide expression.
       molecularConsequence:
         type: array
@@ -72,8 +72,8 @@ $defs:
         items:
           $refCurie: gkm.core:Coding
         description: >-
-          Sequence Ontology terms describing the predicted molecular consequence. 
-          Each entry includes `code` (SO identifier), `system`, `name` (SO term label), 
+          Sequence Ontology terms describing the predicted molecular consequence.
+          Each entry includes `code` (SO identifier), `system`, `name` (SO term label),
           and `iris` (identifiers.org link).
 
   GeneListItem:
@@ -90,7 +90,7 @@ $defs:
           (e.g. `#/gene/ncbigene:672`).
       relationship_type:
         type: string
-        enum: 
+        enum:
           - "asserted, but not computed"
           - "genes overlapped by variant"
           - "near gene, downstream"
@@ -98,7 +98,7 @@ $defs:
           - "within multiple genes by overlap"
           - "within single gene"
         description: >-
-          The relationship between the variation and the gene as reported by ClinVar (e.g., 
+          The relationship between the variation and the gene as reported by ClinVar (e.g.,
           `within single gene`, `genes overlapped by variant`).
       source:
         type: string
@@ -115,8 +115,8 @@ $defs:
 
   ExtensionClinvarHgvsList:
     description: >-
-      Complete list of HGVS expressions from ClinVar for a variant, including nucleotide 
-      and protein expressions, molecular consequences (SO terms), and MANE transcript 
+      Complete list of HGVS expressions from ClinVar for a variant, including nucleotide
+      and protein expressions, molecular consequences (SO terms), and MANE transcript
       designations.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
@@ -133,13 +133,13 @@ $defs:
           $ref: "#/$defs/HgvsListItem"
         ordered: false
         description: >-
-          Clinvar's data structure for representing the HGVS expressions, mane select/plus settings and 
+          Clinvar's data structure for representing the HGVS expressions, mane select/plus settings and
           molecular consequence for dervied genomic/transcript sequence alignmnents and protein sequence
           projections originating from the definining allele or location for CNVs.
 
   ExtensionClinvarGeneList:
     description: >-
-      Gene associations for this variation from ClinVar, including Entrez gene IDs, HGNC IDs, 
+      Gene associations for this variation from ClinVar, including Entrez gene IDs, HGNC IDs,
       gene symbols, relationship types, and identifier IRIs.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
@@ -156,11 +156,11 @@ $defs:
           $ref: "#/$defs/GeneListItem"
         ordered: false
         description: >-
-          Clinvar's data structure for representing genes associated with a clinvar variant.          
+          Clinvar's data structure for representing genes associated with a clinvar variant.
 
   ExtensionCategoricalVariationType:
     description: >-
-      The Cat-VRS category assigned to this variation: `CanonicalAllele`, `CategoricalCnvChange`, 
+      The Cat-VRS category assigned to this variation: `CanonicalAllele`, `CategoricalCnvChange`,
       `CategoricalCnvCount`, or `Undefined`. Determines which constraint types are generated.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
@@ -173,7 +173,7 @@ $defs:
           Must be 'categoricalVariationType'.
       value:
         type: string
-        enum: 
+        enum:
           - "CanonicalAllele"
           - "CategoricalCnvChange"
           - "CategoricalCnvCount"
@@ -184,8 +184,8 @@ $defs:
 
   ExtensionDefiningVrsVariationType:
     description: >-
-      The VRS class assigned during variation identity processing (e.g., `Allele`, `CopyNumberChange`, 
-      `CopyNumberCount`, `Not Available`). Reflects the upstream classification used to route the 
+      The VRS class assigned during variation identity processing (e.g., `Allele`, `CopyNumberChange`,
+      `CopyNumberCount`, `Not Available`). Reflects the upstream classification used to route the
       variant through VRS processing.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
@@ -198,7 +198,7 @@ $defs:
           Must be 'definingVrsVariationType'.
       value:
         type: string
-        enum: 
+        enum:
           - "Allele"
           - "CopyNumberChange"
           - "CopyNumberCount"
@@ -206,12 +206,12 @@ $defs:
           - "Unknown"
           - "Not Available"
         description: >-
-          The type of categorical variant. It must be one of the following: `Allele`, 
+          The type of categorical variant. It must be one of the following: `Allele`,
           `CopyNumberChange`, `CopyNumberCount`, `Haplotype`, `Unknown`, or `Not Available`.
 
   ExtensionClinvarVariationType:
     description: >-
-      The variation type as reported by ClinVar (e.g., Deletion, single nucleotide variant, 
+      The variation type as reported by ClinVar (e.g., Deletion, single nucleotide variant,
       Duplication, Indel). Present when ClinVar provides a variation type.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
@@ -224,7 +224,7 @@ $defs:
           Must be 'clinvarVariationType'.
       value:
         type: string
-        enum: 
+        enum:
           - "Complex"
           - "CompoundHeterozygote"
           - "copy number gain"
@@ -256,7 +256,7 @@ $defs:
 
   ExtensionClinvarSubclassType:
     description: >-
-      The variation subclass as reported by ClinVar (e.g., SimpleAllele, Haplotype, 
+      The variation subclass as reported by ClinVar (e.g., SimpleAllele, Haplotype,
       CompoundHeterozygote). Present when ClinVar provides a subclass type.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
@@ -269,7 +269,7 @@ $defs:
           Must be 'clinvarSubclassType'.
       value:
         type: string
-        enum: 
+        enum:
           - Genotype
           - Haplotype
           - SimpleAllele
@@ -299,7 +299,7 @@ $defs:
 
   ExtensionClinvarCytogeneticLocation:
     description: >-
-      The cytogenetic band location of the variation (e.g., 1p36.22, 17q21.31). Present when 
+      The cytogenetic band location of the variation (e.g., 1p36.22, 17q21.31). Present when
       ClinVar provides a cytogenetic location.
     protectedClassOf: ClinvarCategoricalVariant
     type: object
@@ -374,7 +374,7 @@ $defs:
     type: object
     maturity: trial use
     description: >-
-      Issues detected during VRS pre-processing of the variation's input expressions. Present only 
+      Issues detected during VRS pre-processing of the variation's input expressions. Present only
       when issues exist. May contain multiple issues separated by newlines
     protectedClassOf: ClinvarCategoricalVariant
     properties:
@@ -392,7 +392,7 @@ $defs:
     type: object
     maturity: trial use
     description: >-
-      Errors returned by the external VRS Python processing service. Present only when 
+      Errors returned by the external VRS Python processing service. Present only when
       errors occurred during VRS resolution.
     protectedClassOf: ClinvarCategoricalVariant
     properties:
@@ -564,7 +564,7 @@ $defs:
                   const: DefiningAlleleConstraint
 
   ClinvarCategoricalCnvChange:
-    maturity: trial use
+    maturity: draft
     description: >-
       A ClinVar copy number variant with a qualitative change indication
       (gain or loss). Uses a DefiningLocationConstraint with a
@@ -586,7 +586,7 @@ $defs:
                   const: CopyChangeConstraint
 
   ClinvarCategoricalCnvCount:
-    maturity: trial use
+    maturity: draft
     description: >-
       A ClinVar copy number variant with an absolute copy count. Uses a
       DefiningLocationConstraint with a CopyCountConstraint from Cat-VRS
