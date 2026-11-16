@@ -79,7 +79,7 @@ the upstream method.
 ## Past Parquet cannot yet be rebuilt
 
 Only the latest Parquet set is published. Past Parquet is meant to be rebuilt from the monthly bundles with
-[`clinvar-gkm-parquet`](https://github.com/clingen-data-model/clinvar-gkm-parquet), which has no release yet.
+[`clinvar-gkm-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet), which has no release yet.
 
 ---
 

@@ -299,7 +299,7 @@ When to use each access path:
 Only the current Parquet dataset is published; it is overwritten every release, and weekly deltas, archives and frozen lines carry no Parquet. To work with an earlier state:
 
 - **Rebuild it from the bundles.** Every official monthly stays published (in `archive/YYYY/` after its year ends) with a `.sha256` sidecar, and so does every delta. Rebuild the bundle for the week you need with the [replay recipe](weekly-deltas.md#rebuild-a-past-week), then read the sections you need.
-- **Convert a bundle to Parquet with `clinvar-gkm-parquet` (planned).** [`clinvar-gkm-parquet`](https://github.com/clingen-data-model/clinvar-gkm-parquet) is a separate, versioned tool that builds this Parquet layout from a published bundle and writes the same `manifest.json`. It is in design and not yet released; until it is, earlier Parquet can't be downloaded or rebuilt in this layout.
+- **Convert a bundle to Parquet with `clinvar-gkm-parquet` (planned).** [`clinvar-gkm-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) is a separate, versioned tool that builds this Parquet layout from a published bundle and writes the same `manifest.json`. It is in design and not yet released; until it is, earlier Parquet can't be downloaded or rebuilt in this layout.
 - **The 1.0.1 generation** is the frozen line `v1/1.0/`: its bundles and delta manifests, with no Parquet.
 
 Parquet downloaded from an earlier release keeps its old tables and columns; see the [changelog](../reference/changelog.md) for what changed.
