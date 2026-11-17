@@ -7,15 +7,64 @@ tagged source of each.
 
 ## Unreleased
 
-- **Schema 1.2.0: the profiles allow only what the pipeline writes.** Every bundle section now points at a
-  ClinVar-GKM profile instead of a base GA4GH class. The profiles forbid the inherited properties the pipeline
-  never writes, require the ones it always writes, give values their types and enums (`copyChange` is `loss`
-  or `gain`), and limit each pointer to the sections it may target. Each section's record keys must match the
-  full id the pipeline builds, not just its prefix. The policy is described under
-  [An Implementation Schema](../output-reference/classes/index.md#an-implementation-schema), and the class pages list each profile's
-  forbidden properties under its table. The data doesn't change: every record of the 2026-10-31 full bundle
-  (91,854,927) and delta validates against 1.2.0. 1.2.0 is a new MINOR, so it will be published in a new line
-  folder, `v1/1.2/`, and its bundles will declare `schema_version` 1.2.0.
+### 1.2.0: the ClinVar profiles describe exactly what the pipeline writes
+
+The bundle schema moves **`1.1.0 → 1.2.0`**, a **MINOR** release. A profile is the producer's contract for
+exactly the data elements it offers. Until 1.2.0, most bundle sections pointed at a GA4GH base class
+(`MappableConcept`, `Allele`, `Agent`, the VA-Spec propositions) and accepted every property that class defines,
+although the pipeline writes only some of them. From 1.2.0 every section points at a ClinVar profile of its
+GA4GH class that allows exactly what the pipeline writes. [An Implementation Schema](../output-reference/classes/index.md#an-implementation-schema)
+explains the profiles and their rules, and each class page lists what its profile allows and forbids.
+
+- **What the pipeline never writes is forbidden.** 204 properties inherited from the GA4GH classes are set to
+  `false`, for example `aliases` and `description` on most records. The class pages list them under **Not used
+  by ClinVar-GKM**.
+- **What the pipeline always writes is required**, for example `id` on every record that has one, a gene's
+  `conceptType` and `primaryCoding`, an SCV statement's `classification`, `quality` and `contributions`, and
+  `name` on every extension.
+- **Every pointer is limited to the sections it can target** (34 pointers). A proposition's `subject` must be
+  a `#/variation/…` pointer, and an aggregate evidence line's `hasEvidenceItems` must point into `scv`, `vcv`
+  or `rcv`.
+- **Values the pipeline fixes are enumerated.** Each extension is a closed class with a constant `name` and a
+  typed `value`. `copyChange` allows only `loss` and `gain`, two of the eight VRS values, on `copyNumberChange`
+  records and in the copy-change constraint of a `variation` (the new `ClinvarCopyChangeConstraint`).
+- **Section keys match the full id the pipeline builds**, not only its prefix:
+
+    | Section | 1.1.0 | 1.2.0 |
+    | --- | --- | --- |
+    | `sequenceReference`, `location`, `allele`, `copyNumberCount`, `copyNumberChange` | a prefix, such as `^ga4gh:VA\..+` | a 32-character digest, such as `^ga4gh:VA\.[0-9A-Za-z_-]{32}$` |
+    | `conditionSet` | a `clinvar.traitset:`, `clinvar.traitSet:` or `clinvar.conditionset:` prefix | `clinvar.traitset:<n>` or `clinvar.conditionset:vcv-<32 hex>` |
+    | `therapy`, `therapyGroup` | a `clinvar.therapy:` or `clinvar.therapygroup:` prefix | a 64-character SHA-256 hex digest |
+    | `scv`, SCV evidence lines | `^clinvar\.submission:SCV[0-9]+\.[0-9]+$` | a 9-digit accession: `SCV[0-9]{9}\.[0-9]+` |
+    | `vcv`, `rcv`, VCV and RCV evidence lines | an accession prefix, such as `^VCV[0-9]+\..+` | accession, version, group, type, then the optional submission level and, in somatic clinical impact only, tier; evidence lines end in `.contributing` or `.non-contributing` |
+    | the four `proposition*` sections | an `SCV`, `VCV` or `RCV` prefix | `SCV<9 digits>-<TYPE>`, or `VCV`/`RCV<9 digits>-<GROUP>-<TYPE>` with the same optional parts |
+
+    Type and group codes stay `[A-Z]+`, because they come from ClinVar's lookup tables. See
+    [ID References](../output-reference/id-references.md).
+- **What the pipeline can write stays allowed**, even when the current release has none: the
+  `ClinvarUndefinedProposition` fallback, the `isDiagnosticExclusionCriterionFor` predicate, the HGVS repair
+  extensions, penetrance on custom propositions, a therapeutic `conditionQualifier` that points to a
+  `conditionSet`, and the evidence-line `submittedConditionSet` extension.
+- **New draft classes.** `ClinvarCopyNumberChange`, `ClinvarCategoricalCnvChange`, `ClinvarCategoricalCnvCount`,
+  `ClinvarCopyChangeConstraint` and `ClinvarVariantClinicalSignificanceProposition` are draft, as their GA4GH
+  bases are. A profile is never more mature than its base.
+
+**What it means for you:**
+
+- **The data doesn't change.** Every record the pipeline publishes already meets the 1.2.0 profiles: relabelled
+  as 1.2.0, every record of the 2026-10-31 full bundle (91,854,927) and delta validates with no failures. Code
+  that reads bundles needs no change.
+- **Validate each bundle against its own version.** A 1.2.0 bundle says `"schema_version": "1.2.0"` and
+  validates against the 1.2.0 schemas
+  (`https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json`); a 1.1.0 bundle keeps
+  validating against 1.1.0. If you write your own records to these schemas, a property, value, pointer or key
+  form that 1.1.0 accepted but the pipeline never writes now fails.
+- **A new line folder.** As a MINOR, 1.2.0 is published into `v1/1.2/`; `v1/1.1/` is then frozen and kept,
+  its files unchanged ([ADR 0009](../decisions/0009-r2-layout-mirrors-ncbi-clinvar.md)). The Parquet set is
+  built by `gkm-bundle-parquet` 2.0.0.
+
+### Fixes
+
 - **Bundle schema `$id` now resolves.** The bundle schema's `$id` changes from
   `https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGkmBundle`, which returned 404, to
   `https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json`. The new `$id` follows the
