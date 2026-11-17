@@ -552,6 +552,9 @@ BEGIN
           LOWER(hpo.lbl) = LOWER(a.attribute.value)
         WHERE
           a.attribute.type = 'ModeOfInheritance'
+          -- the qualifier's name and its submittedModeOfInheritance extension are both this
+          -- value: with no value there is no qualifier to write (and no NULL-valued extension)
+          AND a.attribute.value IS NOT NULL
     """, '{S}', rec.schema_name);
     SET query_moi_qualifiers = REPLACE(query_moi_qualifiers, '{CT}', temp_create);
     SET query_moi_qualifiers = REPLACE(query_moi_qualifiers, '{P}', IF(debug, rec.schema_name, '_SESSION'));
@@ -577,6 +580,9 @@ BEGIN
         FROM {P}.temp_gkm_scv scv
         WHERE
           scv.classif_type in ('p-lp', 'lp-lp', 'era', 'lra','ura')
+          -- the submittedClassification extension is required on the qualifier: never write it
+          -- without a value (classif_type is derived from this text, so it is set in practice)
+          AND scv.submitted_classification IS NOT NULL
     """, '{S}', rec.schema_name);
     SET query_penetrance_qualifiers = REPLACE(query_penetrance_qualifiers, '{CT}', temp_create);
     SET query_penetrance_qualifiers = REPLACE(query_penetrance_qualifiers, '{P}', IF(debug, rec.schema_name, '_SESSION'));
@@ -636,10 +642,14 @@ BEGIN
           FORMAT('#/variation/clinvar:%s', variation_id) as subject,
           predicate,
           obj_ref as object,
-          -- typed qualifiers for all germline props; struct-of-nulls stripped by JSON_STRIP_NULLS(remove_empty)
+          -- typed qualifiers; struct-of-nulls stripped by JSON_STRIP_NULLS(remove_empty).
+          -- geneContextQualifier is allowed on every proposition type. modeOfInheritance and
+          -- penetrance are allowed only on VariantPathogenicityProposition and the Clinvar*
+          -- custom (germline) propositions, never on oncogenicity or somatic clinical
+          -- significance propositions (va-spec + the clinvar-gkm proposition profiles).
           gene_ctx as geneContextQualifier,
-          moi_ctx as modeOfInheritanceQualifier,
-          penetrance_ctx as penetranceQualifier
+          IF(p_type = 'VariantPathogenicityProposition' OR is_custom, moi_ctx, NULL) as modeOfInheritanceQualifier,
+          IF(p_type = 'VariantPathogenicityProposition' OR is_custom, penetrance_ctx, NULL) as penetranceQualifier
         FROM base
     """, '{S}', rec.schema_name);
     SET query_scv_proposition = REPLACE(query_scv_proposition, '{CT}', temp_create);
@@ -1324,12 +1334,15 @@ BEGIN
             STRUCT(scv.classification_code as code, scv.classif_and_strength_code_system as system),
             null
           ) as primaryCoding,
+          -- The classification requires this extension, and an extension requires a value, so the
+          -- text must never be NULL. CONCAT is NULL if any part is; every part but the submitter
+          -- name is already COALESCEd, and a missing name drops only the ' by <name>' clause.
           [STRUCT(
             'description' AS name,
             CONCAT(
               'for ', COALESCE(scn.condition_name, 'unspecified condition'), '\\n',
               'Classification is based on the ', COALESCE(scv.submission_level_label, 'unknown'), ' submission', '\\n',
-              COALESCE(FORMAT_DATE('%b %Y', scv.last_evaluated), '(-)'), ' by ', scv.submitter.name
+              COALESCE(FORMAT_DATE('%b %Y', scv.last_evaluated), '(-)'), IFNULL(CONCAT(' by ', scv.submitter.name), '')
             ) AS value_string
           )] AS extensions
         ) as classification,
@@ -1385,7 +1398,8 @@ BEGIN
             [STRUCT('clinvarScvReviewStatus' as name, scv.review_status as value_string, nt.null_cs as value_submitted_condition_set, nt.null_c as value_submitted_condition)]
           ),
           IF(
-            scv.submitted_classification IS NOT DISTINCT FROM scv.classification_name, [],
+            scv.submitted_classification IS NULL
+              OR scv.submitted_classification IS NOT DISTINCT FROM scv.classification_name, [],
             [STRUCT('submittedScvClassification' as name, scv.submitted_classification as value_string, nt.null_cs as value_submitted_condition_set, nt.null_c as value_submitted_condition)]
           ),
           IF(
