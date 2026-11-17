@@ -783,7 +783,9 @@ BEGIN
             STRUCT('originalClinvarExpression' as name, e.nucleotide as value_string, CAST(null as BOOLEAN) as value_boolean),
             STRUCT('expressionRepaired' as name, CAST(null as STRING) as value_string, TRUE as value_boolean)
           ]) as nucleotide_extensions,
-          format('hgvs.%s', IFNULL(REGEXP_EXTRACT(e.protein, r':([gmcnrp])\\.'), '?')) as protein_syntax,
+          -- e.protein is ClinVar's ProteinExpression, so text with no HGVS type letter after the
+          -- colon is still a protein expression: label it hgvs.p (VRS has no 'hgvs.?' syntax).
+          format('hgvs.%s', IFNULL(REGEXP_EXTRACT(e.protein, r':([gmcnrp])\\.'), 'p')) as protein_syntax,
           e.protein as protein_value,
           SPLIT(e.consq_id) as consq_ids,
           e.hgvs_source,
@@ -802,17 +804,23 @@ BEGIN
           (e.valid_in_row = 0 AND REGEXP_CONTAINS(e.repaired, r':[gmcnrp]\\.'))
       ),
       hgvs_consq AS (
+        -- ClinVar's SO code passes through as the coding's code, whether or not so_lookup knows it;
+        -- so_lookup only supplies the label (name), which is absent for a code it does not list.
+        -- A code that is not an SO id (SO:nnnnnnn) is dropped: it would have no valid identifiers.org
+        -- IRI, and the HgvsListItem schema accepts only SO codes.
         SELECT
           hgvs.variation_id,
           hgvs.nucleotide_value,
           c_id,
-          sl.code as consq_code,
+          c_id as consq_code,
           sl.label as consq_label
         FROM hgvs_items hgvs
         CROSS JOIN UNNEST(hgvs.consq_ids) c_id
         LEFT JOIN so_lookup sl
         ON
           sl.code = c_id
+        WHERE
+          REGEXP_CONTAINS(c_id, r'^SO:[0-9]{7}$')
       ),
       hgvs_item_consq AS (
         SELECT

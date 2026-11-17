@@ -173,35 +173,19 @@ $defs:
   ClinvarMolecularConsequenceCoding:
     maturity: trial use
     description: >-
-      A Sequence Ontology molecular consequence of a HgvsListItem: the SO code, its label as
-      the name, the SO system and one identifiers.org IRI.
+      A Sequence Ontology molecular consequence of a HgvsListItem: ClinVar's SO code, the SO
+      system, one identifiers.org IRI and, when the pipeline knows the term, its label as the
+      name.
     allOf:
       - $refCurie: clinvar-gkm:ClinvarCoding
       - type: object
-        required: [name, iris]
+        required: [iris]
         properties:
           code:
             type: string
-            enum:
-              - "SO:0001583"
-              - "SO:0001627"
-              - "SO:0001820"
-              - "SO:0001822"
-              - "SO:0002073"
-              - "SO:0001821"
-              - "SO:0001587"
-              - "SO:0001623"
-              - "SO:0001578"
-              - "SO:0002153"
-              - "SO:0001574"
-              - "SO:0001619"
-              - "SO:0002152"
-              - "SO:0001575"
-              - "SO:0001624"
-              - "SO:0001819"
-              - "SO:0001589"
-              - "SO:0001582"
-            description: The SO identifier.
+            pattern: "^SO:[0-9]{7}$"
+            description: >-
+              The SO identifier ClinVar gives, passed through as is (e.g. `SO:0001583`).
           name:
             type: string
             enum:
@@ -223,7 +207,9 @@ $defs:
               - synonymous_variant
               - frameshift_variant
               - initiator_codon_variant
-            description: The SO term label.
+            description: >-
+              The SO term label, from the pipeline's SO lookup. Absent for a code the lookup
+              does not list.
           system:
             type: string
             const: "http://www.sequenceontology.org/"
@@ -289,8 +275,9 @@ $defs:
           $ref: "#/$defs/ClinvarMolecularConsequenceCoding"
         description: >-
           Sequence Ontology terms describing the predicted molecular consequence.
-          Each entry includes `code` (SO identifier), `system`, `name` (SO term label),
-          and `iris` (identifiers.org link).
+          Each entry includes `code` (ClinVar's SO identifier), `system`, `iris`
+          (identifiers.org link) and, when the SO term is in the pipeline's lookup, `name`
+          (SO term label).
     required:
       - nucleotideExpression
 

@@ -38,7 +38,7 @@
          "items": {
             "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarMolecularConsequenceCoding"
          },
-         "description": "Sequence Ontology terms describing the predicted molecular consequence. Each entry includes `code` (SO identifier), `system`, `name` (SO term label), and `iris` (identifiers.org link)."
+         "description": "Sequence Ontology terms describing the predicted molecular consequence. Each entry includes `code` (ClinVar's SO identifier), `system`, `iris` (identifiers.org link) and, when the SO term is in the pipeline's lookup, `name` (SO term label)."
       }
    },
    "required": [

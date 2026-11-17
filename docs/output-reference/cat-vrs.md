@@ -174,8 +174,8 @@ Each item in the `clinvarHgvsList` extension array represents one HGVS expressio
 | `nucleotideType` | `string` | The type of nucleotide expression as reported by ClinVar: `coding`, `non-coding`, `genomic`, or `genomic, top-level`. |
 | `maneSelect` | `boolean` | `true` if this transcript is designated as MANE Select. Absent when not applicable. |
 | `manePlus` | `boolean` | `true` if this transcript is designated as MANE Plus Clinical. Absent when not applicable. |
-| `proteinExpression` | object | A [ClinvarProteinExpression](classes/ClinvarProteinExpression.md): the protein HGVS expression with `syntax` (typically `hgvs.p`) and `value`, and no extensions. Present only when a protein-level expression exists for the nucleotide expression. |
-| `molecularConsequence` | array | Sequence Ontology terms describing the predicted molecular consequence. Each entry is a [ClinvarMolecularConsequenceCoding](classes/ClinvarMolecularConsequenceCoding.md) with `code` (SO identifier), `system` (`http://www.sequenceontology.org/`), `name` (SO term label), and `iris` (identifiers.org link). |
+| `proteinExpression` | object | A [ClinvarProteinExpression](classes/ClinvarProteinExpression.md): the protein HGVS expression with `syntax` (typically `hgvs.p`) and `value`, and no extensions. Present only when a protein-level expression exists for the nucleotide expression. ClinVar protein text with no HGVS type letter is labelled `hgvs.p`. |
+| `molecularConsequence` | array | Sequence Ontology terms describing the predicted molecular consequence. Each entry is a [ClinvarMolecularConsequenceCoding](classes/ClinvarMolecularConsequenceCoding.md) with `code` (ClinVar's SO identifier, passed through as is), `system` (`http://www.sequenceontology.org/`), `iris` (identifiers.org link) and `name` (SO term label). `name` is absent for an SO code outside the pipeline's 18-term lookup. |
 
 </div>
 
