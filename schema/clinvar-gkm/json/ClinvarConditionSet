@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarConditionSet",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarConditionSet",
    "title": "ClinvarConditionSet",
    "description": "A record of the conditionSet section: a ConditionSet whose concepts are pointers to records of the condition or conditionSet section. No name, description, aliases or extensions.",
    "maturity": "trial use",

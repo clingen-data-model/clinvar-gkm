@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarDocument",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarDocument",
    "title": "ClinvarDocument",
    "description": "A Document as ClinVar-GKM writes it for a ClinVar citation: its PubMed id, DOI and URLs, the name and document type when ClinVar gives them, and extensions that keep ClinVar's citation text and record repairs of its ids. No id, title, description or aliases.",
    "$defs": {

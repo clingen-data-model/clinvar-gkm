@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarAllele",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarAllele",
    "title": "ClinvarAllele",
    "description": "A record of the allele section: a VRS Allele with its name and expressions, whose location is a pointer to a record of the location section. No description, aliases or extensions.",
    "maturity": "trial use",
@@ -40,7 +40,7 @@
                "type": "array",
                "ordered": false,
                "items": {
-                  "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarAlleleExpression"
+                  "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarAlleleExpression"
                },
                "description": "The allele's SPDI, HGVS and gnomAD expressions."
             }

@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarAlleleExpression",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarAlleleExpression",
    "title": "ClinvarAlleleExpression",
    "description": "An expression of a ClinvarAllele: an SPDI, HGVS or gnomAD syntax and the expression text. No id, extensions or syntax version.",
    "maturity": "trial use",

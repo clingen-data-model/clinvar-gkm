@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCopyCountConstraint",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarCopyCountConstraint",
    "title": "ClinvarCopyCountConstraint",
    "description": "The copy count constraint of a ClinvarCategoricalCnvCount: a CopyCountConstraint with an integer copy count.",
    "maturity": "trial use",

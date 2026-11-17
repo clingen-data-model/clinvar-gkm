@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarPenetranceQualifier",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarPenetranceQualifier",
    "title": "ClinvarPenetranceQualifier",
    "description": "The penetrance qualifier on a ClinVar SCV proposition, derived from a low-penetrance or risk-allele classification: a MappableConcept named 'low' or 'risk', with the submitted classification in an ExtensionSubmittedClassification. No id, description, aliases, primary coding or mappings.",
    "$defs": {

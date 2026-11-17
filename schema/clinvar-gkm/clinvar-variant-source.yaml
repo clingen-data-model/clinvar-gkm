@@ -1,5 +1,5 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
-$id: "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-variant-source.yaml"
+$id: "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-variant-source.yaml"
 title: ClinGen's Clinvar variant profile
 description: >-
   Profiles of the GA4GH VRS and Cat-VRS classes for the records of the sequenceReference,
@@ -23,7 +23,7 @@ namespaces:
   cat-vrs: /ga4gh/schema/cat-vrs/1.1.1/json/
   recipes: /ga4gh/schema/cat-vrs/1.1.1/json/
   gkm.core: /ga4gh/schema/gkm-core/1.3.0/json/
-  clinvar-gkm: /clingen/schema/clinvar-gkm/1.1.0/json/
+  clinvar-gkm: /clingen/schema/clinvar-gkm/1.2.0/json/
 
 $defs:
   # ─── HGVS list ───

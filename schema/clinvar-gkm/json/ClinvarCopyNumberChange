@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCopyNumberChange",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarCopyNumberChange",
    "title": "ClinvarCopyNumberChange",
    "description": "A record of the copyNumberChange section: a VRS CopyNumberChange whose location is a pointer to a record of the location section. No name, description, aliases, extensions or expressions.",
    "maturity": "draft",

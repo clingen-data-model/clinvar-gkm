@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarContribution",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarContribution",
    "title": "ClinvarContribution",
    "description": "A Contribution as ClinVar-GKM writes it: a submitter's activity on a ClinVar record, with its date. The contributor is a pointer to a record of the submitter section. No id, name, description, aliases or extensions.",
    "maturity": "trial use",

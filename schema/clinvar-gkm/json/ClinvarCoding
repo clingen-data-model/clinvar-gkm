@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCoding",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarCoding",
    "title": "ClinvarCoding",
    "description": "A Coding as ClinVar-GKM writes it: a code and its system, with an optional name and IRIs. No id, extensions or system version.",
    "maturity": "trial use",

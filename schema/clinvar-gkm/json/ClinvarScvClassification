@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarScvClassification",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarScvClassification",
    "title": "ClinvarScvClassification",
    "description": "The classification of a ClinVar SCV statement: a MappableConcept with its concept type, name, a ClinvarTermCoding, and ClinVar's description of it in an extension. No id, description, aliases or mappings.",
    "$defs": {
@@ -49,7 +49,7 @@
             },
             "primaryCoding": {
                "description": "The classification's code and its system (the guideline that defines it).",
-               "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarTermCoding"
+               "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarTermCoding"
             },
             "extensions": {
                "type": "array",

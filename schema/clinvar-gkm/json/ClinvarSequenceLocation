@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarSequenceLocation",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarSequenceLocation",
    "title": "ClinvarSequenceLocation",
    "description": "A record of the location section: a VRS SequenceLocation whose sequence reference is a pointer to a record of the sequenceReference section. No name, description, aliases, extensions or sequence.",
    "maturity": "trial use",

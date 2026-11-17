@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarTranscribedToRelation",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarTranscribedToRelation",
    "title": "ClinvarTranscribedToRelation",
    "description": "The `transcribed_to` relation of a ClinVar defining allele constraint: a MappableConcept with only its type and primary coding (code `transcribed_to`, system `http://www.sequenceontology.org/` and the term's IRI).",
    "maturity": "trial use",

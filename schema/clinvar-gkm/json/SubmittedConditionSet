@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/SubmittedConditionSet",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/SubmittedConditionSet",
    "title": "SubmittedConditionSet",
    "description": "The value of a submittedConditionSet extension: the submitted condition set with the mapping of each of its conditions.",
    "type": "object",
@@ -22,7 +22,7 @@
          "type": "array",
          "ordered": true,
          "items": {
-            "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/SubmittedConditionMapping"
+            "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/SubmittedConditionMapping"
          },
          "description": "Array of individual submitted condition mappings, one per condition in the set. Ordered by the condition's cat_id suffix."
       }

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json",
+  "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json",
   "title": "ClinVar-GKM Bundle",
   "description": "A ClinVar-GKM bundle: a single JSON object whose root properties are named sections, each a non-empty map from a typed record id to a GKM object. Objects cross-reference each other by '#/<section>/<id>' JSON pointers. The same shape covers the monthly full bundle, the weekly delta, and sub-bundle extracts, so no individual section is required (a delta or sub-bundle carries only the sections it touches). Beyond this schema, a producer must also guarantee that every bundle-local '#/...' pointer resolves within the bundle.",
   "type": "object",
@@ -9,7 +9,7 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "1.1.0",
+      "const": "1.2.0",
       "description": "The clinvar-gkm bundle schema version this bundle conforms to (semver; matches this schema's $id version). Lets a consumer identify the version from the bundle alone. See ADR 0004. Optional so sub-bundle extracts may omit it; full and delta releases always emit it."
     },
     "sequenceReference": {
@@ -19,7 +19,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^SQ\\.[0-9A-Za-z_-]{32}$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarSequenceReference"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarSequenceReference"
         }
       },
       "additionalProperties": false
@@ -31,7 +31,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^ga4gh:SL\\.[0-9A-Za-z_-]{32}$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarSequenceLocation"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarSequenceLocation"
         }
       },
       "additionalProperties": false
@@ -43,7 +43,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^ga4gh:VA\\.[0-9A-Za-z_-]{32}$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarAllele"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarAllele"
         }
       },
       "additionalProperties": false
@@ -55,7 +55,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^ga4gh:CN\\.[0-9A-Za-z_-]{32}$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCopyNumberCount"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarCopyNumberCount"
         }
       },
       "additionalProperties": false
@@ -67,7 +67,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^ga4gh:CX\\.[0-9A-Za-z_-]{32}$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCopyNumberChange"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarCopyNumberChange"
         }
       },
       "additionalProperties": false
@@ -79,7 +79,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^ncbigene:[0-9]+$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGene"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarGene"
         }
       },
       "additionalProperties": false
@@ -91,7 +91,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^clinvar:[0-9]+$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCategoricalVariant"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarCategoricalVariant"
         }
       },
       "additionalProperties": false
@@ -103,7 +103,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^clinvar\\.trait:[0-9]+$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCondition"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarCondition"
         }
       },
       "additionalProperties": false
@@ -115,7 +115,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^clinvar\\.(traitset:[0-9]+|conditionset:vcv-[0-9a-f]{32})$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarConditionSet"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarConditionSet"
         }
       },
       "additionalProperties": false
@@ -127,7 +127,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^clinvar\\.therapy:[0-9a-f]{64}$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarTherapy"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarTherapy"
         }
       },
       "additionalProperties": false
@@ -139,7 +139,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^clinvar\\.therapygroup:[0-9a-f]{64}$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarTherapyGroup"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarTherapyGroup"
         }
       },
       "additionalProperties": false
@@ -151,7 +151,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^clinvar\\.submitter:[0-9]+$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarSubmitter"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarSubmitter"
         }
       },
       "additionalProperties": false
@@ -163,7 +163,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^(SCV[0-9]{9}-[A-Z]+|(VCV|RCV)[0-9]{9}-[A-Z]+-[A-Z]+(-[A-Z]+)?)$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarVariantPathogenicityProposition"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarVariantPathogenicityProposition"
         }
       },
       "additionalProperties": false
@@ -175,7 +175,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^(SCV[0-9]{9}-[A-Z]+|(VCV|RCV)[0-9]{9}-[A-Z]+-[A-Z]+(-[A-Z]+)?)$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarVariantOncogenicityProposition"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarVariantOncogenicityProposition"
         }
       },
       "additionalProperties": false
@@ -189,16 +189,16 @@
         "^(SCV[0-9]{9}-[A-Z]+|(VCV|RCV)[0-9]{9}-[A-Z]+-[A-Z]+(-[A-Z]+(-[A-Z0-9]+)?)?)$": {
           "anyOf": [
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarVariantClinicalSignificanceProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarVariantClinicalSignificanceProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarVariantDiagnosticProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarVariantDiagnosticProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarVariantPrognosticProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarVariantPrognosticProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarVariantTherapeuticResponseProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarVariantTherapeuticResponseProposition"
             }
           ]
         }
@@ -214,34 +214,34 @@
         "^(SCV[0-9]{9}-[A-Z]+|(VCV|RCV)[0-9]{9}-[A-Z]+-[A-Z]+(-[A-Z]+)?)$": {
           "anyOf": [
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarRiskFactorProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarRiskFactorProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarProtectiveProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarProtectiveProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarDrugResponseProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarDrugResponseProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarAffectsProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarAffectsProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarAssociationProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarAssociationProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarConfersSensitivityProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarConfersSensitivityProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarOtherProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarOtherProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarNotProvidedProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarNotProvidedProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarConflictingDataFromSubmitterProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarConflictingDataFromSubmitterProposition"
             },
             {
-              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarUndefinedProposition"
+              "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarUndefinedProposition"
             }
           ]
         }
@@ -255,10 +255,10 @@
       "minProperties": 1,
       "patternProperties": {
         "^clinvar\\.submission:SCV[0-9]{9}\\.[0-9]+$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarSomaticEvidenceLine"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarSomaticEvidenceLine"
         },
         "^(VCV|RCV)[0-9]{9}\\.[0-9]+-[A-Z]+-[A-Z]+(-[A-Z]+(-[A-Z0-9]+)?)?\\.(contributing|non-contributing)$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarAggregateEvidenceLine"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarAggregateEvidenceLine"
         }
       },
       "additionalProperties": false
@@ -270,7 +270,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^clinvar\\.submission:SCV[0-9]{9}\\.[0-9]+$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarScvStatement"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarScvStatement"
         }
       },
       "additionalProperties": false
@@ -282,7 +282,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^VCV[0-9]{9}\\.[0-9]+-[A-Z]+-[A-Z]+(-[A-Z]+(-[A-Z0-9]+)?)?$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarVcvStatement"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarVcvStatement"
         }
       },
       "additionalProperties": false
@@ -294,7 +294,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^RCV[0-9]{9}\\.[0-9]+-[A-Z]+-[A-Z]+(-[A-Z]+(-[A-Z0-9]+)?)?$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarRcvStatement"
+          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarRcvStatement"
         }
       },
       "additionalProperties": false

@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGene",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarGene",
    "title": "ClinvarGene",
    "description": "A record of the gene section: a MappableConcept for an NCBI Gene, with its primary coding and its mappings to other gene codes. No description, aliases or extensions.",
    "maturity": "trial use",
@@ -20,14 +20,14 @@
             "aliases": false,
             "extensions": false,
             "primaryCoding": {
-               "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCoding",
+               "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarCoding",
                "description": "The gene's NCBI Gene coding."
             },
             "mappings": {
                "type": "array",
                "ordered": false,
                "items": {
-                  "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarConceptMapping"
+                  "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarConceptMapping"
                },
                "description": "Mappings of the gene to other gene codes."
             }

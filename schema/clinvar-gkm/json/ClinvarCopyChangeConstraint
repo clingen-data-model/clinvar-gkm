@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCopyChangeConstraint",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarCopyChangeConstraint",
    "title": "ClinvarCopyChangeConstraint",
    "description": "The copy change constraint of a ClinvarCategoricalCnvChange: a CopyChangeConstraint whose copy change is 'loss' or 'gain'.",
    "maturity": "draft",

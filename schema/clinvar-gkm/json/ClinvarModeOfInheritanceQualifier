@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarModeOfInheritanceQualifier",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarModeOfInheritanceQualifier",
    "title": "ClinvarModeOfInheritanceQualifier",
    "description": "The mode of inheritance qualifier on a ClinVar SCV proposition: a MappableConcept named by the submitted mode of inheritance, with its HPO coding when the name matches an HPO term, and the submitted value in an ExtensionSubmittedModeOfInheritance. No id, description, aliases or mappings.",
    "$defs": {
@@ -50,7 +50,7 @@
             },
             "primaryCoding": {
                "description": "The HPO term whose label matches the submitted mode of inheritance (case-insensitively). Absent when no HPO term matches.",
-               "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarCoding"
+               "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarCoding"
             },
             "extensions": {
                "type": "array",

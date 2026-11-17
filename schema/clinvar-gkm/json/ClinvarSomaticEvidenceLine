@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarSomaticEvidenceLine",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarSomaticEvidenceLine",
    "title": "ClinvarSomaticEvidenceLine",
    "description": "The evidence line of a ClinVar somatic clinical impact (SCI) SCV statement. It links the statement's VariantClinicalSignificanceProposition to the specific assertion: its target proposition (a VariantTherapeuticResponseProposition, VariantDiagnosticProposition or VariantPrognosticProposition, in the propositionSomaticClinicalImpact section), always supported, with an evidence outcome reflecting the AMP/ASCO/CAP tier and the submitter's original condition(s) in an extension. No name, description, aliases, method, contributions, citations, evidence items, strength or score.",
    "$defs": {
@@ -17,7 +17,7 @@
             },
             "value": {
                "description": "The submitted condition mapping details, with the condition it resolved to.",
-               "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/SubmittedCondition"
+               "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/SubmittedCondition"
             }
          },
          "required": [
@@ -39,7 +39,7 @@
             },
             "value": {
                "description": "The submitted condition set with mapping details for each condition.",
-               "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/SubmittedConditionSet"
+               "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/SubmittedConditionSet"
             }
          },
          "required": [
@@ -79,7 +79,7 @@
             "evidenceOutcome": {
                "allOf": [
                   {
-                     "$ref": "/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarTerm"
+                     "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarTerm"
                   },
                   {
                      "type": "object",
