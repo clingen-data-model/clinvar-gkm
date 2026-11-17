@@ -126,6 +126,8 @@ The `gkm_dict_*` tables are the published product. The monthly full bundle and t
 ./src/scripts/release-gkm-delta.sh 2026-06-14 v2_5_0
 ```
 
+Both scripts validate every record of their bundle strictly before upload and stop if any fails: the delta with the GA4GH GKM Toolkit, the full with jsonschema-rs, which takes minutes where the toolkit takes hours. See [Export & Distribute](export.md#step-5-publish-the-weekly-delta).
+
 Steps 1 and 2 can also be run individually. Steps 3–4 (Parquet download, shard merging, and upload) are handled internally by `release-gkm.sh` — use `--start-step` to resume from a specific step.
 
 ```bash

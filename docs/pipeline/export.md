@@ -84,6 +84,8 @@ Install `orjson` for best performance:
 pip install orjson
 ```
 
+`release-gkm.sh` then validates every record of the assembled full bundle with `validate-bundle.sh --engine rs` and stops before upload if any fails (see [Strict validation stops the release](#step-5-publish-the-weekly-delta)).
+
 ### Step 3: Download and Merge Parquet from GCS
 
 `release-gkm.sh` downloads Parquet shards from GCS, merges them into one file per section using DuckDB, and stages the merged files for upload. BigQuery exports may produce multiple shards per table (e.g., `allele-000000000000.parquet`, `allele-000000000001.parquet`); this step consolidates them into a single `allele.parquet`.
@@ -163,7 +165,7 @@ The internal steps are: export delta tables to GCS, assemble and strictly valida
 
     `--start-step=3` publishes the staged bundle without validating it again, so only use it on a bundle that passed.
 
-    A full bundle takes hours to validate, so it isn't checked on every release. Run `./src/scripts/validate-bundle.sh <bundle.json.gz>` on the full after a schema, export or assembler change, and for a version release.
+    Every full bundle is validated too: `release-gkm.sh` validates each full it assembles, the weekly full and any re-exported monthly, before upload, and `run-release.sh` builds the weekly full with the delta, so a failing full also stops the release with R2 untouched. The GKM Toolkit takes hours on a full, so fulls are validated with [jsonschema-rs](https://github.com/Stranger6667/jsonschema) instead (`validate-bundle.sh --engine rs`): the same bundle schema, the same `schema/` registry and the same document for each record, in minutes. jsonschema-rs is not the GKM Toolkit. Its verdicts are tested against the toolkit's: both engines must name the same failing records in a bundle with planted violations (`src/scripts/tests/test_validate_bundle_rs.py`). It reads only the one-record-per-line layout the assembler writes and stops on any other. Run `./src/scripts/validate-bundle.sh <bundle.json.gz>` (the toolkit, the default) on a full by hand when the official validator's verdict is needed, as for a version release.
 
 The uploader writes:
 
