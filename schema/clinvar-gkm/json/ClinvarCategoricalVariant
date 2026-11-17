@@ -5,7 +5,7 @@
    "description": "The Clinvar specific representations of categorical variants.",
    "$defs": {
       "ExtensionClinvarSubclassType": {
-         "description": "The variation subclass as reported by ClinVar (e.g., SimpleAllele, Haplotype, CompoundHeterozygote). Present when ClinVar provides a subclass type.",
+         "description": "The variation subclass as reported by ClinVar (SimpleAllele, Haplotype or Genotype). Present when ClinVar provides a subclass type.",
          "protectedClassOf": "ClinvarCategoricalVariant",
          "type": "object",
          "maturity": "trial use",

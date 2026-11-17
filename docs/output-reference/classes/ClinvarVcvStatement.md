@@ -5,7 +5,7 @@
     May change in future releases. See the [GKM Maturity Model](https://vrs.ga4gh.org/en/2.1/appendices/maturity_model.html){ target=_blank rel=noopener }.
 
 A ClinVar VCV (variant classification variant) statement. Represents an aggregate classification for a variant across all submissions sharing the same proposition type. VCV statements contain evidence lines that group contributing SCV submissions by review status priority tier (practice guideline, expert panel, criteria provided, no criteria provided).
-VCV statements use the same 13 proposition types as SCV statements. Evidence lines at the VCV level point to the lower-layer VCV statements (in the vcv section), each carrying the same proposition type as the parent but scoped to a specific priority tier. The innermost (classification) layer's evidence lines point to the individual SCV statements as evidence items.
+VCV statements use the same proposition types as SCV statements. Evidence lines at the VCV level point to the lower-layer VCV statements (in the vcv section), each carrying the same proposition type as the parent but scoped to a specific priority tier. The innermost (classification) layer's evidence lines point to the individual SCV statements as evidence items.
 
 **JSON Schema:** [ClinvarVcvStatement](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarVcvStatement){ target=_blank }
 

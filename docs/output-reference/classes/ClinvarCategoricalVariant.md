@@ -57,7 +57,7 @@ Complete list of HGVS expressions from ClinVar for a variant, including nucleoti
 
 ### ExtensionClinvarSubclassType
 
-The variation subclass as reported by ClinVar (e.g., SimpleAllele, Haplotype, CompoundHeterozygote). Present when ClinVar provides a subclass type.
+The variation subclass as reported by ClinVar (SimpleAllele, Haplotype or Genotype). Present when ClinVar provides a subclass type.
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
