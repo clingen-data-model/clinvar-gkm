@@ -71,6 +71,8 @@ Assembles the SCV proposition by joining `temp_gkm_scv` with all qualifier table
 
 The qualifiers are joined for every SCV proposition and dropped when empty. `modeOfInheritanceQualifier` and `penetranceQualifier` are written only on `VariantPathogenicityProposition` and the ClinVar-specific (`Clinvar*`) proposition types. An oncogenicity or clinical significance proposition never carries them, even when the SCV has a mode of inheritance or a risk-allele classification, because neither VA-Spec nor the ClinVar-GKM profiles allow them there. `geneContextQualifier` is written on every type.
 
+Every proposition type requires `object`. If an SCV's condition doesn't resolve, the build stops with an error instead of writing a proposition without one.
+
 **Output:** `temp_gkm_scv_proposition` -- one row per SCV with fully assembled proposition. <span class="role-badge badge-internal">Internal</span>
 
 ---
@@ -89,7 +91,7 @@ Builds the evidence line target proposition for somatic clinical impact assertio
 | `conditionQualifier` | Condition moved to qualifier position for therapeutic assertions (since `object` becomes the therapy), as a `#/condition/` or `#/conditionSet/` reference |
 | `geneContextQualifier` | Gene concept from Step 2 |
 
-Target propositions carry no `modeOfInheritanceQualifier` or `penetranceQualifier`: those qualifiers are germline-only, so this step does not emit them.
+Target propositions carry no `modeOfInheritanceQualifier` or `penetranceQualifier`: those qualifiers are germline-only, so this step does not emit them. If a target proposition has no therapy (therapeutic) or no condition (diagnostic, prognostic) for its `object`, the build stops with an error.
 
 **Output:** `temp_gkm_scv_target_proposition` -- one row per somatic SCV with target proposition. <span class="role-badge badge-internal">Internal</span>
 

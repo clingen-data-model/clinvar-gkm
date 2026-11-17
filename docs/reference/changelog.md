@@ -24,8 +24,8 @@ tagged source of each.
   qualifiers are written only on pathogenicity and `Clinvar*` propositions. The `submittedModeOfInheritance`,
   `submittedClassification` and `submittedScvClassification` extensions are never written without a value,
   and the classification `description` always has one. An RCV proposition whose member SCVs resolve no
-  condition falls back to the RCV's own trait set, and an RCV or VCV proposition that still has no `object`
-  stops the build.
+  condition falls back to the RCV's own trait set, and an SCV, RCV or VCV proposition that still has no
+  `object` stops the build.
 - **Bundle schema `$id` now resolves.** The bundle schema's `$id` changes from
   `https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGkmBundle`, which returned 404, to
   `https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json`. The new `$id` follows the

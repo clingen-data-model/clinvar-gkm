@@ -641,7 +641,9 @@ BEGIN
           p_type as type,
           FORMAT('#/variation/clinvar:%s', variation_id) as subject,
           predicate,
-          obj_ref as object,
+          -- every proposition type requires object: fail the build rather than ship one without it
+          IF(obj_ref IS NOT NULL, obj_ref,
+             ERROR(FORMAT('SCV proposition %s-%s has no object: no condition resolved for the SCV', scv_id, UPPER(IFNULL(proposition_type_code, 'UNDEF'))))) as object,
           -- typed qualifiers; struct-of-nulls stripped by JSON_STRIP_NULLS(remove_empty).
           -- geneContextQualifier is allowed on every proposition type. modeOfInheritance and
           -- penetrance are allowed only on VariantPathogenicityProposition and the Clinvar*
@@ -746,16 +748,21 @@ BEGIN
           --   therapeutic -> #/therapy/ (single) or #/therapyGroup/ (compound), from
           --     temp_gkm_scv_therapy (deduped into gkm_dict_therapy / gkm_dict_therapygroup);
           --   diagnostic/prognostic -> the Condition/ConditionSet pointer.
-          IF(
-            scv.clinical_impact_assertion_type IS NOT DISTINCT FROM 'therapeutic',
-            TO_JSON(th.object_ref),
-            TO_JSON(COALESCE(
-              IF(scs.extensions.value_submitted_condition.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition.condition), NULL),
-              IF(scs.extensions.value_submitted_condition.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition.conditionSet), NULL),
-              IF(scs.extensions.value_submitted_condition_set.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition_set.condition), NULL),
-              IF(scs.extensions.value_submitted_condition_set.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition_set.conditionSet), NULL)
-            ))
-          ) as object,
+          --   Every proposition type requires object: a NULL one (no therapy / no condition) fails
+          --   the build rather than ship (IFNULL evaluates ERROR only when the value is NULL).
+          TO_JSON(IFNULL(
+            IF(
+              scv.clinical_impact_assertion_type IS NOT DISTINCT FROM 'therapeutic',
+              th.object_ref,
+              COALESCE(
+                IF(scs.extensions.value_submitted_condition.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition.condition), NULL),
+                IF(scs.extensions.value_submitted_condition.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition.conditionSet), NULL),
+                IF(scs.extensions.value_submitted_condition_set.condition IS NOT NULL, FORMAT('#/condition/%s', scs.extensions.value_submitted_condition_set.condition), NULL),
+                IF(scs.extensions.value_submitted_condition_set.conditionSet IS NOT NULL, FORMAT('#/conditionSet/%s', scs.extensions.value_submitted_condition_set.conditionSet), NULL)
+              )
+            ),
+            ERROR(FORMAT('SCV target proposition %s-%s has no object: no therapy or condition resolved', scv.id, UPPER(IFNULL(tp.code, 'UNDEF'))))
+          )) as object,
           IF(
             scv.clinical_impact_assertion_type IS NOT DISTINCT FROM 'therapeutic',
             COALESCE(
