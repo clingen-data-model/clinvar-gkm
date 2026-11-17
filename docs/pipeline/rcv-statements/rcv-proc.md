@@ -114,6 +114,8 @@ The procedure executes 8 sections: condition data resolution, three BASE steps, 
 
 Before building statement structures, the procedure materializes `temp_rcv_condition_data` by joining `rcv_mapping` (unnesting `scv_accessions`) with `gkm_scv_condition_sets` and selecting one representative SCV per RCV. This table provides the full condition concept (a `Condition` MappableConcept or a `ConditionSet` ConceptSet, with extensions excluded) needed to populate `object` in the proposition.
 
+The representative is the lowest SCV id among the member SCVs whose condition resolves. When none resolves (for example, when every member SCV that `rcv_mapping` lists has been removed from the release), the RCV falls back to its own trait set from `rcv_mapping`: a one-trait set gives a `#/condition/` pointer to its trait and a larger set a `#/conditionSet/` pointer, the same way an SCV's condition is resolved. If that also gives nothing, the proposition build stops with an error instead of writing a proposition with no `object`, which every proposition type requires.
+
 **Output:** `temp_rcv_condition_data` -- condition concept per RCV accession. <span class="role-badge badge-internal">Internal</span>
 
 ---

@@ -122,6 +122,8 @@ Step-specific differences:
 - **Priority Grouping BASE** -- references Classification Grouping IDs; somatic only; includes contributing and non-contributing evidence lines
 - **Aggregate Contribution BASE** -- references a single contributing child (from Priority Grouping or Classification Grouping) plus non-contributing details
 
+A VCV proposition's `object` comes only from the conditions of its contributing SCVs; a VCV has no trait set of its own and never reads RCV data. If none of those SCVs resolves a condition, the proposition build stops with an error instead of writing a proposition with no `object`, which every proposition type requires.
+
 **Output:** `temp_vcv_grouping_base_statements`, `temp_vcv_grouping_tier_statements`, `temp_vcv_agg_contribution_statements` -- one per step. <span class="role-badge badge-internal">Internal</span>
 
 ---
