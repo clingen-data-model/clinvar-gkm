@@ -2,7 +2,7 @@
 #
 # run-release.sh — end-to-end ClinVar-GKM release pipeline for a single release date.
 #
-# Chains the five stages that turn an ingested ClinVar release into published GKS output:
+# Chains the six stages that turn an ingested ClinVar release into published GKS output:
 # Stage 0 (dataset_diff_on) runs ahead of stage 1 to build the {S}.diff_* drivers, and a
 # version stamp (gkm_pipeline_version) is written between stages 3 and 4.
 #
@@ -22,8 +22,9 @@
 #                            release's weekly full, or a re-export, validated the same way, when that is
 #                            gone), r2-rollover.sh
 #                            again (drops the kept source candidate once the monthly is posted),
-#                            release-gkm-delta.sh --start-step=3 (the weekly DELTA -> deltas/), then
-#                            release-gkm-parquet.sh (the one Parquet set -> parquet/, overwritten)
+#                            release-gkm-delta.sh --start-step=3 (the weekly DELTA -> deltas/)
+#   6. parquet               release-gkm-parquet.sh: gkm-bundle-parquet builds the one Parquet set from the
+#                            weekly full stage 5 published, verifies it, and overwrites parquet/
 #
 # Stages 1 and 2 are incremental by default (recompute only changed variations, carry the
 # rest forward). Stage 4 self-corrects between incremental and full loads. --full forces a
@@ -49,10 +50,10 @@
 # delta has no monthly to replay onto in this line). The next release's delta is the line's first; its
 # baseline_release must be <date> (upload-gkm-delta-to-r2.sh refuses it otherwise).
 #
-# Stage 5 publishes to the public R2 bucket. Use --dry-run to run everything but have the
-# release stage only print what it would upload (no R2 writes) — use it for test runs.
+# Stages 5 and 6 publish to the public R2 bucket. Use --dry-run to run everything but have the
+# release stages only print what it would upload (no R2 writes) — use it for test runs.
 # NOTE: --dry-run still writes the pipeline_version stamp to BigQuery; --dry-run only gates
-# Stage 5 / R2 upload.
+# Stages 5-6 / R2 upload.
 #
 # USAGE:
 #   ./src/scripts/run-release.sh YYYY-MM-DD [--full | --full-procs] [--dry-run] [--skip-parquet] [--start-step N]
@@ -62,10 +63,11 @@
 #                   the version-stamp gate is unaffected, so next week resumes incremental
 #   --full-procs    only the stage-4 gkm procs full; variation_identity, export, vrsify and the
 #                   gkm_vrs load stay incremental
-#   --dry-run       stage 5 (release scripts) runs in dry-run: no R2 upload / no GCS writes
-#   --skip-parquet  stage 5 leaves parquet/ untouched: it keeps the previous set, and its manifest and the
-#                   index keep saying which release that set was built from
-#   --start-step N  begin at stage N (1-5); default 1. Stage 3 (vrsify) needs the local
+#   --dry-run       stages 5-6 (release scripts) run in dry-run: no R2 upload / no GCS writes
+#   --skip-parquet  skip stage 6, leaving parquet/ untouched: it keeps the previous set, and its manifest and
+#                   the index keep saying which release that set was built from
+#   --start-step N  begin at stage N (1-6); default 1. --start-step 6 runs only the Parquet step for a release
+#                   that is already published. Stage 3 (vrsify) needs the local
 #                   SeqRepo/UTA/gene-norm services — see src/vrsify/README.md.
 #   --bootstrap-monthly=YYYY-MM
 #                   stage 5 starts an EMPTY line (R2_LINE) with this checkpoint monthly (see above)
@@ -136,7 +138,7 @@ echo "=== run-release ${DATE} (full=${FULL}, full-procs=${FULL_PROCS}, dry-run=$
 # Idempotent (CREATE OR REPLACE). On the first release it emits a warning and writes no
 # diff tables, which correctly makes the incremental guards fall back to a full rebuild.
 if (( START_STEP <= 1 )); then
-  echo ">>> [0/5] dataset_diff_on (build {S}.diff_* drivers)"
+  echo ">>> [0/6] dataset_diff_on (build {S}.diff_* drivers)"
   bq query --project_id="${PROJECT_ID}" --use_legacy_sql=false \
     "CALL \`clinvar_ingest.dataset_diff_on\`(DATE '${DATE}')"
 fi
@@ -144,11 +146,11 @@ fi
 # --- Stage 1: variation_identity -------------------------------------------------------
 if (( START_STEP <= 1 )); then
   if $FULL; then
-    echo ">>> [1/5] variation_identity (FULL rebuild)"
+    echo ">>> [1/6] variation_identity (FULL rebuild)"
     bq query --project_id="${PROJECT_ID}" --use_legacy_sql=false \
       "CALL \`clinvar_ingest.variation_identity\`(DATE '${DATE}', FALSE)"
   else
-    echo ">>> [1/5] variation_identity_incremental"
+    echo ">>> [1/6] variation_identity_incremental"
     bq query --project_id="${PROJECT_ID}" --use_legacy_sql=false \
       "CALL \`clinvar_ingest.variation_identity_incremental\`(DATE '${DATE}', FALSE)"
   fi
@@ -156,7 +158,7 @@ fi
 
 # --- Stage 2: export variation_identity to GCS -----------------------------------------
 if (( START_STEP <= 2 )); then
-  echo ">>> [2/5] export-vi-table-to-gcs.sh"
+  echo ">>> [2/6] export-vi-table-to-gcs.sh"
   if $FULL; then
     "${REPO_ROOT}/src/scripts/export-vi-table-to-gcs.sh" "${DATE}" --full
   else
@@ -166,7 +168,7 @@ fi
 
 # --- Stage 3: vrsify (external vrs-python) ---------------------------------------------
 if (( START_STEP <= 3 )); then
-  echo ">>> [3/5] vrsify.sh (vrs-python; requires local SeqRepo/UTA/gene-norm services)"
+  echo ">>> [3/6] vrsify.sh (vrs-python; requires local SeqRepo/UTA/gene-norm services)"
   "${REPO_ROOT}/src/vrsify/vrsify.sh" "${DATE}"
 fi
 
@@ -190,7 +192,7 @@ fi
 
 # --- Stage 4: transform -> load gkm_vrs -> gkm_* procs ---------------------------------
 if (( START_STEP <= 4 )); then
-  echo ">>> [4/5] vrs-to-bq-table.sh (transform, load gkm_vrs, run gkm_* procs)"
+  echo ">>> [4/6] vrs-to-bq-table.sh (transform, load gkm_vrs, run gkm_* procs)"
   # GKS_FULL forces the full proc wrappers; it does not change the gkm_vrs load (that follows the data).
   GKS_FULL="${FULL_PROCS}" "${REPO_ROOT}/src/scripts/vrs-to-bq-table.sh" "${DATE}"
 fi
@@ -280,11 +282,11 @@ publish_due_monthly_fulls() {
     local up_args=("${src_date}" "${DATASET_VERSION}" "-" "--month-label=${month}" "--from-weekly")
     $DRY_RUN && up_args+=("--dry-run")
     if [[ -n "$(r2_size "${src_key}")" ]]; then
-      echo ">>> [5/5] ClinVar monthly ${month} (released ${cv_dt}) -> copy of the ${src_date} weekly full"
+      echo ">>> [5/6] ClinVar monthly ${month} (released ${cv_dt}) -> copy of the ${src_date} weekly full"
       "${REPO_ROOT}/src/scripts/upload-gkm-to-r2.sh" "${up_args[@]}" \
         || echo "WARNING: monthly ${month} copy from ${src_key} failed; continuing" >&2
     else
-      echo ">>> [5/5] ClinVar monthly ${month} (released ${cv_dt}) -> re-export from ${src_date} (no weekly full)"
+      echo ">>> [5/6] ClinVar monthly ${month} (released ${cv_dt}) -> re-export from ${src_date} (no weekly full)"
       local full_args=("${src_date}" "${DATASET_VERSION}" "--month-label=${month}")
       $DRY_RUN && full_args+=("--dry-run")
       "${REPO_ROOT}/src/scripts/release-gkm.sh" "${full_args[@]}" \
@@ -318,17 +320,15 @@ bootstrap_line() {
       "'${src_date:-none}', not ${DATE}" >&2
     exit 1
   fi
-  echo ">>> [5/5] bootstrap ${R2_LINE}: checkpoint monthly ${BOOTSTRAP_MONTH} <- ${DATE} (ClinVar released ${cv_dt})"
+  echo ">>> [5/6] bootstrap ${R2_LINE}: checkpoint monthly ${BOOTSTRAP_MONTH} <- ${DATE} (ClinVar released ${cv_dt})"
   "${REPO_ROOT}/src/scripts/release-gkm.sh" "${REL_ARGS[@]}" "--month-label=${BOOTSTRAP_MONTH}" --no-upload
   "${REPO_ROOT}/src/scripts/release-gkm.sh" "${REL_ARGS[@]}" "--month-label=${BOOTSTRAP_MONTH}" --start-step=3
   echo "    ${R2_LINE} started. No weekly full and no delta for ${DATE}: the next release's delta is the line's"
   echo "    first, with baseline_release ${DATE}."
 }
 
-# --- Stage 5: publish to the version line ------------------------------------------------
-if (( START_STEP <= 5 )); then
-  echo ">>> [5/5] release to ${R2_LINE} (rollover, weekly full, monthly, delta, Parquet)"
-  # release-gkm.sh needs the dataset version (e.g. v2_5_0); derive it from the dataset name.
+# --- Stages 5 and 6 need the dataset version (e.g. v2_5_0); derive it from the dataset name. ---
+if (( START_STEP <= 6 )); then
   DATE_US="${DATE//-/_}"
   DATASET_ID="$(bq ls --project_id="${PROJECT_ID}" --max_results=10000 \
     | awk '{$1=$1; print}' | grep "^clinvar_${DATE_US}_" | head -n 1)"
@@ -338,8 +338,12 @@ if (( START_STEP <= 5 )); then
   fi
   DATASET_VERSION="${DATASET_ID#clinvar_"${DATE_US}"_}"
   echo "    dataset=${DATASET_ID} version=${DATASET_VERSION}"
-
   REL_ARGS=("${DATE}" "${DATASET_VERSION}"); $DRY_RUN && REL_ARGS+=("--dry-run")
+fi
+
+# --- Stage 5: publish to the version line ------------------------------------------------
+if (( START_STEP <= 5 )); then
+  echo ">>> [5/6] release to ${R2_LINE} (rollover, weekly full, monthly, delta)"
   ROLL_ARGS=("${DATE}"); $DRY_RUN && ROLL_ARGS+=("--dry-run")
 
   # A new line starts with one checkpoint monthly (--bootstrap-monthly); every other release needs one in the line.
@@ -360,18 +364,18 @@ if (( START_STEP <= 5 )) && [[ -z "${BOOTSTRAP_MONTH}" ]]; then
   # Build and strictly validate the delta and this release's weekly full before anything on R2 changes: a failure
   # here stops the release with the line untouched. The delta is uploaded below, after the monthly its
   # checkpoint_full may resolve to; the full right after the rollover.
-  echo ">>> [5/5] building and validating the weekly DELTA for ${DATE}"
+  echo ">>> [5/6] building and validating the weekly DELTA for ${DATE}"
   "${REPO_ROOT}/src/scripts/release-gkm-delta.sh" "${REL_ARGS[@]}" --no-upload
-  echo ">>> [5/5] building and validating the weekly FULL for ${DATE}"
+  echo ">>> [5/6] building and validating the weekly FULL for ${DATE}"
   "${REPO_ROOT}/src/scripts/release-gkm.sh" "${REL_ARGS[@]}" --weekly --no-upload
 
   # Month/year rollover first: posting this release may start a new month (or year).
-  echo ">>> [5/5] rollover for ${DATE}"
+  echo ">>> [5/6] rollover for ${DATE}"
   "${REPO_ROOT}/src/scripts/r2-rollover.sh" "${ROLL_ARGS[@]}"
 
   # This release's weekly FULL, validated above. A failed upload is non-fatal: the delta is the record; a monthly
   # whose source weekly full is missing is re-exported (and validated) instead.
-  echo ">>> [5/5] publishing weekly FULL for ${DATE}"
+  echo ">>> [5/6] publishing weekly FULL for ${DATE}"
   "${REPO_ROOT}/src/scripts/release-gkm.sh" "${REL_ARGS[@]}" --weekly --start-step=3 \
     || echo "WARNING: weekly FULL ${DATE} upload failed; continuing to the monthly trigger and the delta" >&2
 
@@ -381,20 +385,24 @@ if (( START_STEP <= 5 )) && [[ -z "${BOOTSTRAP_MONTH}" ]]; then
   # Drop the finished month's kept weekly full once the new month's monthly is posted.
   "${REPO_ROOT}/src/scripts/r2-rollover.sh" "${ROLL_ARGS[@]}"
 
-  echo ">>> [5/5] publishing weekly DELTA for ${DATE}"
+  echo ">>> [5/6] publishing weekly DELTA for ${DATE}"
   "${REPO_ROOT}/src/scripts/release-gkm-delta.sh" "${REL_ARGS[@]}" --start-step=3
 fi
 
-if (( START_STEP <= 5 )); then
-  # The one Parquet set (parquet/) is rebuilt from THIS release's dataset, the newest JSON state. Non-fatal:
-  # the bundles are the record; parquet/manifest.json says which release the set was built from.
+# --- Stage 6: the one Parquet set (parquet/) -----------------------------------------------
+# Built from THIS release's weekly full, so it runs only after stage 5 has uploaded it (if that upload failed, the
+# full's .sha256 sidecar is missing and this stage stops). Non-fatal after stage 5: the bundles are the record, and
+# parquet/manifest.json says which release the set was built from. Fatal when it is the only stage asked for.
+if (( START_STEP <= 6 )); then
   if $SKIP_PARQUET; then
-    echo ">>> [5/5] --skip-parquet: parquet/ still holds the previous set"
+    echo ">>> [6/6] --skip-parquet: parquet/ still holds the previous set"
   else
-    echo ">>> [5/5] rebuilding the Parquet set from ${DATE}"
+    echo ">>> [6/6] rebuilding the Parquet set from ${DATE}"
     # --purge clears the CDN copy of parquet/ (cached 1 day by the Parquet cache rule).
-    "${REPO_ROOT}/src/scripts/release-gkm-parquet.sh" "${REL_ARGS[@]}" --purge \
-      || echo "WARNING: Parquet rebuild from ${DATE} failed; parquet/ still holds the previous set" >&2
+    "${REPO_ROOT}/src/scripts/release-gkm-parquet.sh" "${REL_ARGS[@]}" --purge || {
+      echo "WARNING: Parquet rebuild from ${DATE} failed; parquet/ still holds the previous set" >&2
+      (( START_STEP < 6 )) || exit 1
+    }
   fi
 fi
 

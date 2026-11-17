@@ -245,6 +245,31 @@ def _monthly_pool(index):
     return pool
 
 
+PARQUET_TOOLS = ("gkm-bundle-parquet", "clinvar-gkm-parquet")   # the tool's name from 2.0.0, and before it
+
+
+def merge_tool_parquet_manifest(tool, local):
+    """The published manifest of a gkm-bundle-parquet build (clinvar-gkm-parquet before 2.0.0): what the tool
+    recorded (table spec, inputs, tool and DuckDB versions), plus what only this repo knows (the release, the
+    dataset, the attribution). From 2.0.0 the tool reads one bundle and doesn't know which release it is, so its
+    source_release is empty and this repo's is used. The published Parquet comes only from the tool, so this
+    refuses a manifest another builder wrote, and a set that isn't the one the tool describes: a release or schema
+    version the tool states that differs from ours, or files that differ from the ones it wrote."""
+    builder = str(tool.get("builder") or "")
+    if builder.split(" ")[0] not in PARQUET_TOOLS:
+        raise SystemExit(f"ERROR: tool manifest builder is {builder!r}, not one of {', '.join(PARQUET_TOOLS)}")
+    ours = {"source_release": local["source_release"], "schema_version": local["schema_version"]}
+    if "release" in tool:
+        ours["release"] = local["source_release"]
+    for key, want in ours.items():
+        if tool.get(key) not in (None, want):
+            raise SystemExit(f"ERROR: tool manifest {key} is {tool[key]!r}, expected {want!r}")
+    by_name = lambda files: sorted(files, key=lambda f: f["name"])
+    if by_name(tool.get("files") or []) != by_name(local["files"]):
+        raise SystemExit("ERROR: the Parquet files differ from the ones in the tool manifest")
+    return {**tool, **ours, **{k: local[k] for k in ("build_date", "dataset", *ATTRIBUTION)}}
+
+
 def build_index(objs, line, *, shas, sources, prev_index, schema_version, status, superseded_by,
                 parquet_manifest, now):
     """The line's index.json. Shape (read by the docs' R2 browser, console and replay recipe):
@@ -737,13 +762,13 @@ def main(argv=None):
     p.add_argument("--allow-gap", action="store_true")
     p.add_argument("--dir", required=True, help="bucket folder the delta is published in")
 
-    p = sub.add_parser("parquet-manifest")
+    p = sub.add_parser("parquet-manifest", help="parquet/manifest.json: the tool's manifest plus ours")
     p.add_argument("--dir", required=True)
     p.add_argument("--release", required=True)
     p.add_argument("--dataset", required=True)
     p.add_argument("--schema-version", required=True)
-    p.add_argument("--builder", default="BigQuery export")
-    p.add_argument("--table-spec-version")
+    p.add_argument("--tool-manifest", required=True,
+                   help="the manifest gkm-bundle-parquet wrote; merged, and checked against the files")
     p.add_argument("--out", required=True)
 
     p = sub.add_parser("cleanup", help="keys outside the planned layout")
@@ -840,11 +865,12 @@ def main(argv=None):
             if f.endswith(".parquet"):
                 p = os.path.join(a.dir, f)
                 files.append({"name": f, "size": os.path.getsize(p), "sha256": sha256_file(p)})
-        man = {"derived": True, "build_date": now, "source_release": a.release, "dataset": a.dataset,
-               "builder": a.builder, "table_spec_version": a.table_spec_version, "schema_version": a.schema_version,
-               "note": ("One Parquet set, rebuilt from the newest release and overwritten every release. It is "
-                        "derived from the JSON bundle; past states are rebuilt from the monthly bundles."),
-               **ATTRIBUTION, "files": files}
+        local = {"build_date": now, "source_release": a.release, "dataset": a.dataset,
+                 "schema_version": a.schema_version, **ATTRIBUTION, "files": files}
+        tool = _load_json(a.tool_manifest)
+        if not tool:
+            raise SystemExit(f"ERROR: no tool manifest at {a.tool_manifest}: the Parquet set must be a gkm-bundle-parquet build")
+        man = merge_tool_parquet_manifest(tool, local)
         with open(a.out, "w") as fh:
             json.dump(man, fh, indent=1)
         print(f"  parquet/manifest.json: {len(files)} files, {_gb(sum(f['size'] for f in files))}")
