@@ -5,8 +5,7 @@
 -- consumer calls this function instead of carrying its own copy of the mapping:
 --   * the 8 statement / evidence-line pointer sites (`#/<section>/<id>`) in
 --     gkm-scv-statement-proc.sql, gkm-rcv-statement-proc.sql and gkm-vcv-statement-proc.sql;
---   * the NDJSON proposition export and the Parquet proposition template
---     (src/scripts/export-gkm-dicts.sh, src/scripts/parquet-schemas/proposition.sql);
+--   * the NDJSON proposition export (src/scripts/export-gkm-dicts.sh);
 --   * the delta manifest (src/scripts/build-delta-manifest.py);
 --   * the reference-integrity validator (src/scripts/validate-proposition-conformance.sh).
 --

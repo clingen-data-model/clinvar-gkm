@@ -965,7 +965,8 @@ BEGIN
           attr_ord,
           cit_ord,
           -- type/pmid/doi/urls keep their pre-1.1.0 positions; the new fields are appended
-          -- so the typed Parquet struct only grows at the end
+          -- so the struct only grows at the end (the column order of the typed Parquet export
+          -- from BigQuery, since removed; the order also sets the key order of the bundle's records)
           STRUCT(
             'Document' AS type,
             (SELECT x.val FROM UNNEST(ids) x WHERE x.kind = 'pmid' ORDER BY x.resourced, x.id_ord LIMIT 1) AS pmid,
@@ -1075,7 +1076,8 @@ BEGIN
     -- Document (Step 7b). Method.reportedIn holds one Document, so any further citations
     -- (ClinVar order) are kept as Documents in the Method's own extension
     -- additionalClinvarMethodCitations (value_document_array -> `value` at publish).
-    -- `extensions` is appended after reportedIn so the typed Parquet struct only grows.
+    -- `extensions` is appended after reportedIn so the struct only grows (as the typed Parquet
+    -- export from BigQuery, since removed, needed).
     ---------------------------------------------------------------------------
     SET query_scv_method = REPLACE("""
       {CT} {P}.temp_scv_method AS
