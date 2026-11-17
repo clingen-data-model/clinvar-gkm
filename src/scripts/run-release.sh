@@ -12,12 +12,15 @@
 #   4. vrs-to-bq             src/scripts/vrs-to-bq-table.sh
 #                            (Cloud Run transform -> load gkm_vrs -> gkm_* procs)
 #   5. release               publish to the version line R2_LINE (default v1/1.1/; layout in r2_layout.py):
-#                            release-gkm-delta.sh --no-upload (build and strictly validate the DELTA; a failure
-#                            stops here, with R2 untouched),
+#                            release-gkm-delta.sh --no-upload (build and strictly validate the DELTA with the
+#                            GA4GH gkm-toolkit) and release-gkm.sh --weekly --no-upload (build and strictly
+#                            validate this release's weekly FULL with jsonschema-rs); a failure of either stops
+#                            here, with R2 untouched,
 #                            r2-rollover.sh (month/year rollover now that this release is posted),
-#                            release-gkm.sh --weekly (this release's weekly FULL -> weekly/),
+#                            release-gkm.sh --weekly --start-step=3 (the weekly FULL -> weekly/),
 #                            any due official monthly (a server-side copy of its ADR 0002 source
-#                            release's weekly full, or a re-export when that is gone), r2-rollover.sh
+#                            release's weekly full, or a re-export, validated the same way, when that is
+#                            gone), r2-rollover.sh
 #                            again (drops the kept source candidate once the monthly is posted),
 #                            release-gkm-delta.sh --start-step=3 (the weekly DELTA -> deltas/), then
 #                            release-gkm-parquet.sh (the one Parquet set -> parquet/, overwritten)
@@ -106,7 +109,7 @@ if (( START_STEP <= 5 )); then
     echo "ERROR: ${ASSEMBLE_PYTHON} ($(command -v "${ASSEMBLE_PYTHON}")) has no orjson, which sets the bundle layout. pip install orjson there, or run stage 5 from another environment." >&2
     exit 1
   }
-  # Stage 5 validates the delta strictly before any upload; same reasoning.
+  # Stage 5 validates the delta (toolkit engine) and every full (rs engine) strictly before upload; same reasoning.
   $DRY_RUN || "${SCRIPT_DIR}/validate-bundle.sh" --check-setup
 fi
 echo "=== run-release ${DATE} (full=${FULL}, full-procs=${FULL_PROCS}, dry-run=${DRY_RUN}, skip-parquet=${SKIP_PARQUET}, start-step=${START_STEP}, project=${PROJECT_ID}) ==="
@@ -289,20 +292,23 @@ if (( START_STEP <= 5 )); then
   REL_ARGS=("${DATE}" "${DATASET_VERSION}"); $DRY_RUN && REL_ARGS+=("--dry-run")
   ROLL_ARGS=("${DATE}"); $DRY_RUN && ROLL_ARGS+=("--dry-run")
 
-  # Build and strictly validate the delta before anything on R2 changes: a failure here stops the release with the
-  # line untouched. It is uploaded below, after the monthly its checkpoint_full may resolve to.
+  # Build and strictly validate the delta and this release's weekly full before anything on R2 changes: a failure
+  # here stops the release with the line untouched. The delta is uploaded below, after the monthly its
+  # checkpoint_full may resolve to; the full right after the rollover.
   echo ">>> [5/5] building and validating the weekly DELTA for ${DATE}"
   "${REPO_ROOT}/src/scripts/release-gkm-delta.sh" "${REL_ARGS[@]}" --no-upload
+  echo ">>> [5/5] building and validating the weekly FULL for ${DATE}"
+  "${REPO_ROOT}/src/scripts/release-gkm.sh" "${REL_ARGS[@]}" --weekly --no-upload
 
   # Month/year rollover first: posting this release may start a new month (or year).
   echo ">>> [5/5] rollover for ${DATE}"
   "${REPO_ROOT}/src/scripts/r2-rollover.sh" "${ROLL_ARGS[@]}"
 
-  # This release's weekly FULL. Non-fatal: the delta is the record; a monthly whose source weekly full is
-  # missing is re-exported instead.
+  # This release's weekly FULL, validated above. A failed upload is non-fatal: the delta is the record; a monthly
+  # whose source weekly full is missing is re-exported (and validated) instead.
   echo ">>> [5/5] publishing weekly FULL for ${DATE}"
-  "${REPO_ROOT}/src/scripts/release-gkm.sh" "${REL_ARGS[@]}" --weekly \
-    || echo "WARNING: weekly FULL ${DATE} failed; continuing to the monthly trigger and the delta" >&2
+  "${REPO_ROOT}/src/scripts/release-gkm.sh" "${REL_ARGS[@]}" --weekly --start-step=3 \
+    || echo "WARNING: weekly FULL ${DATE} upload failed; continuing to the monthly trigger and the delta" >&2
 
   # Official monthly, BEFORE the delta, so the delta's checkpoint_full can resolve to it.
   publish_due_monthly_fulls
