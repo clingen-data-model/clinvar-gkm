@@ -195,16 +195,11 @@ BEGIN
 
         (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
+          -- One SCV: its own strength. Several: the lookup strength of the aggregate label
+          -- (gkm_*_proc agg_strength_name); none for a label without one (#226).
           IF(ARRAY_LENGTH(agg.full_scv_ids) = 1,
             agg.scv_strength_name,
-            CASE
-              WHEN agg.actual_agg_classif_label IN ('Pathogenic', 'Benign', 'Oncogenic') THEN 'Definitive'
-              WHEN agg.actual_agg_classif_label IN ('Likely pathogenic', 'Likely benign', 'Likely Oncogenic') THEN 'Likely'
-              WHEN agg.actual_agg_classif_label LIKE 'Tier I%' THEN 'Strong'
-              WHEN agg.actual_agg_classif_label LIKE 'Tier II%' THEN 'Potential'
-              WHEN agg.actual_agg_classif_label LIKE 'Tier IV%' THEN 'Likely'
-              ELSE CAST(NULL AS STRING)
-            END
+            agg.agg_strength_name
           ) AS name
         )]) s WHERE s.name IS NOT NULL) AS strength,
 
@@ -271,14 +266,8 @@ BEGIN
 
         (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
-          CASE
-            WHEN agg.agg_label IN ('Pathogenic', 'Benign', 'Oncogenic') THEN 'Definitive'
-            WHEN agg.agg_label IN ('Likely pathogenic', 'Likely benign', 'Likely Oncogenic') THEN 'Likely'
-            WHEN agg.agg_label LIKE 'Tier I%' THEN 'Strong'
-            WHEN agg.agg_label LIKE 'Tier II%' THEN 'Potential'
-            WHEN agg.agg_label LIKE 'Tier IV%' THEN 'Likely'
-            ELSE CAST(NULL AS STRING)
-          END AS name
+          -- the lookup strength of the layer's label (gkm_*_proc agg_strength_name; #226)
+          agg.agg_strength_name AS name
         )]) s WHERE s.name IS NOT NULL) AS strength,
 
         STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, sl.label AS name) AS quality,
@@ -349,14 +338,8 @@ BEGIN
 
         (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
-          CASE
-            WHEN agg.agg_label IN ('Pathogenic', 'Benign', 'Oncogenic') THEN 'Definitive'
-            WHEN agg.agg_label IN ('Likely pathogenic', 'Likely benign', 'Likely Oncogenic') THEN 'Likely'
-            WHEN agg.agg_label LIKE 'Tier I%' THEN 'Strong'
-            WHEN agg.agg_label LIKE 'Tier II%' THEN 'Potential'
-            WHEN agg.agg_label LIKE 'Tier IV%' THEN 'Likely'
-            ELSE CAST(NULL AS STRING)
-          END AS name
+          -- the lookup strength of the layer's label (gkm_*_proc agg_strength_name; #226)
+          agg.agg_strength_name AS name
         )]) s WHERE s.name IS NOT NULL) AS strength,
 
         STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, agg.contributing_submission_level_label AS name) AS quality,
