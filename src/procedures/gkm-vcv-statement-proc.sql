@@ -524,7 +524,10 @@ BEGIN
         )), remove_empty => TRUE) as value
       FROM (
         SELECT a.*,
-          IF(ARRAY_LENGTH(a.unique_conditions) = 0, CAST(NULL AS STRING),
+          -- base class requires object; a VCV's conditions come only from its member SCVs (VCV
+          -- never reads RCV), so there is no fallback: fail the build rather than ship none.
+          IF(IFNULL(ARRAY_LENGTH(a.unique_conditions), 0) = 0,
+            ERROR(FORMAT('VCV proposition %s has no object: none of its SCVs resolves a condition', a.prop_id)),
             IF(ARRAY_LENGTH(a.unique_conditions) = 1,
               FORMAT(IF(STARTS_WITH(a.unique_conditions[OFFSET(0)], 'clinvar.traitset:'), '#/conditionSet/%s', '#/condition/%s'), a.unique_conditions[OFFSET(0)]),
               CONCAT('#/conditionSet/clinvar.conditionset:vcv-', TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(a.unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|')))))) AS obj_ref
@@ -559,7 +562,10 @@ BEGIN
         )), remove_empty => TRUE) as value
       FROM (
         SELECT a.*,
-          IF(ARRAY_LENGTH(a.unique_conditions) = 0, CAST(NULL AS STRING),
+          -- base class requires object; a VCV's conditions come only from its member SCVs (VCV
+          -- never reads RCV), so there is no fallback: fail the build rather than ship none.
+          IF(IFNULL(ARRAY_LENGTH(a.unique_conditions), 0) = 0,
+            ERROR(FORMAT('VCV proposition %s has no object: none of its SCVs resolves a condition', a.prop_id)),
             IF(ARRAY_LENGTH(a.unique_conditions) = 1,
               FORMAT(IF(STARTS_WITH(a.unique_conditions[OFFSET(0)], 'clinvar.traitset:'), '#/conditionSet/%s', '#/condition/%s'), a.unique_conditions[OFFSET(0)]),
               CONCAT('#/conditionSet/clinvar.conditionset:vcv-', TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(a.unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|')))))) AS obj_ref
@@ -594,7 +600,10 @@ BEGIN
         )), remove_empty => TRUE) as value
       FROM (
         SELECT a.*,
-          IF(ARRAY_LENGTH(a.unique_conditions) = 0, CAST(NULL AS STRING),
+          -- base class requires object; a VCV's conditions come only from its member SCVs (VCV
+          -- never reads RCV), so there is no fallback: fail the build rather than ship none.
+          IF(IFNULL(ARRAY_LENGTH(a.unique_conditions), 0) = 0,
+            ERROR(FORMAT('VCV proposition %s has no object: none of its SCVs resolves a condition', a.prop_id)),
             IF(ARRAY_LENGTH(a.unique_conditions) = 1,
               FORMAT(IF(STARTS_WITH(a.unique_conditions[OFFSET(0)], 'clinvar.traitset:'), '#/conditionSet/%s', '#/condition/%s'), a.unique_conditions[OFFSET(0)]),
               CONCAT('#/conditionSet/clinvar.conditionset:vcv-', TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(a.unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|')))))) AS obj_ref

@@ -33,7 +33,7 @@ The extension values are stored as typed fields (`value_string` for the symbol a
 
 ### Step 3: Build `temp_moi_qualifiers`
 
-Extracts ModeOfInheritance from assertion attributes in `clinical_assertion`. When a matching HPO term is available, the qualifier includes a `primaryCoding` with the HPO term identifier and label. All qualifiers include a `submittedModeOfInheritance` extension preserving the original submitted value.
+Extracts ModeOfInheritance from assertion attributes in `clinical_assertion`. When a matching HPO term is available, the qualifier includes a `primaryCoding` with the HPO term identifier and label. All qualifiers include a `submittedModeOfInheritance` extension preserving the original submitted value. An attribute with no value gives no qualifier, so the extension never lacks a value.
 
 **Output:** `temp_moi_qualifiers` -- one row per SCV with mode of inheritance. <span class="role-badge badge-internal">Internal</span>
 
@@ -48,7 +48,7 @@ Derives penetrance qualifiers for specific classification types:
 | Pathogenic-low penetrance (`p-lp`), Likely pathogenic-low penetrance (`lp-lp`) | `"low"` |
 | Established risk allele (`era`), Likely risk allele (`lra`), Uncertain risk allele (`ura`) | `"risk"` |
 
-Each penetrance qualifier includes a `submittedClassification` extension preserving the original classification label that triggered the penetrance derivation.
+Each penetrance qualifier includes a `submittedClassification` extension preserving the original classification label that triggered the penetrance derivation. An SCV with no submitted classification gets no penetrance qualifier, so the extension never lacks a value.
 
 **Output:** `temp_penetrance_qualifiers` -- one row per qualifying SCV. <span class="role-badge badge-internal">Internal</span>
 
@@ -69,7 +69,9 @@ Assembles the SCV proposition by joining `temp_gkm_scv` with all qualifier table
 | `modeOfInheritanceQualifier` | Mode of inheritance from Step 3 |
 | `penetranceQualifier` | Penetrance from Step 4 |
 
-The qualifiers are joined for every SCV proposition and dropped when empty. The schema allows `modeOfInheritanceQualifier` and `penetranceQualifier` only on pathogenicity and the ClinVar-specific proposition types, not on oncogenicity or clinical significance propositions.
+The qualifiers are joined for every SCV proposition and dropped when empty. `modeOfInheritanceQualifier` and `penetranceQualifier` are written only on `VariantPathogenicityProposition` and the ClinVar-specific (`Clinvar*`) proposition types. An oncogenicity or clinical significance proposition never carries them, even when the SCV has a mode of inheritance or a risk-allele classification, because neither VA-Spec nor the ClinVar-GKM profiles allow them there. `geneContextQualifier` is written on every type.
+
+Every proposition type requires `object`. If an SCV's condition doesn't resolve, the build stops with an error instead of writing a proposition without one.
 
 **Output:** `temp_gkm_scv_proposition` -- one row per SCV with fully assembled proposition. <span class="role-badge badge-internal">Internal</span>
 
@@ -89,7 +91,7 @@ Builds the evidence line target proposition for somatic clinical impact assertio
 | `conditionQualifier` | Condition moved to qualifier position for therapeutic assertions (since `object` becomes the therapy), as a `#/condition/` or `#/conditionSet/` reference |
 | `geneContextQualifier` | Gene concept from Step 2 |
 
-Target propositions carry no `modeOfInheritanceQualifier` or `penetranceQualifier`: those qualifiers are germline-only, so this step does not emit them.
+Target propositions carry no `modeOfInheritanceQualifier` or `penetranceQualifier`: those qualifiers are germline-only, so this step does not emit them. If a target proposition has no therapy (therapeutic) or no condition (diagnostic, prognostic) for its `object`, the build stops with an error.
 
 **Output:** `temp_gkm_scv_target_proposition` -- one row per somatic SCV with target proposition. <span class="role-badge badge-internal">Internal</span>
 

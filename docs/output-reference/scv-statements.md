@@ -252,14 +252,14 @@ See [SCV Extensions (Pipeline)](../pipeline/scv-statements/scv-extensions.md) fo
 | `submittedCondition` | [SubmittedCondition](#submittedcondition) | Submitted condition provenance with normalization details, trait mapping, and `#/condition/` references. Present when the SCV maps to a single condition. |
 | `submittedConditionSet` | [SubmittedConditionSet](#submittedconditionset) | Submitted condition set provenance with multiple condition concepts. Present when the SCV maps to multiple conditions. |
 | `clinvarScvReviewStatus` | `string` | The ClinVar review status (e.g., `criteria provided, single submitter`). Present when the SCV has a review status. |
-| `submittedScvClassification` | `string` | The original classification text submitted by the submitter, preserved when it differs from the normalized classification name. |
+| `submittedScvClassification` | `string` | The original classification text submitted by the submitter, preserved when it differs from the normalized classification name. Omitted when there is no submitted text. |
 | `submittedScvLocalKey` | `string` | The unique local key provided by the submitter for this submission. Present only when the submitter provided a local key. |
 | `submissionLevel` | `string` | The submission level code: `PG`, `EP`, `CP`, `NOCP`, `NOCL`, or `FLAG`. Present when the submission level can be determined. |
 
 </div>
 
 !!! note
-    Only one of `submittedCondition` or `submittedConditionSet` is present per SCV — never both. The `submittedScvClassification` extension is omitted when the submitted classification matches the normalized label exactly.
+    Only one of `submittedCondition` or `submittedConditionSet` is present per SCV — never both. The `submittedScvClassification` extension is omitted when the submitted classification matches the normalized label exactly, or when there is none.
 
 ### Classification Extensions
 
@@ -273,7 +273,7 @@ Extensions on the `classification` MappableConcept within the Statement.
 
 </div>
 
-The description template is: `for <condition_name>\nClassification is based on the <submission_level_label> submission\n<evaluated_date> by <submitter_name>`.
+The description template is: `for <condition_name>\nClassification is based on the <submission_level_label> submission\n<evaluated_date> by <submitter_name>`. When the submitter has no name, ` by <submitter_name>` is left off, so the text is never empty.
 
 ### Qualifier Extensions
 
@@ -285,8 +285,8 @@ Extensions on proposition qualifier objects (`geneContextQualifier`, `modeOfInhe
 |---|---|---|
 | `submittedGeneSymbols` | array of `string` | Gene symbols originally submitted by the submitter, verbatim, in submitted order. Present on `geneContextQualifier` when the submitter provided gene information. May differ from the normalized gene symbol. |
 | `geneContextSource` | `string` | Where the `geneContextQualifier` gene came from. Present on every `geneContextQualifier`. `submittedSymbolMatches`: the submitter's symbols include the qualifier's symbol. `submittedSymbolDiffers`: the submitter gave symbols, but none equals the qualifier's symbol; most are previous symbols of the same gene, so the genes are not necessarily different. `inferredFromVariant`: the submitter gave no symbols. `submittedNotNormalized`: the variant has no single representative gene, so the qualifier is a placeholder whose `name` is the submitter's symbol (several are joined with `, `) and which has no `primaryCoding`. Symbols are compared after trimming spaces and ignoring case. The schema accepts only these four values (`ClinvarGeneContextQualifier`), on every proposition type. Added in 1.1.0; earlier placeholders are named `submitted genes were not normalized`. See the [gene context FAQ](../reference/faq.md#where-does-an-scv-propositions-gene-context-come-from). |
-| `submittedModeOfInheritance` | `string` | Mode of inheritance text as originally submitted. Present on all `modeOfInheritanceQualifier` objects. Preserved alongside the normalized HPO coding. |
-| `submittedClassification` | `string` | Original submitted classification text that triggered the penetrance qualifier derivation. Present on all `penetranceQualifier` objects. |
+| `submittedModeOfInheritance` | `string` | Mode of inheritance text as originally submitted. Present on all `modeOfInheritanceQualifier` objects, which are written only when the submitted text exists. Preserved alongside the normalized HPO coding. |
+| `submittedClassification` | `string` | Original submitted classification text that triggered the penetrance qualifier derivation. Present on all `penetranceQualifier` objects, which are written only when the submitted text exists. |
 
 </div>
 
