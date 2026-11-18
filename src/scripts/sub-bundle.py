@@ -36,6 +36,9 @@ import re
 import subprocess
 import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from gkm_json_cleanup import order_unordered_arrays  # noqa: E402
+
 KV, ST = "kv", "struct"  # table mode: (key,value JSON) vs typed table keyed by `id`
 
 # sections resolvable from a single fixed table
@@ -211,7 +214,8 @@ def to_bundle(store):
 
 
 def dump_bundle(bundle, out, schema_version=None):
-    """Write the bundle as valid JSON with one compact line per record.
+    """Write the bundle as valid JSON with one compact line per record, keys sorted and the arrays whose order carries
+    no meaning canonically ordered, as in the published bundles.
 
     Sections are keyed on their own lines; each object *value* is emitted on a
     single line (compact separators), so the file has ~one line per record rather
@@ -231,7 +235,8 @@ def dump_bundle(bundle, out, schema_version=None):
             for ki, (key, obj) in enumerate(entries):
                 comma = "," if ki < len(entries) - 1 else ""
                 out.write(f"    {json.dumps(key)}: "
-                          f"{json.dumps(obj, separators=(',', ':'))}{comma}\n")
+                          f"{json.dumps(order_unordered_arrays(section, obj), separators=(',', ':'), sort_keys=True)}"
+                          f"{comma}\n")
             out.write("  }")
         else:
             out.write("}")
