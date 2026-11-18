@@ -262,6 +262,18 @@ BEGIN
           FROM label_counts
           GROUP BY 1, 2, 3, 4, 5
       ),
+      classif_codings AS (
+          -- The SCV classification codings (classification_code + code_system), keyed by
+          -- proposition type and label: an aggregate label that is a single lookup term (or
+          -- a combination the lookup already codes, e.g. 'Pathogenic/Likely pathogenic')
+          -- gets the same primaryCoding its SCVs carry. One row per key, deterministically.
+          SELECT proposition_type, label,
+                 ARRAY_AGG(STRUCT(classification_code AS code, code_system AS system)
+                   ORDER BY code LIMIT 1)[OFFSET(0)] as coding
+          FROM `clinvar_ingest.clinvar_clinsig_types`
+          WHERE classification_code IS NOT NULL AND code_system IS NOT NULL
+          GROUP BY 1, 2
+      ),
       somatic_conditions AS (
           SELECT b.variation_id, b.statement_group, b.prop_type, b.submission_level, b.classif_type as tier_grouping,
                  ARRAY_AGG(DISTINCT trait_name IGNORE NULLS ORDER BY trait_name) as unique_traits
@@ -331,6 +343,9 @@ BEGIN
               ELSE cs.agg_classif_label
             END AS actual_agg_classif_label,
 
+            -- Somatic tier label before the tumor-type decoration (coding helper, not output)
+            IF(c.prop_type = 'sci' AND c.submission_level != 'FLAG', cs.agg_classif_label, CAST(NULL AS STRING)) AS sci_tier_label,
+
             -- Aggregate review status for all submission levels
             CASE
               WHEN c.submission_level = 'PG' THEN 'practice guideline'
@@ -354,6 +369,29 @@ BEGIN
           LEFT JOIN vcv_conditions vc
             ON c.variation_id = vc.variation_id AND c.statement_group = vc.statement_group AND c.prop_type = vc.prop_type
             AND c.submission_level = vc.submission_level AND IFNULL(c.tier_grouping, '') = IFNULL(vc.tier_grouping, '')
+      ),
+      coded AS (
+          -- Aggregate classification coding (the statement's classification.primaryCoding).
+          -- Coded on the label without the somatic tumor-type decoration (the tier label for
+          -- sci). A label the lookup codes for this proposition type reuses the SCV coding;
+          -- any other label (an aggregate-only label such as 'Benign/Likely benign' for a
+          -- type the lookup doesn't code it for, a combination such as
+          -- 'Pathogenic/Likely pathogenic/Pathogenic, low penetrance', a conflicting label,
+          -- or the FLAG label) is a ClinVar-controlled term: system 'ClinVar' (the system
+          -- the lookup uses for ClinVar's own terms) and the lower-cased label as its code.
+          SELECT
+            fp.* EXCEPT (sci_tier_label),
+            IF(COALESCE(fp.sci_tier_label, fp.actual_agg_classif_label) IS NULL,
+              NULL,
+              COALESCE(
+                cc.coding,
+                STRUCT(LOWER(COALESCE(fp.sci_tier_label, fp.actual_agg_classif_label)) AS code, 'ClinVar' AS system)
+              )
+            ) AS agg_classif_coding
+          FROM final_prep fp
+          LEFT JOIN classif_codings cc
+            ON cc.proposition_type = fp.prop_type
+            AND cc.label = COALESCE(fp.sci_tier_label, fp.actual_agg_classif_label)
       )
       SELECT
         CASE
@@ -365,7 +403,7 @@ BEGIN
           ELSE FORMAT('%s-%s-%s-%s', vcv_accession, statement_group, UPPER(prop_type), submission_level)
         END AS prop_id,
         *
-      FROM final_prep
+      FROM coded
     """, '{CLASS_HEAD}', class_head);
     SET query_classification = REPLACE(query_classification, '{S}', rec.schema_name);
     SET query_classification = REPLACE(query_classification, '{CT}', temp_create);
