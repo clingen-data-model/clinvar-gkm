@@ -6411,7 +6411,7 @@
 <p><strong>Output:</strong> <code>temp_gene_context_qualifiers</code> -- one row per SCV+gene combination. <span class="role-badge badge-internal">Internal</span></p>
 <hr />
 <h3 id="step-3-build-temp_moi_qualifiers">Step 3: Build <code>temp_moi_qualifiers</code><a class="headerlink" href="#step-3-build-temp_moi_qualifiers" title="Permanent link">&para;</a></h3>
-<p>Extracts ModeOfInheritance from assertion attributes in <code>clinical_assertion</code>. When a matching HPO term is available, the qualifier includes a <code>primaryCoding</code> with the HPO term identifier and label. All qualifiers include a <code>submittedModeOfInheritance</code> extension preserving the original submitted value.</p>
+<p>Extracts ModeOfInheritance from assertion attributes in <code>clinical_assertion</code>. When a matching HPO term is available, the qualifier includes a <code>primaryCoding</code> with the HPO term identifier and label. All qualifiers include a <code>submittedModeOfInheritance</code> extension preserving the original submitted value. An attribute with no value gives no qualifier, so the extension never lacks a value.</p>
 <p><strong>Output:</strong> <code>temp_moi_qualifiers</code> -- one row per SCV with mode of inheritance. <span class="role-badge badge-internal">Internal</span></p>
 <hr />
 <h3 id="step-4-build-temp_penetrance_qualifiers">Step 4: Build <code>temp_penetrance_qualifiers</code><a class="headerlink" href="#step-4-build-temp_penetrance_qualifiers" title="Permanent link">&para;</a></h3>
@@ -6434,7 +6434,7 @@
 </tr>
 </tbody>
 </table>
-<p>Each penetrance qualifier includes a <code>submittedClassification</code> extension preserving the original classification label that triggered the penetrance derivation.</p>
+<p>Each penetrance qualifier includes a <code>submittedClassification</code> extension preserving the original classification label that triggered the penetrance derivation. An SCV with no submitted classification gets no penetrance qualifier, so the extension never lacks a value.</p>
 <p><strong>Output:</strong> <code>temp_penetrance_qualifiers</code> -- one row per qualifying SCV. <span class="role-badge badge-internal">Internal</span></p>
 <hr />
 <h2 id="step-5-primary-proposition">Step 5: Primary Proposition<a class="headerlink" href="#step-5-primary-proposition" title="Permanent link">&para;</a></h2>
@@ -6481,7 +6481,8 @@
 </tr>
 </tbody>
 </table>
-<p>The qualifiers are joined for every SCV proposition and dropped when empty. The schema allows <code>modeOfInheritanceQualifier</code> and <code>penetranceQualifier</code> only on pathogenicity and the ClinVar-specific proposition types, not on oncogenicity or clinical significance propositions.</p>
+<p>The qualifiers are joined for every SCV proposition and dropped when empty. <code>modeOfInheritanceQualifier</code> and <code>penetranceQualifier</code> are written only on <code>VariantPathogenicityProposition</code> and the ClinVar-specific (<code>Clinvar*</code>) proposition types. An oncogenicity or clinical significance proposition never carries them, even when the SCV has a mode of inheritance or a risk-allele classification, because neither VA-Spec nor the ClinVar-GKM profiles allow them there. <code>geneContextQualifier</code> is written on every type.</p>
+<p>Every proposition type requires <code>object</code>. If an SCV's condition doesn't resolve, the build stops with an error instead of writing a proposition without one.</p>
 <p><strong>Output:</strong> <code>temp_gkm_scv_proposition</code> -- one row per SCV with fully assembled proposition. <span class="role-badge badge-internal">Internal</span></p>
 <hr />
 <h2 id="step-6-target-proposition-somatic">Step 6: Target Proposition (Somatic)<a class="headerlink" href="#step-6-target-proposition-somatic" title="Permanent link">&para;</a></h2>
@@ -6524,7 +6525,7 @@
 </tr>
 </tbody>
 </table>
-<p>Target propositions carry no <code>modeOfInheritanceQualifier</code> or <code>penetranceQualifier</code>: those qualifiers are germline-only, so this step does not emit them.</p>
+<p>Target propositions carry no <code>modeOfInheritanceQualifier</code> or <code>penetranceQualifier</code>: those qualifiers are germline-only, so this step does not emit them. If a target proposition has no therapy (therapeutic) or no condition (diagnostic, prognostic) for its <code>object</code>, the build stops with an error.</p>
 <p><strong>Output:</strong> <code>temp_gkm_scv_target_proposition</code> -- one row per somatic SCV with target proposition. <span class="role-badge badge-internal">Internal</span></p>
 <hr />
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>

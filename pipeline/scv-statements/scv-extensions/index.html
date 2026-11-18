@@ -6515,7 +6515,7 @@
 <tr>
 <td><code>submittedScvClassification</code></td>
 <td>string</td>
-<td>The original classification text submitted by the submitter, preserved when it differs from the normalized classification name.</td>
+<td>The original classification text submitted by the submitter, preserved when it differs from the normalized classification name. Omitted when there is no submitted text.</td>
 </tr>
 <tr>
 <td><code>submittedScvLocalKey</code></td>
@@ -6556,7 +6556,7 @@
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Only one of <code>submittedCondition</code> or <code>submittedConditionSet</code> is present per SCV — never both. The <code>submittedScvClassification</code> extension is omitted when the submitted classification matches the normalized label exactly.</p>
+<p>Only one of <code>submittedCondition</code> or <code>submittedConditionSet</code> is present per SCV — never both. The <code>submittedScvClassification</code> extension is omitted when the submitted classification matches the normalized label exactly, or when there is none.</p>
 </div>
 <hr />
 <h2 id="classification-extensions">Classification Extensions<a class="headerlink" href="#classification-extensions" title="Permanent link">&para;</a></h2>
@@ -6585,7 +6585,7 @@
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"for Hemochromatosis\nClassification is based on the criteria provided submission\nMay 2021 by Victorian Clinical Genetics Services, Murdoch Childrens Research Institute"</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">}</span>
 </code></pre></div>
-<p>The description template is: <code>for &lt;condition_name&gt;\nClassification is based on the &lt;submission_level_label&gt; submission\n&lt;evaluated_date&gt; by &lt;submitter_name&gt;</code>. When the condition is a multi-condition set, <code>&lt;condition_name&gt;</code> is replaced with <code>&lt;N&gt; conditions</code>. The date is formatted as <code>Mon YYYY</code> or <code>(-)</code> when not available.</p>
+<p>The description template is: <code>for &lt;condition_name&gt;\nClassification is based on the &lt;submission_level_label&gt; submission\n&lt;evaluated_date&gt; by &lt;submitter_name&gt;</code>. When the submitter has no name, <code>by &lt;submitter_name&gt;</code> is left off, so the text is never empty. When the condition is a multi-condition set, <code>&lt;condition_name&gt;</code> is replaced with <code>&lt;N&gt; conditions</code>. The date is formatted as <code>Mon YYYY</code> or <code>(-)</code> when not available.</p>
 <hr />
 <h2 id="qualifier-extensions">Qualifier Extensions<a class="headerlink" href="#qualifier-extensions" title="Permanent link">&para;</a></h2>
 <p>Extensions on proposition qualifier objects, preserving the original submitter-provided values.</p>
@@ -6612,12 +6612,12 @@
 <tr>
 <td><code>submittedModeOfInheritance</code></td>
 <td>string</td>
-<td>Mode of inheritance text as originally submitted. Present on all <code>modeOfInheritanceQualifier</code> objects. Preserved alongside the normalized HPO coding.</td>
+<td>Mode of inheritance text as originally submitted. Present on all <code>modeOfInheritanceQualifier</code> objects, which are written only when the submitted text exists. Preserved alongside the normalized HPO coding.</td>
 </tr>
 <tr>
 <td><code>submittedClassification</code></td>
 <td>string</td>
-<td>Original submitted classification text that triggered the penetrance qualifier derivation. Present on all <code>penetranceQualifier</code> objects.</td>
+<td>Original submitted classification text that triggered the penetrance qualifier derivation. Present on all <code>penetranceQualifier</code> objects, which are written only when the submitted text exists.</td>
 </tr>
 </tbody>
 </table>

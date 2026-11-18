@@ -6722,6 +6722,7 @@
 <hr />
 <h3 id="condition-data-resolution">Condition Data Resolution<a class="headerlink" href="#condition-data-resolution" title="Permanent link">&para;</a></h3>
 <p>Before building statement structures, the procedure materializes <code>temp_rcv_condition_data</code> by joining <code>rcv_mapping</code> (unnesting <code>scv_accessions</code>) with <code>gkm_scv_condition_sets</code> and selecting one representative SCV per RCV. This table provides the full condition concept (a <code>Condition</code> MappableConcept or a <code>ConditionSet</code> ConceptSet, with extensions excluded) needed to populate <code>object</code> in the proposition.</p>
+<p>The representative is the lowest SCV id among the member SCVs whose condition resolves. When none resolves (for example, when every member SCV that <code>rcv_mapping</code> lists has been removed from the release), the RCV falls back to its own trait set from <code>rcv_mapping</code>: a one-trait set gives a <code>#/condition/</code> pointer to its trait and a larger set a <code>#/conditionSet/</code> pointer, the same way an SCV's condition is resolved. If that also gives nothing, the proposition build stops with an error instead of writing a proposition with no <code>object</code>, which every proposition type requires.</p>
 <p><strong>Output:</strong> <code>temp_rcv_condition_data</code> -- condition concept per RCV accession. <span class="role-badge badge-internal">Internal</span></p>
 <hr />
 <h3 id="base-steps">BASE Steps<a class="headerlink" href="#base-steps" title="Permanent link">&para;</a></h3>

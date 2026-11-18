@@ -6215,7 +6215,7 @@
 <p class="admonition-title">Trial Use</p>
 <p>May change in future releases. See the <a href="https://vrs.ga4gh.org/en/2.1/appendices/maturity_model.html" rel="noopener" target="_blank">GKM Maturity Model</a>.</p>
 </div>
-<p>A Sequence Ontology molecular consequence of a HgvsListItem: the SO code, its label as the name, the SO system and one identifiers.org IRI.</p>
+<p>A Sequence Ontology molecular consequence of a HgvsListItem: ClinVar's SO code, the SO system, one identifiers.org IRI and, when the pipeline knows the term, its label as the name.</p>
 <p><strong>JSON Schema:</strong> <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarMolecularConsequenceCoding" target="_blank">ClinvarMolecularConsequenceCoding</a></p>
 <p>Some ClinvarMolecularConsequenceCoding attributes are inherited from <a href="../ClinvarCoding/">ClinvarCoding</a>.</p>
 <h2 id="information-model">Information Model<a class="headerlink" href="#information-model" title="Permanent link">&para;</a></h2>
@@ -6232,8 +6232,8 @@
 <tr>
 <td><code>name</code></td>
 <td><code>string</code><br>one of <code>missense_variant</code>, <code>intron_variant</code>, <code>inframe_indel</code>, <code>inframe_deletion</code>, <code>no_sequence_alteration</code>, <code>inframe_insertion</code>, <code>stop_gained</code>, <code>5_prime_UTR_variant</code>, <code>stop_lost</code>, <code>genic_upstream_transcript_variant</code>, <code>splice_acceptor_variant</code>, <code>non_coding_transcript_variant</code>, <code>genic_downstream_transcript_variant</code>, <code>splice_donor_variant</code>, <code>3_prime_UTR_variant</code>, <code>synonymous_variant</code>, <code>frameshift_variant</code>, <code>initiator_codon_variant</code></td>
-<td>1..1</td>
-<td>The SO term label.</td>
+<td>0..1</td>
+<td>The SO term label, from the pipeline's SO lookup. Absent for a code the lookup does not list.</td>
 </tr>
 <tr>
 <td><code>system</code></td>
@@ -6243,9 +6243,9 @@
 </tr>
 <tr>
 <td><code>code</code></td>
-<td><code>string</code><br>one of <code>SO:0001583</code>, <code>SO:0001627</code>, <code>SO:0001820</code>, <code>SO:0001822</code>, <code>SO:0002073</code>, <code>SO:0001821</code>, <code>SO:0001587</code>, <code>SO:0001623</code>, <code>SO:0001578</code>, <code>SO:0002153</code>, <code>SO:0001574</code>, <code>SO:0001619</code>, <code>SO:0002152</code>, <code>SO:0001575</code>, <code>SO:0001624</code>, <code>SO:0001819</code>, <code>SO:0001589</code>, <code>SO:0001582</code></td>
+<td><code>string</code><br>pattern <code>^SO:[0-9]{7}$</code></td>
 <td>1..1</td>
-<td>The SO identifier.</td>
+<td>The SO identifier ClinVar gives, passed through as is (e.g. <code>SO:0001583</code>).</td>
 </tr>
 <tr>
 <td><code>iris</code></td>

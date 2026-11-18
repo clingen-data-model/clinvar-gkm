@@ -6738,6 +6738,7 @@
 <li><strong>Priority Grouping BASE</strong> -- references Classification Grouping IDs; somatic only; includes contributing and non-contributing evidence lines</li>
 <li><strong>Aggregate Contribution BASE</strong> -- references a single contributing child (from Priority Grouping or Classification Grouping) plus non-contributing details</li>
 </ul>
+<p>A VCV proposition's <code>object</code> comes only from the conditions of its contributing SCVs; a VCV has no trait set of its own and never reads RCV data. If none of those SCVs resolves a condition, the proposition build stops with an error instead of writing a proposition with no <code>object</code>, which every proposition type requires.</p>
 <p><strong>Output:</strong> <code>temp_vcv_grouping_base_statements</code>, <code>temp_vcv_grouping_tier_statements</code>, <code>temp_vcv_agg_contribution_statements</code> -- one per step. <span class="role-badge badge-internal">Internal</span></p>
 <hr />
 <h3 id="classification-grouping-pre">Classification Grouping PRE<a class="headerlink" href="#classification-grouping-pre" title="Permanent link">&para;</a></h3>

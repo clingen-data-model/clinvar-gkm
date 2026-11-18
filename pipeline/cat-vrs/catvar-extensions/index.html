@@ -6606,12 +6606,12 @@
 <tr>
 <td><code>proteinExpression</code></td>
 <td>object</td>
-<td>The protein HGVS expression with <code>syntax</code> (typically <code>hgvs.p</code>) and <code>value</code>. Present only when a protein-level expression exists for the nucleotide expression.</td>
+<td>The protein HGVS expression with <code>syntax</code> (typically <code>hgvs.p</code>) and <code>value</code>. Present only when a protein-level expression exists for the nucleotide expression. The syntax is <code>hgvs.</code> plus the HGVS type letter after the colon; ClinVar protein text with no type letter is labelled <code>hgvs.p</code>.</td>
 </tr>
 <tr>
 <td><code>molecularConsequence</code></td>
 <td>array</td>
-<td>Sequence Ontology terms describing the predicted molecular consequence. Each entry includes <code>code</code> (SO identifier), <code>system</code>, <code>name</code> (SO term label), and <code>iris</code> (identifiers.org link).</td>
+<td>Sequence Ontology terms describing the predicted molecular consequence. Each entry includes <code>code</code> (ClinVar's SO identifier, passed through as is), <code>system</code>, <code>iris</code> (identifiers.org link) and <code>name</code> (SO term label). The label comes from the pipeline's SO lookup of 18 terms; a code outside it keeps its code and IRI but has no <code>name</code>. A ClinVar code that is not an SO id (<code>SO:</code> plus 7 digits) is dropped.</td>
 </tr>
 </tbody>
 </table>

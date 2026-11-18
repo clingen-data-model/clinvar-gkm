@@ -6994,7 +6994,7 @@
 <tr>
 <td><code>submittedScvClassification</code></td>
 <td><code>string</code></td>
-<td>The original classification text submitted by the submitter, preserved when it differs from the normalized classification name.</td>
+<td>The original classification text submitted by the submitter, preserved when it differs from the normalized classification name. Omitted when there is no submitted text.</td>
 </tr>
 <tr>
 <td><code>submittedScvLocalKey</code></td>
@@ -7011,7 +7011,7 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Only one of <code>submittedCondition</code> or <code>submittedConditionSet</code> is present per SCV — never both. The <code>submittedScvClassification</code> extension is omitted when the submitted classification matches the normalized label exactly.</p>
+<p>Only one of <code>submittedCondition</code> or <code>submittedConditionSet</code> is present per SCV — never both. The <code>submittedScvClassification</code> extension is omitted when the submitted classification matches the normalized label exactly, or when there is none.</p>
 </div>
 <h3 id="classification-extensions">Classification Extensions<a class="headerlink" href="#classification-extensions" title="Permanent link">&para;</a></h3>
 <p>Extensions on the <code>classification</code> MappableConcept within the Statement.</p>
@@ -7033,7 +7033,7 @@
 </tbody>
 </table>
 </div>
-<p>The description template is: <code>for &lt;condition_name&gt;\nClassification is based on the &lt;submission_level_label&gt; submission\n&lt;evaluated_date&gt; by &lt;submitter_name&gt;</code>.</p>
+<p>The description template is: <code>for &lt;condition_name&gt;\nClassification is based on the &lt;submission_level_label&gt; submission\n&lt;evaluated_date&gt; by &lt;submitter_name&gt;</code>. When the submitter has no name, <code>by &lt;submitter_name&gt;</code> is left off, so the text is never empty.</p>
 <h3 id="qualifier-extensions">Qualifier Extensions<a class="headerlink" href="#qualifier-extensions" title="Permanent link">&para;</a></h3>
 <p>Extensions on proposition qualifier objects (<code>geneContextQualifier</code>, <code>modeOfInheritanceQualifier</code>, <code>penetranceQualifier</code>), preserving the original submitter-provided values.</p>
 <div class="field-table">
@@ -7059,12 +7059,12 @@
 <tr>
 <td><code>submittedModeOfInheritance</code></td>
 <td><code>string</code></td>
-<td>Mode of inheritance text as originally submitted. Present on all <code>modeOfInheritanceQualifier</code> objects. Preserved alongside the normalized HPO coding.</td>
+<td>Mode of inheritance text as originally submitted. Present on all <code>modeOfInheritanceQualifier</code> objects, which are written only when the submitted text exists. Preserved alongside the normalized HPO coding.</td>
 </tr>
 <tr>
 <td><code>submittedClassification</code></td>
 <td><code>string</code></td>
-<td>Original submitted classification text that triggered the penetrance qualifier derivation. Present on all <code>penetranceQualifier</code> objects.</td>
+<td>Original submitted classification text that triggered the penetrance qualifier derivation. Present on all <code>penetranceQualifier</code> objects, which are written only when the submitted text exists.</td>
 </tr>
 </tbody>
 </table>
