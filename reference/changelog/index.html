@@ -5859,6 +5859,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Unreleased">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#120-the-clinvar-profiles-describe-exactly-what-the-pipeline-writes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.2.0: the ClinVar profiles describe exactly what the pipeline writes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Fixes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -6233,6 +6261,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Unreleased">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#120-the-clinvar-profiles-describe-exactly-what-the-pipeline-writes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.2.0: the ClinVar profiles describe exactly what the pipeline writes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Fixes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -6309,16 +6365,96 @@
 <a href="https://github.com/clingen-data-model/clinvar-gkm/releases">GitHub Releases</a> page for the
 tagged source of each.</p>
 <h2 id="unreleased">Unreleased<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="120-the-clinvar-profiles-describe-exactly-what-the-pipeline-writes">1.2.0: the ClinVar profiles describe exactly what the pipeline writes<a class="headerlink" href="#120-the-clinvar-profiles-describe-exactly-what-the-pipeline-writes" title="Permanent link">&para;</a></h3>
+<p>The bundle schema moves <strong><code>1.1.0 → 1.2.0</code></strong>, a <strong>MINOR</strong> release. A profile is the producer's contract for
+exactly the data elements it offers. Until 1.2.0, most bundle sections pointed at a GA4GH base class
+(<code>MappableConcept</code>, <code>Allele</code>, <code>Agent</code>, the VA-Spec propositions) and accepted every property that class defines,
+although the pipeline writes only some of them. From 1.2.0 every section points at a ClinVar profile of its
+GA4GH class that allows exactly what the pipeline writes. <a href="../../output-reference/classes/#an-implementation-schema">An Implementation Schema</a>
+explains the profiles and their rules, and each class page lists what its profile allows and forbids.</p>
 <ul>
-<li><strong>Schema 1.2.0: the profiles allow only what the pipeline writes.</strong> Every bundle section now points at a
-  ClinVar-GKM profile instead of a base GA4GH class. The profiles forbid the inherited properties the pipeline
-  never writes, require the ones it always writes, give values their types and enums (<code>copyChange</code> is <code>loss</code>
-  or <code>gain</code>), and limit each pointer to the sections it may target. Each section's record keys must match the
-  full id the pipeline builds, not just its prefix. The policy is described under
-  <a href="../../output-reference/classes/#an-implementation-schema">An Implementation Schema</a>, and the class pages list each profile's
-  forbidden properties under its table. The data doesn't change: every record of the 2026-10-31 full bundle
-  (91,854,927) and delta validates against 1.2.0. 1.2.0 is a new MINOR, so it will be published in a new line
-  folder, <code>v1/1.2/</code>, and its bundles will declare <code>schema_version</code> 1.2.0.</li>
+<li><strong>What the pipeline never writes is forbidden.</strong> 204 properties inherited from the GA4GH classes are set to
+  <code>false</code>, for example <code>aliases</code> and <code>description</code> on most records. The class pages list them under <strong>Not used
+  by ClinVar-GKM</strong>.</li>
+<li><strong>What the pipeline always writes is required</strong>, for example <code>id</code> on every record that has one, a gene's
+  <code>conceptType</code> and <code>primaryCoding</code>, an SCV statement's <code>classification</code>, <code>quality</code> and <code>contributions</code>, and
+  <code>name</code> on every extension.</li>
+<li><strong>Every pointer is limited to the sections it can target</strong> (34 pointers). A proposition's <code>subject</code> must be
+  a <code>#/variation/…</code> pointer, and an aggregate evidence line's <code>hasEvidenceItems</code> must point into <code>scv</code>, <code>vcv</code>
+  or <code>rcv</code>.</li>
+<li><strong>Values the pipeline fixes are enumerated.</strong> Each extension is a closed class with a constant <code>name</code> and a
+  typed <code>value</code>. <code>copyChange</code> allows only <code>loss</code> and <code>gain</code>, two of the eight VRS values, on <code>copyNumberChange</code>
+  records and in the copy-change constraint of a <code>variation</code> (the new <code>ClinvarCopyChangeConstraint</code>).</li>
+<li>
+<p><strong>Section keys match the full id the pipeline builds</strong>, not only its prefix:</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>1.1.0</th>
+<th>1.2.0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sequenceReference</code>, <code>location</code>, <code>allele</code>, <code>copyNumberCount</code>, <code>copyNumberChange</code></td>
+<td>a prefix, such as <code>^ga4gh:VA\..+</code></td>
+<td>a 32-character digest, such as <code>^ga4gh:VA\.[0-9A-Za-z_-]{32}$</code></td>
+</tr>
+<tr>
+<td><code>conditionSet</code></td>
+<td>a <code>clinvar.traitset:</code>, <code>clinvar.traitSet:</code> or <code>clinvar.conditionset:</code> prefix</td>
+<td><code>clinvar.traitset:&lt;n&gt;</code> or <code>clinvar.conditionset:vcv-&lt;32 hex&gt;</code></td>
+</tr>
+<tr>
+<td><code>therapy</code>, <code>therapyGroup</code></td>
+<td>a <code>clinvar.therapy:</code> or <code>clinvar.therapygroup:</code> prefix</td>
+<td>a 64-character SHA-256 hex digest</td>
+</tr>
+<tr>
+<td><code>scv</code>, SCV evidence lines</td>
+<td><code>^clinvar\.submission:SCV[0-9]+\.[0-9]+$</code></td>
+<td>a 9-digit accession: <code>SCV[0-9]{9}\.[0-9]+</code></td>
+</tr>
+<tr>
+<td><code>vcv</code>, <code>rcv</code>, VCV and RCV evidence lines</td>
+<td>an accession prefix, such as <code>^VCV[0-9]+\..+</code></td>
+<td>accession, version, group, type, then the optional submission level and, in somatic clinical impact only, tier; evidence lines end in <code>.contributing</code> or <code>.non-contributing</code></td>
+</tr>
+<tr>
+<td>the four <code>proposition*</code> sections</td>
+<td>an <code>SCV</code>, <code>VCV</code> or <code>RCV</code> prefix</td>
+<td><code>SCV&lt;9 digits&gt;-&lt;TYPE&gt;</code>, or <code>VCV</code>/<code>RCV&lt;9 digits&gt;-&lt;GROUP&gt;-&lt;TYPE&gt;</code> with the same optional parts</td>
+</tr>
+</tbody>
+</table>
+<p>Type and group codes stay <code>[A-Z]+</code>, because they come from ClinVar's lookup tables. See
+<a href="../../output-reference/id-references/">ID References</a>.
+- <strong>What the pipeline can write stays allowed</strong>, even when the current release has none: the
+  <code>ClinvarUndefinedProposition</code> fallback, the <code>isDiagnosticExclusionCriterionFor</code> predicate, the HGVS repair
+  extensions, penetrance on custom propositions, a therapeutic <code>conditionQualifier</code> that points to a
+  <code>conditionSet</code>, and the evidence-line <code>submittedConditionSet</code> extension.
+- <strong>New draft classes.</strong> <code>ClinvarCopyNumberChange</code>, <code>ClinvarCategoricalCnvChange</code>, <code>ClinvarCategoricalCnvCount</code>,
+  <code>ClinvarCopyChangeConstraint</code> and <code>ClinvarVariantClinicalSignificanceProposition</code> are draft, as their GA4GH
+  bases are. A profile is never more mature than its base.</p>
+</li>
+</ul>
+<p><strong>What it means for you:</strong></p>
+<ul>
+<li><strong>The data doesn't change.</strong> Every record the pipeline publishes already meets the 1.2.0 profiles: relabelled
+  as 1.2.0, every record of the 2026-10-31 full bundle (91,854,927) and delta validates with no failures. Code
+  that reads bundles needs no change.</li>
+<li><strong>Validate each bundle against its own version.</strong> A 1.2.0 bundle says <code>"schema_version": "1.2.0"</code> and
+  validates against the 1.2.0 schemas
+  (<code>https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json</code>); a 1.1.0 bundle keeps
+  validating against 1.1.0. If you write your own records to these schemas, a property, value, pointer or key
+  form that 1.1.0 accepted but the pipeline never writes now fails.</li>
+<li><strong>A new line folder.</strong> As a MINOR, 1.2.0 is published into <code>v1/1.2/</code>; <code>v1/1.1/</code> is then frozen and kept,
+  its files unchanged (<a href="../../decisions/0009-r2-layout-mirrors-ncbi-clinvar/">ADR 0009</a>). The Parquet set is
+  built by <code>gkm-bundle-parquet</code> 2.0.0.</li>
+</ul>
+<h3 id="fixes">Fixes<a class="headerlink" href="#fixes" title="Permanent link">&para;</a></h3>
+<ul>
 <li><strong>The pipeline can't write a record that 1.2.0 rejects.</strong> No current record is affected; these guard cases
   that could appear in a later release. A molecular consequence keeps ClinVar's SO code even when the
   pipeline's 18-term SO lookup doesn't list it, so <code>ClinvarMolecularConsequenceCoding.code</code> is now any SO id
