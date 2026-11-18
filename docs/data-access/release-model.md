@@ -36,7 +36,7 @@ A move changes a file's folder, never its bytes, name or checksum. Deleting the 
 
 ## Parquet
 
-**Parquet is derived from the bundle.** One Parquet dataset is published, at `v1/1.1/parquet/`, rebuilt from the newest weekly release and **overwritten every release**. Its `manifest.json` gives the build date, the release and dataset it was built from, the builder, the schema version, and every file's size and sha256. No Parquet is kept per month, per delta, in `archive/` or in frozen lines. Past Parquet is rebuilt from the monthly bundles with [`clinvar-gkm-parquet`](https://github.com/clingen-data-model/clinvar-gkm-parquet), a separate tool that is planned but not yet released. See [Parquet Files](parquet.md).
+**Parquet is derived from the bundle.** One Parquet dataset is published, at `v1/1.1/parquet/`, rebuilt from the newest weekly release and **overwritten every release**. Its `manifest.json` gives the build date, the release and dataset it was built from, the builder, the schema version, and every file's size and sha256. No Parquet is kept per month, per delta, in `archive/` or in frozen lines. Past Parquet is rebuilt from the monthly bundles with [`clinvar-gkm-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet), a separate tool that is planned but not yet released. See [Parquet Files](parquet.md).
 
 ## Version Lines
 
