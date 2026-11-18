@@ -1213,6 +1213,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#file-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        File Format
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#categorical-variants-cat-vrs" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6328,6 +6339,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#file-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        File Format
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#categorical-variants-cat-vrs" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6507,7 +6529,38 @@
 
 
 <h1 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h1>
-<p>Annotated example files are maintained in the <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples">examples/</a> directory of the repository. These serve as reference targets for the data structures produced by the pipeline and are useful for early adopters and for validating output against expected formats.</p>
+<p>Example files are maintained in the <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples">examples/</a> directory of the repository. These serve as reference targets for the data structures produced by the pipeline and are useful for early adopters and for validating output against expected formats.</p>
+<hr />
+<h2 id="file-format">File Format<a class="headerlink" href="#file-format" title="Permanent link">&para;</a></h2>
+<p>Each file is a <strong>bundle fragment</strong>: a small JSON object with the same shape as a published bundle, <code>{"schema_version": "1.2.0", "&lt;section&gt;": {"&lt;key&gt;": record}, ...}</code>. It holds the record the file is named for (the <em>top record</em>) exactly as the bundle has it, so its references are <code>#/&lt;section&gt;/&lt;key&gt;</code> <a href="../../output-reference/id-references/">pointers</a>, plus the records those pointers lead to.</p>
+<p>Every pointer is followed, except pointers into the <code>scv</code> and <code>variation</code> sections, which stay pointers:</p>
+<table>
+<thead>
+<tr>
+<th>Pointer kept</th>
+<th>What it names</th>
+<th>Where to see one</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>#/scv/…</code></td>
+<td>A submission aggregated by a VCV or RCV statement</td>
+<td>The SCV examples below</td>
+</tr>
+<tr>
+<td><code>#/variation/…</code></td>
+<td>A proposition's <code>subject</code></td>
+<td>The Cat-VRS examples below</td>
+</tr>
+</tbody>
+</table>
+<p>Pointers into <code>vcv</code> and <code>rcv</code> are followed, so a VCV or RCV file holds its whole aggregation hierarchy: the top statement and every nested layer statement below it (such as <code>…-G-PATH-CP</code>, or <code>…-S-SCI-CP</code> and <code>…-S-SCI-CP-T1</code>), each with its proposition, evidence lines and condition or condition set. The hierarchy ends at the <code>#/scv/</code> pointers of the lowest layer. An SCV file holds the statement, its proposition, submitter, condition or condition set (with its member conditions), and any evidence line and therapy. A Cat-VRS file holds the variation with its alleles, locations, sequence references and genes, so every pointer in it resolves.</p>
+<div class="admonition note">
+<p class="admonition-title">Fragments, not closed bundles</p>
+<p>Every file validates against the <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/clinvar-gkm-bundle.schema.json">bundle schema</a>, but not every <code>#/…</code> pointer resolves inside the file. A kept pointer names a record in the full bundle of the same release. A published bundle resolves every pointer; for a closed extract of a few statements, see <a href="../../pipeline/sub-bundle/">Sub-Bundle Extraction</a>.</p>
+</div>
+<p>The files are regenerated from a published full bundle by <code>src/scripts/extract-example.py</code>; the <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/readme.md">examples readme</a> has the command.</p>
 <hr />
 <h2 id="categorical-variants-cat-vrs">Categorical Variants (Cat-VRS)<a class="headerlink" href="#categorical-variants-cat-vrs" title="Permanent link">&para;</a></h2>
 <p>Examples of <code>CategoricalVariant</code> records — the resolved VRS representations of ClinVar variations with expressions, cross-references, and metadata.</p>
@@ -6659,7 +6712,7 @@
 <p>See <a href="../../output-reference/scv-statements/">SCV Statements output reference</a> for field documentation.</p>
 <hr />
 <h2 id="vcv-statements">VCV Statements<a class="headerlink" href="#vcv-statements" title="Permanent link">&para;</a></h2>
-<p>Examples of aggregate classification <code>Statement</code> records produced by rolling up SCV submissions through the aggregation hierarchy. The top statement's proposition and direct references are inlined; nested statements and SCVs remain <code>#/</code> references into the bundle.</p>
+<p>Examples of aggregate classification <code>Statement</code> records produced by rolling up SCV submissions through the aggregation hierarchy. Each file holds the whole hierarchy: the top statement and, as statements of their own, every layer listed below (for example <code>VCV000012582.69-G-PATH-CP</code>), each with its proposition, evidence lines and condition records. The SCVs stay <code>#/scv/</code> pointers; an SCV count is the number of pointers in that layer's evidence lines.</p>
 <h3 id="germline">Germline<a class="headerlink" href="#germline" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -6677,7 +6730,7 @@
 <td>VCV000012582</td>
 <td>Pathogenicity</td>
 <td>CP, NOCP</td>
-<td>Pathogenic/Likely pathogenic. CP contributing with 15 concordant SCVs; NOCP non-contributing with 20 SCVs. The proposition <code>object</code> is an <code>OR</code> condition set of 8 conditions minted for the aggregate</td>
+<td>Pathogenic/Likely pathogenic. CP contributing with 15 concordant SCVs; NOCP non-contributing with 20 SCVs. The proposition <code>object</code> is an <code>OR</code> condition set of 8 members minted for the aggregate; one member is itself a ClinVar trait set (<code>AND</code>) of 12 conditions</td>
 </tr>
 <tr>
 <td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000012582.69-G-ASSOC.jsonc">VCV000012582.69-G-ASSOC.jsonc</a></td>
@@ -6694,28 +6747,28 @@
 <td>Single NOCL submission for Encephalocraniocutaneous lipomatosis</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.213-G-PATH.jsonc">VCV000007105.213-G-PATH.jsonc</a></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.214-G-PATH.jsonc">VCV000007105.214-G-PATH.jsonc</a></td>
 <td>VCV000007105</td>
 <td>Pathogenicity</td>
 <td>PG, EP, CP, NOCP</td>
-<td>Pathogenic, practice guideline. PG contributing (1 SCV); EP (1 SCV), CP (82 SCVs) and NOCP (10 SCVs) non-contributing. Cystic fibrosis</td>
+<td>Pathogenic, practice guideline. PG contributing (1 SCV); EP (1 SCV), CP (83 SCVs) and NOCP (10 SCVs) non-contributing. Cystic fibrosis</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.213-G-DR.jsonc">VCV000007105.213-G-DR.jsonc</a></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.214-G-DR.jsonc">VCV000007105.214-G-DR.jsonc</a></td>
 <td>VCV000007105</td>
 <td>Drug Response</td>
 <td>EP</td>
 <td>Two expert-panel SCVs; the <code>object</code> is an <code>OR</code> condition set of two drug-response conditions</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.213-G-RF.jsonc">VCV000007105.213-G-RF.jsonc</a></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.214-G-RF.jsonc">VCV000007105.214-G-RF.jsonc</a></td>
 <td>VCV000007105</td>
 <td>Risk Factor</td>
 <td>NOCP</td>
 <td>Single NOCP submission for a bronchiectasis modifier condition</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.213-G-NP.jsonc">VCV000007105.213-G-NP.jsonc</a></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.214-G-NP.jsonc">VCV000007105.214-G-NP.jsonc</a></td>
 <td>VCV000007105</td>
 <td>Not Provided</td>
 <td>NOCL</td>
@@ -6740,7 +6793,7 @@
 <td>VCV000012582</td>
 <td>Somatic Clinical Impact</td>
 <td>Tier I, Tier II</td>
-<td>Aggregate Contribution → Priority Grouping → Classification Grouping hierarchy. CP Priority Grouping combines Tier I (7 SCVs) and Tier II (3 SCVs) and contributes; NOCP (Tier I, 1 SCV) is non-contributing</td>
+<td>Aggregate Contribution → Priority Grouping → Classification Grouping hierarchy, three levels of statements. <code>-CP</code> contributes; under it <code>-CP-T1</code> (Tier I, 7 SCVs) contributes and <code>-CP-T2</code> (Tier II, 3 SCVs) does not. <code>-NOCP</code> is non-contributing, with <code>-NOCP-T1</code> (Tier I, 1 SCV) under it</td>
 </tr>
 <tr>
 <td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000012582.69-S-ONCO.jsonc">VCV000012582.69-S-ONCO.jsonc</a></td>
@@ -6752,11 +6805,11 @@
 </tbody>
 </table>
 <h3 id="pg-and-ep-single-submission-levels">PG and EP (single-submission levels)<a class="headerlink" href="#pg-and-ep-single-submission-levels" title="Permanent link">&para;</a></h3>
-<p>PG (practice guideline) and EP (reviewed by expert panel) submissions are aggregated as separate top-tier submission levels. PG outranks EP in the Aggregate Contribution Layer winner-takes-all selection, followed by CP, NOCP, NOCL, and FLAG. <code>VCV000007105.213-G-PATH</code> shows a PG winner with EP, CP and NOCP non-contributing; <code>VCV000007105.213-G-DR</code> shows an EP-only aggregate.</p>
+<p>PG (practice guideline) and EP (reviewed by expert panel) submissions are aggregated as separate top-tier submission levels. PG outranks EP in the Aggregate Contribution Layer winner-takes-all selection, followed by CP, NOCP, NOCL, and FLAG. <code>VCV000007105.214-G-PATH</code> shows a PG winner with EP, CP and NOCP non-contributing; <code>VCV000007105.214-G-DR</code> shows an EP-only aggregate.</p>
 <p>See <a href="../../output-reference/vcv-statements/">VCV Statements output reference</a> for field documentation.</p>
 <hr />
 <h2 id="rcv-statements">RCV Statements<a class="headerlink" href="#rcv-statements" title="Permanent link">&para;</a></h2>
-<p>Examples of RCV <code>Statement</code> records: the aggregate for one variant and one condition (or condition set), built with the same layers as VCV statements.</p>
+<p>Examples of RCV <code>Statement</code> records: the aggregate for one variant and one condition (or condition set), built with the same layers as VCV statements. As with the VCV files, each file holds the top statement and every layer listed below as a statement, and the SCVs stay <code>#/scv/</code> pointers.</p>
 <h3 id="germline_1">Germline<a class="headerlink" href="#germline_1" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -6771,15 +6824,15 @@
 </thead>
 <tbody>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/rcv/RCV000007523.119-G-PATH.jsonc">RCV000007523.119-G-PATH.jsonc</a></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/rcv/RCV000007523.120-G-PATH.jsonc">RCV000007523.120-G-PATH.jsonc</a></td>
 <td>RCV000007523</td>
 <td>Variation 7105</td>
 <td>Pathogenicity</td>
 <td>Cystic fibrosis</td>
-<td>PG contributing (1 SCV); EP (1), CP (44) and NOCP (4) non-contributing</td>
+<td>PG contributing (1 SCV); EP (1), CP (45) and NOCP (4) non-contributing</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/rcv/RCV000007523.119-G-NP.jsonc">RCV000007523.119-G-NP.jsonc</a></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/rcv/RCV000007523.120-G-NP.jsonc">RCV000007523.120-G-NP.jsonc</a></td>
 <td>RCV000007523</td>
 <td>Variation 7105</td>
 <td>Not Provided</td>
@@ -6971,7 +7024,7 @@
 </tr>
 </tbody>
 </table>
-<p>The somatic clinical impact RCVs follow the Aggregate Contribution → Priority Grouping → Classification Grouping hierarchy (<code>-CP</code> → <code>-CP-T1</code>).</p>
+<p>The somatic clinical impact RCVs follow the Aggregate Contribution → Priority Grouping → Classification Grouping hierarchy, so each file holds three statements: the top statement, <code>-CP</code> and <code>-CP-T1</code>.</p>
 <p>See <a href="../../output-reference/rcv-statements/">RCV Statements output reference</a> for field documentation.</p>
 
 

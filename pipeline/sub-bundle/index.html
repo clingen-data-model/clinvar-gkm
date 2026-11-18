@@ -5782,6 +5782,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#example-fragments" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Example fragments
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -6322,6 +6333,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#example-fragments" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Example fragments
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -6492,6 +6514,13 @@ instead of hundreds of thousands — much easier to <code>grep</code>, diff, or 
 <li><strong>Global dedup.</strong> Every referenced object is fetched at most once across the whole run; the final
   bundle contains one copy of each.</li>
 </ul>
+<hr />
+<h2 id="example-fragments">Example fragments<a class="headerlink" href="#example-fragments" title="Permanent link">&para;</a></h2>
+<p>The files in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples"><code>examples/</code></a> are made by a
+different script, <code>src/scripts/extract-example.py</code>. It reads a published full bundle (<code>.json.gz</code>), not BigQuery, and
+writes bounded <strong>fragments</strong>: each holds one statement or variation and the records it references, but keeps pointers
+into <code>scv</code> and <code>variation</code> unresolved. A VCV or RCV fragment holds its nested layer statements, down to the <code>#/scv/</code>
+pointers. See <a href="../../data-access/examples/#file-format">Examples</a> for the rule.</p>
 
 
 
