@@ -182,15 +182,11 @@ BEGIN
 
         'Statement' AS type,
 
+        -- One SCV: its own direction. Several: the lookup direction of the aggregate label
+        -- (gkm_*_proc agg_direction; #227).
         IF(ARRAY_LENGTH(agg.full_scv_ids) = 1,
           agg.scv_direction,
-          CASE
-            WHEN agg.actual_agg_classif_label IN ('Pathogenic', 'Likely pathogenic', 'Pathogenic/Likely pathogenic') THEN 'supports'
-            WHEN agg.actual_agg_classif_label IN ('Benign', 'Likely benign', 'Benign/Likely benign') THEN 'disputes'
-            WHEN agg.actual_agg_classif_label = 'Uncertain significance' THEN 'neutral'
-            WHEN agg.actual_agg_classif_label LIKE 'Conflicting%%' THEN 'neutral'
-            ELSE 'supports'
-          END
+          agg.agg_direction
         ) AS direction,
 
         (SELECT s FROM UNNEST([STRUCT(
@@ -256,13 +252,8 @@ BEGIN
 
         'Statement' AS type,
 
-        CASE
-          WHEN agg.agg_label IN ('Pathogenic', 'Likely pathogenic', 'Pathogenic/Likely pathogenic') THEN 'supports'
-          WHEN agg.agg_label IN ('Benign', 'Likely benign', 'Benign/Likely benign') THEN 'disputes'
-          WHEN agg.agg_label = 'Uncertain significance' THEN 'neutral'
-          WHEN agg.agg_label LIKE 'Conflicting%%' THEN 'neutral'
-          ELSE 'supports'
-        END AS direction,
+        -- the lookup direction of the layer's label (gkm_*_proc agg_direction; #227)
+        agg.agg_direction AS direction,
 
         (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
@@ -328,13 +319,8 @@ BEGIN
 
         'Statement' AS type,
 
-        CASE
-          WHEN agg.agg_label IN ('Pathogenic', 'Likely pathogenic', 'Pathogenic/Likely pathogenic') THEN 'supports'
-          WHEN agg.agg_label IN ('Benign', 'Likely benign', 'Benign/Likely benign') THEN 'disputes'
-          WHEN agg.agg_label = 'Uncertain significance' THEN 'neutral'
-          WHEN agg.agg_label LIKE 'Conflicting%%' THEN 'neutral'
-          ELSE 'supports'
-        END AS direction,
+        -- the lookup direction of the layer's label (gkm_*_proc agg_direction; #227)
+        agg.agg_direction AS direction,
 
         (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
