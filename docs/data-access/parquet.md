@@ -8,6 +8,9 @@ Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-f
 !!! info "Parquet is derived from the bundle and overwritten every release"
     The JSON bundles are the release record. Parquet is a convenience: every value in it can be recomputed from the bundle. **One** Parquet dataset is published, rebuilt every release (weekly) from the newest weekly release and overwritten in place. There are no dated, per-delta or archived Parquet sets.
 
+!!! warning "The current set is not being rebuilt"
+    The published set is still the one exported from BigQuery for the **2026-10-24** release (its `manifest.json` gives `builder: "BigQuery export"` and `source_release: "2026-10-24"`). Releases since then don't rebuild it, so it lags the bundles. It will be replaced by the default set that the [`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) tool (2.0.0, not yet released) builds from the bundle, starting with ClinVar-GKM schema 1.2.0. From then on Parquet is built only from the bundle, never from BigQuery. For data newer than 2026-10-24, use the [weekly full bundles](weekly-full.md).
+
 The dataset lives at one stable path, `v1/1.1/parquet/`, one file per section, with a `manifest.json` beside it:
 
 ```text
