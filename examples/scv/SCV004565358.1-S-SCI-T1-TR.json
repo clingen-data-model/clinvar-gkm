@@ -1,103 +1,219 @@
 {
-  "classification": {
-    "conceptType": "Classification",
-    "extensions": [
-      {
-        "name": "description",
-        "value": "for Non-small cell lung carcinoma\nClassification is based on the criteria provided submission\nFeb 2018 by CIViC Knowledgebase, Washington University School of Medicine"
-      }
-    ],
-    "name": "Tier I - Strong",
-    "primaryCoding": {
-      "code": "tier 1",
-      "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
-    },
-    "type": "MappableConcept"
-  },
-  "contributions": [
-    {
-      "activityType": "submitted",
-      "contributor": {
-        "id": "clinvar.submitter:506594",
-        "name": "CIViC Knowledgebase, Washington University School of Medicine",
-        "type": "Agent"
-      },
-      "date": "2024-02-20",
-      "type": "Contribution"
-    },
-    {
-      "activityType": "created",
-      "contributor": {
-        "id": "clinvar.submitter:506594",
-        "name": "CIViC Knowledgebase, Washington University School of Medicine",
-        "type": "Agent"
-      },
-      "date": "2024-02-20",
-      "type": "Contribution"
-    },
-    {
-      "activityType": "evaluated",
-      "contributor": {
-        "id": "clinvar.submitter:506594",
-        "name": "CIViC Knowledgebase, Washington University School of Medicine",
-        "type": "Agent"
-      },
-      "date": "2018-02-23",
-      "type": "Contribution"
-    }
-  ],
-  "description": "L858R is among the most common sensitizing EGFR mutations in NSCLC, and is assessed via DNA mutational analysis including Sanger sequencing and next generation sequencing methods. Tyrosine kinase inhibitor erlotinib is associated with improved progression free survival over chemotherapy in EGFR L858R patients (civic.EID:885).",
-  "direction": "supports",
-  "extensions": [
-    {
-      "name": "clinvarScvId",
-      "value": "SCV004565358"
-    },
-    {
-      "name": "clinvarScvVersion",
-      "value": "1"
-    },
-    {
-      "name": "submittedCondition",
-      "value": {
-        "condition": "clinvar.trait:7728",
-        "id": "SCV004565358.0",
-        "mapping": {
-          "ref": "preferred",
-          "type": "Name",
-          "value": "Non-small cell lung carcinoma"
-        },
-        "medgen_id": "C0007131",
+  "schema_version": "1.2.0",
+  "condition": {
+    "clinvar.trait:7728": {
+      "id": "clinvar.trait:7728",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Non-small cell lung carcinoma",
+      "aliases": [
+        "Non-small cell lung cancer"
+      ],
+      "primaryCoding": {
         "name": "Non-small cell lung carcinoma",
-        "normalized_match": "clinvar.trait:7728",
-        "normalized_resolution": "tm reftype preferred name",
-        "type": "Disease"
-      }
-    },
-    {
-      "name": "clinvarScvReviewStatus",
-      "value": "criteria provided, single submitter"
-    },
-    {
-      "name": "submittedScvClassification",
-      "value": "Tier I - Strong"
-    },
-    {
-      "name": "submittedScvLocalKey",
-      "value": "civic.AID:5"
-    },
-    {
-      "name": "submissionLevel",
-      "value": "CP"
+        "code": "C0007131",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C0007131",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0007131"
+        ]
+      },
+      "mappings": [
+        {
+          "coding": {
+            "code": "0030358",
+            "system": "https://hpo.jax.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/HP_0030358",
+              "https://identifiers.org/HP:0030358"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "D002289",
+            "system": "https://id.nlm.nih.gov/mesh/",
+            "iris": [
+              "https://identifiers.org/mesh:D002289",
+              "https://www.ncbi.nlm.nih.gov/mesh/?term=D002289"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "0005233",
+            "system": "https://mondo.monarchinitiative.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/MONDO_0005233",
+              "https://identifiers.org/mondo:0005233"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000569877",
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000569877"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000571363",
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000571363"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000597429",
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000597429"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "254637007",
+            "system": "https://www.snomed.org/",
+            "iris": [
+              "https://identifiers.org/snomedct:254637007"
+            ]
+          },
+          "relation": "relatedMatch"
+        }
+      ]
     }
-  ],
-  "hasEvidenceLines": [
-    {
+  },
+  "therapy": {
+    "clinvar.therapy:d43f0ffdae264d1b474cdbd8b72697434c578d264fdd851dd7a5291462333c4e": {
+      "conceptType": "Drug",
+      "name": "Erlotinib",
+      "type": "MappableConcept"
+    }
+  },
+  "submitter": {
+    "clinvar.submitter:506594": {
+      "id": "clinvar.submitter:506594",
+      "name": "CIViC Knowledgebase, Washington University School of Medicine",
+      "type": "Agent"
+    }
+  },
+  "propositionSomaticClinicalImpact": {
+    "SCV004565358-SCI": {
+      "geneContextQualifier": {
+        "conceptType": "gene",
+        "extensions": [
+          {
+            "name": "submittedGeneSymbols",
+            "value": [
+              "EGFR"
+            ]
+          },
+          {
+            "name": "geneContextSource",
+            "value": "submittedSymbolMatches"
+          }
+        ],
+        "mappings": [
+          {
+            "coding": {
+              "code": "3236",
+              "iris": [
+                "https://identifiers.org/hgnc:3236",
+                "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/3236"
+              ],
+              "system": "https://www.genenames.org"
+            },
+            "relation": "exactMatch"
+          }
+        ],
+        "name": "EGFR",
+        "primaryCoding": {
+          "code": "1956",
+          "iris": [
+            "https://identifiers.org/ncbigene:1956",
+            "https://www.ncbi.nlm.nih.gov/gene/1956"
+          ],
+          "name": "EGFR",
+          "system": "https://www.ncbi.nlm.nih.gov/gene/"
+        },
+        "type": "MappableConcept"
+      },
+      "id": "SCV004565358-SCI",
+      "object": "#/condition/clinvar.trait:7728",
+      "predicate": "hasClinicalSignificanceFor",
+      "subject": "#/variation/clinvar:16609",
+      "type": "VariantClinicalSignificanceProposition"
+    },
+    "SCV004565358-TR": {
+      "conditionQualifier": "#/condition/clinvar.trait:7728",
+      "geneContextQualifier": {
+        "conceptType": "gene",
+        "extensions": [
+          {
+            "name": "submittedGeneSymbols",
+            "value": [
+              "EGFR"
+            ]
+          },
+          {
+            "name": "geneContextSource",
+            "value": "submittedSymbolMatches"
+          }
+        ],
+        "mappings": [
+          {
+            "coding": {
+              "code": "3236",
+              "iris": [
+                "https://identifiers.org/hgnc:3236",
+                "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/3236"
+              ],
+              "system": "https://www.genenames.org"
+            },
+            "relation": "exactMatch"
+          }
+        ],
+        "name": "EGFR",
+        "primaryCoding": {
+          "code": "1956",
+          "iris": [
+            "https://identifiers.org/ncbigene:1956",
+            "https://www.ncbi.nlm.nih.gov/gene/1956"
+          ],
+          "name": "EGFR",
+          "system": "https://www.ncbi.nlm.nih.gov/gene/"
+        },
+        "type": "MappableConcept"
+      },
+      "id": "SCV004565358-TR",
+      "object": "#/therapy/clinvar.therapy:d43f0ffdae264d1b474cdbd8b72697434c578d264fdd851dd7a5291462333c4e",
+      "predicate": "predictsSensitivityTo",
+      "subject": "#/variation/clinvar:16609",
+      "type": "VariantTherapeuticResponseProposition"
+    }
+  },
+  "evidenceLine": {
+    "clinvar.submission:SCV004565358.1": {
+      "id": "clinvar.submission:SCV004565358.1",
+      "type": "EvidenceLine",
+      "targetProposition": "#/propositionSomaticClinicalImpact/SCV004565358-TR",
       "directionOfEvidenceProvided": "supports",
       "evidenceOutcome": {
+        "type": "MappableConcept",
         "conceptType": "Outcome",
-        "name": "Level A/B",
-        "type": "MappableConcept"
+        "name": "Level A/B"
       },
       "extensions": [
         {
@@ -117,430 +233,235 @@
             "type": "Disease"
           }
         }
-      ],
-      "id": "clinvar.submission:SCV004565358.1",
-      "targetProposition": {
-        "conditionQualifier": {
-          "aliases": [
-            "Non-small cell lung cancer"
-          ],
-          "conceptType": "Disease",
-          "id": "clinvar.trait:7728",
-          "mappings": [
-            {
-              "coding": {
-                "code": "0030358",
-                "iris": [
-                  "http://purl.obolibrary.org/obo/HP_0030358",
-                  "https://identifiers.org/HP:0030358"
-                ],
-                "system": "https://hpo.jax.org/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "D002289",
-                "iris": [
-                  "https://identifiers.org/mesh:D002289",
-                  "https://www.ncbi.nlm.nih.gov/mesh/?term=D002289"
-                ],
-                "system": "https://id.nlm.nih.gov/mesh/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "0005233",
-                "iris": [
-                  "http://purl.obolibrary.org/obo/MONDO_0005233",
-                  "https://identifiers.org/mondo:0005233"
-                ],
-                "system": "https://mondo.monarchinitiative.org/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "GTR000569877",
-                "iris": [
-                  "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000569877"
-                ],
-                "system": "https://www.ncbi.nlm.nih.gov/gtr/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "GTR000571363",
-                "iris": [
-                  "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000571363"
-                ],
-                "system": "https://www.ncbi.nlm.nih.gov/gtr/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "GTR000597429",
-                "iris": [
-                  "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000597429"
-                ],
-                "system": "https://www.ncbi.nlm.nih.gov/gtr/"
-              },
-              "relation": "relatedMatch"
-            },
-            {
-              "coding": {
-                "code": "254637007",
-                "iris": [
-                  "https://identifiers.org/snomedct:254637007"
-                ],
-                "system": "https://www.snomed.org/"
-              },
-              "relation": "relatedMatch"
-            }
-          ],
-          "name": "Non-small cell lung carcinoma",
-          "primaryCoding": {
-            "code": "C0007131",
-            "iris": [
-              "https://identifiers.org/medgen:C0007131",
-              "https://www.ncbi.nlm.nih.gov/medgen/C0007131"
-            ],
-            "name": "Non-small cell lung carcinoma",
-            "system": "https://www.ncbi.nlm.nih.gov/medgen/"
-          },
-          "type": "MappableConcept"
-        },
-        "geneContextQualifier": {
-          "conceptType": "gene",
-          "extensions": [
-            {
-              "name": "submittedGeneSymbols",
-              "value": [
-                "EGFR"
-              ]
-            },
-            {
-              "name": "geneContextSource",
-              "value": "submittedSymbolMatches"
-            }
-          ],
-          "mappings": [
-            {
-              "coding": {
-                "code": "3236",
-                "iris": [
-                  "https://identifiers.org/hgnc:3236",
-                  "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/3236"
-                ],
-                "system": "https://www.genenames.org"
-              },
-              "relation": "exactMatch"
-            }
-          ],
-          "name": "EGFR",
-          "primaryCoding": {
-            "code": "1956",
-            "iris": [
-              "https://identifiers.org/ncbigene:1956",
-              "https://www.ncbi.nlm.nih.gov/gene/1956"
-            ],
-            "name": "EGFR",
-            "system": "https://www.ncbi.nlm.nih.gov/gene/"
-          },
-          "type": "MappableConcept"
-        },
-        "id": "SCV004565358-TR",
-        "object": {
-          "conceptType": "Drug",
-          "name": "Erlotinib",
-          "type": "MappableConcept"
-        },
-        "predicate": "predictsSensitivityTo",
-        "subject": "#/variation/clinvar:16609",
-        "type": "VariantTherapeuticResponseProposition"
-      },
-      "type": "EvidenceLine"
+      ]
     }
-  ],
-  "id": "clinvar.submission:SCV004565358.1",
-  "proposition": {
-    "geneContextQualifier": {
-      "conceptType": "gene",
-      "extensions": [
+  },
+  "scv": {
+    "clinvar.submission:SCV004565358.1": {
+      "id": "clinvar.submission:SCV004565358.1",
+      "type": "Statement",
+      "proposition": "#/propositionSomaticClinicalImpact/SCV004565358-SCI",
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Tier I - Strong",
+        "primaryCoding": {
+          "code": "tier 1",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "extensions": [
+          {
+            "name": "description",
+            "value": "for Non-small cell lung carcinoma\nClassification is based on the criteria provided submission\nFeb 2018 by CIViC Knowledgebase, Washington University School of Medicine"
+          }
+        ]
+      },
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Strong",
+        "primaryCoding": {
+          "code": "strong",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        }
+      },
+      "direction": "supports",
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "description": "L858R is among the most common sensitizing EGFR mutations in NSCLC, and is assessed via DNA mutational analysis including Sanger sequencing and next generation sequencing methods. Tyrosine kinase inhibitor erlotinib is associated with improved progression free survival over chemotherapy in EGFR L858R patients (civic.EID:885).",
+      "contributions": [
         {
-          "name": "submittedGeneSymbols",
-          "value": [
-            "EGFR"
+          "type": "Contribution",
+          "contributor": "#/submitter/clinvar.submitter:506594",
+          "date": "2024-02-20",
+          "activityType": "submitted"
+        },
+        {
+          "type": "Contribution",
+          "contributor": "#/submitter/clinvar.submitter:506594",
+          "date": "2024-02-20",
+          "activityType": "created"
+        },
+        {
+          "type": "Contribution",
+          "contributor": "#/submitter/clinvar.submitter:506594",
+          "date": "2018-02-23",
+          "activityType": "evaluated"
+        }
+      ],
+      "specifiedBy": {
+        "type": "Method",
+        "methodType": "curation",
+        "name": "AMP/ASCO/CAP Guidelines, 2017",
+        "reportedIn": {
+          "type": "Document",
+          "pmid": "27993330",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/27993330"
+          ]
+        }
+      },
+      "reportedIn": [
+        {
+          "type": "Document",
+          "pmid": "17877814",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/17877814"
           ]
         },
         {
-          "name": "geneContextSource",
-          "value": "submittedSymbolMatches"
+          "type": "Document",
+          "pmid": "19147750",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/19147750"
+          ]
+        },
+        {
+          "type": "Document",
+          "pmid": "21132006",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/21132006"
+          ]
+        },
+        {
+          "type": "Document",
+          "pmid": "22285168",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/22285168"
+          ]
+        },
+        {
+          "type": "Document",
+          "pmid": "24736073",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/24736073"
+          ]
+        },
+        {
+          "type": "Document",
+          "pmid": "24868098",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/24868098"
+          ]
+        },
+        {
+          "type": "Document",
+          "pmid": "27032107",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/27032107"
+          ]
+        },
+        {
+          "type": "Document",
+          "pmid": "27102076",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/27102076"
+          ]
+        },
+        {
+          "type": "Document",
+          "urls": [
+            "https://civicdb.org/links/evidence/229"
+          ]
+        },
+        {
+          "type": "Document",
+          "urls": [
+            "https://civicdb.org/links/evidence/2994"
+          ]
+        },
+        {
+          "type": "Document",
+          "urls": [
+            "https://civicdb.org/links/evidence/3811"
+          ]
+        },
+        {
+          "type": "Document",
+          "urls": [
+            "https://civicdb.org/links/evidence/4265"
+          ]
+        },
+        {
+          "type": "Document",
+          "urls": [
+            "https://civicdb.org/links/evidence/4285"
+          ]
+        },
+        {
+          "type": "Document",
+          "urls": [
+            "https://civicdb.org/links/evidence/4290"
+          ]
+        },
+        {
+          "type": "Document",
+          "urls": [
+            "https://civicdb.org/links/evidence/4291"
+          ]
+        },
+        {
+          "type": "Document",
+          "urls": [
+            "https://civicdb.org/links/evidence/885"
+          ]
+        },
+        {
+          "type": "Document",
+          "urls": [
+            "https://identifiers.org/civic.mpid:33"
+          ]
         }
       ],
-      "mappings": [
+      "extensions": [
         {
-          "coding": {
-            "code": "3236",
-            "iris": [
-              "https://identifiers.org/hgnc:3236",
-              "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/3236"
-            ],
-            "system": "https://www.genenames.org"
-          },
-          "relation": "exactMatch"
+          "name": "clinvarScvId",
+          "value": "SCV004565358"
+        },
+        {
+          "name": "clinvarScvVersion",
+          "value": "1"
+        },
+        {
+          "name": "submittedCondition",
+          "value": {
+            "condition": "clinvar.trait:7728",
+            "id": "SCV004565358.0",
+            "mapping": {
+              "ref": "preferred",
+              "type": "Name",
+              "value": "Non-small cell lung carcinoma"
+            },
+            "medgen_id": "C0007131",
+            "name": "Non-small cell lung carcinoma",
+            "normalized_match": "clinvar.trait:7728",
+            "normalized_resolution": "tm reftype preferred name",
+            "type": "Disease"
+          }
+        },
+        {
+          "name": "clinvarScvReviewStatus",
+          "value": "criteria provided, single submitter"
+        },
+        {
+          "name": "submittedScvClassification",
+          "value": "Tier I - Strong"
+        },
+        {
+          "name": "submittedScvLocalKey",
+          "value": "civic.AID:5"
+        },
+        {
+          "name": "submissionLevel",
+          "value": "CP"
         }
       ],
-      "name": "EGFR",
-      "primaryCoding": {
-        "code": "1956",
-        "iris": [
-          "https://identifiers.org/ncbigene:1956",
-          "https://www.ncbi.nlm.nih.gov/gene/1956"
-        ],
-        "name": "EGFR",
-        "system": "https://www.ncbi.nlm.nih.gov/gene/"
-      },
-      "type": "MappableConcept"
-    },
-    "id": "SCV004565358-SCI",
-    "object": {
-      "aliases": [
-        "Non-small cell lung cancer"
-      ],
-      "conceptType": "Disease",
-      "id": "clinvar.trait:7728",
-      "mappings": [
-        {
-          "coding": {
-            "code": "0030358",
-            "iris": [
-              "http://purl.obolibrary.org/obo/HP_0030358",
-              "https://identifiers.org/HP:0030358"
-            ],
-            "system": "https://hpo.jax.org/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "D002289",
-            "iris": [
-              "https://identifiers.org/mesh:D002289",
-              "https://www.ncbi.nlm.nih.gov/mesh/?term=D002289"
-            ],
-            "system": "https://id.nlm.nih.gov/mesh/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "0005233",
-            "iris": [
-              "http://purl.obolibrary.org/obo/MONDO_0005233",
-              "https://identifiers.org/mondo:0005233"
-            ],
-            "system": "https://mondo.monarchinitiative.org/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "GTR000569877",
-            "iris": [
-              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000569877"
-            ],
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "GTR000571363",
-            "iris": [
-              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000571363"
-            ],
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "GTR000597429",
-            "iris": [
-              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000597429"
-            ],
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
-          },
-          "relation": "relatedMatch"
-        },
-        {
-          "coding": {
-            "code": "254637007",
-            "iris": [
-              "https://identifiers.org/snomedct:254637007"
-            ],
-            "system": "https://www.snomed.org/"
-          },
-          "relation": "relatedMatch"
-        }
-      ],
-      "name": "Non-small cell lung carcinoma",
-      "primaryCoding": {
-        "code": "C0007131",
-        "iris": [
-          "https://identifiers.org/medgen:C0007131",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0007131"
-        ],
-        "name": "Non-small cell lung carcinoma",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
-      },
-      "type": "MappableConcept"
-    },
-    "predicate": "hasClinicalSignificanceFor",
-    "subject": "#/variation/clinvar:16609",
-    "type": "VariantClinicalSignificanceProposition"
-  },
-  "quality": {
-    "conceptType": "Quality",
-    "name": "criteria provided",
-    "type": "MappableConcept"
-  },
-  "reportedIn": [
-    {
-      "pmid": "17877814",
-      "type": "Document",
-      "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/17877814"
-      ]
-    },
-    {
-      "pmid": "19147750",
-      "type": "Document",
-      "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/19147750"
-      ]
-    },
-    {
-      "pmid": "21132006",
-      "type": "Document",
-      "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/21132006"
-      ]
-    },
-    {
-      "pmid": "22285168",
-      "type": "Document",
-      "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/22285168"
-      ]
-    },
-    {
-      "pmid": "24736073",
-      "type": "Document",
-      "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/24736073"
-      ]
-    },
-    {
-      "pmid": "24868098",
-      "type": "Document",
-      "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/24868098"
-      ]
-    },
-    {
-      "pmid": "27032107",
-      "type": "Document",
-      "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/27032107"
-      ]
-    },
-    {
-      "pmid": "27102076",
-      "type": "Document",
-      "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/27102076"
-      ]
-    },
-    {
-      "type": "Document",
-      "urls": [
-        "https://civicdb.org/links/evidence/229"
-      ]
-    },
-    {
-      "type": "Document",
-      "urls": [
-        "https://civicdb.org/links/evidence/2994"
-      ]
-    },
-    {
-      "type": "Document",
-      "urls": [
-        "https://civicdb.org/links/evidence/3811"
-      ]
-    },
-    {
-      "type": "Document",
-      "urls": [
-        "https://civicdb.org/links/evidence/4265"
-      ]
-    },
-    {
-      "type": "Document",
-      "urls": [
-        "https://civicdb.org/links/evidence/4285"
-      ]
-    },
-    {
-      "type": "Document",
-      "urls": [
-        "https://civicdb.org/links/evidence/4290"
-      ]
-    },
-    {
-      "type": "Document",
-      "urls": [
-        "https://civicdb.org/links/evidence/4291"
-      ]
-    },
-    {
-      "type": "Document",
-      "urls": [
-        "https://civicdb.org/links/evidence/885"
-      ]
-    },
-    {
-      "type": "Document",
-      "urls": [
-        "https://identifiers.org/civic.mpid:33"
+      "hasEvidenceLines": [
+        "#/evidenceLine/clinvar.submission:SCV004565358.1"
       ]
     }
-  ],
-  "specifiedBy": {
-    "methodType": "curation",
-    "name": "AMP/ASCO/CAP Guidelines, 2017",
-    "reportedIn": {
-      "pmid": "27993330",
-      "type": "Document",
-      "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/27993330"
-      ]
-    },
-    "type": "Method"
-  },
-  "strength": {
-    "conceptType": "Strength",
-    "name": "Strong",
-    "primaryCoding": {
-      "code": "strong",
-      "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
-    },
-    "type": "MappableConcept"
-  },
-  "type": "Statement"
+  }
 }

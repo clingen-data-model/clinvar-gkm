@@ -1,100 +1,67 @@
 {
-  "classification": {
-    "conceptType": "Classification",
-    "name": "Pathogenic",
-    "type": "MappableConcept"
-  },
-  "direction": "supports",
-  "extensions": [
-    {
-      "name": "clinvarReviewStatus",
-      "value": "criteria provided, single submitter"
+  "schema_version": "1.2.0",
+  "condition": {
+    "clinvar.trait:76385": {
+      "id": "clinvar.trait:76385",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Congenital Pulmonary Airway Malformations"
     }
-  ],
-  "hasEvidenceLines": [
-    {
+  },
+  "propositionPathogenicity": {
+    "RCV004554600-G-PATH": {
+      "id": "RCV004554600-G-PATH",
+      "object": "#/condition/clinvar.trait:76385",
+      "predicate": "isCausalFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantPathogenicityProposition"
+    }
+  },
+  "evidenceLine": {
+    "RCV004554600.1-G-PATH.contributing": {
+      "id": "RCV004554600.1-G-PATH.contributing",
+      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
       "hasEvidenceItems": [
+        "#/rcv/RCV004554600.1-G-PATH-CP"
+      ]
+    }
+  },
+  "rcv": {
+    "RCV004554600.1-G-PATH": {
+      "id": "RCV004554600.1-G-PATH",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Definitive"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Pathogenic"
+      },
+      "proposition": "#/propositionPathogenicity/RCV004554600-G-PATH",
+      "extensions": [
         {
-          "classification": {
-            "conceptType": "Classification",
-            "name": "Pathogenic",
-            "type": "MappableConcept"
-          },
-          "direction": "supports",
-          "extensions": [
-            {
-              "name": "clinvarReviewStatus",
-              "value": "criteria provided, single submitter"
-            }
-          ],
-          "hasEvidenceLines": [
-            {
-              "directionOfEvidenceProvided": "supports",
-              "hasEvidenceItems": [
-                "#/scv/clinvar.submission:SCV005044128.1"
-              ],
-              "id": "RCV004554600.1-G-PATH-CP.contributing",
-              "strengthOfEvidenceProvided": {
-                "conceptType": "Strength",
-                "name": "Contributing",
-                "type": "MappableConcept"
-              },
-              "type": "EvidenceLine"
-            }
-          ],
-          "id": "RCV004554600.1-G-PATH-CP",
-          "proposition": {
-            "id": "RCV004554600-G-PATH-CP",
-            "object": "#/condition/clinvar.trait:76385",
-            "predicate": "isCausalFor",
-            "subject": "#/variation/clinvar:12582",
-            "type": "VariantPathogenicityProposition"
-          },
-          "quality": {
-            "conceptType": "Quality",
-            "name": "criteria provided",
-            "type": "MappableConcept"
-          },
-          "strength": {
-            "conceptType": "Strength",
-            "name": "Definitive",
-            "type": "MappableConcept"
-          },
-          "type": "Statement"
+          "name": "clinvarReviewStatus",
+          "value": "criteria provided, single submitter"
         }
       ],
-      "id": "RCV004554600.1-G-PATH.contributing",
-      "strengthOfEvidenceProvided": {
-        "conceptType": "Strength",
-        "name": "Contributing",
-        "type": "MappableConcept"
-      },
-      "type": "EvidenceLine"
+      "hasEvidenceLines": [
+        "#/evidenceLine/RCV004554600.1-G-PATH.contributing"
+      ]
     }
-  ],
-  "id": "RCV004554600.1-G-PATH",
-  "proposition": {
-    "id": "RCV004554600-G-PATH",
-    "object": {
-      "conceptType": "Disease",
-      "id": "clinvar.trait:76385",
-      "name": "Congenital Pulmonary Airway Malformations",
-      "type": "MappableConcept"
-    },
-    "predicate": "isCausalFor",
-    "subject": "#/variation/clinvar:12582",
-    "type": "VariantPathogenicityProposition"
-  },
-  "quality": {
-    "conceptType": "Quality",
-    "name": "criteria provided",
-    "type": "MappableConcept"
-  },
-  "strength": {
-    "conceptType": "Strength",
-    "name": "Definitive",
-    "type": "MappableConcept"
-  },
-  "type": "Statement"
+  }
 }

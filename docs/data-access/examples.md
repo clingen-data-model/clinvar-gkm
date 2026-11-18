@@ -1,6 +1,27 @@
 # Examples
 
-Annotated example files are maintained in the [examples/](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples) directory of the repository. These serve as reference targets for the data structures produced by the pipeline and are useful for early adopters and for validating output against expected formats.
+Example files are maintained in the [examples/](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples) directory of the repository. These serve as reference targets for the data structures produced by the pipeline and are useful for early adopters and for validating output against expected formats.
+
+---
+
+## File Format
+
+Each file is a **bundle fragment**: a small JSON object with the same shape as a published bundle, `{"schema_version": "1.2.0", "<section>": {"<key>": record}, ...}`. It holds the record the file is named for (the *top record*) exactly as the bundle has it, so its references are `#/<section>/<key>` [pointers](../output-reference/id-references.md), plus the records those pointers lead to.
+
+Every pointer is followed, except pointers into the `scv`, `vcv`, `rcv` and `variation` sections, which stay pointers:
+
+| Pointer kept | What it names | Where to see one |
+| --- | --- | --- |
+| `#/scv/…` | A submission aggregated by a VCV or RCV statement | The SCV examples below |
+| `#/vcv/…`, `#/rcv/…` | A nested statement of an aggregation layer, such as `…-G-PATH-CP` | The full bundle |
+| `#/variation/…` | A proposition's `subject` | The Cat-VRS examples below |
+
+An SCV file therefore holds the statement, its proposition, submitter, condition or condition set (with its member conditions), and any evidence line and therapy. A VCV or RCV file holds the statement, its proposition, evidence lines, and condition or condition set. A Cat-VRS file holds the variation with its alleles, locations, sequence references and genes, so every pointer in it resolves.
+
+!!! note "Fragments, not closed bundles"
+    Every file validates against the [bundle schema](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/clinvar-gkm-bundle.schema.json), but not every `#/…` pointer resolves inside the file. A kept pointer names a record in the full bundle of the same release. A published bundle resolves every pointer; for a closed extract of a few statements, see [Sub-Bundle Extraction](../pipeline/sub-bundle.md).
+
+The files are regenerated from a published full bundle by `src/scripts/extract-example.py`; the [examples readme](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/readme.md) has the command.
 
 ---
 
@@ -55,19 +76,19 @@ See [SCV Statements output reference](../output-reference/scv-statements.md) for
 
 ## VCV Statements
 
-Examples of aggregate classification `Statement` records produced by rolling up SCV submissions through the aggregation hierarchy. The top statement's proposition and direct references are inlined; nested statements and SCVs remain `#/` references into the bundle.
+Examples of aggregate classification `Statement` records produced by rolling up SCV submissions through the aggregation hierarchy. Each file holds the top statement with its proposition, evidence lines and condition records; the nested statements of the lower layers and the SCVs stay `#/` pointers into the bundle, so the layer and SCV counts below describe the bundle, not the file.
 
 ### Germline
 
 | File | VCV | Prop Type | Submission Levels | Description |
 | --- | --- | --- | --- | --- |
-| [VCV000012582.69-G-PATH.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000012582.69-G-PATH.jsonc) | VCV000012582 | Pathogenicity | CP, NOCP | Pathogenic/Likely pathogenic. CP contributing with 15 concordant SCVs; NOCP non-contributing with 20 SCVs. The proposition `object` is an `OR` condition set of 8 conditions minted for the aggregate |
+| [VCV000012582.69-G-PATH.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000012582.69-G-PATH.jsonc) | VCV000012582 | Pathogenicity | CP, NOCP | Pathogenic/Likely pathogenic. CP contributing with 15 concordant SCVs; NOCP non-contributing with 20 SCVs. The proposition `object` is an `OR` condition set of 8 members minted for the aggregate; one member is itself a ClinVar trait set (`AND`) of 12 conditions |
 | [VCV000012582.69-G-ASSOC.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000012582.69-G-ASSOC.jsonc) | VCV000012582 | Association | NOCP | Single NOCP submission; the `object` is a ClinVar trait set (`AND`) of two conditions |
 | [VCV000012582.69-G-NP.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000012582.69-G-NP.jsonc) | VCV000012582 | Not Provided | NOCL | Single NOCL submission for Encephalocraniocutaneous lipomatosis |
-| [VCV000007105.213-G-PATH.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.213-G-PATH.jsonc) | VCV000007105 | Pathogenicity | PG, EP, CP, NOCP | Pathogenic, practice guideline. PG contributing (1 SCV); EP (1 SCV), CP (82 SCVs) and NOCP (10 SCVs) non-contributing. Cystic fibrosis |
-| [VCV000007105.213-G-DR.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.213-G-DR.jsonc) | VCV000007105 | Drug Response | EP | Two expert-panel SCVs; the `object` is an `OR` condition set of two drug-response conditions |
-| [VCV000007105.213-G-RF.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.213-G-RF.jsonc) | VCV000007105 | Risk Factor | NOCP | Single NOCP submission for a bronchiectasis modifier condition |
-| [VCV000007105.213-G-NP.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.213-G-NP.jsonc) | VCV000007105 | Not Provided | NOCL | Four NOCL SCVs; the `object` is an `OR` condition set of three conditions |
+| [VCV000007105.214-G-PATH.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.214-G-PATH.jsonc) | VCV000007105 | Pathogenicity | PG, EP, CP, NOCP | Pathogenic, practice guideline. PG contributing (1 SCV); EP (1 SCV), CP (83 SCVs) and NOCP (10 SCVs) non-contributing. Cystic fibrosis |
+| [VCV000007105.214-G-DR.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.214-G-DR.jsonc) | VCV000007105 | Drug Response | EP | Two expert-panel SCVs; the `object` is an `OR` condition set of two drug-response conditions |
+| [VCV000007105.214-G-RF.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.214-G-RF.jsonc) | VCV000007105 | Risk Factor | NOCP | Single NOCP submission for a bronchiectasis modifier condition |
+| [VCV000007105.214-G-NP.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/vcv/VCV000007105.214-G-NP.jsonc) | VCV000007105 | Not Provided | NOCL | Four NOCL SCVs; the `object` is an `OR` condition set of three conditions |
 
 ### Somatic
 
@@ -78,7 +99,7 @@ Examples of aggregate classification `Statement` records produced by rolling up 
 
 ### PG and EP (single-submission levels)
 
-PG (practice guideline) and EP (reviewed by expert panel) submissions are aggregated as separate top-tier submission levels. PG outranks EP in the Aggregate Contribution Layer winner-takes-all selection, followed by CP, NOCP, NOCL, and FLAG. `VCV000007105.213-G-PATH` shows a PG winner with EP, CP and NOCP non-contributing; `VCV000007105.213-G-DR` shows an EP-only aggregate.
+PG (practice guideline) and EP (reviewed by expert panel) submissions are aggregated as separate top-tier submission levels. PG outranks EP in the Aggregate Contribution Layer winner-takes-all selection, followed by CP, NOCP, NOCL, and FLAG. `VCV000007105.214-G-PATH` shows a PG winner with EP, CP and NOCP non-contributing; `VCV000007105.214-G-DR` shows an EP-only aggregate.
 
 See [VCV Statements output reference](../output-reference/vcv-statements.md) for field documentation.
 
@@ -92,8 +113,8 @@ Examples of RCV `Statement` records: the aggregate for one variant and one condi
 
 | File | RCV | Variant | Prop Type | Condition | Description |
 | --- | --- | --- | --- | --- | --- |
-| [RCV000007523.119-G-PATH.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/rcv/RCV000007523.119-G-PATH.jsonc) | RCV000007523 | Variation 7105 | Pathogenicity | Cystic fibrosis | PG contributing (1 SCV); EP (1), CP (44) and NOCP (4) non-contributing |
-| [RCV000007523.119-G-NP.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/rcv/RCV000007523.119-G-NP.jsonc) | RCV000007523 | Variation 7105 | Not Provided | Cystic fibrosis | NOCL, 2 SCVs |
+| [RCV000007523.120-G-PATH.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/rcv/RCV000007523.120-G-PATH.jsonc) | RCV000007523 | Variation 7105 | Pathogenicity | Cystic fibrosis | PG contributing (1 SCV); EP (1), CP (45) and NOCP (4) non-contributing |
+| [RCV000007523.120-G-NP.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/rcv/RCV000007523.120-G-NP.jsonc) | RCV000007523 | Variation 7105 | Not Provided | Cystic fibrosis | NOCL, 2 SCVs |
 | [RCV001787370.11-G-DR.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/rcv/RCV001787370.11-G-DR.jsonc) | RCV001787370 | Variation 7105 | Drug Response | ivacaftor / lumacaftor response - Efficacy | EP, 1 SCV |
 | [RCV001787371.11-G-DR.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/rcv/RCV001787371.11-G-DR.jsonc) | RCV001787371 | Variation 7105 | Drug Response | ivacaftor / tezacaftor response - Efficacy | EP, 1 SCV |
 | [RCV000029215.25-G-PATH.jsonc](https://github.com/clingen-data-model/clinvar-gkm/blob/main/examples/rcv/RCV000029215.25-G-PATH.jsonc) | RCV000029215 | KRAS (variation 12582) | Pathogenicity | Linear nevus sebaceous syndrome | CP contributing (4 SCVs); NOCP non-contributing (1) |

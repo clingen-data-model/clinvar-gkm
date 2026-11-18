@@ -1,99 +1,71 @@
 {
-  "classification": {
-    "conceptType": "Classification",
-    "name": "drug response",
-    "type": "MappableConcept"
-  },
-  "direction": "supports",
-  "extensions": [
-    {
-      "name": "clinvarReviewStatus",
-      "value": "reviewed by expert panel"
-    }
-  ],
-  "hasEvidenceLines": [
-    {
-      "directionOfEvidenceProvided": "supports",
-      "hasEvidenceItems": [
-        {
-          "classification": {
-            "conceptType": "Classification",
-            "name": "drug response",
-            "type": "MappableConcept"
-          },
-          "direction": "supports",
-          "extensions": [
-            {
-              "name": "clinvarReviewStatus",
-              "value": "reviewed by expert panel"
-            }
-          ],
-          "hasEvidenceLines": [
-            {
-              "directionOfEvidenceProvided": "supports",
-              "hasEvidenceItems": [
-                "#/scv/clinvar.submission:SCV002031250.1"
-              ],
-              "id": "RCV001787370.11-G-DR-EP.contributing",
-              "strengthOfEvidenceProvided": {
-                "conceptType": "Strength",
-                "name": "Contributing",
-                "type": "MappableConcept"
-              },
-              "type": "EvidenceLine"
-            }
-          ],
-          "id": "RCV001787370.11-G-DR-EP",
-          "proposition": {
-            "id": "RCV001787370-G-DR-EP",
-            "object": "#/condition/clinvar.trait:36871",
-            "predicate": "hasDrugResponseFor",
-            "subject": "#/variation/clinvar:7105",
-            "type": "ClinvarDrugResponseProposition"
-          },
-          "quality": {
-            "conceptType": "Quality",
-            "name": "expert panel",
-            "type": "MappableConcept"
-          },
-          "type": "Statement"
-        }
-      ],
-      "id": "RCV001787370.11-G-DR.contributing",
-      "strengthOfEvidenceProvided": {
-        "conceptType": "Strength",
-        "name": "Contributing",
-        "type": "MappableConcept"
-      },
-      "type": "EvidenceLine"
-    }
-  ],
-  "id": "RCV001787370.11-G-DR",
-  "proposition": {
-    "id": "RCV001787370-G-DR",
-    "object": {
-      "conceptType": "Condition",
+  "schema_version": "1.2.0",
+  "condition": {
+    "clinvar.trait:36871": {
       "id": "clinvar.trait:36871",
+      "type": "MappableConcept",
+      "conceptType": "Condition",
       "name": "ivacaftor / lumacaftor response - Efficacy",
       "primaryCoding": {
+        "name": "ivacaftor / lumacaftor response - Efficacy",
         "code": "CN322746",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
         "iris": [
           "https://identifiers.org/medgen:CN322746",
           "https://www.ncbi.nlm.nih.gov/medgen/CN322746"
-        ],
-        "name": "ivacaftor / lumacaftor response - Efficacy",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+        ]
+      }
+    }
+  },
+  "propositionClinvarCustom": {
+    "RCV001787370-G-DR": {
+      "id": "RCV001787370-G-DR",
+      "object": "#/condition/clinvar.trait:36871",
+      "predicate": "hasDrugResponseFor",
+      "subject": "#/variation/clinvar:7105",
+      "type": "ClinvarDrugResponseProposition"
+    }
+  },
+  "evidenceLine": {
+    "RCV001787370.11-G-DR.contributing": {
+      "id": "RCV001787370.11-G-DR.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
       },
-      "type": "MappableConcept"
-    },
-    "predicate": "hasDrugResponseFor",
-    "subject": "#/variation/clinvar:7105",
-    "type": "ClinvarDrugResponseProposition"
+      "hasEvidenceItems": [
+        "#/rcv/RCV001787370.11-G-DR-EP"
+      ]
+    }
   },
-  "quality": {
-    "conceptType": "Quality",
-    "name": "expert panel",
-    "type": "MappableConcept"
-  },
-  "type": "Statement"
+  "rcv": {
+    "RCV001787370.11-G-DR": {
+      "id": "RCV001787370.11-G-DR",
+      "type": "Statement",
+      "direction": "supports",
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "expert panel"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "drug response"
+      },
+      "proposition": "#/propositionClinvarCustom/RCV001787370-G-DR",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "reviewed by expert panel"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/RCV001787370.11-G-DR.contributing"
+      ]
+    }
+  }
 }

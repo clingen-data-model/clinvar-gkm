@@ -1,230 +1,150 @@
 {
-  "classification": {
-    "conceptType": "Classification",
-    "name": "Pathogenic",
-    "type": "MappableConcept"
-  },
-  "direction": "supports",
-  "extensions": [
-    {
-      "name": "clinvarReviewStatus",
-      "value": "criteria provided, single submitter"
-    }
-  ],
-  "hasEvidenceLines": [
-    {
-      "directionOfEvidenceProvided": "supports",
-      "hasEvidenceItems": [
-        {
-          "classification": {
-            "conceptType": "Classification",
-            "name": "Pathogenic",
-            "type": "MappableConcept"
-          },
-          "direction": "supports",
-          "extensions": [
-            {
-              "name": "clinvarReviewStatus",
-              "value": "criteria provided, single submitter"
-            }
-          ],
-          "hasEvidenceLines": [
-            {
-              "directionOfEvidenceProvided": "supports",
-              "hasEvidenceItems": [
-                "#/scv/clinvar.submission:SCV004176950.1"
-              ],
-              "id": "RCV000585796.12-G-PATH-CP.contributing",
-              "strengthOfEvidenceProvided": {
-                "conceptType": "Strength",
-                "name": "Contributing",
-                "type": "MappableConcept"
-              },
-              "type": "EvidenceLine"
-            }
-          ],
-          "id": "RCV000585796.12-G-PATH-CP",
-          "proposition": {
-            "id": "RCV000585796-G-PATH-CP",
-            "object": "#/condition/clinvar.trait:4617",
-            "predicate": "isCausalFor",
-            "subject": "#/variation/clinvar:12582",
-            "type": "VariantPathogenicityProposition"
-          },
-          "quality": {
-            "conceptType": "Quality",
-            "name": "criteria provided",
-            "type": "MappableConcept"
-          },
-          "strength": {
-            "conceptType": "Strength",
-            "name": "Definitive",
-            "type": "MappableConcept"
-          },
-          "type": "Statement"
-        }
-      ],
-      "id": "RCV000585796.12-G-PATH.contributing",
-      "strengthOfEvidenceProvided": {
-        "conceptType": "Strength",
-        "name": "Contributing",
-        "type": "MappableConcept"
-      },
-      "type": "EvidenceLine"
-    },
-    {
-      "directionOfEvidenceProvided": "neutral",
-      "hasEvidenceItems": [
-        {
-          "classification": {
-            "conceptType": "Classification",
-            "name": "Pathogenic",
-            "type": "MappableConcept"
-          },
-          "direction": "supports",
-          "extensions": [
-            {
-              "name": "clinvarReviewStatus",
-              "value": "no assertion criteria provided"
-            }
-          ],
-          "hasEvidenceLines": [
-            {
-              "directionOfEvidenceProvided": "supports",
-              "hasEvidenceItems": [
-                "#/scv/clinvar.submission:SCV000693723.1",
-                "#/scv/clinvar.submission:SCV000992585.2"
-              ],
-              "id": "RCV000585796.12-G-PATH-NOCP.contributing",
-              "strengthOfEvidenceProvided": {
-                "conceptType": "Strength",
-                "name": "Contributing",
-                "type": "MappableConcept"
-              },
-              "type": "EvidenceLine"
-            }
-          ],
-          "id": "RCV000585796.12-G-PATH-NOCP",
-          "proposition": {
-            "id": "RCV000585796-G-PATH-NOCP",
-            "object": "#/condition/clinvar.trait:4617",
-            "predicate": "isCausalFor",
-            "subject": "#/variation/clinvar:12582",
-            "type": "VariantPathogenicityProposition"
-          },
-          "quality": {
-            "conceptType": "Quality",
-            "name": "no assertion criteria provided",
-            "type": "MappableConcept"
-          },
-          "strength": {
-            "conceptType": "Strength",
-            "name": "Definitive",
-            "type": "MappableConcept"
-          },
-          "type": "Statement"
-        }
-      ],
-      "id": "RCV000585796.12-G-PATH.non-contributing",
-      "strengthOfEvidenceProvided": {
-        "conceptType": "Strength",
-        "name": "Non-contributing",
-        "type": "MappableConcept"
-      },
-      "type": "EvidenceLine"
-    }
-  ],
-  "id": "RCV000585796.12-G-PATH",
-  "proposition": {
-    "id": "RCV000585796-G-PATH",
-    "object": {
-      "aliases": [
-        "CEREBRAL ARTERIOVENOUS MALFORMATIONS",
-        "Arteriovenous malformations of the brain"
-      ],
-      "conceptType": "Disease",
+  "schema_version": "1.2.0",
+  "condition": {
+    "clinvar.trait:4617": {
       "id": "clinvar.trait:4617",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Cerebral arteriovenous malformation",
+      "aliases": [
+        "Arteriovenous malformations of the brain",
+        "CEREBRAL ARTERIOVENOUS MALFORMATIONS"
+      ],
+      "primaryCoding": {
+        "name": "Cerebral arteriovenous malformation",
+        "code": "C0917804",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C0917804",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0917804"
+        ]
+      },
       "mappings": [
         {
           "coding": {
             "code": "0002408",
+            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0002408",
               "https://identifiers.org/HP:0002408"
-            ],
-            "system": "https://hpo.jax.org/"
+            ]
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "0007154",
+            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0007154",
               "https://identifiers.org/mondo:0007154"
-            ],
-            "system": "https://mondo.monarchinitiative.org/"
+            ]
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "108010",
+            "system": "https://www.omim.org/",
             "iris": [
               "https://identifiers.org/mim:108010",
               "https://www.omim.org/entry/108010"
-            ],
-            "system": "https://www.omim.org/"
+            ]
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "46724",
+            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_46724",
               "https://identifiers.org/orphanet:46724"
-            ],
-            "system": "https://www.orpha.net/"
+            ]
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "234142008",
+            "system": "https://www.snomed.org/",
             "iris": [
               "https://identifiers.org/snomedct:234142008"
-            ],
-            "system": "https://www.snomed.org/"
+            ]
           },
           "relation": "relatedMatch"
         }
-      ],
-      "name": "Cerebral arteriovenous malformation",
-      "primaryCoding": {
-        "code": "C0917804",
-        "iris": [
-          "https://identifiers.org/medgen:C0917804",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0917804"
-        ],
-        "name": "Cerebral arteriovenous malformation",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      ]
+    }
+  },
+  "propositionPathogenicity": {
+    "RCV000585796-G-PATH": {
+      "id": "RCV000585796-G-PATH",
+      "object": "#/condition/clinvar.trait:4617",
+      "predicate": "isCausalFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantPathogenicityProposition"
+    }
+  },
+  "evidenceLine": {
+    "RCV000585796.12-G-PATH.contributing": {
+      "id": "RCV000585796.12-G-PATH.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
       },
-      "type": "MappableConcept"
+      "hasEvidenceItems": [
+        "#/rcv/RCV000585796.12-G-PATH-CP"
+      ]
     },
-    "predicate": "isCausalFor",
-    "subject": "#/variation/clinvar:12582",
-    "type": "VariantPathogenicityProposition"
+    "RCV000585796.12-G-PATH.non-contributing": {
+      "id": "RCV000585796.12-G-PATH.non-contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "neutral",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Non-contributing"
+      },
+      "hasEvidenceItems": [
+        "#/rcv/RCV000585796.12-G-PATH-NOCP"
+      ]
+    }
   },
-  "quality": {
-    "conceptType": "Quality",
-    "name": "criteria provided",
-    "type": "MappableConcept"
-  },
-  "strength": {
-    "conceptType": "Strength",
-    "name": "Definitive",
-    "type": "MappableConcept"
-  },
-  "type": "Statement"
+  "rcv": {
+    "RCV000585796.12-G-PATH": {
+      "id": "RCV000585796.12-G-PATH",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Definitive"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Pathogenic"
+      },
+      "proposition": "#/propositionPathogenicity/RCV000585796-G-PATH",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "criteria provided, single submitter"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/RCV000585796.12-G-PATH.contributing",
+        "#/evidenceLine/RCV000585796.12-G-PATH.non-contributing"
+      ]
+    }
+  }
 }
