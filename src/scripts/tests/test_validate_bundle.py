@@ -124,8 +124,8 @@ def test_build_then_publish_validates_once_and_uploads_once(stubbed_release):
 
 @pytest.fixture(scope="module")
 def toolkit():
-    if subprocess.run([WRAPPER, "--check-setup"], capture_output=True).returncode != 0:
-        pytest.skip("validate-bundle.sh --check-setup is not ready")
+    if subprocess.run([WRAPPER, "--check-setup", "--engine", "toolkit"], capture_output=True).returncode != 0:
+        pytest.skip("validate-bundle.sh --check-setup --engine toolkit is not ready")
 
 
 def validate(path):
