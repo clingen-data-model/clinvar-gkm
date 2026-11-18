@@ -6245,6 +6245,7 @@
 <hr />
 <h2 id="file-format">File Format<a class="headerlink" href="#file-format" title="Permanent link">&para;</a></h2>
 <p>The release file is a <code>.json.gz</code> file. The decompressed content is a single JSON object with named bundle sections at the root level — each section is a keyed collection of objects of the same class.</p>
+<p><code>schema_version</code> is the first top-level key, and the sections follow in a fixed order. Each record is written on its own line as compact JSON (raw UTF-8) with its object keys <strong>sorted at every depth</strong>, and the lists whose order carries no meaning and is not stable in ClinVar's source — a condition's <code>aliases</code> — are written in sorted order, so a record that has not changed has the same bytes in every release. The order of records within a section is not fixed and differs between releases.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Decompress and inspect the top-level keys</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>gunzip<span class="w"> </span>-c<span class="w"> </span>clinvar-gkm_00-latest.json.gz<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="s2">import json, sys</span>

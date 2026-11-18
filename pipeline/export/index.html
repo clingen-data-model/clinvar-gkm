@@ -5715,6 +5715,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Step 2: Assemble Bundle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#record-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Record Text
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -6326,6 +6343,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Step 2: Assemble Bundle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#record-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Record Text
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -6575,7 +6609,20 @@
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="m">2026</span>-06-14
 </code></pre></div>
 <p>The script assembles 20 bundle sections in a fixed order: <code>sequenceReference</code>, <code>location</code>, <code>allele</code>, <code>copyNumberCount</code>, <code>copyNumberChange</code>, <code>gene</code>, <code>variation</code>, <code>condition</code>, <code>conditionSet</code>, <code>therapy</code>, <code>therapyGroup</code>, <code>submitter</code>, <code>propositionPathogenicity</code>, <code>propositionOncogenicity</code>, <code>propositionSomaticClinicalImpact</code>, <code>propositionClinvarCustom</code>, <code>evidenceLine</code>, <code>scv</code>, <code>vcv</code>, <code>rcv</code>. The <code>therapy</code> / <code>therapyGroup</code> sections hold content-addressed (deduplicated) drug therapies referenced by <code>VariantTherapeuticResponseProposition.object</code> via <code>#/therapy/</code> and <code>#/therapyGroup/</code>. Each section is a keyed object where the key is the record's unique identifier. Propositions from SCV, VCV, and RCV are delivered in <strong>four sections grouped by meaning</strong> — <code>propositionPathogenicity</code>, <code>propositionOncogenicity</code>, <code>propositionSomaticClinicalImpact</code> (clinical significance, diagnostic, prognostic, therapeutic response), <code>propositionClinvarCustom</code> (the <code>Clinvar*</code> types) — split by the one canonical function <code>clinvar_ingest.gkm_proposition_section(type)</code>, which fails the export on an unmapped type; evidence line shards are merged into a single <code>evidenceLine</code> section.</p>
-<p>Install <code>orjson</code> for best performance:</p>
+<h4 id="record-text">Record Text<a class="headerlink" href="#record-text" title="Permanent link">&para;</a></h4>
+<p>Every record — in a full bundle and in a delta — passes through the same cleanup and serialization in the
+assembler, so an unchanged record has the same bytes in every release:</p>
+<ul>
+<li><strong>Cleanup</strong> — null and empty fields are dropped, and typed extension values (<code>value_&lt;type&gt;</code>) collapse to <code>value</code></li>
+<li><strong>Canonical lists</strong> — the arrays whose order carries no meaning and has been seen to change between releases are
+  sorted by each element's compact, key-sorted JSON text; today that is <code>condition</code> <code>aliases</code> (the trait's
+  alternate names). The list is <code>UNORDERED_ARRAYS</code> in <code>gkm_json_cleanup.py</code>, and an array enters it only when
+  every schema marks it <code>ordered: false</code>. All other arrays keep the pipeline's order</li>
+<li><strong>Text</strong> — each record is one line of compact JSON (no insignificant whitespace, raw UTF-8) with its object keys
+  <strong>sorted at every depth</strong>, independent of the column order of the BigQuery tables</li>
+<li><strong>Layout</strong> — <code>schema_version</code> is the first top-level key, followed by the sections in the fixed order above</li>
+</ul>
+<p><code>orjson</code> writes this text, so the assembler requires it and stops without it:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span>orjson
 </code></pre></div>
 <p><code>release-gkm.sh</code> then validates every record of the assembled full bundle with <code>validate-bundle.sh --engine rs</code> and stops before upload if any fails (see <a href="#step-5-publish-the-weekly-delta">Strict validation stops the release</a>).</p>
@@ -6656,7 +6703,7 @@ delta):</p>
 <ul>
 <li><strong>Google Cloud SDK</strong> — <code>bq</code> and <code>gsutil</code> commands for BigQuery export and GCS operations</li>
 <li><strong>AWS CLI</strong> — configured with an <code>r2</code> profile for Cloudflare R2 access</li>
-<li><strong>Python 3</strong> — for the assembly script; <code>orjson</code> (faster JSON) recommended</li>
+<li><strong>Python 3</strong> — for the assembly script, with <code>orjson</code> (required: it writes the bundle text)</li>
 <li><strong>DuckDB CLI</strong> — for merging Parquet shards into single files per section</li>
 <li><strong>BigQuery access</strong> — read access to the target dataset in <code>clingen-dev</code></li>
 </ul>
