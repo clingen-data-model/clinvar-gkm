@@ -51,9 +51,9 @@ explains the profiles and their rules, and each class page lists what its profil
 
 **What it means for you:**
 
-- **The data doesn't change.** Every record the pipeline publishes already meets the 1.2.0 profiles: relabelled
-  as 1.2.0, every record of the 2026-10-31 full bundle (91,854,927) and delta validates with no failures. Code
-  that reads bundles needs no change.
+- **The data doesn't change, except for the new aggregate coding below.** Every record the pipeline publishes
+  already meets the 1.2.0 profiles: relabelled as 1.2.0, every record of the 2026-10-31 full bundle
+  (91,854,927) and delta validates with no failures. Code that reads bundles needs no change.
 - **Validate each bundle against its own version.** A 1.2.0 bundle says `"schema_version": "1.2.0"` and
   validates against the 1.2.0 schemas
   (`https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json`); a 1.1.0 bundle keeps
@@ -62,6 +62,31 @@ explains the profiles and their rules, and each class page lists what its profil
 - **A new line folder.** As a MINOR, 1.2.0 is published into `v1/1.2/`; `v1/1.1/` is then frozen and kept,
   its files unchanged ([ADR 0009](../decisions/0009-r2-layout-mirrors-ncbi-clinvar.md)). The Parquet set is
   built by `gkm-bundle-parquet` 2.0.0.
+
+### 1.2.0: VCV and RCV classifications carry a coding
+
+Every VCV and RCV statement's `classification` gains a `primaryCoding` (`code` and `system`), as SCV
+classifications already have ([#202](https://github.com/clingen-data-model/clinvar-gkm/issues/202)). In the
+schema, `ClinvarAggregateClassification.primaryCoding` changes from forbidden to a `ClinvarTermCoding`. It is not
+required. The rules are in
+[`classification.primaryCoding`](../pipeline/vcv-statements/vcv-aggregation-rules.md#classification-primarycoding):
+
+- **A label that is one classification term has the coding its SCVs carry**, with the code in lower case:
+  `Pathogenic` → `pathogenic` / `ACMG Guidelines, 2015`, `VUS-mid` → `vus-mid` / `SVC v4`.
+- **A somatic clinical impact label is coded by its tier**, without the tumor-type text:
+  `Tier I (Strong) for 2 tumor types` → `tier 1` / `AMP/ASCO/CAP (AAC) Guidelines, 2017`.
+- **Any other label is a ClinVar-defined term**, with system `ClinVar` and the lower-cased label as the code:
+  `Conflicting classifications of pathogenicity`, `no classifications from unflagged records`, and
+  combinations such as `Uncertain significance/VUS-low` → `uncertain significance/vus-low`. The lookup's
+  `pathogenic/Likely pathogenic` code becomes `pathogenic/likely pathogenic`.
+
+**What it means for you:**
+
+- **Every VCV and RCV record changes**, so the first 1.2.0 release rewrites them all. Nothing else in those
+  records changes.
+- **SCV codes are unchanged, so one code differs in case.** An SCV classified `Pathogenic/Likely pathogenic`
+  still carries the upstream code `pathogenic/Likely pathogenic`. Compare codes case-insensitively; see
+  [Known Issues](known-issues.md#scv-and-aggregate-codes-for-pathogeniclikely-pathogenic-differ-in-case).
 
 ### Fixes
 

@@ -19,7 +19,7 @@ Each record is a `Statement` with the following top-level fields:
 | `id` | string | VCV layer ID — e.g., `VCV000012582.63-G-PATH-CP` |
 | `type` | string | Always `Statement` |
 | `proposition` | string | `#/proposition<Meaning>/{id}` reference to the aggregate proposition (the section is set by the proposition `type`; see [ID References](id-references.md)) |
-| `classification` | object | MappableConcept — the aggregate classification label. See [Classification](#classification) |
+| `classification` | object | MappableConcept — the aggregate classification label and its `primaryCoding`. See [Classification](#classification) |
 | `strength` | object | MappableConcept — the aggregate evidence strength. See [Strength](#strength) |
 | `direction` | string | `supports`, `disputes`, or `neutral` — derived from the aggregate classification |
 | `quality` | object | Concept struct with `conceptType: "Quality"` and `name` (the submission level label, e.g., `criteria provided`, `expert panel`) |
@@ -32,19 +32,33 @@ Each record is a `Statement` with the following top-level fields:
 
 ## Classification
 
-The `classification` field is a MappableConcept with the aggregate classification label:
+The `classification` field is a MappableConcept with the aggregate classification label and its coding:
 
 ```json
 {
+  "type": "MappableConcept",
   "conceptType": "Classification",
-  "name": "Pathogenic/Likely pathogenic",
+  "name": "Conflicting classifications of pathogenicity",
+  "primaryCoding": {
+    "code": "conflicting classifications of pathogenicity",
+    "system": "ClinVar"
+  },
   "extensions": [
-    {"name": "conflictingExplanation", "value": "Pathogenic(3); Likely pathogenic(2)"}
+    {"name": "conflictingExplanation", "value": "Pathogenic(3); Uncertain significance(2)"}
   ]
 }
 ```
 
 The `extensions` array includes a `conflictingExplanation` when multiple contributing submissions have different clinical significance values. This extension is only present for CP-level aggregations with conflicts.
+
+`primaryCoding` (from schema 1.2.0) codes the label. A label that is one classification term has the coding
+its SCVs carry, with the code in lower case (`Pathogenic` → `pathogenic` / `ACMG Guidelines, 2015`). A somatic
+clinical impact label is coded by its tier, without the tumor-type text (`Tier I (Strong) for 2 tumor types` →
+`tier 1` / `AMP/ASCO/CAP (AAC) Guidelines, 2017`). Any other label, such as a combination, a conflicting
+classification or `no classifications from unflagged records`, is a ClinVar-defined term: the label in lower
+case as the code and `ClinVar` as the system. See
+[`classification.primaryCoding`](../pipeline/vcv-statements/vcv-aggregation-rules.md#classification-primarycoding)
+for the rules and the list of ClinVar-defined codes.
 
 ---
 

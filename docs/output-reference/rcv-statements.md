@@ -21,7 +21,7 @@ Each record is a `Statement` with the following top-level fields:
 | `id` | string | RCV layer ID — e.g., `RCV001781420.1-G-PATH-CP` |
 | `type` | string | Always `Statement` |
 | `proposition` | string | `#/proposition<Meaning>/{id}` reference to the aggregate proposition (the section is set by the proposition `type`; see [ID References](id-references.md)) |
-| `classification` | object | MappableConcept — the aggregate classification label. See [Classification](#classification) |
+| `classification` | object | MappableConcept — the aggregate classification label and its `primaryCoding`. See [Classification](#classification) |
 | `strength` | object | MappableConcept — the aggregate evidence strength |
 | `direction` | string | `supports`, `disputes`, or `neutral` — derived from the aggregate classification |
 | `quality` | object | Concept struct with `conceptType: "Quality"` and `name` (the submission level label, e.g., `criteria provided`, `expert panel`) |
@@ -40,15 +40,22 @@ RCV statements use the same MappableConcept classification as VCV:
 
 ```json
 {
+  "type": "MappableConcept",
   "conceptType": "Classification",
   "name": "Pathogenic/Likely pathogenic",
-  "extensions": [
-    {"name": "conflictingExplanation", "value": "Pathogenic(3); Likely pathogenic(2)"}
-  ]
+  "primaryCoding": {
+    "code": "pathogenic/likely pathogenic",
+    "system": "ClinVar"
+  }
 }
 ```
 
 For somatic clinical impact (SCI) propositions, the classification label may include the tier, assertion type, and clinical significance.
+
+`primaryCoding` (from schema 1.2.0) follows the same rules as VCV: see
+[`classification.primaryCoding`](../pipeline/vcv-statements/vcv-aggregation-rules.md#classification-primarycoding).
+An SCI label is coded by its tier alone, without the assertion type, significance and count
+(`Tier I (Strong) - diagnostic - supports diagnosis (1)` → `tier 1` / `AMP/ASCO/CAP (AAC) Guidelines, 2017`).
 
 ---
 
