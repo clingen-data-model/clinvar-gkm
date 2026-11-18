@@ -74,9 +74,29 @@
       "predicate": "isOncogenicFor",
       "subject": "#/variation/clinvar:12582",
       "type": "VariantOncogenicityProposition"
+    },
+    "RCV004668724-S-ONCO-CP": {
+      "id": "RCV004668724-S-ONCO-CP",
+      "object": "#/condition/clinvar.trait:32759",
+      "predicate": "isOncogenicFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantOncogenicityProposition"
     }
   },
   "evidenceLine": {
+    "RCV004668724.2-S-ONCO-CP.contributing": {
+      "id": "RCV004668724.2-S-ONCO-CP.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV005094257.2"
+      ]
+    },
     "RCV004668724.2-S-ONCO.contributing": {
       "id": "RCV004668724.2-S-ONCO.contributing",
       "type": "EvidenceLine",
@@ -120,6 +140,36 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV004668724.2-S-ONCO.contributing"
+      ]
+    },
+    "RCV004668724.2-S-ONCO-CP": {
+      "id": "RCV004668724.2-S-ONCO-CP",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Definitive"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Oncogenic"
+      },
+      "proposition": "#/propositionOncogenicity/RCV004668724-S-ONCO-CP",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "criteria provided, single submitter"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/RCV004668724.2-S-ONCO-CP.contributing"
       ]
     }
   }

@@ -41,9 +41,30 @@
       "predicate": "hasDrugResponseFor",
       "subject": "#/variation/clinvar:7105",
       "type": "ClinvarDrugResponseProposition"
+    },
+    "VCV000007105-G-DR-EP": {
+      "id": "VCV000007105-G-DR-EP",
+      "object": "#/conditionSet/clinvar.conditionset:vcv-31b7744bc2e4d046583eb8516fd475b2",
+      "predicate": "hasDrugResponseFor",
+      "subject": "#/variation/clinvar:7105",
+      "type": "ClinvarDrugResponseProposition"
     }
   },
   "evidenceLine": {
+    "VCV000007105.214-G-DR-EP.contributing": {
+      "id": "VCV000007105.214-G-DR-EP.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV002031250.1",
+        "#/scv/clinvar.submission:SCV002031251.1"
+      ]
+    },
     "VCV000007105.214-G-DR.contributing": {
       "id": "VCV000007105.214-G-DR.contributing",
       "type": "EvidenceLine",
@@ -82,6 +103,31 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000007105.214-G-DR.contributing"
+      ]
+    },
+    "VCV000007105.214-G-DR-EP": {
+      "id": "VCV000007105.214-G-DR-EP",
+      "type": "Statement",
+      "direction": "supports",
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "expert panel"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "drug response"
+      },
+      "proposition": "#/propositionClinvarCustom/VCV000007105-G-DR-EP",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "reviewed by expert panel"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/VCV000007105.214-G-DR-EP.contributing"
       ]
     }
   }

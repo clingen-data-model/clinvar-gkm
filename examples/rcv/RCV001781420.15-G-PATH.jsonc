@@ -52,9 +52,30 @@
       "predicate": "isCausalFor",
       "subject": "#/variation/clinvar:97850",
       "type": "VariantPathogenicityProposition"
+    },
+    "RCV001781420-G-PATH-CP": {
+      "id": "RCV001781420-G-PATH-CP",
+      "object": "#/condition/clinvar.trait:42004",
+      "predicate": "isCausalFor",
+      "subject": "#/variation/clinvar:97850",
+      "type": "VariantPathogenicityProposition"
     }
   },
   "evidenceLine": {
+    "RCV001781420.15-G-PATH-CP.contributing": {
+      "id": "RCV001781420.15-G-PATH-CP.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV000397270.3",
+        "#/scv/clinvar.submission:SCV001524786.1"
+      ]
+    },
     "RCV001781420.15-G-PATH.contributing": {
       "id": "RCV001781420.15-G-PATH.contributing",
       "type": "EvidenceLine",
@@ -99,6 +120,37 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV001781420.15-G-PATH.contributing"
+      ]
+    },
+    "RCV001781420.15-G-PATH-CP": {
+      "id": "RCV001781420.15-G-PATH-CP",
+      "type": "Statement",
+      "direction": "neutral",
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Conflicting classifications of pathogenicity",
+        "extensions": [
+          {
+            "name": "conflictingExplanation",
+            "value": "Uncertain significance(1); Likely benign(1)"
+          }
+        ]
+      },
+      "proposition": "#/propositionPathogenicity/RCV001781420-G-PATH-CP",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "criteria provided, conflicting classifications"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/RCV001781420.15-G-PATH-CP.contributing"
       ]
     }
   }

@@ -19,23 +19,24 @@ It holds one **top record**, the record the file is named for, exactly as the bu
 `#/<section>/<key>` pointers, as in the bundle, not inline objects. The file also holds the records those pointers
 lead to, following pointers from those records in turn, with one exception.
 
-**The rule:** every pointer is followed, except pointers into the `scv`, `vcv`, `rcv` and `variation` sections. Those
-stay pointers, and their records are not in the file:
+**The rule:** every pointer is followed, except pointers into the `scv` and `variation` sections. Those stay
+pointers, and their records are not in the file:
 
 - `#/scv/…`: the submissions that a VCV or RCV statement aggregates. The `scv/` files are examples of SCVs.
-- `#/vcv/…` and `#/rcv/…`: the nested statements of the aggregation layers (for example a `…-G-PATH` statement's
-  evidence line points to `…-G-PATH-CP`).
 - `#/variation/…`: a proposition's `subject`. The two `cat-vrs/` files are examples of variations.
 
-So an SCV file holds the statement, its proposition, its submitter, its condition or condition set (with the set's
-member conditions), and any evidence line and therapy. A VCV or RCV file holds the statement, its proposition, its
-evidence lines, and its condition or condition set. A cat-vrs file holds the variation with its alleles, locations,
-sequence references and genes, so every pointer in it resolves.
+Pointers into `vcv` and `rcv` are followed, so a VCV or RCV file holds the whole aggregation hierarchy below its top
+statement: every nested layer statement (for example a `…-G-PATH` statement's evidence line points to `…-G-PATH-CP`;
+a somatic `…-S-SCI-CP` points on to `…-S-SCI-CP-T1`), each with its proposition, evidence lines, and condition or
+condition set. The hierarchy ends at the `#/scv/` pointers of the lowest layer. An SCV file holds the statement, its
+proposition, its submitter, its condition or condition set (with the set's member conditions), and any evidence line
+and therapy. A cat-vrs file holds the variation with its alleles, locations, sequence references and genes, so every
+pointer in it resolves.
 
 Every file validates against the bundle schema,
 [`clinvar-gkm-bundle.schema.json`](../schema/clinvar-gkm/clinvar-gkm-bundle.schema.json). The schema cannot check
-that pointers resolve, and these fragments do not promise it: a pointer into `scv`, `vcv`, `rcv` or `variation` names
-a record in the full bundle of the same release. A published bundle, full or delta, does resolve every pointer. For a
+that pointers resolve, and these fragments do not promise it: a pointer into `scv` or `variation` names a record in the
+full bundle of the same release. A published bundle, full or delta, does resolve every pointer. For a
 closed extract of a few statements, see [`sub-bundle.py`](../docs/pipeline/sub-bundle.md).
 
 ## Layout and naming
@@ -45,8 +46,10 @@ Files are keyed by their ClinVar accession so they map directly back to the bund
 - **`cat-vrs/clinvar:{variationId}.jsonc`**: a `CategoricalVariant` (`variation` section).
 - **`scv/{SCV}.{version}-{code}.jsonc|.json`**: the VA-Spec `Statement` for one submission (`scv` section, key
   `clinvar.submission:{SCV}.{version}`).
-- **`vcv/{VCV}.{version}-{group}-{code}.jsonc`**: the top aggregate VCV `Statement` (`vcv` section, same key).
-- **`rcv/{RCV}.{version}-{group}-{code}.jsonc`**: the top RCV `Statement` (`rcv` section, same key).
+- **`vcv/{VCV}.{version}-{group}-{code}.jsonc`**: the top aggregate VCV `Statement` (`vcv` section, same key) and
+  its nested layer statements.
+- **`rcv/{RCV}.{version}-{group}-{code}.jsonc`**: the top RCV `Statement` (`rcv` section, same key) and its nested
+  layer statements.
 
 The files are plain JSON (none has comments); the `.jsonc` names are kept so links to them stay stable.
 

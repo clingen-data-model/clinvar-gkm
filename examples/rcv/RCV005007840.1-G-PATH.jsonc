@@ -876,9 +876,29 @@
       "predicate": "isCausalFor",
       "subject": "#/variation/clinvar:12582",
       "type": "VariantPathogenicityProposition"
+    },
+    "RCV005007840-G-PATH-CP": {
+      "id": "RCV005007840-G-PATH-CP",
+      "object": "#/conditionSet/clinvar.traitset:100171",
+      "predicate": "isCausalFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantPathogenicityProposition"
     }
   },
   "evidenceLine": {
+    "RCV005007840.1-G-PATH-CP.contributing": {
+      "id": "RCV005007840.1-G-PATH-CP.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV005634967.1"
+      ]
+    },
     "RCV005007840.1-G-PATH.contributing": {
       "id": "RCV005007840.1-G-PATH.contributing",
       "type": "EvidenceLine",
@@ -922,6 +942,36 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV005007840.1-G-PATH.contributing"
+      ]
+    },
+    "RCV005007840.1-G-PATH-CP": {
+      "id": "RCV005007840.1-G-PATH-CP",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Definitive"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Pathogenic"
+      },
+      "proposition": "#/propositionPathogenicity/RCV005007840-G-PATH-CP",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "criteria provided, single submitter"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/RCV005007840.1-G-PATH-CP.contributing"
       ]
     }
   }

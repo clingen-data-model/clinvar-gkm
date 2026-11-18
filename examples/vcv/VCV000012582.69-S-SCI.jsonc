@@ -203,6 +203,69 @@
         }
       ]
     },
+    "clinvar.trait:32349": {
+      "id": "clinvar.trait:32349",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Colorectal cancer",
+      "aliases": [
+        "Colorectal cancer, somatic",
+        "Malignant Colorectal Neoplasm"
+      ],
+      "primaryCoding": {
+        "name": "Colorectal cancer",
+        "code": "C0346629",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C0346629",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0346629"
+        ]
+      },
+      "mappings": [
+        {
+          "coding": {
+            "code": "0005575",
+            "system": "https://mondo.monarchinitiative.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/MONDO_0005575",
+              "https://identifiers.org/mondo:0005575"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "NBK1211",
+            "system": "https://www.ncbi.nlm.nih.gov/books/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/books/NBK1211"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000500646",
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000500646"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "114500",
+            "system": "https://www.omim.org/",
+            "iris": [
+              "https://identifiers.org/mim:114500",
+              "https://www.omim.org/entry/114500"
+            ]
+          },
+          "relation": "relatedMatch"
+        }
+      ]
+    },
     "clinvar.trait:37720": {
       "id": "clinvar.trait:37720",
       "type": "MappableConcept",
@@ -329,6 +392,82 @@
         }
       ]
     },
+    "clinvar.trait:4352": {
+      "id": "clinvar.trait:4352",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Alveolar rhabdomyosarcoma",
+      "aliases": [
+        "RHABDOMYOSARCOMA 2",
+        "Alveolar rhabdomyosarcoma (disease)"
+      ],
+      "primaryCoding": {
+        "name": "Alveolar rhabdomyosarcoma",
+        "code": "C0206655",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C0206655",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0206655"
+        ]
+      },
+      "mappings": [
+        {
+          "coding": {
+            "code": "0006779",
+            "system": "https://hpo.jax.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/HP_0006779",
+              "https://identifiers.org/HP:0006779"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "0009994",
+            "system": "https://mondo.monarchinitiative.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/MONDO_0009994",
+              "https://identifiers.org/mondo:0009994"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "268220",
+            "system": "https://www.omim.org/",
+            "iris": [
+              "https://identifiers.org/mim:268220",
+              "https://www.omim.org/entry/268220"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "780",
+            "system": "https://www.orpha.net/",
+            "iris": [
+              "http://www.orpha.net/ORDO/Orphanet_780",
+              "https://identifiers.org/orphanet:780"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "99756",
+            "system": "https://www.orpha.net/",
+            "iris": [
+              "http://www.orpha.net/ORDO/Orphanet_99756",
+              "https://identifiers.org/orphanet:99756"
+            ]
+          },
+          "relation": "relatedMatch"
+        }
+      ]
+    },
     "clinvar.trait:44673": {
       "id": "clinvar.trait:44673",
       "type": "MappableConcept",
@@ -368,6 +507,34 @@
         }
       ]
     },
+    "clinvar.trait:67946": {
+      "id": "clinvar.trait:67946",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Medulloblastoma non-WNT/non-SHH",
+      "primaryCoding": {
+        "name": "Medulloblastoma non-WNT/non-SHH",
+        "code": "C4330667",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C4330667",
+          "https://www.ncbi.nlm.nih.gov/medgen/C4330667"
+        ]
+      },
+      "mappings": [
+        {
+          "coding": {
+            "code": "0850198",
+            "system": "https://mondo.monarchinitiative.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/MONDO_0850198",
+              "https://identifiers.org/mondo:0850198"
+            ]
+          },
+          "relation": "relatedMatch"
+        }
+      ]
+    },
     "clinvar.trait:67996": {
       "id": "clinvar.trait:67996",
       "type": "MappableConcept",
@@ -395,6 +562,34 @@
           "relation": "relatedMatch"
         }
       ]
+    },
+    "clinvar.trait:73010": {
+      "id": "clinvar.trait:73010",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Diffuse midline glioma, H3 K27M-mutant",
+      "primaryCoding": {
+        "name": "Diffuse midline glioma, H3 K27M-mutant",
+        "code": "C4289688",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C4289688",
+          "https://www.ncbi.nlm.nih.gov/medgen/C4289688"
+        ]
+      },
+      "mappings": [
+        {
+          "coding": {
+            "code": "0957196",
+            "system": "https://mondo.monarchinitiative.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/MONDO_0957196",
+              "https://identifiers.org/mondo:0957196"
+            ]
+          },
+          "relation": "relatedMatch"
+        }
+      ]
     }
   },
   "conditionSet": {
@@ -411,6 +606,16 @@
         "#/condition/clinvar.trait:67996"
       ],
       "membershipOperator": "OR"
+    },
+    "clinvar.conditionset:vcv-bb7bbe4b9359ca3cee03dda641611e4c": {
+      "id": "clinvar.conditionset:vcv-bb7bbe4b9359ca3cee03dda641611e4c",
+      "type": "ConceptSet",
+      "concepts": [
+        "#/condition/clinvar.trait:4352",
+        "#/condition/clinvar.trait:67946",
+        "#/condition/clinvar.trait:73010"
+      ],
+      "membershipOperator": "OR"
     }
   },
   "propositionSomaticClinicalImpact": {
@@ -420,9 +625,130 @@
       "predicate": "hasClinicalSignificanceFor",
       "subject": "#/variation/clinvar:12582",
       "type": "VariantClinicalSignificanceProposition"
+    },
+    "VCV000012582-S-SCI-CP": {
+      "id": "VCV000012582-S-SCI-CP",
+      "object": "#/conditionSet/clinvar.conditionset:vcv-858088cbd92576605b628f50bfea8d5d",
+      "predicate": "hasClinicalSignificanceFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantClinicalSignificanceProposition"
+    },
+    "VCV000012582-S-SCI-CP-T1": {
+      "id": "VCV000012582-S-SCI-CP-T1",
+      "object": "#/conditionSet/clinvar.conditionset:vcv-858088cbd92576605b628f50bfea8d5d",
+      "predicate": "hasClinicalSignificanceFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantClinicalSignificanceProposition"
+    },
+    "VCV000012582-S-SCI-CP-T2": {
+      "id": "VCV000012582-S-SCI-CP-T2",
+      "object": "#/conditionSet/clinvar.conditionset:vcv-bb7bbe4b9359ca3cee03dda641611e4c",
+      "predicate": "hasClinicalSignificanceFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantClinicalSignificanceProposition"
+    },
+    "VCV000012582-S-SCI-NOCP": {
+      "id": "VCV000012582-S-SCI-NOCP",
+      "object": "#/condition/clinvar.trait:32349",
+      "predicate": "hasClinicalSignificanceFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantClinicalSignificanceProposition"
+    },
+    "VCV000012582-S-SCI-NOCP-T1": {
+      "id": "VCV000012582-S-SCI-NOCP-T1",
+      "object": "#/condition/clinvar.trait:32349",
+      "predicate": "hasClinicalSignificanceFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantClinicalSignificanceProposition"
     }
   },
   "evidenceLine": {
+    "VCV000012582.69-S-SCI-CP-T1.contributing": {
+      "id": "VCV000012582.69-S-SCI-CP-T1.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV007105405.1",
+        "#/scv/clinvar.submission:SCV007105406.1",
+        "#/scv/clinvar.submission:SCV007105409.1",
+        "#/scv/clinvar.submission:SCV007105415.1",
+        "#/scv/clinvar.submission:SCV007105422.1",
+        "#/scv/clinvar.submission:SCV007105432.1",
+        "#/scv/clinvar.submission:SCV007105520.1"
+      ]
+    },
+    "VCV000012582.69-S-SCI-CP-T2.contributing": {
+      "id": "VCV000012582.69-S-SCI-CP-T2.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV007105413.1",
+        "#/scv/clinvar.submission:SCV007105418.1",
+        "#/scv/clinvar.submission:SCV007105434.1"
+      ]
+    },
+    "VCV000012582.69-S-SCI-CP.contributing": {
+      "id": "VCV000012582.69-S-SCI-CP.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/vcv/VCV000012582.69-S-SCI-CP-T1"
+      ]
+    },
+    "VCV000012582.69-S-SCI-CP.non-contributing": {
+      "id": "VCV000012582.69-S-SCI-CP.non-contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "neutral",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Non-contributing"
+      },
+      "hasEvidenceItems": [
+        "#/vcv/VCV000012582.69-S-SCI-CP-T2"
+      ]
+    },
+    "VCV000012582.69-S-SCI-NOCP-T1.contributing": {
+      "id": "VCV000012582.69-S-SCI-NOCP-T1.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV006076878.1"
+      ]
+    },
+    "VCV000012582.69-S-SCI-NOCP.contributing": {
+      "id": "VCV000012582.69-S-SCI-NOCP.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/vcv/VCV000012582.69-S-SCI-NOCP-T1"
+      ]
+    },
     "VCV000012582.69-S-SCI.contributing": {
       "id": "VCV000012582.69-S-SCI.contributing",
       "type": "EvidenceLine",
@@ -474,6 +800,145 @@
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000012582.69-S-SCI.contributing",
         "#/evidenceLine/VCV000012582.69-S-SCI.non-contributing"
+      ]
+    },
+    "VCV000012582.69-S-SCI-CP": {
+      "id": "VCV000012582.69-S-SCI-CP",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Strong"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Tier I (Strong)"
+      },
+      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI-CP",
+      "hasEvidenceLines": [
+        "#/evidenceLine/VCV000012582.69-S-SCI-CP.contributing",
+        "#/evidenceLine/VCV000012582.69-S-SCI-CP.non-contributing"
+      ]
+    },
+    "VCV000012582.69-S-SCI-CP-T1": {
+      "id": "VCV000012582.69-S-SCI-CP-T1",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Strong"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Tier I (Strong)"
+      },
+      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI-CP-T1",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "criteria provided, single submitter"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/VCV000012582.69-S-SCI-CP-T1.contributing"
+      ]
+    },
+    "VCV000012582.69-S-SCI-CP-T2": {
+      "id": "VCV000012582.69-S-SCI-CP-T2",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Strong"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Tier II (Potential)"
+      },
+      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI-CP-T2",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "criteria provided, single submitter"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/VCV000012582.69-S-SCI-CP-T2.contributing"
+      ]
+    },
+    "VCV000012582.69-S-SCI-NOCP": {
+      "id": "VCV000012582.69-S-SCI-NOCP",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Strong"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "no assertion criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Tier I (Strong)"
+      },
+      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI-NOCP",
+      "hasEvidenceLines": [
+        "#/evidenceLine/VCV000012582.69-S-SCI-NOCP.contributing"
+      ]
+    },
+    "VCV000012582.69-S-SCI-NOCP-T1": {
+      "id": "VCV000012582.69-S-SCI-NOCP-T1",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Strong"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "no assertion criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Tier I (Strong)"
+      },
+      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI-NOCP-T1",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "no assertion criteria provided"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/VCV000012582.69-S-SCI-NOCP-T1.contributing"
       ]
     }
   }

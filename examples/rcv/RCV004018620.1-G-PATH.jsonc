@@ -24,9 +24,29 @@
       "predicate": "isCausalFor",
       "subject": "#/variation/clinvar:12582",
       "type": "VariantPathogenicityProposition"
+    },
+    "RCV004018620-G-PATH-CP": {
+      "id": "RCV004018620-G-PATH-CP",
+      "object": "#/condition/clinvar.trait:33389",
+      "predicate": "isCausalFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantPathogenicityProposition"
     }
   },
   "evidenceLine": {
+    "RCV004018620.1-G-PATH-CP.contributing": {
+      "id": "RCV004018620.1-G-PATH-CP.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV005023563.1"
+      ]
+    },
     "RCV004018620.1-G-PATH.contributing": {
       "id": "RCV004018620.1-G-PATH.contributing",
       "type": "EvidenceLine",
@@ -70,6 +90,36 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV004018620.1-G-PATH.contributing"
+      ]
+    },
+    "RCV004018620.1-G-PATH-CP": {
+      "id": "RCV004018620.1-G-PATH-CP",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Likely"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Likely pathogenic"
+      },
+      "proposition": "#/propositionPathogenicity/RCV004018620-G-PATH-CP",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "criteria provided, single submitter"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/RCV004018620.1-G-PATH-CP.contributing"
       ]
     }
   }

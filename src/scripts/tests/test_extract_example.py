@@ -1,5 +1,5 @@
 """extract-example.py builds the examples/ fragments from a published bundle: the top record plus everything it
-references, except statements and variations, which stay pointers."""
+references, except SCVs and variations, which stay pointers. A VCV or RCV fragment holds its nested statements."""
 
 import gzip
 import importlib.util
@@ -71,14 +71,24 @@ def test_pointers_finds_nested_refs_only():
     assert sorted(ex.pointers(rec)) == [("condition", "clinvar.trait:1"), ("gene", "ncbigene:1")]
 
 
-def test_closure_keeps_statement_and_variation_pointers():
+def test_closure_follows_nested_statements_and_keeps_scv_and_variation_pointers():
     have = {("vcv", "V"): {"x": "#/evidenceLine/E", "p": "#/propositionPathogenicity/P"},
-            ("evidenceLine", "E"): {"items": ["#/vcv/V-CP", "#/scv/S"]},
+            ("evidenceLine", "E"): {"items": ["#/vcv/V-CP"]},
+            ("vcv", "V-CP"): {"x": "#/evidenceLine/E-CP", "p": "#/propositionPathogenicity/P"},
+            ("evidenceLine", "E-CP"): {"items": ["#/vcv/V-CP-T1", "#/scv/S1"]},
             ("propositionPathogenicity", "P"): {"subject": "#/variation/clinvar:1", "object": "#/condition/C"}}
     records, missing, kept = ex.closure(("vcv", "V"), have.get)
     assert set(records) == set(have)
-    assert missing == {("condition", "C")}
-    assert kept == {("vcv", "V-CP"), ("scv", "S"), ("variation", "clinvar:1")}
+    assert missing == {("condition", "C"), ("vcv", "V-CP-T1")}  # followed to every layer, not kept
+    assert kept == {("scv", "S1"), ("variation", "clinvar:1")}
+
+
+def test_closure_of_an_scv_keeps_statement_pointers():
+    have = {("scv", "S"): {"x": "#/evidenceLine/E", "y": "#/vcv/V", "z": "#/rcv/R"},
+            ("evidenceLine", "E"): {"items": ["#/scv/S2"]}}
+    records, missing, kept = ex.closure(("scv", "S"), have.get)
+    assert set(records) == set(have) and missing == set()
+    assert kept == {("vcv", "V"), ("rcv", "R"), ("scv", "S2")}
 
 
 def test_key_patterns_and_file_names():
@@ -116,10 +126,12 @@ def test_extract_builds_bounded_fragments_over_several_passes(bundle):
     top, records, kept = results["vcv"]
     assert top == "VCV000000001.2-G-PATH"
     assert set(records) == {("vcv", top), ("evidenceLine", "VCV000000001.2-G-PATH.contributing"),
+                            ("vcv", "VCV000000001.2-G-PATH-CP"),
+                            ("evidenceLine", "VCV000000001.2-G-PATH-CP.contributing"),
                             ("propositionPathogenicity", "VCV000000001-PATH"),
                             ("conditionSet", "clinvar.traitset:1"),
                             ("condition", "clinvar.trait:1"), ("condition", "clinvar.trait:2")}
-    assert kept == {("vcv", "VCV000000001.2-G-PATH-CP"), ("variation", "clinvar:1")}
+    assert kept == {("scv", "clinvar.submission:SCV000000001.3"), ("variation", "clinvar:1")}
     assert records[("vcv", top)] == BUNDLE["vcv"][top]  # verbatim
 
     _, records, kept = results["scv"]

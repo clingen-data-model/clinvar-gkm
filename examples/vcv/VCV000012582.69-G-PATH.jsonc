@@ -329,6 +329,37 @@
         }
       ]
     },
+    "clinvar.trait:28734": {
+      "id": "clinvar.trait:28734",
+      "type": "MappableConcept",
+      "conceptType": "Phenotype",
+      "name": "Nevus sebaceous",
+      "aliases": [
+        "NEVUS SEBACEOUS, SOMATIC"
+      ],
+      "primaryCoding": {
+        "name": "Nevus sebaceous",
+        "code": "C3854181",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C3854181",
+          "https://www.ncbi.nlm.nih.gov/medgen/C3854181"
+        ]
+      },
+      "mappings": [
+        {
+          "coding": {
+            "code": "0010815",
+            "system": "https://hpo.jax.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/HP_0010815",
+              "https://identifiers.org/HP:0010815"
+            ]
+          },
+          "relation": "relatedMatch"
+        }
+      ]
+    },
     "clinvar.trait:30012": {
       "id": "clinvar.trait:30012",
       "type": "MappableConcept",
@@ -479,6 +510,27 @@
         "iris": [
           "https://identifiers.org/medgen:CN230736",
           "https://www.ncbi.nlm.nih.gov/medgen/CN230736"
+        ]
+      }
+    },
+    "clinvar.trait:40271": {
+      "id": "clinvar.trait:40271",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Vascular Tumors Including Pyogenic Granuloma"
+    },
+    "clinvar.trait:43103": {
+      "id": "clinvar.trait:43103",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Primary low grade serous adenocarcinoma of ovary",
+      "primaryCoding": {
+        "name": "Primary low grade serous adenocarcinoma of ovary",
+        "code": "C4302356",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C4302356",
+          "https://www.ncbi.nlm.nih.gov/medgen/C4302356"
         ]
       }
     },
@@ -754,6 +806,70 @@
         }
       ]
     },
+    "clinvar.trait:5353": {
+      "id": "clinvar.trait:5353",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Juvenile myelomonocytic leukemia",
+      "aliases": [
+        "LEUKEMIA, JUVENILE MYELOMONOCYTIC, SOMATIC"
+      ],
+      "primaryCoding": {
+        "name": "Juvenile myelomonocytic leukemia",
+        "code": "C0349639",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C0349639",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0349639"
+        ]
+      },
+      "mappings": [
+        {
+          "coding": {
+            "code": "0012209",
+            "system": "https://hpo.jax.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/HP_0012209",
+              "https://identifiers.org/HP:0012209"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "0011908",
+            "system": "https://mondo.monarchinitiative.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/MONDO_0011908",
+              "https://identifiers.org/mondo:0011908"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "607785",
+            "system": "https://www.omim.org/",
+            "iris": [
+              "https://identifiers.org/mim:607785",
+              "https://www.omim.org/entry/607785"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "86834",
+            "system": "https://www.orpha.net/",
+            "iris": [
+              "http://www.orpha.net/ORDO/Orphanet_86834",
+              "https://identifiers.org/orphanet:86834"
+            ]
+          },
+          "relation": "relatedMatch"
+        }
+      ]
+    },
     "clinvar.trait:536": {
       "id": "clinvar.trait:536",
       "type": "MappableConcept",
@@ -922,6 +1038,385 @@
         }
       ]
     },
+    "clinvar.trait:5647": {
+      "id": "clinvar.trait:5647",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Epidermal nevus",
+      "aliases": [
+        "NEVUS, KERATINOCYTIC, NONEPIDERMOLYTIC",
+        "Nevus, epidermal, somatic"
+      ],
+      "primaryCoding": {
+        "name": "Epidermal nevus",
+        "code": "C0334082",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C0334082",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0334082"
+        ]
+      },
+      "mappings": [
+        {
+          "coding": {
+            "code": "0010816",
+            "system": "https://hpo.jax.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/HP_0010816",
+              "https://identifiers.org/HP:0010816"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "0008093",
+            "system": "https://mondo.monarchinitiative.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/MONDO_0008093",
+              "https://identifiers.org/mondo:0008093"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "NBK153722",
+            "system": "https://www.ncbi.nlm.nih.gov/books/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/books/NBK153722"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "162900",
+            "system": "https://www.omim.org/",
+            "iris": [
+              "https://identifiers.org/mim:162900",
+              "https://www.omim.org/entry/162900"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "79414",
+            "system": "https://www.orpha.net/",
+            "iris": [
+              "http://www.orpha.net/ORDO/Orphanet_79414",
+              "https://identifiers.org/orphanet:79414"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "25201003",
+            "system": "https://www.snomed.org/",
+            "iris": [
+              "https://identifiers.org/snomedct:25201003"
+            ]
+          },
+          "relation": "relatedMatch"
+        }
+      ]
+    },
+    "clinvar.trait:5713": {
+      "id": "clinvar.trait:5713",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Ovarian neoplasm",
+      "aliases": [
+        "Neoplasm of ovary",
+        "Ovarian tumor",
+        "Ovarian Neoplasms"
+      ],
+      "primaryCoding": {
+        "name": "Ovarian neoplasm",
+        "code": "C0919267",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C0919267",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0919267"
+        ]
+      },
+      "mappings": [
+        {
+          "coding": {
+            "code": "0100615",
+            "system": "https://hpo.jax.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/HP_0100615",
+              "https://identifiers.org/HP:0100615"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "D010051",
+            "system": "https://id.nlm.nih.gov/mesh/",
+            "iris": [
+              "https://identifiers.org/mesh:D010051",
+              "https://www.ncbi.nlm.nih.gov/mesh/?term=D010051"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "0021068",
+            "system": "https://mondo.monarchinitiative.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/MONDO_0021068",
+              "https://identifiers.org/mondo:0021068"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "123843001",
+            "system": "https://www.snomed.org/",
+            "iris": [
+              "https://identifiers.org/snomedct:123843001"
+            ]
+          },
+          "relation": "relatedMatch"
+        }
+      ]
+    },
+    "clinvar.trait:5725": {
+      "id": "clinvar.trait:5725",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Carcinoma of pancreas",
+      "aliases": [
+        "PANCREATIC ACINAR CARCINOMA",
+        "PANCREATIC CARCINOMA",
+        "Pancreatic cancer, somatic",
+        "Pancreatic carcinoma, somatic",
+        "Exocrine pancreatic carcinoma"
+      ],
+      "primaryCoding": {
+        "name": "Carcinoma of pancreas",
+        "code": "C0235974",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C0235974",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0235974"
+        ]
+      },
+      "mappings": [
+        {
+          "coding": {
+            "code": "0005192",
+            "system": "https://mondo.monarchinitiative.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/MONDO_0005192",
+              "https://identifiers.org/mondo:0005192"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000514885",
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000514885"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000520869",
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000520869"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000528054",
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000528054"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000528055",
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000528055"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000530120",
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000530120"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000552440",
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000552440"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000593406",
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000593406"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000597429",
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000597429"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "260350",
+            "system": "https://www.omim.org/",
+            "iris": [
+              "https://identifiers.org/mim:260350",
+              "https://www.omim.org/entry/260350"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "1333",
+            "system": "https://www.orpha.net/",
+            "iris": [
+              "http://www.orpha.net/ORDO/Orphanet_1333",
+              "https://identifiers.org/orphanet:1333"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "217074",
+            "system": "https://www.orpha.net/",
+            "iris": [
+              "http://www.orpha.net/ORDO/Orphanet_217074",
+              "https://identifiers.org/orphanet:217074"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "372142002",
+            "system": "https://www.snomed.org/",
+            "iris": [
+              "https://identifiers.org/snomedct:372142002"
+            ]
+          },
+          "relation": "relatedMatch"
+        }
+      ]
+    },
+    "clinvar.trait:652": {
+      "id": "clinvar.trait:652",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Capillary malformation-arteriovenous malformation 1",
+      "primaryCoding": {
+        "name": "Capillary malformation-arteriovenous malformation 1",
+        "code": "C4747394",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C4747394",
+          "https://www.ncbi.nlm.nih.gov/medgen/C4747394"
+        ]
+      },
+      "mappings": [
+        {
+          "coding": {
+            "code": "0020783",
+            "system": "https://mondo.monarchinitiative.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/MONDO_0020783",
+              "https://identifiers.org/mondo:0020783"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "NBK52764",
+            "system": "https://www.ncbi.nlm.nih.gov/books/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/books/NBK52764"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "608354",
+            "system": "https://www.omim.org/",
+            "iris": [
+              "https://identifiers.org/mim:608354",
+              "https://www.omim.org/entry/608354"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "137667",
+            "system": "https://www.orpha.net/",
+            "iris": [
+              "http://www.orpha.net/ORDO/Orphanet_137667",
+              "https://identifiers.org/orphanet:137667"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "693907",
+            "system": "https://www.orpha.net/",
+            "iris": [
+              "http://www.orpha.net/ORDO/Orphanet_693907",
+              "https://identifiers.org/orphanet:693907"
+            ]
+          },
+          "relation": "relatedMatch"
+        }
+      ]
+    },
     "clinvar.trait:68845": {
       "id": "clinvar.trait:68845",
       "type": "MappableConcept",
@@ -937,9 +1432,130 @@
       "type": "MappableConcept",
       "conceptType": "Disease",
       "name": "Congenital Pulmonary Airway Malformations"
+    },
+    "clinvar.trait:7728": {
+      "id": "clinvar.trait:7728",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Non-small cell lung carcinoma",
+      "aliases": [
+        "Non-small cell lung cancer"
+      ],
+      "primaryCoding": {
+        "name": "Non-small cell lung carcinoma",
+        "code": "C0007131",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C0007131",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0007131"
+        ]
+      },
+      "mappings": [
+        {
+          "coding": {
+            "code": "0030358",
+            "system": "https://hpo.jax.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/HP_0030358",
+              "https://identifiers.org/HP:0030358"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "D002289",
+            "system": "https://id.nlm.nih.gov/mesh/",
+            "iris": [
+              "https://identifiers.org/mesh:D002289",
+              "https://www.ncbi.nlm.nih.gov/mesh/?term=D002289"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "0005233",
+            "system": "https://mondo.monarchinitiative.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/MONDO_0005233",
+              "https://identifiers.org/mondo:0005233"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000569877",
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000569877"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000571363",
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000571363"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "GTR000597429",
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
+            "iris": [
+              "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000597429"
+            ]
+          },
+          "relation": "relatedMatch"
+        },
+        {
+          "coding": {
+            "code": "254637007",
+            "system": "https://www.snomed.org/",
+            "iris": [
+              "https://identifiers.org/snomedct:254637007"
+            ]
+          },
+          "relation": "relatedMatch"
+        }
+      ]
+    },
+    "clinvar.trait:81971": {
+      "id": "clinvar.trait:81971",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "RAS-ASSOCIATED AUTOIMMUNE LEUKOPROLIFERATIVE DISORDER 2, SOMATIC"
     }
   },
   "conditionSet": {
+    "clinvar.conditionset:vcv-264ece9dbe2854fe26b9944c4eb2e2a0": {
+      "id": "clinvar.conditionset:vcv-264ece9dbe2854fe26b9944c4eb2e2a0",
+      "type": "ConceptSet",
+      "concepts": [
+        "#/condition/clinvar.trait:15736",
+        "#/condition/clinvar.trait:17556",
+        "#/condition/clinvar.trait:28734",
+        "#/condition/clinvar.trait:30012",
+        "#/condition/clinvar.trait:40271",
+        "#/condition/clinvar.trait:43103",
+        "#/condition/clinvar.trait:4371",
+        "#/condition/clinvar.trait:4617",
+        "#/condition/clinvar.trait:5353",
+        "#/condition/clinvar.trait:5647",
+        "#/condition/clinvar.trait:5713",
+        "#/condition/clinvar.trait:5725",
+        "#/condition/clinvar.trait:652",
+        "#/condition/clinvar.trait:7728",
+        "#/condition/clinvar.trait:81971"
+      ],
+      "membershipOperator": "OR"
+    },
     "clinvar.conditionset:vcv-fb4d56e7d04da0a2e820e72c64ca6a77": {
       "id": "clinvar.conditionset:vcv-fb4d56e7d04da0a2e820e72c64ca6a77",
       "type": "ConceptSet",
@@ -983,9 +1599,82 @@
       "predicate": "isCausalFor",
       "subject": "#/variation/clinvar:12582",
       "type": "VariantPathogenicityProposition"
+    },
+    "VCV000012582-G-PATH-CP": {
+      "id": "VCV000012582-G-PATH-CP",
+      "object": "#/conditionSet/clinvar.conditionset:vcv-fb4d56e7d04da0a2e820e72c64ca6a77",
+      "predicate": "isCausalFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantPathogenicityProposition"
+    },
+    "VCV000012582-G-PATH-NOCP": {
+      "id": "VCV000012582-G-PATH-NOCP",
+      "object": "#/conditionSet/clinvar.conditionset:vcv-264ece9dbe2854fe26b9944c4eb2e2a0",
+      "predicate": "isCausalFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantPathogenicityProposition"
     }
   },
   "evidenceLine": {
+    "VCV000012582.69-G-PATH-CP.contributing": {
+      "id": "VCV000012582.69-G-PATH-CP.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV000329383.7",
+        "#/scv/clinvar.submission:SCV000659085.3",
+        "#/scv/clinvar.submission:SCV001736991.1",
+        "#/scv/clinvar.submission:SCV002318898.4",
+        "#/scv/clinvar.submission:SCV002525678.1",
+        "#/scv/clinvar.submission:SCV002601600.1",
+        "#/scv/clinvar.submission:SCV002821689.27",
+        "#/scv/clinvar.submission:SCV004176950.1",
+        "#/scv/clinvar.submission:SCV005023563.1",
+        "#/scv/clinvar.submission:SCV005044128.1",
+        "#/scv/clinvar.submission:SCV005414064.1",
+        "#/scv/clinvar.submission:SCV005634967.1",
+        "#/scv/clinvar.submission:SCV006304919.1",
+        "#/scv/clinvar.submission:SCV007538136.1",
+        "#/scv/clinvar.submission:SCV007771141.1"
+      ]
+    },
+    "VCV000012582.69-G-PATH-NOCP.contributing": {
+      "id": "VCV000012582.69-G-PATH-NOCP.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV000033658.6",
+        "#/scv/clinvar.submission:SCV000033659.6",
+        "#/scv/clinvar.submission:SCV000044088.6",
+        "#/scv/clinvar.submission:SCV000051860.6",
+        "#/scv/clinvar.submission:SCV000051861.6",
+        "#/scv/clinvar.submission:SCV000191996.5",
+        "#/scv/clinvar.submission:SCV000198478.2",
+        "#/scv/clinvar.submission:SCV000198479.2",
+        "#/scv/clinvar.submission:SCV000198480.2",
+        "#/scv/clinvar.submission:SCV000611562.1",
+        "#/scv/clinvar.submission:SCV000693723.1",
+        "#/scv/clinvar.submission:SCV000784594.1",
+        "#/scv/clinvar.submission:SCV000882686.2",
+        "#/scv/clinvar.submission:SCV000882700.3",
+        "#/scv/clinvar.submission:SCV000992585.2",
+        "#/scv/clinvar.submission:SCV000999192.1",
+        "#/scv/clinvar.submission:SCV001550138.2",
+        "#/scv/clinvar.submission:SCV001571657.2",
+        "#/scv/clinvar.submission:SCV001739511.1",
+        "#/scv/clinvar.submission:SCV007591183.1"
+      ]
+    },
     "VCV000012582.69-G-PATH.contributing": {
       "id": "VCV000012582.69-G-PATH.contributing",
       "type": "EvidenceLine",
@@ -1038,6 +1727,56 @@
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000012582.69-G-PATH.contributing",
         "#/evidenceLine/VCV000012582.69-G-PATH.non-contributing"
+      ]
+    },
+    "VCV000012582.69-G-PATH-CP": {
+      "id": "VCV000012582.69-G-PATH-CP",
+      "type": "Statement",
+      "direction": "supports",
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Pathogenic/Likely pathogenic"
+      },
+      "proposition": "#/propositionPathogenicity/VCV000012582-G-PATH-CP",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "criteria provided, multiple submitters, no conflicts"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/VCV000012582.69-G-PATH-CP.contributing"
+      ]
+    },
+    "VCV000012582.69-G-PATH-NOCP": {
+      "id": "VCV000012582.69-G-PATH-NOCP",
+      "type": "Statement",
+      "direction": "supports",
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "no assertion criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Pathogenic/Likely pathogenic"
+      },
+      "proposition": "#/propositionPathogenicity/VCV000012582-G-PATH-NOCP",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "no assertion criteria provided"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/VCV000012582.69-G-PATH-NOCP.contributing"
       ]
     }
   }

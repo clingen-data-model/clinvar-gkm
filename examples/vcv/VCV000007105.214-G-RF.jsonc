@@ -24,9 +24,29 @@
       "predicate": "isRiskFactorFor",
       "subject": "#/variation/clinvar:7105",
       "type": "ClinvarRiskFactorProposition"
+    },
+    "VCV000007105-G-RF-NOCP": {
+      "id": "VCV000007105-G-RF-NOCP",
+      "object": "#/condition/clinvar.trait:10302",
+      "predicate": "isRiskFactorFor",
+      "subject": "#/variation/clinvar:7105",
+      "type": "ClinvarRiskFactorProposition"
     }
   },
   "evidenceLine": {
+    "VCV000007105.214-G-RF-NOCP.contributing": {
+      "id": "VCV000007105.214-G-RF-NOCP.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV000053487.10"
+      ]
+    },
     "VCV000007105.214-G-RF.contributing": {
       "id": "VCV000007105.214-G-RF.contributing",
       "type": "EvidenceLine",
@@ -65,6 +85,31 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000007105.214-G-RF.contributing"
+      ]
+    },
+    "VCV000007105.214-G-RF-NOCP": {
+      "id": "VCV000007105.214-G-RF-NOCP",
+      "type": "Statement",
+      "direction": "supports",
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "no assertion criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "risk factor"
+      },
+      "proposition": "#/propositionClinvarCustom/VCV000007105-G-RF-NOCP",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "no assertion criteria provided"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/VCV000007105.214-G-RF-NOCP.contributing"
       ]
     }
   }

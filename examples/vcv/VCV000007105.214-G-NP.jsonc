@@ -466,9 +466,32 @@
       "predicate": "hasNoProvidedClassificationFor",
       "subject": "#/variation/clinvar:7105",
       "type": "ClinvarNotProvidedProposition"
+    },
+    "VCV000007105-G-NP-NOCL": {
+      "id": "VCV000007105-G-NP-NOCL",
+      "object": "#/conditionSet/clinvar.conditionset:vcv-f1a8a179cff521852c056c8cf4eb2ee7",
+      "predicate": "hasNoProvidedClassificationFor",
+      "subject": "#/variation/clinvar:7105",
+      "type": "ClinvarNotProvidedProposition"
     }
   },
   "evidenceLine": {
+    "VCV000007105.214-G-NP-NOCL.contributing": {
+      "id": "VCV000007105.214-G-NP-NOCL.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV000090450.1",
+        "#/scv/clinvar.submission:SCV000153744.3",
+        "#/scv/clinvar.submission:SCV000607274.4",
+        "#/scv/clinvar.submission:SCV001622798.2"
+      ]
+    },
     "VCV000007105.214-G-NP.contributing": {
       "id": "VCV000007105.214-G-NP.contributing",
       "type": "EvidenceLine",
@@ -507,6 +530,31 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000007105.214-G-NP.contributing"
+      ]
+    },
+    "VCV000007105.214-G-NP-NOCL": {
+      "id": "VCV000007105.214-G-NP-NOCL",
+      "type": "Statement",
+      "direction": "supports",
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "no classification"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "not provided"
+      },
+      "proposition": "#/propositionClinvarCustom/VCV000007105-G-NP-NOCL",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "no classification provided"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/VCV000007105.214-G-NP-NOCL.contributing"
       ]
     }
   }

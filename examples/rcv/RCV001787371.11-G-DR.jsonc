@@ -15,9 +15,29 @@
       "predicate": "hasDrugResponseFor",
       "subject": "#/variation/clinvar:7105",
       "type": "ClinvarDrugResponseProposition"
+    },
+    "RCV001787371-G-DR-EP": {
+      "id": "RCV001787371-G-DR-EP",
+      "object": "#/condition/clinvar.trait:61004",
+      "predicate": "hasDrugResponseFor",
+      "subject": "#/variation/clinvar:7105",
+      "type": "ClinvarDrugResponseProposition"
     }
   },
   "evidenceLine": {
+    "RCV001787371.11-G-DR-EP.contributing": {
+      "id": "RCV001787371.11-G-DR-EP.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV002031251.1"
+      ]
+    },
     "RCV001787371.11-G-DR.contributing": {
       "id": "RCV001787371.11-G-DR.contributing",
       "type": "EvidenceLine",
@@ -56,6 +76,31 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV001787371.11-G-DR.contributing"
+      ]
+    },
+    "RCV001787371.11-G-DR-EP": {
+      "id": "RCV001787371.11-G-DR-EP",
+      "type": "Statement",
+      "direction": "supports",
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "expert panel"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "drug response"
+      },
+      "proposition": "#/propositionClinvarCustom/RCV001787371-G-DR-EP",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "reviewed by expert panel"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/RCV001787371.11-G-DR-EP.contributing"
       ]
     }
   }

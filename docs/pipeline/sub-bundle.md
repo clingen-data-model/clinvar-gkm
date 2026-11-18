@@ -153,5 +153,5 @@ The script resolves the graph efficiently rather than one object at a time:
 The files in [`examples/`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples) are made by a
 different script, `src/scripts/extract-example.py`. It reads a published full bundle (`.json.gz`), not BigQuery, and
 writes bounded **fragments**: each holds one statement or variation and the records it references, but keeps pointers
-into `scv`, `vcv`, `rcv` and `variation` unresolved. See [Examples](../data-access/examples.md#file-format) for the
-rule.
+into `scv` and `variation` unresolved. A VCV or RCV fragment holds its nested layer statements, down to the `#/scv/`
+pointers. See [Examples](../data-access/examples.md#file-format) for the rule.

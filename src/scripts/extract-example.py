@@ -3,21 +3,23 @@
 
 Each example is a small bundle fragment, ``{"schema_version": ..., "<section>": {"<key>": record}, ...}``. It holds
 one top record exactly as the bundle has it (pointer form), plus every record that the top record references,
-followed transitively, EXCEPT records in the statement sections (``scv``, ``vcv``, ``rcv``) and in ``variation``. A
-pointer into one of those sections stays a ``#/…`` pointer that does not resolve inside the fragment:
+followed transitively, EXCEPT records in ``scv`` and ``variation``. For a VCV or RCV top statement that includes the
+nested statements of every aggregation layer below it (``#/vcv/…-CP``, ``#/rcv/…-CP-T1``), each with its proposition,
+evidence lines and condition records. A pointer into ``scv`` or ``variation`` stays a ``#/…`` pointer that does not
+resolve inside the fragment:
 
-- a statement's nested statements (``#/vcv/…-CP``, ``#/rcv/…``) and the SCVs it aggregates (``#/scv/…``), which are
-  examples of their own;
+- the SCVs a VCV or RCV statement aggregates (``#/scv/…``), which are examples of their own;
 - a proposition's ``subject`` (``#/variation/…``), which the two cat-vrs examples cover.
 
 So a fragment validates against the bundle schema, but it is not a closed bundle. ``sub-bundle.py`` builds closed
 bundles from BigQuery instead.
 
 The bundle must be in the one-record-per-line layout that assemble-gkm-dicts.py writes. Records are copied with no
-cleanup (only indented for reading), so an example holds what the bundle ships. Referenced records come earlier in the bundle than the
-records that reference them, so a pass can only find what an earlier pass asked for. The first pass keeps the small
-sections whole, the top records, and the evidence lines and propositions keyed by an example's accession, which
-closes every statement example; the cat-vrs examples take two more passes (allele, then the allele's location).
+cleanup (only indented for reading), so an example holds what the bundle ships. Referenced records come earlier in the
+bundle than the records that reference them, so a pass can only find what an earlier pass asked for. The first pass
+keeps the small sections whole, and the statements, evidence lines and propositions keyed by an example's accession
+(the nested statements of a VCV or RCV carry its accession), which closes every statement example; the cat-vrs
+examples take two more passes (allele, then the allele's location).
 
 Usage:
     extract-example.py --bundle <full.json.gz> --all [--examples-dir examples] [--schema-version 1.2.0]
@@ -39,11 +41,14 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # Pointers into these sections are kept as pointers; the records are not pulled into the fragment.
-KEEP_POINTER = {"scv", "vcv", "rcv", "variation"}
+KEEP_POINTER = {"scv", "variation"}
+# Statement sections: an SCV top's pointers into them stay pointers too (an SCV is not an aggregate). A VCV or RCV
+# top follows them, so its fragment holds the whole aggregation hierarchy below it, down to the SCV pointers.
+AGGREGATE = {"vcv", "rcv"}
 # Sections small enough to keep whole on the first pass (their records are referenced from later sections).
 SMALL = {"sequenceReference", "gene", "condition", "conditionSet", "therapy", "therapyGroup", "submitter"}
 # Sections whose keys carry the statement's accession, kept on the first pass when they match an example accession.
-BY_ACCESSION = {"evidenceLine", "propositionPathogenicity", "propositionOncogenicity",
+BY_ACCESSION = {"vcv", "rcv", "evidenceLine", "propositionPathogenicity", "propositionOncogenicity",
                 "propositionSomaticClinicalImpact", "propositionClinvarCustom"}
 
 # (directory, section, accession, suffix, extension). The bundle key and file name follow from the section:
@@ -144,8 +149,10 @@ def pointers(value):
 def closure(top: tuple[str, str], lookup) -> tuple[dict, set, set]:
     """The fragment for `top`: (records {(section, key): record}, missing refs, kept pointers).
 
-    `lookup((section, key))` returns the record or None. Pointers into KEEP_POINTER sections are kept, every other
-    pointer is followed. `missing` lists the followed pointers `lookup` could not find (yet)."""
+    `lookup((section, key))` returns the record or None. Pointers into KEEP_POINTER sections are kept, and so are
+    pointers into AGGREGATE sections unless `top` is in one; every other pointer is followed. `missing` lists the
+    followed pointers `lookup` could not find (yet)."""
+    keep = KEEP_POINTER if top[0] in AGGREGATE else KEEP_POINTER | AGGREGATE
     records, missing, kept = {}, set(), set()
     todo = [top]
     while todo:
@@ -158,7 +165,7 @@ def closure(top: tuple[str, str], lookup) -> tuple[dict, set, set]:
             continue
         records[ref] = rec
         for p in pointers(rec):
-            if p[0] in KEEP_POINTER:
+            if p[0] in keep:
                 if p != top:
                     kept.add(p)
             else:
@@ -216,8 +223,8 @@ def scan(bundle: Path, keep, state: dict):
 def extract(bundle: Path, tops: dict, accessions: list[str], log=print) -> tuple[dict, list[str], str]:
     """Build one fragment per entry of `tops` {name: (section, key pattern)}, in as few passes as the references need.
 
-    `accessions` are the statement accessions whose evidence lines and propositions the first pass keeps. Returns
-    ({name: (top key, records, kept pointers)}, section order, schema_version)."""
+    `accessions` are the statement accessions whose statements, evidence lines and propositions the first pass keeps.
+    Returns ({name: (top key, records, kept pointers)}, section order, schema_version)."""
     by_section: dict[str, list] = {}
     for section, pattern in tops.values():
         by_section.setdefault(section, []).append(pattern)
@@ -235,9 +242,9 @@ def extract(bundle: Path, tops: dict, accessions: list[str], log=print) -> tuple
     def first_pass(section, key):
         if section in SMALL:
             return True
-        if section in BY_ACCESSION:
-            return acc_rx is not None and acc_rx.search(key) is not None
-        return any(p.match(key) for p in by_section.get(section, ()))
+        if any(p.match(key) for p in by_section.get(section, ())):
+            return True
+        return section in BY_ACCESSION and acc_rx is not None and acc_rx.search(key) is not None
 
     log(f"pass 1: {bundle}")
     lines.update(scan(bundle, first_pass, state))

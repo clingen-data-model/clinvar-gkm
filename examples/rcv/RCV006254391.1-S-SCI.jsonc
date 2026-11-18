@@ -37,9 +37,49 @@
       "predicate": "hasClinicalSignificanceFor",
       "subject": "#/variation/clinvar:2758242",
       "type": "VariantClinicalSignificanceProposition"
+    },
+    "RCV006254391-S-SCI-CP": {
+      "id": "RCV006254391-S-SCI-CP",
+      "object": "#/condition/clinvar.trait:67944",
+      "predicate": "hasClinicalSignificanceFor",
+      "subject": "#/variation/clinvar:2758242",
+      "type": "VariantClinicalSignificanceProposition"
+    },
+    "RCV006254391-S-SCI-CP-T1": {
+      "id": "RCV006254391-S-SCI-CP-T1",
+      "object": "#/condition/clinvar.trait:67944",
+      "predicate": "hasClinicalSignificanceFor",
+      "subject": "#/variation/clinvar:2758242",
+      "type": "VariantClinicalSignificanceProposition"
     }
   },
   "evidenceLine": {
+    "RCV006254391.1-S-SCI-CP-T1.contributing": {
+      "id": "RCV006254391.1-S-SCI-CP-T1.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV007105704.1"
+      ]
+    },
+    "RCV006254391.1-S-SCI-CP.contributing": {
+      "id": "RCV006254391.1-S-SCI-CP.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/rcv/RCV006254391.1-S-SCI-CP-T1"
+      ]
+    },
     "RCV006254391.1-S-SCI.contributing": {
       "id": "RCV006254391.1-S-SCI.contributing",
       "type": "EvidenceLine",
@@ -77,6 +117,60 @@
       "proposition": "#/propositionSomaticClinicalImpact/RCV006254391-S-SCI",
       "hasEvidenceLines": [
         "#/evidenceLine/RCV006254391.1-S-SCI.contributing"
+      ]
+    },
+    "RCV006254391.1-S-SCI-CP": {
+      "id": "RCV006254391.1-S-SCI-CP",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Strong"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+      },
+      "proposition": "#/propositionSomaticClinicalImpact/RCV006254391-S-SCI-CP",
+      "hasEvidenceLines": [
+        "#/evidenceLine/RCV006254391.1-S-SCI-CP.contributing"
+      ]
+    },
+    "RCV006254391.1-S-SCI-CP-T1": {
+      "id": "RCV006254391.1-S-SCI-CP-T1",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Strong"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+      },
+      "proposition": "#/propositionSomaticClinicalImpact/RCV006254391-S-SCI-CP-T1",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "criteria provided, single submitter"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/RCV006254391.1-S-SCI-CP-T1.contributing"
       ]
     }
   }
