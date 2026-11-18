@@ -6361,7 +6361,8 @@
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># Latest Parquet (typed EXPORT DATA, merge shards, overwrite parquet/)</span>
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>./src/scripts/release-gkm-parquet.sh<span class="w"> </span><span class="m">2026</span>-10-18<span class="w"> </span>v2_6_0
 </code></pre></div>
-<p><code>release-gkm.sh</code> exports bundle NDJSON only (<code>export-gkm-dicts.sh --ndjson-only</code>), assembles it and uploads the bundle; it writes no Parquet. Its steps can be run individually, and <code>--start-step</code> resumes it from a step:</p>
+<p>The full and delta scripts validate every record of their bundle strictly before upload and stop if any fails: the delta with the GA4GH GKM Toolkit, the full with jsonschema-rs, which takes minutes where the toolkit takes hours. See <a href="export/#step-5-publish-the-weekly-delta">Export &amp; Distribute</a>.</p>
+<p><code>release-gkm.sh</code> exports bundle NDJSON only (<code>export-gkm-dicts.sh --ndjson-only</code>), assembles and validates it, and uploads the bundle; it writes no Parquet. Its steps can be run individually, and <code>--start-step</code> resumes it from a step:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># 1. Export dictionary tables to GCS (bundle NDJSON only)</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>./src/scripts/export-gkm-dicts.sh<span class="w"> </span>clinvar_2026_10_18_v2_6_0<span class="w"> </span>clinvar-gkm<span class="w"> </span>gkm-dicts<span class="w"> </span>--ndjson-only
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>

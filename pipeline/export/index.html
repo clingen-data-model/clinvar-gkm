@@ -6578,6 +6578,7 @@
 <p>Install <code>orjson</code> for best performance:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span>orjson
 </code></pre></div>
+<p><code>release-gkm.sh</code> then validates every record of the assembled full bundle with <code>validate-bundle.sh --engine rs</code> and stops before upload if any fails (see <a href="#step-5-publish-the-weekly-delta">Strict validation stops the release</a>).</p>
 <h3 id="step-3-rebuild-the-latest-parquet">Step 3: Rebuild the Latest Parquet<a class="headerlink" href="#step-3-rebuild-the-latest-parquet" title="Permanent link">&para;</a></h3>
 <p>Parquet is derived from the bundle and regenerated each release; one dataset is published, at
 <code>v1/1.1/parquet/</code>, and overwritten every release (ADR 0009).
@@ -6632,7 +6633,7 @@ delta):</p>
 <p class="admonition-title">Strict validation stops the release</p>
 <p>Every delta record is validated with the GA4GH <a href="https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/">GKM Toolkit</a> by <code>validate-bundle.sh</code> before upload. <code>run-release.sh</code> does this at the start of stage 5, so a failing delta stops the release with R2 untouched; the bundle stays in <code>STAGE_DIR</code> for inspection. The check needs <a href="https://docs.astral.sh/uv/"><code>uv</code></a> and the <code>va-spec</code> submodule (<code>git submodule update --init --recursive</code>), and <code>run-release.sh</code> confirms both at startup.</p>
 <p><code>--start-step=3</code> publishes the staged bundle without validating it again, so only use it on a bundle that passed.</p>
-<p>A full bundle takes hours to validate, so it isn't checked on every release. Run <code>./src/scripts/validate-bundle.sh &lt;bundle.json.gz&gt;</code> on the full after a schema, export or assembler change, and for a version release.</p>
+<p>Every full bundle is validated too: <code>release-gkm.sh</code> validates each full it assembles, the weekly full and any re-exported monthly, before upload, and <code>run-release.sh</code> builds the weekly full with the delta, so a failing full also stops the release with R2 untouched. The GKM Toolkit takes hours on a full, so fulls are validated with <a href="https://github.com/Stranger6667/jsonschema">jsonschema-rs</a> instead (<code>validate-bundle.sh --engine rs</code>): the same bundle schema, the same <code>schema/</code> registry and the same document for each record, in minutes. jsonschema-rs is not the GKM Toolkit. Its verdicts are tested against the toolkit's: both engines must name the same failing records in a bundle with planted violations (<code>src/scripts/tests/test_validate_bundle_rs.py</code>). It reads only the one-record-per-line layout the assembler writes and stops on any other. Run <code>./src/scripts/validate-bundle.sh &lt;bundle.json.gz&gt;</code> (the toolkit, the default) on a full by hand when the official validator's verdict is needed, as for a version release.</p>
 </div>
 <p>The uploader writes:</p>
 <ul>

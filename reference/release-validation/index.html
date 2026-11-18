@@ -6318,6 +6318,13 @@ The changes these gates verified are listed in the <a href="../changelog/#110">1
 after it, which the delta-reconstruction gate proves. The 2026-06-27 full and the 16 deltas therefore
 together contain every distinct record of every 1.1.0 bundle, so strict validation of those 17 files
 validates every record that 1.1.0 publishes. The other fulls get the structural check.</p>
+<p><strong>From 2026-11, every full is strictly validated too.</strong> <code>run-release.sh</code> builds each release's weekly full and
+validates every record of it before anything is uploaded, and a failure stops the release, as a failing delta
+does. Fulls use <code>validate-bundle.sh --engine rs</code>, which runs the same bundle schema, registry and per-record
+documents with <a href="https://pypi.org/project/jsonschema-rs/">jsonschema-rs</a> instead of the toolkit: minutes instead of
+hours. Deltas stay on the toolkit. The tests run both engines on a bundle with planted violations and require the
+same failing records; on the published 2026-10-31 bundles both engines pass the delta (495,547 records), and the
+rs engine passes the full (91,854,927 records).</p>
 <hr />
 <h2 id="110-results">1.1.0 Results<a class="headerlink" href="#110-results" title="Permanent link">&para;</a></h2>
 <p>1.1.0 rebuilt 17 BigQuery datasets, 2026-06-27 through 2026-10-18, and staged 4 monthly full bundles, 3 weekly

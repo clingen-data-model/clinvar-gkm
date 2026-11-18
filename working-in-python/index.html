@@ -6900,7 +6900,11 @@ per schema, so validate a slice, here the first 25 records of each section:</p>
 </code></pre></div>
 <p><code>validate_bundle_schema</code> takes a whole bundle in memory. For multi-GB full bundles, the release used a streaming,
 multi-process wrapper around it; that wrapper is proposed for the toolkit, as <code>gkm-validate-bundle</code>, in
-<a href="https://github.com/ga4gh/gkm-starter-kit/pull/128">ga4gh/gkm-starter-kit#128</a>, which is not yet released.</p>
+<a href="https://github.com/ga4gh/gkm-starter-kit/pull/128">ga4gh/gkm-starter-kit#128</a>, which is not yet released.
+That wrapper takes hours on a full bundle, so the release validates fulls with
+<a href="https://pypi.org/project/jsonschema-rs/">jsonschema-rs</a> instead (<code>src/scripts/validate-bundle.sh --engine rs</code>):
+the same bundle schema, registry and per-record document, in minutes. Its tests check that it fails the same records
+as the toolkit.</p>
 <h3 id="loading-bundles">Loading bundles<a class="headerlink" href="#loading-bundles" title="Permanent link">&para;</a></h3>
 <div class="admonition note">
 <p class="admonition-title">The toolkit's loader needs upstream updates for ClinVar-GKM 1.1.0</p>
