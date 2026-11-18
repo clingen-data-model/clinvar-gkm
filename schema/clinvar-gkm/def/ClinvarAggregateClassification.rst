@@ -5,7 +5,7 @@
 
 **Computational Definition**
 
-The classification of a ClinVar VCV or RCV aggregate statement: a MappableConcept with its concept type and the aggregate classification label as its name and, when the submissions conflict, an ExtensionConflictingExplanation. No id, description, aliases, coding or mappings.
+The classification of a ClinVar VCV or RCV aggregate statement: a MappableConcept with its concept type, the aggregate classification label as its name, a ClinvarTermCoding for that label and, when the submissions conflict, an ExtensionConflictingExplanation. No id, description, aliases or mappings.
 
 **Information Model**
 
@@ -44,6 +44,11 @@ The classification of a ClinVar VCV or RCV aggregate statement: a MappableConcep
       - string
       - 1..1
       - Must be 'Classification'.
+   *  - primaryCoding
+      -
+      - :ref:`ClinvarTermCoding`
+      - 0..1
+      - The aggregate classification's code and its system. A label that ClinVar's classification terms define (for a somatic clinical impact statement, its highest tier, without the tumor-type text) has the coding its SCVs carry, with the code in lower case. Any other label (a combination of terms, a conflicting classification, or no classifications from unflagged records) is a ClinVar-defined term: the lower-cased label as the code and 'ClinVar' as the system.
 
 **Composes:** :ref:`MappableConcept`
 
