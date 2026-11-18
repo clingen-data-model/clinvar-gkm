@@ -145,3 +145,13 @@ The script resolves the graph efficiently rather than one object at a time:
   prefix.
 - **Global dedup.** Every referenced object is fetched at most once across the whole run; the final
   bundle contains one copy of each.
+
+---
+
+## Example fragments
+
+The files in [`examples/`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples) are made by a
+different script, `src/scripts/extract-example.py`. It reads a published full bundle (`.json.gz`), not BigQuery, and
+writes bounded **fragments**: each holds one statement or variation and the records it references, but keeps pointers
+into `scv` and `variation` unresolved. A VCV or RCV fragment holds its nested layer statements, down to the `#/scv/`
+pointers. See [Examples](../data-access/examples.md#file-format) for the rule.
