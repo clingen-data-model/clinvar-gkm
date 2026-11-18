@@ -189,7 +189,24 @@ These statement-level fields are derived from the aggregate classification label
 
 - **`quality`** — a Concept struct with `conceptType: "Quality"` and `name` set to the submission level label (e.g., `"criteria provided"`, `"expert panel"`). Set on every VCV statement.
 - **`direction`** — derived from the classification label. For single-SCV aggregations, passed through directly from the contributing SCV. For multi-SCV aggregations, derived from the winning label.
-- **`strength`** — derived from the classification label. For single-SCV aggregations, passed through directly from the contributing SCV. For multi-SCV aggregations, derived from the winning label. No hardcoded `"definitive"` value.
+- **`strength`** — the strength the SCVs carry for the label. A classification-layer group with one SCV passes
+  that SCV's strength through. Every other statement (a multi-SCV group, and every priority- and aggregate-layer
+  statement) takes the `strength_label` of the `clinvar_clinsig_types` row that gives the label its coding: the
+  same lookup by proposition type and label, with the somatic tier label in place of the decorated one. The
+  priority layer takes the top tier's strength and the aggregate layer the winning layer's. A label with no
+  lookup row has no strength, so `strength` is omitted: conflicting labels, combinations, and the FLAG label.
+  Column `agg_strength_name` of `gkm_vcv_proc` / `gkm_rcv_proc`.
+
+    | Proposition type | Label | `strength` |
+    | --- | --- | --- |
+    | pathogenicity | Pathogenic; Benign; Pathogenic, low penetrance; Established risk allele | Definitive |
+    | pathogenicity | Likely pathogenic; Likely benign; Likely pathogenic, low penetrance; Likely risk allele | Likely |
+    | oncogenicity | Oncogenic; Benign | Definitive |
+    | oncogenicity | Likely oncogenic; Likely benign | Likely |
+    | somatic clinical impact | Tier I (Strong) | Strong |
+    | somatic clinical impact | Tier II (Potential) | Potential |
+    | somatic clinical impact | Tier III Unknown; Tier IV (Benign)/Likely benign | omitted |
+    | any | every other label: Uncertain significance; VUS-high, VUS-mid, VUS-low; Uncertain risk allele; Pathogenic/Likely pathogenic; Benign/Likely benign; the labels of ClinVar's other proposition types; conflicting, combination and FLAG labels | omitted |
 
 ---
 

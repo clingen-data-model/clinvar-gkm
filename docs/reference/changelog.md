@@ -51,7 +51,7 @@ explains the profiles and their rules, and each class page lists what its profil
 
 **What it means for you:**
 
-- **The data doesn't change, except for the new aggregate coding below.** Every record the pipeline publishes
+- **The data doesn't change, except for the new aggregate coding and the aggregate strength fix below.** Every record the pipeline publishes
   already meets the 1.2.0 profiles: relabelled as 1.2.0, every record of the 2026-10-31 full bundle
   (91,854,927) and delta validates with no failures. Code that reads bundles needs no change.
 - **Validate each bundle against its own version.** A 1.2.0 bundle says `"schema_version": "1.2.0"` and
@@ -82,14 +82,35 @@ required. The rules are in
 
 **What it means for you:**
 
-- **Every VCV and RCV record changes**, so the first 1.2.0 release rewrites them all. Nothing else in those
-  records changes.
+- **Every VCV and RCV record changes**, so the first 1.2.0 release rewrites them all. Apart from the
+  aggregate strength fix (see Fixes), nothing else in those records changes.
 - **SCV codes are unchanged, so one code differs in case.** An SCV classified `Pathogenic/Likely pathogenic`
   still carries the upstream code `pathogenic/Likely pathogenic`. Compare codes case-insensitively; see
   [Known Issues](known-issues.md#scv-and-aggregate-codes-for-pathogeniclikely-pathogenic-differ-in-case).
 
 ### Fixes
 
+- **VCV and RCV aggregate `strength` now matches the strength the SCVs carry**
+  ([#226](https://github.com/clingen-data-model/clinvar-gkm/issues/226)). Aggregate statements took their
+  strength from a fixed list of label prefixes. Its `Tier I` prefix also matched Tier II, III and IV, it gave
+  Tier IV `Likely`, it never matched `Likely oncogenic`, and it left out the low-penetrance and risk-allele
+  labels. The strength now comes from the same `clinvar_clinsig_types` row that gives the label its
+  `primaryCoding`; see [`quality`, `direction`, and
+  `strength`](../pipeline/vcv-statements/vcv-aggregation-rules.md#quality-direction-and-strength). A
+  classification-layer statement with one SCV still passes that SCV's strength through. In the 2026-10-31 full
+  release this changes the strength of 6,020 of the 21,309,008 VCV and RCV records (2,714 VCV, 3,306 RCV):
+    - **Somatic clinical impact whose tier is II, III or IV:** a multi-SCV classification group, any priority
+      statement, and an aggregate statement won by the priority layer. Tier II goes from `Strong` to
+      `Potential` (2,001); Tier III and Tier IV go from `Strong` to no strength (634).
+    - **Aggregate statements won by a one-SCV group labelled Likely oncogenic, a low-penetrance label or a
+      risk-allele label**, which had no strength although the SCV and the classification-layer statement had
+      one. They now carry it: `Likely oncogenic` → `Likely` (2,630), `Pathogenic, low penetrance` and
+      `Established risk allele` → `Definitive` (218), `Likely pathogenic, low penetrance` and
+      `Likely risk allele` → `Likely` (537).
+    - **Multi-SCV groups labelled Likely oncogenic** now get `Likely`. The 2026-10-31 release has none.
+
+    No other strength changes. If you read aggregate `strength` for somatic clinical impact, oncogenicity, or the
+    low-penetrance and risk-allele labels, expect these values from the first 1.2.0 release.
 - **The pipeline can't write a record that 1.2.0 rejects.** No current record is affected; these guard cases
   that could appear in a later release. A molecular consequence keeps ClinVar's SO code even when the
   pipeline's 18-term SO lookup doesn't list it, so `ClinvarMolecularConsequenceCoding.code` is now any SO id

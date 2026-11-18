@@ -64,7 +64,8 @@ for the rules and the list of ClinVar-defined codes.
 
 ## Strength
 
-The `strength` field is a MappableConcept derived from the aggregate classification:
+The `strength` field is a MappableConcept: the strength the SCVs carry for the aggregate classification, from
+the same `clinvar_clinsig_types` row that gives the classification its `primaryCoding`:
 
 ```json
 {
@@ -75,14 +76,15 @@ The `strength` field is a MappableConcept derived from the aggregate classificat
 
 | Classification | Strength |
 | --- | --- |
-| Pathogenic, Benign, Oncogenic | Definitive |
-| Likely pathogenic, Likely benign, Likely Oncogenic | Likely |
-| Tier I (strong clinical significance) | Strong |
-| Tier II (potential clinical significance) | Potential |
-| Tier IV (benign/likely benign) | Likely |
-| Uncertain, Conflicting, Tier III | *null (omitted)* |
+| Pathogenic; Benign; Oncogenic; Pathogenic, low penetrance; Established risk allele | Definitive |
+| Likely pathogenic; Likely benign; Likely oncogenic; Likely pathogenic, low penetrance; Likely risk allele | Likely |
+| Tier I (Strong) | Strong |
+| Tier II (Potential) | Potential |
+| Tier III; Tier IV; Uncertain significance; Conflicting; combinations such as Pathogenic/Likely pathogenic; any other label | *null (omitted)* |
 
-For single-SCV aggregations, the strength is passed through from the contributing SCV.
+A somatic clinical impact statement takes its tier's strength (at the priority and aggregate layers, the top
+tier's). A classification-layer statement with one SCV passes that SCV's strength through. See
+[`quality`, `direction`, and `strength`](../pipeline/vcv-statements/vcv-aggregation-rules.md#quality-direction-and-strength).
 
 ---
 

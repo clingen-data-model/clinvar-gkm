@@ -144,7 +144,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   Whether evidence supports or disputes a proposition. Values: `supports`, `disputes`, `neutral`. On aggregate statements, derived from the classification label (multi-SCV) or passed through from the contributing SCV (single-SCV).
 
 **Strength**
-:   Evidence strength level. Values: `definitive`, `likely`, `strong`, `potential`. Omitted (null) when not applicable. On aggregate statements, derived from the classification label (multi-SCV) or passed through from the contributing SCV (single-SCV).
+:   Evidence strength level. Values: `definitive`, `likely`, `strong`, `potential`. Omitted (null) when not applicable. On aggregate statements, the strength ClinVar's lookup gives the classification label (multi-SCV groups, priority and aggregate layers) or passed through from the contributing SCV (single-SCV classification groups).
 
 **Tier I** / **Tier II** / **Tier III** / **Tier IV**
 :   Somatic clinical impact classification levels. Tier I (Strong) and Tier II (Potential) require paired sub-statements. Tier III (Unknown) and Tier IV (Benign/Likely benign) do not.
