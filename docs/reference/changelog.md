@@ -7,6 +7,15 @@ tagged source of each.
 
 ## Unreleased
 
+- **Schema 1.2.0: the profiles allow only what the pipeline writes.** Every bundle section now points at a
+  ClinVar-GKM profile instead of a base GA4GH class. The profiles forbid the inherited properties the pipeline
+  never writes, require the ones it always writes, give values their types and enums (`copyChange` is `loss`
+  or `gain`), and limit each pointer to the sections it may target. Each section's record keys must match the
+  full id the pipeline builds, not just its prefix. The policy is described under
+  [An Implementation Schema](../output-reference/classes/index.md#an-implementation-schema), and the class pages list each profile's
+  forbidden properties under its table. The data doesn't change: every record of the 2026-10-31 full bundle
+  (91,854,927) and delta validates against 1.2.0. 1.2.0 is a new MINOR, so it will be published in a new line
+  folder, `v1/1.2/`, and its bundles will declare `schema_version` 1.2.0.
 - **Bundle schema `$id` now resolves.** The bundle schema's `$id` changes from
   `https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGkmBundle`, which returned 404, to
   `https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json`. The new `$id` follows the

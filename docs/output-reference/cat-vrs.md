@@ -22,7 +22,7 @@ ClinVar variations map to three Cat-VRS representation types:
 
 ## Record Structure
 
-Each record is a `CategoricalVariant` with the following top-level fields:
+Each record is a `CategoricalVariant` that validates against one of the four ClinVar profiles in [ClinvarCategoricalVariant](classes/ClinvarCategoricalVariant.md) — [ClinvarCanonicalAllele](classes/ClinvarCanonicalAllele.md), [ClinvarCategoricalCnvChange](classes/ClinvarCategoricalCnvChange.md), [ClinvarCategoricalCnvCount](classes/ClinvarCategoricalCnvCount.md), or [ClinvarNonConstrainedVariant](classes/ClinvarNonConstrainedVariant.md). The profiles allow these top-level fields, and no `description` or `aliases`:
 
 <div class="field-table" markdown>
 
@@ -31,9 +31,9 @@ Each record is a `CategoricalVariant` with the following top-level fields:
 | `id` | string | ClinVar-scoped identifier — `clinvar:{variation_id}` |
 | `type` | string | Always `CategoricalVariant` |
 | `name` | string | Best available HGVS expression for the variant |
-| `constraints` | array | Defining constraints linking to the resolved VRS variant. See [Constraints](#constraints) |
+| `constraints` | array | Defining constraints linking to the resolved VRS variant. Absent on generalized variants. See [Constraints](#constraints) |
 | `mappings` | array | Cross-references to external databases. See [Mappings](#mappings) |
-| `members` | array | `#/allele/` references to the defining VRS allele (empty for generalized variants) |
+| `members` | array | A pointer to the resolved VRS variant: `#/allele/` for a CanonicalAllele, `#/copyNumberChange/` or `#/copyNumberCount/` for a copy number variant. Absent on generalized variants |
 | `extensions` | array of [Extension](#extensions) | ClinVar-specific metadata and supplementary data (0..*). See [Extensions](#extensions) |
 
 </div>
@@ -47,9 +47,11 @@ The `constraints` array defines the relationship between the variation and its r
 | Variation Type | Constraint Type | Key Fields |
 | --- | --- | --- |
 | CanonicalAllele | `DefiningAlleleConstraint` | `allele` — `#/allele/{id}` reference to a VRS Allele |
-| CategoricalCnvChange | `DefiningLocationConstraint` + `CopyChangeConstraint` | `location` — `#/location/{id}` reference; `copyChange` — gain/loss |
-| CategoricalCnvCount | `DefiningLocationConstraint` + `CopyCountConstraint` | `location` — `#/location/{id}` reference; `copies` — integer or range |
+| CategoricalCnvChange | `DefiningLocationConstraint` + `CopyChangeConstraint` | `location` — `#/location/{id}` reference; `copyChange` — `loss` or `gain` |
+| CategoricalCnvCount | `DefiningLocationConstraint` + `CopyCountConstraint` | `location` — `#/location/{id}` reference; `copies` — an integer |
 | Generalized | None | No VRS constraint — identified by ClinVar variation ID only |
+
+Each constraint is a ClinVar profile: [ClinvarDefiningAlleleConstraint](classes/ClinvarDefiningAlleleConstraint.md), [ClinvarDefiningLocationConstraint](classes/ClinvarDefiningLocationConstraint.md), [ClinvarCopyChangeConstraint](classes/ClinvarCopyChangeConstraint.md), and [ClinvarCopyCountConstraint](classes/ClinvarCopyCountConstraint.md). Their relations and match characteristic are fixed codings: `liftover_to` and `transcribed_to` ([ClinvarLiftoverToRelation](classes/ClinvarLiftoverToRelation.md), [ClinvarTranscribedToRelation](classes/ClinvarTranscribedToRelation.md)) and `is_within` ([ClinvarIsWithinMatch](classes/ClinvarIsWithinMatch.md)).
 
 ### Allele Constraint Example
 
@@ -60,8 +62,18 @@ The `DefiningAlleleConstraint` references a VRS Allele in the `allele` bundle se
   "type": "DefiningAlleleConstraint",
   "allele": "#/allele/ga4gh:VA.ELQCnIBGqaTl0AEE0Az18XZ2cgIHAQIY",
   "relations": [
-    { "primaryCoding": { "code": "liftover_to", "system": "ga4gh-gks-term:allele-relation" } },
-    { "primaryCoding": { "code": "transcribed_to", "system": "http://www.sequenceontology.org" } }
+    {
+      "type": "MappableConcept",
+      "primaryCoding": { "code": "liftover_to", "system": "ga4gh-gks-term:allele-relation" }
+    },
+    {
+      "type": "MappableConcept",
+      "primaryCoding": {
+        "code": "transcribed_to",
+        "system": "http://www.sequenceontology.org/",
+        "iris": ["http://www.sequenceontology.org/browser/current_release/term/transcribed_to"]
+      }
+    }
   ]
 }
 ```
@@ -75,10 +87,14 @@ The `DefiningLocationConstraint` for copy number variants references a VRS Locat
   "type": "DefiningLocationConstraint",
   "location": "#/location/ga4gh:SL.5-SKfXZ941W7JbZW3UmQKtijyUfd6d7z",
   "matchCharacteristic": {
+    "type": "MappableConcept",
     "primaryCoding": { "code": "is_within", "system": "ga4gh-gks-term:location-match" }
   },
   "relations": [
-    { "primaryCoding": { "code": "liftover_to", "system": "ga4gh-gks-term:allele-relation" } }
+    {
+      "type": "MappableConcept",
+      "primaryCoding": { "code": "liftover_to", "system": "ga4gh-gks-term:allele-relation" }
+    }
   ]
 }
 ```
@@ -87,7 +103,7 @@ The `DefiningLocationConstraint` for copy number variants references a VRS Locat
 
 ## Mappings
 
-The `mappings` array contains cross-references to external databases. Each mapping includes a `coding` (database, identifier, IRIs) and a `relation`:
+The `mappings` array contains cross-references to external databases. Each mapping is a [ClinvarVariationMapping](classes/ClinvarVariationMapping.md) with a `coding` (database, identifier, IRIs) and one of three `relation` values:
 
 | Relation | Meaning |
 | --- | --- |
@@ -112,7 +128,7 @@ The `mappings` array contains cross-references to external databases. Each mappi
 
 ## Extensions
 
-Extensions carry ClinVar-specific metadata not part of the core Cat-VRS specification. Each extension follows the GA4GH Extension structure: `{ "name": "<name>", "value": <value> }`. Extensions appear at two structural levels — on the top-level `CategoricalVariant` record and on nested `SequenceReference` objects.
+Extensions carry ClinVar-specific metadata not part of the core Cat-VRS specification. Each extension follows the GA4GH Extension structure: `{ "name": "<name>", "value": <value> }`, and each is a closed class with a fixed `name` and a typed `value`. Variation extensions appear on the `CategoricalVariant` record; the `assembly` extension appears on records of the `sequenceReference` section.
 
 See [Categorical Variant Extensions (Pipeline)](../pipeline/cat-vrs/catvar-extensions.md) for details on how these extensions are built during pipeline processing.
 
@@ -123,9 +139,9 @@ See [Categorical Variant Extensions (Pipeline)](../pipeline/cat-vrs/catvar-exten
 | Extension Name | Value Type | Description |
 |---|---|---|
 | `categoricalVariationType` | `string` | The Cat-VRS category assigned to this variation: `CanonicalAllele`, `CategoricalCnvChange`, `CategoricalCnvCount`, or `Undefined`. Determines which constraint types are generated. |
-| `definingVrsVariationType` | `string` | The VRS class assigned during variation identity processing (e.g., `Allele`, `CopyNumberChange`, `CopyNumberCount`, `Not Available`). Reflects the upstream classification used to route the variant through VRS processing. |
+| `definingVrsVariationType` | `string` | The VRS class assigned during variation identity processing: `Allele`, `CopyNumberChange`, `CopyNumberCount`, `Haplotype`, `Unknown`, or `Not Available`. Reflects the upstream classification used to route the variant through VRS processing. |
 | `clinvarVariationType` | `string` | The variation type as reported by ClinVar (e.g., `Deletion`, `single nucleotide variant`, `Duplication`, `Indel`). Present when ClinVar provides a variation type. |
-| `clinvarSubclassType` | `string` | The variation subclass as reported by ClinVar (e.g., `SimpleAllele`, `Haplotype`, `CompoundHeterozygote`). Present when ClinVar provides a subclass type. |
+| `clinvarSubclassType` | `string` | The variation subclass as reported by ClinVar: `SimpleAllele`, `Haplotype`, or `Genotype`. Present when ClinVar provides a subclass type. |
 | `clinvarCytogeneticLocation` | `string` | The cytogenetic band location of the variation (e.g., `1p36.22`, `17q21.31`). Present when ClinVar provides a cytogenetic location. |
 | `vrsPreProcessingIssue` | `string` | Issues detected during VRS pre-processing of the variation's input expressions. Present only when issues exist. May contain multiple issues separated by newlines. |
 | `vrsProcessingException` | `string` | Errors returned by the external VRS Python processing service. Present only when errors occurred during VRS resolution. |
@@ -136,13 +152,13 @@ See [Categorical Variant Extensions (Pipeline)](../pipeline/cat-vrs/catvar-exten
 
 ### SequenceReference Extensions
 
-Extensions on `SequenceReference` objects nested within `constraints[].allele.location.sequenceReference` and `members[].location.sequenceReference`.
+Extensions on [ClinvarSequenceReference](classes/ClinvarSequenceReference.md) records in the `sequenceReference` section, which variations reach through `#/allele/` → `#/location/` → `#/sequenceReference/` pointers.
 
 <div class="field-table" markdown>
 
 | Extension Name | Value Type | Description |
 |---|---|---|
-| `assembly` | `string` | The genome assembly name for this sequence reference (e.g., `GRCh38`, `GRCh37`, `NCBI36`). |
+| `assembly` | `string` | The genome assembly of this sequence reference: `GRCh38`, `GRCh37`, or `NCBI36`. |
 
 </div>
 
@@ -154,12 +170,12 @@ Each item in the `clinvarHgvsList` extension array represents one HGVS expressio
 
 | Field | Type | Description |
 |---|---|---|
-| `nucleotideExpression` | object | The nucleotide HGVS expression with `syntax` (e.g., `hgvs.c`, `hgvs.g`) and `value` (the HGVS string). From 1.1.0, when ClinVar supplies an expression with no HGVS type letter, its submitted text is kept, unaltered, in this expression's `extensions`: `invalidClinvarExpression` (the submitted text) with `expressionMerged: true` when ClinVar also supplies a valid expression for the accession, which is the one listed; otherwise `originalClinvarExpression` (the submitted text) with `expressionRepaired: true`, on a listed expression with the type letter restored. |
-| `nucleotideType` | `string` | The type of nucleotide expression as reported by ClinVar (e.g., `coding`, `genomic`, `genomic, top-level`). |
+| `nucleotideExpression` | object | A [ClinvarNucleotideExpression](classes/ClinvarNucleotideExpression.md): the nucleotide HGVS expression with `syntax` (e.g., `hgvs.c`, `hgvs.g`) and `value` (the HGVS string). From 1.1.0, when ClinVar supplies an expression with no HGVS type letter, its submitted text is kept, unaltered, in this expression's `extensions`: `invalidClinvarExpression` (the submitted text) with `expressionMerged: true` when ClinVar also supplies a valid expression for the accession, which is the one listed; otherwise `originalClinvarExpression` (the submitted text) with `expressionRepaired: true`, on a listed expression with the type letter restored. |
+| `nucleotideType` | `string` | The type of nucleotide expression as reported by ClinVar: `coding`, `non-coding`, `genomic`, or `genomic, top-level`. |
 | `maneSelect` | `boolean` | `true` if this transcript is designated as MANE Select. Absent when not applicable. |
 | `manePlus` | `boolean` | `true` if this transcript is designated as MANE Plus Clinical. Absent when not applicable. |
-| `proteinExpression` | object | The protein HGVS expression with `syntax` (typically `hgvs.p`) and `value`. Present only when a protein-level expression exists for the nucleotide expression. |
-| `molecularConsequence` | array | Sequence Ontology terms describing the predicted molecular consequence. Each entry includes `code` (SO identifier), `system`, `name` (SO term label), and `iris` (identifiers.org link). |
+| `proteinExpression` | object | A [ClinvarProteinExpression](classes/ClinvarProteinExpression.md): the protein HGVS expression with `syntax` (typically `hgvs.p`) and `value`, and no extensions. Present only when a protein-level expression exists for the nucleotide expression. |
+| `molecularConsequence` | array | Sequence Ontology terms describing the predicted molecular consequence. Each entry is a [ClinvarMolecularConsequenceCoding](classes/ClinvarMolecularConsequenceCoding.md) with `code` (SO identifier), `system` (`http://www.sequenceontology.org/`), `name` (SO term label), and `iris` (identifiers.org link). |
 
 </div>
 
@@ -173,7 +189,7 @@ Each item in the `clinvarGeneList` extension array represents one gene associati
 |---|---|---|
 | `gene` | `string` | `#/gene/ncbigene:{id}` reference to the gene MappableConcept in the `gene` bundle section. |
 | `relationship_type` | `string` | The relationship between the variation and the gene as reported by ClinVar (e.g., `within single gene`, `genes overlapped by variant`). |
-| `source` | `string` | The source of the gene association (e.g., `submitted`, `calculated`). |
+| `source` | `string` | The source of the gene association: `submitted` or `calculated`. |
 
 </div>
 

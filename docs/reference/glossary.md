@@ -283,7 +283,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   JSON structure where related objects are fully embedded within the parent. Self-contained — each record has all data needed for interpretation.
 
 **JSON Pointer**
-:   Standard format (RFC 6901) for referencing nested JSON values. Used in somatic target propositions (e.g., `4/proposition/subject`).
+:   Standard format (RFC 6901) for referencing JSON values. ClinVar-GKM bundles use `#/{section}/{id}` pointers to link records across sections (e.g., `#/variation/clinvar:12582`); see [ID References](../output-reference/id-references.md).
 
 **BigQuery**
 :   Google Cloud Platform data warehouse used for all ClinVar-GKM SQL procedures and table storage.

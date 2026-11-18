@@ -4,7 +4,12 @@ Evidence lines in ClinVar-GKM are stored in the `evidenceLine` bundle section an
 
 SCV evidence lines appear only on somatic clinical impact (SCI) statements, linking the parent `VariantClinicalSignificanceProposition` to a specific clinical assertion type — therapeutic response, diagnostic, or prognostic. VCV and RCV evidence lines connect aggregate statements to their contributing and non-contributing evidence items at each aggregation layer.
 
-The [ClinvarSomaticEvidenceLine](ClinvarSomaticEvidenceLine.md) profiles the VA-Spec `EvidenceLine` with additional properties for the target proposition and evidence outcome.
+Two ClinVar profiles narrow the VA-Spec `EvidenceLine`, and the bundle schema picks one by the record's key:
+
+| ClinVar Profile | Key Pattern | Used By |
+| --- | --- | --- |
+| [ClinvarSomaticEvidenceLine](ClinvarSomaticEvidenceLine.md) | `clinvar.submission:{scv_id}.{ver}` | Somatic clinical impact SCV statements |
+| [ClinvarAggregateEvidenceLine](ClinvarAggregateEvidenceLine.md) | `{vcv_or_rcv_id}.contributing` or `{vcv_or_rcv_id}.non-contributing` | VCV and RCV aggregate statements |
 
 ---
 
@@ -23,19 +28,21 @@ Evidence lines are present only on Tier I and Tier II SCI statements, where Clin
 
 ## Target Propositions
 
-Each evidence line carries a `proposition` specifying the clinical assertion type. These are GA4GH VA-Spec standard types:
+Each somatic evidence line carries a `targetProposition` specifying the clinical assertion type, as a `#/propositionSomaticClinicalImpact/` pointer. The target is one of these GA4GH VA-Spec standard types:
 
-| Code | Type | Predicates | Description |
-| --- | --- | --- | --- |
-| `TR` | VariantTherapeuticResponseProposition | `predictsSensitivityTo`, `predictsResistanceTo` | Response to a specific therapy |
-| `DIAG` | VariantDiagnosticProposition | `isDiagnosticInclusionCriterionFor`, `isDiagnosticExclusionCriterionFor` | Diagnostic relevance |
-| `PROG` | VariantPrognosticProposition | `associatedWithBetterOutcomeFor`, `associatedWithWorseOutcomeFor` | Prognostic significance |
+| Code | Type | ClinVar Profile | Predicates | Description |
+| --- | --- | --- | --- | --- |
+| `TR` | VariantTherapeuticResponseProposition | [ClinvarVariantTherapeuticResponseProposition](ClinvarVariantTherapeuticResponseProposition.md) | `predictsSensitivityTo`, `predictsResistanceTo` | Response to a specific therapy |
+| `DIAG` | VariantDiagnosticProposition | [ClinvarVariantDiagnosticProposition](ClinvarVariantDiagnosticProposition.md) | `isDiagnosticInclusionCriterionFor`, `isDiagnosticExclusionCriterionFor` | Diagnostic relevance |
+| `PROG` | VariantPrognosticProposition | [ClinvarVariantPrognosticProposition](ClinvarVariantPrognosticProposition.md) | `associatedWithBetterOutcomeFor`, `associatedWithWorseOutcomeFor` | Prognostic significance |
+
+A somatic evidence line's `directionOfEvidenceProvided` is always `supports`. It carries no evidence items, strength, or score.
 
 ---
 
 ## Evidence Outcome
 
-The `evidenceOutcome` field maps the AMP/ASCO/CAP tier to an evidence level:
+The `evidenceOutcome` field — a [ClinvarTerm](ClinvarTerm.md) whose `conceptType` is `Outcome` — maps the AMP/ASCO/CAP tier to an evidence level:
 
 | Tier | Evidence Outcome |
 | --- | --- |
@@ -50,11 +57,13 @@ An SCI statement's structure connects the tiers to the clinical assertions:
 
 ```
 SCV Statement
-├── proposition: VariantClinicalSignificanceProposition (hasClinicalSignificanceFor)
+├── proposition: #/propositionSomaticClinicalImpact/{scv_id}-SCI
+│   └── VariantClinicalSignificanceProposition (hasClinicalSignificanceFor)
 ├── classification: "Tier I - Strong"
-└── hasEvidenceLines:
+└── hasEvidenceLines: #/evidenceLine/clinvar.submission:{scv_id}.{ver}
     └── ClinvarSomaticEvidenceLine
-        ├── proposition: VariantTherapeuticResponseProposition (predictsSensitivityTo)
+        ├── targetProposition: #/propositionSomaticClinicalImpact/{scv_id}-TR
+        │   └── VariantTherapeuticResponseProposition (predictsSensitivityTo)
         ├── evidenceOutcome: "Level A/B"
         └── directionOfEvidenceProvided: "supports"
 ```
@@ -63,6 +72,19 @@ The parent statement asserts clinical significance (the tier), while the evidenc
 
 ---
 
+## Aggregate Evidence Lines
+
+A [ClinvarAggregateEvidenceLine](ClinvarAggregateEvidenceLine.md) groups the statements a VCV or RCV aggregate statement is built from:
+
+| Line | `directionOfEvidenceProvided` | `strengthOfEvidenceProvided` | `hasEvidenceItems` |
+| --- | --- | --- | --- |
+| `{id}.contributing` | `supports` | `Contributing` | The statements the aggregate is built from |
+| `{id}.non-contributing` | `neutral` | `Non-contributing` | Statements of a lower review-status priority that did not contribute |
+
+Each item is a `#/scv/`, `#/vcv/`, or `#/rcv/` pointer. The strength is a [ClinvarTerm](ClinvarTerm.md) whose `conceptType` is `Strength`. Aggregate evidence lines carry no target proposition, evidence outcome, or extensions.
+
+---
+
 ## Extensions
 
-Somatic evidence lines also carry `submittedCondition` or `submittedConditionSet` extensions providing the submitter's original condition details. See [SubmittedConditionMapping](SubmittedConditionMapping.md) for the mapping structure.
+Somatic evidence lines also carry a `submittedCondition` or `submittedConditionSet` extension with the submitter's original condition details. Their values are a [SubmittedCondition](SubmittedCondition.md) or a [SubmittedConditionSet](SubmittedConditionSet.md), the same structures the SCV statement's extensions carry.
