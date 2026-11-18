@@ -17,5 +17,5 @@ A complex structure for sharing individual HGVS entries associated with Clinvar 
 | `maneSelect` | `boolean` | 0..1 | `true` if this transcript is designated as MANE Select. Absent or `false` when not applicable. |
 | `manePlus` | `boolean` | 0..1 | `true` if this transcript is designated as MANE Plus Clinical. Absent or `false` when not applicable. |
 | `proteinExpression` | [ClinvarProteinExpression](ClinvarProteinExpression.md) | 0..1 | The protein HGVS expression with syntax (typically `hgvs.p`) and `value`. Present only when a protein-level expression exists for the nucleotide expression. |
-| `molecularConsequence` | [ClinvarMolecularConsequenceCoding](ClinvarMolecularConsequenceCoding.md)[] (unordered) | 0..m | Sequence Ontology terms describing the predicted molecular consequence. Each entry includes `code` (SO identifier), `system`, `name` (SO term label), and `iris` (identifiers.org link). |
+| `molecularConsequence` | [ClinvarMolecularConsequenceCoding](ClinvarMolecularConsequenceCoding.md)[] (unordered) | 0..m | Sequence Ontology terms describing the predicted molecular consequence. Each entry includes `code` (ClinVar's SO identifier), `system`, `iris` (identifiers.org link) and, when the SO term is in the pipeline's lookup, `name` (SO term label). |
 

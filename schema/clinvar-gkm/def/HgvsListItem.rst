@@ -53,6 +53,6 @@ A complex structure for sharing individual HGVS entries associated with Clinvar 
                             <span style="background-color: #B2DFEE; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Unordered">&#8942;</span>
       - :ref:`ClinvarMolecularConsequenceCoding`
       - 0..m
-      - Sequence Ontology terms describing the predicted molecular consequence. Each entry includes `code` (SO identifier), `system`, `name` (SO term label), and `iris` (identifiers.org link).
+      - Sequence Ontology terms describing the predicted molecular consequence. Each entry includes `code` (ClinVar's SO identifier), `system`, `iris` (identifiers.org link) and, when the SO term is in the pipeline's lookup, `name` (SO term label).
 
 **Used in:** :ref:`ExtensionClinvarHgvsList`

@@ -141,8 +141,8 @@ The `clinvarHgvsList` extension contains an array of HGVS expression objects, ea
 | `nucleotideType` | string | The type of nucleotide expression as reported by ClinVar (e.g., `coding`, `genomic`, `genomic, top-level`). |
 | `maneSelect` | boolean | `true` if this transcript is designated as MANE Select. Absent when not applicable. |
 | `manePlus` | boolean | `true` if this transcript is designated as MANE Plus Clinical. Absent when not applicable. |
-| `proteinExpression` | object | The protein HGVS expression with `syntax` (typically `hgvs.p`) and `value`. Present only when a protein-level expression exists for the nucleotide expression. |
-| `molecularConsequence` | array | Sequence Ontology terms describing the predicted molecular consequence. Each entry includes `code` (SO identifier), `system`, `name` (SO term label), and `iris` (identifiers.org link). |
+| `proteinExpression` | object | The protein HGVS expression with `syntax` (typically `hgvs.p`) and `value`. Present only when a protein-level expression exists for the nucleotide expression. The syntax is `hgvs.` plus the HGVS type letter after the colon; ClinVar protein text with no type letter is labelled `hgvs.p`. |
+| `molecularConsequence` | array | Sequence Ontology terms describing the predicted molecular consequence. Each entry includes `code` (ClinVar's SO identifier, passed through as is), `system`, `iris` (identifiers.org link) and `name` (SO term label). The label comes from the pipeline's SO lookup of 18 terms; a code outside it keeps its code and IRI but has no `name`. A ClinVar code that is not an SO id (`SO:` plus 7 digits) is dropped. |
 
 </div>
 

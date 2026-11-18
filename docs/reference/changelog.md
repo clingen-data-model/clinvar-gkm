@@ -65,6 +65,16 @@ explains the profiles and their rules, and each class page lists what its profil
 
 ### Fixes
 
+- **The pipeline can't write a record that 1.2.0 rejects.** No current record is affected; these guard cases
+  that could appear in a later release. A molecular consequence keeps ClinVar's SO code even when the
+  pipeline's 18-term SO lookup doesn't list it, so `ClinvarMolecularConsequenceCoding.code` is now any SO id
+  (`^SO:[0-9]{7}$`) and `name` is optional (absent for a term outside the lookup). Protein expression text
+  with no HGVS type letter is labelled `hgvs.p`, not the invalid `hgvs.?`. Mode of inheritance and penetrance
+  qualifiers are written only on pathogenicity and `Clinvar*` propositions. The `submittedModeOfInheritance`,
+  `submittedClassification` and `submittedScvClassification` extensions are never written without a value,
+  and the classification `description` always has one. An RCV proposition whose member SCVs resolve no
+  condition falls back to the RCV's own trait set, and an SCV, RCV or VCV proposition that still has no
+  `object` stops the build.
 - **Bundle schema `$id` now resolves.** The bundle schema's `$id` changes from
   `https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGkmBundle`, which returned 404, to
   `https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json`. The new `$id` follows the

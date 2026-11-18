@@ -97,8 +97,13 @@ official GA4GH **gkm-toolkit** `validate_bundle_schema` plus a registry built by
 `schema/` tree (dual-keyed: full `$id` AND root-relative path). Do NOT trust `sub-bundle.py` output as proof —
 it runs its own recursive collapse and so **masks** export/assembler cleanup bugs that the real bundles carry.
 `validate-bundle.sh` does this. `release-gkm-delta.sh` runs it on every delta before upload, and `run-release.sh`
-builds the delta first so a failure leaves R2 untouched. Fulls take hours, so run it by hand on the full after a
-schema, export or assembler change, and for a version release.
+builds the delta first so a failure leaves R2 untouched. The toolkit takes hours on a full, so `release-gkm.sh`
+validates every full it assembles with `validate-bundle.sh --engine rs` (jsonschema-rs: same bundle schema, registry
+and per-record document; minutes on a full), and `run-release.sh` builds the weekly full with `--no-upload` before R2
+changes. jsonschema-rs is not the official validator: keep `test_validate_bundle_rs.py`'s equivalence test (both
+engines name the same failing records) passing, and run the toolkit by hand on a full for a version release. The rs
+engine compiles the bundle schema per section (the whole schema takes jsonschema-rs minutes to compile) and reads
+only the assembler's one-record-per-line layout, stopping on any other line.
 `$id`/`schema_version` version bump on a schema-affecting change: bump the 4 `schema/clinvar-gkm/*-source.yaml`
 + `clinvar-gkm-bundle.schema.json` + `SCHEMA_VERSION` in `assemble-gkm-dicts.py`, regen `json/` via
 `make -C schema/clinvar-gkm`; the generator's `$defs` ordering is non-deterministic, so revert the pure-reorder

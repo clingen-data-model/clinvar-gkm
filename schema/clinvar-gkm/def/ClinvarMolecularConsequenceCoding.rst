@@ -5,7 +5,7 @@
 
 **Computational Definition**
 
-A Sequence Ontology molecular consequence of a HgvsListItem: the SO code, its label as the name, the SO system and one identifiers.org IRI.
+A Sequence Ontology molecular consequence of a HgvsListItem: ClinVar's SO code, the SO system, one identifiers.org IRI and, when the pipeline knows the term, its label as the name.
 
 **Information Model**
 
@@ -24,8 +24,8 @@ A Sequence Ontology molecular consequence of a HgvsListItem: the SO code, its la
    *  - name
       -
       - string
-      - 1..1
-      - The SO term label.
+      - 0..1
+      - The SO term label, from the pipeline's SO lookup. Absent for a code the lookup does not list.
    *  - system
       -
       - string
@@ -35,7 +35,7 @@ A Sequence Ontology molecular consequence of a HgvsListItem: the SO code, its la
       -
       - string
       - 1..1
-      - The SO identifier.
+      - The SO identifier ClinVar gives, passed through as is (e.g. `SO:0001583`).
    *  - iris
       -
                         .. raw:: html
