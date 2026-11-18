@@ -284,6 +284,20 @@ BEGIN
           FROM label_counts
           GROUP BY 1, 2, 3, 4, 5, 6, 7
       ),
+      classif_codings AS (
+          -- The SCV classification codings (classification_code + code_system), keyed by
+          -- proposition type and label: an aggregate label that is a single lookup term (or
+          -- a combination the lookup already codes, e.g. 'Pathogenic/Likely pathogenic')
+          -- gets the coding its SCVs carry, with the code lower-cased (aggregate codes are
+          -- always lower case; a no-op except the lookup's 'pathogenic/Likely pathogenic').
+          -- One row per key, deterministically.
+          SELECT proposition_type, label,
+                 ARRAY_AGG(STRUCT(LOWER(classification_code) AS code, code_system AS system)
+                   ORDER BY code LIMIT 1)[OFFSET(0)] as coding
+          FROM `clinvar_ingest.clinvar_clinsig_types`
+          WHERE classification_code IS NOT NULL AND code_system IS NOT NULL
+          GROUP BY 1, 2
+      ),
       somatic_conditions AS (
           SELECT b.variation_id, b.rcv_accession, b.trait_set_id, b.statement_group, b.prop_type, b.submission_level, b.classif_type as tier_grouping,
                  ARRAY_AGG(DISTINCT trait_name IGNORE NULLS ORDER BY trait_name) as unique_traits
@@ -325,6 +339,12 @@ BEGIN
               ELSE cs.agg_classif_label
             END AS actual_agg_classif_label,
 
+            -- Somatic tier label before the ' - <assertion type> - <significance> (n)'
+            -- decoration (coding helper, not output). A sci group is one tier (tier_grouping =
+            -- the tier code), so this is one lookup label. Drop this column (and its COALESCE
+            -- in `coded`) to stop coding sci by tier.
+            IF(c.prop_type = 'sci' AND c.submission_level != 'FLAG', cs.agg_classif_label, CAST(NULL AS STRING)) AS sci_tier_label,
+
             -- Aggregate review status for all submission levels
             CASE
               WHEN c.submission_level = 'PG' THEN 'practice guideline'
@@ -348,6 +368,28 @@ BEGIN
             ON c.variation_id = sc.variation_id AND c.rcv_accession = sc.rcv_accession AND c.trait_set_id = sc.trait_set_id
             AND c.statement_group = sc.statement_group AND c.prop_type = sc.prop_type
             AND c.submission_level = sc.submission_level AND IFNULL(c.tier_grouping, '') = IFNULL(sc.tier_grouping, '')
+      ),
+      coded AS (
+          -- Aggregate classification coding (the statement's classification.primaryCoding).
+          -- Coded on the label without the somatic decoration (the tier label for sci). A
+          -- label the lookup codes for this proposition type reuses the SCV coding (code
+          -- lower-cased); any other label (a combination such as
+          -- 'Pathogenic/Likely pathogenic/Pathogenic, low penetrance', a conflicting label,
+          -- or the FLAG label) is a ClinVar-controlled term: system 'ClinVar' (the system
+          -- the lookup uses for ClinVar's own terms) and the lower-cased label as its code.
+          SELECT
+            fp.* EXCEPT (sci_tier_label),
+            IF(COALESCE(fp.sci_tier_label, fp.actual_agg_classif_label) IS NULL,
+              NULL,
+              COALESCE(
+                cc.coding,
+                STRUCT(LOWER(COALESCE(fp.sci_tier_label, fp.actual_agg_classif_label)) AS code, 'ClinVar' AS system)
+              )
+            ) AS agg_classif_coding
+          FROM final_prep fp
+          LEFT JOIN classif_codings cc
+            ON cc.proposition_type = fp.prop_type
+            AND cc.label = COALESCE(fp.sci_tier_label, fp.actual_agg_classif_label)
       )
       SELECT
         CASE
@@ -359,7 +401,7 @@ BEGIN
           ELSE FORMAT('%s-%s-%s-%s', rcv_accession, statement_group, UPPER(prop_type), submission_level)
         END AS prop_id,
         *
-      FROM final_prep
+      FROM coded
     """, '{CLASS_HEAD}', class_head);
     SET query_classification = REPLACE(query_classification, '{S}', rec.schema_name);
     SET query_classification = REPLACE(query_classification, '{CT}', temp_create);
@@ -378,7 +420,8 @@ BEGIN
             ANY_VALUE(submission_level_label) as submission_level_label,
             ARRAY_AGG(STRUCT(
               tier_priority, prop_display_order, actual_agg_classif_label,
-              agg_label_conflicting_explanation, unique_traits, full_scv_ids, id, tier_grouping
+              agg_label_conflicting_explanation, unique_traits, full_scv_ids, id, tier_grouping,
+              agg_classif_coding
             ) ORDER BY tier_priority ASC, ARRAY_LENGTH(full_scv_ids) DESC, id) as findings
           FROM {CLASS_SRC}
           WHERE tier_grouping IS NOT NULL
@@ -390,6 +433,8 @@ BEGIN
             sb.findings[OFFSET(0)].actual_agg_classif_label as top_label,
             sb.findings[OFFSET(0)].agg_label_conflicting_explanation as agg_label_conflicting_explanation,
             sb.findings[OFFSET(0)].unique_traits as top_unique_traits,
+            -- the top tier's coding (the label below only adds lower-tier tumor-type text)
+            sb.findings[OFFSET(0)].agg_classif_coding as agg_classif_coding,
             ARRAY(SELECT DISTINCT f.id FROM UNNEST(sb.findings) f WITH OFFSET i WHERE i = 0) as contributing_tier_ids,
             -- findings order (tier priority); ids are unique within findings (one per tier_grouping)
             ARRAY(SELECT f.id FROM UNNEST(sb.findings) f WITH OFFSET i WHERE i > 0 ORDER BY i) as non_contributing_tier_ids,
@@ -413,7 +458,8 @@ BEGIN
         top_unique_traits as unique_traits,
         contributing_tier_ids as contributing_statement_ids,
         non_contributing_tier_ids as non_contributing_statement_ids,
-        CAST(NULL AS STRING) AS aggregate_review_status
+        CAST(NULL AS STRING) AS aggregate_review_status,
+        agg_classif_coding
       FROM final_state_prep
     """, '{PRIORITY_HEAD}', priority_head);
     SET query_priority = REPLACE(query_priority, '{CLASS_SRC}', class_src);
@@ -435,7 +481,7 @@ BEGIN
             id as source_id, variation_id, rcv_accession, full_rcv_id, trait_set_id, statement_group, prop_type, submission_level,
             submission_level_label,
             agg_label, agg_label_conflicting_explanation, prop_display_order,
-            aggregate_review_status
+            aggregate_review_status, agg_classif_coding
           FROM {PRIORITY_SRC}
           LEFT JOIN (SELECT DISTINCT prop_type as pt, MIN(prop_display_order) as prop_display_order FROM {CLASS_SRC} GROUP BY 1) ON prop_type = pt
           UNION ALL
@@ -443,7 +489,7 @@ BEGIN
             id as source_id, variation_id, rcv_accession, full_rcv_id, trait_set_id, statement_group, prop_type, submission_level,
             submission_level_label,
             actual_agg_classif_label as agg_label, agg_label_conflicting_explanation, prop_display_order,
-            aggregate_review_status
+            aggregate_review_status, agg_classif_coding
           FROM {CLASS_SRC}
           WHERE tier_grouping IS NULL
       ),
@@ -482,7 +528,8 @@ BEGIN
         w.agg_label, w.agg_label_conflicting_explanation,
         w.prop_display_order,
         w.aggregate_review_status,
-        COALESCE(nc.non_contributing_details, []) as non_contributing_details
+        COALESCE(nc.non_contributing_details, []) as non_contributing_details,
+        w.agg_classif_coding
       FROM winner_takes_all w
       LEFT JOIN non_contributing nc USING (rcv_accession, statement_group, prop_type)
     """, '{AGG_HEAD}', agg_head);
@@ -511,7 +558,7 @@ BEGIN
           b.statement_group, b.prop_type, b.submission_level, b.tier_grouping, b.full_scv_ids,
           b.tier_priority, b.prop_display_order, b.unique_traits, b.agg_label_conflicting_explanation,
           b.actual_agg_classif_label, b.aggregate_review_status, b.scv_direction, b.scv_strength_name,
-          b.submission_level_label
+          b.submission_level_label, b.agg_classif_coding
         FROM `{BASE}.gkm_rcv_classification_agg` b
         LEFT JOIN `{S}.rcv_impacted_ids` imp ON imp.rcv_accession = b.rcv_accession
         WHERE imp.rcv_accession IS NULL
@@ -522,7 +569,7 @@ BEGIN
           statement_group, prop_type, submission_level, tier_grouping, full_scv_ids,
           tier_priority, prop_display_order, unique_traits, agg_label_conflicting_explanation,
           actual_agg_classif_label, aggregate_review_status, scv_direction, scv_strength_name,
-          submission_level_label
+          submission_level_label, agg_classif_coding
         FROM `{P}.stg_gkm_rcv_classification_agg`
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));
@@ -536,7 +583,8 @@ BEGIN
           b.id, b.prop_id, b.variation_id, b.rcv_accession, b.full_rcv_id, b.trait_set_id,
           b.statement_group, b.prop_type, b.submission_level, b.submission_level_label,
           b.agg_label, b.agg_label_conflicting_explanation, b.unique_traits,
-          b.contributing_statement_ids, b.non_contributing_statement_ids, b.aggregate_review_status
+          b.contributing_statement_ids, b.non_contributing_statement_ids, b.aggregate_review_status,
+          b.agg_classif_coding
         FROM `{BASE}.gkm_rcv_priority_agg` b
         LEFT JOIN `{S}.rcv_impacted_ids` imp ON imp.rcv_accession = b.rcv_accession
         WHERE imp.rcv_accession IS NULL
@@ -546,7 +594,8 @@ BEGIN
           id, prop_id, variation_id, rcv_accession, full_rcv_id, trait_set_id,
           statement_group, prop_type, submission_level, submission_level_label,
           agg_label, agg_label_conflicting_explanation, unique_traits,
-          contributing_statement_ids, non_contributing_statement_ids, aggregate_review_status
+          contributing_statement_ids, non_contributing_statement_ids, aggregate_review_status,
+          agg_classif_coding
         FROM `{P}.stg_gkm_rcv_priority_agg`
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));
@@ -560,7 +609,8 @@ BEGIN
           b.id, b.prop_id, b.variation_id, b.rcv_accession, b.full_rcv_id, b.trait_set_id,
           b.statement_group, b.prop_type, b.contributing_layer_id, b.contributing_submission_level,
           b.contributing_submission_level_label, b.agg_label, b.agg_label_conflicting_explanation,
-          b.prop_display_order, b.aggregate_review_status, b.non_contributing_details
+          b.prop_display_order, b.aggregate_review_status, b.non_contributing_details,
+          b.agg_classif_coding
         FROM `{BASE}.gkm_rcv_aggregate_contribution` b
         LEFT JOIN `{S}.rcv_impacted_ids` imp ON imp.rcv_accession = b.rcv_accession
         WHERE imp.rcv_accession IS NULL
@@ -570,7 +620,8 @@ BEGIN
           id, prop_id, variation_id, rcv_accession, full_rcv_id, trait_set_id,
           statement_group, prop_type, contributing_layer_id, contributing_submission_level,
           contributing_submission_level_label, agg_label, agg_label_conflicting_explanation,
-          prop_display_order, aggregate_review_status, non_contributing_details
+          prop_display_order, aggregate_review_status, non_contributing_details,
+          agg_classif_coding
         FROM `{P}.stg_gkm_rcv_aggregate_contribution`
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));

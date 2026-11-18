@@ -266,9 +266,11 @@ BEGIN
           -- The SCV classification codings (classification_code + code_system), keyed by
           -- proposition type and label: an aggregate label that is a single lookup term (or
           -- a combination the lookup already codes, e.g. 'Pathogenic/Likely pathogenic')
-          -- gets the same primaryCoding its SCVs carry. One row per key, deterministically.
+          -- gets the coding its SCVs carry, with the code lower-cased (aggregate codes are
+          -- always lower case; a no-op except the lookup's 'pathogenic/Likely pathogenic').
+          -- One row per key, deterministically.
           SELECT proposition_type, label,
-                 ARRAY_AGG(STRUCT(classification_code AS code, code_system AS system)
+                 ARRAY_AGG(STRUCT(LOWER(classification_code) AS code, code_system AS system)
                    ORDER BY code LIMIT 1)[OFFSET(0)] as coding
           FROM `clinvar_ingest.clinvar_clinsig_types`
           WHERE classification_code IS NOT NULL AND code_system IS NOT NULL
@@ -343,7 +345,9 @@ BEGIN
               ELSE cs.agg_classif_label
             END AS actual_agg_classif_label,
 
-            -- Somatic tier label before the tumor-type decoration (coding helper, not output)
+            -- Somatic tier label before the tumor-type decoration (coding helper, not output).
+            -- A sci group is one tier (tier_grouping = the tier code), so this is one lookup
+            -- label. Drop this column (and its COALESCE in `coded`) to stop coding sci by tier.
             IF(c.prop_type = 'sci' AND c.submission_level != 'FLAG', cs.agg_classif_label, CAST(NULL AS STRING)) AS sci_tier_label,
 
             -- Aggregate review status for all submission levels
@@ -422,7 +426,8 @@ BEGIN
             ANY_VALUE(submission_level_label) as submission_level_label,
             ARRAY_AGG(STRUCT(
               tier_priority, prop_display_order, actual_agg_classif_label,
-              agg_label_conflicting_explanation, unique_traits, unique_conditions, full_scv_ids, id, tier_grouping
+              agg_label_conflicting_explanation, unique_traits, unique_conditions, full_scv_ids, id, tier_grouping,
+              agg_classif_coding
             ) ORDER BY tier_priority ASC, ARRAY_LENGTH(full_scv_ids) DESC, id) as findings
           FROM {CLASS_SRC}
           WHERE tier_grouping IS NOT NULL
@@ -435,6 +440,8 @@ BEGIN
             sb.findings[OFFSET(0)].agg_label_conflicting_explanation as agg_label_conflicting_explanation,
             sb.findings[OFFSET(0)].unique_traits as top_unique_traits,
             sb.findings[OFFSET(0)].unique_conditions as unique_conditions,
+            -- the top tier's coding (the label below only adds lower-tier tumor-type text)
+            sb.findings[OFFSET(0)].agg_classif_coding as agg_classif_coding,
             ARRAY(SELECT DISTINCT f.id FROM UNNEST(sb.findings) f WITH OFFSET i WHERE i = 0) as contributing_tier_ids,
             -- findings order (tier priority); ids are unique within findings (one per tier_grouping)
             ARRAY(SELECT f.id FROM UNNEST(sb.findings) f WITH OFFSET i WHERE i > 0 ORDER BY i) as non_contributing_tier_ids,
@@ -459,7 +466,8 @@ BEGIN
         unique_conditions,
         contributing_tier_ids as contributing_statement_ids,
         non_contributing_tier_ids as non_contributing_statement_ids,
-        CAST(NULL AS STRING) AS aggregate_review_status
+        CAST(NULL AS STRING) AS aggregate_review_status,
+        agg_classif_coding
       FROM final_state_prep
     """, '{PRIORITY_HEAD}', priority_head);
     SET query_priority = REPLACE(query_priority, '{CLASS_SRC}', class_src);
@@ -482,7 +490,7 @@ BEGIN
             id as source_id, variation_id, vcv_accession, full_vcv_id, statement_group, prop_type, submission_level,
             submission_level_label,
             agg_label, agg_label_conflicting_explanation, prop_display_order,
-            aggregate_review_status, unique_conditions
+            aggregate_review_status, unique_conditions, agg_classif_coding
           FROM {PRIORITY_SRC}
           LEFT JOIN (SELECT DISTINCT prop_type as pt, MIN(prop_display_order) as prop_display_order FROM {CLASS_SRC} GROUP BY 1) ON prop_type = pt
           UNION ALL
@@ -490,7 +498,7 @@ BEGIN
             id as source_id, variation_id, vcv_accession, full_vcv_id, statement_group, prop_type, submission_level,
             submission_level_label,
             actual_agg_classif_label as agg_label, agg_label_conflicting_explanation, prop_display_order,
-            aggregate_review_status, unique_conditions
+            aggregate_review_status, unique_conditions, agg_classif_coding
           FROM {CLASS_SRC}
           WHERE tier_grouping IS NULL
       ),
@@ -530,7 +538,8 @@ BEGIN
         w.prop_display_order,
         w.aggregate_review_status,
         w.unique_conditions,
-        COALESCE(nc.non_contributing_details, []) as non_contributing_details
+        COALESCE(nc.non_contributing_details, []) as non_contributing_details,
+        w.agg_classif_coding
       FROM winner_takes_all w
       LEFT JOIN non_contributing nc USING (variation_id, statement_group, prop_type)
     """, '{AGG_HEAD}', agg_head);
@@ -559,7 +568,8 @@ BEGIN
           b.statement_group, b.prop_type, b.submission_level, b.submission_level_label,
           b.tier_grouping, b.full_scv_ids, b.tier_priority, b.prop_display_order,
           b.unique_traits, b.unique_conditions, b.scv_direction, b.scv_strength_name,
-          b.agg_label_conflicting_explanation, b.actual_agg_classif_label, b.aggregate_review_status
+          b.agg_label_conflicting_explanation, b.actual_agg_classif_label, b.aggregate_review_status,
+          b.agg_classif_coding
         FROM `{BASE}.gkm_vcv_classification_agg` b
         LEFT JOIN `{S}.vcv_impacted_ids` imp ON imp.vcv_accession = b.vcv_accession
         WHERE imp.vcv_accession IS NULL
@@ -570,7 +580,8 @@ BEGIN
           statement_group, prop_type, submission_level, submission_level_label,
           tier_grouping, full_scv_ids, tier_priority, prop_display_order,
           unique_traits, unique_conditions, scv_direction, scv_strength_name,
-          agg_label_conflicting_explanation, actual_agg_classif_label, aggregate_review_status
+          agg_label_conflicting_explanation, actual_agg_classif_label, aggregate_review_status,
+          agg_classif_coding
         FROM `{P}.stg_gkm_vcv_classification_agg`
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));
@@ -584,7 +595,8 @@ BEGIN
           b.id, b.prop_id, b.variation_id, b.vcv_accession, b.full_vcv_id,
           b.statement_group, b.prop_type, b.submission_level, b.submission_level_label,
           b.agg_label, b.agg_label_conflicting_explanation, b.unique_traits, b.unique_conditions,
-          b.contributing_statement_ids, b.non_contributing_statement_ids, b.aggregate_review_status
+          b.contributing_statement_ids, b.non_contributing_statement_ids, b.aggregate_review_status,
+          b.agg_classif_coding
         FROM `{BASE}.gkm_vcv_priority_agg` b
         LEFT JOIN `{S}.vcv_impacted_ids` imp ON imp.vcv_accession = b.vcv_accession
         WHERE imp.vcv_accession IS NULL
@@ -594,7 +606,8 @@ BEGIN
           id, prop_id, variation_id, vcv_accession, full_vcv_id,
           statement_group, prop_type, submission_level, submission_level_label,
           agg_label, agg_label_conflicting_explanation, unique_traits, unique_conditions,
-          contributing_statement_ids, non_contributing_statement_ids, aggregate_review_status
+          contributing_statement_ids, non_contributing_statement_ids, aggregate_review_status,
+          agg_classif_coding
         FROM `{P}.stg_gkm_vcv_priority_agg`
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));
@@ -608,7 +621,8 @@ BEGIN
           b.id, b.prop_id, b.variation_id, b.vcv_accession, b.full_vcv_id,
           b.statement_group, b.prop_type, b.contributing_layer_id, b.contributing_submission_level,
           b.contributing_submission_level_label, b.agg_label, b.agg_label_conflicting_explanation,
-          b.prop_display_order, b.aggregate_review_status, b.unique_conditions, b.non_contributing_details
+          b.prop_display_order, b.aggregate_review_status, b.unique_conditions, b.non_contributing_details,
+          b.agg_classif_coding
         FROM `{BASE}.gkm_vcv_aggregate_contribution` b
         LEFT JOIN `{S}.vcv_impacted_ids` imp ON imp.vcv_accession = b.vcv_accession
         WHERE imp.vcv_accession IS NULL
@@ -618,7 +632,8 @@ BEGIN
           id, prop_id, variation_id, vcv_accession, full_vcv_id,
           statement_group, prop_type, contributing_layer_id, contributing_submission_level,
           contributing_submission_level_label, agg_label, agg_label_conflicting_explanation,
-          prop_display_order, aggregate_review_status, unique_conditions, non_contributing_details
+          prop_display_order, aggregate_review_status, unique_conditions, non_contributing_details,
+          agg_classif_coding
         FROM `{P}.stg_gkm_vcv_aggregate_contribution`
       """, '{BASE}', baseline_schema);
       SET query_merge = REPLACE(query_merge, '{P}', IF(debug, rec.schema_name, '_SESSION'));

@@ -213,6 +213,11 @@ BEGIN
         STRUCT(
           'MappableConcept' AS type, 'Classification' AS conceptType,
           agg.actual_agg_classif_label AS name,
+          -- Aggregate classification coding (gkm_*_proc agg_classif_coding); omitted when NULL
+          IF(agg.agg_classif_coding.code IS NOT NULL,
+            STRUCT(agg.agg_classif_coding.code AS code, agg.agg_classif_coding.system AS system),
+            NULL
+          ) AS primaryCoding,
           IF(
             agg.agg_label_conflicting_explanation IS NOT NULL AND agg.agg_label_conflicting_explanation != '',
             [STRUCT('conflictingExplanation' AS name, agg.agg_label_conflicting_explanation AS value)],
@@ -281,6 +286,11 @@ BEGIN
         STRUCT(
           'MappableConcept' AS type, 'Classification' AS conceptType,
           agg.agg_label AS name,
+          -- Aggregate classification coding (gkm_*_proc agg_classif_coding); omitted when NULL
+          IF(agg.agg_classif_coding.code IS NOT NULL,
+            STRUCT(agg.agg_classif_coding.code AS code, agg.agg_classif_coding.system AS system),
+            NULL
+          ) AS primaryCoding,
           IF(
             agg.agg_label_conflicting_explanation IS NOT NULL AND agg.agg_label_conflicting_explanation != '',
             [STRUCT('conflictingExplanation' AS name, agg.agg_label_conflicting_explanation AS value)],
@@ -354,6 +364,11 @@ BEGIN
         STRUCT(
           'MappableConcept' AS type, 'Classification' AS conceptType,
           agg.agg_label AS name,
+          -- Aggregate classification coding (gkm_*_proc agg_classif_coding); omitted when NULL
+          IF(agg.agg_classif_coding.code IS NOT NULL,
+            STRUCT(agg.agg_classif_coding.code AS code, agg.agg_classif_coding.system AS system),
+            NULL
+          ) AS primaryCoding,
           IF(
             agg.agg_label_conflicting_explanation IS NOT NULL AND agg.agg_label_conflicting_explanation != '',
             [STRUCT('conflictingExplanation' AS name, agg.agg_label_conflicting_explanation AS value)],
