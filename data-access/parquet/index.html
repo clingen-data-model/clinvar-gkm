@@ -6354,6 +6354,10 @@
 <p class="admonition-title">Parquet is derived from the bundle and overwritten every release</p>
 <p>The JSON bundles are the release record. Parquet is a convenience: every value in it can be recomputed from the bundle. <strong>One</strong> Parquet dataset is published, rebuilt every release (weekly) from the newest weekly release and overwritten in place. There are no dated, per-delta or archived Parquet sets.</p>
 </div>
+<div class="admonition warning">
+<p class="admonition-title">The current set is not being rebuilt</p>
+<p>The published set is still the one exported from BigQuery for the <strong>2026-10-24</strong> release (its <code>manifest.json</code> gives <code>builder: "BigQuery export"</code> and <code>source_release: "2026-10-24"</code>). Releases since then don't rebuild it, so it lags the bundles. It will be replaced by the default set that the <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>gkm-bundle-parquet</code></a> tool (2.0.0, not yet released) builds from the bundle, starting with ClinVar-GKM schema 1.2.0. From then on Parquet is built only from the bundle, never from BigQuery. For data newer than 2026-10-24, use the <a href="../weekly-full/">weekly full bundles</a>.</p>
+</div>
 <p>The dataset lives at one stable path, <code>v1/1.1/parquet/</code>, one file per section, with a <code>manifest.json</code> beside it:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>v1/1.1/parquet/
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  {section}.parquet      22 files, one per bundle section
@@ -6736,7 +6740,7 @@
 <p>Only the current Parquet dataset is published; it is overwritten every release, and weekly deltas, archives and frozen lines carry no Parquet. To work with an earlier state:</p>
 <ul>
 <li><strong>Rebuild it from the bundles.</strong> Every official monthly stays published (in <code>archive/YYYY/</code> after its year ends) with a <code>.sha256</code> sidecar, and so does every delta. Rebuild the bundle for the week you need with the <a href="../weekly-deltas/#rebuild-a-past-week">replay recipe</a>, then read the sections you need.</li>
-<li><strong>Convert a bundle to Parquet with <code>clinvar-gkm-parquet</code> (planned).</strong> <a href="https://github.com/clingen-data-model/clinvar-gkm-parquet"><code>clinvar-gkm-parquet</code></a> is a separate, versioned tool that builds this Parquet layout from a published bundle and writes the same <code>manifest.json</code>. It is in design and not yet released; until it is, earlier Parquet can't be downloaded or rebuilt in this layout.</li>
+<li><strong>Convert a bundle to Parquet with <code>clinvar-gkm-parquet</code> (planned).</strong> <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>clinvar-gkm-parquet</code></a> is a separate, versioned tool that builds this Parquet layout from a published bundle and writes the same <code>manifest.json</code>. It is in design and not yet released; until it is, earlier Parquet can't be downloaded or rebuilt in this layout.</li>
 <li><strong>The 1.0.1 generation</strong> is the frozen line <code>v1/1.0/</code>: its bundles and delta manifests, with no Parquet.</li>
 </ul>
 <p>Parquet downloaded from an earlier release keeps its old tables and columns; see the <a href="../../reference/changelog/">changelog</a> for what changed.</p>
