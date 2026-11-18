@@ -343,6 +343,10 @@ valid: 279 records; 74 schemas fetched
 `validate_bundle_schema` takes a whole bundle in memory. For multi-GB full bundles, the release used a streaming,
 multi-process wrapper around it; that wrapper is proposed for the toolkit, as `gkm-validate-bundle`, in
 [ga4gh/gkm-starter-kit#128](https://github.com/ga4gh/gkm-starter-kit/pull/128), which is not yet released.
+That wrapper takes hours on a full bundle, so the release validates fulls with
+[jsonschema-rs](https://pypi.org/project/jsonschema-rs/) instead (`src/scripts/validate-bundle.sh --engine rs`):
+the same bundle schema, registry and per-record document, in minutes. Its tests check that it fails the same records
+as the toolkit.
 
 ### Loading bundles { #loading-bundles }
 

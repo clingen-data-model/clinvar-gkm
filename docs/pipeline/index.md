@@ -136,7 +136,9 @@ The `gkm_dict_*` tables are the published product. Full bundles, deltas and the 
 ./src/scripts/release-gkm-parquet.sh 2026-10-18 v2_6_0
 ```
 
-`release-gkm.sh` exports bundle NDJSON only (`export-gkm-dicts.sh --ndjson-only`), assembles it and uploads the bundle; it writes no Parquet. Its steps can be run individually, and `--start-step` resumes it from a step:
+The full and delta scripts validate every record of their bundle strictly before upload and stop if any fails: the delta with the GA4GH GKM Toolkit, the full with jsonschema-rs, which takes minutes where the toolkit takes hours. See [Export & Distribute](export.md#step-5-publish-the-weekly-delta).
+
+`release-gkm.sh` exports bundle NDJSON only (`export-gkm-dicts.sh --ndjson-only`), assembles and validates it, and uploads the bundle; it writes no Parquet. Its steps can be run individually, and `--start-step` resumes it from a step:
 
 ```bash
 # 1. Export dictionary tables to GCS (bundle NDJSON only)

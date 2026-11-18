@@ -8,8 +8,12 @@
 #
 # Three steps:
 #   1. export-gkm-dicts.sh --ndjson-only — export the dictionary tables to GCS as NDJSON
-#   2. assemble-gkm-dicts.py             — assemble the NDJSON into a single JSON bundle
+#   2. assemble-gkm-dicts.py             — assemble the NDJSON into a single JSON bundle, then validate every
+#      validate-bundle.sh --engine rs      record strictly (jsonschema-rs; the toolkit takes hours on a full)
 #   3. upload-gkm-to-r2.sh               — upload the bundle (+ .sha256 sidecar) to Cloudflare R2 (R2_LINE)
+#
+# A bundle that fails validation stops the script before upload and is kept for inspection. --start-step=3 publishes
+# the staged bundle without validating it again, so only use it on a bundle that passed.
 #
 # No Parquet: Parquet is a derived convenience, published only as the single latest set
 # (release-gkm-parquet.sh), never per release.
@@ -18,16 +22,16 @@
 #   ./release-gkm.sh <export_date> <dataset_version> [--start-step=N] [--keep-source] [--dry-run]
 #                    [--month-label=YYYY-MM | --weekly] [--no-upload]
 #
-# --no-upload stops after step 2 and KEEPS the staged bundle (no R2 write, no cleanup), so it can be
-# validated before publishing; resume with --start-step=3. STAGE_DIR (default /tmp) sets where it is staged.
+# --no-upload stops after step 2 (so after validation) and KEEPS the staged bundle (no R2 write, no cleanup), so a
+# release can build and check it before R2 changes; resume with --start-step=3. STAGE_DIR (default /tmp) sets where it is staged.
 #
 # Examples:
 #   ./release-gkm.sh 2026-05-03 v2_5_0
 #   ./release-gkm.sh 2026-05-03 v2_5_0 --dry-run
 #   ./release-gkm.sh 2026-05-03 v2_5_0 --keep-source
-#   ./release-gkm.sh 2026-05-03 v2_5_0 --start-step=2  # re-run from assemble step
+#   ./release-gkm.sh 2026-05-03 v2_5_0 --start-step=2  # re-run from assemble + validate
 #   ./release-gkm.sh 2026-05-03 v2_5_0 --start-step=3  # re-run upload only
-#   ./release-gkm.sh 2026-05-03 v2_5_0 --no-upload     # stage only (export, assemble)
+#   ./release-gkm.sh 2026-05-03 v2_5_0 --no-upload     # stage only (export, assemble, validate)
 
 set -e
 
@@ -36,7 +40,7 @@ if [[ $# -lt 2 ]]; then
   echo "Usage: $0 <export_date> <dataset_version> [--start-step=N] [--keep-source] [--dry-run] [--month-label=YYYY-MM] [--no-upload]"
   echo "  export_date      ClinVar release date (YYYY-MM-DD)"
   echo "  dataset_version  Dataset version (e.g. v2_5_0)"
-  echo "  --start-step=N   Start at step N (1=export, 2=assemble, 3=upload)"
+  echo "  --start-step=N   Start at step N (1=export, 2=assemble + validate, 3=upload)"
   echo "  --month-label=   Publish to this YYYY-MM monthly slot instead of export_date's month"
   echo "  --weekly         Publish as the weekly full of export_date (weekly/)"
   echo "  --no-upload      Stop after step 2; keep the staged bundle (resume with --start-step=3)"
@@ -151,6 +155,15 @@ if [[ "$START_STEP" -le 2 ]]; then
     echo "  [dry-run] Would run: ${PYTHON} assemble-gkm-dicts.py ${ASSEMBLE_ARGS[*]}"
   else
     "${PYTHON}" "${SCRIPT_DIR}/assemble-gkm-dicts.py" "${ASSEMBLE_ARGS[@]}"
+  fi
+  echo "=== Step 2/3: Validating bundle (every record, jsonschema-rs) ==="
+  if $DRY_RUN; then
+    echo "  [dry-run] Would run: validate-bundle.sh ${BUNDLE_FILE} --engine rs"
+  else
+    "${SCRIPT_DIR}/validate-bundle.sh" "${BUNDLE_FILE}" --engine rs || {
+      echo "ERROR: ${BUNDLE_FILE} failed strict validation; nothing was uploaded. The bundle is kept for inspection." >&2
+      exit 1
+    }
   fi
   echo ""
 else

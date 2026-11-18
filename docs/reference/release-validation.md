@@ -27,6 +27,14 @@ after it, which the delta-reconstruction gate proves. The 2026-06-27 full and th
 together contain every distinct record of every 1.1.0 bundle, so strict validation of those 17 files
 validates every record that 1.1.0 publishes. The other fulls get the structural check.
 
+**From 2026-11, every full is strictly validated too.** `run-release.sh` builds each release's weekly full and
+validates every record of it before anything is uploaded, and a failure stops the release, as a failing delta
+does. Fulls use `validate-bundle.sh --engine rs`, which runs the same bundle schema, registry and per-record
+documents with [jsonschema-rs](https://pypi.org/project/jsonschema-rs/) instead of the toolkit: minutes instead of
+hours. Deltas stay on the toolkit. The tests run both engines on a bundle with planted violations and require the
+same failing records; on the published 2026-10-31 bundles both engines pass the delta (495,547 records), and the
+rs engine passes the full (91,854,927 records).
+
 ---
 
 ## 1.1.0 Results
