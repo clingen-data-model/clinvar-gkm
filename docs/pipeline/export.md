@@ -108,7 +108,7 @@ pip install orjson
 ### Step 3: Rebuild the Latest Parquet
 
 Parquet is derived from the bundle and regenerated each release; one dataset is published, at
-`v1/1.1/parquet/`, and overwritten every release (ADR 0009).
+`v1/1.2/parquet/`, and overwritten every release (ADR 0009).
 `release-gkm-parquet.sh` builds it from a dataset (`run-release.sh` runs it on every release, after the weekly
 delta):
 
@@ -149,7 +149,7 @@ The 22 tables and their columns are in [The 22 Tables](../parquet/tables.md); se
 ./src/scripts/upload-gkm-to-r2.sh 2026-10-18 v2_6_0 /tmp/clinvar-gkm-2026-10-18.json.gz --weekly --dry-run
 ```
 
-The R2 layout mirrors NCBI's ClinVar XML folder (ADR 0009). Under the line folder `v1/1.1/`:
+The R2 layout mirrors NCBI's ClinVar XML folder (ADR 0009). Under the line folder `v1/1.2/`:
 
 - **top level** — official monthly fulls for the current year (`clinvar-gkm_yyyy-mm.json.gz`) plus a stable `clinvar-gkm_00-latest.json.gz`, each with a `.sha256` sidecar
 - **`weekly/`** — a weekly full bundle for every release of the current month (`clinvar-gkm_yyyy-mmdd.json.gz`) plus a stable `clinvar-gkm_00-latest_weekly.json.gz`

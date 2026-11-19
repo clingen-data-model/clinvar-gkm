@@ -145,7 +145,7 @@
     <code>DESCRIBE</code> fetch only the file footer.
     <code>{BASE}</code> in a query is replaced with the Parquet path. Parquet is derived from the JSON bundle and
     overwritten every release, so there is one dataset, the latest; the <b>Release</b> label shows the release it was
-    built from, read from the live <a href="https://data.clinvar-gkm.org/v1/1.1/index.json" target="_blank" rel="noopener">index.json</a>.
+    built from, read from the live <a href="https://data.clinvar-gkm.org/v1/1.2/index.json" target="_blank" rel="noopener">index.json</a>.
     The connection runs with <code>SET threads=1</code> to stay gentle on the CDN; a parallel full scan of a big
     table can trip rate limiting (<code>HTTP 429</code>); joins across the big tables belong on your machine, <a href="../parquet/performance/#materialize-join-tables" target="_top">materialized once</a>. To keep load on the shared service light, the console
     runs <b>at most one query every 10&nbsp;seconds</b> &mdash; the Run button greys out and a countdown beside it
@@ -161,7 +161,7 @@
   // The one Parquet dataset, overwritten every release. loadReleases() replaces it with the path the live
   // index gives, so a new version line (e.g. v1/1.2/) needs no edit here.
   const HOST = 'https://data.clinvar-gkm.org';
-  let parquetBase = `${HOST}/v1/1.1/parquet`;
+  let parquetBase = `${HOST}/v1/1.2/parquet`;
   const relSel = document.getElementById('release');
   const exSel  = document.getElementById('examples');
   const baseEl = document.getElementById('base');

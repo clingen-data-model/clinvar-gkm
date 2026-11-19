@@ -210,6 +210,13 @@ nav = [
   ] },
 ]
 
+# Versioned docs (ADR 0011): the theme's version selector reads versions.json at
+# the site root. Each version is built into its own folder by
+# src/scripts/build-versioned-docs.sh, which also sets site_url per version.
+[project.extra.version]
+provider = "mike"
+alias = true
+
 [project.theme]
 variant = "classic"
 custom_dir = "docs/overrides"

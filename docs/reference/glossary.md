@@ -141,10 +141,10 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   Statement-level attribute (`Statement.quality`, va-spec 2026-09) indicating the submission level — a review-status/trust rating. A Concept struct with `conceptType: "Quality"` and `name` set to the submission level label (e.g., `"criteria provided"`, `"expert panel"`). Present on SCV and aggregate (VCV/RCV) statements. Replaces the former `confidence` attribute.
 
 **Direction**
-:   Whether evidence supports or disputes a proposition. Values: `supports`, `disputes`, `neutral`. On aggregate statements, derived from the classification label (multi-SCV) or passed through from the contributing SCV (single-SCV).
+:   Whether evidence supports or disputes a proposition. Values: `supports`, `disputes`, `neutral`. On aggregate statements, the direction ClinVar's lookup gives the classification label (multi-SCV groups, priority and aggregate layers; for a label the lookup lacks, `neutral` for a conflicting label or the FLAG label, and for a combination the direction its SCVs share, else `supports`) or passed through from the contributing SCV (single-SCV classification groups).
 
 **Strength**
-:   Evidence strength level. Values: `definitive`, `likely`, `strong`, `potential`. Omitted (null) when not applicable. On aggregate statements, derived from the classification label (multi-SCV) or passed through from the contributing SCV (single-SCV).
+:   Evidence strength level. Values: `definitive`, `likely`, `strong`, `potential`. Omitted (null) when not applicable. On aggregate statements, the strength ClinVar's lookup gives the classification label (multi-SCV groups, priority and aggregate layers) or passed through from the contributing SCV (single-SCV classification groups).
 
 **Tier I** / **Tier II** / **Tier III** / **Tier IV**
 :   Somatic clinical impact classification levels. Tier I (Strong) and Tier II (Potential) require paired sub-statements. Tier III (Unknown) and Tier IV (Benign/Likely benign) do not.
@@ -267,7 +267,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   In a line's `index.json`, the ClinVar weekly release a monthly full, or the Parquet set, was built from.
 
 **Version line**
-:   The folder `v{major}/{major}.{minor}/` (e.g. `v1/1.1/`) that holds every release of one schema MINOR version, with its own `index.json` and feed. A line is `current` or `frozen`. See [Versioning & Releases](versioning.md).
+:   The folder `v{major}/{major}.{minor}/` (e.g. `v1/1.2/`) that holds every release of one schema MINOR version, with its own `index.json` and feed. A line is `current` or `frozen`. See [Versioning & Releases](versioning.md).
 
 ---
 

@@ -34,4 +34,4 @@ The coding of a ClinVar term: a ClinvarCoding with only its code and system. No 
 
 **Composes:** :ref:`ClinvarCoding`
 
-**Used in:** :ref:`ClinvarCodedTerm`, :ref:`ClinvarScvClassification`, :ref:`SubmittedConditionMappingProperties`
+**Used in:** :ref:`ClinvarAggregateClassification`, :ref:`ClinvarCodedTerm`, :ref:`ClinvarScvClassification`, :ref:`SubmittedConditionMappingProperties`

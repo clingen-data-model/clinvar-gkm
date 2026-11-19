@@ -1,6 +1,6 @@
 #!/bin/bash
 # Rebuild the ONE ClinVar-GKM Parquet set from a dataset and publish it to <line>parquet/ (R2_LINE, default
-# v1/1.1/), with parquet/manifest.json. Run every release, on the newest dataset (run-release.sh does this
+# v1/1.2/), with parquet/manifest.json. Run every release, on the newest dataset (run-release.sh does this
 # after the weekly delta). Parquet is derived from the bundle and is not kept per release (ADR 0008).
 #
 #   1. export-gkm-dicts.sh --parquet-only — the FULL dict tables (not the delta), typed Parquet to GCS

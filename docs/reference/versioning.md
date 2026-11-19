@@ -46,6 +46,20 @@ with 1.1.0:
 
 See the [1.1.0 changelog](changelog.md#110) for the migration notes.
 
+## 1.2.0: a new MINOR line
+
+1.2.0 narrows the ClinVar profiles to exactly what the pipeline writes, a MINOR change. It is published into a
+new line folder, `v1/1.2/`, and `v1/1.1/` is frozen with `"superseded_by": "v1/1.2"`:
+
+- **The new line starts with a checkpoint.** `v1/1.2/` begins with one monthly full built with the 1.2.0
+  pipeline, the official monthly of the ClinVar month it is the source of (ADR 0002). Weekly fulls and deltas
+  run forward from it, so the first delta's `baseline_release` is the checkpoint's `source_release`. Earlier
+  releases are not republished into the new line; they stay in `v1/1.1/` as 1.1.0.
+- **The frozen line keeps its records.** `v1/1.1/` keeps its monthlies, `00-latest` copy and deltas, unchanged,
+  and gains a `MANIFEST.json` and a `README.txt`. Its weekly fulls and its Parquet set are deleted at the
+  freeze: neither is a record ([ADR 0008](../decisions/0008-bundles-are-the-public-record.md) (e),
+  [ADR 0009](../decisions/0009-r2-layout-mirrors-ncbi-clinvar.md) §4).
+
 ## How breaking changes roll out
 
 A breaking (**MAJOR**) change opens a new line folder, `v2/2.0/`, built in full — every monthly full and delta
@@ -59,7 +73,8 @@ in the published window — alongside `v1/`. At the switch-over:
   `README.txt` saying what replaced it and why.
 
 Only one line is `current` at a time; frozen lines accumulate. A new MINOR line (for example `v1/1.2/`)
-freezes the line it replaces in the same way.
+freezes the line it replaces in the same way, but starts from a checkpoint monthly instead of a full
+republish (see [1.2.0](#120-a-new-minor-line)), and the frozen line drops its weekly fulls and Parquet.
 
 !!! info "The published schema always matches the data"
     The schema in [`schema/clinvar-gkm/`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/schema/clinvar-gkm)
@@ -69,23 +84,25 @@ freezes the line it replaces in the same way.
 
 ## Finding and pinning a version
 
-Each version line lives in its own folder, `v{major}/{major}.{minor}/` (`v1/1.1/`, later `v2/2.0/`), with its
+Each version line lives in its own folder, `v{major}/{major}.{minor}/` (`v1/1.2/`, later `v2/2.0/`), with its
 own `index.json`. PATCH releases add new dated files to their line's folder; a new MINOR or MAJOR starts a new
-folder, and the line it replaces is frozen and kept indefinitely, its files unchanged (the 1.0.1 generation is
-the frozen line `v1/1.0/`). Inside
+folder, and the line it replaces is frozen and kept indefinitely, its records unchanged (the 1.1.x releases are
+the frozen line `v1/1.1/`, the 1.0.1 generation `v1/1.0/`). Inside
 a line the layout mirrors NCBI's ClinVar FTP site; see [Downloads](../data-access/download.md#directory-structure).
 A small **root manifest** at the bucket root, `index.json`, lists every line, its status and schema version,
-and where its own `index.json` and feed are. Its shape, as published for 1.1.0:
+and where its own `index.json` and feed are. Its shape, as published for 1.2.0:
 
 ```json
 {
   "manifest_version": 2,
-  "updated_at": "2026-10-21T00:00:00Z",
+  "updated_at": "2026-11-30T00:00:00Z",
   "base_url": "https://data.clinvar-gkm.org",
-  "current": "v1/1.1",
+  "current": "v1/1.2",
   "versions": {
-    "1.1": {"line": "v1/1.1", "major": 1, "minor": 1, "status": "current", "schema": "1.1.0",
-            "superseded_by": null, "index": "v1/1.1/index.json", "feed": "v1/1.1/feed.xml"},
+    "1.2": {"line": "v1/1.2", "major": 1, "minor": 2, "status": "current", "schema": "1.2.0",
+            "superseded_by": null, "index": "v1/1.2/index.json", "feed": "v1/1.2/feed.xml"},
+    "1.1": {"line": "v1/1.1", "major": 1, "minor": 1, "status": "frozen", "schema": "1.1.0",
+            "superseded_by": "v1/1.2", "index": "v1/1.1/index.json", "feed": "v1/1.1/feed.xml"},
     "1.0": {"line": "v1/1.0", "major": 1, "minor": 0, "status": "frozen", "schema": "1.0.1",
             "superseded_by": "v1/1.1", "index": "v1/1.0/index.json", "feed": "v1/1.0/feed.xml"}
   }
@@ -98,6 +115,30 @@ there is no `eol` field.
 To **pin** to a line, read releases from that line's `index.json` and ignore the others. To **track the
 latest**, follow the line whose `status` is `current`. Every bundle also carries a top-level
 `schema_version` field, so you can confirm a file's exact version from the file itself.
+
+## Versions of these docs
+
+The documentation is versioned by release line, like the data: `1.1` describes the `v1/1.1/` line, `1.2` the
+`v1/1.2/` line, and so on. A patch release updates its line's docs in place. Choose a version from the selector
+next to the site name in the header; the selector keeps you on the same page when it exists in the other
+version.
+
+- **The latest release** is the default. The site root, and any link without a version in it, opens the same
+  page in the latest release. Its header is indigo.
+- **An older release** has a grey header and a notice that it is not the current version, with a link to the
+  same page in the latest release.
+- **`dev (unreleased)`** is built from the `main` branch. It describes changes that are not released yet and may
+  still change, so don't rely on it for production use. Its header is orange, with a notice to the same effect.
+
+The repository link at the right of the header names the source each version was built from, and its links to
+repository files point there too: the release tag (such as `1.1.0`) for a release, `main` for `dev`. The
+`1.1` docs are built from the `main` commit that documented 1.1.0 (`036bec2`), because the `1.1.0` tag was cut
+without them, so their repository-file links point at that commit.
+
+To link to a page in whatever release is latest, use a link without a version, such as
+`https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/changelog/`. To pin a link to one version,
+include it: `…/clinvar-gkm/1.1/reference/changelog/`. The decision record is
+[ADR 0011](../decisions/0011-versioned-documentation.md).
 
 ## Release notes
 
@@ -113,7 +154,7 @@ latest**, follow the line whose `status` is `current`. Every bundle also carries
 !!! tip "Subscribe"
     - **Watch the GitHub repository** (Custom → Releases & Discussions) for release announcements and change
       proposals.
-    - **Subscribe to the release feed** (Atom, each line's `feed.xml`, e.g. `https://data.clinvar-gkm.org/v1/1.1/feed.xml`) in any feed reader.
+    - **Subscribe to the release feed** (Atom, each line's `feed.xml`, e.g. `https://data.clinvar-gkm.org/v1/1.2/feed.xml`) in any feed reader.
     - **Join the email list** [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm), a Google Group for release announcements, change notices and RFCs about
       the repository, the data releases, tools and documentation. No GitHub account needed; see
       [Stay Informed](../stay-informed.md) for how to join.

@@ -3,7 +3,7 @@
    TYPE ∈ latest | monthly | weekly | deltas | parquet-latest
    (parquet-monthly is an alias of parquet-latest; Parquet is derived and one dataset is published)
    Reads the root version manifest (/index.json), follows it to the current line's index
-   (e.g. /v1/1.1/index.json), then renders each mount by its type.
+   (e.g. /v1/1.2/index.json), then renders each mount by its type.
    Layout (ADR 0009, mirrors NCBI ClinVar): official monthlies at the line's top level, weekly/ (current
    month's weekly fulls), deltas/ (current month) + deltas/YYYY-MM/, archive/YYYY/ (+ deltas/YYYY-MM/),
    parquet/. Every link uses the `path` the index gives, so files that move at month or year rollover
@@ -24,7 +24,7 @@
     "evidenceLine", "vcv_evidenceLine", "rcv_evidenceLine", "scv", "vcv", "rcv"
   ];
 
-  var linePrefix = "";   // e.g. "v1/1.1/": the folder of the current line's index.json
+  var linePrefix = "";   // e.g. "v1/1.2/": the folder of the current line's index.json
 
   function el(tag, attrs, children) {
     var e = document.createElement(tag);
@@ -264,7 +264,7 @@
   }
 
   // Resolve the current line from the root manifest: prefer the line marked status "current", else the
-  // highest active (then any) key. Returns its index path (e.g. "v1/1.1/index.json"), or null.
+  // highest active (then any) key. Returns its index path (e.g. "v1/1.2/index.json"), or null.
   function versionIndexPath(root) {
     var versions = root.versions || {};
     var keys = Object.keys(versions);

@@ -2,7 +2,7 @@
    "$schema": "https://json-schema.org/draft/2020-12/schema",
    "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarAggregateClassification",
    "title": "ClinvarAggregateClassification",
-   "description": "The classification of a ClinVar VCV or RCV aggregate statement: a MappableConcept with its concept type and the aggregate classification label as its name and, when the submissions conflict, an ExtensionConflictingExplanation. No id, description, aliases, coding or mappings.",
+   "description": "The classification of a ClinVar VCV or RCV aggregate statement: a MappableConcept with its concept type, the aggregate classification label as its name, a ClinvarTermCoding for that label and, when the submissions conflict, an ExtensionConflictingExplanation. No id, description, aliases or mappings.",
    "$defs": {
       "ExtensionConflictingExplanation": {
          "type": "object",
@@ -41,12 +41,15 @@
             "id": false,
             "description": false,
             "aliases": false,
-            "primaryCoding": false,
             "mappings": false,
             "conceptType": {
                "type": "string",
                "const": "Classification",
                "description": "Must be 'Classification'."
+            },
+            "primaryCoding": {
+               "description": "The aggregate classification's code and its system. A label that ClinVar's classification terms define (for a somatic clinical impact statement, its highest tier, without the tumor-type text) has the coding its SCVs carry, with the code in lower case. Any other label (a combination of terms, a conflicting classification, or no classifications from unflagged records) is a ClinVar-defined term: the lower-cased label as the code and 'ClinVar' as the system.",
+               "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarTermCoding"
             },
             "extensions": {
                "type": "array",
