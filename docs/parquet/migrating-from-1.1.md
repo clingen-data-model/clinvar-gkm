@@ -86,14 +86,15 @@ WHERE decode(key) LIKE 'gkm_bundle_parquet.%';
 
 | When | 1.1 tables (`v1/1.1/parquet/`) | 2.0 tables (`v1/1.2/parquet/`) |
 | --- | --- | --- |
-| Until the first 1.2 release | the published set (built from 2026-10-24, not rebuilt since) | not published |
-| From the first weekly 1.2 release | still downloadable, not rebuilt | published, and rebuilt every release |
-| When `v1/1.1/` is frozen | removed: a frozen line keeps no Parquet ([ADR 0008](../decisions/0008-bundles-are-the-public-record.md)) | the one published set |
+| Until 1.2.0 is published | the published set (built from 2026-10-24, not rebuilt since) | not published |
+| When 1.2.0 is published: `v1/1.2/` starts and `v1/1.1/` is frozen | kept, not rebuilt, until the 2.0 set is published | empty until the set built from the newest 1.2 release is published, shortly after |
+| Once the 2.0 set is published | removed: a frozen line keeps no Parquet ([ADR 0008](../decisions/0008-bundles-are-the-public-record.md)) | the one published set, rebuilt every release |
 
-- **The live console** on [Start Here](index.md#run-a-query-now) follows the current line's Parquet. It reads the
-  1.1 tables until the first 1.2 set is published, then the 2.0 tables. Its example queries run on both.
-- **To keep the 1.1 tables**, download them before `v1/1.1/` is frozen. They are not rebuilt afterwards: they
-  came from BigQuery, not from the bundle.
+- **The live console** on [Start Here](index.md#run-a-query-now) reads the current line's Parquet. While the
+  current line has none, it reads the newest line that has one, so it shows the 1.1 tables until the 2.0 set is
+  published. Its example queries run on both.
+- **To keep the 1.1 tables**, download them before 1.2.0 is published; the advance notice gives the date. They
+  are not rebuilt afterwards: they came from BigQuery, not from the bundle.
 - **To get tables for an earlier release**, build them from that release's bundle with `gkm-bundle-parquet`
   (see [Build Your Own](build-your-own.md) and [Earlier releases](../data-access/parquet.md#earlier-releases)). The columns come from the bundle's
   schema, so a bundle of schema 1.1.0 gives a wider set than the one this documentation describes, with more
