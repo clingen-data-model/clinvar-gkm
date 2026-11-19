@@ -19,7 +19,7 @@
 #
 # --no-upload stops after step 2 and KEEPS the build in STAGE_DIR (default /tmp), so it can be checked before
 # publishing; resume with --start-step=3. --dry-run prints the commands it would run, and reads and uploads
-# nothing. A build needs about 25 GB free (the set is about 12 GB). PARQUET_MEMORY_LIMIT sets DuckDB's limit
+# nothing. A build needs about 25 GB free (the set is about 5 GB). PARQUET_MEMORY_LIMIT sets DuckDB's limit
 # (default: the tool's). PARQUET_TOOL_CMD replaces the pinned tool command, e.g. to test an unpublished checkout:
 #   PARQUET_TOOL_CMD="uvx --from /path/to/gkm-bundle-parquet gkm-bundle-parquet" (split on spaces).
 set -e

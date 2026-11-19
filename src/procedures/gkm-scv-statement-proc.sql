@@ -966,7 +966,7 @@ BEGIN
           cit_ord,
           -- type/pmid/doi/urls keep their pre-1.1.0 positions; the new fields are appended
           -- so the struct only grows at the end (the column order of the typed Parquet export
-          -- from BigQuery, since removed; the order also sets the key order of the bundle's records)
+          -- from BigQuery, since removed)
           STRUCT(
             'Document' AS type,
             (SELECT x.val FROM UNNEST(ids) x WHERE x.kind = 'pmid' ORDER BY x.resourced, x.id_ord LIMIT 1) AS pmid,

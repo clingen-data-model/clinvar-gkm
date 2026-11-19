@@ -24,7 +24,8 @@
 #                            again (drops the kept source candidate once the monthly is posted),
 #                            release-gkm-delta.sh --start-step=3 (the weekly DELTA -> deltas/)
 #   6. parquet               release-gkm-parquet.sh: gkm-bundle-parquet builds the one Parquet set from the
-#                            weekly full stage 5 published, verifies it, and overwrites parquet/
+#                            weekly full stage 5 published (on a --bootstrap-monthly release, from the line's
+#                            checkpoint monthly), verifies it, and overwrites parquet/
 #
 # Stages 1 and 2 are incremental by default (recompute only changed variations, carry the
 # rest forward). Stage 4 self-corrects between incremental and full loads. --full forces a
@@ -48,7 +49,8 @@
 # builds, validates (jsonschema-rs) and publishes <date>'s full as <line>clinvar-gkm_YYYY-MM.json.gz (+ 00-latest),
 # and nothing else: no weekly full, and no delta (the previous release was built for the previous line, so that
 # delta has no monthly to replay onto in this line). The next release's delta is the line's first; its
-# baseline_release must be <date> (upload-gkm-delta-to-r2.sh refuses it otherwise).
+# baseline_release must be <date> (upload-gkm-delta-to-r2.sh refuses it otherwise). Stage 6 still runs: with no
+# weekly full, release-gkm-parquet.sh builds the line's first Parquet set from that checkpoint monthly.
 #
 # Stages 5 and 6 publish to the public R2 bucket. Use --dry-run to run everything but have the
 # release stages only print what it would upload (no R2 writes) — use it for test runs.
@@ -390,9 +392,11 @@ if (( START_STEP <= 5 )) && [[ -z "${BOOTSTRAP_MONTH}" ]]; then
 fi
 
 # --- Stage 6: the one Parquet set (parquet/) -----------------------------------------------
-# Built from THIS release's weekly full, so it runs only after stage 5 has uploaded it (if that upload failed, the
-# full's .sha256 sidecar is missing and this stage stops). Non-fatal after stage 5: the bundles are the record, and
-# parquet/manifest.json says which release the set was built from. Fatal when it is the only stage asked for.
+# Built from THIS release's weekly full, so it runs only after stage 5 has uploaded it. A --bootstrap-monthly release
+# has no weekly full, and release-gkm-parquet.sh reads the checkpoint monthly the line's index.json lists for this
+# release instead. If neither is published (e.g. the weekly full's upload failed), this stage stops. Non-fatal after
+# stage 5: the bundles are the record, and parquet/manifest.json says which release the set was built from. Fatal
+# when it is the only stage asked for.
 if (( START_STEP <= 6 )); then
   if $SKIP_PARQUET; then
     echo ">>> [6/6] --skip-parquet: parquet/ still holds the previous set"
