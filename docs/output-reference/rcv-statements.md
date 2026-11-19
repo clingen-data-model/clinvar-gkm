@@ -23,7 +23,7 @@ Each record is a `Statement` with the following top-level fields:
 | `proposition` | string | `#/proposition<Meaning>/{id}` reference to the aggregate proposition (the section is set by the proposition `type`; see [ID References](id-references.md)) |
 | `classification` | object | MappableConcept — the aggregate classification label and its `primaryCoding`. See [Classification](#classification) |
 | `strength` | object | MappableConcept — the aggregate evidence strength |
-| `direction` | string | `supports`, `disputes`, or `neutral` — derived from the aggregate classification |
+| `direction` | string | `supports`, `disputes`, or `neutral` — the direction the SCVs carry for the aggregate classification. See [VCV Direction](vcv-statements.md#direction) |
 | `quality` | object | Concept struct with `conceptType: "Quality"` and `name` (the submission level label, e.g., `criteria provided`, `expert panel`) |
 | `extensions` | array of [Extension](#extensions) | ClinVar-specific aggregate metadata (0..*). See [Extensions](#extensions) |
 | `hasEvidenceLines` | array | `#/evidenceLine/` references to contributing and non-contributing evidence. See [Evidence Lines](#evidence-lines) |

@@ -188,7 +188,32 @@ The 2026-10-31 full release has 20 combination codes, on 726 of its 21,309,008 V
 These statement-level fields are derived from the aggregate classification label:
 
 - **`quality`** — a Concept struct with `conceptType: "Quality"` and `name` set to the submission level label (e.g., `"criteria provided"`, `"expert panel"`). Set on every VCV statement.
-- **`direction`** — derived from the classification label. For single-SCV aggregations, passed through directly from the contributing SCV. For multi-SCV aggregations, derived from the winning label.
+- **`direction`** — the direction the SCVs carry for the label. A classification-layer group with one SCV passes
+  that SCV's direction through. Every other statement (a multi-SCV group, and every priority- and
+  aggregate-layer statement) takes the `direction` of the `clinvar_clinsig_types` row that gives the label its
+  coding: the same lookup by proposition type and label, with the somatic tier label in place of the decorated
+  one. The priority layer takes the top tier's direction and the aggregate layer the winning layer's. A label
+  with no lookup row has no SCV direction to follow, so it keeps a fixed rule: `neutral` for a conflicting
+  label, `supports` for the others (combinations and the FLAG label). A combination of neutral terms, such as
+  `Uncertain significance/Uncertain risk allele`, therefore gets `supports`. Every VCV and RCV statement has a
+  direction. Column `agg_direction` of `gkm_vcv_proc` / `gkm_rcv_proc`.
+
+    | Proposition type | Label | `direction` |
+    | --- | --- | --- |
+    | pathogenicity | Pathogenic; Likely pathogenic; Pathogenic/Likely pathogenic; Pathogenic, low penetrance; Likely pathogenic, low penetrance; Established risk allele; Likely risk allele | supports |
+    | pathogenicity | Uncertain significance; VUS-high, VUS-mid, VUS-low; Uncertain risk allele | neutral |
+    | pathogenicity, oncogenicity | Benign; Likely benign; Benign/Likely benign | disputes |
+    | oncogenicity | Oncogenic; Likely oncogenic | supports |
+    | oncogenicity | Uncertain significance | neutral |
+    | somatic clinical impact | Tier I (Strong); Tier II (Potential) | supports |
+    | somatic clinical impact | Tier III Unknown | neutral |
+    | somatic clinical impact | Tier IV (Benign)/Likely benign | disputes |
+    | association | association | supports |
+    | association | association not found | disputes |
+    | conflicting data from submitters | conflicting data from submitters | neutral |
+    | ClinVar's other proposition types | Affects; confers sensitivity; drug response; not provided; other; protective; risk factor | supports |
+    | any (no lookup row) | Conflicting classifications of pathogenicity / of oncogenicity | neutral |
+    | any (no lookup row) | combinations not in the lookup, such as Likely pathogenic/Likely risk allele or Uncertain significance/VUS-high; the FLAG label `no classifications from unflagged records` | supports |
 - **`strength`** — the strength the SCVs carry for the label. A classification-layer group with one SCV passes
   that SCV's strength through. Every other statement (a multi-SCV group, and every priority- and aggregate-layer
   statement) takes the `strength_label` of the `clinvar_clinsig_types` row that gives the label its coding: the

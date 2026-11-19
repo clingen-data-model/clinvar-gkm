@@ -141,7 +141,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   Statement-level attribute (`Statement.quality`, va-spec 2026-09) indicating the submission level — a review-status/trust rating. A Concept struct with `conceptType: "Quality"` and `name` set to the submission level label (e.g., `"criteria provided"`, `"expert panel"`). Present on SCV and aggregate (VCV/RCV) statements. Replaces the former `confidence` attribute.
 
 **Direction**
-:   Whether evidence supports or disputes a proposition. Values: `supports`, `disputes`, `neutral`. On aggregate statements, derived from the classification label (multi-SCV) or passed through from the contributing SCV (single-SCV).
+:   Whether evidence supports or disputes a proposition. Values: `supports`, `disputes`, `neutral`. On aggregate statements, the direction ClinVar's lookup gives the classification label (multi-SCV groups, priority and aggregate layers; `neutral` for a conflicting label and `supports` for any other label the lookup lacks) or passed through from the contributing SCV (single-SCV classification groups).
 
 **Strength**
 :   Evidence strength level. Values: `definitive`, `likely`, `strong`, `potential`. Omitted (null) when not applicable. On aggregate statements, the strength ClinVar's lookup gives the classification label (multi-SCV groups, priority and aggregate layers) or passed through from the contributing SCV (single-SCV classification groups).

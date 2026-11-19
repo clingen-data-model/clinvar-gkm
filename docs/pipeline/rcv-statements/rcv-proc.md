@@ -61,6 +61,7 @@ The `final_prep` CTE applies submission-level-specific logic:
 - **aggregate_review_status** -- derived for all submission levels based on submitter count and conflict state
 - **agg_classif_coding** -- the label's coding (`code`, `system`), the statement's `classification.primaryCoding`, built as in VCV: the `classif_codings` CTE looks the label up in `clinvar_clinsig_types` by proposition type and reuses the SCV coding with the code in lower case, and any other label gets system `ClinVar` and the lower-cased label as the code. For sci, the `sci_tier_label` helper column looks up the tier label without the ` - <assertion type> - <significance> (n)` text. See [`classification.primaryCoding`](../vcv-statements/vcv-aggregation-rules.md#classification-primarycoding).
 - **agg_strength_name** -- the `strength_label` of the same `clinvar_clinsig_types` row as `agg_classif_coding` (NULL when the label has no lookup row). The statement's `strength` for a multi-SCV group, and at the priority and aggregate layers. See [`quality`, `direction`, and `strength`](../vcv-statements/vcv-aggregation-rules.md#quality-direction-and-strength).
+- **agg_direction** -- the `direction` of the same `clinvar_clinsig_types` row as `agg_classif_coding`. A label with no lookup row gets `neutral` if it is a conflicting label and `supports` otherwise, so it is never NULL. The statement's `direction` for a multi-SCV group, and at the priority and aggregate layers. See [`quality`, `direction`, and `strength`](../vcv-statements/vcv-aggregation-rules.md#quality-direction-and-strength).
 
 ID format: `{RCV}.{ver}-{group}-{prop}-{level}[-{tier}]`
 
@@ -78,7 +79,7 @@ The step ranks tiers by `tier_priority` (ascending) and SCV count (descending), 
 - All other tiers as non-contributing
 - Secondary traits from non-contributing tiers that are not already present in the top tier
 
-The aggregate label appends secondary trait information when applicable. `agg_classif_coding` and `agg_strength_name` are the top tier's.
+The aggregate label appends secondary trait information when applicable. `agg_classif_coding`, `agg_strength_name` and `agg_direction` are the top tier's.
 
 ID format: `{RCV}.{ver}-{group}-{prop}-{level}`
 
@@ -94,7 +95,7 @@ Records are ranked by submission level within each `(rcv_accession, trait_set_id
 
 A key difference from VCV: the winner-takes-all partition is by `rcv_accession` (not `variation_id`), since each RCV accession already represents a unique (variation, condition) pair.
 
-Non-contributing details are preserved as an array of structs containing the layer ID, submission level, aggregate label, and conflicting explanation for each non-contributing record. `agg_classif_coding` and `agg_strength_name` are the contributing (winning) record's.
+Non-contributing details are preserved as an array of structs containing the layer ID, submission level, aggregate label, and conflicting explanation for each non-contributing record. `agg_classif_coding`, `agg_strength_name` and `agg_direction` are the contributing (winning) record's.
 
 ID format: `{RCV}.{ver}-{group}-{prop}`
 
@@ -130,7 +131,7 @@ Each BASE section reads from the corresponding aggregation table and produces a 
 |---|---|
 | `classification` | A Classification concept with `name` (the aggregate label), `primaryCoding` (from `agg_classif_coding`; omitted when NULL) and optional `conflictingExplanation` extension. Used at every layer for every submission level |
 | `quality` | The submission level label (e.g., `"expert panel"`, `"assertion criteria provided"`) |
-| `direction` | Derived from the classification label; passed through from the contributing SCV for single-SCV aggregations |
+| `direction` | The contributing SCV's direction for a single-SCV classification-layer group; otherwise `agg_direction`, the lookup direction of the label (the fixed rule for a label with no lookup row) |
 | `strength` | The contributing SCV's strength for a single-SCV classification-layer group; otherwise `agg_strength_name`, the lookup strength of the label (omitted when NULL) |
 | `proposition` | Contains `object` (the condition from `temp_rcv_condition_data` -- either a `Condition` MappableConcept or a `ConditionSet` ConceptSet, extensions excluded), the SCV-matching proposition type from `clinvar_proposition_types.gkm_type`, the SCV-matching predicate from `clinvar_proposition_types.gkm_predicate`, and `subject` reference |
 | `extensions` | Array with `clinvarReviewStatus` value |

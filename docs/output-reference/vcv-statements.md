@@ -21,7 +21,7 @@ Each record is a `Statement` with the following top-level fields:
 | `proposition` | string | `#/proposition<Meaning>/{id}` reference to the aggregate proposition (the section is set by the proposition `type`; see [ID References](id-references.md)) |
 | `classification` | object | MappableConcept — the aggregate classification label and its `primaryCoding`. See [Classification](#classification) |
 | `strength` | object | MappableConcept — the aggregate evidence strength. See [Strength](#strength) |
-| `direction` | string | `supports`, `disputes`, or `neutral` — derived from the aggregate classification |
+| `direction` | string | `supports`, `disputes`, or `neutral` — the direction the SCVs carry for the aggregate classification. See [Direction](#direction) |
 | `quality` | object | Concept struct with `conceptType: "Quality"` and `name` (the submission level label, e.g., `criteria provided`, `expert panel`) |
 | `extensions` | array of [Extension](#extensions) | ClinVar-specific aggregate metadata (0..*). See [Extensions](#extensions) |
 | `hasEvidenceLines` | array | `#/evidenceLine/` references to contributing and non-contributing evidence. See [Evidence Lines](#evidence-lines) |
@@ -84,6 +84,25 @@ the same `clinvar_clinsig_types` row that gives the classification its `primaryC
 
 A somatic clinical impact statement takes its tier's strength (at the priority and aggregate layers, the top
 tier's). A classification-layer statement with one SCV passes that SCV's strength through. See
+[`quality`, `direction`, and `strength`](../pipeline/vcv-statements/vcv-aggregation-rules.md#quality-direction-and-strength).
+
+---
+
+## Direction
+
+The `direction` field is a string: the direction the SCVs carry for the aggregate classification, from the same
+`clinvar_clinsig_types` row that gives the classification its `primaryCoding`. Every VCV statement has one.
+
+| Classification | Direction |
+| --- | --- |
+| Pathogenic; Likely pathogenic; Pathogenic/Likely pathogenic; Oncogenic; Likely oncogenic; the low-penetrance and risk-allele labels except Uncertain risk allele; Tier I; Tier II; association; and ClinVar's other proposition types | `supports` |
+| Uncertain significance; VUS-high, VUS-mid, VUS-low; Uncertain risk allele; Tier III; conflicting data from submitters | `neutral` |
+| Benign; Likely benign; Benign/Likely benign; Tier IV; association not found | `disputes` |
+| Conflicting classifications of pathogenicity / oncogenicity (no lookup row) | `neutral` |
+| Combinations not in the lookup, such as Uncertain significance/VUS-high, and the FLAG label (no lookup row) | `supports` |
+
+A somatic clinical impact statement takes its tier's direction (at the priority and aggregate layers, the top
+tier's). A classification-layer statement with one SCV passes that SCV's direction through. See
 [`quality`, `direction`, and `strength`](../pipeline/vcv-statements/vcv-aggregation-rules.md#quality-direction-and-strength).
 
 ---
