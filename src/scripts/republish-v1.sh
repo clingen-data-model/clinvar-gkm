@@ -1,4 +1,7 @@
 #!/bin/bash
+# HISTORICAL: the one-off 1.1.0 migration, run 2026-10-22. Do not run it again: v1/1.1/ is frozen since 1.2.0. A new
+# line starts with run-release.sh --bootstrap-monthly; a superseded line is frozen with r2-freeze-line.sh.
+#
 # republish-v1.sh — the 1.1.0 migration of the R2 bucket to the NCBI-style layout (r2_layout.py), per version line:
 #
 #   v1/1.0/   the 1.0.1 generation, FROZEN (moved from archive/1.0.1/): monthlies 2026-07..10 + 00-latest at the
@@ -24,9 +27,13 @@
 #   ./republish-v1.sh cleanup                 [--dry-run] # 6. delete every key outside the plan; refuses unless verify passes
 #   ./republish-v1.sh purge                   [--dry-run] # 7. Cloudflare purge_everything
 #
-# <target>: all | monthly | weekly | deltas | parquet | a monthly label (2026-07) | a date (2026-10-04: its delta,
-# and its weekly full when it has one). "all" runs monthly, weekly, deltas (date order), then parquet.
-# STAGE_DIR (default /tmp): a full is about 4.8 GB, the Parquet set about 13 GB; stage one at a time if short.
+# <target>: all | monthly | weekly | deltas | a monthly label (2026-07) | a date (2026-10-04: its delta, and its
+# weekly full when it has one). "all" runs monthly, weekly, then deltas (date order).
+# STAGE_DIR (default /tmp): a full is about 4.8 GB; stage one at a time if short.
+#
+# The migration staged and uploaded parquet/ from the 10-18 dataset with the typed Parquet export from BigQuery.
+# That export is gone (the one Parquet set is built from a weekly full by gkm-bundle-parquet, release-gkm-parquet.sh),
+# and so is the `parquet` target. `verify` still checks parquet/ against its manifest.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -67,7 +74,6 @@ DELTAS="
 2026-10-18 v2_6_0
 "
 FIRST_BASELINE="2026-06-27"      # the 2026-07-06 delta's baseline_release
-LATEST_SOURCE="${LATEST_SOURCE:-2026-10-18 v2_6_0}"   # the Parquet set is built from the newest dataset
 NEW_LINE="v1/1.1/"
 OLD_LINE="v1/1.0/"
 ARCHIVE="${ARCHIVE:-archive/1.0.1/}"
@@ -89,7 +95,7 @@ R2_LINE="${NEW_LINE}"
 export R2_LINE
 SCHEMA_VERSION="$(sed -n 's/^SCHEMA_VERSION = "\(.*\)"$/\1/p' "${SCRIPT_DIR}/assemble-gkm-dicts.py")"
 
-usage() { sed -n '2,32p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+usage() { sed -n '2,33p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 
 fulls_for()  { echo "$FULLS"  | awk -v t="$1" 'NF==3 && (t=="all" || t=="monthly" || $1==t)'; }
 weekly_for() { echo "$WEEKLY" | awk -v t="$1" 'NF==2 && (t=="all" || t=="weekly" || $1==t)'; }
@@ -99,7 +105,6 @@ compact() { echo "${1:0:4}-${1:5:2}${1:8:2}"; }
 
 require_target() {
   [[ -n "$TARGET" ]] || { echo "ERROR: ${CMD} needs a target (see: $0 list)" >&2; exit 1; }
-  [[ "$TARGET" == "parquet" ]] && return 0
   if [[ -z "$(fulls_for "$TARGET")$(weekly_for "$TARGET")$(deltas_for "$TARGET")" ]]; then
     echo "ERROR: unknown target '${TARGET}' (see: $0 list)" >&2; exit 1
   fi
@@ -234,12 +239,6 @@ move_10() {
 stage() {
   require_target
   local label date ver
-  if [[ "$TARGET" == "parquet" ]]; then
-    read -r date ver <<< "${LATEST_SOURCE}"
-    echo "=== stage the Parquet set from ${date} (${ver}) -> ${STAGE_DIR} ==="
-    "${SCRIPT_DIR}/release-gkm-parquet.sh" "$date" "$ver" --no-upload
-    return
-  fi
   while read -r label date ver; do
     [[ -n "$label" ]] || continue
     echo "=== stage monthly ${label} (from ${date}, ${ver}) -> ${STAGE_DIR} ==="
@@ -255,7 +254,6 @@ stage() {
     echo "=== stage delta ${date} (${ver}) -> ${STAGE_DIR} ==="
     "${SCRIPT_DIR}/release-gkm-delta.sh" "$date" "$ver" --no-upload
   done < <(deltas_for "$TARGET")
-  [[ "$TARGET" == "all" ]] && { TARGET=parquet; stage; }
   return 0
 }
 
@@ -263,14 +261,6 @@ upload() {
   require_target
   local flags=() label date ver
   ${DRY_RUN} && flags+=(--dry-run)
-  if [[ "$TARGET" == "parquet" ]]; then
-    read -r date ver <<< "${LATEST_SOURCE}"
-    local pq="${STAGE_DIR}/clinvar-gkm-parquet-latest-${date}"
-    ${DRY_RUN} || [[ -d "$pq" ]] || { echo "ERROR: Parquet not staged (${pq}/)" >&2; exit 1; }
-    echo "=== upload the Parquet set (from ${date}) -> ${NEW_LINE}parquet/ ==="
-    "${SCRIPT_DIR}/upload-gkm-parquet-to-r2.sh" "$date" "$ver" "$pq" "${flags[@]+"${flags[@]}"}"
-    return
-  fi
   while read -r label date ver; do
     [[ -n "$label" ]] || continue
     local bundle="${STAGE_DIR}/clinvar-gkm-${date}.json.gz"
@@ -293,7 +283,6 @@ upload() {
     echo "=== upload delta ${date} ==="
     CURRENT_MONTH="${CURRENT_MONTH}" "${SCRIPT_DIR}/upload-gkm-delta-to-r2.sh" "$date" "$bundle" "$manifest" "${flags[@]+"${flags[@]}"}"
   done < <(deltas_for "$TARGET")
-  [[ "$TARGET" == "all" ]] && { TARGET=parquet; upload; }
   return 0
 }
 
@@ -494,9 +483,6 @@ for d in deltas:
     b = L.get(f"v1/deltas/{c(d)}/clinvar-gkm-delta_{c(d)}.json.gz"); m = L.get(f"v1/deltas/{c(d)}/manifest.json")
     est = (b or 0) + (m or 0); up += est; n_up += 3
     print(f"    {new}{folder}clinvar-gkm-delta_{c(d)}.*  ~{est/1e6:.1f} MB" + ("" if b else " (new in 1.1.0; size unknown)"))
-pq = sum(s for k, s in L.items() if k.startswith("v1/datasets/parquet/00-latest/") and k.endswith(".parquet"))
-up += pq; n_up += 23
-print(f"  parquet: {new}parquet/ 22 sections + manifest.json  ~{pq/1e9:.2f} GB")
 print(f"  plus index.json, feed.xml, README.txt; root index.json")
 print(f"  UPLOAD TOTAL: ~{n_up} objects, ~{up/1e9:.2f} GB; server-side copies {n_copy}, ~{copy/1e9:.2f} GB")
 PY
@@ -538,8 +524,7 @@ case "$CMD" in
   list)
     echo "monthly (label  source  version):"; echo "$FULLS" | awk 'NF' | sed 's/^/  /'
     echo "weekly fulls (date  version):"; echo "$WEEKLY" | awk 'NF' | sed 's/^/  /'
-    echo "deltas (date  version; ${CURRENT_MONTH} at deltas/, earlier months in deltas/YYYY-MM/):"; echo "$DELTAS" | awk 'NF' | sed 's/^/  /'
-    echo "parquet (one set, built from): ${LATEST_SOURCE}" ;;
+    echo "deltas (date  version; ${CURRENT_MONTH} at deltas/, earlier months in deltas/YYYY-MM/):"; echo "$DELTAS" | awk 'NF' | sed 's/^/  /' ;;
   plan) plan ;;
   verify-archive) verify_archive ;;
   move-1.0) move_10 ;;

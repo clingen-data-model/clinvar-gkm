@@ -1,138 +1,155 @@
 {
-  "classification": {
-    "conceptType": "Classification",
-    "name": "Pathogenic",
-    "type": "MappableConcept"
-  },
-  "direction": "supports",
-  "extensions": [
-    {
-      "name": "clinvarReviewStatus",
-      "value": "criteria provided, multiple submitters, no conflicts"
-    }
-  ],
-  "hasEvidenceLines": [
-    {
-      "directionOfEvidenceProvided": "supports",
-      "hasEvidenceItems": [
-        {
-          "classification": {
-            "conceptType": "Classification",
-            "name": "Pathogenic",
-            "type": "MappableConcept"
-          },
-          "direction": "supports",
-          "extensions": [
-            {
-              "name": "clinvarReviewStatus",
-              "value": "criteria provided, multiple submitters, no conflicts"
-            }
-          ],
-          "hasEvidenceLines": [
-            {
-              "directionOfEvidenceProvided": "supports",
-              "hasEvidenceItems": [
-                "#/scv/clinvar.submission:SCV000659085.3",
-                "#/scv/clinvar.submission:SCV002601600.1"
-              ],
-              "id": "RCV000548006.14-G-PATH-CP.contributing",
-              "strengthOfEvidenceProvided": {
-                "conceptType": "Strength",
-                "name": "Contributing",
-                "type": "MappableConcept"
-              },
-              "type": "EvidenceLine"
-            }
-          ],
-          "id": "RCV000548006.14-G-PATH-CP",
-          "proposition": {
-            "id": "RCV000548006-G-PATH-CP",
-            "object": "#/condition/clinvar.trait:17678",
-            "predicate": "isCausalFor",
-            "subject": "#/variation/clinvar:12582",
-            "type": "VariantPathogenicityProposition"
-          },
-          "quality": {
-            "conceptType": "Quality",
-            "name": "criteria provided",
-            "type": "MappableConcept"
-          },
-          "strength": {
-            "conceptType": "Strength",
-            "name": "Definitive",
-            "type": "MappableConcept"
-          },
-          "type": "Statement"
-        }
-      ],
-      "id": "RCV000548006.14-G-PATH.contributing",
-      "strengthOfEvidenceProvided": {
-        "conceptType": "Strength",
-        "name": "Contributing",
-        "type": "MappableConcept"
-      },
-      "type": "EvidenceLine"
-    }
-  ],
-  "id": "RCV000548006.14-G-PATH",
-  "proposition": {
-    "id": "RCV000548006-G-PATH",
-    "object": {
+  "schema_version": "1.2.0",
+  "condition": {
+    "clinvar.trait:17678": {
+      "id": "clinvar.trait:17678",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "RASopathy",
       "aliases": [
         "rasopathies",
         "Noonan spectrum disorder"
       ],
-      "conceptType": "Disease",
-      "id": "clinvar.trait:17678",
+      "primaryCoding": {
+        "name": "RASopathy",
+        "code": "C5555857",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C5555857",
+          "https://www.ncbi.nlm.nih.gov/medgen/C5555857"
+        ]
+      },
       "mappings": [
         {
           "coding": {
             "code": "0021060",
+            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0021060",
               "https://identifiers.org/mondo:0021060"
-            ],
-            "system": "https://mondo.monarchinitiative.org/"
+            ]
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "536391",
+            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_536391",
               "https://identifiers.org/orphanet:536391"
-            ],
-            "system": "https://www.orpha.net/"
+            ]
           },
           "relation": "relatedMatch"
         }
-      ],
-      "name": "RASopathy",
-      "primaryCoding": {
-        "code": "C5555857",
-        "iris": [
-          "https://identifiers.org/medgen:C5555857",
-          "https://www.ncbi.nlm.nih.gov/medgen/C5555857"
-        ],
-        "name": "RASopathy",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
-      },
-      "type": "MappableConcept"
+      ]
+    }
+  },
+  "propositionPathogenicity": {
+    "RCV000548006-G-PATH": {
+      "id": "RCV000548006-G-PATH",
+      "object": "#/condition/clinvar.trait:17678",
+      "predicate": "isCausalFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantPathogenicityProposition"
     },
-    "predicate": "isCausalFor",
-    "subject": "#/variation/clinvar:12582",
-    "type": "VariantPathogenicityProposition"
+    "RCV000548006-G-PATH-CP": {
+      "id": "RCV000548006-G-PATH-CP",
+      "object": "#/condition/clinvar.trait:17678",
+      "predicate": "isCausalFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantPathogenicityProposition"
+    }
   },
-  "quality": {
-    "conceptType": "Quality",
-    "name": "criteria provided",
-    "type": "MappableConcept"
+  "evidenceLine": {
+    "RCV000548006.14-G-PATH-CP.contributing": {
+      "id": "RCV000548006.14-G-PATH-CP.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV000659085.3",
+        "#/scv/clinvar.submission:SCV002601600.1"
+      ]
+    },
+    "RCV000548006.14-G-PATH.contributing": {
+      "id": "RCV000548006.14-G-PATH.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/rcv/RCV000548006.14-G-PATH-CP"
+      ]
+    }
   },
-  "strength": {
-    "conceptType": "Strength",
-    "name": "Definitive",
-    "type": "MappableConcept"
-  },
-  "type": "Statement"
+  "rcv": {
+    "RCV000548006.14-G-PATH": {
+      "id": "RCV000548006.14-G-PATH",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Definitive"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Pathogenic"
+      },
+      "proposition": "#/propositionPathogenicity/RCV000548006-G-PATH",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "criteria provided, multiple submitters, no conflicts"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/RCV000548006.14-G-PATH.contributing"
+      ]
+    },
+    "RCV000548006.14-G-PATH-CP": {
+      "id": "RCV000548006.14-G-PATH-CP",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Definitive"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Pathogenic"
+      },
+      "proposition": "#/propositionPathogenicity/RCV000548006-G-PATH-CP",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "criteria provided, multiple submitters, no conflicts"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/RCV000548006.14-G-PATH-CP.contributing"
+      ]
+    }
+  }
 }

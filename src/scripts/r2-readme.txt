@@ -1,21 +1,22 @@
-ClinVar-GKM Data Distribution -- line v1/1.1 (schema 1.1.x)
+ClinVar-GKM Data Distribution -- line v1/1.2 (schema 1.2.x)
 ==========================================================
 
 ClinVar data transformed into the GA4GH GKM schema set (VRS, Cat-VRS, VA-Spec), as gzip-compressed keyed JSON
 bundles. The layout follows NCBI's pub/clinvar/xml/ (monthly), xml/weekly_release/ and xml/archive/YYYY/, the
 source of these bundles, plus a deltas/ folder. Every bundle has a <file>.sha256 sidecar (sha256sum -c format).
 
-Version lines: v{major}/{major}.{minor}/. PATCH releases (1.1.x) extend this folder; a new MINOR starts v1/1.2/.
-The bucket-root index.json lists every line, its status (current / frozen) and schema version. v1/1.0/ is the
-frozen 1.0.1 generation.
+Version lines: v{major}/{major}.{minor}/. PATCH releases (1.2.x) extend this folder; a new MINOR starts v1/1.3/.
+The bucket-root index.json lists every line, its status (current / frozen) and schema version. Frozen lines never
+change: v1/1.1/ holds the 1.1.x releases and v1/1.0/ the 1.0.1 generation. This line started with one
+checkpoint monthly, and its deltas run forward from it; index.json lists its monthlies and deltas.
 
-Layout of this line (v1/1.1/)
+Layout of this line (v1/1.2/)
 -----------------------------
 
 clinvar-gkm_YYYY-MM.json.gz
   The official monthly full bundle for ClinVar's monthly release YYYY-MM. It is built from the newest weekly
-  release before ClinVar posted its monthly (ADR 0002), so 2026-10 holds the 2026-09-28 release. index.json gives
-  each monthly's source_release.
+  release before ClinVar posted its monthly (ADR 0002), usually the last weekly release of the month before.
+  index.json gives each monthly's source_release.
 clinvar-gkm_00-latest.json.gz
   The same bytes as the newest monthly.
 
@@ -55,9 +56,9 @@ section by section.
 Quick start
 -----------
 
-  curl -O https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz
-  curl -O https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz
-  curl -s https://data.clinvar-gkm.org/v1/1.1/index.json
+  curl -O https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
+  curl -O https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
+  curl -s https://data.clinvar-gkm.org/v1/1.2/index.json
 
 Source, attribution and disclaimer
 ----------------------------------

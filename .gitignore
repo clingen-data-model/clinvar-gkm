@@ -26,6 +26,7 @@ schema/clinvar-gkm/build/
 venv/
 tmp/
 parquet/
+!docs/parquet/
 
 .venv-vrsify/
 

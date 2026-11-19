@@ -20,10 +20,10 @@ Each record is a `Statement` with the following top-level fields:
 | --- | --- | --- |
 | `id` | string | RCV layer ID — e.g., `RCV001781420.1-G-PATH-CP` |
 | `type` | string | Always `Statement` |
-| `proposition` | string | `#/{group}-proposition/{id}` reference to the aggregate proposition (group = `varcond`/`vartumor`/`varcustom` by datatype) |
-| `classification` | object | MappableConcept — the aggregate classification label. See [Classification](#classification) |
+| `proposition` | string | `#/proposition<Meaning>/{id}` reference to the aggregate proposition (the section is set by the proposition `type`; see [ID References](id-references.md)) |
+| `classification` | object | MappableConcept — the aggregate classification label and its `primaryCoding`. See [Classification](#classification) |
 | `strength` | object | MappableConcept — the aggregate evidence strength |
-| `direction` | string | `supports`, `disputes`, or `neutral` — derived from the aggregate classification |
+| `direction` | string | `supports`, `disputes`, or `neutral` — the direction the SCVs carry for the aggregate classification. See [VCV Direction](vcv-statements.md#direction) |
 | `quality` | object | Concept struct with `conceptType: "Quality"` and `name` (the submission level label, e.g., `criteria provided`, `expert panel`) |
 | `extensions` | array of [Extension](#extensions) | ClinVar-specific aggregate metadata (0..*). See [Extensions](#extensions) |
 | `hasEvidenceLines` | array | `#/evidenceLine/` references to contributing and non-contributing evidence. See [Evidence Lines](#evidence-lines) |
@@ -40,21 +40,28 @@ RCV statements use the same MappableConcept classification as VCV:
 
 ```json
 {
+  "type": "MappableConcept",
   "conceptType": "Classification",
   "name": "Pathogenic/Likely pathogenic",
-  "extensions": [
-    {"name": "conflictingExplanation", "value": "Pathogenic(3); Likely pathogenic(2)"}
-  ]
+  "primaryCoding": {
+    "code": "pathogenic/likely pathogenic",
+    "system": "ClinVar"
+  }
 }
 ```
 
 For somatic clinical impact (SCI) propositions, the classification label may include the tier, assertion type, and clinical significance.
 
+`primaryCoding` (from schema 1.2.0) follows the same rules as VCV: see
+[`classification.primaryCoding`](../pipeline/vcv-statements/vcv-aggregation-rules.md#classification-primarycoding).
+An SCI label is coded by its tier alone, without the assertion type, significance and count
+(`Tier I (Strong) - diagnostic - supports diagnosis (1)` → `tier 1` / `AMP/ASCO/CAP (AAC) Guidelines, 2017`).
+
 ---
 
 ## Proposition
 
-RCV propositions are delivered across the four `*-proposition` bundle sections (`varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`) by their (subject, object) datatype signature. Each RCV statement references its proposition via `#/{group}-proposition/{id}`.
+RCV propositions are delivered across the four proposition bundle sections (`propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact`, `propositionClinvarCustom`) by meaning. Each RCV statement references its proposition via `#/proposition<Meaning>/{id}`.
 
 A resolved RCV proposition contains:
 
@@ -66,7 +73,7 @@ A resolved RCV proposition contains:
 | `predicate` | string | Predicate matching the underlying SCVs (e.g., `isCausalFor`) |
 | `object` | string | `#/condition/clinvar.trait:{id}` or `#/conditionSet/clinvar.traitset:{id}` reference — the specific condition for this RCV |
 
-The key difference from VCV propositions: the `object` references the specific condition for this RCV accession, sourced from the representative SCV's condition mapping. VCV propositions may carry multiple condition references from contributing SCVs.
+The key difference from VCV propositions: the `object` references the specific condition for this RCV accession, sourced from the representative SCV's condition mapping. A VCV proposition with several conditions references one `OR` condition set minted for the aggregate (see [VCV Statements](vcv-statements.md#proposition)).
 
 ---
 

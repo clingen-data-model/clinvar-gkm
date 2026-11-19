@@ -182,29 +182,20 @@ BEGIN
 
         'Statement' AS type,
 
+        -- One SCV: its own direction. Several: the lookup direction of the aggregate label
+        -- (gkm_*_proc agg_direction; #227).
         IF(ARRAY_LENGTH(agg.full_scv_ids) = 1,
           agg.scv_direction,
-          CASE
-            WHEN agg.actual_agg_classif_label IN ('Pathogenic', 'Likely pathogenic', 'Pathogenic/Likely pathogenic') THEN 'supports'
-            WHEN agg.actual_agg_classif_label IN ('Benign', 'Likely benign', 'Benign/Likely benign') THEN 'disputes'
-            WHEN agg.actual_agg_classif_label = 'Uncertain significance' THEN 'neutral'
-            WHEN agg.actual_agg_classif_label LIKE 'Conflicting%%' THEN 'neutral'
-            ELSE 'supports'
-          END
+          agg.agg_direction
         ) AS direction,
 
         (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
+          -- One SCV: its own strength. Several: the lookup strength of the aggregate label
+          -- (gkm_*_proc agg_strength_name); none for a label without one (#226).
           IF(ARRAY_LENGTH(agg.full_scv_ids) = 1,
             agg.scv_strength_name,
-            CASE
-              WHEN agg.actual_agg_classif_label IN ('Pathogenic', 'Benign', 'Oncogenic') THEN 'Definitive'
-              WHEN agg.actual_agg_classif_label IN ('Likely pathogenic', 'Likely benign', 'Likely Oncogenic') THEN 'Likely'
-              WHEN agg.actual_agg_classif_label LIKE 'Tier I%' THEN 'Strong'
-              WHEN agg.actual_agg_classif_label LIKE 'Tier II%' THEN 'Potential'
-              WHEN agg.actual_agg_classif_label LIKE 'Tier IV%' THEN 'Likely'
-              ELSE CAST(NULL AS STRING)
-            END
+            agg.agg_strength_name
           ) AS name
         )]) s WHERE s.name IS NOT NULL) AS strength,
 
@@ -213,6 +204,11 @@ BEGIN
         STRUCT(
           'MappableConcept' AS type, 'Classification' AS conceptType,
           agg.actual_agg_classif_label AS name,
+          -- Aggregate classification coding (gkm_*_proc agg_classif_coding); omitted when NULL
+          IF(agg.agg_classif_coding.code IS NOT NULL,
+            STRUCT(agg.agg_classif_coding.code AS code, agg.agg_classif_coding.system AS system),
+            NULL
+          ) AS primaryCoding,
           IF(
             agg.agg_label_conflicting_explanation IS NOT NULL AND agg.agg_label_conflicting_explanation != '',
             [STRUCT('conflictingExplanation' AS name, agg.agg_label_conflicting_explanation AS value)],
@@ -256,24 +252,13 @@ BEGIN
 
         'Statement' AS type,
 
-        CASE
-          WHEN agg.agg_label IN ('Pathogenic', 'Likely pathogenic', 'Pathogenic/Likely pathogenic') THEN 'supports'
-          WHEN agg.agg_label IN ('Benign', 'Likely benign', 'Benign/Likely benign') THEN 'disputes'
-          WHEN agg.agg_label = 'Uncertain significance' THEN 'neutral'
-          WHEN agg.agg_label LIKE 'Conflicting%%' THEN 'neutral'
-          ELSE 'supports'
-        END AS direction,
+        -- the lookup direction of the layer's label (gkm_*_proc agg_direction; #227)
+        agg.agg_direction AS direction,
 
         (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
-          CASE
-            WHEN agg.agg_label IN ('Pathogenic', 'Benign', 'Oncogenic') THEN 'Definitive'
-            WHEN agg.agg_label IN ('Likely pathogenic', 'Likely benign', 'Likely Oncogenic') THEN 'Likely'
-            WHEN agg.agg_label LIKE 'Tier I%' THEN 'Strong'
-            WHEN agg.agg_label LIKE 'Tier II%' THEN 'Potential'
-            WHEN agg.agg_label LIKE 'Tier IV%' THEN 'Likely'
-            ELSE CAST(NULL AS STRING)
-          END AS name
+          -- the lookup strength of the layer's label (gkm_*_proc agg_strength_name; #226)
+          agg.agg_strength_name AS name
         )]) s WHERE s.name IS NOT NULL) AS strength,
 
         STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, sl.label AS name) AS quality,
@@ -281,6 +266,11 @@ BEGIN
         STRUCT(
           'MappableConcept' AS type, 'Classification' AS conceptType,
           agg.agg_label AS name,
+          -- Aggregate classification coding (gkm_*_proc agg_classif_coding); omitted when NULL
+          IF(agg.agg_classif_coding.code IS NOT NULL,
+            STRUCT(agg.agg_classif_coding.code AS code, agg.agg_classif_coding.system AS system),
+            NULL
+          ) AS primaryCoding,
           IF(
             agg.agg_label_conflicting_explanation IS NOT NULL AND agg.agg_label_conflicting_explanation != '',
             [STRUCT('conflictingExplanation' AS name, agg.agg_label_conflicting_explanation AS value)],
@@ -329,24 +319,13 @@ BEGIN
 
         'Statement' AS type,
 
-        CASE
-          WHEN agg.agg_label IN ('Pathogenic', 'Likely pathogenic', 'Pathogenic/Likely pathogenic') THEN 'supports'
-          WHEN agg.agg_label IN ('Benign', 'Likely benign', 'Benign/Likely benign') THEN 'disputes'
-          WHEN agg.agg_label = 'Uncertain significance' THEN 'neutral'
-          WHEN agg.agg_label LIKE 'Conflicting%%' THEN 'neutral'
-          ELSE 'supports'
-        END AS direction,
+        -- the lookup direction of the layer's label (gkm_*_proc agg_direction; #227)
+        agg.agg_direction AS direction,
 
         (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
-          CASE
-            WHEN agg.agg_label IN ('Pathogenic', 'Benign', 'Oncogenic') THEN 'Definitive'
-            WHEN agg.agg_label IN ('Likely pathogenic', 'Likely benign', 'Likely Oncogenic') THEN 'Likely'
-            WHEN agg.agg_label LIKE 'Tier I%' THEN 'Strong'
-            WHEN agg.agg_label LIKE 'Tier II%' THEN 'Potential'
-            WHEN agg.agg_label LIKE 'Tier IV%' THEN 'Likely'
-            ELSE CAST(NULL AS STRING)
-          END AS name
+          -- the lookup strength of the layer's label (gkm_*_proc agg_strength_name; #226)
+          agg.agg_strength_name AS name
         )]) s WHERE s.name IS NOT NULL) AS strength,
 
         STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, agg.contributing_submission_level_label AS name) AS quality,
@@ -354,6 +333,11 @@ BEGIN
         STRUCT(
           'MappableConcept' AS type, 'Classification' AS conceptType,
           agg.agg_label AS name,
+          -- Aggregate classification coding (gkm_*_proc agg_classif_coding); omitted when NULL
+          IF(agg.agg_classif_coding.code IS NOT NULL,
+            STRUCT(agg.agg_classif_coding.code AS code, agg.agg_classif_coding.system AS system),
+            NULL
+          ) AS primaryCoding,
           IF(
             agg.agg_label_conflicting_explanation IS NOT NULL AND agg.agg_label_conflicting_explanation != '',
             [STRUCT('conflictingExplanation' AS name, agg.agg_label_conflicting_explanation AS value)],
@@ -524,7 +508,10 @@ BEGIN
         )), remove_empty => TRUE) as value
       FROM (
         SELECT a.*,
-          IF(ARRAY_LENGTH(a.unique_conditions) = 0, CAST(NULL AS STRING),
+          -- base class requires object; a VCV's conditions come only from its member SCVs (VCV
+          -- never reads RCV), so there is no fallback: fail the build rather than ship none.
+          IF(IFNULL(ARRAY_LENGTH(a.unique_conditions), 0) = 0,
+            ERROR(FORMAT('VCV proposition %s has no object: none of its SCVs resolves a condition', a.prop_id)),
             IF(ARRAY_LENGTH(a.unique_conditions) = 1,
               FORMAT(IF(STARTS_WITH(a.unique_conditions[OFFSET(0)], 'clinvar.traitset:'), '#/conditionSet/%s', '#/condition/%s'), a.unique_conditions[OFFSET(0)]),
               CONCAT('#/conditionSet/clinvar.conditionset:vcv-', TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(a.unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|')))))) AS obj_ref
@@ -559,7 +546,10 @@ BEGIN
         )), remove_empty => TRUE) as value
       FROM (
         SELECT a.*,
-          IF(ARRAY_LENGTH(a.unique_conditions) = 0, CAST(NULL AS STRING),
+          -- base class requires object; a VCV's conditions come only from its member SCVs (VCV
+          -- never reads RCV), so there is no fallback: fail the build rather than ship none.
+          IF(IFNULL(ARRAY_LENGTH(a.unique_conditions), 0) = 0,
+            ERROR(FORMAT('VCV proposition %s has no object: none of its SCVs resolves a condition', a.prop_id)),
             IF(ARRAY_LENGTH(a.unique_conditions) = 1,
               FORMAT(IF(STARTS_WITH(a.unique_conditions[OFFSET(0)], 'clinvar.traitset:'), '#/conditionSet/%s', '#/condition/%s'), a.unique_conditions[OFFSET(0)]),
               CONCAT('#/conditionSet/clinvar.conditionset:vcv-', TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(a.unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|')))))) AS obj_ref
@@ -594,7 +584,10 @@ BEGIN
         )), remove_empty => TRUE) as value
       FROM (
         SELECT a.*,
-          IF(ARRAY_LENGTH(a.unique_conditions) = 0, CAST(NULL AS STRING),
+          -- base class requires object; a VCV's conditions come only from its member SCVs (VCV
+          -- never reads RCV), so there is no fallback: fail the build rather than ship none.
+          IF(IFNULL(ARRAY_LENGTH(a.unique_conditions), 0) = 0,
+            ERROR(FORMAT('VCV proposition %s has no object: none of its SCVs resolves a condition', a.prop_id)),
             IF(ARRAY_LENGTH(a.unique_conditions) = 1,
               FORMAT(IF(STARTS_WITH(a.unique_conditions[OFFSET(0)], 'clinvar.traitset:'), '#/conditionSet/%s', '#/condition/%s'), a.unique_conditions[OFFSET(0)]),
               CONCAT('#/conditionSet/clinvar.conditionset:vcv-', TO_HEX(MD5(ARRAY_TO_STRING(ARRAY(SELECT c FROM UNNEST(a.unique_conditions) c WHERE c IS NOT NULL ORDER BY c), '|')))))) AS obj_ref

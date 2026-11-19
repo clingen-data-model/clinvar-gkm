@@ -8,7 +8,7 @@ For details on how the output is built, see the [Pipeline](../pipeline/index.md)
 
 ## Release Format
 
-Each release is available as a gzip-compressed JSON file (`.json.gz`) containing a root-level object with **bundle sections**, and optionally as a set of typed Parquet files (one per section). Each bundle section is a keyed collection — the key is the object's unique identifier, and the value is the complete object.
+Each release is available as a gzip-compressed JSON file (`.json.gz`) containing a root-level object with **bundle sections**, and, for the latest release, as a set of typed Parquet files (one per section) built from the bundle. Each bundle section is a keyed collection — the key is the object's unique identifier, and the value is the complete object.
 
 See [Output Format Overview](overview.md) for a detailed guide to the bundle structure, reference patterns, and how to navigate between sections.
 
@@ -50,7 +50,7 @@ See [Output Format Overview](overview.md) for a detailed guide to the bundle str
 Objects reference each other using `#/` JSON pointer strings rather than embedding full objects. This keeps the file compact and avoids duplication. For example:
 
 - A **variation** references its allele as `#/allele/ga4gh:VA.abc123`
-- An **SCV statement** references its proposition as `#/varcond-proposition/SCV001234567-PATH` (propositions are delivered in four `*-proposition` sections by datatype — `varcond`, `vartumor`, `vartherapy`, `varcustom`)
+- An **SCV statement** references its proposition as `#/propositionPathogenicity/SCV001234567-PATH` (propositions are delivered in four sections grouped by meaning — `propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact`, `propositionClinvarCustom`)
 - A **VCV evidence line** references its contributing SCVs as `#/scv/clinvar.submission:SCV001234567.1`
 
 See [ID References](id-references.md) for the complete reference format guide, identifier patterns, and resolution rules.

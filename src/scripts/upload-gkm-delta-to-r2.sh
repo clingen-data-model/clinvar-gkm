@@ -1,6 +1,6 @@
 #!/bin/bash
 # Upload a ClinVar-GKM weekly DELTA (bundle + .sha256 sidecar + manifest) to its place in the version line
-# (R2_LINE, default v1/1.1/; layout in r2_layout.py):
+# (R2_LINE, default v1/1.2/; layout in r2_layout.py):
 #
 #   <line>deltas/clinvar-gkm-delta_YYYY-MMDD.json.gz (+ .sha256, + .manifest.json)   the line's current month
 #   <line>deltas/YYYY-MM/clinvar-gkm-delta_YYYY-MMDD.*                               an earlier month this year

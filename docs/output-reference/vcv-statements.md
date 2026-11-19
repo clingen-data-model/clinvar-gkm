@@ -18,10 +18,10 @@ Each record is a `Statement` with the following top-level fields:
 | --- | --- | --- |
 | `id` | string | VCV layer ID — e.g., `VCV000012582.63-G-PATH-CP` |
 | `type` | string | Always `Statement` |
-| `proposition` | string | `#/{group}-proposition/{id}` reference to the aggregate proposition (group = `varcond`/`vartumor`/`varcustom` by datatype) |
-| `classification` | object | MappableConcept — the aggregate classification label. See [Classification](#classification) |
+| `proposition` | string | `#/proposition<Meaning>/{id}` reference to the aggregate proposition (the section is set by the proposition `type`; see [ID References](id-references.md)) |
+| `classification` | object | MappableConcept — the aggregate classification label and its `primaryCoding`. See [Classification](#classification) |
 | `strength` | object | MappableConcept — the aggregate evidence strength. See [Strength](#strength) |
-| `direction` | string | `supports`, `disputes`, or `neutral` — derived from the aggregate classification |
+| `direction` | string | `supports`, `disputes`, or `neutral` — the direction the SCVs carry for the aggregate classification. See [Direction](#direction) |
 | `quality` | object | Concept struct with `conceptType: "Quality"` and `name` (the submission level label, e.g., `criteria provided`, `expert panel`) |
 | `extensions` | array of [Extension](#extensions) | ClinVar-specific aggregate metadata (0..*). See [Extensions](#extensions) |
 | `hasEvidenceLines` | array | `#/evidenceLine/` references to contributing and non-contributing evidence. See [Evidence Lines](#evidence-lines) |
@@ -32,25 +32,40 @@ Each record is a `Statement` with the following top-level fields:
 
 ## Classification
 
-The `classification` field is a MappableConcept with the aggregate classification label:
+The `classification` field is a MappableConcept with the aggregate classification label and its coding:
 
 ```json
 {
+  "type": "MappableConcept",
   "conceptType": "Classification",
-  "name": "Pathogenic/Likely pathogenic",
+  "name": "Conflicting classifications of pathogenicity",
+  "primaryCoding": {
+    "code": "conflicting classifications of pathogenicity",
+    "system": "ClinVar"
+  },
   "extensions": [
-    {"name": "conflictingExplanation", "value": "Pathogenic(3); Likely pathogenic(2)"}
+    {"name": "conflictingExplanation", "value": "Pathogenic(3); Uncertain significance(2)"}
   ]
 }
 ```
 
 The `extensions` array includes a `conflictingExplanation` when multiple contributing submissions have different clinical significance values. This extension is only present for CP-level aggregations with conflicts.
 
+`primaryCoding` (from schema 1.2.0) codes the label. A label that is one classification term has the coding
+its SCVs carry, with the code in lower case (`Pathogenic` → `pathogenic` / `ACMG Guidelines, 2015`). A somatic
+clinical impact label is coded by its tier, without the tumor-type text (`Tier I (Strong) for 2 tumor types` →
+`tier 1` / `AMP/ASCO/CAP (AAC) Guidelines, 2017`). Any other label, such as a combination, a conflicting
+classification or `no classifications from unflagged records`, is a ClinVar-defined term: the label in lower
+case as the code and `ClinVar` as the system. See
+[`classification.primaryCoding`](../pipeline/vcv-statements/vcv-aggregation-rules.md#classification-primarycoding)
+for the rules and the list of ClinVar-defined codes.
+
 ---
 
 ## Strength
 
-The `strength` field is a MappableConcept derived from the aggregate classification:
+The `strength` field is a MappableConcept: the strength the SCVs carry for the aggregate classification, from
+the same `clinvar_clinsig_types` row that gives the classification its `primaryCoding`:
 
 ```json
 {
@@ -61,20 +76,41 @@ The `strength` field is a MappableConcept derived from the aggregate classificat
 
 | Classification | Strength |
 | --- | --- |
-| Pathogenic, Benign, Oncogenic | Definitive |
-| Likely pathogenic, Likely benign, Likely Oncogenic | Likely |
-| Tier I (strong clinical significance) | Strong |
-| Tier II (potential clinical significance) | Potential |
-| Tier IV (benign/likely benign) | Likely |
-| Uncertain, Conflicting, Tier III | *null (omitted)* |
+| Pathogenic; Benign; Oncogenic; Pathogenic, low penetrance; Established risk allele | Definitive |
+| Likely pathogenic; Likely benign; Likely oncogenic; Likely pathogenic, low penetrance; Likely risk allele | Likely |
+| Tier I (Strong) | Strong |
+| Tier II (Potential) | Potential |
+| Tier III; Tier IV; Uncertain significance; Conflicting; combinations such as Pathogenic/Likely pathogenic; any other label | *null (omitted)* |
 
-For single-SCV aggregations, the strength is passed through from the contributing SCV.
+A somatic clinical impact statement takes its tier's strength (at the priority and aggregate layers, the top
+tier's). A classification-layer statement with one SCV passes that SCV's strength through. See
+[`quality`, `direction`, and `strength`](../pipeline/vcv-statements/vcv-aggregation-rules.md#quality-direction-and-strength).
+
+---
+
+## Direction
+
+The `direction` field is a string: the direction the SCVs carry for the aggregate classification, from the same
+`clinvar_clinsig_types` row that gives the classification its `primaryCoding`. Every VCV statement has one.
+
+| Classification | Direction |
+| --- | --- |
+| Pathogenic; Likely pathogenic; Pathogenic/Likely pathogenic; Oncogenic; Likely oncogenic; the low-penetrance and risk-allele labels except Uncertain risk allele; Tier I; Tier II; association; and ClinVar's other proposition types | `supports` |
+| Uncertain significance; VUS-high, VUS-mid, VUS-low; Uncertain risk allele; Tier III; conflicting data from submitters | `neutral` |
+| Benign; Likely benign; Benign/Likely benign; Tier IV; association not found | `disputes` |
+| Conflicting classifications of pathogenicity / oncogenicity (no lookup row) | `neutral` |
+| The FLAG label `no classifications from unflagged records` (no lookup row) | `neutral` |
+| Combinations not in the lookup, such as Uncertain significance/VUS-high (no lookup row) | the direction every SCV in the group carries; `supports` if they differ |
+
+A somatic clinical impact statement takes its tier's direction (at the priority and aggregate layers, the top
+tier's). A classification-layer statement with one SCV passes that SCV's direction through. See
+[`quality`, `direction`, and `strength`](../pipeline/vcv-statements/vcv-aggregation-rules.md#quality-direction-and-strength).
 
 ---
 
 ## Proposition
 
-VCV propositions are delivered across the four `*-proposition` bundle sections (`varcond-proposition`, `vartumor-proposition`, `vartherapy-proposition`, `varcustom-proposition`) by their (subject, object) datatype signature. Each VCV statement references its proposition via `#/{group}-proposition/{id}`.
+VCV propositions are delivered across the four proposition bundle sections (`propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact`, `propositionClinvarCustom`) by meaning. Each VCV statement references its proposition via `#/proposition<Meaning>/{id}`.
 
 A resolved VCV proposition contains:
 
@@ -84,7 +120,7 @@ A resolved VCV proposition contains:
 | `id` | string | Proposition ID (e.g., `VCV000012582-G-PATH-CP`) |
 | `subject` | string | `#/variation/clinvar:{id}` reference |
 | `predicate` | string | Predicate matching the underlying SCVs (e.g., `isCausalFor`) |
-| `object` | array | Unique condition references from contributing SCVs (`#/condition/` and/or `#/conditionSet/`) |
+| `object` | string | One reference to the conditions of the contributing SCVs. A single condition is `#/condition/clinvar.trait:{id}`, or `#/conditionSet/clinvar.traitset:{id}` when it is a ClinVar trait set. Several conditions are `#/conditionSet/clinvar.conditionset:vcv-{md5}`: a ConceptSet minted for the aggregate, with `membershipOperator: "OR"` and one `#/condition/` or `#/conditionSet/` reference per condition. Omitted when the contributing SCVs carry no condition |
 
 ---
 

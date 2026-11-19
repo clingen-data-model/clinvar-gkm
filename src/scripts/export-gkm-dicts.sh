@@ -1,27 +1,22 @@
 #!/bin/bash
 # export-gkm-dicts.sh
-# Export all GKS dictionary tables to GCS as NDJSON and/or Parquet
+# Export all GKS dictionary tables to GCS as NDJSON, the input of the bundle assembler.
 #
-# Usage: ./export-gkm-dicts.sh <dataset> <gcs_bucket> [prefix] [--parquet-only | --ndjson-only] [--delta]
+# Usage: ./export-gkm-dicts.sh <dataset> <gcs_bucket> [prefix] [--delta]
 #
-# --ndjson-only exports the bundle NDJSON and no Parquet: the monthly full and delta releases publish no
-# Parquet (only the single latest set, built by release-gkm-parquet.sh with --parquet-only).
+# No Parquet: the one published Parquet set is built from the bundle by gkm-bundle-parquet
+# (release-gkm-parquet.sh), never exported from BigQuery.
 # Example: ./export-gkm-dicts.sh clinvar_2025_06_08 clinvar-gkm gkm-dicts
-# Example: ./export-gkm-dicts.sh clinvar_2025_06_08 clinvar-gkm gkm-dicts --parquet-only
 
 set -euo pipefail
 
 # Parse positional args and flags
-DATASET="${1:?Usage: $0 <dataset> <gcs_bucket> [prefix] [--parquet-only] [--delta]}"
-BUCKET="${2:?Usage: $0 <dataset> <gcs_bucket> [prefix] [--parquet-only] [--delta]}"
+DATASET="${1:?Usage: $0 <dataset> <gcs_bucket> [prefix] [--delta]}"
+BUCKET="${2:?Usage: $0 <dataset> <gcs_bucket> [prefix] [--delta]}"
 PREFIX="${3:-gkm-dicts}"
-PARQUET_ONLY=false
-NDJSON_ONLY=false
 DELTA=false
 for arg in "$@"; do
   case "$arg" in
-    --parquet-only) PARQUET_ONLY=true ;;
-    --ndjson-only) NDJSON_ONLY=true ;;
     --delta) DELTA=true ;;
   esac
 done
@@ -31,11 +26,6 @@ src_table() {           # $1 = base dict table, e.g. gkm_dict_scv
 }
 
 GCS_PATH="gs://${BUCKET}/${PREFIX}"
-PARQUET_PREFIX="${PREFIX}-parquet"
-GCS_PARQUET_PATH="gs://${BUCKET}/${PARQUET_PREFIX}"
-
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SCHEMA_DIR="${SCRIPT_DIR}/parquet-schemas"
 
 echo "Exporting GKS dictionaries from ${DATASET}"
 
@@ -89,46 +79,6 @@ export_variation_ndjson() {
     FROM \`${DATASET}.${table}\`"
 }
 
-extract_parquet_typed() {
-  # Export via EXPORT DATA using a SQL schema file from parquet-schemas/.
-  # Schema files define typed columns, FK cleanup, and data column.
-  # The {DATASET} placeholder is substituted with the target dataset, and {SECTION} with the optional
-  # third argument (the shared proposition.sql template is exported once per proposition section).
-  local basename="$1"
-  local sql_file="$2"
-  local section="${3:-}"
-  local sharded="${basename%.parquet}-*.parquet"
-  local schema_path="${SCHEMA_DIR}/${sql_file}"
-  if [[ ! -f "${schema_path}" ]]; then
-    echo "  ERROR: Schema file not found: ${schema_path}" >&2
-    return 1
-  fi
-  local sql
-  sql=$(<"${schema_path}")
-  sql="${sql//\{DATASET\}/${DATASET}}"
-  sql="${sql//\{SECTION\}/${section}}"
-  if $DELTA; then
-    # Typed-Parquet can't use src_table() (the table name is embedded inside the schema SQL,
-    # not passed as a CLI arg). Every {DATASET}.gkm_dict_* table a parquet-schemas/*.sql
-    # references (proposition.sql references the three proposition dicts) has a delta_gkm_dict_* counterpart,
-    # and no schema file uses "gkm_dict_" in any alias/column/literal, so rewriting every
-    # qualified reference is safe. Invariant future schema authors must preserve.
-    sql="${sql//.gkm_dict_/.delta_gkm_dict_}"
-  fi
-  echo "  Exporting ${section:-${sql_file%.sql}} -> ${sharded} (Parquet via EXPORT DATA)"
-  # ${COLLAPSE_UDF} makes collapse_ext_values(...) (the extension value_xxx -> value collapse),
-  # is_blank(...) (all-null placeholder test) and bundle_cleanup(...) available to every schema file.
-  bq query --use_legacy_sql=false --nouse_cache \
-    "${COLLAPSE_UDF}
-    EXPORT DATA OPTIONS(
-      uri='${GCS_PARQUET_PATH}/${sharded}',
-      format='PARQUET',
-      compression='SNAPPY',
-      overwrite=true
-    ) AS
-    ${sql}"
-}
-
 # Proposition sections (1.1.0, by meaning): the 3 per-level proposition dicts are delivered as the 4
 # sections below. A row's section is clinvar_ingest.gkm_proposition_section(type), the ONE canonical
 # mapping (src/procedures/gkm-proposition-section-func.sql) the statement procs use for their pointers.
@@ -161,17 +111,7 @@ assert_proposition_sections() {
 # populated `value_*` key (JSON_STRIP_NULLS already dropped the rest) to `value` in every extension object
 # (any object with a `name` sibling), at any nesting depth. The gkm_dict_* tables keep `value_*`; only the
 # bundle export is collapsed. Prepend ${COLLAPSE_UDF} to any query that uses collapse_ext_values(...).
-# It also defines:
-#   is_blank(x)        TRUE when x is NULL or holds only nulls / empty arrays / empty structs at every depth
-#                      (what JSON_STRIP_NULLS remove_empty drops). Typed-Parquet schema files use it to drop
-#                      all-null placeholder structs and array elements the bundle does not carry.
-#   bundle_cleanup(j)  the assembler's exact record cleanup (gkm_json_cleanup.py strip_empty, then the
-#                      value_* collapse) for KV `data`/`value` columns, which the bundle cleans only in the
-#                      assembler. Unlike JSON_STRIP_NULLS it KEEPS list elements, so a VRS Range [null, n]
-#                      keeps its null bound (JSON_STRIP_NULLS would turn it into [n]).
 COLLAPSE_UDF=$(cat <<'SQL'
-CREATE TEMP FUNCTION is_blank(x ANY TYPE) AS (
-  JSON_TYPE(JSON_STRIP_NULLS(TO_JSON(x), remove_empty => TRUE)) = 'null');
 CREATE TEMP FUNCTION collapse_ext_values(j STRING)
 RETURNS STRING
 LANGUAGE js AS r"""
@@ -184,31 +124,6 @@ LANGUAGE js AS r"""
     }
   }
   const p = JSON.parse(j); walk(p); return JSON.stringify(p);
-""";
-CREATE TEMP FUNCTION bundle_cleanup(j STRING)
-RETURNS STRING
-LANGUAGE js AS r"""
-  if (j == null) return null;
-  function strip(v){
-    if (Array.isArray(v)) return v.map(strip);
-    if (v && typeof v === "object"){
-      const o = {};
-      for (const k of Object.keys(v)){
-        const s = strip(v[k]);
-        if (!(s === null || (typeof s === "object" && Object.keys(s).length === 0))) o[k] = s;
-      }
-      return o;
-    }
-    return v;
-  }
-  function walk(o){
-    if (Array.isArray(o)){ for (const x of o) walk(x); return; }
-    if (o && typeof o === "object"){
-      if ("name" in o){ for (const k of Object.keys(o)){ if (k.indexOf("value_")===0){ o["value"]=o[k]; delete o[k]; } } }
-      for (const k of Object.keys(o)) walk(o[k]);
-    }
-  }
-  const p = strip(JSON.parse(j)); walk(p); return JSON.stringify(p);
 """;
 SQL
 )
@@ -254,102 +169,50 @@ export_ndjson_ext_collapse() {
 
 assert_proposition_sections
 
-if ! $PARQUET_ONLY; then
-  echo "Exporting NDJSON files to ${GCS_PATH}"
+echo "Exporting NDJSON files to ${GCS_PATH}"
 
-  # Cat-VRS dictionaries (from gkm_catvar_proc)
-  extract "$(src_table gkm_dict_sequence_reference)" sequenceReference.ndjson.gz
-  extract "$(src_table gkm_dict_location)" location.ndjson.gz
-  extract "$(src_table gkm_dict_allele)" allele.ndjson.gz
-  extract "$(src_table gkm_dict_copy_number_count)" copyNumberCount.ndjson.gz
-  extract "$(src_table gkm_dict_copy_number_change)" copyNumberChange.ndjson.gz
-  extract "$(src_table gkm_dict_gene)" gene.ndjson.gz
-  export_variation_ndjson "$(src_table gkm_dict_variation)"
+# Cat-VRS dictionaries (from gkm_catvar_proc)
+extract "$(src_table gkm_dict_sequence_reference)" sequenceReference.ndjson.gz
+extract "$(src_table gkm_dict_location)" location.ndjson.gz
+extract "$(src_table gkm_dict_allele)" allele.ndjson.gz
+extract "$(src_table gkm_dict_copy_number_count)" copyNumberCount.ndjson.gz
+extract "$(src_table gkm_dict_copy_number_change)" copyNumberChange.ndjson.gz
+extract "$(src_table gkm_dict_gene)" gene.ndjson.gz
+export_variation_ndjson "$(src_table gkm_dict_variation)"
 
-  # Condition dictionaries (from gkm_scv_condition_proc)
-  extract "$(src_table gkm_dict_condition)" condition.ndjson.gz
-  # conditionSet: drop single-member sets (va-spec ConceptSet minItems:2). A one-concept
-  # set is just that condition — every producer references the lone member directly as
-  # #/condition/, never the set (0 of ~2.96M proposition.object refs point at a
-  # <=1-concept set), so single-member sets are unreferenced orphans. Mirrors conditionSet.sql.
-  extract_ndjson_where "$(src_table gkm_dict_condition_set)" conditionSet.ndjson.gz "ARRAY_LENGTH(concepts) > 1"
+# Condition dictionaries (from gkm_scv_condition_proc)
+extract "$(src_table gkm_dict_condition)" condition.ndjson.gz
+# conditionSet: drop single-member sets (va-spec ConceptSet minItems:2). A one-concept
+# set is just that condition — every producer references the lone member directly as
+# #/condition/, never the set (0 of ~2.96M proposition.object refs point at a
+# <=1-concept set), so single-member sets are unreferenced orphans. Mirrors conditionSet.sql.
+extract_ndjson_where "$(src_table gkm_dict_condition_set)" conditionSet.ndjson.gz "ARRAY_LENGTH(concepts) > 1"
 
-  # Therapy dictionaries (from gkm_scv_statement_proc) — content-addressed dedup; the
-  # therapeutic proposition `object` references these via #/therapy/ and #/therapyGroup/.
-  extract "$(src_table gkm_dict_therapy)" therapy.ndjson.gz
-  extract "$(src_table gkm_dict_therapygroup)" therapyGroup.ndjson.gz
+# Therapy dictionaries (from gkm_scv_statement_proc) — content-addressed dedup; the
+# therapeutic proposition `object` references these via #/therapy/ and #/therapyGroup/.
+extract "$(src_table gkm_dict_therapy)" therapy.ndjson.gz
+extract "$(src_table gkm_dict_therapygroup)" therapyGroup.ndjson.gz
 
-  # SCV dictionaries (from gkm_scv_statement_proc)
-  extract "$(src_table gkm_dict_submitter)" submitter.ndjson.gz
-  export_ndjson_ext_collapse "$(src_table gkm_dict_evidence_line)" evidenceLine.ndjson.gz
+# SCV dictionaries (from gkm_scv_statement_proc)
+extract "$(src_table gkm_dict_submitter)" submitter.ndjson.gz
+export_ndjson_ext_collapse "$(src_table gkm_dict_evidence_line)" evidenceLine.ndjson.gz
 
-  # Proposition sections (1.1.0, by meaning): the 3 per-level proposition dicts are split into the
-  # PROP_SECTIONS by the canonical function. Delta-aware: the helper reads
-  # $(src_table gkm_dict_*proposition), so --delta mode emits proposition deltas split the same way
-  # (build-delta-manifest.py resolves each changed key to its section with the same function).
-  for section in ${PROP_SECTIONS}; do
-    export_proposition_section_ndjson "${section}"
-  done
-
-  # VCV/RCV evidence line dictionaries (propositions handled by the section split above)
-  extract "$(src_table gkm_dict_vcv_evidence_line)" vcv_evidenceLine.ndjson.gz
-  extract "$(src_table gkm_dict_rcv_evidence_line)" rcv_evidenceLine.ndjson.gz
-
-  # Statement outputs
-  export_ndjson_ext_collapse "$(src_table gkm_dict_scv)" scv.ndjson.gz
-  extract "$(src_table gkm_dict_vcv)" vcv.ndjson.gz
-  extract "$(src_table gkm_dict_rcv)" rcv.ndjson.gz
-fi
-
-if $NDJSON_ONLY; then
-  echo "Done (--ndjson-only: no Parquet)."
-  echo "  NDJSON:  ${GCS_PATH}/"
-  exit 0
-fi
-
-echo ""
-echo "Exporting Parquet files to ${GCS_PARQUET_PATH}"
-
-# Cat-VRS (typed columns extracted from KV JSON values)
-extract_parquet_typed sequenceReference.parquet sequenceReference.sql
-extract_parquet_typed location.parquet location.sql
-extract_parquet_typed allele.parquet allele.sql
-extract_parquet_typed copyNumberCount.parquet copyNumberCount.sql
-extract_parquet_typed copyNumberChange.parquet copyNumberChange.sql
-extract_parquet_typed gene.parquet gene.sql
-extract_parquet_typed variation.parquet variation.sql
-
-# Conditions
-extract_parquet_typed condition.parquet condition.sql
-extract_parquet_typed conditionSet.parquet conditionSet.sql
-
-# Therapies (key/value JSON dicts -> two string columns key,value). Typed export casts the
-# JSON `value` to a STRING (TO_JSON_STRING); a raw bq extract can't export a JSON column.
-extract_parquet_typed therapy.parquet therapy.sql
-extract_parquet_typed therapyGroup.parquet therapyGroup.sql
-
-# SCV
-extract_parquet_typed submitter.parquet submitter.sql
-extract_parquet_typed evidenceLine.parquet evidenceLine.sql
-
-# Proposition sections (1.1.0, by meaning): one table per section, all with the one shared column schema
-# of proposition.sql, so read_parquet('proposition*.parquet') unions them. Same split and fail-loud
-# function as the NDJSON export; assert_proposition_sections (above) covered every row.
+# Proposition sections (1.1.0, by meaning): the 3 per-level proposition dicts are split into the
+# PROP_SECTIONS by the canonical function. Delta-aware: the helper reads
+# $(src_table gkm_dict_*proposition), so --delta mode emits proposition deltas split the same way
+# (build-delta-manifest.py resolves each changed key to its section with the same function).
 for section in ${PROP_SECTIONS}; do
-  extract_parquet_typed "${section}.parquet" proposition.sql "${section}"
+  export_proposition_section_ndjson "${section}"
 done
 
-# VCV/RCV evidence lines
-extract_parquet_typed vcv_evidenceLine.parquet vcv_evidenceLine.sql
-extract_parquet_typed rcv_evidenceLine.parquet rcv_evidenceLine.sql
+# VCV/RCV evidence line dictionaries (propositions handled by the section split above)
+extract "$(src_table gkm_dict_vcv_evidence_line)" vcv_evidenceLine.ndjson.gz
+extract "$(src_table gkm_dict_rcv_evidence_line)" rcv_evidenceLine.ndjson.gz
 
-# Statements
-extract_parquet_typed scv.parquet scv.sql
-extract_parquet_typed vcv.parquet vcv.sql
-extract_parquet_typed rcv.parquet rcv.sql
+# Statement outputs
+export_ndjson_ext_collapse "$(src_table gkm_dict_scv)" scv.ndjson.gz
+extract "$(src_table gkm_dict_vcv)" vcv.ndjson.gz
+extract "$(src_table gkm_dict_rcv)" rcv.ndjson.gz
 
 echo "Done."
-if ! $PARQUET_ONLY; then
-  echo "  NDJSON:  ${GCS_PATH}/"
-fi
-echo "  Parquet: ${GCS_PARQUET_PATH}/"
+echo "  NDJSON:  ${GCS_PATH}/"

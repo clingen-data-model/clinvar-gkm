@@ -1,183 +1,203 @@
 {
-  "classification": {
-    "conceptType": "Classification",
-    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
-    "type": "MappableConcept"
-  },
-  "direction": "supports",
-  "hasEvidenceLines": [
-    {
-      "directionOfEvidenceProvided": "supports",
-      "hasEvidenceItems": [
-        {
-          "classification": {
-            "conceptType": "Classification",
-            "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
-            "type": "MappableConcept"
-          },
-          "direction": "supports",
-          "hasEvidenceLines": [
-            {
-              "directionOfEvidenceProvided": "supports",
-              "hasEvidenceItems": [
-                {
-                  "classification": {
-                    "conceptType": "Classification",
-                    "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
-                    "type": "MappableConcept"
-                  },
-                  "direction": "supports",
-                  "extensions": [
-                    {
-                      "name": "clinvarReviewStatus",
-                      "value": "criteria provided, single submitter"
-                    }
-                  ],
-                  "hasEvidenceLines": [
-                    {
-                      "directionOfEvidenceProvided": "supports",
-                      "hasEvidenceItems": [
-                        "#/scv/clinvar.submission:SCV007105520.1"
-                      ],
-                      "id": "RCV006253522.1-S-SCI-CP-T1.contributing",
-                      "strengthOfEvidenceProvided": {
-                        "conceptType": "Strength",
-                        "name": "Contributing",
-                        "type": "MappableConcept"
-                      },
-                      "type": "EvidenceLine"
-                    }
-                  ],
-                  "id": "RCV006253522.1-S-SCI-CP-T1",
-                  "proposition": {
-                    "id": "RCV006253522-S-SCI-CP-T1",
-                    "object": "#/condition/clinvar.trait:25813",
-                    "predicate": "hasClinicalSignificanceFor",
-                    "subject": "#/variation/clinvar:12582",
-                    "type": "VariantClinicalSignificanceProposition"
-                  },
-                  "quality": {
-                    "conceptType": "Quality",
-                    "name": "criteria provided",
-                    "type": "MappableConcept"
-                  },
-                  "strength": {
-                    "conceptType": "Strength",
-                    "name": "Strong",
-                    "type": "MappableConcept"
-                  },
-                  "type": "Statement"
-                }
-              ],
-              "id": "RCV006253522.1-S-SCI-CP.contributing",
-              "strengthOfEvidenceProvided": {
-                "conceptType": "Strength",
-                "name": "Contributing",
-                "type": "MappableConcept"
-              },
-              "type": "EvidenceLine"
-            }
-          ],
-          "id": "RCV006253522.1-S-SCI-CP",
-          "proposition": {
-            "id": "RCV006253522-S-SCI-CP",
-            "object": "#/condition/clinvar.trait:25813",
-            "predicate": "hasClinicalSignificanceFor",
-            "subject": "#/variation/clinvar:12582",
-            "type": "VariantClinicalSignificanceProposition"
-          },
-          "quality": {
-            "conceptType": "Quality",
-            "name": "criteria provided",
-            "type": "MappableConcept"
-          },
-          "strength": {
-            "conceptType": "Strength",
-            "name": "Strong",
-            "type": "MappableConcept"
-          },
-          "type": "Statement"
-        }
-      ],
-      "id": "RCV006253522.1-S-SCI.contributing",
-      "strengthOfEvidenceProvided": {
-        "conceptType": "Strength",
-        "name": "Contributing",
-        "type": "MappableConcept"
-      },
-      "type": "EvidenceLine"
-    }
-  ],
-  "id": "RCV006253522.1-S-SCI",
-  "proposition": {
-    "id": "RCV006253522-S-SCI",
-    "object": {
+  "schema_version": "1.2.0",
+  "condition": {
+    "clinvar.trait:25813": {
+      "id": "clinvar.trait:25813",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Embryonal rhabdomyosarcoma",
       "aliases": [
         "Botryoid rhabdomyosarcoma (type of ERMS)",
         "Spindle cell rhabdomyosarcomas (type of ERMS)"
       ],
-      "conceptType": "Disease",
-      "id": "clinvar.trait:25813",
+      "primaryCoding": {
+        "name": "Embryonal rhabdomyosarcoma",
+        "code": "C0206656",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C0206656",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0206656"
+        ]
+      },
       "mappings": [
         {
           "coding": {
             "code": "0006743",
+            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0006743",
               "https://identifiers.org/HP:0006743"
-            ],
-            "system": "https://hpo.jax.org/"
+            ]
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "0009993",
+            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0009993",
               "https://identifiers.org/mondo:0009993"
-            ],
-            "system": "https://mondo.monarchinitiative.org/"
+            ]
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "99757",
+            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_99757",
               "https://identifiers.org/orphanet:99757"
-            ],
-            "system": "https://www.orpha.net/"
+            ]
           },
           "relation": "relatedMatch"
         }
-      ],
-      "name": "Embryonal rhabdomyosarcoma",
-      "primaryCoding": {
-        "code": "C0206656",
-        "iris": [
-          "https://identifiers.org/medgen:C0206656",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0206656"
-        ],
-        "name": "Embryonal rhabdomyosarcoma",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
-      },
-      "type": "MappableConcept"
+      ]
+    }
+  },
+  "propositionSomaticClinicalImpact": {
+    "RCV006253522-S-SCI": {
+      "id": "RCV006253522-S-SCI",
+      "object": "#/condition/clinvar.trait:25813",
+      "predicate": "hasClinicalSignificanceFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantClinicalSignificanceProposition"
     },
-    "predicate": "hasClinicalSignificanceFor",
-    "subject": "#/variation/clinvar:12582",
-    "type": "VariantClinicalSignificanceProposition"
+    "RCV006253522-S-SCI-CP": {
+      "id": "RCV006253522-S-SCI-CP",
+      "object": "#/condition/clinvar.trait:25813",
+      "predicate": "hasClinicalSignificanceFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantClinicalSignificanceProposition"
+    },
+    "RCV006253522-S-SCI-CP-T1": {
+      "id": "RCV006253522-S-SCI-CP-T1",
+      "object": "#/condition/clinvar.trait:25813",
+      "predicate": "hasClinicalSignificanceFor",
+      "subject": "#/variation/clinvar:12582",
+      "type": "VariantClinicalSignificanceProposition"
+    }
   },
-  "quality": {
-    "conceptType": "Quality",
-    "name": "criteria provided",
-    "type": "MappableConcept"
+  "evidenceLine": {
+    "RCV006253522.1-S-SCI-CP-T1.contributing": {
+      "id": "RCV006253522.1-S-SCI-CP-T1.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/scv/clinvar.submission:SCV007105520.1"
+      ]
+    },
+    "RCV006253522.1-S-SCI-CP.contributing": {
+      "id": "RCV006253522.1-S-SCI-CP.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/rcv/RCV006253522.1-S-SCI-CP-T1"
+      ]
+    },
+    "RCV006253522.1-S-SCI.contributing": {
+      "id": "RCV006253522.1-S-SCI.contributing",
+      "type": "EvidenceLine",
+      "directionOfEvidenceProvided": "supports",
+      "strengthOfEvidenceProvided": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Contributing"
+      },
+      "hasEvidenceItems": [
+        "#/rcv/RCV006253522.1-S-SCI-CP"
+      ]
+    }
   },
-  "strength": {
-    "conceptType": "Strength",
-    "name": "Strong",
-    "type": "MappableConcept"
-  },
-  "type": "Statement"
+  "rcv": {
+    "RCV006253522.1-S-SCI": {
+      "id": "RCV006253522.1-S-SCI",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Strong"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+      },
+      "proposition": "#/propositionSomaticClinicalImpact/RCV006253522-S-SCI",
+      "hasEvidenceLines": [
+        "#/evidenceLine/RCV006253522.1-S-SCI.contributing"
+      ]
+    },
+    "RCV006253522.1-S-SCI-CP": {
+      "id": "RCV006253522.1-S-SCI-CP",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Strong"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+      },
+      "proposition": "#/propositionSomaticClinicalImpact/RCV006253522-S-SCI-CP",
+      "hasEvidenceLines": [
+        "#/evidenceLine/RCV006253522.1-S-SCI-CP.contributing"
+      ]
+    },
+    "RCV006253522.1-S-SCI-CP-T1": {
+      "id": "RCV006253522.1-S-SCI-CP-T1",
+      "type": "Statement",
+      "direction": "supports",
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Strong"
+      },
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+      },
+      "proposition": "#/propositionSomaticClinicalImpact/RCV006253522-S-SCI-CP-T1",
+      "extensions": [
+        {
+          "name": "clinvarReviewStatus",
+          "value": "criteria provided, single submitter"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/RCV006253522.1-S-SCI-CP-T1.contributing"
+      ]
+    }
+  }
 }

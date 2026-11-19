@@ -1,0 +1,12 @@
+{
+  "repo": "gks-core",
+  "tag": "1.2.0",
+  "name": "1.2.0",
+  "published_at": "2026-08-31T17:21:00",
+  "schema_count": 0,
+  "maturity_summary": {},
+  "schemas": {},
+  "release_notes": "## What's Changed\r\n* feat: MappableConcept and ConceptSet inherit Entity by @korikuzma in https://github.com/ga4gh/gkm-core/pull/129\r\n* 1.2.0 ballot.2026 07 by @larrybabb in https://github.com/ga4gh/gkm-core/pull/136\r\n\r\n\r\n**Full Changelog**: https://github.com/ga4gh/gkm-core/compare/1.1.0...1.2.0",
+  "release_url": "https://github.com/ga4gh/gks-core/releases/tag/1.2.0",
+  "previous_release": "1.1.0"
+}

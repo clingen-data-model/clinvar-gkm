@@ -3,6 +3,11 @@
 - **Status:** Accepted
 - **Date:** 2026-10-13
 - **Spec (if any):** —
+- **Amended:** 2026-10-20 by [ADR 0009](0009-r2-layout-mirrors-ncbi-clinvar.md): the published paths changed;
+  see [Layout change (ADR 0009)](#layout-change-adr-0009).
+- **Amended:** 2026-10-21: the [Layout change (ADR 0009)](#layout-change-adr-0009) notes now match the rules in
+  `src/scripts/cf-rules.sh` on `1.0` (PR #182): `weekly/` and `README.txt` bypass the cache, and weekly fulls
+  are not cached as immutable.
 
 ## Context
 
@@ -85,6 +90,9 @@ there are **two** index files plus a feed — the mutable matcher must catch all
   `/v1/datasets/clinvar-gkm_00-latest.json.gz`, and everything under any `/00-latest/` tree
   (`/v1/deltas/00-latest/…`, `/v1/datasets/parquet/00-latest/…`).
 
+These are the paths before ADR 0009; the new paths are listed under
+[Layout change (ADR 0009)](#layout-change-adr-0009).
+
 Two rules; **last matching rule wins**, so keep the pointer rule *below* the immutable rule:
 
 ```
@@ -122,21 +130,85 @@ curl -s -o /dev/null -D - https://data.clinvar-gkm.org/v1/index.json | grep -i c
 
 ### Rate-limiting rule (Security → WAF → Rate limiting rules; 1 free IP-keyed rule)
 
+Live rule "R2 abuse backstop" (verified 2026-10-18):
+
 ```
 When:  (http.host eq "data.clinvar-gkm.org")
-Rate:  300 requests / 1 minute per client IP
-Then:  Block for 10 minutes
+Characteristics:  IP (ip.src)
+Rate:  250 requests / 10 seconds
+Then:  Block for 10 seconds
+Order: first; Status: Active
 ```
 
-Keep it **generous** (300, not tight): DuckDB/`httpfs` issues many range GETs per query, and cached hits
-still count toward the limiter. This is an anti-runaway backstop only — real exposure is pennies
-(free egress + $0.36 / million Class B).
+The Free plan fixes the counting period and the block duration at **10 seconds**; only the request count is
+adjustable. The original intent (300 requests / 1 minute, block 10 minutes) could not be expressed on Free and
+was first configured as 50 / 10 s. That blocked ordinary DuckDB queries after ~55 range requests, so on
+2026-10-18 the threshold was raised to **250 / 10 s**. A burst of 120 range requests in ~1 s now returns 206
+throughout, and remote queries such as a `GROUP BY` over all of `scv.parquet` or a variant's PubMed ids
+(an `scv` × `varcond-proposition` join) complete in 10–35 s.
+
+Keep it **generous**: DuckDB/`httpfs` issues many range GETs per query, cached hits still count toward the
+limiter, and a client that keeps retrying while blocked re-trips the rule. This is an anti-runaway backstop
+only — real exposure is pennies (free egress + $0.36 / million Class B, 10M/month free).
 
 ### Costs (order of magnitude)
 
 Storage $0.015/GB-mo (a few $/mo at current size); Class B $0.36/million reads with 10M/mo free;
 **egress $0**. Caching + the write-once layout keep origin reads near-zero. There is **no native hard
-spend cap** — add **Account → Notifications** alerts on R2 storage/operations to catch a spike.
+spend cap**. An account-wide **budget alert at $10/month** is configured (Manage Account → Billing → Billable
+Usage → budget alert; email only, it does not pause usage). R2-specific Usage Based Billing alerts
+(Alerts → Overview → Add) may need a paid plan.
+
+### Path allowlist rule (Security → WAF → Custom rules)
+
+Added 2026-10-18, active:
+
+```
+Name:  PATH ALLOWLIST - block requests outside published data paths
+When:  http.host eq "data.clinvar-gkm.org" and not (
+         starts_with(path, "/v1/") or starts_with(path, "/archive/") or
+         starts_with(path, "/.well-known/") or path in {"/" "/index.json"})
+Then:  Block
+```
+
+Scanners probe hostnames for paths such as `/wp-config.php`, `/.git/config` and `/actuator/health` (about
+1,600 such requests in the first four days). This rule blocks them at the edge with a 403, before they reach
+R2, so they cost no Class B operations. Unlike Browser Integrity Check, which is **off** for this zone because
+it rejected Python's default `urllib` user agent (HTTP 403, error 1010), it cannot be bypassed by faking a
+header. Tested on 2026-10-18:
+- index files, bundles, Parquet (including 206 range reads), the archive and CORS preflight are served;
+- scanner paths, stray documentation-site paths and the retired flat-root `/datasets/…` return 403.
+
+**When a new top-level path is published, add it to the rule.**
+
+### Spend alert and kill switch
+
+R2 has no hard spend cap and the budget alert only emails, so pausing is manual. What can grow the bill:
+Class B reads that miss the cache (mostly range requests on files over 512 MB, which always go to R2), our
+own writes (Class A) and storage. Egress is $0.
+
+If the alert fires:
+
+1. **Stop our own writes:** no `run-release.sh`, uploader or backfill runs.
+2. **Find the cause:** R2 → clinvar-gkm → Metrics (which operation type jumped); clinvar-gkm.org →
+   Security → Events / Analytics (top IPs, ASNs, paths). If it is one client or network, block only that
+   with a WAF custom rule on `ip.src` or `ip.geoip.asnum`.
+3. **Pause all public reads with one command:**
+   ```bash
+   ./src/scripts/cdn-kill-switch.sh on       # block every request to data.clinvar-gkm.org at the edge
+   ./src/scripts/cdn-kill-switch.sh status   # rule state + a probe of /v1/index.json (403 = blocked)
+   ./src/scripts/cdn-kill-switch.sh off      # restore service
+   ```
+   It flips one WAF custom rule ("KILL SWITCH - block all public data"); cached hits are blocked too, so
+   nothing reaches R2. Nothing in R2 changes. It needs `CF_ZONE_ID` and `CF_WAF_TOKEN` in
+   `~/.config/clinvar-gkm/cloudflare.env`; the token is scoped to zone `clinvar-gkm.org` with **Zone → Zone
+   WAF → Edit** and **Zone → Firewall Services → Edit**. Run `init` once to pre-create the rule disabled.
+   The dashboard equivalent is Security → WAF → Custom rules → toggle the rule.
+4. **The `r2.dev` URL bypasses all of this.** The public development URL serves the same bucket with no
+   cache, WAF or rate limit. Disable it (R2 → clinvar-gkm → Settings → Public Development URL); nothing in
+   the repo uses it any more.
+5. **Harder stop**, if needed: disconnect the custom domain (R2 → clinvar-gkm → Settings → Custom Domains).
+   Reconnecting re-provisions TLS and takes a few minutes.
 
 ### Overwrite gotcha + the `--purge` flag
 
@@ -190,3 +262,35 @@ additive; not required for anything to work.
 Only the `v1/` tree is live. The bucket root holds just the thin `index.json` manifest (ADR 0004) alongside
 `v1/`; the pre-`v1/` root `datasets/` and `deltas/` trees plus root `README.txt` were deleted on 2026-10-13.
 All uploaders (including `backfill-monthly-to-r2.sh`) and the docs now reference `v1/…` paths.
+
+### Layout change (ADR 0009)
+
+[ADR 0009](0009-r2-layout-mirrors-ncbi-clinvar.md) replaces the `/v1/` layout above with per-line folders
+modelled on NCBI's ClinVar FTP: `v1/1.1/` holds the official monthlies and `clinvar-gkm_00-latest.json.gz`,
+`weekly/` (the current month's weekly fulls and `clinvar-gkm_00-latest_weekly.json.gz`), `deltas/` (current
+month at the top, earlier months in `deltas/YYYY-MM/`), `archive/YYYY/` and one `parquet/` dataset; the 1.0.1
+generation becomes the frozen line `v1/1.0/`. What changes here (`src/scripts/cf-rules.sh` holds the exact
+rule expressions: `show` compares them with the live rules, `apply` is a user-confirmed step):
+
+- **Immutable rule.** Unchanged; it still matches every path, so in effect it covers everything the later
+  rules do not catch: dated monthlies, deltas, delta manifests, `.sha256` sidecars outside `weekly/`,
+  `archive/YYYY/`, and frozen line folders' bundles and `MANIFEST.json`. The path list above no longer
+  applies.
+- **Mutable-pointer rule.** Bypasses the cache for any path containing `00-latest` (which also matches
+  `clinvar-gkm_00-latest_weekly.json.gz`), ending in `/index.json`, `/feed.xml` or `/README.txt`, or containing
+  `/weekly/`. Weekly fulls and their sidecars are deleted at month rollover, so they are not cached as
+  immutable.
+- **Latest-Parquet rule.** The "Latest Parquet: cache 1 day" rule (added 2026-10-18; edge 1 day, browser 1 h)
+  matched `/v1/datasets/parquet/00-latest/`, which no longer exists. It now matches any path under `/v1/`
+  containing `/parquet/`, which includes `parquet/manifest.json`. Without the change the overwritten Parquet
+  would fall under the 1-month immutable rule.
+- **Purges.** Routine releases now overwrite (the Parquet dataset), move (deltas at month rollover, monthlies
+  and deltas at year rollover) and delete (weekly fulls at month rollover; the finished month's newest once
+  the new monthly is published) published paths. `r2-rollover.sh` purges every path it moved or deleted, and
+  `run-release.sh` purges the `parquet/` prefix after each rebuild; `--purge` above is no longer only for the
+  rare in-place overwrite.
+- **Path allowlist** (WAF custom rule, documented on PR #173). Every published path stays under `/v1/`, so no
+  new prefix is needed. `/archive/` can be removed once `archive/1.0.1/` has moved to `v1/1.0/` and been
+  deleted (`cf-rules.sh apply --drop-archive`).
+- **Bucket layout note.** The "Only the `v1/` tree is live" note still holds; the old `v1/datasets/`,
+  `v1/deltas/` and dated Parquet trees and `archive/1.0.1/` are deleted in the ADR 0009 cleanup.

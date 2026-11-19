@@ -108,6 +108,8 @@ The output is a single bundle object — the same `{ "<section>": { "<key>": <ob
 full release, ordered `sequenceReference` → … → `scv`/`vcv`/`rcv`. Every `#/…` pointer inside resolves
 to a key present in the file.
 
+The file starts with `schema_version`, read from the bundle schema's `schema_version` const, so a sub-bundle is a complete bundle that validates against the ClinVar-GKM bundle schema as-is.
+
 Records are written **one per line** — each section is keyed on its own line and every object *value* is
 emitted as a single compact line. The file stays one valid JSON document, but has roughly one line per
 record rather than one per field, so a large sub-bundle (thousands of statements) is a few thousand lines
@@ -122,7 +124,7 @@ instead of hundreds of thousands — much easier to `grep`, diff, or scroll.
   "variation":         { "clinvar:17662": { ... } },
   "condition":         { "clinvar.trait:76328": { ... } },
   "submitter":         { "clinvar.submitter:509268": { ... } },
-  "varcond-proposition": { "SCV004101425-PATH": { ... } },
+  "propositionPathogenicity": { "SCV004101425-PATH": { ... } },
   "scv":               { "clinvar.submission:SCV004101425.2": { ... } }
 }
 ```
@@ -138,8 +140,18 @@ The script resolves the graph efficiently rather than one object at a time:
 - **Batched breadth-first traversal.** Each round collects all pending references, groups them by
   source table, and issues **one query per table** — so a list of N statements is a handful of
   queries, not N× the work.
-- **Prefix-routed proposition/evidence resolution.** A `#/varcond-proposition/` or `#/evidenceLine/`
+- **Prefix-routed proposition/evidence resolution.** A `#/proposition…/` (any of the four proposition sections) or `#/evidenceLine/`
   reference is resolved from the SCV-, VCV-, or RCV-specific table based on the key's `SCV`/`VCV`/`RCV`
   prefix.
 - **Global dedup.** Every referenced object is fetched at most once across the whole run; the final
   bundle contains one copy of each.
+
+---
+
+## Example fragments
+
+The files in [`examples/`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples) are made by a
+different script, `src/scripts/extract-example.py`. It reads a published full bundle (`.json.gz`), not BigQuery, and
+writes bounded **fragments**: each holds one statement or variation and the records it references, but keeps pointers
+into `scv` and `variation` unresolved. A VCV or RCV fragment holds its nested layer statements, down to the `#/scv/`
+pointers. See [Examples](../data-access/examples.md#file-format) for the rule.
