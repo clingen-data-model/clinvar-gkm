@@ -1,6 +1,6 @@
 # Data Access
 
-ClinVar-GKM is distributed as **official monthly full bundles**, **weekly full bundles** and **weekly deltas**, synchronized with ClinVar's XML releases and laid out like NCBI's ClinVar XML folder. Each is a gzip-compressed JSON file. One typed Parquet dataset (one file per section) is published for the latest release: it is derived from the bundle and overwritten each release. The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
+ClinVar-GKM is distributed as **official monthly full bundles**, **weekly full bundles** and **weekly deltas**, synchronized with ClinVar's XML releases and laid out like NCBI's ClinVar XML folder. Each is a gzip-compressed JSON file. One typed Parquet dataset (one file per section) is published for the latest release: it is built from the bundle by [`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) and overwritten each release. The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
 
 ---
 
@@ -54,8 +54,9 @@ archive/yyyy/
   deltas/yyyy-mm/                            deltas from prior years
 
 parquet/
-  {section}.parquet                          the one Parquet dataset (derived; overwritten every release)
+  {section}.parquet                          the one Parquet dataset (built from the bundle; overwritten every release)
   manifest.json                              build date, source release, builder, per-file sha256
+  table-spec.json                            every table's columns, types and derivations
 ```
 
 Every bundle has a `<file>.sha256` sidecar.
@@ -70,7 +71,7 @@ Pipeline changes that affect the structure or content of the output are recorded
 
 ## File Format
 
-The primary release format is a **gzip-compressed JSON file** (`.json.gz`). Typed Parquet files (one per bundle section) are derived from the bundle for analytical use; only one dataset, for the latest release, is published. The decompressed JSON content is a single JSON object with bundle sections at the root level:
+The primary release format is a **gzip-compressed JSON file** (`.json.gz`). Typed Parquet files (one per bundle section) are built from the bundle for analytical use; only one dataset, for the latest release, is published. The decompressed JSON content is a single JSON object with bundle sections at the root level:
 
 ```json
 {
@@ -97,7 +98,7 @@ The primary release format is a **gzip-compressed JSON file** (`.json.gz`). Type
 }
 ```
 
-Each section is a keyed collection — the key is the object's unique identifier, and the value is the complete object. Objects reference each other using `#/` JSON pointer strings. SCV, VCV and RCV evidence lines share the one `evidenceLine` section; only the Parquet keeps them in separate tables (`evidenceLine`, `vcv_evidenceLine`, `rcv_evidenceLine`).
+Each section is a keyed collection — the key is the object's unique identifier, and the value is the complete object. Objects reference each other using `#/` JSON pointer strings. SCV, VCV and RCV evidence lines share the one `evidenceLine` section, and the one `evidenceLine` Parquet table.
 
 See [Output Format](../output-reference/overview.md) for detailed documentation of each section.
 

@@ -1,6 +1,6 @@
 # Downloads
 
-ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas (JSON), with one typed Parquet dataset of the latest release, free from Cloudflare R2 — no authentication, no egress fees. The layout follows NCBI's ClinVar FTP site. New here? See [How Releases Work](release-model.md).
+ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas (JSON), with one typed Parquet dataset of the latest release built from the bundle, free from Cloudflare R2 — no authentication, no egress fees. The layout follows NCBI's ClinVar FTP site. New here? See [How Releases Work](release-model.md).
 
 !!! warning "1.1.0 moved every download URL"
     1.1.0 (released 2026-10-22) moved every download URL to `v1/1.1/` and renamed the proposition sections — see the [changelog migration notes](../reference/changelog.md#110).
@@ -55,8 +55,9 @@ v1/
         clinvar-gkm_YYYY-MM.json.gz           monthly fulls from prior years
         deltas/YYYY-MM/                       deltas from prior years
     parquet/
-      {section}.parquet                       ONE Parquet dataset, the latest (derived; overwritten every release)
+      {section}.parquet                       ONE Parquet dataset, the latest (built from the bundle; overwritten every release)
       manifest.json                           build date, source release, builder, per-file sha256
+      table-spec.json                         every table's columns, types and derivations
   1.0/                                        frozen line: the 1.0.1 generation (bundles, delta manifests, MANIFEST.json; no Parquet)
 ```
 

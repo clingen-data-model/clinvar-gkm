@@ -6,18 +6,21 @@ Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-f
     This page covers where the Parquet files live and how to keep a set current. [**Query the Data**](../parquet/index.md) teaches querying them: a live in-browser console, every table's columns, how the tables join, and runnable recipes.
 
 !!! info "Parquet is derived from the bundle and overwritten every release"
-    The JSON bundles are the release record. Parquet is a convenience: every value in it can be recomputed from the bundle. **One** Parquet dataset is published, rebuilt every release (weekly) from the newest weekly release and overwritten in place. There are no dated, per-delta or archived Parquet sets.
+    The JSON bundles are the release record. Parquet is a convenience: the tables hold the bundle's records, and the bundle can be rebuilt from them. **One** Parquet dataset is published per release line, rebuilt every release (weekly) from the newest weekly release and overwritten in place. There are no dated, per-delta or archived Parquet sets.
 
-!!! warning "The current set is not being rebuilt"
-    The published set is still the one exported from BigQuery for the **2026-10-24** release (its `manifest.json` gives `builder: "BigQuery export"` and `source_release: "2026-10-24"`). Releases since then don't rebuild it, so it lags the bundles. It will be replaced by the default set that the [`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) tool (2.0.0, not yet released) builds from the bundle, starting with ClinVar-GKM schema 1.2.0. From then on Parquet is built only from the bundle, never from BigQuery. For data newer than 2026-10-24, use the [weekly full bundles](weekly-full.md).
+!!! warning "Two sets of tables during the move to 1.2"
+    The 1.1 line's set, at `v1/1.1/parquet/`, is the one exported from BigQuery for the **2026-10-24** release (its `manifest.json` gives `builder: "BigQuery export"` and `source_release: "2026-10-24"`). It is not rebuilt, so it lags the bundles, and it is deleted when `v1/1.1/` is frozen. Its 22 tables have different columns; see [Moving from the 1.1 Tables](../parquet/migrating-from-1.1.md).
 
-The dataset lives at one stable path, `v1/1.1/parquet/`, one file per section, with a `manifest.json` beside it:
+    This page describes the 1.2 line's set, at `v1/1.2/parquet/`: the 20 tables that [`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) 2.0 builds from each 1.2 release's bundle, published from the first 1.2 release on. Parquet is built only from the bundle, never from BigQuery. Until the first 1.2 set is published, use the [weekly full bundles](weekly-full.md) for data newer than 2026-10-24, or [build the tables yourself](../parquet/build-your-own.md).
+
+The dataset lives at one stable path, `v1/1.2/parquet/`, one file per section, with a `manifest.json` and a `table-spec.json` beside it:
 
 ```text
-v1/1.1/parquet/
-  {section}.parquet      22 files, one per bundle section
-  manifest.json          build date, source release and dataset, builder, schema version, each file's size and sha256,
-                         and the ClinVar source, attribution, disclaimer and license scope
+v1/1.2/parquet/
+  {section}.parquet      20 files, one per bundle section
+  manifest.json          build date, source release and dataset, builder, schema version, each file's size, rows and sha256,
+                         the records sha256 the tables rebuild to, and the ClinVar source, attribution, disclaimer and license scope
+  table-spec.json        the table spec: every table's columns, how each maps to the bundle, and the foreign keys
 ```
 
 The manifest also carries the data's provenance: `source` (ClinVar at NCBI, its data use policy and a citation), `attribution`, `disclaimer` and `license` (CC0 scope), matching [Data Use and Citation](../data-use.md). The manifest names the release the dataset was built from, so check it before comparing results with a bundle (the index's Parquet entry carries the same `source_release`). For an earlier state, see [Earlier releases](#earlier-releases).
@@ -28,9 +31,9 @@ The manifest also carries the data's provenance: `source` (ClinVar at NCBI, its 
 
 ## Available Parquet files
 
-Each Parquet file contains one bundle section with typed, query-friendly columns extracted from the JSON objects. Nearly every section includes an `id` column (the object identifier) and a `data` column (the full JSON object as a string), plus additional typed columns for key fields — enabling efficient filtering and aggregation without parsing JSON. The exception: `therapy` and `therapyGroup` name the id column `key` and hold the JSON object in `value`. Before 1.1.0, `condition` had no `data` column and `therapy` / `therapyGroup` had only `key` and `value`. The [column reference](../parquet/tables.md#column-reference) lists every column of every section.
+Each Parquet file holds one bundle section, one row per record. Every table has an `id` column, and every field of the record has a typed column named after it, so filtering and aggregation need no JSON parsing. The tables are generated from the bundle's JSON Schema, with no hand-chosen columns. The [column reference](../parquet/tables.md#column-reference) lists every column of every section.
 
-Available Parquet files (22 sections):
+Available Parquet files (20 sections):
 
 | File | Description |
 | --- | --- |
@@ -50,9 +53,7 @@ Available Parquet files (22 sections):
 | `propositionOncogenicity.parquet` | Oncogenicity propositions |
 | `propositionSomaticClinicalImpact.parquet` | Somatic clinical impact propositions (ClinicalSignificance, and the Diagnostic, Prognostic and TherapeuticResponse targets of SCI evidence lines) |
 | `propositionClinvarCustom.parquet` | ClinVar custom propositions (the `Clinvar*` types) |
-| `evidenceLine.parquet` | SCV evidence line records |
-| `vcv_evidenceLine.parquet` | VCV evidence line records |
-| `rcv_evidenceLine.parquet` | RCV evidence line records |
+| `evidenceLine.parquet` | Evidence line records of SCV, VCV and RCV statements |
 | `scv.parquet` | SCV statement records |
 | `vcv.parquet` | VCV aggregate statement records |
 | `rcv.parquet` | RCV aggregate statement records |
@@ -71,7 +72,7 @@ Download individual sections or all files at once:
 ??? example "Download sections with curl"
     ```bash
     # The one published Parquet dataset, overwritten every release; manifest.json names its release.
-    BASE="https://data.clinvar-gkm.org/v1/1.1/parquet"
+    BASE="https://data.clinvar-gkm.org/v1/1.2/parquet"
     mkdir -p clinvar-gkm-parquet && cd clinvar-gkm-parquet
     curl -O "${BASE}/manifest.json"
 
@@ -80,12 +81,11 @@ Download individual sections or all files at once:
     curl -O "${BASE}/propositionPathogenicity.parquet"
     curl -O "${BASE}/condition.parquet"
 
-    # Or download all 22 sections
+    # Or download all 20 sections
     for section in sequenceReference location allele copyNumberCount copyNumberChange \
                    gene variation condition conditionSet therapy therapyGroup submitter \
                    propositionPathogenicity propositionOncogenicity propositionSomaticClinicalImpact propositionClinvarCustom \
-                   evidenceLine vcv_evidenceLine rcv_evidenceLine \
-                   scv vcv rcv; do
+                   evidenceLine scv vcv rcv; do
       curl -O "${BASE}/${section}.parquet"
     done
     ```
@@ -124,11 +124,11 @@ Download individual sections or all files at once:
     ```bash
     # Join SCVs with propositions to find pathogenic variants for a specific condition
     duckdb -c "
-      SELECT s.id, s.classification.name AS classification, p.predicate, p.object_id
+      SELECT s.id, s.classification.name AS classification, p.predicate, p.object
       FROM 'scv.parquet' s
-      JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
+      JOIN 'propositionPathogenicity.parquet' p ON s.proposition = p.id
       WHERE s.classification.name = 'Pathogenic'
-        AND p.object_id = 'clinvar.trait:9580'
+        AND p.object = 'clinvar.trait:9580'
       LIMIT 10;
     "
     ```
@@ -158,22 +158,18 @@ Download individual sections or all files at once:
     ```python
     import pandas as pd
 
-    # Load a section into a DataFrame
-    scv = pd.read_parquet("scv.parquet")
+    # Load only the columns you need: a dotted path reads one field of a struct
+    scv = pd.read_parquet("scv.parquet", columns=["id", "classification.name", "proposition"])
 
-    # Filter pathogenic SCVs — classification is a MappableConcept struct (dict), so read .name
-    pathogenic = scv[scv["classification"].map(lambda c: c and c.get("name")) == "Pathogenic"]
+    # The struct field comes back named by its last segment
+    pathogenic = scv[scv["name"] == "Pathogenic"]
     print(f"{len(pathogenic)} pathogenic SCVs")
-
-    # Access the full JSON when you need nested fields
-    import json
-    record = json.loads(pathogenic.iloc[0]["data"])
-    print(record["proposition"])
+    print(pathogenic.iloc[0]["proposition"])
     ```
 
 ### Column Reference
 
-The complete per-table reference — every column, type and description for all 22 sections — is in [Query the Data → The 22 Tables](../parquet/tables.md#column-reference). A summary:
+The complete per-table reference — every column, type and description for all 20 sections — is in [Query the Data → The 20 Tables](../parquet/tables.md#column-reference). A summary:
 
 Statement sections (`scv`, `vcv`, `rcv`) share a common set of typed columns:
 
@@ -181,22 +177,20 @@ Statement sections (`scv`, `vcv`, `rcv`) share a common set of typed columns:
 | --- | --- | --- |
 | `id` | string | Statement identifier |
 | `type` | string | Statement type |
-| `proposition_id` | string | FK to the matching proposition Parquet — one of `propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact`, `propositionClinvarCustom`, by the proposition's type; `read_parquet('proposition*.parquet')` covers all four |
+| `proposition` | string | The proposition's id |
+| `proposition_section` | string | The table that holds it: `propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact` or `propositionClinvarCustom`; `read_parquet('proposition*.parquet', union_by_name = true)` covers all four |
 | `classification` | struct (MappableConcept) | Use `classification.name` (or `classification.primaryCoding.code`) — e.g., "Pathogenic" |
-| `strength` | struct (MappableConcept) | Use `strength.name` — e.g., "definitive", "likely" |
+| `strength` | struct (MappableConcept) | Use `strength.name` — e.g., "Definitive", "Likely" |
 | `direction` | string | Evidence direction ("supports", "disputes", "neutral") |
-| `quality` | struct (MappableConcept) | Use `quality.name` — submission level, e.g., "criteria provided" |
-| `has_evidence_lines` | list\<string\> | FK references to evidence line Parquet (`evidenceLine` for SCV, `vcv_evidenceLine` for VCV, `rcv_evidenceLine` for RCV) |
-| `extensions` | string | JSON array of extensions |
-| `data` | string | Full JSON object |
+| `quality` | struct (MappableConcept) | Use `quality.name` — submission or aggregate level, e.g., "criteria provided" |
+| `hasEvidenceLines` | list\<string\> | Ids of the statement's evidence lines, all in `evidenceLine` |
+| `extensions` | list\<struct\> | Named ClinVar attributes, each value in the `value_<kind>` field for its kind (e.g. `value_string`) |
 
-SCV statements include additional columns: `description`, `contributions`, `reportedIn` and `specifiedBy`. `reportedIn` is a list of citation Documents, one per ClinVar citation, and `specifiedBy.reportedIn` is the assertion method's Document. From 1.1.0 each Document also has `name`, `documentType` and `extensions`; see [`scv`](../parquet/tables.md#scv).
+SCV statements include additional columns: `description`, `contributions`, `reportedIn` and `specifiedBy`. `reportedIn` is a list of citation Documents, one per ClinVar citation, and `specifiedBy.reportedIn` is the assertion method's Document; see [`scv`](../parquet/tables.md#scv).
 
-The four proposition tables share **one column schema** (from 1.1.0): `id`, `type`, `predicate`, `subject_variant_id`, `object_id`, `object_type`, `condition_qualifier_id`, `gene_context_id`, `gene_context_name`, `submitted_gene_symbols`, `gene_context_source`, `mode_of_inheritance`, `penetrance` and `data`, so `read_parquet('proposition*.parquet')` reads them as one table. This enables JOINs across statements, variants, and conditions without parsing JSON. See [Gene context](../parquet/tables.md#gene-context) for what the gene context is (one representative gene per variant, not a submitter-asserted gene), and [The shared columns](../parquet/tables.md#proposition-columns) for each column.
+The four proposition tables share `id`, `type`, `subject`, `predicate`, `object`, `object_section` and `geneContextQualifier`, and add the qualifiers their types allow (`modeOfInheritanceQualifier`, `penetranceQualifier`, `conditionQualifier`), so read them together with `union_by_name = true`. See [Gene context](../parquet/tables.md#gene-context) for what the gene context is (one representative gene per variant, not a submitter-asserted gene), and [The columns](../parquet/tables.md#proposition-columns) for each column.
 
 Run `DESCRIBE` in DuckDB to see the full schema for any section.
-
-These examples demonstrate cross-section JOINs using typed columns. Most analytical queries can be answered without parsing JSON — the proposition's `gene_context_name` column carries the gene symbol directly, and the condition's `primaryCoding` struct carries the MedGen code. (These queries join `scv.parquet` to `propositionPathogenicity.parquet`; swap in `read_parquet('proposition*.parquet')` to include every kind of claim, since the four tables have the same columns.)
 
 For how the sections join — including the columns that point at more than one table, where a single-table join silently drops rows — see [Joining Tables](../parquet/joining.md); for task-oriented queries, see [Recipes](../parquet/recipes.md).
 
@@ -211,13 +205,14 @@ For how the sections join — including the columns that point at more than one 
         s.direction,
         s.strength.name AS strength,
         s.quality.name AS review_status,
-        p.gene_context_name AS gene,
+        p.geneContextQualifier.name AS gene,
         c.name AS condition_name,
         c.primaryCoding.code AS condition_code
     FROM 'scv.parquet' s
-    JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
-    LEFT JOIN 'condition.parquet' c ON p.object_id = c.id
-    WHERE p.gene_context_name = 'BRCA1'
+    JOIN 'propositionPathogenicity.parquet' p ON s.proposition = p.id
+    LEFT JOIN 'condition.parquet' c
+           ON c.id = CASE WHEN p.object_section = 'condition' THEN p.object END
+    WHERE p.geneContextQualifier.primaryCoding.code = '672'    -- BRCA1 (NCBI Gene 672)
     ORDER BY s.classification.name;
     ```
 
@@ -226,14 +221,14 @@ For how the sections join — including the columns that point at more than one 
     ```sql
     -- Count SCVs by classification and review status for BRCA2
     SELECT
-        p.gene_context_name AS gene,
+        p.geneContextQualifier.name AS gene,
         s.classification.name AS classification,
         s.quality.name AS review_status,
         s.direction,
         COUNT(*) AS scv_count
     FROM 'scv.parquet' s
-    JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
-    WHERE p.gene_context_name = 'BRCA2'
+    JOIN 'propositionPathogenicity.parquet' p ON s.proposition = p.id
+    WHERE p.geneContextQualifier.primaryCoding.code = '675'    -- BRCA2
     GROUP BY ALL
     ORDER BY scv_count DESC;
     ```
@@ -248,10 +243,11 @@ For how the sections join — including the columns that point at more than one 
         s.quality.name AS review_status,
         c.name AS condition_name
     FROM 'scv.parquet' s
-    JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
-    LEFT JOIN 'condition.parquet' c ON p.object_id = c.id
-    WHERE p.gene_context_name = 'TP53'
-      AND s.quality.name IN ('criteria provided', 'reviewed by expert panel')
+    JOIN 'propositionPathogenicity.parquet' p ON s.proposition = p.id
+    LEFT JOIN 'condition.parquet' c
+           ON c.id = CASE WHEN p.object_section = 'condition' THEN p.object END
+    WHERE p.geneContextQualifier.primaryCoding.code = '7157'   -- TP53
+      AND s.quality.name IN ('criteria provided', 'expert panel')
     ORDER BY s.classification.name;
     ```
 
@@ -260,49 +256,47 @@ For how the sections join — including the columns that point at more than one 
     ```sql
     -- Compare pathogenicity classification distributions across genes
     SELECT
-        p.gene_context_name AS gene,
+        p.geneContextQualifier.name AS gene,
         s.classification.name AS classification,
         COUNT(*) AS n
     FROM 'scv.parquet' s
-    JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
-    WHERE p.gene_context_name IN ('BRCA1', 'BRCA2', 'TP53', 'MLH1')
+    JOIN 'propositionPathogenicity.parquet' p ON s.proposition = p.id
+    WHERE p.geneContextQualifier.primaryCoding.code IN ('672', '675', '7157', '4292')   -- BRCA1, BRCA2, TP53, MLH1
       AND s.quality.name = 'criteria provided'
-    GROUP BY gene, s.classification.name
+    GROUP BY ALL
     ORDER BY gene, n DESC;
     ```
 
-    **Accessing fields not in typed columns** — some fields, like submitter names, HGVS expressions, and assertion methods, are only available in the `data` column (full JSON string). Use DuckDB's `json_extract_string` to access them:
+    The gene filters use the NCBI Gene number in `geneContextQualifier.primaryCoding.code`, not the symbol in `.name`: a few SCVs carry a submitted symbol there with no normalized gene (see [Gene context](../parquet/tables.md#gene-context)).
+
+    **Submitter names and assertion methods** are typed columns too: join `submitter` on the contributor id, and read `specifiedBy.name`:
 
     ```sql
-    -- SCVs with submitter name and assertion method (from JSON)
+    -- SCVs with submitter name and assertion method
     SELECT
         s.id AS scv_id,
         s.classification.name AS classification,
-        p.gene_context_name AS gene,
-        json_extract_string(s.data, '$.contributions[0].agent.name') AS submitter,
-        json_extract_string(s.data, '$.specifiedBy.name') AS method
+        p.geneContextQualifier.name AS gene,
+        sub.name AS submitter,
+        s.specifiedBy.name AS method
     FROM 'scv.parquet' s
-    JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id
-    WHERE p.gene_context_name = 'BRCA1'
+    JOIN 'propositionPathogenicity.parquet' p ON s.proposition = p.id
+    LEFT JOIN 'submitter.parquet' sub
+           ON sub.id = [c.contributor FOR c IN s.contributions IF c.activityType = 'submitted'][1]
+    WHERE p.geneContextQualifier.primaryCoding.code = '672'    -- BRCA1
       AND s.classification.name = 'Pathogenic'
-      AND s.quality.name = 'reviewed by expert panel'
+      AND s.quality.name = 'expert panel'
     LIMIT 20;
     ```
 
-When to use each access path:
-
-| Approach | Best for | Tradeoff |
-| --- | --- | --- |
-| Typed columns only | Filtering, counting, grouping, JOINs on classification, gene, condition, review status | Fast; covers most analytical questions |
-| Typed columns + `json_extract_string` | Ad-hoc queries needing submitter names, HGVS, methods | Slightly slower; syntax is verbose |
-| Parse `data` column in application code | Bulk processing needing many nested fields | Full flexibility; requires application-side JSON parsing |
+To get whole records back as JSON, use `to_json()` on a row, or rebuild the bundle from the tables with `gkm-bundle-parquet rebuild`; see [The whole record](../parquet/table-anatomy.md#whole-records).
 
 ## Earlier releases { #earlier-releases }
 
-Only the current Parquet dataset is published; it is overwritten every release, and weekly deltas, archives and frozen lines carry no Parquet. To work with an earlier state:
+Only the current Parquet dataset of each live line is published; it is overwritten every release, and weekly deltas, archives and frozen lines carry no Parquet. To work with an earlier state:
 
-- **Rebuild it from the bundles.** Every official monthly stays published (in `archive/YYYY/` after its year ends) with a `.sha256` sidecar, and so does every delta. Rebuild the bundle for the week you need with the [replay recipe](weekly-deltas.md#rebuild-a-past-week), then read the sections you need.
-- **Convert a bundle to Parquet with `clinvar-gkm-parquet` (planned).** [`clinvar-gkm-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) is a separate, versioned tool that builds this Parquet layout from a published bundle and writes the same `manifest.json`. It is in design and not yet released; until it is, earlier Parquet can't be downloaded or rebuilt in this layout.
+- **Build it from the bundles.** Every official monthly stays published (in `archive/YYYY/` after its year ends) with a `.sha256` sidecar, and so does every delta. Rebuild the bundle for the week you need with the [replay recipe](weekly-deltas.md#rebuild-a-past-week), then build its tables with [`gkm-bundle-parquet`](../parquet/build-your-own.md) (on [PyPI](https://pypi.org/project/gkm-bundle-parquet/)), the tool that builds the published set. A full build needs a large machine; see [Build Your Own](../parquet/build-your-own.md#a-full-bundle). The columns come from the bundle's own schema version, so a bundle of schema 1.1.0 gives a wider set of tables than the 1.2.0 tables described here.
+- **Take only what you need.** `gkm-bundle-parquet select` cuts a [mini-bundle](../parquet/build-your-own.md#cut-a-mini-bundle) (one variant, gene or submitter and everything it refers to) from any published bundle, without a large machine.
 - **The 1.0.1 generation** is the frozen line `v1/1.0/`: its bundles and delta manifests, with no Parquet.
 
-Parquet downloaded from an earlier release keeps its old tables and columns; see the [changelog](../reference/changelog.md) for what changed.
+Parquet downloaded from an earlier release keeps its old tables and columns; see the [changelog](../reference/changelog.md) for what changed, and [Moving from the 1.1 Tables](../parquet/migrating-from-1.1.md) for the 1.1 tables.
