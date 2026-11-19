@@ -51,9 +51,9 @@ explains the profiles and their rules, and each class page lists what its profil
 
 **What it means for you:**
 
-- **The data doesn't change.** Every record the pipeline publishes already meets the 1.2.0 profiles: relabelled
-  as 1.2.0, every record of the 2026-10-31 full bundle (91,854,927) and delta validates with no failures. Code
-  that reads bundles needs no change.
+- **The data doesn't change, except for the new aggregate coding and the aggregate strength and direction fixes below.** Every record the pipeline publishes
+  already meets the 1.2.0 profiles: relabelled as 1.2.0, every record of the 2026-10-31 full bundle
+  (91,854,927) and delta validates with no failures. Code that reads bundles needs no change.
 - **Validate each bundle against its own version.** A 1.2.0 bundle says `"schema_version": "1.2.0"` and
   validates against the 1.2.0 schemas
   (`https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json`); a 1.1.0 bundle keeps
@@ -63,8 +63,84 @@ explains the profiles and their rules, and each class page lists what its profil
   its files unchanged ([ADR 0009](../decisions/0009-r2-layout-mirrors-ncbi-clinvar.md)). The Parquet set is
   built by `gkm-bundle-parquet` 2.0.0.
 
+### 1.2.0: VCV and RCV classifications carry a coding
+
+Every VCV and RCV statement's `classification` gains a `primaryCoding` (`code` and `system`), as SCV
+classifications already have ([#202](https://github.com/clingen-data-model/clinvar-gkm/issues/202)). In the
+schema, `ClinvarAggregateClassification.primaryCoding` changes from forbidden to a `ClinvarTermCoding`. It is not
+required. The rules are in
+[`classification.primaryCoding`](../pipeline/vcv-statements/vcv-aggregation-rules.md#classification-primarycoding):
+
+- **A label that is one classification term has the coding its SCVs carry**, with the code in lower case:
+  `Pathogenic` → `pathogenic` / `ACMG Guidelines, 2015`, `VUS-mid` → `vus-mid` / `SVC v4`.
+- **A somatic clinical impact label is coded by its tier**, without the tumor-type text:
+  `Tier I (Strong) for 2 tumor types` → `tier 1` / `AMP/ASCO/CAP (AAC) Guidelines, 2017`.
+- **Any other label is a ClinVar-defined term**, with system `ClinVar` and the lower-cased label as the code:
+  `Conflicting classifications of pathogenicity`, `no classifications from unflagged records`, and
+  combinations such as `Uncertain significance/VUS-low` → `uncertain significance/vus-low`. The lookup's
+  `pathogenic/Likely pathogenic` code becomes `pathogenic/likely pathogenic`.
+
+**What it means for you:**
+
+- **Every VCV and RCV record changes**, so the first 1.2.0 release rewrites them all. Apart from the
+  aggregate strength and direction fixes (see Fixes), nothing else in those records changes.
+- **SCV codes are unchanged, so one code differs in case.** An SCV classified `Pathogenic/Likely pathogenic`
+  still carries the upstream code `pathogenic/Likely pathogenic`. Compare codes case-insensitively; see
+  [Known Issues](known-issues.md#scv-and-aggregate-codes-for-pathogeniclikely-pathogenic-differ-in-case).
+
 ### Fixes
 
+- **VCV and RCV aggregate `strength` now matches the strength the SCVs carry**
+  ([#226](https://github.com/clingen-data-model/clinvar-gkm/issues/226)). Aggregate statements took their
+  strength from a fixed list of label prefixes. Its `Tier I` prefix also matched Tier II, III and IV, it gave
+  Tier IV `Likely`, it never matched `Likely oncogenic`, and it left out the low-penetrance and risk-allele
+  labels. The strength now comes from the same `clinvar_clinsig_types` row that gives the label its
+  `primaryCoding`; see [`quality`, `direction`, and
+  `strength`](../pipeline/vcv-statements/vcv-aggregation-rules.md#quality-direction-and-strength). A
+  classification-layer statement with one SCV still passes that SCV's strength through. In the 2026-10-31 full
+  release this changes the strength of 6,020 of the 21,309,008 VCV and RCV records (2,714 VCV, 3,306 RCV):
+    - **Somatic clinical impact whose tier is II, III or IV:** a multi-SCV classification group, any priority
+      statement, and an aggregate statement won by the priority layer. Tier II goes from `Strong` to
+      `Potential` (2,001); Tier III and Tier IV go from `Strong` to no strength (634).
+    - **Aggregate statements won by a one-SCV group labelled Likely oncogenic, a low-penetrance label or a
+      risk-allele label**, which had no strength although the SCV and the classification-layer statement had
+      one. They now carry it: `Likely oncogenic` → `Likely` (2,630), `Pathogenic, low penetrance` and
+      `Established risk allele` → `Definitive` (218), `Likely pathogenic, low penetrance` and
+      `Likely risk allele` → `Likely` (537).
+    - **Multi-SCV groups labelled Likely oncogenic** now get `Likely`. The 2026-10-31 release has none.
+
+    No other strength changes. If you read aggregate `strength` for somatic clinical impact, oncogenicity, or the
+    low-penetrance and risk-allele labels, expect these values from the first 1.2.0 release.
+- **VCV and RCV aggregate `direction` now matches the direction the SCVs carry**
+  ([#227](https://github.com/clingen-data-model/clinvar-gkm/issues/227)). Aggregate statements took their
+  direction from a fixed list of labels that gave `supports` to every label it didn't name, including labels
+  the SCVs mark `neutral` or `disputes`. The direction now comes from the same `clinvar_clinsig_types` row that
+  gives the label its `primaryCoding`; see [`quality`, `direction`, and
+  `strength`](../pipeline/vcv-statements/vcv-aggregation-rules.md#quality-direction-and-strength). A
+  classification-layer statement with one SCV still passes that SCV's direction through. A label with no lookup
+  row is `neutral` if it is `Conflicting classifications of …` (as before) or the FLAG label
+  `no classifications from unflagged records`; a combination takes the direction every SCV in its group
+  carries, or `supports` when they differ. In the 2026-10-31 full release this changes the direction of 4,779
+  of the 21,309,008 VCV and RCV records (1,761 VCV, 3,018 RCV), all from `supports`:
+    - **Somatic clinical impact whose tier is III or IV:** a multi-SCV classification group, any priority
+      statement, and an aggregate statement won by the priority layer. Tier III goes to `neutral` (447) and
+      Tier IV to `disputes` (187).
+    - **Aggregate statements won by a one-SCV group** whose label is one the old list didn't name, which
+      disagreed with the SCV and the classification-layer statement: `VUS-high`, `VUS-mid`, `VUS-low` and
+      `Uncertain risk allele` go to `neutral` (717), `conflicting data from submitters` to `neutral` (384), and
+      `association not found` to `disputes` (16).
+    - **Multi-SCV groups labelled VUS-high, VUS-mid, VUS-low, Uncertain risk allele, conflicting data from
+      submitters or association not found** get the same values. The 2026-10-31 release has none.
+    - **Combinations of neutral terms** (`Uncertain significance/Uncertain risk allele`, `/VUS-high`,
+      `/VUS-mid`, `/VUS-low`): a multi-SCV classification group and an aggregate statement it wins go to
+      `neutral` (478: 400 VCV, 78 RCV). Every other combination in the release has `supports` terms only, so it
+      keeps `supports`.
+    - **The FLAG label** `no classifications from unflagged records`: a multi-SCV classification group and every
+      aggregate statement with this label go to `neutral` (2,550: 674 VCV, 1,876 RCV). A one-SCV FLAG
+      classification group still passes its flagged SCV's direction through.
+
+    No other direction changes; every statement still has a direction. If you filter aggregate statements by
+    `direction`, expect these values from the first 1.2.0 release.
 - **The pipeline can't write a record that 1.2.0 rejects.** No current record is affected; these guard cases
   that could appear in a later release. A molecular consequence keeps ClinVar's SO code even when the
   pipeline's 18-term SO lookup doesn't list it, so `ClinvarMolecularConsequenceCoding.code` is now any SO id
