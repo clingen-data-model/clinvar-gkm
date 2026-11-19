@@ -203,7 +203,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (9f221df)</li>
+        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
       </ul>
     </div>
   </a>
@@ -526,7 +526,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (9f221df)</li>
+        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
       </ul>
     </div>
   </a>
@@ -6226,20 +6226,25 @@ grey and say they aren't current.</p>
    the ref's tree (the tag is never changed), copies in the files this feature owns (<code>docs/overrides/main.html</code>,
    <code>partials/header.html</code>, <code>partials/source.html</code>, <code>404.html</code>, <code>versions.js</code>, <code>versions.css</code>) from the checkout
    running the build, sets <code>site_url</code>, adds the <code>[project.extra.version]</code> table if missing, regenerates the
-   Roadmap, and runs <code>zensical build --clean --strict</code> and <code>check-site-links.py</code>. This is how <code>1.1</code> is built from
-   the <code>1.1.0</code> tag, whose config predates versioning. Content a tag's docs should have but don't is added by a
-   patch in <code>src/scripts/docs-ref-patches/&lt;tag&gt;/</code>, applied to the exported tree before the build (a patch that
-   doesn't apply stops it): the <code>1.1.0</code> tag's changelog has no 1.1.0 section, because the notes were written
-   after the tag, so <code>1.1.0/changelog-1.1.0-section.patch</code> adds that section as it reads on <code>main</code>.</li>
+   Roadmap, and runs <code>zensical build --clean --strict</code> and <code>check-site-links.py</code>. This is how <code>1.1</code>, whose config
+   predates versioning, gets the selector.
+   <strong>A line whose tag lacks its docs is built from another ref.</strong> <code>src/scripts/docs-line-sources.txt</code> maps a
+   release line to the ref its pages are built from and the release its header shows. The build script applies
+   it on every trigger (release, schedule, dispatch), so the daily rebuild can't bring the tag's docs back. The
+   <code>1.1.0</code> tag was cut on <code>1.0</code> without <code>main</code>'s 1.1.0 docs: its pages give the pre-1.1 <code>v1/datasets/…</code>
+   download URLs, which return 404, and its changelog has no 1.1.0 section. <code>1.1</code> is therefore built from
+   <code>036bec2</code> (<code>main</code> right after the 1.1.0 forward-merge, #188) and shown as <code>1.1.0</code>. Remove a line's entry when
+   a newer tag of that line has correct docs; after changing the file, dispatch the line to rebuild it.</li>
 <li><strong>Each version shows and links its own ref.</strong> The build sets <code>[project.extra.source]</code> to the ref it was built
-   from: <code>main</code> (labelled with the build commit) for <code>dev</code>, the tag for a release. The header's repository widget
-   (<code>partials/source.html</code>) shows that ref and links <code>…/tree/&lt;ref&gt;</code>, instead of the latest GitHub release the theme
+   from: <code>main</code> (labelled with the build commit) for <code>dev</code>, the tag (or the line's label) for a release. The
+   header's repository widget (<code>partials/source.html</code>) shows that ref and links <code>…/tree/&lt;ref&gt;</code>, instead of the latest GitHub release the theme
    fetches from the GitHub API; the stars and forks counts, which come from the same lookup, are dropped.
-   <code>edit_uri</code> follows the ref (<code>edit/main/docs/</code> for <code>dev</code>, <code>blob/&lt;tag&gt;/docs/</code> for a release, since a tag can't
-   be edited); the edit and view buttons aren't enabled today. For a release, <code>src/scripts/pin-repo-links.py</code>
-   rewrites the pages' links to this repository's files on <code>main</code> (<code>/blob/main/…</code>, <code>/tree/main/…</code>,
-   <code>/raw/main/…</code>) in the exported tree to the tag, so a <code>1.1</code> page links the <code>1.1.0</code> files; a path the tag
-   doesn't have stays on <code>main</code> and is listed in the build log. Links to issues, discussions, pull requests and
+   <code>edit_uri</code> follows the ref the pages come from (<code>edit/main/docs/</code> for <code>dev</code>, <code>blob/&lt;ref&gt;/docs/</code> for a
+   release, since a tag can't be edited); the edit and view buttons aren't enabled today. For a release,
+   <code>src/scripts/pin-repo-links.py</code> rewrites the pages' links to this repository's files on <code>main</code>
+   (<code>/blob/main/…</code>, <code>/tree/main/…</code>, <code>/raw/main/…</code>) in the exported tree to the ref the pages come from (the tag,
+   or the line's source ref, so a <code>1.1</code> page links the <code>036bec2</code> files, where each linked path exists); a path
+   the ref doesn't have stays on <code>main</code> and is listed in the build log. Links to issues, discussions, pull requests and
    releases stay as written: they are live, not versioned.</li>
 <li>
 <p><strong>When each version is deployed</strong> (<code>.github/workflows/deploy-docs.yml</code>):</p>
