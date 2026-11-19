@@ -1,0 +1,65 @@
+{
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarMolecularConsequenceCoding",
+   "title": "ClinvarMolecularConsequenceCoding",
+   "description": "A Sequence Ontology molecular consequence of a HgvsListItem: ClinVar's SO code, the SO system, one identifiers.org IRI and, when the pipeline knows the term, its label as the name.",
+   "maturity": "trial use",
+   "allOf": [
+      {
+         "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarCoding"
+      },
+      {
+         "type": "object",
+         "required": [
+            "iris"
+         ],
+         "properties": {
+            "code": {
+               "type": "string",
+               "pattern": "^SO:[0-9]{7}$",
+               "description": "The SO identifier ClinVar gives, passed through as is (e.g. `SO:0001583`)."
+            },
+            "name": {
+               "type": "string",
+               "enum": [
+                  "missense_variant",
+                  "intron_variant",
+                  "inframe_indel",
+                  "inframe_deletion",
+                  "no_sequence_alteration",
+                  "inframe_insertion",
+                  "stop_gained",
+                  "5_prime_UTR_variant",
+                  "stop_lost",
+                  "genic_upstream_transcript_variant",
+                  "splice_acceptor_variant",
+                  "non_coding_transcript_variant",
+                  "genic_downstream_transcript_variant",
+                  "splice_donor_variant",
+                  "3_prime_UTR_variant",
+                  "synonymous_variant",
+                  "frameshift_variant",
+                  "initiator_codon_variant"
+               ],
+               "description": "The SO term label, from the pipeline's SO lookup. Absent for a code the lookup does not list."
+            },
+            "system": {
+               "type": "string",
+               "const": "http://www.sequenceontology.org/",
+               "description": "Must be 'http://www.sequenceontology.org/'."
+            },
+            "iris": {
+               "type": "array",
+               "ordered": false,
+               "items": {
+                  "pattern": "^https://identifiers\\.org/SO:[0-9]{7}$",
+                  "$ref": "/ga4gh/schema/gkm-core/1.3.0/json/iriReference"
+               },
+               "description": "The identifiers.org IRI of the SO term."
+            }
+         }
+      }
+   ],
+   "type": "object",
+   "unevaluatedProperties": false
+}

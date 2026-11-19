@@ -1,15 +1,15 @@
 # GKS Schema Registry
 
-> Auto-generated: 2026-03-06T02:13:18.832601Z
+> Auto-generated: 2026-10-18T23:49:00.461967Z
 
 ## Summary
 
 | Repo | Latest Release | Schemas | Normative | Trial Use | Draft |
 |------|----------------|---------|-----------|-----------|-------|
-| cat-vrs | 1.1.0-snapshot.2026-02.2 | 12 | 0 | 7 | 5 |
-| gks-core | 1.1.0 | 9 | 0 | 9 | 0 |
-| va-spec | 1.0.1 | 30 | 0 | 22 | 8 |
-| vrs | 2.1.0-snapshot.2026-02.2 | 25 | 0 | 17 | 8 |
+| cat-vrs | 1.1.1 | 16 | 0 | 7 | 9 |
+| gks-core | 1.3.0 | 0 | 0 | 0 | 0 |
+| va-spec | 1.1.0 | 40 | 0 | 25 | 15 |
+| vrs | 2.1.1 | 26 | 0 | 18 | 8 |
 
 ## Quick Links
 

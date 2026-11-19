@@ -10,14 +10,22 @@ Steps 2--6 of `gkm_scv_statement_proc` build the qualifier tables and assemble t
 
 ### Step 2: Build `temp_gene_context_qualifiers`
 
-Extracts gene context from `single_gene_variation` by matching each SCV's variation_id to its associated gene. The gene's symbol and HGNC id come from `single_gene_variation`'s own `symbol` and `hgnc_id` columns, not from the release's `gene` table, so genes ClinVar does not list (named in a variant title but not associated) keep their context. See the upstream [Single Gene Variation method](https://github.com/clingen-data-model/clinvar-ingest-bq-tools/blob/main/docs/methods/single-gene-variation.md). A release whose `single_gene_variation` lacks those columns stops with an error. For each match, builds a gene concept with:
+Extracts gene context from the upstream `single_gene_variation` table: one representative gene per variant, chosen by the [single-gene method](https://github.com/clingen-data-model/clinvar-ingest-bq-tools/blob/main/docs/methods/single-gene-variation.md) in clinvar-ingest-bq-tools. The gene's `symbol` and `hgnc_id` come from that same table, so this step joins no gene table of its own. For each SCV whose variant has a row, it builds a gene concept with:
 
 - **conceptType**: `"gene"`
 - **primaryCoding**: NCBI Gene identifier using both `identifiers.org` and NCBI Gene URLs
 - **HGNC mappings**: When an HGNC identifier is available, included as an additional coding
-- **submittedGeneSymbols extension**: Gene symbols from `clinical_assertion_variation`, preserving the submitter's original gene annotations
+- **submittedGeneSymbols extension**: Gene symbols from `clinical_assertion_variation`, preserving the submitter's original gene annotations. Trimmed of the space a `, `-separated list leaves after the split, distinct, in submitted order: variation record, then gene list, then position in the comma-separated symbol list. That key is unique, so the order is total and an incremental build matches a full one.
+- **geneContextSource extension**: Where the gene came from. The submitter's symbols never choose the gene; they only set this value. They are compared with the gene's symbol after trimming spaces and ignoring case:
+    - `submittedSymbolMatches` — the submitter's symbols include the gene's symbol
+    - `submittedSymbolDiffers` — the submitter gave symbols, none equal to it (mostly previous symbols of the same gene)
+    - `inferredFromVariant` — the submitter gave no symbols
 
-When no single-gene match exists for a variation, the qualifier falls back to a record noting that "submitted genes were not normalized."
+When no single-gene match exists for a variation but the submitter gave symbols, the qualifier is a placeholder. Its `name` is the submitter's symbol: several are joined with `, ` in submitted order. It has no `primaryCoding` or `mappings`, keeps `submittedGeneSymbols`, and has `geneContextSource` = `submittedNotNormalized`. Releases before 1.1.0 name the placeholder `submitted genes were not normalized`.
+
+The schema accepts only these four `geneContextSource` values. `ClinvarGeneContextQualifier` defines them, and every ClinVar proposition profile types its `geneContextQualifier` as a `ClinvarGeneContextQualifier`, including the profiles of the VA-Spec proposition types.
+
+The extension values are stored as typed fields (`value_string` for the symbol array, `value_enum` for the source) and collapsed to `value` at publish.
 
 **Output:** `temp_gene_context_qualifiers` -- one row per SCV+gene combination. <span class="role-badge badge-internal">Internal</span>
 
@@ -25,7 +33,7 @@ When no single-gene match exists for a variation, the qualifier falls back to a 
 
 ### Step 3: Build `temp_moi_qualifiers`
 
-Extracts ModeOfInheritance from assertion attributes in `clinical_assertion`. When a matching HPO term is available, the qualifier includes a `primaryCoding` with the HPO term identifier and label. All qualifiers include a `submittedModeOfInheritance` extension preserving the original submitted value.
+Extracts ModeOfInheritance from assertion attributes in `clinical_assertion`. When a matching HPO term is available, the qualifier includes a `primaryCoding` with the HPO term identifier and label. All qualifiers include a `submittedModeOfInheritance` extension preserving the original submitted value. An attribute with no value gives no qualifier, so the extension never lacks a value.
 
 **Output:** `temp_moi_qualifiers` -- one row per SCV with mode of inheritance. <span class="role-badge badge-internal">Internal</span>
 
@@ -40,7 +48,7 @@ Derives penetrance qualifiers for specific classification types:
 | Pathogenic-low penetrance (`p-lp`), Likely pathogenic-low penetrance (`lp-lp`) | `"low"` |
 | Established risk allele (`era`), Likely risk allele (`lra`), Uncertain risk allele (`ura`) | `"risk"` |
 
-Each penetrance qualifier includes a `submittedClassification` extension preserving the original classification label that triggered the penetrance derivation.
+Each penetrance qualifier includes a `submittedClassification` extension preserving the original classification label that triggered the penetrance derivation. An SCV with no submitted classification gets no penetrance qualifier, so the extension never lacks a value.
 
 **Output:** `temp_penetrance_qualifiers` -- one row per qualifying SCV. <span class="role-badge badge-internal">Internal</span>
 
@@ -52,14 +60,18 @@ Assembles the SCV proposition by joining `temp_gkm_scv` with all qualifier table
 
 | Field | Description |
 |---|---|
+| `id` | `{scv_id}-{PROP_CODE}` (e.g., `SCV001234567-PATH`); `UNDEF` when the type has no code |
 | `type` | Proposition type from Step 1 mapping (e.g., `VariantPathogenicityProposition`) |
-| `subject` | Reference to the categorical variant via `clinvar:{variation_id}` |
+| `subject` | `#/variation/clinvar:{variation_id}` pointer to the categorical variant |
 | `predicate` | Predicate from Step 1 mapping (e.g., `isCausalFor`, `isOncogenicFor`) |
-| `object_single` | Single condition from the condition pipeline |
-| `object_compound` | ConditionSet for SCVs with multiple conditions |
+| `object` | `#/condition/` or `#/conditionSet/` pointer to the SCV's condition, from the submitted condition (or condition set) mapping |
 | `geneContextQualifier` | Gene concept from Step 2 |
 | `modeOfInheritanceQualifier` | Mode of inheritance from Step 3 |
 | `penetranceQualifier` | Penetrance from Step 4 |
+
+The qualifiers are joined for every SCV proposition and dropped when empty. `modeOfInheritanceQualifier` and `penetranceQualifier` are written only on `VariantPathogenicityProposition` and the ClinVar-specific (`Clinvar*`) proposition types. An oncogenicity or clinical significance proposition never carries them, even when the SCV has a mode of inheritance or a risk-allele classification, because neither VA-Spec nor the ClinVar-GKM profiles allow them there. `geneContextQualifier` is written on every type.
+
+Every proposition type requires `object`. If an SCV's condition doesn't resolve, the build stops with an error instead of writing a proposition without one.
 
 **Output:** `temp_gkm_scv_proposition` -- one row per SCV with fully assembled proposition. <span class="role-badge badge-internal">Internal</span>
 
@@ -71,15 +83,15 @@ Builds the evidence line target proposition for somatic clinical impact assertio
 
 | Field | Description |
 |---|---|
+| `id` | `{scv_id}-{CODE}` (e.g., `SCV003456789-TR`) |
 | `type` | Target proposition type (e.g., `VariantPrognosticProposition`, `VariantTherapeuticResponseProposition`) |
-| `subject` | JSON pointer `4/proposition/subject` referencing the parent proposition's variant |
+| `subject` | `#/variation/clinvar:{variation_id}` pointer — the same variant as the parent (Step 5) proposition |
 | `predicate` | Target predicate (e.g., `associatedWithBetterOutcomeFor`, `predictsSensitivityTo`) |
-| `object` | For therapeutic assertions, a reference to the therapy: `#/therapy/clinvar.therapy:{sha256}` for a single drug, or `#/therapyGroup/clinvar.therapygroup:{sha256}` for a multi-drug combination. Therapies are extracted (`temp_gkm_scv_therapy`), content-addressed, and deduplicated into the `gkm_dict_therapy` / `gkm_dict_therapygroup` dictionaries; a TherapyGroup's `concepts` reference its member therapies via `#/therapy/` |
+| `object` | For therapeutic assertions, a reference to the therapy: `#/therapy/clinvar.therapy:{sha256}` for a single drug, or `#/therapyGroup/clinvar.therapygroup:{sha256}` for a multi-drug combination. Therapies are extracted (`temp_gkm_scv_therapy`), content-addressed, and deduplicated into the `gkm_dict_therapy` / `gkm_dict_therapygroup` tables; a TherapyGroup's `concepts` reference its member therapies via `#/therapy/`. For diagnostic and prognostic assertions, the `#/condition/` or `#/conditionSet/` pointer to the SCV's condition |
 | `conditionQualifier` | Condition moved to qualifier position for therapeutic assertions (since `object` becomes the therapy), as a `#/condition/` or `#/conditionSet/` reference |
 | `geneContextQualifier` | Gene concept from Step 2 |
-| `modeOfInheritanceQualifier` | Mode of inheritance from Step 3 |
 
-The JSON pointer `4/proposition/subject` is used instead of duplicating the variant reference, linking the target proposition back to the same variant defined in the parent (Step 5) proposition.
+Target propositions carry no `modeOfInheritanceQualifier` or `penetranceQualifier`: those qualifiers are germline-only, so this step does not emit them. If a target proposition has no therapy (therapeutic) or no condition (diagnostic, prognostic) for its `object`, the build stops with an error.
 
 **Output:** `temp_gkm_scv_target_proposition` -- one row per somatic SCV with target proposition. <span class="role-badge badge-internal">Internal</span>
 
@@ -87,6 +99,6 @@ The JSON pointer `4/proposition/subject` is used instead of duplicating the vari
 
 ## Dependencies
 
-- **Source Tables**: `single_gene_variation`, `clinical_assertion`, `clinical_assertion_variation`
+- **Source Tables**: `single_gene_variation` (with its `symbol` and `hgnc_id` columns), `clinical_assertion`, `clinical_assertion_variation`
 - **Lookup Tables**: `hpo_terms`
 - **Upstream Steps**: Step 1 (`temp_gkm_scv`), condition pipeline (`gkm_scv_condition_sets`)

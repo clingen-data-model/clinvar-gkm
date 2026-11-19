@@ -127,7 +127,7 @@ BEGIN
         SELECT (SELECT COUNT(*) FROM `%s.INFORMATION_SCHEMA.TABLES`
                 WHERE table_name IN ('rcv_impacted_ids','gkm_rcv_classification_agg',
                   'gkm_rcv_priority_agg','gkm_rcv_aggregate_contribution','rcv_mapping',
-                  'gkm_scv_condition_sets','rcv_accession')) = 7
+                  'gkm_scv_condition_sets','gkm_dict_condition_set','rcv_accession')) = 8
       """, rec.schema_name) INTO diff_ok;
 
       -- version gate — TWO statements. BigQuery resolves table refs at analysis time and
@@ -187,6 +187,7 @@ BEGIN
     -- Picks one representative SCV per RCV (deterministic: min scv_id among the member
     -- SCVs present in gkm_scv_condition_sets with a resolvable condition); produces a
     -- pointer to either the SCV's condition or conditionSet. Extensions are excluded.
+    -- When no member SCV resolves, falls back to the RCV's own trait set (rcv_mapping).
     -- {PFILTER} restricts to impacted RCVs in incremental mode.
     -------------------------------------------------------------------------
     SET query_condition_data = REPLACE("""
@@ -209,15 +210,39 @@ BEGIN
         JOIN `{S}.gkm_scv_condition_sets` scs ON scs.scv_id = rsl.scv_id
         WHERE TRUE
           {PFILTER}
-      )
+      ),
       -- Rank AFTER the join, over members that resolve to a condition: rcv_mapping can
       -- list an SCV that is no longer in the release; ranking before the join let that
       -- stale SCV win rn = 1 and then drop out of the inner join, leaving the RCV's
       -- propositions with no object.
-      SELECT rcv_accession, condition_concept
-      FROM rcv_scv_condition
-      WHERE condition_concept IS NOT NULL
-      QUALIFY ROW_NUMBER() OVER (PARTITION BY rcv_accession ORDER BY scv_id, condition_concept) = 1
+      resolved AS (
+        SELECT rcv_accession, condition_concept
+        FROM rcv_scv_condition
+        WHERE condition_concept IS NOT NULL
+        QUALIFY ROW_NUMBER() OVER (PARTITION BY rcv_accession ORDER BY scv_id, condition_concept) = 1
+      ),
+      -- Fallback when no member SCV resolves a condition (e.g. every member listed in
+      -- rcv_mapping is stale): the RCV's own trait set, resolved the way
+      -- gkm_scv_condition_sets resolves an SCV's — a one-trait set to its #/condition/
+      -- pointer, a larger set to its #/conditionSet/ pointer. A trait set missing from
+      -- gkm_dict_condition_set gives no row, and the proposition build then fails loudly.
+      fallback AS (
+        SELECT
+          rsl.rcv_accession,
+          IF(ARRAY_LENGTH(ts.concepts) > 1, FORMAT('#/conditionSet/%s', ts.id), ts.concepts[SAFE_OFFSET(0)]) AS condition_concept
+        FROM `{S}.rcv_mapping` rsl
+        JOIN `{S}.gkm_dict_condition_set` ts
+          ON ts.id = FORMAT('clinvar.traitset:%s', rsl.trait_set_id)
+        WHERE TRUE
+          {PFILTER}
+        QUALIFY ROW_NUMBER() OVER (PARTITION BY rsl.rcv_accession ORDER BY rsl.trait_set_id) = 1
+      )
+      SELECT rcv_accession, condition_concept FROM resolved
+      UNION ALL
+      SELECT f.rcv_accession, f.condition_concept
+      FROM fallback f
+      WHERE f.condition_concept IS NOT NULL
+        AND f.rcv_accession NOT IN (SELECT rcv_accession FROM resolved)
     """, '{PFILTER}', pf_cond);
     SET query_condition_data = REPLACE(query_condition_data, '{S}', rec.schema_name);
     SET query_condition_data = REPLACE(query_condition_data, '{CT}', temp_create);
@@ -235,29 +260,20 @@ BEGIN
         -- Flattened GKS Payload
         'Statement' AS type,
 
+        -- One SCV: its own direction. Several: the lookup direction of the aggregate label
+        -- (gkm_*_proc agg_direction; #227).
         IF(ARRAY_LENGTH(agg.full_scv_ids) = 1,
           agg.scv_direction,
-          CASE
-            WHEN agg.actual_agg_classif_label IN ('Pathogenic', 'Likely pathogenic', 'Pathogenic/Likely pathogenic') THEN 'supports'
-            WHEN agg.actual_agg_classif_label IN ('Benign', 'Likely benign', 'Benign/Likely benign') THEN 'disputes'
-            WHEN agg.actual_agg_classif_label = 'Uncertain significance' THEN 'neutral'
-            WHEN agg.actual_agg_classif_label LIKE 'Conflicting%%' THEN 'neutral'
-            ELSE 'supports'
-          END
+          agg.agg_direction
         ) AS direction,
 
         (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
+          -- One SCV: its own strength. Several: the lookup strength of the aggregate label
+          -- (gkm_*_proc agg_strength_name); none for a label without one (#226).
           IF(ARRAY_LENGTH(agg.full_scv_ids) = 1,
             agg.scv_strength_name,
-            CASE
-              WHEN agg.actual_agg_classif_label IN ('Pathogenic', 'Benign', 'Oncogenic') THEN 'Definitive'
-              WHEN agg.actual_agg_classif_label IN ('Likely pathogenic', 'Likely benign', 'Likely Oncogenic') THEN 'Likely'
-              WHEN agg.actual_agg_classif_label LIKE 'Tier I%' THEN 'Strong'
-              WHEN agg.actual_agg_classif_label LIKE 'Tier II%' THEN 'Potential'
-              WHEN agg.actual_agg_classif_label LIKE 'Tier IV%' THEN 'Likely'
-              ELSE CAST(NULL AS STRING)
-            END
+            agg.agg_strength_name
           ) AS name
         )]) s WHERE s.name IS NOT NULL) AS strength,
 
@@ -267,6 +283,11 @@ BEGIN
         STRUCT(
           'MappableConcept' AS type, 'Classification' AS conceptType,
           agg.actual_agg_classif_label AS name,
+          -- Aggregate classification coding (gkm_*_proc agg_classif_coding); omitted when NULL
+          IF(agg.agg_classif_coding.code IS NOT NULL,
+            STRUCT(agg.agg_classif_coding.code AS code, agg.agg_classif_coding.system AS system),
+            NULL
+          ) AS primaryCoding,
           IF(
             agg.agg_label_conflicting_explanation IS NOT NULL AND agg.agg_label_conflicting_explanation != '',
             [STRUCT('conflictingExplanation' AS name, agg.agg_label_conflicting_explanation AS value)],
@@ -310,24 +331,13 @@ BEGIN
 
         'Statement' AS type,
 
-        CASE
-          WHEN agg.agg_label IN ('Pathogenic', 'Likely pathogenic', 'Pathogenic/Likely pathogenic') THEN 'supports'
-          WHEN agg.agg_label IN ('Benign', 'Likely benign', 'Benign/Likely benign') THEN 'disputes'
-          WHEN agg.agg_label = 'Uncertain significance' THEN 'neutral'
-          WHEN agg.agg_label LIKE 'Conflicting%%' THEN 'neutral'
-          ELSE 'supports'
-        END AS direction,
+        -- the lookup direction of the layer's label (gkm_*_proc agg_direction; #227)
+        agg.agg_direction AS direction,
 
         (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
-          CASE
-            WHEN agg.agg_label IN ('Pathogenic', 'Benign', 'Oncogenic') THEN 'Definitive'
-            WHEN agg.agg_label IN ('Likely pathogenic', 'Likely benign', 'Likely Oncogenic') THEN 'Likely'
-            WHEN agg.agg_label LIKE 'Tier I%' THEN 'Strong'
-            WHEN agg.agg_label LIKE 'Tier II%' THEN 'Potential'
-            WHEN agg.agg_label LIKE 'Tier IV%' THEN 'Likely'
-            ELSE CAST(NULL AS STRING)
-          END AS name
+          -- the lookup strength of the layer's label (gkm_*_proc agg_strength_name; #226)
+          agg.agg_strength_name AS name
         )]) s WHERE s.name IS NOT NULL) AS strength,
 
         STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, sl.label AS name) AS quality,
@@ -335,6 +345,11 @@ BEGIN
         STRUCT(
           'MappableConcept' AS type, 'Classification' AS conceptType,
           agg.agg_label AS name,
+          -- Aggregate classification coding (gkm_*_proc agg_classif_coding); omitted when NULL
+          IF(agg.agg_classif_coding.code IS NOT NULL,
+            STRUCT(agg.agg_classif_coding.code AS code, agg.agg_classif_coding.system AS system),
+            NULL
+          ) AS primaryCoding,
           IF(
             agg.agg_label_conflicting_explanation IS NOT NULL AND agg.agg_label_conflicting_explanation != '',
             [STRUCT('conflictingExplanation' AS name, agg.agg_label_conflicting_explanation AS value)],
@@ -383,24 +398,13 @@ BEGIN
 
         'Statement' AS type,
 
-        CASE
-          WHEN agg.agg_label IN ('Pathogenic', 'Likely pathogenic', 'Pathogenic/Likely pathogenic') THEN 'supports'
-          WHEN agg.agg_label IN ('Benign', 'Likely benign', 'Benign/Likely benign') THEN 'disputes'
-          WHEN agg.agg_label = 'Uncertain significance' THEN 'neutral'
-          WHEN agg.agg_label LIKE 'Conflicting%%' THEN 'neutral'
-          ELSE 'supports'
-        END AS direction,
+        -- the lookup direction of the layer's label (gkm_*_proc agg_direction; #227)
+        agg.agg_direction AS direction,
 
         (SELECT s FROM UNNEST([STRUCT(
           'MappableConcept' AS type, 'Strength' AS conceptType,
-          CASE
-            WHEN agg.agg_label IN ('Pathogenic', 'Benign', 'Oncogenic') THEN 'Definitive'
-            WHEN agg.agg_label IN ('Likely pathogenic', 'Likely benign', 'Likely Oncogenic') THEN 'Likely'
-            WHEN agg.agg_label LIKE 'Tier I%' THEN 'Strong'
-            WHEN agg.agg_label LIKE 'Tier II%' THEN 'Potential'
-            WHEN agg.agg_label LIKE 'Tier IV%' THEN 'Likely'
-            ELSE CAST(NULL AS STRING)
-          END AS name
+          -- the lookup strength of the layer's label (gkm_*_proc agg_strength_name; #226)
+          agg.agg_strength_name AS name
         )]) s WHERE s.name IS NOT NULL) AS strength,
 
         STRUCT('MappableConcept' AS type, 'Quality' AS conceptType, agg.contributing_submission_level_label AS name) AS quality,
@@ -408,6 +412,11 @@ BEGIN
         STRUCT(
           'MappableConcept' AS type, 'Classification' AS conceptType,
           agg.agg_label AS name,
+          -- Aggregate classification coding (gkm_*_proc agg_classif_coding); omitted when NULL
+          IF(agg.agg_classif_coding.code IS NOT NULL,
+            STRUCT(agg.agg_classif_coding.code AS code, agg.agg_classif_coding.system AS system),
+            NULL
+          ) AS primaryCoding,
           IF(
             agg.agg_label_conflicting_explanation IS NOT NULL AND agg.agg_label_conflicting_explanation != '',
             [STRUCT('conflictingExplanation' AS name, agg.agg_label_conflicting_explanation AS value)],
@@ -572,7 +581,9 @@ BEGIN
             WHEN 'ClinvarRiskFactorProposition' THEN 'isRiskFactorFor'
             ELSE 'isClinvarUndefinedAssociationFor'
           END AS predicate,
-          rcd.condition_concept AS object
+          -- base class requires object: fail the build rather than ship a proposition without one
+          IF(rcd.condition_concept IS NOT NULL, rcd.condition_concept,
+             ERROR(FORMAT('RCV proposition %s has no object: no condition resolved for %s', agg.prop_id, agg.rcv_accession))) AS object
         )), remove_empty => TRUE) as value
       FROM `{S}.gkm_rcv_classification_agg` agg
       LEFT JOIN `clinvar_ingest.clinvar_proposition_types` cpt ON agg.prop_type = cpt.code
@@ -601,7 +612,9 @@ BEGIN
             WHEN 'ClinvarRiskFactorProposition' THEN 'isRiskFactorFor'
             ELSE 'isClinvarUndefinedAssociationFor'
           END AS predicate,
-          rcd.condition_concept AS object
+          -- base class requires object: fail the build rather than ship a proposition without one
+          IF(rcd.condition_concept IS NOT NULL, rcd.condition_concept,
+             ERROR(FORMAT('RCV proposition %s has no object: no condition resolved for %s', agg.prop_id, agg.rcv_accession))) AS object
         )), remove_empty => TRUE) as value
       FROM `{S}.gkm_rcv_priority_agg` agg
       LEFT JOIN `clinvar_ingest.clinvar_proposition_types` cpt ON agg.prop_type = cpt.code
@@ -630,7 +643,9 @@ BEGIN
             WHEN 'ClinvarRiskFactorProposition' THEN 'isRiskFactorFor'
             ELSE 'isClinvarUndefinedAssociationFor'
           END AS predicate,
-          rcd.condition_concept AS object
+          -- base class requires object: fail the build rather than ship a proposition without one
+          IF(rcd.condition_concept IS NOT NULL, rcd.condition_concept,
+             ERROR(FORMAT('RCV proposition %s has no object: no condition resolved for %s', agg.prop_id, agg.rcv_accession))) AS object
         )), remove_empty => TRUE) as value
       FROM `{S}.gkm_rcv_aggregate_contribution` agg
       LEFT JOIN `clinvar_ingest.clinvar_proposition_types` cpt ON agg.prop_type = cpt.code

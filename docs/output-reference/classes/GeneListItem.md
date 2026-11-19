@@ -12,7 +12,7 @@ One gene associated with a ClinVar variation: a reference to the gene's Mappable
 
 | Field | Type | Limits | Description |
 | --- | --- | --- | --- |
-| `gene` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener } | 1..1 | Reference to the gene MappableConcept in the bundle's `gene` section (e.g. `#/gene/ncbigene:672`). |
-| `relationship_type` | `string` | 1..1 | The relationship between the variation and the gene as reported by ClinVar (e.g.,  `within single gene`, `genes overlapped by variant`). |
-| `source` | `string` | 1..1 | The source of the gene association: `submitted` (asserted by the submitter) or `calculated` (computed by ClinVar). |
+| `gene` | [iriReference](https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference){ target=_blank rel=noopener }<br>pointer to `#/gene/<id>` | 1..1 | Reference to the gene MappableConcept in the bundle's `gene` section (e.g. `#/gene/ncbigene:672`). |
+| `relationship_type` | `string`<br>one of `asserted, but not computed`, `genes overlapped by variant`, `near gene, downstream`, `near gene, upstream`, `within multiple genes by overlap`, `within single gene` | 1..1 | The relationship between the variation and the gene as reported by ClinVar (e.g., `within single gene`, `genes overlapped by variant`). |
+| `source` | `string`<br>one of `calculated`, `submitted` | 1..1 | The source of the gene association: `submitted` (asserted by the submitter) or `calculated` (computed by ClinVar). |
 

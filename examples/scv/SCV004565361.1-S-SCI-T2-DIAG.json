@@ -1,103 +1,146 @@
 {
-  "classification": {
-    "conceptType": "Classification",
-    "extensions": [
-      {
-        "name": "description",
-        "value": "for Diffuse Midline Glioma, H3 K27M-mutant\nClassification is based on the criteria provided submission\nOct 2018 by CIViC Knowledgebase, Washington University School of Medicine"
-      }
-    ],
-    "name": "Tier II - Potential",
-    "primaryCoding": {
-      "code": "tier 2",
-      "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
-    },
-    "type": "MappableConcept"
+  "schema_version": "1.2.0",
+  "condition": {
+    "clinvar.trait:73010": {
+      "id": "clinvar.trait:73010",
+      "type": "MappableConcept",
+      "conceptType": "Disease",
+      "name": "Diffuse midline glioma, H3 K27M-mutant",
+      "primaryCoding": {
+        "name": "Diffuse midline glioma, H3 K27M-mutant",
+        "code": "C4289688",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
+        "iris": [
+          "https://identifiers.org/medgen:C4289688",
+          "https://www.ncbi.nlm.nih.gov/medgen/C4289688"
+        ]
+      },
+      "mappings": [
+        {
+          "coding": {
+            "code": "0957196",
+            "system": "https://mondo.monarchinitiative.org/",
+            "iris": [
+              "http://purl.obolibrary.org/obo/MONDO_0957196",
+              "https://identifiers.org/mondo:0957196"
+            ]
+          },
+          "relation": "relatedMatch"
+        }
+      ]
+    }
   },
-  "contributions": [
-    {
-      "activityType": "submitted",
-      "contributor": {
-        "id": "clinvar.submitter:506594",
-        "name": "CIViC Knowledgebase, Washington University School of Medicine",
-        "type": "Agent"
-      },
-      "date": "2024-02-20",
-      "type": "Contribution"
-    },
-    {
-      "activityType": "created",
-      "contributor": {
-        "id": "clinvar.submitter:506594",
-        "name": "CIViC Knowledgebase, Washington University School of Medicine",
-        "type": "Agent"
-      },
-      "date": "2024-02-20",
-      "type": "Contribution"
-    },
-    {
-      "activityType": "evaluated",
-      "contributor": {
-        "id": "clinvar.submitter:506594",
-        "name": "CIViC Knowledgebase, Washington University School of Medicine",
-        "type": "Agent"
-      },
-      "date": "2018-10-16",
-      "type": "Contribution"
+  "submitter": {
+    "clinvar.submitter:506594": {
+      "id": "clinvar.submitter:506594",
+      "name": "CIViC Knowledgebase, Washington University School of Medicine",
+      "type": "Agent"
     }
-  ],
-  "description": "Supports diagnosis of diffuse intrinsic pontine glioma. ACVR1 G328V mutations occur within the kinase domain, leading to activation of downstream signaling. Exclusively seen in high-grade pediatric gliomas, supporting diagnosis of diffuse intrinsic pontine glioma.",
-  "direction": "supports",
-  "extensions": [
-    {
-      "name": "clinvarScvId",
-      "value": "SCV004565361"
-    },
-    {
-      "name": "clinvarScvVersion",
-      "value": "1"
-    },
-    {
-      "name": "submittedCondition",
-      "value": {
-        "condition": "clinvar.trait:73010",
-        "id": "SCV004565361.0",
-        "mapping": {
-          "ref": "preferred",
-          "type": "Name",
-          "value": "Diffuse Midline Glioma, H3 K27M-mutant"
+  },
+  "propositionSomaticClinicalImpact": {
+    "SCV004565361-DIAG": {
+      "geneContextQualifier": {
+        "conceptType": "gene",
+        "extensions": [
+          {
+            "name": "submittedGeneSymbols",
+            "value": [
+              "ACVR1"
+            ]
+          },
+          {
+            "name": "geneContextSource",
+            "value": "submittedSymbolMatches"
+          }
+        ],
+        "mappings": [
+          {
+            "coding": {
+              "code": "171",
+              "iris": [
+                "https://identifiers.org/hgnc:171",
+                "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/171"
+              ],
+              "system": "https://www.genenames.org"
+            },
+            "relation": "exactMatch"
+          }
+        ],
+        "name": "ACVR1",
+        "primaryCoding": {
+          "code": "90",
+          "iris": [
+            "https://identifiers.org/ncbigene:90",
+            "https://www.ncbi.nlm.nih.gov/gene/90"
+          ],
+          "name": "ACVR1",
+          "system": "https://www.ncbi.nlm.nih.gov/gene/"
         },
-        "medgen_id": "C4289688",
-        "name": "Diffuse Midline Glioma, H3 K27M-mutant",
-        "normalized_match": "clinvar.trait:73010",
-        "normalized_resolution": "tm reftype preferred name",
-        "type": "Disease"
-      }
+        "type": "MappableConcept"
+      },
+      "id": "SCV004565361-DIAG",
+      "object": "#/condition/clinvar.trait:73010",
+      "predicate": "isDiagnosticInclusionCriterionFor",
+      "subject": "#/variation/clinvar:376363",
+      "type": "VariantDiagnosticProposition"
     },
-    {
-      "name": "clinvarScvReviewStatus",
-      "value": "criteria provided, single submitter"
-    },
-    {
-      "name": "submittedScvClassification",
-      "value": "Tier II - Potential"
-    },
-    {
-      "name": "submittedScvLocalKey",
-      "value": "civic.AID:9"
-    },
-    {
-      "name": "submissionLevel",
-      "value": "CP"
+    "SCV004565361-SCI": {
+      "geneContextQualifier": {
+        "conceptType": "gene",
+        "extensions": [
+          {
+            "name": "submittedGeneSymbols",
+            "value": [
+              "ACVR1"
+            ]
+          },
+          {
+            "name": "geneContextSource",
+            "value": "submittedSymbolMatches"
+          }
+        ],
+        "mappings": [
+          {
+            "coding": {
+              "code": "171",
+              "iris": [
+                "https://identifiers.org/hgnc:171",
+                "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/171"
+              ],
+              "system": "https://www.genenames.org"
+            },
+            "relation": "exactMatch"
+          }
+        ],
+        "name": "ACVR1",
+        "primaryCoding": {
+          "code": "90",
+          "iris": [
+            "https://identifiers.org/ncbigene:90",
+            "https://www.ncbi.nlm.nih.gov/gene/90"
+          ],
+          "name": "ACVR1",
+          "system": "https://www.ncbi.nlm.nih.gov/gene/"
+        },
+        "type": "MappableConcept"
+      },
+      "id": "SCV004565361-SCI",
+      "object": "#/condition/clinvar.trait:73010",
+      "predicate": "hasClinicalSignificanceFor",
+      "subject": "#/variation/clinvar:376363",
+      "type": "VariantClinicalSignificanceProposition"
     }
-  ],
-  "hasEvidenceLines": [
-    {
+  },
+  "evidenceLine": {
+    "clinvar.submission:SCV004565361.1": {
+      "id": "clinvar.submission:SCV004565361.1",
+      "type": "EvidenceLine",
+      "targetProposition": "#/propositionSomaticClinicalImpact/SCV004565361-DIAG",
       "directionOfEvidenceProvided": "supports",
       "evidenceOutcome": {
+        "type": "MappableConcept",
         "conceptType": "Outcome",
-        "name": "Level C/D",
-        "type": "MappableConcept"
+        "name": "Level C/D"
       },
       "extensions": [
         {
@@ -117,217 +160,157 @@
             "type": "Disease"
           }
         }
-      ],
-      "id": "clinvar.submission:SCV004565361.1",
-      "targetProposition": {
-        "geneContextQualifier": {
-          "conceptType": "gene",
-          "extensions": [
-            {
-              "name": "submittedGeneSymbols",
-              "value": [
-                "ACVR1"
-              ]
-            },
-            {
-              "name": "geneContextSource",
-              "value": "submittedSymbolMatches"
-            }
-          ],
-          "mappings": [
-            {
-              "coding": {
-                "code": "171",
-                "iris": [
-                  "https://identifiers.org/hgnc:171",
-                  "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/171"
-                ],
-                "system": "https://www.genenames.org"
-              },
-              "relation": "exactMatch"
-            }
-          ],
-          "name": "ACVR1",
-          "primaryCoding": {
-            "code": "90",
-            "iris": [
-              "https://identifiers.org/ncbigene:90",
-              "https://www.ncbi.nlm.nih.gov/gene/90"
-            ],
-            "name": "ACVR1",
-            "system": "https://www.ncbi.nlm.nih.gov/gene/"
-          },
-          "type": "MappableConcept"
-        },
-        "id": "SCV004565361-DIAG",
-        "object": {
-          "conceptType": "Disease",
-          "id": "clinvar.trait:73010",
-          "mappings": [
-            {
-              "coding": {
-                "code": "0957196",
-                "iris": [
-                  "http://purl.obolibrary.org/obo/MONDO_0957196",
-                  "https://identifiers.org/mondo:0957196"
-                ],
-                "system": "https://mondo.monarchinitiative.org/"
-              },
-              "relation": "relatedMatch"
-            }
-          ],
-          "name": "Diffuse midline glioma, H3 K27M-mutant",
-          "primaryCoding": {
-            "code": "C4289688",
-            "iris": [
-              "https://identifiers.org/medgen:C4289688",
-              "https://www.ncbi.nlm.nih.gov/medgen/C4289688"
-            ],
-            "name": "Diffuse midline glioma, H3 K27M-mutant",
-            "system": "https://www.ncbi.nlm.nih.gov/medgen/"
-          },
-          "type": "MappableConcept"
-        },
-        "predicate": "isDiagnosticInclusionCriterionFor",
-        "subject": "#/variation/clinvar:376363",
-        "type": "VariantDiagnosticProposition"
-      },
-      "type": "EvidenceLine"
+      ]
     }
-  ],
-  "id": "clinvar.submission:SCV004565361.1",
-  "proposition": {
-    "geneContextQualifier": {
-      "conceptType": "gene",
-      "extensions": [
+  },
+  "scv": {
+    "clinvar.submission:SCV004565361.1": {
+      "id": "clinvar.submission:SCV004565361.1",
+      "type": "Statement",
+      "proposition": "#/propositionSomaticClinicalImpact/SCV004565361-SCI",
+      "classification": {
+        "type": "MappableConcept",
+        "conceptType": "Classification",
+        "name": "Tier II - Potential",
+        "primaryCoding": {
+          "code": "tier 2",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "extensions": [
+          {
+            "name": "description",
+            "value": "for Diffuse Midline Glioma, H3 K27M-mutant\nClassification is based on the criteria provided submission\nOct 2018 by CIViC Knowledgebase, Washington University School of Medicine"
+          }
+        ]
+      },
+      "strength": {
+        "type": "MappableConcept",
+        "conceptType": "Strength",
+        "name": "Potential",
+        "primaryCoding": {
+          "code": "potential",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        }
+      },
+      "direction": "supports",
+      "quality": {
+        "type": "MappableConcept",
+        "conceptType": "Quality",
+        "name": "criteria provided"
+      },
+      "description": "Supports diagnosis of diffuse intrinsic pontine glioma. ACVR1 G328V mutations occur within the kinase domain, leading to activation of downstream signaling. Exclusively seen in high-grade pediatric gliomas, supporting diagnosis of diffuse intrinsic pontine glioma.",
+      "contributions": [
         {
-          "name": "submittedGeneSymbols",
-          "value": [
-            "ACVR1"
+          "type": "Contribution",
+          "contributor": "#/submitter/clinvar.submitter:506594",
+          "date": "2024-02-20",
+          "activityType": "submitted"
+        },
+        {
+          "type": "Contribution",
+          "contributor": "#/submitter/clinvar.submitter:506594",
+          "date": "2024-02-20",
+          "activityType": "created"
+        },
+        {
+          "type": "Contribution",
+          "contributor": "#/submitter/clinvar.submitter:506594",
+          "date": "2018-10-16",
+          "activityType": "evaluated"
+        }
+      ],
+      "specifiedBy": {
+        "type": "Method",
+        "methodType": "curation",
+        "name": "AMP/ASCO/CAP Guidelines, 2017",
+        "reportedIn": {
+          "type": "Document",
+          "pmid": "27993330",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/27993330"
+          ]
+        }
+      },
+      "reportedIn": [
+        {
+          "type": "Document",
+          "pmid": "24705250",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/24705250"
           ]
         },
         {
-          "name": "geneContextSource",
-          "value": "submittedSymbolMatches"
-        }
-      ],
-      "mappings": [
+          "type": "Document",
+          "pmid": "24705254",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/24705254"
+          ]
+        },
         {
-          "coding": {
-            "code": "171",
-            "iris": [
-              "https://identifiers.org/hgnc:171",
-              "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/171"
-            ],
-            "system": "https://www.genenames.org"
-          },
-          "relation": "exactMatch"
-        }
-      ],
-      "name": "ACVR1",
-      "primaryCoding": {
-        "code": "90",
-        "iris": [
-          "https://identifiers.org/ncbigene:90",
-          "https://www.ncbi.nlm.nih.gov/gene/90"
-        ],
-        "name": "ACVR1",
-        "system": "https://www.ncbi.nlm.nih.gov/gene/"
-      },
-      "type": "MappableConcept"
-    },
-    "id": "SCV004565361-SCI",
-    "object": {
-      "conceptType": "Disease",
-      "id": "clinvar.trait:73010",
-      "mappings": [
+          "type": "Document",
+          "urls": [
+            "https://civicdb.org/links/evidence/4846"
+          ]
+        },
         {
-          "coding": {
-            "code": "0957196",
-            "iris": [
-              "http://purl.obolibrary.org/obo/MONDO_0957196",
-              "https://identifiers.org/mondo:0957196"
-            ],
-            "system": "https://mondo.monarchinitiative.org/"
-          },
-          "relation": "relatedMatch"
+          "type": "Document",
+          "urls": [
+            "https://civicdb.org/links/evidence/6955"
+          ]
+        },
+        {
+          "type": "Document",
+          "urls": [
+            "https://identifiers.org/civic.mpid:1594"
+          ]
         }
       ],
-      "name": "Diffuse midline glioma, H3 K27M-mutant",
-      "primaryCoding": {
-        "code": "C4289688",
-        "iris": [
-          "https://identifiers.org/medgen:C4289688",
-          "https://www.ncbi.nlm.nih.gov/medgen/C4289688"
-        ],
-        "name": "Diffuse midline glioma, H3 K27M-mutant",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
-      },
-      "type": "MappableConcept"
-    },
-    "predicate": "hasClinicalSignificanceFor",
-    "subject": "#/variation/clinvar:376363",
-    "type": "VariantClinicalSignificanceProposition"
-  },
-  "quality": {
-    "conceptType": "Quality",
-    "name": "criteria provided",
-    "type": "MappableConcept"
-  },
-  "reportedIn": [
-    {
-      "pmid": "24705250",
-      "type": "Document",
-      "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/24705250"
-      ]
-    },
-    {
-      "pmid": "24705254",
-      "type": "Document",
-      "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/24705254"
-      ]
-    },
-    {
-      "type": "Document",
-      "urls": [
-        "https://civicdb.org/links/evidence/4846"
-      ]
-    },
-    {
-      "type": "Document",
-      "urls": [
-        "https://civicdb.org/links/evidence/6955"
-      ]
-    },
-    {
-      "type": "Document",
-      "urls": [
-        "https://identifiers.org/civic.mpid:1594"
+      "extensions": [
+        {
+          "name": "clinvarScvId",
+          "value": "SCV004565361"
+        },
+        {
+          "name": "clinvarScvVersion",
+          "value": "1"
+        },
+        {
+          "name": "submittedCondition",
+          "value": {
+            "condition": "clinvar.trait:73010",
+            "id": "SCV004565361.0",
+            "mapping": {
+              "ref": "preferred",
+              "type": "Name",
+              "value": "Diffuse Midline Glioma, H3 K27M-mutant"
+            },
+            "medgen_id": "C4289688",
+            "name": "Diffuse Midline Glioma, H3 K27M-mutant",
+            "normalized_match": "clinvar.trait:73010",
+            "normalized_resolution": "tm reftype preferred name",
+            "type": "Disease"
+          }
+        },
+        {
+          "name": "clinvarScvReviewStatus",
+          "value": "criteria provided, single submitter"
+        },
+        {
+          "name": "submittedScvClassification",
+          "value": "Tier II - Potential"
+        },
+        {
+          "name": "submittedScvLocalKey",
+          "value": "civic.AID:9"
+        },
+        {
+          "name": "submissionLevel",
+          "value": "CP"
+        }
+      ],
+      "hasEvidenceLines": [
+        "#/evidenceLine/clinvar.submission:SCV004565361.1"
       ]
     }
-  ],
-  "specifiedBy": {
-    "methodType": "curation",
-    "name": "AMP/ASCO/CAP Guidelines, 2017",
-    "reportedIn": {
-      "pmid": "27993330",
-      "type": "Document",
-      "urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/27993330"
-      ]
-    },
-    "type": "Method"
-  },
-  "strength": {
-    "conceptType": "Strength",
-    "name": "Potential",
-    "primaryCoding": {
-      "code": "potential",
-      "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
-    },
-    "type": "MappableConcept"
-  },
-  "type": "Statement"
+  }
 }

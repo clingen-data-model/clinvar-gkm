@@ -24,7 +24,7 @@ The submitter's original condition details and how they were mapped to a ClinVar
    *  - id
       -
       - string
-      - 0..1
+      - 1..1
       - The submitted trait category assignment identifier (cat_id).
    *  - name
       -
@@ -46,7 +46,7 @@ The submitter's original condition details and how they were mapped to a ClinVar
                         .. raw:: html
 
                             <span style="background-color: #B2DFEE; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Unordered">&#8942;</span>
-      - :ref:`Coding`
+      - :ref:`ClinvarTermCoding`
       - 0..m
       - Cross-references submitted by the submitter for this condition.
    *  - original_medgen_match
@@ -68,11 +68,13 @@ The submitter's original condition details and how they were mapped to a ClinVar
       -
       - string
       - 0..1
-      - How the condition normalization was resolved (e.g., "rcv-tm medgen id", "rcv-tm preferred name", "random trait assignment").
+      - How the condition normalization was resolved: by the trait mapping of one of the submitted references ("tm reftype xref medgen", "tm reftype preferred name", ...), or, when none matched, by "random trait assignment".
    *  - mapping
       -
       - object
-      - 0..1
+      - 1..1
       - The mapping details used to resolve the submitted condition to a ClinVar trait, including mapping type, reference field, and value.
 
-**Used in:** :ref:`ExtensionSubmittedConditionSet`
+**Composes:** :ref:`SubmittedConditionMappingProperties`
+
+**Used in:** :ref:`SubmittedConditionSet`

@@ -5,7 +5,7 @@
 
 **Computational Definition**
 
-The gene context qualifier on a ClinVar SCV proposition: a gene MappableConcept. When it carries a 'geneContextSource' extension, that extension's value MUST be one of the four values defined by ExtensionGeneContextSource. Other extensions (e.g. 'submittedGeneSymbols') are not constrained here.
+The gene context qualifier on a ClinVar SCV proposition: a gene MappableConcept with the codings of a ClinvarGene, and extensions saying where its gene came from (ExtensionGeneContextSource) and which gene symbols the submitter gave (ExtensionSubmittedGeneSymbols). No id, description or aliases.
 
 **Information Model**
 
@@ -21,11 +21,6 @@ The gene context qualifier on a ClinVar SCV proposition: a gene MappableConcept.
       - Type
       - Limits
       - Description
-   *  - id
-      -
-      - string
-      - 0..1
-      - The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another.
    *  - type
       -
       - string
@@ -34,48 +29,35 @@ The gene context qualifier on a ClinVar SCV proposition: a gene MappableConcept.
    *  - name
       -
       - string
-      - 0..1
+      - 1..1
       - A primary name for the concept.
-   *  - description
-      -
-      - string
-      - 0..1
-      - A free-text description of the Entity.
-   *  - aliases
-      -
-                        .. raw:: html
-
-                            <span style="background-color: #B2DFEE; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Unordered">&#8942;</span>
-      - string
-      - 0..m
-      - Alternative name(s) for the Entity.
    *  - extensions
       -
                         .. raw:: html
 
                             <span style="background-color: #B2DFEE; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Unordered">&#8942;</span>
-      - :ref:`Extension`
+      - :ref:`ExtensionGeneContextSource` | :ref:`ExtensionSubmittedGeneSymbols`
       - 0..m
-      - Extensions on the qualifier. An item named 'geneContextSource' must match ExtensionGeneContextSource.
+      - The qualifier's extensions, each an ExtensionGeneContextSource or an ExtensionSubmittedGeneSymbols.
    *  - conceptType
       -
       - string
-      - 0..1
-      - A term indicating the type of concept being represented by the MappableConcept.
+      - 1..1
+      - Always 'gene'.
    *  - primaryCoding
       -
-      - :ref:`Coding`
+      - :ref:`ClinvarCoding`
       - 0..1
-      - A primary coding for the concept.
+      - The gene's NCBI Gene coding. Absent on a placeholder qualifier (geneContextSource 'submittedNotNormalized').
    *  - mappings
       -
                         .. raw:: html
 
                             <span style="background-color: #B2DFEE; color: black; padding: 2px 6px; border: 1px solid black; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 5px;" title="Unordered">&#8942;</span>
-      - :ref:`ConceptMapping`
+      - :ref:`ClinvarConceptMapping`
       - 0..m
-      - A list of mappings to concepts in terminologies or code systems. Each mapping should include a coding and a relation.
+      - Mappings of the gene to other gene codes (its HGNC coding). Absent on a placeholder qualifier.
 
 **Composes:** :ref:`MappableConcept`
 
-**Used in:** :ref:`ClinvarGermlineCustomPropositionProperties`
+**Used in:** :ref:`ClinvarGermlineCustomPropositionProperties`, :ref:`ClinvarVariantClinicalSignificanceProposition`, :ref:`ClinvarVariantDiagnosticProposition`, :ref:`ClinvarVariantOncogenicityProposition`, :ref:`ClinvarVariantPathogenicityProposition`, :ref:`ClinvarVariantPrognosticProposition`, :ref:`ClinvarVariantTherapeuticResponseProposition`

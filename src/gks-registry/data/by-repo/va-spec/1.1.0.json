@@ -1,0 +1,350 @@
+{
+  "repo": "va-spec",
+  "tag": "1.1.0",
+  "name": "1.1.0",
+  "published_at": "2026-10-02T07:28:40",
+  "schema_count": 40,
+  "maturity_summary": {
+    "trial use": 25,
+    "draft": 15
+  },
+  "schemas": {
+    "Agent": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Agent",
+      "maturity": "trial use",
+      "description": "An autonomous actor (person, organization, or software agent) that bears some form of responsibility for an activity taking place, for the existence of an entity, or for another agent's activity.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/Agent",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/Agent"
+    },
+    "CohortAlleleFrequencyStudyResult": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/CohortAlleleFrequencyStudyResult",
+      "maturity": "trial use",
+      "description": "A StudyResult that reports measures related to the frequency of an Allele in a cohort",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/CohortAlleleFrequencyStudyResult",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/CohortAlleleFrequencyStudyResult"
+    },
+    "ComputationalVariantFunctionalImpactAnalysisResult": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/ComputationalVariantFunctionalImpactAnalysisResult",
+      "maturity": "draft",
+      "description": "An AnalysisResult that reports the output of a single in silico tool's analysis of a variant's functional impact, including any numeric score(s) and optional categorical interpretation.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/ComputationalVariantFunctionalImpactAnalysisResult",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/ComputationalVariantFunctionalImpactAnalysisResult"
+    },
+    "Condition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Condition",
+      "maturity": "trial use",
+      "description": "A specialization of MappableConcept representing a single condition (disease, phenotype, or trait). Allowed conceptType values include: Condition, Phenotype, Disease, Trait, Absent.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/Condition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/Condition"
+    },
+    "ConditionSet": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/ConditionSet",
+      "maturity": "trial use",
+      "description": "A specialization of ConceptSet representing a set of conditions (diseases, phenotypes, traits) that occur together or are related, depending on the membership operator. Concepts are restricted to Condition and ConditionSet members.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/ConditionSet",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/ConditionSet"
+    },
+    "Contribution": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Contribution",
+      "maturity": "trial use",
+      "description": "An action taken by an agent in contributing to the creation, modification, assessment, or deprecation of a particular entity (e.g. a Statement, DataSet, Publication, etc.)",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/Contribution",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/Contribution"
+    },
+    "DataItem": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/DataItem",
+      "maturity": "draft",
+      "description": "An Information Entity representing an individual piece of data, generated or acquired through methods which reliably produce truthful information about something.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/DataItem",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/DataItem"
+    },
+    "DataSet": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/DataSet",
+      "maturity": "trial use",
+      "description": "A collection of related data items or records that are organized together in a common format or structure, to enable their computational manipulation as a unit.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/DataSet",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/DataSet"
+    },
+    "Document": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Document",
+      "maturity": "trial use",
+      "description": "A collection of information, usually in a text-based or graphic human-readable form, intended to be read and understood together as a whole.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/Document",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/Document"
+    },
+    "EvidenceLine": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/EvidenceLine",
+      "maturity": "trial use",
+      "description": "An independent, evidence-based argument that may support or refute the validity of a specific Proposition. The strength and direction of this argument is based on an interpretation of one or more pieces of information as evidence for or against the target Proposition.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/EvidenceLine",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/EvidenceLine"
+    },
+    "ExperimentalVariantFunctionalImpactProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/ExperimentalVariantFunctionalImpactProposition",
+      "maturity": "trial use",
+      "description": "A Proposition describing the impact of a variant on the function sequence feature (typically a gene or gene product).",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/ExperimentalVariantFunctionalImpactProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/ExperimentalVariantFunctionalImpactProposition"
+    },
+    "ExperimentalVariantFunctionalImpactStudyResult": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/ExperimentalVariantFunctionalImpactStudyResult",
+      "maturity": "trial use",
+      "description": "A StudyResult that reports a functional impact score from a variant functional assay or study.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/ExperimentalVariantFunctionalImpactStudyResult",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/ExperimentalVariantFunctionalImpactStudyResult"
+    },
+    "GeneDiseaseValidityProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/GeneDiseaseValidityProposition",
+      "maturity": "draft",
+      "description": "A proposition that variants affecting a particular Gene are valid for evaluation as causal for some Condition using appropriate variant classification criteria, given a specific mode of inheritance.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/GeneDiseaseValidityProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/GeneDiseaseValidityProposition"
+    },
+    "GeneticContextVariantProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/GeneticContextVariantProposition",
+      "maturity": "trial use",
+      "description": "A proposition used to describe knowledge about a variant that includes or depends on its genetic context - e.g. the allelic origin of the variant, or its relationship to a specific gene.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/GeneticContextVariantProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/GeneticContextVariantProposition"
+    },
+    "InformationEntity": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/InformationEntity",
+      "maturity": "trial use",
+      "description": "An abstract (non-physical) entity that represents 'information content' carried by physical or digital information artifacts such as books, web pages, data sets, or images.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/InformationEntity",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/InformationEntity"
+    },
+    "Method": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Method",
+      "maturity": "trial use",
+      "description": "A set of instructions that specify how to achieve some objective.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/Method",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/Method"
+    },
+    "Proposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Proposition",
+      "maturity": "trial use",
+      "description": "An abstract entity representing a possible fact that may be true or false. As abstract entities, Propositions capture a 'sharable' piece of meaning whose identify and existence is independent of space and time, or whether it is ever asserted to be true by some agent.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/Proposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/Proposition"
+    },
+    "Statement": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Statement",
+      "maturity": "trial use",
+      "description": "A claim of purported truth as made by a particular agent, on a particular occasion. Statements may be used to put forth a possible fact (i.e. a 'Proposition') as true or false, or to provide a more nuanced assessment of the level of confidence or evidence supporting a particular Proposition.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/Statement",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/Statement"
+    },
+    "StudyGroup": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/StudyGroup",
+      "maturity": "trial use",
+      "description": "A collection of individuals or specimens from the same taxonomic class, selected for analysis in a scientific study based on their exhibiting one or more common characteristics  (e.g. species, race, age, gender, disease state, income). May be referred to as a 'cohort' or 'population' in specific research settings.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/StudyGroup",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/StudyGroup"
+    },
+    "StudyResult": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/StudyResult",
+      "maturity": "trial use",
+      "description": "A collection of data items from a single study that pertain to a particular subject or experimental unit in the study, along with optional provenance information describing how these data items were generated.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/StudyResult",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/StudyResult"
+    },
+    "SubjectVariantProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/SubjectVariantProposition",
+      "maturity": "trial use",
+      "description": "A Proposition that has a variant as the subject.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/SubjectVariantProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/SubjectVariantProposition"
+    },
+    "Therapy": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/Therapy",
+      "maturity": "trial use",
+      "description": "A specialization of MappableConcept representing an individual therapy (drug, procedure, behavioral intervention, etc.). Allowed conceptType values include: Therapy, Absent, Drug, Procedure, Behavioral Intervention.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/Therapy",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/Therapy"
+    },
+    "TherapyGroup": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/TherapyGroup",
+      "maturity": "trial use",
+      "description": "A specialization of ConceptSet representing a group of two or more therapies that are applied in combination to a single patient/subject, or applied individually to a different subset of participants in a research study. Concepts are restricted to Therapy and TherapyGroup members.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/TherapyGroup",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/TherapyGroup"
+    },
+    "TumorVariantFrequencyStudyResult": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/TumorVariantFrequencyStudyResult",
+      "maturity": "draft",
+      "description": "A Study Result that reports measures related to the frequency of a variant in a particular tumor type.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/TumorVariantFrequencyStudyResult",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/TumorVariantFrequencyStudyResult"
+    },
+    "VariantClinicalSignificanceProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantClinicalSignificanceProposition",
+      "maturity": "draft",
+      "description": "A Proposition describing the clinical significance of a variant with respect to a condition.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/VariantClinicalSignificanceProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/VariantClinicalSignificanceProposition"
+    },
+    "VariantDiagnosticProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantDiagnosticProposition",
+      "maturity": "trial use",
+      "description": "A Proposition about whether a variant is associated with a disease (a diagnostic inclusion criterion), or absence of a disease (diagnostic exclusion criterion).",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/VariantDiagnosticProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/VariantDiagnosticProposition"
+    },
+    "VariantMolecularConsequenceProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantMolecularConsequenceProposition",
+      "maturity": "draft",
+      "description": "A Proposition describing a predicted molecular consequence of a variant on transcript and protein molecules - typically reporting the type of sequence feature affected (e.g. 'intron variant', 'splice-site variant'), or an impact on the processing of the molecule along the path from gene to transcript to polypeptide (e.g. 'missense variant', 'frameshift variant'). Note that annotations about variant impact on gene product function, which may occur downstream of a molecular consequence, are not in scope here. These are covered by a Variant Functional Impact Proposition classes.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/VariantMolecularConsequenceProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/VariantMolecularConsequenceProposition"
+    },
+    "VariantOncogenicityProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantOncogenicityProposition",
+      "maturity": "trial use",
+      "description": "A proposition describing the role of a variant in causing a tumor type.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/VariantOncogenicityProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/VariantOncogenicityProposition"
+    },
+    "VariantPathogenicityProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantPathogenicityProposition",
+      "maturity": "trial use",
+      "description": "A proposition describing the role of a variant in causing a heritable condition.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/VariantPathogenicityProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/VariantPathogenicityProposition"
+    },
+    "VariantPrognosticProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantPrognosticProposition",
+      "maturity": "trial use",
+      "description": "A Proposition about whether a variant is associated with an improved or worse outcome for a disease.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/VariantPrognosticProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/VariantPrognosticProposition"
+    },
+    "VariantTherapeuticResponseProposition": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/VariantTherapeuticResponseProposition",
+      "maturity": "trial use",
+      "description": "A Proposition about the role of a variant in modulating the response of a neoplasm to drug administration or other therapeutic procedures.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/VariantTherapeuticResponseProposition",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/VariantTherapeuticResponseProposition"
+    },
+    "AmpAscoCapEvidenceLine": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/aac-2017/AmpAscoCapEvidenceLine",
+      "maturity": "draft",
+      "description": "General evidence line for AMP/ASCO/CAP",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/aac-2017/AmpAscoCapEvidenceLine",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/aac-2017/AmpAscoCapEvidenceLine"
+    },
+    "DiagnosticEvidenceLine": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/aac-2017/DiagnosticEvidenceLine",
+      "maturity": "draft",
+      "description": "Diagnostic evidence line for AMP/ASCO/CAP",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/aac-2017/DiagnosticEvidenceLine",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/aac-2017/DiagnosticEvidenceLine"
+    },
+    "PrognosticEvidenceLine": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/aac-2017/PrognosticEvidenceLine",
+      "maturity": "draft",
+      "description": "Prognostic evidence line for AMP/ASCO/CAP",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/aac-2017/PrognosticEvidenceLine",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/aac-2017/PrognosticEvidenceLine"
+    },
+    "TherapeuticEvidenceLine": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/aac-2017/TherapeuticEvidenceLine",
+      "maturity": "draft",
+      "description": "Therapeutic evidence line for AMP/ASCO/CAP",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/aac-2017/TherapeuticEvidenceLine",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/aac-2017/TherapeuticEvidenceLine"
+    },
+    "VariantClinicalSignificanceStatement": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/aac-2017/VariantClinicalSignificanceStatement",
+      "maturity": "draft",
+      "description": "A statement reporting a conclusion from a single study about the clinical significance of a variant with respect to a condition, based on interpretation of the study's results.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/aac-2017/VariantClinicalSignificanceStatement",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/aac-2017/VariantClinicalSignificanceStatement"
+    },
+    "VariantPathogenicityEvidenceLine": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/acmg-2015/VariantPathogenicityEvidenceLine",
+      "maturity": "draft",
+      "description": "An Evidence Line that describes how a specific type of information was interpreted as evidence for or against a variant's pathogenicity. In the ACMG Framework, evidence is assessed by determining if a specific criterion (e.g. 'PM2') with a default strength (e.g. 'moderate') is 'met' or 'not met', and in some cases adjusting the default strength based on the quality and abundance of evidence.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/acmg-2015/VariantPathogenicityEvidenceLine",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/acmg-2015/VariantPathogenicityEvidenceLine"
+    },
+    "VariantPathogenicityStatement": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/acmg-2015/VariantPathogenicityStatement",
+      "maturity": "draft",
+      "description": "A Statement describing the role of a variant in causing an inherited condition.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/acmg-2015/VariantPathogenicityStatement",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/acmg-2015/VariantPathogenicityStatement"
+    },
+    "VariantOncogenicityEvidenceLine": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/ccv-2022/VariantOncogenicityEvidenceLine",
+      "maturity": "draft",
+      "description": "An Evidence Line that describes how evidence for a variant was interpreted to determine if a specific CCV 2022 criterion code is met, and the strength that evidence this provides for or against the variant's oncogenicity. An Evidence Line that describes how a specific type of information was interpreted as evidence for or against a variant's oncogenicity. In the CCV Framework, evidence is assessed by determining if a specific criterion (e.g. 'OM2') with a default strength (e.g. 'moderate') is 'met' or 'not met', and in some cases adjusting the default strength based on the quality and abundance of evidence.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/ccv-2022/VariantOncogenicityEvidenceLine",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/ccv-2022/VariantOncogenicityEvidenceLine"
+    },
+    "VariantOncogenicityStatement": {
+      "$id": "https://w3id.org/ga4gh/schema/va-spec/1.1.0/json/ccv-2022/VariantOncogenicityStatement",
+      "maturity": "draft",
+      "description": "A statement reporting a conclusion from a single study about whether a variant is associated with oncogenicity (positive or negative) - based on interpretation of the study's results.",
+      "ga4gh_prefix": null,
+      "source_path": "schema/va-spec/json/ccv-2022/VariantOncogenicityStatement",
+      "github_url": "https://github.com/ga4gh/va-spec/blob/1.1.0/schema/va-spec/json/ccv-2022/VariantOncogenicityStatement"
+    }
+  },
+  "release_notes": "This release adds a `hasEvidence` attribute to `Statement`, for evidence that is associated with a Statement without saying how it supports or disputes the proposition. The dedicated `EvidenceLine` class (referenced via `hasEvidenceLines`, as in 1.0) remains the way to represent how evidence was weighed, as a nested, scored, directional argument. It also reworks how `Proposition`/`StudyResult` subclasses declare their `subject`/`predicate`/`object`/`focus` attributes, so they inherit under their canonical names instead of being renamed per subclass. It restructures the domain entities around GKM Core's `MappableConcept`/`ConceptSet`: `Therapeutic` is renamed `Therapy`, and single concepts and sets are now separate classes. It also renames the abstract `ClinicalVariantProposition` class. The latter three are backwards-incompatible changes to *trial use* classes; the `hasEvidence` addition is not. The release also adds several new *draft* classes and substantially revises the *draft* community profiles. Finally, it modernizes the schema-generation pipeline and refreshes the imported dependencies to Cat-VRS 1.1.1, VRS 2.1.1, and GKM Core 1.3.0.\n\n## Minor Version Increment\n\nBackwards-incompatible changes to previously-released *trial use* product features, and additions/changes to *trial use* or *normative* data classes, per the `gkm-maturity-model` versioning rules:\n\n- renames the abstract `ClinicalVariantProposition` class (*trial use*) to `GeneticContextVariantProposition`, and updates its definition to describe knowledge that depends on a variant's genetic context\n- adopts the GKM Core (formerly GKS-Core) 1.2.0 `MappableConcept` and `ConceptSet` changes (both *trial use* in GKM Core). Both classes now inherit `Entity` and require a `type` discriminator field, which is a backwards-incompatible addition of a required field to these previously-released *trial use* classes. This propagates to the VA-Spec *trial use* classes that specialize them: `Condition` and `Therapy` (specializations of `MappableConcept`), and `ConditionSet` and `TherapyGroup` (specializations of `ConceptSet`)\n- restructures the *trial use* domain entities. In 1.0, `Condition` and `Therapeutic` were each a union of a single `MappableConcept` or a set. Now:\n  - `Condition` and `Therapy` (renamed from `Therapeutic`) are single concepts that specialize `MappableConcept`, with suggested `conceptType` values that default to `Condition`/`Therapy`.\n  - the single-or-set union moves to the attributes that use these classes. For example, a proposition's `object` is now `Condition | ConditionSet | iriReference`, as is `VariantTherapeuticResponseProposition` `conditionQualifier`. These attributes already accepted either a single concept or a set in 1.0, through the `Condition`/`Therapeutic` union.\n  - `ConditionSet` and `TherapyGroup` now specialize GKM Core's `ConceptSet`. Their required `conditions`/`therapies` arrays are renamed `concepts`, and a member may now also be given as an `iriReference`. A `TherapyGroup` may now contain nested Therapy Groups; a `ConditionSet` could already contain nested Condition Sets as of 1.0.1.\n- adopts GKM Core 1.3.0, which adds an optional `conceptSetType` to `ConceptSet`. Because `ConditionSet` and `TherapyGroup` specialize `ConceptSet`, both *trial use* classes now accept this optional field.\n\n### Subject / object / focus model change\n\n**Backwards-incompatible.** VA-Spec 1.0 renamed the abstract triple attributes in each subclass (e.g. `subject` \u2192 `subjectVariant`, `object` \u2192 `objectCondition`, `focus` \u2192 `focusAllele`). The 0.4.x metaschema processor inherits properties by name and does not permit renaming, so the model has been made consistent with that rule:\n\n- The abstract `Proposition` declares `subject`, `predicate`, and `object` (all required); the abstract `StudyResult` declares `focus` (required). Every subclass now **narrows these in place under the same name** rather than renaming them. Affected serialized property names change: `subjectVariant` \u2192 `subject`; `objectCondition` / `objectTumorType` / `objectSequenceFeature` / `objectTherapeutic` \u2192 `object`; `focusAllele` / `focusVariant` \u2192 `focus`. The *draft* propositions added in this release follow the same rule; their `subjectGene` and `objectConsequence` attributes appeared only in 1.1.0 pre-releases, never in a 1.0.x release. All examples and test fixtures were updated accordingly.\n- `CohortAlleleFrequencyStudyResult` also renames `focusAlleleCount` \u2192 `focusCount`, `locusAlleleCount` \u2192 `locusCount`, and `focusAlleleFrequency` \u2192 `alleleFrequency`.\n- The abstract base classes (`Proposition`, `StudyResult`, `SubjectVariantProposition`) are **open** and no longer carry a closed `oneOf` of their built-in subtypes. Being open means a reference to one of these bases is not restricted to the schema's own subtypes and -- as with any sealed and abstract class -- carries no `additionalProperties: false`, so any object that satisfies the base's required properties validates against it, including subclasses the schema does not itself declare (see the metaschema appendix for how open vs. closed is encoded). Implementers can therefore define and validate **their own** subclasses of `Proposition` and `StudyResult` against these bases. The *draft* `CustomProposition` class, briefly introduced in an earlier 1.1.0 pre-release for the same purpose, is superseded by this and was removed before this release. `Statement` remains concrete and closed, as before.\n- allows an `iriReference` as an alternative to an inline object on attributes that reference other, independently-identifiable Information Entities or concepts, so implementers can reference instead of inline them: `Contribution`.contributor, `VariantPathogenicityProposition`.modeOfInheritanceQualifier/ .penetranceQualifier, `Statement`.proposition/ .strength/.classification, `EvidenceLine`.targetProposition/ .strengthOfEvidenceProvided/.evidenceOutcome, `StudyResult`.sourceDataSet, `CohortAlleleFrequencyStudyResult`.cohort, `TumorVariantFrequencyStudyResult` (*draft*).sampleGroup, `DataSet`.license, and `StudyGroup`.characteristics. Attributes that are new in this release follow the same pattern, including `Statement`.quality and the `sourceDataSet` redeclared by the *draft* `ComputationalVariantFunctionalImpactAnalysisResult`.\n\n### Associating evidence with a Statement\n\n`Statement` gains a `hasEvidence` attribute for evidence that is associated with the Statement. It complements the distinct `EvidenceLine` class rather than replacing it: `hasEvidence` gives no indication of how an item supports or disputes the proposition, whereas Evidence Lines (in `hasEvidenceLines`, as in 1.0) carry that information, as direction and strength or score, and are what a classification rests on. The changes in this subsection are additive, so, unlike the changes above, none of them by itself invalidates data that was valid in 1.0:\n\n- `Statement` gains the `hasEvidence` attribute and a *draft* `quality` attribute. `hasEvidence` associates evidence with a Statement without indicating how it supports or disputes the proposition. It is declared immediately before `hasEvidenceLines`, and its items are a `Statement | StudyResult | DataItem | iriReference` (a prior Statement, Study Result, or Data Item); structured, scored, directional arguments are attached separately via `hasEvidenceLines`. For example, in a CIViC oncogenicity assertion the ClinGen/CGC/VICC criteria codes that drive the classification are Evidence Lines, while the associated CIViC evidence items, which are not part of that code system, go in `hasEvidence`.\n- `Statement`'s `direction`, `strength`, `score`, and `classification` attributes were already present in 1.0, so a Statement could already report its own assessment.\n- `Statement`'s `hasEvidenceLines` still holds `EvidenceLine | iriReference`, as in 1.0: a Statement is **not** itself usable as an Evidence Line, so a nested, scored, directional argument is always a dedicated `EvidenceLine`.\n- the `EvidenceLine` class keeps its 1.0 attributes: `targetProposition`, `directionOfEvidenceProvided`, `strengthOfEvidenceProvided`, `scoreOfEvidenceProvided`, `evidenceOutcome`, and `hasEvidenceItems`. `hasEvidenceItems` is widened from `StudyResult | Statement | EvidenceLine | iriReference` to any `InformationEntity | iriReference`, so it also accepts the new `DataItem`. As in 1.0, because an Evidence Line is itself an Information Entity, Evidence Lines nest by listing subordinate Evidence Lines there (there is no separate `hasEvidenceLines` on Evidence Line).\n- all examples and test fixtures were updated accordingly.\n\n## Patch Version Increment\n\nNew product features at the *draft* maturity level, changes to existing *draft* features, and supporting changes that do not affect data compatibility:\n\n- adds `GeneDiseaseValidityProposition` (*draft*), a new proposition type for gene-disease validity assertions\n- adds `VariantMolecularConsequenceProposition` (*draft*), for representing the predicted molecular consequences of a variant\n- adds `VariantClinicalSignificanceProposition` (*draft*), for describing the clinical significance of a variant with respect to a condition\n- adds `ComputationalVariantFunctionalImpactAnalysisResult` (*draft*), a `StudyResult` (so it requires `focus`) that reports the output of an in silico tool's analysis of a variant's functional impact\n- updates the AAC 2017 Aligned Profiles (*draft*) to better reflect the source guidelines\n- enforces enum validation in `primaryCodings` across the AAC/ACMG/CCV (*draft*) profiles\n- updates the `ConditionSet` VA-Spec version reference\n- resolves a typo (\"Oncoogenicity\" \u2192 \"Oncogenicity\") in the CCV oncogenicity evidence line profile\n- fixes typos in the allele origin description\n- updates descriptions for the Variant Clinical Significance Statement profile\n- updates the VRS and Cat-VRS submodule references (see the GKM Core items under Minor above for the substantive changes pulled in via these bumps)\n- adds Quick Start guidance\n- adds documentation for the `TumorVariantFrequencyStudyResult` (*draft*) profile to the Study Result profiles page\n- adds a README to the Modeling subdirectory\n- updates the repository README to include contributing information\n- adds a CITATION file\n- various documentation fixes and copyright year updates\n- adds test examples and fixtures for CIViC oncogenicity assertions and propositions\n- adds a pre-commit hook to detect and stage VA-Spec schema updates\n- corrects the core model class diagram to show `DataSet` inheriting from `Entity` rather than `InformationEntity`, matching the source schema (closes [\\#380](https://github.com/ga4gh/va-spec/issues/380))\n- the 0.4.x metaschema processor now emits a JSON Schema for every abstract class (previously only unions were emitted).\n\n### Draft classes and community profiles\n\nChanges to classes at *draft* maturity, including every AAC-2017, ACMG-2015, and CCV-2022 community profile class. Some of these changes are backwards-incompatible, but draft classes carry no compatibility guarantee, so they are patch-level:\n\n- adds a new draft `DataItem` class (an `InformationEntity` subclass wrapping a structured, string, or IRI-reference `value`) as one of the concrete types citable as evidence (via a Statement's `hasEvidence` or an Evidence Line's `hasEvidenceItems`).\n- restructures the AAC-2017 profiles. The 1.0 `VariantDiagnosticStudyStatement`, `VariantPrognosticStudyStatement`, and `VariantTherapeuticResponseStudyStatement` classes are replaced by a single top-level `VariantClinicalSignificanceStatement`, which composes `Statement` and constrains its `classification` attribute, and by four new classes that compose the `EvidenceLine` class (using its `directionOfEvidenceProvided`/`strengthOfEvidenceProvided` attributes): `AmpAscoCapEvidenceLine`, `DiagnosticEvidenceLine`, `PrognosticEvidenceLine`, and `TherapeuticEvidenceLine`. Earlier 1.1.0 pre-releases declared the last three as `type: array` (an array of itself-or-`iriReference`) rather than as plain `allOf`-composed objects, so the tier i/ii `hasEvidenceLines` narrowing that referenced them (via a bare `oneOf`, with no `type: array`/`items` wrapper of its own) required the whole `hasEvidenceLines` array to itself match one of these array-typed branches, rather than letting each item independently be one of the three types. That array-wrapping defect never shipped in a 1.0.x release, and is fixed here: the array wrapping lives at the narrowing site, matching `AmpAscoCapEvidenceLine`'s composition pattern.\n- `VariantPathogenicityEvidenceLine` and `VariantOncogenicityEvidenceLine` still compose the `EvidenceLine` class and use its `directionOfEvidenceProvided`/ `strengthOfEvidenceProvided`/`evidenceOutcome` attribute names, as in 1.0. Each class's own `methodType` enumeration is redefined. In 1.0 it listed the individual criterion codes (`PVS1`, `PS1`, ... for ACMG-2015; `OVS1`, `OS1`, ... for CCV-2022). It now lists `snake_case` codes for the type of assessment performed (17 for ACMG-2015, 8 for CCV-2022), and new per-`methodType` `if`/`then` constraints restrict the criterion codes that `evidenceOutcome` may report for each one. Earlier 1.1.0 pre-releases used other names for these codes (e.g. ACMG-2015's `\"Population Data Assessment\"` \u2192 `population_data_assessment` and `\"De Novo Data Assessment\"` \u2192 `de_novo_occurrence_assessment`; CCV-2022's `population_frequency` \u2192 `population_data_assessment`, `functional_assay` \u2192 `functional_data_assessment`, `functional_domain_location` \u2192 `functional_domain_assessment`, `amino_acid_or_residue_analogy` \u2192 `amino_acid_analogy_assessment`, `somatic_hotspot_recurrence` \u2192 `somatic_hotspot_assessment`, `computational_prediction` \u2192 `in_silico_impact_assessment`, and `single_genetic_etiology_context` \u2192 `single_genetic_etiology_assessment`). The CCV-2022 statement profile is renamed from `VariantOncogenicityStudyStatement` to `VariantOncogenicityStatement`. It and `VariantPathogenicityStatement` constrain the core `Statement` `classification` attribute, as in 1.0.\n- both `VariantPathogenicityEvidenceLine` and `VariantOncogenicityEvidenceLine` add `no_criteria_met` as an allowed `evidenceOutcome` code, alongside the existing `{criterion_code}` and `{criterion_code}_not_met` forms. Use it to report that the criteria associated with the evidence line's `methodType` were assessed, but none of them were met. It is accepted both by each class's overall outcome pattern and by every per-`methodType` pattern. **Backwards-incompatible:** both classes now also constrain the *direction* and *strength* that may accompany a negative outcome: when `evidenceOutcome` is `no_criteria_met` or any `{criterion_code}_not_met` code, `directionOfEvidenceProvided` MUST be `neutral` and `strengthOfEvidenceProvided` MUST NOT be present. Previously a not-met outcome could be paired with a `supports`/`disputes` direction and a strength value.\n- the 17 ACMG-2015 per-`methodType` conditions on `VariantPathogenicityEvidenceLine` check the correctly-nested `specifiedBy.methodType` (matching the equivalent pattern on `VariantOncogenicityEvidenceLine`). The 1.1.0 pre-releases that introduced these conditions checked a non-existent top-level `methodType` property instead, so none of them could ever be satisfied by a valid instance. That defect never shipped in a 1.0.x release.\n- constrains `hasEvidenceLines` in the ACMG-2015 (*draft*) and CCV-2022 (*draft*) statement profiles to the profile's own evidence line class or an `iriReference`. In 1.0 these profiles did not narrow `hasEvidenceLines`, which therefore accepted any `EvidenceLine | iriReference`. The AAC-2017 `VariantClinicalSignificanceStatement` narrows it the same way, to its three evidence line classes or an `iriReference`, for tier i and tier ii classifications.\n\n### Pipeline modernization\n\nSupporting changes to the schema-generation tooling and repository layout that do not, by themselves, change the meaning of VA-Spec data:\n\n- migrates the metaschema processor from `ga4gh.gks.metaschema` (0.3.2) to the renamed `ga4gh.gkm.metaschema` (0.4.8) package (the GKS \u2192 GKM \"Genomic Knowledge Models\" rebrand). The console entrypoints (`source2classes`, `source2splitjs`, `y2t`) are unchanged, so `make all` still drives generation. 0.4.6 tightens `$ref` handling: a `$ref` must be a local `#/$defs/...` reference, so the bare-class-name and full-URL `$ref`s previously used to reach classes in an imported module (`domain-entities`, and the base `va-spec` classes referenced from the community profiles) were converted to `$refCurie: <namespace>:<Class>`. 0.4.7 adds two purely additive generated-docs features: an `allOf`-composed class's def page now carries a **Composes:** line naming the class it composes onto (mirroring the existing **Inherits:**/\\*\\*Subclasses:\\*\\* lines for `inherits:`-based classes), and a composed class with `if`/`then` constraints now renders a table summarizing them (e.g. the AAC-2017 tier-based rules on `VariantClinicalSignificanceStatement`). 0.4.8 renames that table from \"Conditional Constraints\" to **Additional Constraints**, adds italic/bold styling to the property/value cells, and gives `anyOf`/`oneOf` compositions whose only constraint is \"at least one of\" a plain-language sentence instead of a duplicated placeholder bullet list (see `MappableConcept`, which requires at least one of `name` or `primaryCoding`).\n- adopts the 0.4.x source conventions in every VA-Spec module source: abstract classes are marked `abstract: true` (left open by omitting `additionalProperties: false`), concrete classes are closed and drop the explicit `type: object` (the processor injects it), `heritableProperties` / `heritableRequired` become plain `properties` / `required` on abstract bases, and the removed `extends:` key is dropped.\n- renames the nested `gks-core` import to `gkm-core` throughout the schema sources, imported `$refCurie` namespaces (`gks.core` \u2192 `gkm.core`), and the documentation.\n- makes the imported `schema/{cat-vrs,vrs,gkm-core}` directories real folders that symlink only to the imported `*-source.yaml` and `json/` (no `def/`); VA-Spec now generates the imported-class `def/` locally via `y2t` and the docs include those local defs.\n- checks out submodules recursively in the pre-commit CI job so `make all` can resolve the imported source symlinks on a fresh checkout.\n- reorganizes `schema/va-spec/`: the former `base/` module moves up to the `va-spec/` root (`va-core-source.yaml` is renamed `va-spec-source.yaml`), and the build now produces a single `json/` and `def/` under `va-spec/`. Each community profile writes its own classes into `json/<community>/` and `def/<community>/` subfolders (the base classes' output sits at the `json/` and `def/` root). Base-class namespaces change from `va-spec.base` to `va-spec`; community namespaces (`va-spec.aac-2017` etc.) are unchanged.\n- flattens the three community profile sources \u2014 `aac-2017/profile-source.yaml`, `acmg-2015/profile-source.yaml`, `ccv-2022/profile-source.yaml` \u2014 out of their own subdirectories, into `schema/va-spec/<community>-profile-source.yaml`, alongside `va-spec-source.yaml` and `domain-entities-source.yaml`. This adopts the `gks-metaschema` processor's native **profile sub-namespace** convention (an `XXX-profile-source.yaml` file contributes `XXX` as a sub-namespace of the folder it lives in): outputs land at `json/<community>/` and `def/<community>/`, and each profile class's `$id` is now `.../va-spec/<version>/json/<community>/<Class>` (in 1.0 it was `.../va-spec/<version>/<community>/json/<Class>`), computed natively by the processor. The four per-directory Makefiles/`prune.mk` are replaced by one flat `schema/va-spec/Makefile`/`prune.mk` that builds every source in the folder. A side benefit: cross-reference (\"Used in:\") lists in the generated docs are computed across every source in a folder together, so base classes now correctly show community profile classes that reference them (previously invisible across the old subdirectory boundaries).\n- makes the documentation fully self-contained: `docs/source` no longer references anything outside itself. Generated class defs are synced into `docs/source/def/` (via `tools/sync-docs-def.sh`, wired into the pre-commit hook), and the Maturity Model page and its images are materialized locally rather than included from the vrs submodule.\n\n### Dependency / version refresh\n\n- bumps the `cat-vrs` submodule to `1.1.1`, which pulls in `vrs` `2.1.1` and `gkm-core` `1.3.0`.\n- retargets the imported namespace mappings in every VA-Spec source to the new imported `$id` tokens (`cat-vrs/1.1.1`, `vrs/2.1.1`, `gkm-core/1.3.0`).\n- sets VA-Spec's own `$id` token to `1.1.0`.",
+  "release_url": "https://github.com/ga4gh/va-spec/releases/tag/1.1.0",
+  "previous_release": "1.0.1",
+  "dependencies": [
+    {
+      "product": "cat-vrs",
+      "release": "1.1.1"
+    },
+    {
+      "product": "gkm-core",
+      "release": "1.3.0"
+    },
+    {
+      "product": "vrs",
+      "release": "2.1.1"
+    }
+  ]
+}

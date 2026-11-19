@@ -131,7 +131,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   Proposition type for prognostic assertions. Statement type S.14.
 
 **ClinVar\*Proposition**
-:   Custom proposition types for non-standard ClinVar statement types (G.02-G.09): Drug Response, Risk Factor, Protective, Affects, Association, Confers Sensitivity, Other, Not Provided.
+:   Custom proposition types for the ClinVar germline statement types that VA-Spec does not define, all in the `propositionClinvarCustom` bundle section: `ClinvarDrugResponseProposition` (DR), `ClinvarRiskFactorProposition` (RF), `ClinvarProtectiveProposition` (PROTECT), `ClinvarAffectsProposition` (AFF), `ClinvarAssociationProposition` (ASSOC), `ClinvarConfersSensitivityProposition` (CS), `ClinvarOtherProposition` (OTH), `ClinvarNotProvidedProposition` (NP), `ClinvarConflictingDataFromSubmitterProposition` (CDFS) and `ClinvarUndefinedProposition` (UNDEF). See [Propositions](../output-reference/classes/propositions.md).
 
 ---
 
@@ -141,10 +141,10 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   Statement-level attribute (`Statement.quality`, va-spec 2026-09) indicating the submission level — a review-status/trust rating. A Concept struct with `conceptType: "Quality"` and `name` set to the submission level label (e.g., `"criteria provided"`, `"expert panel"`). Present on SCV and aggregate (VCV/RCV) statements. Replaces the former `confidence` attribute.
 
 **Direction**
-:   Whether evidence supports or disputes a proposition. Values: `supports`, `disputes`, `neutral`. On aggregate statements, derived from the classification label (multi-SCV) or passed through from the contributing SCV (single-SCV).
+:   Whether evidence supports or disputes a proposition. Values: `supports`, `disputes`, `neutral`. On aggregate statements, the direction ClinVar's lookup gives the classification label (multi-SCV groups, priority and aggregate layers; for a label the lookup lacks, `neutral` for a conflicting label or the FLAG label, and for a combination the direction its SCVs share, else `supports`) or passed through from the contributing SCV (single-SCV classification groups).
 
 **Strength**
-:   Evidence strength level. Values: `definitive`, `likely`, `strong`, `potential`. Omitted (null) when not applicable. On aggregate statements, derived from the classification label (multi-SCV) or passed through from the contributing SCV (single-SCV).
+:   Evidence strength level. Values: `definitive`, `likely`, `strong`, `potential`. Omitted (null) when not applicable. On aggregate statements, the strength ClinVar's lookup gives the classification label (multi-SCV groups, priority and aggregate layers) or passed through from the contributing SCV (single-SCV classification groups).
 
 **Tier I** / **Tier II** / **Tier III** / **Tier IV**
 :   Somatic clinical impact classification levels. Tier I (Strong) and Tier II (Potential) require paired sub-statements. Tier III (Unknown) and Tier IV (Benign/Likely benign) do not.
@@ -161,6 +161,9 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 
 **Gene Context Qualifier**
 :   Proposition qualifier restricting an assertion to a specific gene. Contains NCBI Gene identifier and HGNC mappings.
+
+**geneContextSource**
+:   Extension on every SCV gene context qualifier, from 1.1.0, saying where its gene came from: `submittedSymbolMatches`, `submittedSymbolDiffers`, `inferredFromVariant` or `submittedNotNormalized`. See the [gene context FAQ](faq.md#where-does-an-scv-propositions-gene-context-come-from).
 
 **Mode of Inheritance Qualifier**
 :   Proposition qualifier specifying inheritance pattern (e.g., autosomal dominant, X-linked). Maps to HPO terms.
@@ -236,13 +239,35 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 ## Output Format
 
 **Bundle**
-:   A JSON file containing all data for a ClinVar release, organized as named sections at the root level. Each section is a keyed collection of objects of the same class, where the key is the object's unique identifier. Objects reference each other using `#/` JSON pointer strings. Typed Parquet files (one per bundle section) are also produced during assembly for analytical workloads.
+:   A JSON file containing all data for a ClinVar release, organized as named sections at the root level. Each section is a keyed collection of objects of the same class, where the key is the object's unique identifier. Objects reference each other using `#/` JSON pointer strings. Typed Parquet files derived from the bundle are published for the latest release only.
 
 **Bundle Section**
-:   A named top-level key in the bundle file (e.g., `variation`, `scv`, `proposition`) containing a keyed collection of objects.
+:   A named top-level key in the bundle file (e.g., `variation`, `scv`, `propositionPathogenicity`) containing a keyed collection of objects.
 
 **JSON Pointer Reference**
 :   A `#/{section}/{key}` string used to reference an object in another bundle section. Example: `#/allele/ga4gh:VA.abc123` resolves to the allele with that key in the `allele` section.
+
+---
+
+## Releases and Distribution
+
+**Official monthly full**
+:   The full bundle `clinvar-gkm_YYYY-MM.json.gz`, published once a month for ClinVar's `ClinVarVCVRelease_YYYY-MM`, built from the most recent weekly release before ClinVar's monthly cut. See [How Releases Work](../data-access/release-model.md).
+
+**Weekly full**
+:   The full bundle of one weekly release, `weekly/clinvar-gkm_YYYY-MMDD.json.gz`, published for every release and kept for the current month only.
+
+**Delta**
+:   The records added or updated since the prior release, `clinvar-gkm-delta_YYYY-MMDD.json.gz`, with a manifest listing per-section adds, updates and deletes. See [Weekly Deltas](../data-access/weekly-deltas.md).
+
+**`00-latest`**
+:   The stable filenames that always hold the newest file of a kind: `clinvar-gkm_00-latest.json.gz` (newest official monthly) and `weekly/clinvar-gkm_00-latest_weekly.json.gz` (newest weekly full).
+
+**`source_release`**
+:   In a line's `index.json`, the ClinVar weekly release a monthly full, or the Parquet set, was built from.
+
+**Version line**
+:   The folder `v{major}/{major}.{minor}/` (e.g. `v1/1.2/`) that holds every release of one schema MINOR version, with its own `index.json` and feed. A line is `current` or `frozen`. See [Versioning & Releases](versioning.md).
 
 ---
 
@@ -258,7 +283,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   JSON structure where related objects are fully embedded within the parent. Self-contained — each record has all data needed for interpretation.
 
 **JSON Pointer**
-:   Standard format (RFC 6901) for referencing nested JSON values. Used in somatic target propositions (e.g., `4/proposition/subject`).
+:   Standard format (RFC 6901) for referencing JSON values. ClinVar-GKM bundles use `#/{section}/{id}` pointers to link records across sections (e.g., `#/variation/clinvar:12582`); see [ID References](../output-reference/id-references.md).
 
 **BigQuery**
 :   Google Cloud Platform data warehouse used for all ClinVar-GKM SQL procedures and table storage.

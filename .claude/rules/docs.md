@@ -9,8 +9,43 @@ paths:
 
 Docs are Zensical (Material theme) in `docs/`, deployed to GitHub Pages by `.github/workflows/deploy-docs.yml`.
 
+## When the site deploys
+
+The site is **versioned** ([ADR 0011](../../docs/decisions/0011-versioned-documentation.md)): `gh-pages` holds
+one folder per release line (`1.1/`, `1.2/`, …) plus `dev/` (built from `main`), and root `versions.json`,
+`index.html` and `404.html` written by `src/scripts/docs-versions.py`. The root and every unversioned link
+redirect to the latest release (the highest release line). `deploy-docs.yml` builds only the versions a run is
+for and keeps the others:
+
+| Trigger | Builds |
+| --- | --- |
+| `push` to `main` touching `docs/**`, `zensical.toml`, the workflow or the docs build scripts | `dev` |
+| `release: published`, tag `X.Y.Z` (not a prerelease) | `X.Y` from the tag; becomes `latest` if it is the highest line |
+| daily `schedule` (13:17 UTC) and `discussion` events | `dev` and the latest release (keeps its Roadmap current) |
+| `workflow_dispatch` on `main`, no inputs | `dev` |
+| `workflow_dispatch` with `ref` + `version` (`gh workflow run deploy-docs.yml --ref main -f ref=1.1.0 -f version=1.1`) | that tag as that version |
+
+- A docs-only merge to `main` updates `dev` only. Released docs change only with a release (or a dispatch).
+- Every version is built by `src/scripts/build-versioned-docs.sh <ref> <version> <out>`, which overlays the
+  versioning files (`docs/overrides/main.html`, `partials/header.html`, `partials/source.html`, `404.html`,
+  `assets/js/versions.js`, `stylesheets/versions.css`) onto the ref and sets `site_url` per version. The header's
+  repository widget shows the version's ref (`main` for dev, the tag for a release), and for a release
+  `pin-repo-links.py` rewrites `…/clinvar-gkm/blob/main/…` (and `tree`, `raw`) links to the ref the pages come
+  from. Keep writing repo-file links as `/blob/main/…` in the source; the build pins them.
+- `src/scripts/docs-line-sources.txt` builds a release line from another ref, on every trigger, when its tag lacks
+  its docs: `1.1` → `036bec2`, shown as `1.1.0` (the `1.1.0` tag was cut without `main`'s 1.1.0 docs). After
+  editing it, dispatch that line (`-f ref=1.1.0 -f version=1.1`); a push to `main` rebuilds only `dev`. Keep those files buildable against
+  the oldest published version: after changing them, check `build-versioned-docs.sh 1.1.0 1.1 <out>`.
+- **Before publishing a release from a branch that predates ADR 0011 (`1.0`)**, bring this workflow and its
+  scripts onto it or drop its `release` trigger: the `release` event runs the workflow file at the tag, and the
+  old one overwrites the whole site.
+- `concurrency: deploy-docs-<version>` lets a newer run for the same version supersede one in progress; runs for
+  different versions retry the `gh-pages` push instead of cancelling each other.
+
 - Run `zensical build --strict` after **any** docs change and fix all warnings before committing (broken links
   and other warnings fail the strict build). Config lives in `zensical.toml` (nav, theme, extensions).
+- Then run `python src/scripts/check-site-links.py` on the built `site/`: it checks `#anchor` fragments and links
+  in raw HTML (iframes, diagrams, the console), which `--strict` doesn't. The deploy fails on any it reports.
 - Use the `write-docs` skill for creating/editing docs pages.
 
 ## Terminology

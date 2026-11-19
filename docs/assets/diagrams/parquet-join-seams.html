@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<title>ClinVar-GKM parquet — join seams</title>
+<meta charset="utf8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #FFFFFF; --panel: #FFFFFF; --ink: #1B2430; --muted: #5B6572; --faint: #8A939E;
+    --line: #B9C0C8; --rule: #E2E6EA; --poly: #3E6B6B; --dang: #B23B3B; --ok: #7A4D9C;
+    --tint: #F0EEE7;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #171D24; --panel: #1B222A; --ink: #E7E9EC; --muted: #97A1AC; --faint: #707A85;
+      --line: #3A434D; --rule: #2A323B; --poly: #7FC4C4; --dang: #E08A8A; --ok: #C6A0E0;
+      --tint: #232B34;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #171D24; --panel: #1B222A; --ink: #E7E9EC; --muted: #97A1AC; --faint: #707A85;
+    --line: #3A434D; --rule: #2A323B; --poly: #7FC4C4; --dang: #E08A8A; --ok: #C6A0E0;
+    --tint: #232B34;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 14px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 24px 20px 40px; }
+
+  h1 { font-size: 20px; line-height: 1.2; margin: 0 0 6px; letter-spacing: -.01em; font-weight: 650; }
+  .lede { color: var(--muted); max-width: 72ch; margin: 0 0 8px; font-size: 13px; }
+  code { font-family: var(--mono); font-size: .89em; }
+  .seamhd { font-size: 14px; font-weight: 640; letter-spacing: -.01em; margin: 34px 0 2px;
+    padding-left: 11px; border-left: 3px solid var(--poly); }
+  .seamsub { color: var(--muted); font-size: 12.5px; margin: 0 0 12px; padding-left: 11px; max-width: 80ch; }
+
+  figure { margin: 0; }
+  .frame { overflow-x: auto; margin: 0 -4px; }
+  svg.d { display: block; width: 100%; height: auto; color: var(--ink); }
+  svg.d.w820 { min-width: 640px; }
+  svg.d.w900 { min-width: 680px; }
+  figcaption { color: var(--muted); font-size: 12.5px; margin-top: 11px; max-width: 82ch; }
+  figcaption code { color: var(--ink); }
+
+  .b { fill: var(--panel); stroke: var(--line); stroke-width: 1.3; }
+  .b.g { fill: var(--tint); }
+  .nm { font-size: 12.5px; font-weight: 610; fill: var(--ink); }
+  .ct { font-size: 9.5px; fill: var(--faint); font-family: var(--mono); }
+  .sl { font-size: 11px; fill: var(--ink); font-family: var(--mono); }
+  .sl.q { font-size: 10px; fill: var(--muted); }
+  .hd { font-size: 11.5px; font-weight: 680; fill: var(--ink); letter-spacing: .04em; }
+  .div { stroke: var(--rule); stroke-width: 1; }
+  .e { fill: none; stroke: currentColor; stroke-width: 1.2; opacity: .5; }
+  .e.poly { stroke: var(--poly); stroke-width: 1.7; opacity: .95; }
+  .e.nat { stroke-dasharray: 1.6 3; opacity: .45; }
+  .e.new { stroke: var(--ok); stroke-width: 1.6; opacity: .9; }
+  .lb { font-size: 9.5px; fill: var(--muted); font-family: var(--mono); }
+  .lb.p { fill: var(--poly); }
+  .lb.n { fill: var(--ok); }
+  .zn { font-size: 9.5px; font-weight: 680; letter-spacing: .1em; fill: var(--faint); text-transform: uppercase; }
+  pre { margin: 0; background: var(--tint); padding: 11px 13px; overflow-x: auto;
+    font-family: var(--mono); font-size: 11.5px; line-height: 1.5; color: var(--ink); }
+  pre .c { color: var(--faint); }
+  details.q { margin: 14px 0 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  details.q > summary { cursor: pointer; padding: 8px 12px; font-size: 10.5px; letter-spacing: .05em;
+    text-transform: uppercase; color: var(--muted); font-weight: 650; list-style: none; background: var(--tint); }
+  details.q > summary::-webkit-details-marker { display: none; }
+  details.q > summary::before { content: "\25B8\00a0"; color: var(--faint); }
+  details.q[open] > summary::before { content: "\25BE\00a0"; }
+  details.q > summary:hover { color: var(--ink); }
+  details.q .out { margin: 0; padding: 10px 13px; border-top: 1px dashed var(--line); background: var(--bg);
+    font-family: var(--mono); font-size: 10.5px; color: var(--muted); white-space: pre; overflow-x: auto; }
+  .foot { margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--rule); color: var(--faint);
+    font-size: 11.5px; line-height: 1.5; max-width: 86ch; }
+  .foot b { color: var(--muted); } .foot a { color: var(--poly); }
+  .out a, figcaption a, .seamsub a { color: var(--poly); text-decoration: none; }
+  .out a:hover, figcaption a:hover, .seamsub a:hover { text-decoration: underline; }
+
+  /* table boxes link to the column reference on The 22 Tables */
+  a.tl { cursor: pointer; }
+  a.tl:hover .b, a.tl:focus .b { stroke: var(--poly); stroke-width: 2; }
+  a.tl:hover .nm, a.tl:hover .sl { text-decoration: underline; }
+
+  /* pinned title + description + mini list of the diagrams on this page */
+  .top { position: sticky; top: 0; z-index: 10;
+    /* light tint of the diagram accent, so the pinned header reads as part of this scrolling frame */
+    --hdr-bg: var(--tint); --hdr-bg: color-mix(in srgb, var(--poly) 9%, var(--bg));
+    background: var(--hdr-bg);
+    box-shadow: 0 0 0 100vmax var(--hdr-bg); clip-path: inset(0 -100vmax);   /* full-bleed to the frame edges */
+    margin: -24px -20px 0; padding: 14px 20px 8px;
+    border-bottom: 1px solid color-mix(in srgb, var(--poly) 28%, var(--bg)); }
+  .top .lede { margin-bottom: 0; }
+  .mini ol { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 2px 16px;
+    font-size: 12px; }
+  .mini a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: baseline; gap: 3px; }
+  .mini a:hover { color: var(--ink); }
+  .mini .arr { color: var(--poly); visibility: hidden; font-size: 13px; line-height: 1; }
+  .mini a.on { color: var(--ink); font-weight: 650; }
+  .mini a.on .arr { visibility: visible; }
+  @media (max-width: 520px) { .top .lede { font-size: 12px; } }
+</style>
+<div class="wrap">
+
+<header class="top">
+<h1>ClinVar-GKM parquet — join seams</h1>
+<p class="lede">
+  The five places tables join. Three of them dispatch on an id prefix or a type column and silently drop rows if you join only
+  one branch. Figures are from the 2026-10-18 release.
+</p>
+<nav class="mini" aria-label="Diagrams in this frame"><ol>
+  <li><a href="#d-1"><span class="arr" aria-hidden="true">▸</span>A · Variant → Proposition</a></li>
+  <li><a href="#d-2"><span class="arr" aria-hidden="true">▸</span>B · Proposition → Condition</a></li>
+  <li><a href="#d-3"><span class="arr" aria-hidden="true">▸</span>C · Proposition → Statements</a></li>
+  <li><a href="#d-4"><span class="arr" aria-hidden="true">▸</span>D · Aggregate nesting</a></li>
+  <li><a href="#d-5"><span class="arr" aria-hidden="true">▸</span>E · SCV → aggregate</a></li>
+</ol></nav>
+</header>
+
+<!-- ============ SEAM A ============ -->
+<div class="seamhd" id="d-1">Seam A · Variant → Proposition</div>
+<p class="seamsub">The clean one. All four proposition tables resolve to <code>variation.id</code> at 100 % —
+  28,077,355 references, zero unresolved. They share one column schema (from 1.1.0), so one glob,
+  <code>read_parquet('proposition*.parquet')</code>, reads them all through <code>subject_variant_id</code>.</p>
+<figure>
+  <div class="frame">
+  <svg class="d w820" viewBox="0 0 860 192" role="img" aria-label="Seam A: four proposition tables all join to variation.id at one hundred percent through subject_variant_id.">
+    <defs>
+      <marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,1.2 L8.6,5 L0,8.8 z" fill="currentColor"/></marker>
+      <marker id="ap" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,1.2 L8.6,5 L0,8.8 z" fill="var(--poly)"/></marker>
+    </defs>
+    <text class="lb" x="356" y="26" text-anchor="middle">subject_variant_id · all four resolve at 100 %</text>
+    <a class="tl" href="../../parquet/tables/#variation" target="_top"><title>Column reference: variation</title><rect class="b g" x="24" y="62" width="170" height="46" rx="7"/>
+    <text class="nm" x="38" y="84">variation</text><text class="ct" x="38" y="99">PK id</text></a>
+    <a class="tl" href="../../parquet/tables/#propositionPathogenicity" target="_top"><title>Column reference: propositionPathogenicity</title><rect class="b" x="528" y="44" width="304" height="30" rx="6"/><text class="sl" x="542" y="64">propositionPathogenicity</text></a>
+    <a class="tl" href="../../parquet/tables/#propositionClinvarCustom" target="_top"><title>Column reference: propositionClinvarCustom</title><rect class="b" x="528" y="80" width="304" height="30" rx="6"/><text class="sl" x="542" y="100">propositionClinvarCustom</text></a>
+    <a class="tl" href="../../parquet/tables/#propositionOncogenicity" target="_top"><title>Column reference: propositionOncogenicity</title><rect class="b" x="528" y="116" width="304" height="30" rx="6"/><text class="sl" x="542" y="136">propositionOncogenicity</text></a>
+    <a class="tl" href="../../parquet/tables/#propositionSomaticClinicalImpact" target="_top"><title>Column reference: propositionSomaticClinicalImpact</title><rect class="b" x="528" y="152" width="304" height="30" rx="6"/><text class="sl" x="542" y="172">propositionSomaticClinicalImpact</text></a>
+    <path class="e" d="M524,59 C430,59 300,78 198,80" marker-end="url(#a)"/>
+    <path class="e" d="M524,95 C430,95 300,86 198,86" marker-end="url(#a)"/>
+    <path class="e" d="M524,131 C430,131 300,94 198,92" marker-end="url(#a)"/>
+    <path class="e" d="M524,167 C430,167 300,102 198,98" marker-end="url(#a)"/>
+  </svg>
+  </div>
+</figure>
+<details class="q"><summary>Query — one variant, every proposition (one glob reads all four tables)</summary>
+<pre><span class="c">-- the 4 proposition tables share one schema; read them as one table</span>
+SELECT v.id, v.name, p.type, p.predicate
+FROM 'variation.parquet' v
+JOIN read_parquet('proposition*.parquet') p ON p.subject_variant_id = v.id
+WHERE v.id = 'clinvar:51592';</pre>
+<div class="out">id             name                                         type                             predicate
+<a href="https://identifiers.org/clinvar:51592" target="idorg">clinvar:51592</a>  NM_000059.4(BRCA2):c.4090A>C (p.Ile1364Leu)  VariantPathogenicityProposition  isCausalFor
+<a href="https://identifiers.org/clinvar:51592" target="idorg">clinvar:51592</a>  NM_000059.4(BRCA2):c.4090A>C (p.Ile1364Leu)  ClinvarNotProvidedProposition    hasNoProvidedClassificationFor
+…  (65 propositions for this variant: 60 VariantPathogenicityProposition / isCausalFor,
+    5 ClinvarNotProvidedProposition / hasNoProvidedClassificationFor)</div>
+</details>
+
+<!-- ============ SEAM B ============ -->
+<div class="seamhd" id="d-2">Seam B · Proposition → Condition or ConditionSet</div>
+<p class="seamsub">Every proposition table's <code>object_id</code> is polymorphic, deterministic, and complete:
+  <code>object_type</code> names its table. Condition objects split three ways by prefix, and all three resolve;
+  two land in <code>conditionSet</code> — one accessioned, one minted — so read the prefix to know which kind of
+  set you have, but join both to the same table. The 13 therapeutic-response propositions point at a
+  <code>therapy</code> or <code>therapyGroup</code> instead, with the tumor type in
+  <code>condition_qualifier_id</code>.</p>
+<figure>
+  <div class="frame">
+  <svg class="d w820" viewBox="0 0 860 176" role="img" aria-label="Seam B: the object_id column of the four proposition tables splits by object_type and prefix - clinvar.trait to condition, clinvar.traitset and clinvar.conditionset to conditionSet, plus 13 therapy objects - and all resolve.">
+    <rect class="b g" x="24" y="62" width="210" height="46" rx="7"/>
+    <text class="nm" x="38" y="84">object_id</text><text class="ct" x="38" y="99">28,077,355 refs · 4 tables</text>
+    <circle cx="300" cy="85" r="13" fill="none" stroke="var(--poly)" stroke-width="1.6"/>
+    <text class="lb p" x="300" y="89" text-anchor="middle">?</text>
+    <text class="lb p" x="300" y="56" text-anchor="middle">object_type</text>
+
+    <rect class="b" x="392" y="10" width="420" height="38" rx="6"/>
+    <text class="sl" x="406" y="27">clinvar.trait:&lt;n&gt;  →  condition.id</text>
+    <text class="ct" x="406" y="41">25,113,007 refs · 100 %</text>
+    <rect class="b" x="392" y="66" width="420" height="38" rx="6"/>
+    <text class="sl" x="406" y="83">clinvar.traitset:&lt;n&gt;  →  conditionSet.id</text>
+    <text class="ct" x="406" y="97">1,280,772 refs · 100 % · accessioned</text>
+    <rect class="b" x="392" y="122" width="420" height="38" rx="6"/>
+    <text class="sl" x="406" y="139">clinvar.conditionset:vcv-&lt;md5&gt;  →  conditionSet.id</text>
+    <text class="ct" x="406" y="153">1,683,563 refs · 100 % · minted, now emitted</text>
+
+    <path class="e" d="M238,85 H284" marker-end="url(#a)"/>
+    <path class="e poly" d="M314,78 C352,78 358,29 388,29" marker-end="url(#ap)"/>
+    <path class="e poly" d="M314,85 H388" marker-end="url(#ap)"/>
+    <path class="e poly" d="M314,92 C352,92 358,141 388,141" marker-end="url(#ap)"/>
+  </svg>
+  </div>
+  <figcaption>Not drawn: 13 therapeutic-response objects, 6 <code>therapy</code> and 7 <code>therapyGroup</code>.
+    <code>conditionSet.concepts[]</code> holds <em>ids</em>, not names — expand it and re-join to
+    <code>condition</code> to get member names; a minted set can nest a <code>clinvar.traitset:</code> member, so
+    expansion is one level deeper than it looks.</figcaption>
+</figure>
+<details class="q"><summary>Query — dispatch object_id on object_type, resolved to condition / conditionSet names</summary>
+<pre><span class="c">-- resolve the object to a name: condition.name, or the set's members joined by ';'</span>
+WITH set_names AS (
+    SELECT cs.id, string_agg(c.name, '; ') AS member_names
+    FROM 'conditionSet.parquet' cs, unnest(cs.concepts) AS t(cid)
+    LEFT JOIN 'condition.parquet' c ON c.id = cid
+    GROUP BY cs.id
+)
+SELECT DISTINCT p.object_id, p.object_type,
+    coalesce(c.name, sn.member_names, 'UNRESOLVED') AS condition_name
+FROM 'propositionPathogenicity.parquet' p
+<span class="c">-- CASE keeps each join an equi-join (fast); an AND in ON plans a nested loop</span>
+LEFT JOIN 'condition.parquet' c  ON c.id  = CASE WHEN p.object_type = 'condition'    THEN p.object_id END
+LEFT JOIN set_names           sn ON sn.id = CASE WHEN p.object_type = 'conditionSet' THEN p.object_id END
+WHERE p.object_id IN (
+    'clinvar.trait:16789', 'clinvar.traitset:10013',
+    'clinvar.conditionset:vcv-c620785e2025efde81bdd15c814fa83d')
+ORDER BY p.object_type;</pre>
+<div class="out">object_id                    object_type   condition_name
+clinvar.trait:16789          condition     not specified
+clinvar.traitset:10013       conditionSet  GM1 gangliosidosis; Mucopolysaccharidosis, MPS-IV-B
+clinvar.conditionset:vcv-…   conditionSet  Epidermodysplasia verruciformis; Inborn genetic diseases</div>
+</details>
+
+<!-- ============ SEAM C ============ -->
+<div class="seamhd" id="d-3">Seam C · Proposition → Statements <span style="font-weight:600;color:var(--poly)">· 1:1</span></div>
+<p class="seamsub"><code>proposition_id</code> is unique within each statement table <em>and</em> across all three
+  combined — 28,075,787 references, 28,075,787 distinct. A proposition has at most one statement, so it is
+  effectively a side-table of its statement. Only the 1,568 evidence-line targets in
+  <code>propositionSomaticClinicalImpact</code> (diagnostic, prognostic, therapeutic response) have no statement.</p>
+<figure>
+  <div class="frame">
+  <svg class="d w820" viewBox="0 0 860 206" role="img" aria-label="Seam C: scv, rcv and vcv each resolve their proposition_id across propositionPathogenicity, propositionClinvarCustom, propositionSomaticClinicalImpact and propositionOncogenicity.">
+    <a class="tl" href="../../parquet/tables/#scv" target="_top"><title>Column reference: scv</title><rect class="b" x="24" y="20" width="200" height="40" rx="7"/><text class="nm" x="38" y="38">scv</text><text class="ct" x="38" y="52">6,853,781</text></a>
+    <a class="tl" href="../../parquet/tables/#rcv" target="_top"><title>Column reference: rcv</title><rect class="b" x="24" y="76" width="200" height="40" rx="7"/><text class="nm" x="38" y="94">rcv</text><text class="ct" x="38" y="108">12,056,355</text></a>
+    <a class="tl" href="../../parquet/tables/#vcv" target="_top"><title>Column reference: vcv</title><rect class="b" x="24" y="132" width="200" height="40" rx="7"/><text class="nm" x="38" y="150">vcv</text><text class="ct" x="38" y="164">9,165,651</text></a>
+
+    <line class="e poly" x1="300" y1="24" x2="300" y2="176" style="opacity:1"/>
+    <path class="e poly" d="M228,40 H296"/><path class="e poly" d="M228,96 H296"/><path class="e poly" d="M228,152 H296"/>
+    <text class="lb p" x="300" y="196" text-anchor="middle">proposition_id</text>
+
+    <a class="tl" href="../../parquet/tables/#propositionPathogenicity" target="_top"><title>Column reference: propositionPathogenicity</title><rect class="b g" x="420" y="6" width="396" height="40" rx="7"/>
+    <text class="sl" x="434" y="24">propositionPathogenicity</text><text class="ct" x="434" y="38">6,811,300 / 11,970,181 / 9,087,488</text></a>
+    <a class="tl" href="../../parquet/tables/#propositionClinvarCustom" target="_top"><title>Column reference: propositionClinvarCustom</title><rect class="b g" x="420" y="54" width="396" height="40" rx="7"/>
+    <text class="sl" x="434" y="72">propositionClinvarCustom</text><text class="ct" x="434" y="86">38,805 / 77,087 / 70,292</text></a>
+    <a class="tl" href="../../parquet/tables/#propositionSomaticClinicalImpact" target="_top"><title>Column reference: propositionSomaticClinicalImpact</title><rect class="b g" x="420" y="102" width="396" height="40" rx="7"/>
+    <text class="sl" x="434" y="120">propositionSomaticClinicalImpact</text><text class="ct" x="434" y="134">1,752 / 5,239 / 4,048</text></a>
+    <a class="tl" href="../../parquet/tables/#propositionOncogenicity" target="_top"><title>Column reference: propositionOncogenicity</title><rect class="b g" x="420" y="150" width="396" height="40" rx="7"/>
+    <text class="sl" x="434" y="168">propositionOncogenicity</text><text class="ct" x="434" y="182">1,924 / 3,848 / 3,823</text></a>
+
+    <path class="e poly" d="M304,26 H416" marker-end="url(#ap)"/>
+    <path class="e poly" d="M304,74 H416" marker-end="url(#ap)"/>
+    <path class="e poly" d="M304,122 H416" marker-end="url(#ap)"/>
+    <path class="e poly" d="M304,170 H416" marker-end="url(#ap)"/>
+  </svg>
+  </div>
+  <figcaption>Counts are, in order, how many <code>scv</code> / <code>rcv</code> / <code>vcv</code> rows resolve
+    to that proposition table. Each tier's four shares sum to its exact row count, so joining
+    <code>propositionPathogenicity</code> alone silently loses the remainder; join the glob.</figcaption>
+</figure>
+<details class="q"><summary>Query — SCVs across proposition tables: scv + classification + proposition type + variant &amp; condition names</summary>
+<pre><span class="c">-- read all four proposition tables keeping subject + object, then resolve both to names.</span>
+<span class="c">-- (a statement's object is always a condition or set; therapy objects belong only to the</span>
+<span class="c">--  therapeutic-response propositions, which no statement classifies.)</span>
+WITH prop AS (
+    SELECT id, type, subject_variant_id AS variant_id, object_id
+      FROM read_parquet('proposition*.parquet')
+),
+set_names AS (
+    SELECT cs.id, string_agg(c.name, '; ') AS member_names
+    FROM 'conditionSet.parquet' cs, unnest(cs.concepts) AS t(cid)
+    LEFT JOIN 'condition.parquet' c ON c.id = cid GROUP BY cs.id
+)
+SELECT s.id AS scv_id, s.classification.name AS classification, p.type AS proposition_type,
+       p.variant_id, v.name AS variant_name,
+       p.object_id, coalesce(c.name, sn.member_names) AS object_name
+FROM 'scv.parquet' s
+JOIN prop p ON p.id = s.proposition_id
+LEFT JOIN 'variation.parquet' v  ON v.id  = p.variant_id
+LEFT JOIN 'condition.parquet' c  ON c.id  = p.object_id
+LEFT JOIN set_names           sn ON sn.id = p.object_id
+WHERE s.id IN ('clinvar.submission:SCV000056982.2',
+               'clinvar.submission:SCV007129927.1',
+               'clinvar.submission:SCV002796738.1')
+ORDER BY proposition_type;</pre>
+<div class="out">scv_id             classification    proposition_type                 variant_id      variant_name                       object_id               object_name
+<a href="https://identifiers.org/clinvar.submission:SCV000056982.2" target="idorg">…SCV000056982.2</a>    association       ClinvarAssociationProposition    <a href="https://identifiers.org/clinvar:40131" target="idorg">clinvar:40131</a>   NM_000237.3(LPL):c.*1671T>C        clinvar.trait:9723      High density lipoprotein cholesterol…
+<a href="https://identifiers.org/clinvar.submission:SCV007129927.1" target="idorg">…SCV007129927.1</a>    Likely oncogenic  VariantOncogenicityProposition   <a href="https://identifiers.org/clinvar:428975" target="idorg">clinvar:428975</a>  NM_001042492.3(NF1):c.1721+1G>T    clinvar.trait:32759     Neoplasm
+<a href="https://identifiers.org/clinvar.submission:SCV002796738.1" target="idorg">…SCV002796738.1</a>    Benign            VariantPathogenicityProposition  <a href="https://identifiers.org/clinvar:143120" target="idorg">clinvar:143120</a>  NM_001171.6(ABCC6):c.793A>G…       clinvar.traitset:12598  Pseudoxanthoma elasticum, forme fruste;…</div>
+</details>
+
+<!-- ============ SEAM D ============ -->
+<div class="seamhd" id="d-4">Seam D · Aggregate nesting — a 2-level forest, SCVs always at the leaves</div>
+<p class="seamsub">A root statement carries the overall classification and cites <em>no</em> SCVs directly; its
+  child statements partition the submissions by evidence subgroup and cite the SCVs. Every aggregate child has
+  exactly one parent, and no edge crosses an accession.</p>
+<figure>
+  <div class="frame">
+  <svg class="d w820" viewBox="0 0 870 318" role="img" aria-label="The aggregate statement group: a root statement cites child statements but no SCVs; each child statement cites SCVs, which are always leaf nodes with no outgoing evidence edges.">
+    <text class="lb p" x="282" y="26" text-anchor="middle">has_evidence_lines[] → evidence_items[] · same accession</text>
+    <text class="lb p" x="620" y="26" text-anchor="middle">evidence_items[] · SCV ids</text>
+
+    <rect class="b g" x="24" y="120" width="200" height="56" rx="7"/>
+    <text class="nm" x="38" y="142">VCV…94-G-PATH</text>
+    <text class="ct" x="38" y="156">root · overall</text>
+    <text class="ct" x="38" y="169">cites 0 SCVs</text>
+
+    <rect class="b" x="340" y="48" width="200" height="46" rx="7"/>
+    <text class="nm" x="354" y="70">…-G-PATH-CP</text><text class="ct" x="354" y="85">child · criteria provided</text>
+    <rect class="b" x="340" y="124" width="200" height="46" rx="7"/>
+    <text class="nm" x="354" y="146">…-G-PATH-NOCP</text><text class="ct" x="354" y="161">child · no criteria</text>
+    <rect class="b" x="340" y="200" width="200" height="46" rx="7"/>
+    <text class="nm" x="354" y="222">…-G-PATH-EP</text><text class="ct" x="354" y="237">child · expert panel</text>
+
+    <rect class="b" x="656" y="48" width="190" height="46" rx="7"/>
+    <text class="nm" x="670" y="70">30 SCVs</text><text class="ct" x="670" y="85">leaf · no outgoing</text>
+    <rect class="b" x="656" y="124" width="190" height="46" rx="7"/>
+    <text class="nm" x="670" y="146">2 SCVs</text><text class="ct" x="670" y="161">leaf · no outgoing</text>
+    <rect class="b" x="656" y="200" width="190" height="46" rx="7"/>
+    <text class="nm" x="670" y="222">1 SCV</text><text class="ct" x="670" y="237">leaf · no outgoing</text>
+
+    <text class="zn" x="24" y="288">depth 0</text>
+    <text class="zn" x="340" y="288">depth 1</text>
+    <text class="zn" x="656" y="288">leaves</text>
+
+    <path class="e poly" d="M224,136 C286,136 300,71 336,71" marker-end="url(#ap)"/>
+    <path class="e poly" d="M224,147 H336" marker-end="url(#ap)"/>
+    <path class="e poly" d="M224,158 C286,158 300,223 336,223" marker-end="url(#ap)"/>
+    <path class="e" d="M540,71 H652" marker-end="url(#a)"/>
+    <path class="e" d="M540,147 H652" marker-end="url(#a)"/>
+    <path class="e" d="M540,223 H652" marker-end="url(#a)"/>
+  </svg>
+  </div>
+  <figcaption>
+    A real group: <code>VCV000012871.94-G-PATH</code> is the root and cites three child statements and zero SCVs;
+    the children cite 30, 2 and 1 SCVs. Root suffixes are the bare classification (<code>-G-PATH</code>,
+    <code>-G-NP</code>, <code>-G-DR</code>…); child suffixes add the evidence subgroup (<code>-CP</code>,
+    <code>-NOCP</code>, <code>-EP</code>). Depth stops at 2, so a fixed two-hop walk is complete.
+  </figcaption>
+</figure>
+<details class="q"><summary>Query — one aggregate group: root cites children, children cite SCVs</summary>
+<pre><span class="c">-- unnest has_evidence_lines → evidence_items for one accession</span>
+SELECT s.id AS statement, count(*) AS cites
+FROM (SELECT id, unnest(has_evidence_lines) el_id
+      FROM 'vcv.parquet' WHERE id LIKE 'VCV000012871.%') s
+JOIN (SELECT id, unnest(evidence_items) item
+      FROM 'vcv_evidenceLine.parquet') el ON el.id = s.el_id
+GROUP BY 1 ORDER BY 1;</pre>
+<div class="out">statement                      cites
+VCV000012871.94-G-PATH           3   ← the 3 children
+VCV000012871.94-G-PATH-CP       30   ← SCVs
+VCV000012871.94-G-PATH-EP        1
+VCV000012871.94-G-PATH-NOCP      2</div>
+</details>
+
+<!-- ============ SEAM E ============ -->
+<div class="seamhd" id="d-5">Seam E · every SCV to its RCV and VCV group, in one pass</div>
+<p class="seamsub">Because <b>no aggregate edge ever crosses an accession</b>, the accession in the citing
+  statement's own id already names the group — so one pass over <code>has_evidence_lines</code> ⋈
+  <code>evidence_items</code> yields every SCV↔accession pair. No recursion, no self-join on the edges.</p>
+<figure>
+  <div class="frame">
+  <svg class="d w820" viewBox="0 0 860 212" role="img" aria-label="Seam E: one pass over has_evidence_lines joined to evidence_items yields every SCV paired with its aggregate accession, because aggregate edges never cross accessions.">
+    <text class="lb" x="252" y="26" text-anchor="middle">unnest has_evidence_lines[]</text>
+    <text class="lb" x="616" y="26" text-anchor="middle">unnest evidence_items[] · keep SCV ids</text>
+
+    <rect class="b g" x="24" y="76" width="176" height="56" rx="7"/>
+    <text class="nm" x="38" y="98">vcv / rcv</text>
+    <text class="ct" x="38" y="112">id carries the</text>
+    <text class="ct" x="38" y="125">accession</text>
+
+    <rect class="b" x="364" y="76" width="192" height="56" rx="7"/>
+    <text class="nm" x="378" y="98">*_evidenceLine</text>
+    <text class="ct" x="378" y="112">12.2 M / 9.4 M</text>
+    <text class="ct" x="378" y="125">rows</text>
+
+    <a class="tl" href="../../parquet/tables/#scv" target="_top"><title>Column reference: scv</title><rect class="b g" x="700" y="76" width="140" height="56" rx="7"/>
+    <text class="nm" x="714" y="98">scv</text></a>
+    <text class="ct" x="714" y="112">6,853,781</text>
+    <text class="ct" x="714" y="125">all covered</text>
+
+    <text class="lb p" x="430" y="180" text-anchor="middle">accession taken from the citing statement id — no root→child hop needed</text>
+    <path class="e" d="M200,104 H360" marker-end="url(#a)"/>
+    <path class="e" d="M556,104 H696" marker-end="url(#a)"/>
+    <path class="e poly" d="M112,132 C112,160 770,160 770,136" marker-end="url(#ap)"/>
+  </svg>
+  </div>
+  <figcaption>Each SCV belongs to exactly one VCV accession and exactly one RCV accession, and the pass covers
+    all 6,853,781 — a complete grouping key you can materialise once. Keep <code>statement_id</code> as well as
+    the accession: it tells you <em>which</em> evidence subgroup (<code>-CP</code> / <code>-NOCP</code> /
+    <code>-EP</code>) cited the SCV.</figcaption>
+</figure>
+<details class="q"><summary>Query — every SCV → its VCV accession in one pass (swap vcv/rcv for the other tier)</summary>
+<pre><span class="c">-- the accession in the citing statement id names the group; no recursion needed</span>
+SELECT regexp_extract(e.parent, '^VCV[0-9]+', 0) AS vcv_accession, e.child AS scv_id
+FROM (
+    SELECT s.id AS parent, it.item AS child
+    FROM (SELECT id, unnest(has_evidence_lines) AS el_id FROM 'vcv.parquet') s
+    JOIN (SELECT id, unnest(evidence_items)     AS item  FROM 'vcv_evidenceLine.parquet') it
+         ON it.id = s.el_id
+) e
+WHERE e.child LIKE 'clinvar.submission:%';</pre>
+<div class="out">vcv_accession  scv_id
+VCV000012871   <a href="https://identifiers.org/clinvar.submission:SCV000616386.4" target="idorg">clinvar.submission:SCV000616386.4</a>
+VCV000012871   <a href="https://identifiers.org/clinvar.submission:SCV000207677.1" target="idorg">clinvar.submission:SCV000207677.1</a>
+…  (6,853,781 pairs — every SCV, exactly one VCV accession)</div>
+</details>
+
+<p class="foot">Every count, table, and query output here is from the ClinVar-GKM <b>2026-10-18</b>
+  release — figures change between releases, so don't assume they are the latest. See
+  <a href="../../data-access/parquet/" target="_top">Downloads &rarr; Parquet Files</a> for current releases.</p>
+</div>
+
+<script>
+/* Mini list: click scrolls to a diagram; the ▸ arrow tracks which diagram is at the top of the frame. */
+(() => {
+  const top = document.querySelector('.top');
+  const links = [...document.querySelectorAll('.mini a')];
+  const targets = links.map(a => document.getElementById(a.hash.slice(1)));
+  let raf = 0;
+  function update() {
+    raf = 0;
+    const hb = top.getBoundingClientRect().bottom;
+    const line = hb + (window.innerHeight - hb) / 3;   // a diagram is current once its heading reaches the upper third
+    let cur = 0;
+    targets.forEach((t, k) => { if (t.getBoundingClientRect().top <= line) cur = k; });
+    const doc = document.documentElement;
+    if (window.scrollY > 0 && window.innerHeight + window.scrollY >= doc.scrollHeight - 2) cur = targets.length - 1;
+    links.forEach((a, k) => {
+      a.classList.toggle('on', k === cur);
+      if (k === cur) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+    });
+  }
+  const queue = () => { if (!raf) raf = requestAnimationFrame(update); };
+  links.forEach((a, k) => a.addEventListener('click', e => {
+    e.preventDefault();                       // no hash change, so the parent page's history is untouched
+    // scroll only this frame (scrollIntoView would also scroll the docs page around the iframe)
+    const y = targets[k].getBoundingClientRect().top + window.scrollY - top.offsetHeight - 10;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }));
+  addEventListener('scroll', queue, { passive: true });
+  addEventListener('resize', queue);
+  update();
+})();
+</script>

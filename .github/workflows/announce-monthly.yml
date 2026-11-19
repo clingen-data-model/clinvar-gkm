@@ -1,0 +1,137 @@
+name: Monthly release announcement
+
+# Announces each new official monthly full bundle, with a digest of the weekly deltas it rolls up, to the email
+# list (clinvar-gkm@broadinstitute.org) and to GitHub Discussions -> Announcements. See ADR 0010.
+#
+# Reads only the published index.json and delta manifests, so it runs whenever and wherever the monthly was
+# published: the schedule notices a new monthly within about two hours of run-release.sh posting it. Each channel
+# is recorded in announced.json on the orphan branch ops/announcements as soon as it is done, so a re-run never
+# sends anything twice.
+#
+# workflow_dispatch defaults to a dry run: the announcement is written to the job summary and kept as an
+# artifact, and nothing is sent. Set the repository variable ANNOUNCE_TO to your own address for a test send.
+
+on:
+  schedule:
+    - cron: '41 */2 * * *'
+  workflow_dispatch:
+    inputs:
+      month:
+        description: 'Monthly to announce, YYYY-MM (default: the newest, if it is not yet announced)'
+        required: false
+        type: string
+      dry_run:
+        description: 'Render only: show the announcement in the job summary and send nothing'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  discussions: write
+
+concurrency:
+  group: announce-monthly
+  cancel-in-progress: false
+
+jobs:
+  announce:
+    runs-on: ubuntu-latest
+    # The SMTP secrets live in the 'announce' environment, which only the main branch may use.
+    environment: announce
+    env:
+      STATE_BRANCH: ops/announcements
+      # Monthlies up to this one were published before the automation existed and are never announced by it.
+      ANNOUNCE_AFTER: '2026-10'
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+      MONTH: ${{ inputs.month }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check out the state branch
+        run: |
+          echo "OUT=${RUNNER_TEMP}/announcement" >> "$GITHUB_ENV"
+          echo "STATE_DIR=${RUNNER_TEMP}/state" >> "$GITHUB_ENV"
+          STATE_DIR="${RUNNER_TEMP}/state"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin "$STATE_BRANCH" >/dev/null; then
+            git fetch --depth=1 origin "$STATE_BRANCH"
+            git worktree add "$STATE_DIR" FETCH_HEAD
+            git -C "$STATE_DIR" checkout -B "$STATE_BRANCH"
+          else
+            git worktree add --detach "$STATE_DIR"
+            git -C "$STATE_DIR" checkout --orphan "$STATE_BRANCH"
+            git -C "$STATE_DIR" rm -rfq .
+          fi
+
+      - name: Decide and render
+        id: plan
+        run: |
+          python3 src/scripts/announce_monthly.py render --state "$STATE_DIR/announced.json" --out "$OUT" \
+            --after "$ANNOUNCE_AFTER" ${MONTH:+--month "$MONTH"}
+          month="$(jq -r '.month // ""' "$OUT/plan.json")"
+          echo "month=${month}" >> "$GITHUB_OUTPUT"
+          for c in email discussion; do
+            echo "${c}=$(jq -r --arg c "$c" '.pending | index($c) != null' "$OUT/plan.json")" >> "$GITHUB_OUTPUT"
+          done
+          if [ -f "$OUT/email.txt" ]; then
+            { echo "## ${month}: $(jq -r .subject "$OUT/plan.json")"; echo
+              echo "Pending: $(jq -r '.pending | join(", ")' "$OUT/plan.json"). Dry run: ${DRY_RUN}."; echo
+              echo '```text'; cat "$OUT/email.txt"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Nothing to announce." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Keep the rendered announcement
+        if: steps.plan.outputs.email == 'true' || steps.plan.outputs.discussion == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: announcement-${{ steps.plan.outputs.month }}
+          path: ${{ runner.temp }}/announcement/
+
+      - name: Email the list
+        if: env.DRY_RUN != 'true' && steps.plan.outputs.email == 'true'
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          ANNOUNCE_FROM: ${{ secrets.ANNOUNCE_FROM }}
+          ANNOUNCE_TO: ${{ vars.ANNOUNCE_TO || 'clinvar-gkm@broadinstitute.org' }}
+          M: ${{ steps.plan.outputs.month }}
+        run: |
+          python3 src/scripts/announce_monthly.py send-email --out "$OUT"
+          python3 src/scripts/announce_monthly.py mark --state "$STATE_DIR/announced.json" --month "$M" \
+            --channel email --value "$(date -u +%FT%TZ) ${ANNOUNCE_TO}"
+          git -C "$STATE_DIR" add announced.json
+          git -C "$STATE_DIR" commit -q -m "announce: ${M} email"
+          git -C "$STATE_DIR" push origin "HEAD:${STATE_BRANCH}"
+
+      - name: Post to Discussions -> Announcements
+        if: env.DRY_RUN != 'true' && steps.plan.outputs.discussion == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          M: ${{ steps.plan.outputs.month }}
+        run: |
+          ids="$(gh api graphql -f owner="${GITHUB_REPOSITORY%/*}" -f name="${GITHUB_REPOSITORY#*/}" -f query='
+            query($owner: String!, $name: String!) { repository(owner: $owner, name: $name) {
+              id discussionCategories(first: 25) { nodes { id slug } } } }')"
+          repo_id="$(jq -r .data.repository.id <<<"$ids")"
+          cat_id="$(jq -r '.data.repository.discussionCategories.nodes[] | select(.slug == "announcements") | .id' <<<"$ids")"
+          [ -n "$cat_id" ] || { echo "::error::no Announcements discussion category"; exit 1; }
+          url="$(gh api graphql -f repo="$repo_id" -f cat="$cat_id" -f title="$(jq -r .subject "$OUT/plan.json")" \
+            -F body=@"$OUT/discussion.md" -f query='
+            mutation($repo: ID!, $cat: ID!, $title: String!, $body: String!) {
+              createDiscussion(input: {repositoryId: $repo, categoryId: $cat, title: $title, body: $body}) {
+                discussion { url } } }' --jq .data.createDiscussion.discussion.url)"
+          echo "Posted ${url}" | tee -a "$GITHUB_STEP_SUMMARY"
+          python3 src/scripts/announce_monthly.py mark --state "$STATE_DIR/announced.json" --month "$M" \
+            --channel discussion --value "$url"
+          git -C "$STATE_DIR" add announced.json
+          git -C "$STATE_DIR" commit -q -m "announce: ${M} discussion"
+          git -C "$STATE_DIR" push origin "HEAD:${STATE_BRANCH}"

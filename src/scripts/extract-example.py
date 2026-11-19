@@ -1,225 +1,317 @@
 #!/usr/bin/env python3
-"""Extract a self-contained example record from a ClinVar-GKM release's BigQuery
-tables, with its ``#/…`` references resolved inline.
+"""Extract example fragments from a published ClinVar-GKM bundle (.json.gz).
 
-Accuracy: the per-section object is produced by the repo's OWN object-construction
-SQL (``src/scripts/parquet-schemas/<section>.sql`` — the same SQL the release
-Parquet export uses, which exposes a ``data`` column holding the exact assembled
-bundle object) plus the shared ``collapse_ext_values`` UDF (read from
-``export-gkm-dicts.sh``). So an extracted record equals what the release ships.
+Each example is a small bundle fragment, ``{"schema_version": ..., "<section>": {"<key>": record}, ...}``. It holds
+one top record exactly as the bundle has it (pointer form), plus every record that the top record references,
+followed transitively, EXCEPT records in ``scv`` and ``variation``. For a VCV or RCV top statement that includes the
+nested statements of every aggregation layer below it (``#/vcv/…-CP``, ``#/rcv/…-CP-T1``), each with its proposition,
+evidence lines and condition records. A pointer into ``scv`` or ``variation`` stays a ``#/…`` pointer that does not
+resolve inside the fragment:
+
+- the SCVs a VCV or RCV statement aggregates (``#/scv/…``), which are examples of their own;
+- a proposition's ``subject`` (``#/variation/…``), which the two cat-vrs examples cover.
+
+So a fragment validates against the bundle schema, but it is not a closed bundle. ``sub-bundle.py`` builds closed
+bundles from BigQuery instead.
+
+The bundle must be in the one-record-per-line layout that assemble-gkm-dicts.py writes. Records are copied with no
+cleanup (only indented for reading), so an example holds what the bundle ships. Referenced records come earlier in the
+bundle than the records that reference them, so a pass can only find what an earlier pass asked for. The first pass
+keeps the small sections whole, and the statements, evidence lines and propositions keyed by an example's accession
+(the nested statements of a VCV or RCV carry its accession), which closes every statement example; the cat-vrs
+examples take two more passes (allele, then the allele's location).
 
 Usage:
-    extract-example.py <section> <key> [--dataset DS | --date YYYY-MM-DD --version V]
-                                       [--project clingen-dev]
+    extract-example.py --bundle <full.json.gz> --all [--examples-dir examples] [--schema-version 1.2.0]
+    extract-example.py --bundle <full.json.gz> <section> <key> [--schema-version 1.2.0]   # print one to stdout
 
-Prints a pretty-printed, self-contained JSON object (references inlined) to stdout.
-Example:
-    extract-example.py vcv 'VCV000012582.63-G-PATH-CP'
+``--all`` regenerates every example in EXAMPLES. When an accession has a new version in the bundle, the file named
+for the old version is removed and the rename is printed, so links to it can be fixed.
 """
 from __future__ import annotations
 
 import argparse
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-SCHEMA_DIR = SCRIPT_DIR / "parquet-schemas"
-EXPORT_SH = SCRIPT_DIR / "export-gkm-dicts.sh"
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
-# Sections whose object comes from a parquet-schema (its `data` column). Any ref
-# section not listed here is handled specially below (condition, evidenceLine).
-_REF_RE = re.compile(r"^#/(?P<section>[^/]+)/(?P<key>.+)$")
-# A ref section maps 1:1 to a parquet-schema file of the same name, except these:
-_EVIDENCE_CANDIDATES = ("evidenceLine", "vcv_evidenceLine", "rcv_evidenceLine")
+# Pointers into these sections are kept as pointers; the records are not pulled into the fragment.
+KEEP_POINTER = {"scv", "variation"}
+# Statement sections: an SCV top's pointers into them stay pointers too (an SCV is not an aggregate). A VCV or RCV
+# top follows them, so its fragment holds the whole aggregation hierarchy below it, down to the SCV pointers.
+AGGREGATE = {"vcv", "rcv"}
+# Sections small enough to keep whole on the first pass (their records are referenced from later sections).
+SMALL = {"sequenceReference", "gene", "condition", "conditionSet", "therapy", "therapyGroup", "submitter"}
+# Sections whose keys carry the statement's accession, kept on the first pass when they match an example accession.
+BY_ACCESSION = {"vcv", "rcv", "evidenceLine", "propositionPathogenicity", "propositionOncogenicity",
+                "propositionSomaticClinicalImpact", "propositionClinvarCustom"}
 
-# Reference-resolution policy (applied only to refs ENCOUNTERED while resolving;
-# the top-level record requested on the CLI is always fetched in full):
-#   - variation / scv: always kept as pointers — the variant (a proposition's
-#     `subject`) has its own cat-vrs example, and an SCV submission is the LEAF of
-#     the aggregation tree, so evidence unwinds down to SCV pointers;
-#   - vcv / rcv: UNWOUND (inlined) so the aggregation/evidence tree is visible,
-#     but descending into one marks everything below it as "nested";
-#   - conditionSet / condition (a proposition's `object`): inlined on the TOP
-#     statement only, kept as a pointer inside nested unwound statements (which
-#     reference the same condition) so examples stay compact.
-# Everything else (allele -> location -> sequenceReference, gene, therapy,
-# submitter, evidenceLine, proposition) is inlined.
-_ALWAYS_POINTER = {"variation", "scv"}
-_UNWIND_STATEMENTS = {"vcv", "rcv"}
-_CONDITION_SECTIONS = {"conditionSet", "condition"}
-# Content-addressed dicts whose parquet-schema emits key/value columns (every
-# other schema emits id/data).
-_KEYVALUE_SECTIONS = {"therapy", "therapyGroup"}
+# (directory, section, accession, suffix, extension). The bundle key and file name follow from the section:
+#   variation: key = accession, file = <accession><ext>
+#   scv:       key = clinvar.submission:<accession>.<version>, file = <accession>.<version>-<suffix><ext>
+#   vcv / rcv: key = <accession>.<version>-<suffix>,            file = <key><ext>
+EXAMPLES = [
+    ("cat-vrs", "variation", "clinvar:12582", "", ".jsonc"),
+    ("cat-vrs", "variation", "clinvar:208366", "", ".jsonc"),
+    ("scv", "scv", "SCV001571657", "G-PATH", ".jsonc"),
+    ("scv", "scv", "SCV002099547", "G-NP", ".jsonc"),
+    ("scv", "scv", "SCV004035006", "G-ASSOC", ".jsonc"),
+    ("scv", "scv", "SCV004565358", "S-SCI-T1-TR", ".json"),
+    ("scv", "scv", "SCV004565361", "S-SCI-T2-DIAG", ".json"),
+    ("scv", "scv", "SCV005061369", "S-SCI-T4-BLB", ".json"),
+    ("scv", "scv", "SCV005093950", "S-ONCO", ".json"),
+    ("scv", "scv", "SCV005387955", "S-SCI-T3-VUS", ".json"),
+    ("vcv", "vcv", "VCV000007105", "G-DR", ".jsonc"),
+    ("vcv", "vcv", "VCV000007105", "G-NP", ".jsonc"),
+    ("vcv", "vcv", "VCV000007105", "G-PATH", ".jsonc"),
+    ("vcv", "vcv", "VCV000007105", "G-RF", ".jsonc"),
+    ("vcv", "vcv", "VCV000012582", "G-ASSOC", ".jsonc"),
+    ("vcv", "vcv", "VCV000012582", "G-NP", ".jsonc"),
+    ("vcv", "vcv", "VCV000012582", "G-PATH", ".jsonc"),
+    ("vcv", "vcv", "VCV000012582", "S-ONCO", ".jsonc"),
+    ("vcv", "vcv", "VCV000012582", "S-SCI", ".jsonc"),
+    ("rcv", "rcv", "RCV000007523", "G-NP", ".jsonc"),
+    ("rcv", "rcv", "RCV000007523", "G-PATH", ".jsonc"),
+    ("rcv", "rcv", "RCV000029215", "G-PATH", ".jsonc"),
+    ("rcv", "rcv", "RCV000272938", "G-PATH", ".jsonc"),
+    ("rcv", "rcv", "RCV000548006", "G-PATH", ".jsonc"),
+    ("rcv", "rcv", "RCV000585796", "G-PATH", ".jsonc"),
+    ("rcv", "rcv", "RCV001781420", "G-PATH", ".jsonc"),
+    ("rcv", "rcv", "RCV001787370", "G-DR", ".jsonc"),
+    ("rcv", "rcv", "RCV001787371", "G-DR", ".jsonc"),
+    ("rcv", "rcv", "RCV001839445", "G-NP", ".jsonc"),
+    ("rcv", "rcv", "RCV003327361", "G-ASSOC", ".jsonc"),
+    ("rcv", "rcv", "RCV004018620", "G-PATH", ".jsonc"),
+    ("rcv", "rcv", "RCV004554600", "G-PATH", ".jsonc"),
+    ("rcv", "rcv", "RCV004668724", "S-ONCO", ".jsonc"),
+    ("rcv", "rcv", "RCV005007840", "G-PATH", ".jsonc"),
+    ("rcv", "rcv", "RCV006253518", "S-SCI", ".jsonc"),
+    ("rcv", "rcv", "RCV006253519", "S-SCI", ".jsonc"),
+    ("rcv", "rcv", "RCV006253521", "S-SCI", ".jsonc"),
+    ("rcv", "rcv", "RCV006253522", "S-SCI", ".jsonc"),
+    ("rcv", "rcv", "RCV006253523", "S-SCI", ".jsonc"),
+    ("rcv", "rcv", "RCV006253525", "S-SCI", ".jsonc"),
+    ("rcv", "rcv", "RCV006253527", "S-SCI", ".jsonc"),
+    ("rcv", "rcv", "RCV006254391", "S-SCI", ".jsonc"),
+]
 
-
-def _collapse_udf() -> str:
-    """Read the shared collapse_ext_values UDF from export-gkm-dicts.sh (single
-    source of truth) so proposition/scv/evidenceLine schemas resolve correctly."""
-    text = EXPORT_SH.read_text()
-    m = re.search(r"COLLAPSE_UDF=\$\(cat <<'SQL'\n(.*?)\nSQL\n", text, re.S)
-    if not m:
-        sys.exit("ERROR: could not find COLLAPSE_UDF in export-gkm-dicts.sh")
-    return m.group(1)
-
-
-COLLAPSE_UDF = _collapse_udf()
-
-
-def _bq_json(project: str, sql: str) -> list[dict]:
-    out = subprocess.run(
-        ["bq", "query", f"--project_id={project}", "--use_legacy_sql=false",
-         "--format=json", "--quiet", "--nouse_cache", "--max_rows=10", sql],
-        capture_output=True, text=True, check=True,
-    )
-    return json.loads(out.stdout or "[]")
-
-
-def _object_sql(section: str, dataset: str) -> str | None:
-    """Inner SELECT producing (id, data) for a section, or None if unknown.
-
-    `data` is the fully-assembled bundle object as a JSON string.
-    """
-    if section.startswith("proposition"):
-        # The four proposition sections share one template (export-gkm-dicts.sh substitutes {SECTION}).
-        return ((SCHEMA_DIR / "proposition.sql").read_text()
-                .replace("{DATASET}", dataset).replace("{SECTION}", section))
-    schema = SCHEMA_DIR / f"{section}.sql"
-    if schema.is_file():
-        return schema.read_text().replace("{DATASET}", dataset)
-    if section == "condition":
-        # No parquet-schema (condition.parquet is an untyped raw extract). The
-        # bundle object is the full row with null/empty stripped (assemble.py
-        # stream_passthrough parity) — mirror that here.
-        return (
-            "SELECT id, TO_JSON_STRING(JSON_STRIP_NULLS("
-            "TO_JSON((SELECT AS STRUCT c.*)), remove_empty => TRUE)) AS data "
-            f"FROM `{dataset}.gkm_dict_condition` c"
-        )
-    return None
+POINTER = re.compile(r"^#/([A-Za-z]+)/(.+)$")
+SECTION_LINE = re.compile(rb'^  "([A-Za-z]+)": \{\n$')
+SCHEMA_VERSION_LINE = re.compile(rb'^  "schema_version": ("(?:[^"\\]|\\.)*"),?\n$')
 
 
-def _candidate_sections(section: str) -> tuple[str, ...]:
-    """Parquet-schema sections to try for a ref. `evidenceLine` merges three."""
-    if section == "evidenceLine":
-        return _EVIDENCE_CANDIDATES
-    return (section,)
+def key_pattern(section: str, accession: str, suffix: str) -> re.Pattern:
+    """The bundle keys an example entry matches; group 1 is the version (absent for variation)."""
+    acc = re.escape(accession)
+    if section == "variation":
+        return re.compile(rf"^{acc}$")
+    if section == "scv":
+        return re.compile(rf"^clinvar\.submission:{acc}\.(\d+)$")
+    return re.compile(rf"^{acc}\.(\d+)-{re.escape(suffix)}$")
 
 
-class Extractor:
-    def __init__(self, project: str, dataset: str) -> None:
-        self.project = project
-        self.dataset = dataset
-        self._raw_cache: dict[tuple[str, str], dict | None] = {}
+def file_name(section: str, accession: str, suffix: str, ext: str, key: str) -> str:
+    """The example's file name for the bundle key it matched."""
+    if section == "variation":
+        return f"{accession}{ext}"
+    if section == "scv":
+        return f"{key.split(':', 1)[1]}-{suffix}{ext}"
+    return f"{key}{ext}"
 
-    def fetch_raw(self, section: str, key: str) -> dict | None:
-        """Fetch one section/key's assembled object (not yet ref-resolved)."""
-        cache_key = (section, key)
-        if cache_key in self._raw_cache:
-            return self._raw_cache[cache_key]
-        result: dict | None = None
-        esc = key.replace("'", "''")
-        for cand in _candidate_sections(section):
-            inner = _object_sql(cand, self.dataset)
-            if inner is None:
+
+def superseded(directory: Path, accession: str, suffix: str, keep: str) -> list[Path]:
+    """Files in `directory` for the same accession and suffix under another version (or extension) than `keep`."""
+    if not suffix:
+        return []
+    pat = re.compile(rf"^{re.escape(accession)}\.\d+-{re.escape(suffix)}\.jsonc?$")
+    return sorted(p for p in directory.glob(f"{accession}.*") if pat.match(p.name) and p.name != keep)
+
+
+def pointers(value):
+    """Every (section, key) that a `#/section/key` string anywhere in `value` points to."""
+    if isinstance(value, str):
+        m = POINTER.match(value)
+        if m:
+            yield m.group(1), m.group(2)
+    elif isinstance(value, dict):
+        for v in value.values():
+            yield from pointers(v)
+    elif isinstance(value, list):
+        for v in value:
+            yield from pointers(v)
+
+
+def closure(top: tuple[str, str], lookup) -> tuple[dict, set, set]:
+    """The fragment for `top`: (records {(section, key): record}, missing refs, kept pointers).
+
+    `lookup((section, key))` returns the record or None. Pointers into KEEP_POINTER sections are kept, and so are
+    pointers into AGGREGATE sections unless `top` is in one; every other pointer is followed. `missing` lists the
+    followed pointers `lookup` could not find (yet)."""
+    keep = KEEP_POINTER if top[0] in AGGREGATE else KEEP_POINTER | AGGREGATE
+    records, missing, kept = {}, set(), set()
+    todo = [top]
+    while todo:
+        ref = todo.pop()
+        if ref in records or ref in missing:
+            continue
+        rec = lookup(ref)
+        if rec is None:
+            missing.add(ref)
+            continue
+        records[ref] = rec
+        for p in pointers(rec):
+            if p[0] in keep:
+                if p != top:
+                    kept.add(p)
+            else:
+                todo.append(p)
+    return records, missing, kept
+
+
+def fragment(schema_version: str, records: dict, section_order: list[str]) -> dict:
+    """The example document: schema_version, then the sections in bundle order, keys sorted within each."""
+    doc = {"schema_version": schema_version}
+    for section in section_order:
+        keys = sorted(k for s, k in records if s == section)
+        if keys:
+            doc[section] = {k: records[(section, k)] for k in keys}
+    return doc
+
+
+def scan(bundle: Path, keep, state: dict):
+    """Stream the bundle once; return {(section, key): record line} for every record `keep(section, key)` accepts.
+
+    Records `state["schema_version"]` and `state["sections"]` (in bundle order). Stops on any line outside the
+    assembler's layout."""
+    dec = subprocess.Popen([shutil.which("pigz") or "gzip", "-dc", str(bundle)], stdout=subprocess.PIPE,
+                           bufsize=1 << 24)
+    found, section, sections = {}, None, []
+    try:
+        for line in dec.stdout:
+            if line.startswith(b'    "'):
+                end = line.index(b'": ', 5)
+                raw = line[5:end]
+                key = json.loads(b'"' + raw + b'"') if b"\\" in raw else raw.decode()
+                if keep(section, key):
+                    found[(section, key)] = line[end + 3:]
                 continue
-            # Schemas emit id/data, except the content-addressed therapy dicts
-            # which emit key/value.
-            idcol, datacol = (
-                ("key", "value") if cand in _KEYVALUE_SECTIONS else ("id", "data")
-            )
-            # Normalise every section's object the way the conformant bundle wants:
-            # strip null/empty fields, then collapse each extension's typed
-            # `value_<type>` key to the single polymorphic `value`. Some section
-            # schemas (e.g. variation) expose their object WITHOUT this collapse,
-            # so apply it uniformly here; idempotent where already collapsed.
-            sql = (
-                f"{COLLAPSE_UDF}\n"
-                "SELECT collapse_ext_values(TO_JSON_STRING("
-                f"JSON_STRIP_NULLS(SAFE.PARSE_JSON({datacol}), remove_empty => TRUE)"
-                ")) AS data\n"
-                f"FROM (\n{inner}\n) WHERE {idcol} = '{esc}' LIMIT 1"
-            )
-            rows = _bq_json(self.project, sql)
-            if rows:
-                result = json.loads(rows[0]["data"])
-                break
-        self._raw_cache[cache_key] = result
-        return result
-
-    def resolve(self, value, trail: tuple[str, ...] = (), nested: bool = False):
-        """Return `value` with local `#/…` pointers replaced by inline objects,
-        per the policy above. `nested` is True once resolution has descended into
-        an unwound vcv/rcv statement (so that statement's `object` condition stays
-        a pointer). A pointer that closes a cycle is kept (JSON can't be cyclic).
-        """
-        if isinstance(value, str):
-            m = _REF_RE.match(value)
-            if not m:
-                return value
-            section = m.group("section")
-            if value in trail:
-                return value  # cycle — keep the pointer
-            if section in _ALWAYS_POINTER:
-                return value
-            if section in _CONDITION_SECTIONS and nested:
-                return value  # object condition inlined on the top statement only
-            target = self.fetch_raw(section, m.group("key"))
-            if target is None:
-                # Unresolvable (missing/renamed) — keep the pointer, warn.
-                print(f"  [extract] WARNING: could not resolve {value}", file=sys.stderr)
-                return value
-            child_nested = nested or section in _UNWIND_STATEMENTS
-            return self.resolve(target, (*trail, value), child_nested)
-        if isinstance(value, dict):
-            return {k: self.resolve(v, trail, nested) for k, v in value.items()}
-        if isinstance(value, list):
-            return [self.resolve(v, trail, nested) for v in value]
-        return value
-
-    def extract(self, section: str, key: str):
-        raw = self.fetch_raw(section, key)
-        if raw is None:
-            sys.exit(f"ERROR: {section} '{key}' not found in {self.dataset}")
-        return self.resolve(raw, (f"#/{section}/{key}",))
+            m = SECTION_LINE.match(line)
+            if m:
+                section = m.group(1).decode()
+                sections.append(section)
+                continue
+            m = SCHEMA_VERSION_LINE.match(line)
+            if m:
+                state["schema_version"] = json.loads(m.group(1))
+                continue
+            if line.rstrip(b"\n") in (b"{", b"}", b"  }", b"  },"):
+                continue
+            raise SystemExit(f"ERROR: {bundle}: not the assembler's one-record-per-line layout: {line[:120]!r}")
+    finally:
+        dec.stdout.close()
+        if dec.wait() != 0:
+            raise SystemExit(f"ERROR: {bundle} could not be decompressed")
+    state["sections"] = sections
+    return found
 
 
-def _latest_dataset(project: str) -> str:
-    out = subprocess.run(
-        ["bq", "ls", f"--project_id={project}", "--max_results=100000"],
-        capture_output=True, text=True, check=True,
-    ).stdout
-    dsets = sorted(
-        line.split()[0] for line in out.splitlines()
-        if re.match(r"clinvar_\d{4}_\d{2}_\d{2}_v", line.split()[0] if line.split() else "")
-    )
-    if not dsets:
-        sys.exit("ERROR: no clinvar_* dataset found; pass --dataset")
-    return dsets[-1]
+def extract(bundle: Path, tops: dict, accessions: list[str], log=print) -> tuple[dict, list[str], str]:
+    """Build one fragment per entry of `tops` {name: (section, key pattern)}, in as few passes as the references need.
+
+    `accessions` are the statement accessions whose statements, evidence lines and propositions the first pass keeps.
+    Returns ({name: (top key, records, kept pointers)}, section order, schema_version)."""
+    by_section: dict[str, list] = {}
+    for section, pattern in tops.values():
+        by_section.setdefault(section, []).append(pattern)
+    acc_rx = re.compile("|".join(re.escape(a) for a in accessions)) if accessions else None
+    state: dict = {}
+    lines: dict = {}
+    parsed: dict = {}
+
+    def lookup(ref):
+        if ref not in parsed:
+            line = lines.get(ref)
+            parsed[ref] = None if line is None else json.loads(line.rstrip().rstrip(b","))
+        return parsed[ref]
+
+    def first_pass(section, key):
+        if section in SMALL:
+            return True
+        if any(p.match(key) for p in by_section.get(section, ())):
+            return True
+        return section in BY_ACCESSION and acc_rx is not None and acc_rx.search(key) is not None
+
+    log(f"pass 1: {bundle}")
+    lines.update(scan(bundle, first_pass, state))
+    top_keys = {}
+    for name, (section, pattern) in tops.items():
+        keys = sorted(k for s, k in lines if s == section and pattern.match(k))
+        if len(keys) != 1:
+            raise SystemExit(f"ERROR: {name}: expected one {section} record matching {pattern.pattern}, found {keys}")
+        top_keys[name] = (section, keys[0])
+    passes = 1
+    while True:
+        results = {name: closure(top, lookup) for name, top in top_keys.items()}
+        missing = set().union(set(), *(m for _, m, _ in results.values()))
+        if not missing:
+            break
+        passes += 1
+        log(f"pass {passes}: {len(missing)} referenced records")
+        found = scan(bundle, lambda s, k: (s, k) in missing, state)
+        if not found:
+            raise SystemExit(f"ERROR: references not in the bundle: {sorted(missing)[:20]}")
+        for ref in found:
+            parsed.pop(ref, None)
+        lines.update(found)
+    return ({name: (top_keys[name][1], results[name][0], results[name][2]) for name in tops}, state["sections"],
+            state["schema_version"])
+
+
+def dumps(doc: dict) -> str:
+    return json.dumps(doc, indent=2, ensure_ascii=False) + "\n"
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Extract a self-contained GKM example record.")
-    ap.add_argument("section", help="bundle section, e.g. vcv, scv, rcv, variation")
-    ap.add_argument("key", help="record id/key, e.g. VCV000012582.63-G-PATH-CP")
-    ap.add_argument("--project", default="clingen-dev")
-    ap.add_argument("--dataset", help="BigQuery dataset; default = latest clinvar_* release")
-    ap.add_argument("--date", help="release date YYYY-MM-DD (with --version)")
-    ap.add_argument("--version", help="dataset version, e.g. v2_6_0 (with --date)")
+    ap = argparse.ArgumentParser(description="Extract example fragments from a published ClinVar-GKM bundle.")
+    ap.add_argument("--bundle", required=True, type=Path, help="full bundle .json.gz (assembler layout)")
+    ap.add_argument("--all", action="store_true", help="regenerate every example in EXAMPLES")
+    ap.add_argument("--examples-dir", type=Path, default=REPO_ROOT / "examples")
+    ap.add_argument("--schema-version", help="schema_version to write (default: the bundle's)")
+    ap.add_argument("section", nargs="?", help="with a key instead of --all: print that one fragment")
+    ap.add_argument("key", nargs="?")
     args = ap.parse_args()
+    if args.all == bool(args.section and args.key) or bool(args.section) != bool(args.key):
+        ap.error("pass either --all or a section and a key")
 
-    if args.dataset:
-        dataset = args.dataset
-    elif args.date and args.version:
-        dataset = f"clinvar_{args.date.replace('-', '_')}_{args.version}"
-    else:
-        dataset = _latest_dataset(args.project)
+    if not args.all:
+        acc = re.findall(r"[SVR]CV\d+", args.key)
+        results, order, sv = extract(args.bundle, {"one": (args.section, re.compile(rf"^{re.escape(args.key)}$"))},
+                                     acc, log=lambda m: print(m, file=sys.stderr))
+        sys.stdout.write(dumps(fragment(args.schema_version or sv, results["one"][1], order)))
+        return
 
-    extractor = Extractor(args.project, dataset)
-    record = extractor.extract(args.section, args.key)
-    print(json.dumps(record, indent=2, ensure_ascii=False))
+    tops = {(d, sec, acc, suf): (sec, key_pattern(sec, acc, suf)) for d, sec, acc, suf, _ in EXAMPLES}
+    accessions = sorted({acc for _, sec, acc, _, _ in EXAMPLES if sec != "variation"})
+    results, order, sv = extract(args.bundle, tops, accessions)
+    sv = args.schema_version or sv
+    for directory, sec, acc, suf, ext in EXAMPLES:
+        top, records, kept = results[(directory, sec, acc, suf)]
+        out_dir = args.examples_dir / directory
+        name = file_name(sec, acc, suf, ext, top)
+        for old in superseded(out_dir, acc, suf, name):
+            old.unlink()
+            print(f"renamed: {directory}/{old.name} -> {directory}/{name}")
+        (out_dir / name).write_text(dumps(fragment(sv, records, order)), encoding="utf-8")
+        kinds: dict[str, int] = {}
+        for s, _ in kept:
+            kinds[s] = kinds.get(s, 0) + 1
+        print(f"{directory}/{name}: {len(records)} records; pointers kept: "
+              + (", ".join(f"#/{s}/ {n}" for s, n in sorted(kinds.items())) or "none"))
 
 
 if __name__ == "__main__":
