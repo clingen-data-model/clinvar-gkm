@@ -99,6 +99,28 @@ To **pin** to a line, read releases from that line's `index.json` and ignore the
 latest**, follow the line whose `status` is `current`. Every bundle also carries a top-level
 `schema_version` field, so you can confirm a file's exact version from the file itself.
 
+## Versions of these docs
+
+The documentation is versioned by release line, like the data: `1.1` describes the `v1/1.1/` line, `1.2` the
+`v1/1.2/` line, and so on. A patch release updates its line's docs in place. Choose a version from the selector
+next to the site name in the header; the selector keeps you on the same page when it exists in the other
+version.
+
+- **The latest release** is the default. The site root, and any link without a version in it, opens the same
+  page in the latest release. Its header is indigo.
+- **An older release** has a grey header and a notice that it is not the current version, with a link to the
+  same page in the latest release.
+- **`dev (unreleased)`** is built from the `main` branch. It describes changes that are not released yet and may
+  still change, so don't rely on it for production use. Its header is orange, with a notice to the same effect.
+
+The repository link at the right of the header names the source each version was built from, and its links to
+repository files point there too: the release tag (such as `1.1.0`) for a release, `main` for `dev`.
+
+To link to a page in whatever release is latest, use a link without a version, such as
+`https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/changelog/`. To pin a link to one version,
+include it: `…/clinvar-gkm/1.1/reference/changelog/`. The decision record is
+[ADR 0011](../decisions/0011-versioned-documentation.md).
+
 ## Release notes
 
 - The [Changelog](changelog.md) records every schema change (MAJOR/MINOR/PATCH) and every data re-release,

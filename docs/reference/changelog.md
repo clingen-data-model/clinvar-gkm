@@ -159,6 +159,16 @@ required. The rules are in
   `…/clinvar-gkm/1.0.1/clinvar-gkm-bundle.schema.json`. The schema shape is unchanged, so every bundle that
   was valid stays valid, and no published file is rewritten.
 
+### Documentation
+
+- **Versioned docs.** The docs site has one version per release line, starting with `1.1`, chosen from a
+  selector in the header. The site root and every existing link open the latest release. The `dev` version
+  describes unreleased changes from `main`, with an orange header and a notice; an older release has a grey
+  header and a notice linking to the same page in the latest release. Each version's repository link and its
+  links to repository files point at the source it was built from: the release tag, or `main` for `dev`. See
+  [Versions of these docs](versioning.md#versions-of-these-docs) and
+  [ADR 0011](../decisions/0011-versioned-documentation.md).
+
 ## 1.1.0 — 2026-10-22 { #110 }
 
 A **breaking** release during the

@@ -1,0 +1,34 @@
+{#-
+  Repository widget in the header (and the mobile drawer). In a versioned build
+  (ADR 0011) build-versioned-docs.sh sets [project.extra.source] to the ref the
+  version was built from, and the widget shows and links that ref: `main` for
+  dev, the release tag for a release. It leaves out the theme's
+  data-md-component="source", whose script would replace the ref with the
+  latest release from the GitHub API (and add stars and forks). A build
+  without that table keeps the theme's widget. Overlaid onto older release tags.
+-#}
+{% set source = config.extra.source %}
+{% if source and source.ref %}
+  <a href="{{ config.repo_url }}/tree/{{ source.ref }}" title="{{ lang.t('source') }}" class="md-source">
+    <div class="md-source__icon md-icon">
+      {% set icon = config.theme.icon.repo or "fontawesome/brands/git-alt" %}
+      {% include ".icons/" ~ icon ~ ".svg" %}
+    </div>
+    <div class="md-source__repository">
+      {{ config.repo_name }}
+      <ul class="md-source__facts">
+        <li class="md-source__fact md-source__fact--version">{{ source.label or source.ref }}</li>
+      </ul>
+    </div>
+  </a>
+{% else %}
+  <a href="{{ config.repo_url }}" title="{{ lang.t('source') }}" class="md-source" data-md-component="source">
+    <div class="md-source__icon md-icon">
+      {% set icon = config.theme.icon.repo or "fontawesome/brands/git-alt" %}
+      {% include ".icons/" ~ icon ~ ".svg" %}
+    </div>
+    <div class="md-source__repository">
+      {{ config.repo_name }}
+    </div>
+  </a>
+{% endif %}

@@ -11,22 +11,33 @@ Docs are Zensical (Material theme) in `docs/`, deployed to GitHub Pages by `.git
 
 ## When the site deploys
 
-`deploy-docs.yml` builds and publishes on five triggers. The site shows whichever ref the **latest** run built:
+The site is **versioned** ([ADR 0011](../../docs/decisions/0011-versioned-documentation.md)): `gh-pages` holds
+one folder per release line (`1.1/`, `1.2/`, …) plus `dev/` (built from `main`), and root `versions.json`,
+`index.html` and `404.html` written by `src/scripts/docs-versions.py`. The root and every unversioned link
+redirect to the latest release (the highest release line). `deploy-docs.yml` builds only the versions a run is
+for and keeps the others:
 
 | Trigger | Builds |
 | --- | --- |
-| `push` to `main` touching `docs/**`, `zensical.toml`, or the workflow | `main`, within minutes of the merge |
-| `release: published` | the release tag (the `1.0` line) |
-| daily `schedule` (13:17 UTC) and `discussion` events | `main` |
-| `workflow_dispatch` (`gh workflow run deploy-docs.yml --ref main`) | the ref you pass |
+| `push` to `main` touching `docs/**`, `zensical.toml`, the workflow or the docs build scripts | `dev` |
+| `release: published`, tag `X.Y.Z` (not a prerelease) | `X.Y` from the tag; becomes `latest` if it is the highest line |
+| daily `schedule` (13:17 UTC) and `discussion` events | `dev` and the latest release (keeps its Roadmap current) |
+| `workflow_dispatch` on `main`, no inputs | `dev` |
+| `workflow_dispatch` with `ref` + `version` (`gh workflow run deploy-docs.yml --ref main -f ref=1.1.0 -f version=1.1`) | that tag as that version |
 
-- A docs-only merge to `main` needs no release; it deploys itself. Merges that touch none of those paths don't
-  deploy until the next scheduled run.
-- The live site therefore tracks `main` (the dev line), including docs for unreleased changes. A release deploy
-  shows the tag's docs only until the next `main` run. Serving released-only or versioned docs would mean
-  changing these triggers; see the open docs-link branch-awareness follow-up.
-- `concurrency: deploy-docs` lets a newer run supersede one in progress, so back-to-back merges can't publish
-  out of order.
+- A docs-only merge to `main` updates `dev` only. Released docs change only with a release (or a dispatch).
+- Every version is built by `src/scripts/build-versioned-docs.sh <ref> <version> <out>`, which overlays the
+  versioning files (`docs/overrides/main.html`, `partials/header.html`, `partials/source.html`, `404.html`,
+  `assets/js/versions.js`, `stylesheets/versions.css`) onto the ref and sets `site_url` per version. The header's
+  repository widget shows the version's ref (`main` for dev, the tag for a release), and for a release
+  `pin-repo-links.py` rewrites `…/clinvar-gkm/blob/main/…` (and `tree`, `raw`) links to the tag. Keep writing
+  repo-file links as `/blob/main/…` in the source; the build pins them. Keep those files buildable against
+  the oldest published version: after changing them, check `build-versioned-docs.sh 1.1.0 1.1 <out>`.
+- **Before publishing a release from a branch that predates ADR 0011 (`1.0`)**, bring this workflow and its
+  scripts onto it or drop its `release` trigger: the `release` event runs the workflow file at the tag, and the
+  old one overwrites the whole site.
+- `concurrency: deploy-docs-<version>` lets a newer run for the same version supersede one in progress; runs for
+  different versions retry the `gh-pages` push instead of cancelling each other.
 
 - Run `zensical build --strict` after **any** docs change and fix all warnings before committing (broken links
   and other warnings fail the strict build). Config lives in `zensical.toml` (nav, theme, extensions).
