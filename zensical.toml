@@ -137,11 +137,13 @@ nav = [
     { "Query the Data" = [
       "parquet/index.md",
       { "Anatomy of a Table"    = "parquet/table-anatomy.md" },
-      { "The 22 Tables"         = "parquet/tables.md" },
+      { "The 20 Tables"         = "parquet/tables.md" },
       { "Joining Tables"        = "parquet/joining.md" },
       { Recipes                 = "parquet/recipes.md" },
       { "Working at Scale"      = "parquet/performance.md" },
       { "Beyond DuckDB"         = "parquet/other-tools.md" },
+      { "Build Your Own Tables and Mini-Bundles" = "parquet/build-your-own.md" },
+      { "Moving from 1.1 to 2.0" = "parquet/migrating-from-1.1.md" },
     ] },
     { "Working in Python" = "working-in-python.md" },
     { "User Stories" = [
