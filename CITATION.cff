@@ -51,8 +51,7 @@ keywords:
 license: CC0-1.0
 license-url: https://github.com/clingen-data-model/clinvar-gkm/blob/main/LICENSE
 version: 1.2.0
-# TODO(1.2.0 tag): set date-released to the tag date (YYYY-MM-DD); the placeholder is not a valid CFF date.
-date-released: '2026-11-XX'
+date-released: '2026-11-23'
 references:
   - type: article
     title: 'ClinVar: updates to support classifications of both germline and somatic variants'
