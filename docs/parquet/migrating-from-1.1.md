@@ -90,9 +90,9 @@ WHERE decode(key) LIKE 'gkm_bundle_parquet.%';
 | When 1.2.0 is published: `v1/1.2/` starts and `v1/1.1/` is frozen | kept, not rebuilt, until the 2.0 set is published | empty until the set built from the newest 1.2 release is published, shortly after |
 | Once the 2.0 set is published | removed: a frozen line keeps no Parquet ([ADR 0008](../decisions/0008-bundles-are-the-public-record.md)) | the one published set, rebuilt every release |
 
-- **The live console** on [Start Here](index.md#run-a-query-now) reads the current line's Parquet. While the
-  current line has none, it reads the newest line that has one, so it shows the 1.1 tables until the 2.0 set is
-  published. Its example queries run on both.
+- **The live console** on [Start Here](index.md#run-a-query-now) reads the current line's Parquet, so from the
+  moment 1.2.0 is published it reads `v1/1.2/parquet/`. It has no tables to read for the short time until the 2.0
+  set is published.
 - **To keep the 1.1 tables**, download them before 1.2.0 is published; the advance notice gives the date. They
   are not rebuilt afterwards: they came from BigQuery, not from the bundle.
 - **To get tables for an earlier release**, build them from that release's bundle with `gkm-bundle-parquet`

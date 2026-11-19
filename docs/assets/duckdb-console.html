@@ -205,17 +205,12 @@
     try {
       const root = await fetchJSON(ROOT_INDEX_URL, ctrl.signal);
       const lines = Object.values(root?.versions || {});
-      // The current line's Parquet; while a new line has none published yet, the newest other line that has one.
-      const ordered = [...lines.filter(v => v?.status === 'current'), ...lines.filter(v => v?.status !== 'current').reverse()];
-      let entry = null;
-      for (const line of ordered) {
-        if (!line?.index) continue;
-        const index = await fetchJSON(`${HOST}/${line.index.replace(/^\//, '')}`, ctrl.signal);
-        const p = index?.datasets?.parquet ?? index?.parquet;
-        entry = Array.isArray(p) ? (p.find(e => e?.latest) || p[0]) : p;
-        if (entry) break;
-      }
-      if (!entry) throw new Error('no Parquet entry in any line index');
+      const line = lines.find(v => v?.status === 'current') || lines[lines.length - 1];
+      if (!line?.index) throw new Error('no current line in the root manifest');
+      const index = await fetchJSON(`${HOST}/${line.index.replace(/^\//, '')}`, ctrl.signal);
+      const p = index?.datasets?.parquet ?? index?.parquet;
+      const entry = Array.isArray(p) ? (p.find(e => e?.latest) || p[0]) : p;
+      if (!entry) throw new Error('no Parquet entry in the line index');
       if (entry.path) {
         const generated = sqlEl.value === EXAMPLES[exSel.value].replaceAll('{BASE}', base());
         parquetBase = `${HOST}/${entry.path.replace(/^\//, '').replace(/\/$/, '')}`;

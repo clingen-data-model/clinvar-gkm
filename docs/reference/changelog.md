@@ -139,7 +139,7 @@ rewrites nine common queries.
 | `data->>'$.…'` | the typed column of the same path |
 
 **Timeline.** The 1.1 tables at `v1/1.1/parquet/` stay downloadable, not rebuilt, until the first 1.2 Parquet set
-is published, shortly after the `v1/1.2/` line starts; the live console reads them until then. From then on the
+is published, shortly after the `v1/1.2/` line starts; the live console has no tables in that short gap. From then on the
 2.0 tables at `v1/1.2/parquet/` are rebuilt every release and the console reads them, and `v1/1.1/parquet/` is
 deleted, as a frozen line keeps no Parquet: download the 1.1 tables before 1.2.0 is published if you need them.
 To build tables for any release yourself, see
