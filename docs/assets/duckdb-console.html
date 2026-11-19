@@ -179,7 +179,7 @@
     scv:      `-- classification and quality are STRUCTs: name the field. LIMIT without WHERE reads only the first row group\nSELECT id, classification.name AS classification, quality.name AS quality\nFROM '{BASE}/scv.parquet'\nLIMIT 25;`,
     vcv:      `SELECT id, classification.name AS classification, quality.name AS quality\nFROM '{BASE}/vcv.parquet'\nLIMIT 25;`,
     rcv:      `SELECT id, classification.name AS classification, quality.name AS quality\nFROM '{BASE}/rcv.parquet'\nLIMIT 25;`,
-    therapy:  `-- therapy is content-addressed: the id column is key. value->>'name' works on every release (1.1.0+ also has a name column)\nSELECT key, value->>'name' AS name\nFROM '{BASE}/therapy.parquet'\nLIMIT 25;`,
+    therapy:  `-- therapy is a small table: one row per drug named by a therapeutic-response proposition\nSELECT name\nFROM '{BASE}/therapy.parquet'\nORDER BY name;`,
     bytype:   `SELECT conceptType, count(*) AS n\nFROM '{BASE}/condition.parquet'\nGROUP BY 1 ORDER BY n DESC;`,
   };
 
@@ -205,12 +205,17 @@
     try {
       const root = await fetchJSON(ROOT_INDEX_URL, ctrl.signal);
       const lines = Object.values(root?.versions || {});
-      const line = lines.find(v => v?.status === 'current') || lines[lines.length - 1];
-      if (!line?.index) throw new Error('no current line in the root manifest');
-      const index = await fetchJSON(`${HOST}/${line.index.replace(/^\//, '')}`, ctrl.signal);
-      const p = index?.datasets?.parquet ?? index?.parquet;
-      const entry = Array.isArray(p) ? (p.find(e => e?.latest) || p[0]) : p;
-      if (!entry) throw new Error('no Parquet entry in the line index');
+      // The current line's Parquet; while a new line has none published yet, the newest other line that has one.
+      const ordered = [...lines.filter(v => v?.status === 'current'), ...lines.filter(v => v?.status !== 'current').reverse()];
+      let entry = null;
+      for (const line of ordered) {
+        if (!line?.index) continue;
+        const index = await fetchJSON(`${HOST}/${line.index.replace(/^\//, '')}`, ctrl.signal);
+        const p = index?.datasets?.parquet ?? index?.parquet;
+        entry = Array.isArray(p) ? (p.find(e => e?.latest) || p[0]) : p;
+        if (entry) break;
+      }
+      if (!entry) throw new Error('no Parquet entry in any line index');
       if (entry.path) {
         const generated = sqlEl.value === EXAMPLES[exSel.value].replaceAll('{BASE}', base());
         parquetBase = `${HOST}/${entry.path.replace(/^\//, '').replace(/\/$/, '')}`;
