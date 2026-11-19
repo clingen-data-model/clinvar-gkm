@@ -241,7 +241,12 @@ BEGIN
               scv_direction AS sdir,
               scv_strength_name AS sstr
             ) ORDER BY full_scv_id LIMIT 1)[OFFSET(0)].sstr as scv_strength_name,
-            ANY_VALUE(submission_level_label) as submission_level_label
+            ANY_VALUE(submission_level_label) as submission_level_label,
+            -- The direction every SCV in the group carries, or NULL when they differ (or one
+            -- has none). Direction helper for a label with no lookup row (see `coded`); not
+            -- persisted. MIN over a single distinct value is deterministic.
+            IF(COUNT(DISTINCT scv_direction) = 1 AND COUNTIF(scv_direction IS NULL) = 0,
+              MIN(scv_direction), CAST(NULL AS STRING)) as scv_agreed_direction
           FROM `{P}.temp_vcv_base_data`
           GROUP BY 1, 2, 3, 4, 5, 6, 7
       ),
@@ -325,7 +330,7 @@ BEGIN
             c.submission_level, c.submission_level_label, c.tier_grouping, c.full_scv_ids,
             c.tier_priority, c.prop_display_order, COALESCE(sc.unique_traits, []) as unique_traits,
             COALESCE(vc.unique_conditions, CAST([] AS ARRAY<STRING>)) as unique_conditions,
-            c.scv_direction, c.scv_strength_name,
+            c.scv_direction, c.scv_strength_name, c.scv_agreed_direction,
 
             -- Conflict explanation: suppressed for PG, EP, and FLAG (single-source levels)
             CASE
@@ -392,7 +397,7 @@ BEGIN
           -- or the FLAG label) is a ClinVar-controlled term: system 'ClinVar' (the system
           -- the lookup uses for ClinVar's own terms) and the lower-cased label as its code.
           SELECT
-            fp.* EXCEPT (sci_tier_label),
+            fp.* EXCEPT (sci_tier_label, scv_agreed_direction),
             IF(COALESCE(fp.sci_tier_label, fp.actual_agg_classif_label) IS NULL,
               NULL,
               COALESCE(
@@ -405,11 +410,15 @@ BEGIN
             -- label with no lookup row (conflicting, combinations, FLAG).
             cc.strength_name AS agg_strength_name,
             -- Aggregate direction (the statement's direction for a multi-SCV group): the lookup
-            -- row's direction, on the same undecorated label as the coding. A label with no
-            -- lookup row keeps the rule it had before (#227): 'neutral' for a conflicting
-            -- label, 'supports' for the others (combinations, FLAG).
+            -- row's direction, on the same undecorated label as the coding (#227). A label with
+            -- no lookup row: 'neutral' for the FLAG label and a conflicting label; otherwise (a
+            -- combination) the direction all its SCVs share, else 'supports'.
             COALESCE(cc.direction,
-              IF(STARTS_WITH(fp.actual_agg_classif_label, 'Conflicting'), 'neutral', 'supports')
+              CASE
+                WHEN fp.submission_level = 'FLAG' THEN 'neutral'
+                WHEN STARTS_WITH(fp.actual_agg_classif_label, 'Conflicting') THEN 'neutral'
+                ELSE COALESCE(fp.scv_agreed_direction, 'supports')
+              END
             ) AS agg_direction
           FROM final_prep fp
           LEFT JOIN classif_codings cc
