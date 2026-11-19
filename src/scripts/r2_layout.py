@@ -33,6 +33,7 @@ import json
 import os
 import re
 import sys
+import textwrap
 from xml.sax.saxutils import escape
 
 BASE_URL = os.environ.get("R2_PUBLIC_URL", "https://data.clinvar-gkm.org")
@@ -40,10 +41,11 @@ BASE_URL = os.environ.get("R2_PUBLIC_URL", "https://data.clinvar-gkm.org")
 # The version lines published at the bucket root, newest first. A new MINOR line adds an entry here (and the
 # previous line becomes "frozen" with superseded_by set); schema None means "the pipeline's SCHEMA_VERSION".
 LINES = {
-    "v1/1.1/": {"status": "current", "schema": None, "superseded_by": None},
+    "v1/1.2/": {"status": "current", "schema": None, "superseded_by": None},
+    "v1/1.1/": {"status": "frozen", "schema": "1.1.0", "superseded_by": "v1/1.2/"},
     "v1/1.0/": {"status": "frozen", "schema": "1.0.1", "superseded_by": "v1/1.1/"},
 }
-CURRENT_LINE = "v1/1.1/"
+CURRENT_LINE = "v1/1.2/"
 
 LATEST = "clinvar-gkm_00-latest.json.gz"
 WEEKLY_LATEST = "weekly/clinvar-gkm_00-latest_weekly.json.gz"
@@ -335,11 +337,18 @@ def build_index(objs, line, *, shas, sources, prev_index, schema_version, status
                          "deltas": sorted(v["deltas"], key=lambda e: e["release"])}
                      for y, v in sorted(archives.items())},
         "parquet": parquet,
-        "notes": ("Paths are relative to base_url. Each monthly's source_release is the weekly release it was "
-                  "built from (ADR 0002). datasets.weekly holds only the current month's weekly fulls; earlier "
-                  "weeks are rebuilt from a monthly plus the deltas. Parquet is one derived set, overwritten every "
-                  "release (parquet/manifest.json)."),
+        "notes": _FROZEN_NOTES if status == "frozen" else _CURRENT_NOTES,
     }
+
+
+_CURRENT_NOTES = ("Paths are relative to base_url. Each monthly's source_release is the weekly release it was built "
+                  "from (ADR 0002). datasets.weekly holds only the current month's weekly fulls; earlier weeks are "
+                  "rebuilt from a monthly plus the deltas. Parquet is one derived set, overwritten every release "
+                  "(parquet/manifest.json).")
+_FROZEN_NOTES = ("Paths are relative to base_url. This line is frozen: nothing in it changes. Each monthly's "
+                 "source_release is the weekly release it was built from (ADR 0002); any week is rebuilt from a "
+                 "monthly plus the deltas. A frozen line keeps no weekly fulls and no Parquet. MANIFEST.json lists "
+                 "every file with its size and sha256.")
 
 
 def build_feed(index, line, now, cap=25):
@@ -403,6 +412,35 @@ def checkpoint_for(index, baseline):
     return {"path": m["path"], "release": m["source_release"], "month": m["release"], "sha256": m.get("sha256")}
 
 
+def check_chain(release, baseline, previous_release, checkpoint, allow_gap=False):
+    """Refuse a delta that would break its line's chain (unless allow_gap).
+
+    A later delta's baseline_release must be the newest delta already in the line. The FIRST delta of a line must
+    start at a monthly of that line: its baseline_release must be that checkpoint monthly's source_release, so a
+    new line (started with one checkpoint monthly) replays without a gap.
+    """
+    if allow_gap:
+        return
+    if previous_release:
+        if baseline != previous_release:
+            raise SystemExit(f"ERROR: delta {release} has baseline_release {baseline}, but the newest delta in the "
+                             f"line is {previous_release}: the chain would have a gap")
+    elif not checkpoint or checkpoint["release"] != baseline:
+        have = f"monthly {checkpoint['month']} (source {checkpoint['release']})" if checkpoint else "no monthly"
+        raise SystemExit(f"ERROR: delta {release} is the first delta of the line, so its baseline_release {baseline} "
+                         f"must be the source_release of a monthly in the line; the line has {have}. Start a new "
+                         "line with its checkpoint monthly first (run-release.sh --bootstrap-monthly)")
+
+
+def line_state(objs, line):
+    """'empty' (no bundles or Parquet yet), 'started' (at least one official monthly) or 'broken' (bundles but no
+    monthly: deltas there would have no checkpoint_full). index.json, feed.xml and README.txt do not count."""
+    kinds = {k for _, _, _, k, _ in line_objects(objs, line)} - {"line_file"}
+    if not kinds:
+        return "empty"
+    return "started" if kinds & {"monthly", "archive_monthly"} else "broken"
+
+
 def bundle_schema_version(path):
     with gzip.open(path, "rb") as fh:
         head = fh.read(4096).decode("utf-8", "replace")
@@ -462,7 +500,8 @@ def plan_move_10(manifest, archive_prefix, dest_line, now):
                       "original_last_modified": f.get("original_last_modified"),
                       "schema_version": f.get("schema_version")})
     new_manifest = {
-        "line": dest_line.rstrip("/"), "status": "frozen", "superseded_by": CURRENT_LINE.rstrip("/"),
+        "line": dest_line.rstrip("/"), "status": "frozen",
+        "superseded_by": (LINES.get(dest_line, {}).get("superseded_by") or CURRENT_LINE).rstrip("/"),
         "schema_version": manifest.get("schema_version"), "frozen_at": now, "moved_from": archive_prefix,
         "base_url": manifest.get("base_url", BASE_URL),
         "notes": ("The 1.0.1 generation, frozen. Nothing under this line changes. Files keep their 1.0.1 bytes "
@@ -471,6 +510,157 @@ def plan_move_10(manifest, archive_prefix, dest_line, now):
                   "always says 2026-10; use index.json (each monthly's source_release) instead."),
         "file_count": len(files), "total_size": sum(f["size"] for f in files), "files": files}
     return copies, dropped, sidecars, new_manifest
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Freezing a superseded line (ADR 0008 (b), (c); maintainer decision 2026-11-18)
+
+
+def _frozen_cfg(line):
+    cfg = LINES.get(line)
+    if not cfg or cfg["status"] != "frozen" or not cfg["superseded_by"]:
+        raise SystemExit(f"ERROR: {line} is not a frozen line in r2_layout.LINES (status "
+                         f"{cfg['status'] if cfg else 'unknown'}); add the new line as current and mark this one "
+                         "frozen with superseded_by first")
+    return cfg
+
+
+def _drops(kind, keep_parquet):
+    return kind in ("weekly", "weekly_latest") or (kind == "parquet" and not keep_parquet)
+
+
+def plan_freeze(objs, line, *, shas, index, now, keep_parquet=False):
+    """What freezing a superseded `line` deletes and writes. Pure: nothing here touches R2.
+
+    Deleted: every weekly full (weekly/, the 00-latest_weekly copy included; weekly fulls are not records, ADR 0009
+    §4) and parquet/ (a frozen line has no Parquet, ADR 0008 (e)) unless keep_parquet. Kept, with their bytes and
+    paths: the monthlies, the 00-latest copy, archive/YYYY/, and every delta with its sidecar and manifest, wherever
+    the line's last rollover left them. Written: MANIFEST.json, listing every kept bundle and delta manifest with its
+    size and sha256 (`shas` maps keys to sha256: bundles from their .sha256 sidecars, manifests hashed locally).
+
+    Returns (deletes [(size, key)], manifest, notes, problems). problems are reasons not to apply the plan.
+    """
+    cfg = _frozen_cfg(line)
+    items = line_objects(objs, line)
+    deletes, files, notes, problems = [], [], [], []
+    for rel, size, _, kind, info in items:
+        key = line + rel
+        if kind is None:
+            problems.append(f"{key} is not part of the layout; remove or explain it before freezing")
+        elif _drops(kind, keep_parquet):
+            deletes.append((size, key))
+        elif kind != "line_file" and info.get("sfx") in (".json.gz", ".manifest.json"):
+            sha = _sha(shas, key)
+            if not sha:
+                problems.append(f"no sha256 for {key}")
+            files.append({"key": key, "size": size, "sha256": sha})
+
+    src = {m["release"]: m.get("source_release") for m in _monthly_pool(index or {})}
+    monthlies = sorted(i["label"] for _, _, _, k, i in items
+                       if k in ("monthly", "archive_monthly") and i["sfx"] == ".json.gz")
+    if not monthlies:
+        problems.append(f"{line} has no official monthly: a frozen line must keep at least one")
+    missing = [m for m in monthlies if not src.get(m)]
+    if missing:
+        problems.append(f"source_release unknown for {missing} (the line's index.json is the source)")
+    weeklies = sorted(i["release"] for _, _, _, k, i in items if k == "weekly" and i["sfx"] == ".json.gz")
+    newest_src = max((s for s in src.values() if s), default=None)
+    if weeklies and newest_src and weeklies[-1] > newest_src:
+        notes.append(f"the newest weekly full ({weeklies[-1]}) is newer than the newest monthly's source release "
+                     f"({newest_src}). Nothing is lost: that week is the monthly plus the deltas. But if "
+                     f"{weeklies[-1]} is the ADR 0002 source of a ClinVar monthly this line has not posted yet, post "
+                     "that monthly (a server-side copy of the weekly full) BEFORE freezing: the freeze deletes it")
+    deltas = sorted(i["release"] for _, _, _, k, i in items if k == "delta" and i["sfx"] == ".json.gz")
+    if keep_parquet and any(k == "parquet" for _, _, _, k, _ in items):
+        notes.append("parquet/ is kept for now (--keep-parquet); freeze again without it once the new line "
+                     "publishes its own Parquet")
+
+    manifest = {
+        "line": line.rstrip("/"), "status": "frozen", "superseded_by": cfg["superseded_by"].rstrip("/"),
+        "schema_version": cfg["schema"], "frozen_at": now, "base_url": BASE_URL,
+        "monthlies": [{"release": m, "source_release": src.get(m)} for m in monthlies],
+        "first_delta": deltas[0] if deltas else None, "last_delta": deltas[-1] if deltas else None,
+        "notes": ("Frozen: nothing under this line changes. Bundles and delta manifests keep their published bytes "
+                  "(sha256 below) and paths. Weekly fulls were deleted at the freeze (rebuild any week from a monthly "
+                  "plus the deltas); a frozen line has no Parquet (rebuild it from a bundle)."),
+        "file_count": len(files), "total_size": sum(f["size"] for f in files), "files": files}
+    return deletes, manifest, notes, problems
+
+
+def _attribution_text():
+    """The 'Source, attribution and disclaimer' section of r2-readme.txt (one text for every README)."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "r2-readme.txt")
+    with open(path) as fh:
+        text = fh.read()
+    start = text.index("Source, attribution and disclaimer")
+    return text[start:text.index("\nDocumentation:", start)].rstrip() + "\n"
+
+
+def frozen_readme(manifest):
+    """README.txt for a frozen line, from its freeze MANIFEST."""
+    line, new = manifest["line"], manifest["superseded_by"]
+    title = f"ClinVar-GKM {line} (schema {manifest['schema_version']}) -- FROZEN"
+    ms = manifest["monthlies"]
+    pairs = ", ".join(f"{m['release']} <- {m['source_release']}" for m in ms)
+    out = [title, "=" * len(title), "",
+           f"This line holds the {manifest['schema_version'].rsplit('.', 1)[0]}.x releases of ClinVar-GKM. It was "
+           f"frozen on {manifest['frozen_at'][:10]}, when {new} replaced it.",
+           f"Nothing under {line}/ will be changed, added or deleted. Its weekly full bundles were deleted at the",
+           "freeze: they are not records, and any week is rebuilt from a monthly plus the deltas. A frozen line has",
+           "no Parquet; Parquet is derived from the bundles and can be rebuilt from any of them.", "",
+           "The current line:",
+           f"  {BASE_URL}/{new}/index.json",
+           f"  {BASE_URL}/index.json   (all lines)", "",
+           "What is here",
+           f"  clinvar-gkm_YYYY-MM.json.gz          official monthly full bundles {ms[0]['release']} .. "
+           f"{ms[-1]['release']} (+ .sha256)",
+           f"  clinvar-gkm_00-latest.json.gz        the same bytes as clinvar-gkm_{ms[-1]['release']}.json.gz"]
+    if manifest["first_delta"]:
+        out += [f"  deltas/                              weekly deltas {manifest['first_delta']} .. "
+                f"{manifest['last_delta']} (+ .sha256, + .manifest.json):",
+                "                                       the last month's at the top, earlier months in deltas/YYYY-MM/"]
+    if any("/archive/" in f["key"] for f in manifest["files"]):
+        out.append("  archive/YYYY/                        earlier years' monthlies and deltas")
+    out += ["  index.json, feed.xml                 this line's listing",
+            "  MANIFEST.json                        every bundle and delta manifest: key, size, sha256", "",
+            *textwrap.wrap(f"Monthly source releases (ADR 0002): {pairs}.", 114),
+            "To rebuild week W: take the newest monthly whose source release is on or before W, then apply in",
+            "order every delta whose release is after that source release and on or before W. Each delta's",
+            "baseline_release must be the release you hold.", "",
+            "Changelog: https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/changelog/", "", ""]
+    return "\n".join(out) + _attribution_text()
+
+
+def verify_frozen(objs, line, manifest, index, root=None, keep_parquet=False):
+    """Failures (empty when the frozen line matches its MANIFEST and both indexes say frozen)."""
+    cfg = _frozen_cfg(line)
+    fails = []
+    for rel, _, _, kind, _ in line_objects(objs, line):
+        if _drops(kind, keep_parquet):
+            fails.append(f"{line + rel} should have been deleted")
+    listed = {f["key"] for f in (manifest or {}).get("files", [])}
+    if not listed:
+        fails.append(f"{line}MANIFEST.json missing or empty")
+    for f in (manifest or {}).get("files", []):
+        if objs.get(f["key"], (None,))[0] != f["size"]:
+            fails.append(f"{f['key']} missing or not {f['size']} B")
+    for rel, _, _, kind, info in line_objects(objs, line):
+        if kind != "line_file" and info.get("sfx") in (".json.gz", ".manifest.json") and not _drops(kind, keep_parquet) \
+                and line + rel not in listed:
+            fails.append(f"{line + rel} is not in MANIFEST.json")
+    for name in ("index.json", "feed.xml", "README.txt", "MANIFEST.json"):
+        if line + name not in objs:
+            fails.append(f"{line}{name} missing")
+    want = cfg["superseded_by"].rstrip("/")
+    if (index or {}).get("status") != "frozen" or index.get("superseded_by") != want:
+        fails.append(f"{line}index.json: status must be frozen, superseded_by {want}")
+    if root is not None:
+        entry = (root.get("versions") or {}).get(line.split("/")[1]) or {}
+        if entry.get("status") != "frozen" or entry.get("superseded_by") != want:
+            fails.append(f"root index.json: {line} must be frozen, superseded_by {want}")
+        if root.get("current") != CURRENT_LINE.rstrip("/"):
+            fails.append(f"root index.json: current must be {CURRENT_LINE.rstrip('/')}")
+    return fails
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -559,6 +749,25 @@ def main(argv=None):
     p = sub.add_parser("cleanup", help="keys outside the planned layout")
     p.add_argument("--listing", required=True)
 
+    p = sub.add_parser("line-state", help="empty | started | broken (see line_state)")
+    p.add_argument("--listing", required=True)
+    p.add_argument("--line", default=CURRENT_LINE)
+
+    p = sub.add_parser("freeze", help="delete plan, MANIFEST.json and README.txt for freezing a superseded line")
+    p.add_argument("--listing", required=True)
+    p.add_argument("--line", required=True)
+    p.add_argument("--sidecars", help="local mirror of the line (sidecars, delta manifests, index.json)")
+    p.add_argument("--keep-parquet", action="store_true")
+    p.add_argument("--out-dir", required=True, help="writes <line>MANIFEST.json and <line>README.txt here")
+
+    p = sub.add_parser("verify-frozen", help="check a frozen line against its MANIFEST.json and indexes")
+    p.add_argument("--listing", required=True)
+    p.add_argument("--line", required=True)
+    p.add_argument("--manifest", required=True)
+    p.add_argument("--index", required=True)
+    p.add_argument("--root")
+    p.add_argument("--keep-parquet", action="store_true")
+
     p = sub.add_parser("move-1.0", help="lay archive/1.0.1/ out as the frozen line v1/1.0/")
     p.add_argument("--manifest", required=True)
     p.add_argument("--archive", default="archive/1.0.1/")
@@ -612,16 +821,15 @@ def main(argv=None):
         with open(a.manifest) as fh:
             man = json.load(fh)
         baseline = man.get("baseline_release")
-        if a.previous_release and baseline != a.previous_release and not a.allow_gap:
-            raise SystemExit(f"ERROR: delta {man.get('release')} has baseline_release {baseline}, but the newest "
-                             f"delta in the line is {a.previous_release}: the chain would have a gap")
         idx = _load_json(a.index) or {}
+        checkpoint = checkpoint_for(idx, baseline) if idx else None
+        check_chain(man.get("release"), baseline, a.previous_release, checkpoint, a.allow_gap)
         name = f"clinvar-gkm-delta_{ymd_to_compact(man['release'])}.json.gz"
         man["schema_version"] = bundle_schema_version(a.bundle)
         man["bundle"] = {"name": name, "path": a.dir + name, "size": os.path.getsize(a.bundle),
                          "sha256": sha256_file(a.bundle)}
         man["sha256"] = man["bundle"]["sha256"]
-        man["checkpoint_full"] = checkpoint_for(idx, baseline) if idx else None
+        man["checkpoint_full"] = checkpoint
         with open(a.manifest, "w") as fh:
             json.dump(man, fh, indent=2)
         print(json.dumps({k: man[k] for k in ("release", "baseline_release", "compare_release", "schema_version",
@@ -646,6 +854,39 @@ def main(argv=None):
             print(f"DELETE {size} {key}")
         for key in unexpected_in_lines(objs):
             print(f"# unexpected (inside a line, not deleted): {key}")
+    elif a.cmd == "line-state":
+        print(line_state(read_listing(a.listing), a.line))
+    elif a.cmd == "freeze":
+        shas = read_shas(a.sidecars, a.line) if a.sidecars else {}
+        for root, _, names in os.walk(a.sidecars or "/nonexistent"):
+            for n in names:
+                if n.endswith(".manifest.json"):
+                    p = os.path.join(root, n)
+                    shas[a.line + os.path.relpath(p, a.sidecars).replace(os.sep, "/")] = sha256_file(p)
+        index = _load_json(os.path.join(a.sidecars, "index.json")) if a.sidecars else None
+        deletes, man, notes, problems = plan_freeze(read_listing(a.listing), a.line, shas=shas, index=index,
+                                                    now=now, keep_parquet=a.keep_parquet)
+        d = os.path.join(a.out_dir, a.line)
+        os.makedirs(d, exist_ok=True)
+        with open(os.path.join(d, "MANIFEST.json"), "w") as fh:
+            json.dump(man, fh, indent=1)
+        if man["monthlies"]:
+            with open(os.path.join(d, "README.txt"), "w") as fh:
+                fh.write(frozen_readme(man))
+        for n in notes:
+            print(f"# {n}")
+        for pr in problems:
+            print(f"# PROBLEM {pr}")
+        print(f"# keep: {man['file_count']} files, {_gb(man['total_size'])} (MANIFEST.json)")
+        for size, key in deletes:
+            print(f"DELETE {size} {key}")
+    elif a.cmd == "verify-frozen":
+        fails = verify_frozen(read_listing(a.listing), a.line, _load_json(a.manifest), _load_json(a.index),
+                              _load_json(a.root) if a.root else None, a.keep_parquet)
+        for f in fails:
+            print(f"FAIL {f}")
+        print(f"{'PASS' if not fails else 'FAIL'}: {a.line} frozen")
+        return 1 if fails else 0
     elif a.cmd == "move-1.0":
         with open(a.manifest) as fh:
             man = json.load(fh)

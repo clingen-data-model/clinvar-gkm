@@ -1,4 +1,7 @@
 #!/bin/bash
+# HISTORICAL: the one-off 1.1.0 migration, run 2026-10-22. Do not run it again: v1/1.1/ is frozen since 1.2.0. A new
+# line starts with run-release.sh --bootstrap-monthly; a superseded line is frozen with r2-freeze-line.sh.
+#
 # republish-v1.sh — the 1.1.0 migration of the R2 bucket to the NCBI-style layout (r2_layout.py), per version line:
 #
 #   v1/1.0/   the 1.0.1 generation, FROZEN (moved from archive/1.0.1/): monthlies 2026-07..10 + 00-latest at the

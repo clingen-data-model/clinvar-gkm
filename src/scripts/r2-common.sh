@@ -1,9 +1,9 @@
 # shellcheck shell=bash
 # r2-common.sh — shared R2 and Cloudflare helpers for the publishing scripts. Sourced, never run.
 #
-# Every helper takes bucket-relative keys (e.g. v1/1.1/weekly/clinvar-gkm_2026-1018.json.gz). Every write
+# Every helper takes bucket-relative keys (e.g. v1/1.2/weekly/clinvar-gkm_2026-1122.json.gz). Every write
 # (put, copy, move, delete, purge) honours DRY_RUN=true by printing what it would do. The path rules of a
-# version line live in r2_layout.py; R2_LINE selects the line (default: the current line, v1/1.1/).
+# version line live in r2_layout.py; R2_LINE selects the line (default: the current line, v1/1.2/).
 #
 # R2 gaps (see .claude/rules/scripts.md): multipart copy calls GetObjectTagging and single-part copy with
 # --copy-props none sends x-amz-tagging-directive, neither of which R2 implements, so r2_copy is size-aware.
@@ -16,7 +16,7 @@ R2_PROFILE="r2"
 R2_PUBLIC_URL="${R2_PUBLIC_URL:-https://data.clinvar-gkm.org}"
 CF_PUBLIC_HOST="${CF_PUBLIC_HOST:-data.clinvar-gkm.org}"
 CF_ENV_FILE="${CF_ENV_FILE:-${HOME}/.config/clinvar-gkm/cloudflare.env}"
-R2_LINE="${R2_LINE:-v1/1.1/}"
+R2_LINE="${R2_LINE:-v1/1.2/}"
 DRY_RUN="${DRY_RUN:-false}"
 R2_COMMON_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 R2_PYTHON="${R2_PYTHON:-python3}"

@@ -11,7 +11,7 @@
 #   3. vrsify                src/vrsify/vrsify.sh   (external vrs-python; needs local services)
 #   4. vrs-to-bq             src/scripts/vrs-to-bq-table.sh
 #                            (Cloud Run transform -> load gkm_vrs -> gkm_* procs)
-#   5. release               publish to the version line R2_LINE (default v1/1.1/; layout in r2_layout.py):
+#   5. release               publish to the version line R2_LINE (default v1/1.2/; layout in r2_layout.py):
 #                            release-gkm-delta.sh --no-upload (build and strictly validate the DELTA with the
 #                            GA4GH gkm-toolkit) and release-gkm.sh --weekly --no-upload (build and strictly
 #                            validate this release's weekly FULL with jsonschema-rs); a failure of either stops
@@ -40,6 +40,15 @@
 # after 1.1.0 until ADR 0007 workstream 3 decides on the incremental gkm machinery (the incremental wrappers
 # were seen to fall back to full silently). --full implies it.
 #
+# A NEW version line (a new MINOR, ADR 0009 §1/§5) starts with ONE checkpoint monthly and deltas forward. Stage 5
+# then refuses a normal release into a line that has no official monthly (its deltas would have no checkpoint_full),
+# and --bootstrap-monthly=YYYY-MM starts the line instead: <date> must be the ADR 0002 source release of ClinVar's
+# YYYY-MM monthly (checked against ClinVar's index and BigQuery, never guessed) and the line must be empty. It
+# builds, validates (jsonschema-rs) and publishes <date>'s full as <line>clinvar-gkm_YYYY-MM.json.gz (+ 00-latest),
+# and nothing else: no weekly full, and no delta (the previous release was built for the previous line, so that
+# delta has no monthly to replay onto in this line). The next release's delta is the line's first; its
+# baseline_release must be <date> (upload-gkm-delta-to-r2.sh refuses it otherwise).
+#
 # Stage 5 publishes to the public R2 bucket. Use --dry-run to run everything but have the
 # release stage only print what it would upload (no R2 writes) — use it for test runs.
 # NOTE: --dry-run still writes the pipeline_version stamp to BigQuery; --dry-run only gates
@@ -47,6 +56,7 @@
 #
 # USAGE:
 #   ./src/scripts/run-release.sh YYYY-MM-DD [--full | --full-procs] [--dry-run] [--skip-parquet] [--start-step N]
+#                                [--bootstrap-monthly=YYYY-MM]
 #
 #   --full          full rebuild of stages 1-2 and every gkm proc in stage 4 (reseed the baseline);
 #                   the version-stamp gate is unaffected, so next week resumes incremental
@@ -57,6 +67,8 @@
 #                   index keep saying which release that set was built from
 #   --start-step N  begin at stage N (1-5); default 1. Stage 3 (vrsify) needs the local
 #                   SeqRepo/UTA/gene-norm services — see src/vrsify/README.md.
+#   --bootstrap-monthly=YYYY-MM
+#                   stage 5 starts an EMPTY line (R2_LINE) with this checkpoint monthly (see above)
 #
 # NOTE: stage 3 cannot run in CI/headless environments; run it on a host with the
 # variation-normalizer service topology, or use --start-step to run the BigQuery-side
@@ -80,6 +92,7 @@ FULL_PROCS=false
 DRY_RUN=false
 SKIP_PARQUET=false
 START_STEP=1
+BOOTSTRAP_MONTH=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -89,17 +102,22 @@ while [[ $# -gt 0 ]]; do
     --skip-parquet) SKIP_PARQUET=true; shift ;;
     --start-step) START_STEP="${2:?--start-step needs a number}"; shift 2 ;;
     --start-step=*) START_STEP="${1#*=}"; shift ;;
+    --bootstrap-monthly=*) BOOTSTRAP_MONTH="${1#*=}"; shift ;;
     -*) echo "ERROR: unknown flag: $1" >&2; exit 1 ;;
     *) if [[ -z "$DATE" ]]; then DATE="$1"; shift; else echo "ERROR: unexpected arg: $1" >&2; exit 1; fi ;;
   esac
 done
 
 if [[ -z "$DATE" ]]; then
-  echo "Usage: $0 YYYY-MM-DD [--full | --full-procs] [--dry-run] [--skip-parquet] [--start-step N]" >&2
+  echo "Usage: $0 YYYY-MM-DD [--full | --full-procs] [--dry-run] [--skip-parquet] [--start-step N] [--bootstrap-monthly=YYYY-MM]" >&2
   exit 1
 fi
 
 $FULL && FULL_PROCS=true   # --full implies the procs full
+if [[ -n "${BOOTSTRAP_MONTH}" ]] && ! [[ "${BOOTSTRAP_MONTH}" =~ ^[0-9]{4}-[0-9]{2}$ ]]; then
+  echo "ERROR: --bootstrap-monthly must be YYYY-MM, got '${BOOTSTRAP_MONTH}'" >&2
+  exit 1
+fi
 
 # Stage 5 assembles the bundles, and orjson sets their layout. Check now, not hours in: an environment activated for
 # vrsify (stage 3) may be the one the release scripts fall back to.
@@ -112,7 +130,7 @@ if (( START_STEP <= 5 )); then
   # Stage 5 validates the delta (toolkit engine) and every full (rs engine) strictly before upload; same reasoning.
   $DRY_RUN || "${SCRIPT_DIR}/validate-bundle.sh" --check-setup
 fi
-echo "=== run-release ${DATE} (full=${FULL}, full-procs=${FULL_PROCS}, dry-run=${DRY_RUN}, skip-parquet=${SKIP_PARQUET}, start-step=${START_STEP}, project=${PROJECT_ID}) ==="
+echo "=== run-release ${DATE} (full=${FULL}, full-procs=${FULL_PROCS}, dry-run=${DRY_RUN}, skip-parquet=${SKIP_PARQUET}, start-step=${START_STEP}${BOOTSTRAP_MONTH:+, bootstrap-monthly=${BOOTSTRAP_MONTH}}, project=${PROJECT_ID}) ==="
 
 # --- Stage 0: dataset diff (produces {S}.diff_* — drivers for all incremental procs) ----
 # Idempotent (CREATE OR REPLACE). On the first release it emits a warning and writes no
@@ -186,7 +204,7 @@ fi
 # ClinVar, content from our build). See docs/superpowers/specs/2026-08-24-clinvar-index-
 # monthly-trigger-design.md.
 CLINVAR_XML_INDEX="https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/"
-R2_LINE="${R2_LINE:-v1/1.1/}"
+R2_LINE="${R2_LINE:-v1/1.2/}"
 export R2_LINE
 # shellcheck source=r2-common.sh
 . "${REPO_ROOT}/src/scripts/r2-common.sh"
@@ -242,12 +260,12 @@ resolve_source_date() {
 # bound keeps this cheap and stops it from re-touching history). Normally 0 or 1 per run. The monthly is a
 # server-side copy of its source release's weekly full when that is still in weekly/ (r2-rollover.sh keeps the
 # newest weekly full of the finished month until this happens); otherwise it is re-exported from BigQuery.
-# Bootstrap (empty line) is a manual step (republish-v1.sh). Every failure here is non-fatal to the delta.
+# An empty line is started by --bootstrap-monthly (bootstrap_line). Every failure here is non-fatal to the delta.
 publish_due_monthly_fulls() {
   local latest_pub month cv_dt src_date src_key
   latest_pub="$(r2_latest_published_month)" || true
   if [[ -z "${latest_pub}" ]]; then
-    echo "    monthly trigger: no monthly in ${R2_LINE} yet; skipping (bootstrap is republish-v1.sh)"
+    echo "    monthly trigger: no monthly in ${R2_LINE} yet; skipping (start a new line with --bootstrap-monthly)"
     return 0
   fi
   while IFS=$'\t' read -r month cv_dt; do
@@ -275,6 +293,38 @@ publish_due_monthly_fulls() {
   done < <(clinvar_monthlies)
 }
 
+# The line's state from a read-only listing: empty | started | broken (r2_layout.py line_state).
+r2_line_state() {
+  local tmp rc=0
+  tmp="$(mktemp)"
+  r2_listing "${R2_LINE}" "${tmp}" && r2_layout line-state --listing "${tmp}" --line "${R2_LINE}" || rc=$?
+  rm -f "${tmp}"
+  return "${rc}"
+}
+
+# Start an empty line with ONE checkpoint monthly: this release's full, published as the official monthly
+# BOOTSTRAP_MONTH. Refuses unless ClinVar has published that monthly and this release is its ADR 0002 source (the
+# newest GKM-built release before ClinVar's datetime), so the label is never guessed.
+bootstrap_line() {
+  local cv_dt src_date
+  cv_dt="$(clinvar_monthlies | awk -F '\t' -v m="${BOOTSTRAP_MONTH}" '$1 == m {print $2}')"
+  if [[ -z "${cv_dt}" ]]; then
+    echo "ERROR: ClinVar has not published ClinVarVCVRelease_${BOOTSTRAP_MONTH} (${CLINVAR_XML_INDEX})" >&2
+    exit 1
+  fi
+  src_date="$(resolve_source_date "${cv_dt}")" || true
+  if [[ "${src_date}" != "${DATE}" ]]; then
+    echo "ERROR: the ADR 0002 source of the ${BOOTSTRAP_MONTH} monthly (ClinVar released ${cv_dt}) is" \
+      "'${src_date:-none}', not ${DATE}" >&2
+    exit 1
+  fi
+  echo ">>> [5/5] bootstrap ${R2_LINE}: checkpoint monthly ${BOOTSTRAP_MONTH} <- ${DATE} (ClinVar released ${cv_dt})"
+  "${REPO_ROOT}/src/scripts/release-gkm.sh" "${REL_ARGS[@]}" "--month-label=${BOOTSTRAP_MONTH}" --no-upload
+  "${REPO_ROOT}/src/scripts/release-gkm.sh" "${REL_ARGS[@]}" "--month-label=${BOOTSTRAP_MONTH}" --start-step=3
+  echo "    ${R2_LINE} started. No weekly full and no delta for ${DATE}: the next release's delta is the line's"
+  echo "    first, with baseline_release ${DATE}."
+}
+
 # --- Stage 5: publish to the version line ------------------------------------------------
 if (( START_STEP <= 5 )); then
   echo ">>> [5/5] release to ${R2_LINE} (rollover, weekly full, monthly, delta, Parquet)"
@@ -292,6 +342,21 @@ if (( START_STEP <= 5 )); then
   REL_ARGS=("${DATE}" "${DATASET_VERSION}"); $DRY_RUN && REL_ARGS+=("--dry-run")
   ROLL_ARGS=("${DATE}"); $DRY_RUN && ROLL_ARGS+=("--dry-run")
 
+  # A new line starts with one checkpoint monthly (--bootstrap-monthly); every other release needs one in the line.
+  LINE_STATE="$(r2_line_state)"
+  echo "    ${R2_LINE} is ${LINE_STATE}"
+  if [[ -n "${BOOTSTRAP_MONTH}" ]]; then
+    [[ "${LINE_STATE}" == "empty" ]] || {
+      echo "ERROR: --bootstrap-monthly starts an EMPTY line; ${R2_LINE} is ${LINE_STATE}" >&2; exit 1; }
+    bootstrap_line
+  elif [[ "${LINE_STATE}" != "started" ]]; then
+    echo "ERROR: ${R2_LINE} has no official monthly (${LINE_STATE}). Start the line with" \
+      "--bootstrap-monthly=YYYY-MM on its checkpoint release, or set R2_LINE to the line you mean." >&2
+    exit 1
+  fi
+fi
+
+if (( START_STEP <= 5 )) && [[ -z "${BOOTSTRAP_MONTH}" ]]; then
   # Build and strictly validate the delta and this release's weekly full before anything on R2 changes: a failure
   # here stops the release with the line untouched. The delta is uploaded below, after the monthly its
   # checkpoint_full may resolve to; the full right after the rollover.
@@ -318,7 +383,9 @@ if (( START_STEP <= 5 )); then
 
   echo ">>> [5/5] publishing weekly DELTA for ${DATE}"
   "${REPO_ROOT}/src/scripts/release-gkm-delta.sh" "${REL_ARGS[@]}" --start-step=3
+fi
 
+if (( START_STEP <= 5 )); then
   # The one Parquet set (parquet/) is rebuilt from THIS release's dataset, the newest JSON state. Non-fatal:
   # the bundles are the record; parquet/manifest.json says which release the set was built from.
   if $SKIP_PARQUET; then
