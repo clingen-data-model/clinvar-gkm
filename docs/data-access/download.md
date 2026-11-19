@@ -1,6 +1,6 @@
 # Downloads
 
-ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas (JSON), with one typed Parquet dataset of the latest release, free from Cloudflare R2 — no authentication, no egress fees. The layout follows NCBI's ClinVar FTP site. New here? See [How Releases Work](release-model.md).
+ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas (JSON), with one typed Parquet dataset of the latest release built from the bundle, free from Cloudflare R2 — no authentication, no egress fees. The layout follows NCBI's ClinVar FTP site. New here? See [How Releases Work](release-model.md).
 
 !!! warning "1.2.0 starts a new version line, `v1/1.2/`"
     1.2.0 publishes into a new line folder, `v1/1.2/`, which starts with one checkpoint monthly and adds deltas from there. The 1.1.x releases stay, unchanged, in the frozen line `v1/1.1/` (monthlies, deltas and archive; its weekly fulls and Parquet set are removed at the freeze). Change `v1/1.1/` to `v1/1.2/` in your scripts, or read the current line from the root `index.json`. See [Version Lines](release-model.md#version-lines) and the [changelog](../reference/changelog.md).
@@ -55,8 +55,9 @@ v1/
         clinvar-gkm_YYYY-MM.json.gz           monthly fulls from prior years
         deltas/YYYY-MM/                       deltas from prior years
     parquet/
-      {section}.parquet                       ONE Parquet dataset, the latest (derived; overwritten every release)
+      {section}.parquet                       ONE Parquet dataset, the latest (built from the bundle; overwritten every release)
       manifest.json                           build date, source release, builder, per-file sha256
+      table-spec.json                         every table's columns, types and derivations
   1.1/                                        frozen line: the 1.1.x releases (monthlies, deltas, MANIFEST.json; no weekly fulls, no Parquet)
   1.0/                                        frozen line: the 1.0.1 generation (bundles, delta manifests, MANIFEST.json; no Parquet)
 ```

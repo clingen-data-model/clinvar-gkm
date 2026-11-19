@@ -53,8 +53,8 @@ ClinVar-GKM makes the whole submission set queryable and self-describing:
   review status / star level), `direction` and `strength`, submitter `contributions` (each with a date
   and activity type), and a `proposition` linking the variant to a condition — or, for therapeutic
   response, to a therapy or therapy group.
-- **The whole release is typed Parquet** — one file per bundle section, each with an `id`, typed columns
-  for the common fields, and the full JSON object — so filtering *your* SCVs and joining them to
+- **The whole release is typed Parquet** — one file per bundle section, keyed by `id`, with every
+  property of a record in its own typed column — so filtering *your* SCVs and joining them to
   conditions, therapies, and variants is ordinary SQL.
 - **Releases are dated and incremental.** The Parquet dataset at `v1/1.2/parquet/` is rebuilt from the
   newest release every week, so the same audit re-runs against each release and its results can be diffed
@@ -89,9 +89,9 @@ WITH mine AS (
        FROM unnest(s.contributions) AS t(c)
       WHERE c.activityType = 'evaluated')      AS last_evaluated
   FROM 'scv.parquet' s
-  JOIN read_parquet('proposition*.parquet') p ON s.proposition_id = p.id
+  JOIN read_parquet('proposition*.parquet', union_by_name = true) p ON s.proposition = p.id
   LEFT JOIN 'condition.parquet' cond          -- CASE keeps this an equi-join (fast); an AND in ON plans a nested loop
-         ON cond.id = CASE WHEN p.object_type = 'condition' THEN p.object_id END
+         ON cond.id = CASE WHEN p.object_section = 'condition' THEN p.object END
   WHERE list_contains(
           [c.contributor FOR c IN s.contributions],
           'clinvar.submitter:196472')
@@ -109,13 +109,15 @@ WHERE stale OR weak_status OR odd_condition
 ORDER BY last_evaluated;
 ```
 
-The column shapes follow the bundle's JSON field names; run `DESCRIBE SELECT * FROM 'scv.parquet'` to
-confirm them for a given release. The four proposition tables share one column schema, so
-`read_parquet('proposition*.parquet')` covers every SCV; a condition-set object (`object_type` =
-`conditionSet`) has no `condition.parquet` row and is flagged for a look. The same idea extends to therapies:
-filter the propositions on `object_type IN ('therapy', 'therapyGroup')` and join `object_id` to the
-`therapy` / `therapyGroup` tables (with `condition_qualifier_id` for the tumor type) to spot a malformed or
-unexpected drug or drug combination.
+The columns are named after the bundle's properties; run `DESCRIBE SELECT * FROM 'scv.parquet'` to
+see them. Each proposition table has only the columns its propositions use, so
+`read_parquet('proposition*.parquet', union_by_name = true)` reads all four and covers every SCV. A
+contribution `date` is `YYYY-MM-DD` text, so `max` and the comparison with `'2022-01-01'` work on it directly. A
+condition-set object (`object_section` = `conditionSet`) has no `condition.parquet` row and is flagged for a
+look. The same idea extends to therapies: filter the propositions on `object_section IN ('therapy',
+'therapyGroup')` and join `object` to the `id` of the `therapy` / `therapyGroup` tables (with
+`propositionSomaticClinicalImpact.conditionQualifier` for the tumor type) to spot a malformed or unexpected drug
+or drug combination.
 
 Because the Parquet dataset is rebuilt from every weekly release, running the query each week and diffing
 against the previous run's output turns the audit into a standing report — new stale rows, newly flagged statuses,

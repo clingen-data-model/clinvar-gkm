@@ -1,7 +1,8 @@
 # Beyond DuckDB
 
 !!! info "Release"
-    Outputs and timings on this page are from the **2026-10 monthly release** (published 14 Oct 2026), run on a laptop against downloaded files with pyarrow 26, pandas 3, polars 2 and DuckDB 1.5.
+    The expected answer is from the **2026-10-31 release**. The Python snippets were run against tables built with
+    `gkm-bundle-parquet` 2.0.0, with Python 3.12, DuckDB 1.5.4, pyarrow 26.0.1, pandas 3.1.1 and polars 2.1.0.
 
 Parquet is an open format, so any tool that reads it can read these files. This page does the **same small task** in each, so you can compare them: count the expert-panel SCVs by normalized classification, reading only the two fields that needs.
 
@@ -9,15 +10,15 @@ The expected answer, whichever tool you use:
 
 ```text
 code                    n
-pathogenic              9,906
-uncertain significance  3,954
-likely pathogenic       2,940
-likely benign           2,822
-benign                  2,807
+pathogenic              10,068
+uncertain significance   4,081
+likely pathogenic        3,069
+benign                   2,881
+likely benign            2,867
 …
 ```
 
-Whatever the tool, the rule from [Anatomy of a Table](table-anatomy.md#never-select-on-a-big-table) holds: **read only the columns you need.** `scv.parquet` is 3.2 GB on disk and about 21 GB once loaded whole (2026-10-18 release).
+Whatever the tool, the rule from [Anatomy of a Table](table-anatomy.md#never-select-on-a-big-table) holds: **read only the columns you need.** `scv.parquet` is 784 MB on disk in 2026-10-31, and several times that once loaded whole.
 
 ## Python
 
@@ -41,7 +42,7 @@ Use this when the work is mostly joins and filtering: DuckDB does them out of me
 
 ### pyarrow
 
-pyarrow reads the schema and metadata from the footer, and can read individual fields out of nested columns:
+pyarrow reads the schema and metadata from the footer, and can read individual fields out of nested columns. The footer also says what built the file: its key-value metadata has `gkm_bundle_parquet.*` entries such as `tool_version` and `bundle_schema_version`.
 
 ```python
 import pyarrow.parquet as pq
@@ -50,6 +51,7 @@ import pyarrow.compute as pc
 pf = pq.ParquetFile("scv.parquet")                     # opening reads only the footer
 print(pf.metadata.num_rows, "rows in", pf.metadata.num_row_groups, "row groups")
 print(pf.schema_arrow.field("quality").type)
+print(pf.metadata.metadata[b"gkm_bundle_parquet.bundle_schema_version"])
 
 # Read two nested fields, not the whole table; they come back as columns "code" and "name"
 t = pq.read_table("scv.parquet",
@@ -68,7 +70,7 @@ pandas reads Parquet through pyarrow, with the same `columns=`:
 ```python
 import pandas as pd
 
-# columns= is essential: without it pandas loads every column, about 21 GB for scv
+# columns= is essential: without it pandas loads every column of scv, decompressed
 df = pd.read_parquet("scv.parquet",
                      columns=["classification.primaryCoding.code", "quality.name"])
 print(df.columns.tolist())                               # ['code', 'name']
@@ -76,7 +78,8 @@ print(df.loc[df["name"] == "expert panel", "code"].value_counts().head())
 ```
 
 !!! warning "Never `pd.read_parquet` a big table without `columns=`"
-    It loads every column, including the multi-GB `data` column, into memory. On `scv.parquet` that is about 21 GB. The process is killed or the machine swaps.
+    It loads every column into memory, decompressed: several times the file's size on disk, most of it free text
+    and extensions you didn't ask for. On the big tables the process is killed or the machine swaps.
 
 ### polars
 
@@ -115,7 +118,7 @@ open_dataset("scv.parquet") |>
   collect()
 ```
 
-The `duckdb` R package is the other route: it runs the SQL from this track unchanged.
+The `duckdb` R package is the other route: it runs the SQL from this track unchanged. (The R snippet has not been re-run against the 2.0 tables.)
 
 ## Spark and cloud warehouses
 
@@ -124,8 +127,9 @@ The files load directly into Spark (`spark.read.parquet(...)`) and into cloud wa
 What survives the trip:
 
 - **`STRUCT` and `LIST` columns** arrive as the engine's record and array types (`STRUCT`/`ARRAY` in BigQuery and Spark, `struct`/`array` in Athena), so dotted access like `classification.name` works the same way.
-- **`data` is a string everywhere.** Parse it with the engine's JSON functions (`JSON_VALUE` in BigQuery, `get_json_object` in Spark) only when a field has no typed column.
-- **Ids are plain strings.** The joins on [Joining Tables](joining.md) translate directly, prefix dispatch included.
+- **Every field is a typed column**, except the few nested positions kept as JSON text (see [Extensions](table-anatomy.md#extensions)); parse those with the engine's JSON functions (`JSON_VALUE` in BigQuery, `get_json_object` in Spark).
+- **Ids are plain strings.** The joins on [Joining Tables](joining.md) translate directly, `_section` dispatch included.
+- **Column names are camelCase** (`primaryCoding`, `hasEvidenceLines`), as in the bundle. Some engines fold unquoted names to lower case; check how yours matches Parquet column names.
 
 ## Spreadsheets and GUI tools
 
@@ -139,4 +143,4 @@ duckdb -c "COPY (SELECT id, name FROM 'condition.parquet') TO 'conditions.csv' (
 
 ## Which tool when
 
-For exploring and for joins, **DuckDB**, from the command line or from Python or R: it reads only what a query needs and handles joins larger than memory. For a dataframe workflow in Python, **polars** with `scan_parquet` gives the same column pruning with a dataframe API. Use **pandas** or **pyarrow** when a library you depend on expects their objects, and always pass `columns=`. Reach for **Spark or a warehouse** only when the data has to live next to other large data in your cloud. For everyone else, a few GB of Parquet on a laptop is small.
+For exploring and for joins, **DuckDB**, from the command line or from Python or R: it reads only what a query needs and handles joins larger than memory. For a dataframe workflow in Python, **polars** with `scan_parquet` gives the same column pruning with a dataframe API. Use **pandas** or **pyarrow** when a library you depend on expects their objects, and always pass `columns=`. Reach for **Spark or a warehouse** only when the data has to live next to other large data in your cloud. For everyone else, 4.6 GB of Parquet on a laptop is small.

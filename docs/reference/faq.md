@@ -115,7 +115,8 @@ From 1.1.0, the first two gaps are closed and the third is labeled:
 
 - Inferred genes are marked `geneContextSource` = `inferredFromVariant`.
 - Placeholder names carry the submitter's symbol and are marked `submittedNotNormalized`. A placeholder is still
-  not a normalized gene, so filter on `primaryCoding` (or the Parquet `gene_context_id`) when you need one.
+  not a normalized gene, so filter on `primaryCoding` (in the Parquet, `geneContextQualifier.primaryCoding`) when
+  you need one.
   Filtering on `name` alone now also matches placeholders: 29 `TP53` placeholders in 2026-10-18, for example.
 - `submittedSymbolDiffers` says only that the symbols differ, not that the genes do. With the case-insensitive
   comparison it covers 28,507 propositions in 2026-10-18, where an exact comparison finds 28,653. The other 146
@@ -123,37 +124,39 @@ From 1.1.0, the first two gaps are closed and the third is labeled:
 
 ### How to see it in the data
 
-The qualifier is part of each SCV proposition in the bundle and in the `data` column of the proposition Parquet
-tables:
+The qualifier is part of each SCV proposition in the bundle, and the `geneContextQualifier` STRUCT column of the
+proposition Parquet tables:
 
 ```sql
--- Extensions are picked by name: the qualifier can carry two. (`lambda e:` needs DuckDB 1.3 or later.)
+-- Extensions are picked by name: the qualifier can carry two.
 SELECT id,
-       data->>'$.geneContextQualifier.name'               AS qualifier_gene,
-       data->>'$.geneContextQualifier.primaryCoding.code' AS ncbi_gene,
-       list_filter(CAST(data->'$.geneContextQualifier.extensions' AS JSON[]),
-                   lambda e: e->>'$.name' = 'submittedGeneSymbols')[1]->'$.value' AS submitted_gene_symbols,
-       list_filter(CAST(data->'$.geneContextQualifier.extensions' AS JSON[]),
-                   lambda e: e->>'$.name' = 'geneContextSource')[1]->>'$.value'  AS gene_context_source
+       geneContextQualifier.name               AS qualifier_gene,
+       geneContextQualifier.primaryCoding.code AS ncbi_gene,
+       [e.value_string_array FOR e IN geneContextQualifier.extensions
+                             IF e.name = 'submittedGeneSymbols'][1] AS submitted_gene_symbols,
+       [e.value_string FOR e IN geneContextQualifier.extensions
+                       IF e.name = 'geneContextSource'][1]          AS gene_context_source
 FROM 'propositionPathogenicity.parquet'
 WHERE id IN ('SCV001494816-PATH', 'SCV000024718-PATH', 'SCV005419060-PATH', 'SCV000039919-PATH');
 ```
 
-With 1.1.0 data:
+With the 2026-10-31 release:
 
 ```text
 id                 qualifier_gene  ncbi_gene  submitted_gene_symbols  gene_context_source
-SCV005419060-PATH  TTN             7273       ["TTN","TTN-AS1"]       submittedSymbolMatches
-SCV001494816-PATH  KCNT1           NULL       ["KCNT1"]               submittedNotNormalized
-SCV000024718-PATH  GBA1            2629       ["GBA"]                 submittedSymbolDiffers
+SCV000024718-PATH  GBA1            2629       [GBA]                   submittedSymbolDiffers
 SCV000039919-PATH  SERPINC1        462        NULL                    inferredFromVariant
+SCV001494816-PATH  KCNT1           NULL       [KCNT1]                 submittedNotNormalized
+SCV005419060-PATH  TTN             7273       [TTN, TTN-AS1]          submittedSymbolMatches
 ```
 
 In the 1.0.1 releases (frozen under `v1/1.0/`), `SCV001494816-PATH` is named `submitted genes were not
 normalized` and has no `geneContextSource`.
 
-From 1.1.0, the four proposition Parquet tables also carry typed `gene_context_id` (the qualifier's
-`ncbigene:` id, NULL for the placeholder), `submitted_gene_symbols` and `gene_context_source` columns.
+The 1.1 Parquet tables flattened the qualifier into `gene_context_id` (the qualifier's `ncbigene:` id, NULL for
+the placeholder), `submitted_gene_symbols` and `gene_context_source` columns. The 2.0 tables keep it whole, as
+above; [Qualifiers are STRUCTs](../parquet/migrating-from-1.1.md#qualifiers-are-structs) gives the expression for
+each 1.1 column.
 
 ### Gene context is not the variant's gene list
 

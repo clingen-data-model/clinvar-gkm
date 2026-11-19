@@ -71,8 +71,8 @@ record.
 
 An SCV proposition's gene context can be a gene named in the variant's title that ClinVar does not associate
 with the variant (for example `NR_164162.1(GLRA4):n.1091C>T` → GLRA4). The bundle's `gene` section lists only
-the genes ClinVar associates with a variant, so such a gene has no `gene` record, and its Parquet
-`gene_context_id` does not join to `gene.parquet`. In the 2026-10-11 release this is 25 variants and 31 SCV
+the genes ClinVar associates with a variant, so such a gene has no `gene` record, and in the Parquet
+`'ncbigene:' || geneContextQualifier.primaryCoding.code` finds no row in `gene.parquet`. In the 2026-10-11 release this is 25 variants and 31 SCV
 propositions. Genes with no HGNC id (`LOC*`) and NCBI-discontinued gene ids get no gene context, by design of
 the upstream method.
 
@@ -86,10 +86,12 @@ code is always lower case, so the same label is `pathogenic/likely pathogenic` t
 codes case-insensitively until the lookup is fixed upstream. See
 [`classification.primaryCoding`](../pipeline/vcv-statements/vcv-aggregation-rules.md#classification-primarycoding).
 
-## Past Parquet cannot yet be rebuilt
+## Past Parquet is built, not downloaded
 
-Only the latest Parquet set is published. Past Parquet is meant to be rebuilt from the monthly bundles with
-[`clinvar-gkm-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet), which has no release yet.
+Only the latest Parquet set of each live line is published. Tables for an earlier release are built from its
+bundle with [`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) (2.0.0 on PyPI),
+which needs about 65 GiB of memory for a full bundle; a mini-bundle of the records you need takes far less. See
+[Build Your Own Tables and Mini-Bundles](../parquet/build-your-own.md).
 
 ---
 
