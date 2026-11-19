@@ -58,7 +58,7 @@ The pipeline runs on **Google BigQuery** using SQL stored procedures, with an ex
 4. **Condition & Trait Mapping** — map ClinVar conditions to standardized terms
 5. **SCV Statement Generation** — produce clinical classification statements
 6. **VCV Statement Generation** — produce aggregate classification statements
-7. **Export & Publish** — assemble the JSON bundle and typed Parquet, then publish the full/delta products to Cloudflare R2
+7. **Export & Publish** — assemble the JSON bundle, publish the full/delta products to Cloudflare R2, then build the latest Parquet from the published bundle with [gkm-bundle-parquet](https://github.com/clingen-data-model/gkm-bundle-parquet)
 
 ## Documentation
 

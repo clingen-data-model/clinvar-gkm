@@ -62,8 +62,8 @@ The pipeline executes in the following order. Each step is a BigQuery stored pro
 │ 9. Export & Distribute       │  release-gkm.sh (fulls),
 │    Export NDJSON to GCS,     │  release-gkm-delta.sh,
 │    assemble JSON bundles,    │  release-gkm-parquet.sh
-│    upload to R2; rebuild     │  → R2 public bucket
-│    the latest Parquet        │
+│    upload to R2; build the   │  (gkm-bundle-parquet)
+│    Parquet from the bundle   │  → R2 public bucket
 └──────────────────────────────┘
 ```
 
@@ -71,17 +71,18 @@ The pipeline executes in the following order. Each step is a BigQuery stored pro
 
 ### Single-command run
 
-The whole release can be run end-to-end with the `run-release.sh` orchestrator, which chains five stages: variation identity, the GCS export, vrsification, the transform/load/procedures step (`vrs-to-bq-table.sh`), and the export/publish step (`release-gkm.sh`):
+The whole release can be run end-to-end with the `run-release.sh` orchestrator, which chains six stages: variation identity, the GCS export, vrsification, the transform/load/procedures step (`vrs-to-bq-table.sh`), the export/publish step (`release-gkm.sh`, `release-gkm-delta.sh`), and the Parquet step (`release-gkm-parquet.sh`), which builds the latest Parquet set from the published weekly full with [gkm-bundle-parquet](https://github.com/clingen-data-model/gkm-bundle-parquet) ([PyPI](https://pypi.org/project/gkm-bundle-parquet/2.0.0/), pinned to 2.0.0):
 
 ```bash
 ./src/scripts/run-release.sh YYYY-MM-DD              # incremental (default)
 ./src/scripts/run-release.sh YYYY-MM-DD --full       # full rebuild / reseed
 ./src/scripts/run-release.sh YYYY-MM-DD --full-procs # only the gkm procs full (the weekly mode after 1.1.0)
-./src/scripts/run-release.sh YYYY-MM-DD --dry-run    # run everything but skip the R2 publish (stage 5)
-./src/scripts/run-release.sh YYYY-MM-DD --start-step 5   # resume from a stage (1-5)
+./src/scripts/run-release.sh YYYY-MM-DD --dry-run    # run everything but skip the R2 publish (stages 5 and 6)
+./src/scripts/run-release.sh YYYY-MM-DD --skip-parquet   # leave parquet/ as it is (skip stage 6)
+./src/scripts/run-release.sh YYYY-MM-DD --start-step 5   # resume from a stage (1-6); 6 runs only the Parquet step
 ```
 
-`--full` propagates version-invalidation across stages 1–2; use it for the first release or after a `variation_identity` transform change or a vrsify-pin bump. `--full-procs` builds only the stage-4 gkm procedures full (catvar, SCV, RCV, VCV): variation identity, the export, vrsification and the `gkm_vrs` load stay incremental, so only the changed variations are re-normalized. Weekly runs after 1.1.0 use `--full-procs` until [ADR 0007](../decisions/0007-pipeline-principles-and-simplification.md) workstream 3 decides on the incremental procedures, which were seen to fall back to full builds without saying so. `--full` implies `--full-procs`. `--dry-run` runs the build stages but has the final release stage only print what it would upload — use it for test runs. The vrsify stage (stage 3) requires local SeqRepo and gene-normalizer services and a reachable UTA database — see [VRS Processing](vrs-processing.md#running-vrsify) and [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/src/vrsify) — so on hosts without them, run the BigQuery-side stages with `--start-step` and run vrsify separately.
+`--full` propagates version-invalidation across stages 1–2; use it for the first release or after a `variation_identity` transform change or a vrsify-pin bump. `--full-procs` builds only the stage-4 gkm procedures full (catvar, SCV, RCV, VCV): variation identity, the export, vrsification and the `gkm_vrs` load stay incremental, so only the changed variations are re-normalized. Weekly runs after 1.1.0 use `--full-procs` until [ADR 0007](../decisions/0007-pipeline-principles-and-simplification.md) workstream 3 decides on the incremental procedures, which were seen to fall back to full builds without saying so. `--full` implies `--full-procs`. `--dry-run` runs the build stages but has the release stages only print what they would upload — use it for test runs. The vrsify stage (stage 3) requires local SeqRepo and gene-normalizer services and a reachable UTA database — see [VRS Processing](vrs-processing.md#running-vrsify) and [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/src/vrsify) — so on hosts without them, run the BigQuery-side stages with `--start-step` and run vrsify separately.
 
 The individual stages are documented below.
 
@@ -123,7 +124,7 @@ The statement procedures name each proposition's bundle section with the UDF `cl
 
 ### Step 4: Export & Distribute
 
-The `gkm_dict_*` tables are the published product. Full bundles, deltas and the latest Parquet are published by separate scripts:
+The `gkm_dict_*` tables are the published product. Full bundles, deltas and the latest Parquet are published by separate scripts; the Parquet set is built from the published weekly full, not from BigQuery:
 
 ```bash
 # Weekly full bundle (export NDJSON, assemble, upload to weekly/)
@@ -132,17 +133,17 @@ The `gkm_dict_*` tables are the published product. Full bundles, deltas and the 
 # Weekly delta (added + updated records + change manifest)
 ./src/scripts/release-gkm-delta.sh 2026-10-18 v2_6_0
 
-# Latest Parquet (typed EXPORT DATA, merge shards, overwrite parquet/)
+# Latest Parquet (gkm-bundle-parquet builds it from the published weekly full, verifies it, overwrites parquet/)
 ./src/scripts/release-gkm-parquet.sh 2026-10-18 v2_6_0
 ```
 
-The full and delta scripts validate every record of their bundle strictly before upload and stop if any fails: the delta with the GA4GH GKM Toolkit, the full with jsonschema-rs, which takes minutes where the toolkit takes hours. See [Export & Distribute](export.md#step-5-publish-the-weekly-delta).
+The full and delta scripts validate every record of their bundle strictly before upload and stop if any fails: the delta with the GA4GH GKM Toolkit, the full with jsonschema-rs, which takes minutes where the toolkit takes hours. See [Export & Distribute](export.md#step-4-publish-the-weekly-delta), and [Step 5](export.md#step-5-build-and-publish-the-latest-parquet) there for the Parquet build and its checks.
 
-`release-gkm.sh` exports bundle NDJSON only (`export-gkm-dicts.sh --ndjson-only`), assembles and validates it, and uploads the bundle; it writes no Parquet. Its steps can be run individually, and `--start-step` resumes it from a step:
+`release-gkm.sh` exports bundle NDJSON (`export-gkm-dicts.sh`), assembles and validates it, and uploads the bundle; it writes no Parquet. Its steps can be run individually, and `--start-step` resumes it from a step:
 
 ```bash
-# 1. Export dictionary tables to GCS (bundle NDJSON only)
-./src/scripts/export-gkm-dicts.sh clinvar_2026_10_18_v2_6_0 clinvar-gkm gkm-dicts --ndjson-only
+# 1. Export dictionary tables to GCS (bundle NDJSON)
+./src/scripts/export-gkm-dicts.sh clinvar_2026_10_18_v2_6_0 clinvar-gkm gkm-dicts
 
 # 2. Assemble NDJSON into JSON bundle
 python3 ./src/scripts/assemble-gkm-dicts.py gs://clinvar-gkm/gkm-dicts/ 2026-10-18
