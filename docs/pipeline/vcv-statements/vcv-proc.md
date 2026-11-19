@@ -55,6 +55,9 @@ The `final_prep` CTE applies submission-level-specific logic:
 - **FLAG** -- fixed label: "no classifications from unflagged records"
 - **NOCL** -- passthrough label: "not provided"
 - **aggregate_review_status** -- derived for all submission levels based on the level itself and, for CP, submitter count and conflict state
+- **agg_classif_coding** -- the label's coding (`code`, `system`), the statement's `classification.primaryCoding`. The `coded` CTE looks the label up in `clinvar_clinsig_types` by proposition type (the `classif_codings` CTE) and reuses the SCV coding with the code in lower case; for sci it looks up the tier label without the tumor-type text (the `sci_tier_label` helper column). Any other label gets system `ClinVar` and the lower-cased label as the code. See [`classification.primaryCoding`](vcv-aggregation-rules.md#classification-primarycoding).
+- **agg_strength_name** -- the `strength_label` of the same `clinvar_clinsig_types` row as `agg_classif_coding` (NULL when the label has no lookup row). The statement's `strength` for a multi-SCV group, and at the priority and aggregate layers. See [`quality`, `direction`, and `strength`](vcv-aggregation-rules.md#quality-direction-and-strength).
+- **agg_direction** -- the `direction` of the same `clinvar_clinsig_types` row as `agg_classif_coding`. A label with no lookup row gets `neutral` if it is a conflicting label or the FLAG label; a combination gets the direction all the group's SCVs share (the `scv_agreed_direction` helper column of `core_agg`, not stored), or `supports` when they differ. It is never NULL. The statement's `direction` for a multi-SCV group, and at the priority and aggregate layers. See [`quality`, `direction`, and `strength`](vcv-aggregation-rules.md#quality-direction-and-strength).
 
 ID format: `{VCV}.{ver}-{GROUP}-{PROP}-{LEVEL}[-{TIER}]` (all tier components are uppercase, e.g., `VCV000012582.63-G-SCI-CP-PATHOGENIC`)
 
@@ -72,7 +75,7 @@ The step ranks tiers by `tier_priority` (ascending) and SCV count (descending), 
 - All other tiers as non-contributing
 - Secondary traits from non-contributing tiers that are not already present in the top tier
 
-The aggregate label appends secondary trait information when applicable (e.g., "+lower levels of evidence for N other tumor types").
+The aggregate label appends secondary trait information when applicable (e.g., "+lower levels of evidence for N other tumor types"). `agg_classif_coding`, `agg_strength_name` and `agg_direction` are the top tier's.
 
 ID format: `{VCV}.{ver}-{GROUP}-{PROP}-{LEVEL}` (uppercase components)
 
@@ -86,7 +89,7 @@ Submission-level aggregator using winner-takes-all ranking. Takes a unified inpu
 
 Records are ranked by submission level within each `(variation_id, statement_group, prop_type)` group using the explicit ordering `PG=6, EP=5, CP=4, NOCP=3, NOCL=2, FLAG=1`. The highest-ranked submission level becomes the contributing result; all others become non-contributing.
 
-Non-contributing details are preserved as an array of structs containing the layer ID, submission level, aggregate label, and conflicting explanation for each non-contributing record.
+Non-contributing details are preserved as an array of structs containing the layer ID, submission level, aggregate label, and conflicting explanation for each non-contributing record. `agg_classif_coding`, `agg_strength_name` and `agg_direction` are the contributing (winning) record's.
 
 ID format: `{VCV}.{ver}-{GROUP}-{PROP}` (uppercase components)
 
@@ -108,10 +111,10 @@ Each BASE section reads from the corresponding aggregation table and produces a 
 
 | Field | Description |
 |---|---|
-| `classification` | A simple Classification concept with `name` and optional `conflictingExplanation` extension |
+| `classification` | A simple Classification concept with `name`, `primaryCoding` (from `agg_classif_coding`; omitted when NULL) and optional `conflictingExplanation` extension |
 | `quality` | The submission level label (e.g., `"expert panel"`, `"assertion criteria provided"`) |
-| `direction` | Derived from the classification label; passed through from the contributing SCV for single-SCV aggregations |
-| `strength` | Derived from the classification label; passed through from the contributing SCV for single-SCV aggregations |
+| `direction` | The contributing SCV's direction for a single-SCV classification-layer group; otherwise `agg_direction`, the lookup direction of the label (for a label with no lookup row, the rule in `agg_direction` above) |
+| `strength` | The contributing SCV's strength for a single-SCV classification-layer group; otherwise `agg_strength_name`, the lookup strength of the label (omitted when NULL) |
 | `proposition` | Contains `object` (the unique conditions from contributing SCVs — a single MappableConcept or an OR ConceptSet), the SCV-matching proposition type from `clinvar_proposition_types.gkm_type`, the SCV-matching predicate from `clinvar_proposition_types.gkm_predicate`, and `subject` reference |
 | `extensions` | Array with `clinvarReviewStatus` value |
 | `hasEvidenceLines` | References to child layer IDs (SCV IDs for Classification Grouping, contributing/non-contributing statement IDs for Priority Grouping and Aggregate Contribution) |
