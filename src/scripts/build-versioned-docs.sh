@@ -13,8 +13,14 @@
 # tag built before versioned docs existed still gets the version selector, the
 # version notice and the colours:
 #   - OVERLAY (below): template overrides, versions.js and versions.css;
-#   - zensical.toml: site_url becomes <site_url of this checkout><version>/, and the
-#     [project.extra.version] table is added when the ref's config lacks it;
+#   - zensical.toml: site_url becomes <site_url of this checkout><version>/, the
+#     [project.extra.version] table is added when the ref's config lacks it, and
+#     [project.extra.source] names the ref the version was built from (`main` for dev,
+#     else <ref>), which the header's repository widget shows and links; edit_uri
+#     points at the same ref;
+#   - links in the pages to this repository's files on `main` (/blob/main/...,
+#     /tree/main/..., /raw/main/...) are rewritten to <ref> for a release version
+#     (pin-repo-links.py; a path the ref doesn't have stays on main);
 #   - the Roadmap table is regenerated from GitHub Discussions with this checkout's
 #     generate-roadmap.py (non-fatal: without GH_TOKEN or on an API error the ref's
 #     committed table stays).
@@ -42,6 +48,7 @@ REPO=$(cd "$(dirname "$0")/../.." && pwd)
 OVERLAY="docs/overrides/main.html
 docs/overrides/404.html
 docs/overrides/partials/header.html
+docs/overrides/partials/source.html
 docs/assets/js/versions.js
 docs/stylesheets/versions.css"
 
@@ -50,10 +57,20 @@ SITE_URL=$("$PYTHON" -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1
 case "$SITE_URL" in */) ;; *) SITE_URL="$SITE_URL/" ;; esac
 VERSION_URL="$SITE_URL$VERSION/"
 
+# The ref the version's pages show and link to: dev is main (labelled with the commit it
+# was built from); a release is the tag (or other ref) it was built from.
+if [ "$VERSION" = "dev" ]; then
+  SOURCE_REF=main
+  SOURCE_LABEL="main ($(git -C "$REPO" rev-parse --short "$REF^{commit}"))"
+else
+  SOURCE_REF=$REF
+  SOURCE_LABEL=$REF
+fi
+
 TMP=$(mktemp -d "${TMPDIR:-/tmp}/versioned-docs.XXXXXX")
 trap 'rm -rf "${TMP:?}"' EXIT
 
-echo "== Building docs version '$VERSION' from '$REF' (site_url $VERSION_URL)"
+echo "== Building docs version '$VERSION' from '$REF' (site_url $VERSION_URL, source $SOURCE_LABEL)"
 git -C "$REPO" archive --format=tar "$REF" | tar -x -C "$TMP"
 
 for f in $OVERLAY; do
@@ -61,17 +78,26 @@ for f in $OVERLAY; do
   cp "$REPO/$f" "$TMP/$f"
 done
 
-"$PYTHON" - "$TMP/zensical.toml" "$VERSION_URL" <<'EOF'
-import re, sys
-path, url = sys.argv[1:]
+"$PYTHON" - "$TMP/zensical.toml" "$VERSION_URL" "$SOURCE_REF" "$SOURCE_LABEL" <<'EOF'
+import json, re, sys
+path, url, ref, label = sys.argv[1:]
 text = open(path, encoding="utf-8").read()
 text, n = re.subn(r'(?m)^site_url\s*=.*$', f'site_url = "{url}"', text, count=1)
 if n != 1:
     sys.exit(f"error: no site_url line in {path}")
+edit = "edit/main/docs/" if ref == "main" else f"blob/{ref}/docs/"  # a tag can't be edited
+text = re.sub(r'(?m)^edit_uri\s*=.*$', f'edit_uri = "{edit}"', text, count=1)
 if "[project.extra.version]" not in text:
     text = text.rstrip("\n") + '\n\n[project.extra.version]\nprovider = "mike"\nalias = true\n'
+if "[project.extra.source]" in text:
+    sys.exit(f"error: {path} already has [project.extra.source]")
+text = text.rstrip("\n") + f'\n\n[project.extra.source]\nref = {json.dumps(ref)}\nlabel = {json.dumps(label)}\n'
 open(path, "w", encoding="utf-8").write(text)
 EOF
+
+if [ "$SOURCE_REF" != "main" ]; then
+  "$PYTHON" "$REPO/src/scripts/pin-repo-links.py" "$TMP/docs" "$REF" --repo "$REPO"
+fi
 
 mkdir -p "$TMP/src/scripts"
 cp "$REPO/src/scripts/generate-roadmap.py" "$TMP/src/scripts/generate-roadmap.py"
