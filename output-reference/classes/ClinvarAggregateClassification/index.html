@@ -6271,7 +6271,7 @@
 <p class="admonition-title">Trial Use</p>
 <p>May change in future releases. See the <a href="https://vrs.ga4gh.org/en/2.1/appendices/maturity_model.html" rel="noopener" target="_blank">GKM Maturity Model</a>.</p>
 </div>
-<p>The classification of a ClinVar VCV or RCV aggregate statement: a MappableConcept with its concept type and the aggregate classification label as its name and, when the submissions conflict, an ExtensionConflictingExplanation. No id, description, aliases, coding or mappings.</p>
+<p>The classification of a ClinVar VCV or RCV aggregate statement: a MappableConcept with its concept type, the aggregate classification label as its name, a ClinvarTermCoding for that label and, when the submissions conflict, an ExtensionConflictingExplanation. No id, description, aliases or mappings.</p>
 <p><strong>JSON Schema:</strong> <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarAggregateClassification" target="_blank">ClinvarAggregateClassification</a></p>
 <p>Some ClinvarAggregateClassification attributes are inherited from <a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/elements/mappable-concept.html#mappableconcept" rel="noopener" target="_blank">MappableConcept</a>.</p>
 <h2 id="information-model">Information Model<a class="headerlink" href="#information-model" title="Permanent link">&para;</a></h2>
@@ -6309,9 +6309,15 @@
 <td>1..1</td>
 <td>Must be 'Classification'.</td>
 </tr>
+<tr>
+<td><code>primaryCoding</code></td>
+<td><a href="../ClinvarTermCoding/">ClinvarTermCoding</a></td>
+<td>0..1</td>
+<td>The aggregate classification's code and its system. A label that ClinVar's classification terms define (for a somatic clinical impact statement, its highest tier, without the tumor-type text) has the coding its SCVs carry, with the code in lower case. Any other label (a combination of terms, a conflicting classification, or no classifications from unflagged records) is a ClinVar-defined term: the lower-cased label as the code and 'ClinVar' as the system.</td>
+</tr>
 </tbody>
 </table>
-<p><strong>Not used by ClinVar-GKM:</strong> <code>id</code>, <code>description</code>, <code>aliases</code>, <code>primaryCoding</code>, <code>mappings</code>. The GA4GH base class defines these properties, but this profile forbids them (<code>false</code>), so they never appear in ClinVar-GKM bundles.</p>
+<p><strong>Not used by ClinVar-GKM:</strong> <code>id</code>, <code>description</code>, <code>aliases</code>, <code>mappings</code>. The GA4GH base class defines these properties, but this profile forbids them (<code>false</code>), so they never appear in ClinVar-GKM bundles.</p>
 <h2 id="extensions">Extensions<a class="headerlink" href="#extensions" title="Permanent link">&para;</a></h2>
 <p>These extensions are defined for <code>ClinvarAggregateClassification</code>.</p>
 <h3 id="extensionconflictingexplanation">ExtensionConflictingExplanation<a class="headerlink" href="#extensionconflictingexplanation" title="Permanent link">&para;</a></h3>

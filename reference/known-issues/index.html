@@ -6020,6 +6020,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#scv-and-aggregate-codes-for-pathogeniclikely-pathogenic-differ-in-case" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SCV and aggregate codes for Pathogenic/Likely pathogenic differ in case
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#past-parquet-cannot-yet-be-rebuilt" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6351,6 +6362,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#scv-and-aggregate-codes-for-pathogeniclikely-pathogenic-differ-in-case" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SCV and aggregate codes for Pathogenic/Likely pathogenic differ in case
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#past-parquet-cannot-yet-be-rebuilt" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6439,6 +6461,14 @@ the genes ClinVar associates with a variant, so such a gene has no <code>gene</c
 <code>gene_context_id</code> does not join to <code>gene.parquet</code>. In the 2026-10-11 release this is 25 variants and 31 SCV
 propositions. Genes with no HGNC id (<code>LOC*</code>) and NCBI-discontinued gene ids get no gene context, by design of
 the upstream method.</p>
+<h2 id="scv-and-aggregate-codes-for-pathogeniclikely-pathogenic-differ-in-case">SCV and aggregate codes for Pathogenic/Likely pathogenic differ in case<a class="headerlink" href="#scv-and-aggregate-codes-for-pathogeniclikely-pathogenic-differ-in-case" title="Permanent link">&para;</a></h2>
+<p>ClinVar-GKM's classification lookup (<code>clinvar_clinsig_types</code>, maintained upstream in <code>clinvar-ingest-bq-tools</code>)
+codes <code>Pathogenic/Likely pathogenic</code> as <code>pathogenic/Likely pathogenic</code>, with a capital L; every other code in it
+is lower case. An SCV classified <code>Pathogenic/Likely pathogenic</code> carries that code unchanged in its
+<code>classification.primaryCoding</code>. From 1.2.0, VCV and RCV classifications also carry a <code>primaryCoding</code>, and its
+code is always lower case, so the same label is <code>pathogenic/likely pathogenic</code> there. Compare classification
+codes case-insensitively until the lookup is fixed upstream. See
+<a href="../../pipeline/vcv-statements/vcv-aggregation-rules/#classification-primarycoding"><code>classification.primaryCoding</code></a>.</p>
 <h2 id="past-parquet-cannot-yet-be-rebuilt">Past Parquet cannot yet be rebuilt<a class="headerlink" href="#past-parquet-cannot-yet-be-rebuilt" title="Permanent link">&para;</a></h2>
 <p>Only the latest Parquet set is published. Past Parquet is meant to be rebuilt from the monthly bundles with
 <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>clinvar-gkm-parquet</code></a>, which has no release yet.</p>

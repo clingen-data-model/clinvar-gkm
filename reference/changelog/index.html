@@ -5874,6 +5874,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#120-vcv-and-rcv-classifications-carry-a-coding" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.2.0: VCV and RCV classifications carry a coding
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#fixes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6276,6 +6287,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#120-vcv-and-rcv-classifications-carry-a-coding" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.2.0: VCV and RCV classifications carry a coding
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#fixes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6441,9 +6463,9 @@ explains the profiles and their rules, and each class page lists what its profil
 </ul>
 <p><strong>What it means for you:</strong></p>
 <ul>
-<li><strong>The data doesn't change.</strong> Every record the pipeline publishes already meets the 1.2.0 profiles: relabelled
-  as 1.2.0, every record of the 2026-10-31 full bundle (91,854,927) and delta validates with no failures. Code
-  that reads bundles needs no change.</li>
+<li><strong>The data doesn't change, except for the new aggregate coding and the aggregate strength and direction fixes below.</strong> Every record the pipeline publishes
+  already meets the 1.2.0 profiles: relabelled as 1.2.0, every record of the 2026-10-31 full bundle
+  (91,854,927) and delta validates with no failures. Code that reads bundles needs no change.</li>
 <li><strong>Validate each bundle against its own version.</strong> A 1.2.0 bundle says <code>"schema_version": "1.2.0"</code> and
   validates against the 1.2.0 schemas
   (<code>https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json</code>); a 1.1.0 bundle keeps
@@ -6453,9 +6475,85 @@ explains the profiles and their rules, and each class page lists what its profil
   its files unchanged (<a href="../../decisions/0009-r2-layout-mirrors-ncbi-clinvar/">ADR 0009</a>). The Parquet set is
   built by <code>gkm-bundle-parquet</code> 2.0.0.</li>
 </ul>
+<h3 id="120-vcv-and-rcv-classifications-carry-a-coding">1.2.0: VCV and RCV classifications carry a coding<a class="headerlink" href="#120-vcv-and-rcv-classifications-carry-a-coding" title="Permanent link">&para;</a></h3>
+<p>Every VCV and RCV statement's <code>classification</code> gains a <code>primaryCoding</code> (<code>code</code> and <code>system</code>), as SCV
+classifications already have (<a href="https://github.com/clingen-data-model/clinvar-gkm/issues/202">#202</a>). In the
+schema, <code>ClinvarAggregateClassification.primaryCoding</code> changes from forbidden to a <code>ClinvarTermCoding</code>. It is not
+required. The rules are in
+<a href="../../pipeline/vcv-statements/vcv-aggregation-rules/#classification-primarycoding"><code>classification.primaryCoding</code></a>:</p>
+<ul>
+<li><strong>A label that is one classification term has the coding its SCVs carry</strong>, with the code in lower case:
+  <code>Pathogenic</code> → <code>pathogenic</code> / <code>ACMG Guidelines, 2015</code>, <code>VUS-mid</code> → <code>vus-mid</code> / <code>SVC v4</code>.</li>
+<li><strong>A somatic clinical impact label is coded by its tier</strong>, without the tumor-type text:
+  <code>Tier I (Strong) for 2 tumor types</code> → <code>tier 1</code> / <code>AMP/ASCO/CAP (AAC) Guidelines, 2017</code>.</li>
+<li><strong>Any other label is a ClinVar-defined term</strong>, with system <code>ClinVar</code> and the lower-cased label as the code:
+  <code>Conflicting classifications of pathogenicity</code>, <code>no classifications from unflagged records</code>, and
+  combinations such as <code>Uncertain significance/VUS-low</code> → <code>uncertain significance/vus-low</code>. The lookup's
+  <code>pathogenic/Likely pathogenic</code> code becomes <code>pathogenic/likely pathogenic</code>.</li>
+</ul>
+<p><strong>What it means for you:</strong></p>
+<ul>
+<li><strong>Every VCV and RCV record changes</strong>, so the first 1.2.0 release rewrites them all. Apart from the
+  aggregate strength and direction fixes (see Fixes), nothing else in those records changes.</li>
+<li><strong>SCV codes are unchanged, so one code differs in case.</strong> An SCV classified <code>Pathogenic/Likely pathogenic</code>
+  still carries the upstream code <code>pathogenic/Likely pathogenic</code>. Compare codes case-insensitively; see
+  <a href="../known-issues/#scv-and-aggregate-codes-for-pathogeniclikely-pathogenic-differ-in-case">Known Issues</a>.</li>
+</ul>
 <h3 id="fixes">Fixes<a class="headerlink" href="#fixes" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>The pipeline can't write a record that 1.2.0 rejects.</strong> No current record is affected; these guard cases
+<li>
+<p><strong>VCV and RCV aggregate <code>strength</code> now matches the strength the SCVs carry</strong>
+  (<a href="https://github.com/clingen-data-model/clinvar-gkm/issues/226">#226</a>). Aggregate statements took their
+  strength from a fixed list of label prefixes. Its <code>Tier I</code> prefix also matched Tier II, III and IV, it gave
+  Tier IV <code>Likely</code>, it never matched <code>Likely oncogenic</code>, and it left out the low-penetrance and risk-allele
+  labels. The strength now comes from the same <code>clinvar_clinsig_types</code> row that gives the label its
+  <code>primaryCoding</code>; see <a href="../../pipeline/vcv-statements/vcv-aggregation-rules/#quality-direction-and-strength"><code>quality</code>, <code>direction</code>, and
+  <code>strength</code></a>. A
+  classification-layer statement with one SCV still passes that SCV's strength through. In the 2026-10-31 full
+  release this changes the strength of 6,020 of the 21,309,008 VCV and RCV records (2,714 VCV, 3,306 RCV):</p>
+<ul>
+<li><strong>Somatic clinical impact whose tier is II, III or IV:</strong> a multi-SCV classification group, any priority
+  statement, and an aggregate statement won by the priority layer. Tier II goes from <code>Strong</code> to
+  <code>Potential</code> (2,001); Tier III and Tier IV go from <code>Strong</code> to no strength (634).</li>
+<li><strong>Aggregate statements won by a one-SCV group labelled Likely oncogenic, a low-penetrance label or a
+  risk-allele label</strong>, which had no strength although the SCV and the classification-layer statement had
+  one. They now carry it: <code>Likely oncogenic</code> → <code>Likely</code> (2,630), <code>Pathogenic, low penetrance</code> and
+  <code>Established risk allele</code> → <code>Definitive</code> (218), <code>Likely pathogenic, low penetrance</code> and
+  <code>Likely risk allele</code> → <code>Likely</code> (537).</li>
+<li><strong>Multi-SCV groups labelled Likely oncogenic</strong> now get <code>Likely</code>. The 2026-10-31 release has none.</li>
+</ul>
+<p>No other strength changes. If you read aggregate <code>strength</code> for somatic clinical impact, oncogenicity, or the
+low-penetrance and risk-allele labels, expect these values from the first 1.2.0 release.
+- <strong>VCV and RCV aggregate <code>direction</code> now matches the direction the SCVs carry</strong>
+  (<a href="https://github.com/clingen-data-model/clinvar-gkm/issues/227">#227</a>). Aggregate statements took their
+  direction from a fixed list of labels that gave <code>supports</code> to every label it didn't name, including labels
+  the SCVs mark <code>neutral</code> or <code>disputes</code>. The direction now comes from the same <code>clinvar_clinsig_types</code> row that
+  gives the label its <code>primaryCoding</code>; see <a href="../../pipeline/vcv-statements/vcv-aggregation-rules/#quality-direction-and-strength"><code>quality</code>, <code>direction</code>, and
+  <code>strength</code></a>. A
+  classification-layer statement with one SCV still passes that SCV's direction through. A label with no lookup
+  row is <code>neutral</code> if it is <code>Conflicting classifications of …</code> (as before) or the FLAG label
+  <code>no classifications from unflagged records</code>; a combination takes the direction every SCV in its group
+  carries, or <code>supports</code> when they differ. In the 2026-10-31 full release this changes the direction of 4,779
+  of the 21,309,008 VCV and RCV records (1,761 VCV, 3,018 RCV), all from <code>supports</code>:
+- <strong>Somatic clinical impact whose tier is III or IV:</strong> a multi-SCV classification group, any priority
+  statement, and an aggregate statement won by the priority layer. Tier III goes to <code>neutral</code> (447) and
+  Tier IV to <code>disputes</code> (187).
+- <strong>Aggregate statements won by a one-SCV group</strong> whose label is one the old list didn't name, which
+  disagreed with the SCV and the classification-layer statement: <code>VUS-high</code>, <code>VUS-mid</code>, <code>VUS-low</code> and
+  <code>Uncertain risk allele</code> go to <code>neutral</code> (717), <code>conflicting data from submitters</code> to <code>neutral</code> (384), and
+  <code>association not found</code> to <code>disputes</code> (16).
+- <strong>Multi-SCV groups labelled VUS-high, VUS-mid, VUS-low, Uncertain risk allele, conflicting data from
+  submitters or association not found</strong> get the same values. The 2026-10-31 release has none.
+- <strong>Combinations of neutral terms</strong> (<code>Uncertain significance/Uncertain risk allele</code>, <code>/VUS-high</code>,
+  <code>/VUS-mid</code>, <code>/VUS-low</code>): a multi-SCV classification group and an aggregate statement it wins go to
+  <code>neutral</code> (478: 400 VCV, 78 RCV). Every other combination in the release has <code>supports</code> terms only, so it
+  keeps <code>supports</code>.
+- <strong>The FLAG label</strong> <code>no classifications from unflagged records</code>: a multi-SCV classification group and every
+  aggregate statement with this label go to <code>neutral</code> (2,550: 674 VCV, 1,876 RCV). A one-SCV FLAG
+  classification group still passes its flagged SCV's direction through.</p>
+<p>No other direction changes; every statement still has a direction. If you filter aggregate statements by
+<code>direction</code>, expect these values from the first 1.2.0 release.
+- <strong>The pipeline can't write a record that 1.2.0 rejects.</strong> No current record is affected; these guard cases
   that could appear in a later release. A molecular consequence keeps ClinVar's SO code even when the
   pipeline's 18-term SO lookup doesn't list it, so <code>ClinvarMolecularConsequenceCoding.code</code> is now any SO id
   (<code>^SO:[0-9]{7}$</code>) and <code>name</code> is optional (absent for a term outside the lookup). Protein expression text
@@ -6464,14 +6562,15 @@ explains the profiles and their rules, and each class page lists what its profil
   <code>submittedClassification</code> and <code>submittedScvClassification</code> extensions are never written without a value,
   and the classification <code>description</code> always has one. An RCV proposition whose member SCVs resolve no
   condition falls back to the RCV's own trait set, and an SCV, RCV or VCV proposition that still has no
-  <code>object</code> stops the build.</li>
-<li><strong>Bundle schema <code>$id</code> now resolves.</strong> The bundle schema's <code>$id</code> changes from
+  <code>object</code> stops the build.
+- <strong>Bundle schema <code>$id</code> now resolves.</strong> The bundle schema's <code>$id</code> changes from
   <code>https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGkmBundle</code>, which returned 404, to
   <code>https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json</code>. The new <code>$id</code> follows the
   same w3id pattern as the class schemas: it names the file's path under <code>schema/clinvar-gkm/</code>, so it resolves
   to the published file. The same path also resolves for earlier versions, for example
   <code>…/clinvar-gkm/1.0.1/clinvar-gkm-bundle.schema.json</code>. The schema shape is unchanged, so every bundle that
-  was valid stays valid, and no published file is rewritten.</li>
+  was valid stays valid, and no published file is rewritten.</p>
+</li>
 </ul>
 <h2 id="110">1.1.0 — 2026-10-22<a class="headerlink" href="#110" title="Permanent link">&para;</a></h2>
 <p>A <strong>breaking</strong> release during the

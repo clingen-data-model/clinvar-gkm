@@ -6691,6 +6691,9 @@
 <li><strong>FLAG</strong> -- fixed label: "no classifications from unflagged records"</li>
 <li><strong>NOCL</strong> -- passthrough label: "not provided"</li>
 <li><strong>aggregate_review_status</strong> -- derived for all submission levels based on submitter count and conflict state</li>
+<li><strong>agg_classif_coding</strong> -- the label's coding (<code>code</code>, <code>system</code>), the statement's <code>classification.primaryCoding</code>, built as in VCV: the <code>classif_codings</code> CTE looks the label up in <code>clinvar_clinsig_types</code> by proposition type and reuses the SCV coding with the code in lower case, and any other label gets system <code>ClinVar</code> and the lower-cased label as the code. For sci, the <code>sci_tier_label</code> helper column looks up the tier label without the <code>- &lt;assertion type&gt; - &lt;significance&gt; (n)</code> text. See <a href="../../vcv-statements/vcv-aggregation-rules/#classification-primarycoding"><code>classification.primaryCoding</code></a>.</li>
+<li><strong>agg_strength_name</strong> -- the <code>strength_label</code> of the same <code>clinvar_clinsig_types</code> row as <code>agg_classif_coding</code> (NULL when the label has no lookup row). The statement's <code>strength</code> for a multi-SCV group, and at the priority and aggregate layers. See <a href="../../vcv-statements/vcv-aggregation-rules/#quality-direction-and-strength"><code>quality</code>, <code>direction</code>, and <code>strength</code></a>.</li>
+<li><strong>agg_direction</strong> -- the <code>direction</code> of the same <code>clinvar_clinsig_types</code> row as <code>agg_classif_coding</code>. A label with no lookup row gets <code>neutral</code> if it is a conflicting label or the FLAG label; a combination gets the direction all the group's SCVs share (the <code>scv_agreed_direction</code> helper column of <code>core_agg</code>, not stored), or <code>supports</code> when they differ. It is never NULL. The statement's <code>direction</code> for a multi-SCV group, and at the priority and aggregate layers. See <a href="../../vcv-statements/vcv-aggregation-rules/#quality-direction-and-strength"><code>quality</code>, <code>direction</code>, and <code>strength</code></a>.</li>
 </ul>
 <p>ID format: <code>{RCV}.{ver}-{group}-{prop}-{level}[-{tier}]</code></p>
 <p><strong>Output:</strong> <code>gkm_rcv_grouping_base_agg</code> -- one row per aggregation group. <span class="role-badge badge-pipeline">Pipeline table</span></p>
@@ -6703,7 +6706,7 @@
 <li>All other tiers as non-contributing</li>
 <li>Secondary traits from non-contributing tiers that are not already present in the top tier</li>
 </ul>
-<p>The aggregate label appends secondary trait information when applicable.</p>
+<p>The aggregate label appends secondary trait information when applicable. <code>agg_classif_coding</code>, <code>agg_strength_name</code> and <code>agg_direction</code> are the top tier's.</p>
 <p>ID format: <code>{RCV}.{ver}-{group}-{prop}-{level}</code></p>
 <p><strong>Output:</strong> <code>gkm_rcv_grouping_tier_agg</code> -- one row per submission level within a proposition type. <span class="role-badge badge-pipeline">Pipeline table</span></p>
 <hr />
@@ -6711,7 +6714,7 @@
 <p>Submission-level aggregator using winner-takes-all ranking. Takes a unified input of Tier Grouping output (tiered records) combined with non-tiered Base Grouping records (<code>tier_grouping IS NULL</code>).</p>
 <p>Records are ranked by submission level within each <code>(rcv_accession, trait_set_id, statement_group, prop_type)</code> group using the explicit ordering <code>PG=6, EP=5, CP=4, NOCP=3, NOCL=2, FLAG=1</code>. The highest-ranked submission level becomes the contributing result; all others become non-contributing.</p>
 <p>A key difference from VCV: the winner-takes-all partition is by <code>rcv_accession</code> (not <code>variation_id</code>), since each RCV accession already represents a unique (variation, condition) pair.</p>
-<p>Non-contributing details are preserved as an array of structs containing the layer ID, submission level, aggregate label, and conflicting explanation for each non-contributing record.</p>
+<p>Non-contributing details are preserved as an array of structs containing the layer ID, submission level, aggregate label, and conflicting explanation for each non-contributing record. <code>agg_classif_coding</code>, <code>agg_strength_name</code> and <code>agg_direction</code> are the contributing (winning) record's.</p>
 <p>ID format: <code>{RCV}.{ver}-{group}-{prop}</code></p>
 <p><strong>Output:</strong> <code>gkm_rcv_aggregate_contribution</code> -- one row per proposition type within a statement group. <span class="role-badge badge-pipeline">Pipeline table</span></p>
 <hr />
@@ -6737,7 +6740,7 @@
 <tbody>
 <tr>
 <td><code>classification</code></td>
-<td>A Classification concept with <code>name</code> (the aggregate label) and optional <code>conflictingExplanation</code> extension. Used at every layer for every submission level</td>
+<td>A Classification concept with <code>name</code> (the aggregate label), <code>primaryCoding</code> (from <code>agg_classif_coding</code>; omitted when NULL) and optional <code>conflictingExplanation</code> extension. Used at every layer for every submission level</td>
 </tr>
 <tr>
 <td><code>quality</code></td>
@@ -6745,11 +6748,11 @@
 </tr>
 <tr>
 <td><code>direction</code></td>
-<td>Derived from the classification label; passed through from the contributing SCV for single-SCV aggregations</td>
+<td>The contributing SCV's direction for a single-SCV classification-layer group; otherwise <code>agg_direction</code>, the lookup direction of the label (for a label with no lookup row, the rule in <code>agg_direction</code> above)</td>
 </tr>
 <tr>
 <td><code>strength</code></td>
-<td>Derived from the classification label; passed through from the contributing SCV for single-SCV aggregations</td>
+<td>The contributing SCV's strength for a single-SCV classification-layer group; otherwise <code>agg_strength_name</code>, the lookup strength of the label (omitted when NULL)</td>
 </tr>
 <tr>
 <td><code>proposition</code></td>

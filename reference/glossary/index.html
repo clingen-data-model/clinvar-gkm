@@ -6580,9 +6580,9 @@
 <p><strong>Quality</strong>
 :   Statement-level attribute (<code>Statement.quality</code>, va-spec 2026-09) indicating the submission level — a review-status/trust rating. A Concept struct with <code>conceptType: "Quality"</code> and <code>name</code> set to the submission level label (e.g., <code>"criteria provided"</code>, <code>"expert panel"</code>). Present on SCV and aggregate (VCV/RCV) statements. Replaces the former <code>confidence</code> attribute.</p>
 <p><strong>Direction</strong>
-:   Whether evidence supports or disputes a proposition. Values: <code>supports</code>, <code>disputes</code>, <code>neutral</code>. On aggregate statements, derived from the classification label (multi-SCV) or passed through from the contributing SCV (single-SCV).</p>
+:   Whether evidence supports or disputes a proposition. Values: <code>supports</code>, <code>disputes</code>, <code>neutral</code>. On aggregate statements, the direction ClinVar's lookup gives the classification label (multi-SCV groups, priority and aggregate layers; for a label the lookup lacks, <code>neutral</code> for a conflicting label or the FLAG label, and for a combination the direction its SCVs share, else <code>supports</code>) or passed through from the contributing SCV (single-SCV classification groups).</p>
 <p><strong>Strength</strong>
-:   Evidence strength level. Values: <code>definitive</code>, <code>likely</code>, <code>strong</code>, <code>potential</code>. Omitted (null) when not applicable. On aggregate statements, derived from the classification label (multi-SCV) or passed through from the contributing SCV (single-SCV).</p>
+:   Evidence strength level. Values: <code>definitive</code>, <code>likely</code>, <code>strong</code>, <code>potential</code>. Omitted (null) when not applicable. On aggregate statements, the strength ClinVar's lookup gives the classification label (multi-SCV groups, priority and aggregate layers) or passed through from the contributing SCV (single-SCV classification groups).</p>
 <p><strong>Tier I</strong> / <strong>Tier II</strong> / <strong>Tier III</strong> / <strong>Tier IV</strong>
 :   Somatic clinical impact classification levels. Tier I (Strong) and Tier II (Potential) require paired sub-statements. Tier III (Unknown) and Tier IV (Benign/Likely benign) do not.</p>
 <p><strong>Concordant</strong>

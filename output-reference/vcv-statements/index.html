@@ -1176,6 +1176,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#direction" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Direction
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#proposition" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6338,6 +6349,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#direction" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Direction
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#proposition" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6473,7 +6495,7 @@
 <tr>
 <td><code>classification</code></td>
 <td>object</td>
-<td>MappableConcept — the aggregate classification label. See <a href="#classification">Classification</a></td>
+<td>MappableConcept — the aggregate classification label and its <code>primaryCoding</code>. See <a href="#classification">Classification</a></td>
 </tr>
 <tr>
 <td><code>strength</code></td>
@@ -6483,7 +6505,7 @@
 <tr>
 <td><code>direction</code></td>
 <td>string</td>
-<td><code>supports</code>, <code>disputes</code>, or <code>neutral</code> — derived from the aggregate classification</td>
+<td><code>supports</code>, <code>disputes</code>, or <code>neutral</code> — the direction the SCVs carry for the aggregate classification. See <a href="#direction">Direction</a></td>
 </tr>
 <tr>
 <td><code>quality</code></td>
@@ -6505,19 +6527,33 @@
 </div>
 <hr />
 <h2 id="classification">Classification<a class="headerlink" href="#classification" title="Permanent link">&para;</a></h2>
-<p>The <code>classification</code> field is a MappableConcept with the aggregate classification label:</p>
+<p>The <code>classification</code> field is a MappableConcept with the aggregate classification label and its coding:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">"conceptType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Classification"</span><span class="p">,</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Pathogenic/Likely pathogenic"</span><span class="p">,</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">"extensions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"conflictingExplanation"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Pathogenic(3); Likely pathogenic(2)"</span><span class="p">}</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">}</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MappableConcept"</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">"conceptType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Classification"</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Conflicting classifications of pathogenicity"</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">"primaryCoding"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"conflicting classifications of pathogenicity"</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">"system"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ClinVar"</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="nt">"extensions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"conflictingExplanation"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Pathogenic(3); Uncertain significance(2)"</span><span class="p">}</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">}</span>
 </code></pre></div>
 <p>The <code>extensions</code> array includes a <code>conflictingExplanation</code> when multiple contributing submissions have different clinical significance values. This extension is only present for CP-level aggregations with conflicts.</p>
+<p><code>primaryCoding</code> (from schema 1.2.0) codes the label. A label that is one classification term has the coding
+its SCVs carry, with the code in lower case (<code>Pathogenic</code> → <code>pathogenic</code> / <code>ACMG Guidelines, 2015</code>). A somatic
+clinical impact label is coded by its tier, without the tumor-type text (<code>Tier I (Strong) for 2 tumor types</code> →
+<code>tier 1</code> / <code>AMP/ASCO/CAP (AAC) Guidelines, 2017</code>). Any other label, such as a combination, a conflicting
+classification or <code>no classifications from unflagged records</code>, is a ClinVar-defined term: the label in lower
+case as the code and <code>ClinVar</code> as the system. See
+<a href="../../pipeline/vcv-statements/vcv-aggregation-rules/#classification-primarycoding"><code>classification.primaryCoding</code></a>
+for the rules and the list of ClinVar-defined codes.</p>
 <hr />
 <h2 id="strength">Strength<a class="headerlink" href="#strength" title="Permanent link">&para;</a></h2>
-<p>The <code>strength</code> field is a MappableConcept derived from the aggregate classification:</p>
+<p>The <code>strength</code> field is a MappableConcept: the strength the SCVs carry for the aggregate classification, from
+the same <code>clinvar_clinsig_types</code> row that gives the classification its <code>primaryCoding</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">"conceptType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Strength"</span><span class="p">,</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Definitive"</span>
@@ -6532,32 +6568,71 @@
 </thead>
 <tbody>
 <tr>
-<td>Pathogenic, Benign, Oncogenic</td>
+<td>Pathogenic; Benign; Oncogenic; Pathogenic, low penetrance; Established risk allele</td>
 <td>Definitive</td>
 </tr>
 <tr>
-<td>Likely pathogenic, Likely benign, Likely Oncogenic</td>
+<td>Likely pathogenic; Likely benign; Likely oncogenic; Likely pathogenic, low penetrance; Likely risk allele</td>
 <td>Likely</td>
 </tr>
 <tr>
-<td>Tier I (strong clinical significance)</td>
+<td>Tier I (Strong)</td>
 <td>Strong</td>
 </tr>
 <tr>
-<td>Tier II (potential clinical significance)</td>
+<td>Tier II (Potential)</td>
 <td>Potential</td>
 </tr>
 <tr>
-<td>Tier IV (benign/likely benign)</td>
-<td>Likely</td>
-</tr>
-<tr>
-<td>Uncertain, Conflicting, Tier III</td>
+<td>Tier III; Tier IV; Uncertain significance; Conflicting; combinations such as Pathogenic/Likely pathogenic; any other label</td>
 <td><em>null (omitted)</em></td>
 </tr>
 </tbody>
 </table>
-<p>For single-SCV aggregations, the strength is passed through from the contributing SCV.</p>
+<p>A somatic clinical impact statement takes its tier's strength (at the priority and aggregate layers, the top
+tier's). A classification-layer statement with one SCV passes that SCV's strength through. See
+<a href="../../pipeline/vcv-statements/vcv-aggregation-rules/#quality-direction-and-strength"><code>quality</code>, <code>direction</code>, and <code>strength</code></a>.</p>
+<hr />
+<h2 id="direction">Direction<a class="headerlink" href="#direction" title="Permanent link">&para;</a></h2>
+<p>The <code>direction</code> field is a string: the direction the SCVs carry for the aggregate classification, from the same
+<code>clinvar_clinsig_types</code> row that gives the classification its <code>primaryCoding</code>. Every VCV statement has one.</p>
+<table>
+<thead>
+<tr>
+<th>Classification</th>
+<th>Direction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pathogenic; Likely pathogenic; Pathogenic/Likely pathogenic; Oncogenic; Likely oncogenic; the low-penetrance and risk-allele labels except Uncertain risk allele; Tier I; Tier II; association; and ClinVar's other proposition types</td>
+<td><code>supports</code></td>
+</tr>
+<tr>
+<td>Uncertain significance; VUS-high, VUS-mid, VUS-low; Uncertain risk allele; Tier III; conflicting data from submitters</td>
+<td><code>neutral</code></td>
+</tr>
+<tr>
+<td>Benign; Likely benign; Benign/Likely benign; Tier IV; association not found</td>
+<td><code>disputes</code></td>
+</tr>
+<tr>
+<td>Conflicting classifications of pathogenicity / oncogenicity (no lookup row)</td>
+<td><code>neutral</code></td>
+</tr>
+<tr>
+<td>The FLAG label <code>no classifications from unflagged records</code> (no lookup row)</td>
+<td><code>neutral</code></td>
+</tr>
+<tr>
+<td>Combinations not in the lookup, such as Uncertain significance/VUS-high (no lookup row)</td>
+<td>the direction every SCV in the group carries; <code>supports</code> if they differ</td>
+</tr>
+</tbody>
+</table>
+<p>A somatic clinical impact statement takes its tier's direction (at the priority and aggregate layers, the top
+tier's). A classification-layer statement with one SCV passes that SCV's direction through. See
+<a href="../../pipeline/vcv-statements/vcv-aggregation-rules/#quality-direction-and-strength"><code>quality</code>, <code>direction</code>, and <code>strength</code></a>.</p>
 <hr />
 <h2 id="proposition">Proposition<a class="headerlink" href="#proposition" title="Permanent link">&para;</a></h2>
 <p>VCV propositions are delivered across the four proposition bundle sections (<code>propositionPathogenicity</code>, <code>propositionOncogenicity</code>, <code>propositionSomaticClinicalImpact</code>, <code>propositionClinvarCustom</code>) by meaning. Each VCV statement references its proposition via <code>#/proposition&lt;Meaning&gt;/{id}</code>.</p>
