@@ -179,7 +179,7 @@
     scv:      `-- classification and quality are STRUCTs: name the field. LIMIT without WHERE reads only the first row group\nSELECT id, classification.name AS classification, quality.name AS quality\nFROM '{BASE}/scv.parquet'\nLIMIT 25;`,
     vcv:      `SELECT id, classification.name AS classification, quality.name AS quality\nFROM '{BASE}/vcv.parquet'\nLIMIT 25;`,
     rcv:      `SELECT id, classification.name AS classification, quality.name AS quality\nFROM '{BASE}/rcv.parquet'\nLIMIT 25;`,
-    therapy:  `-- therapy is content-addressed: the id column is key. value->>'name' works on every release (1.1.0+ also has a name column)\nSELECT key, value->>'name' AS name\nFROM '{BASE}/therapy.parquet'\nLIMIT 25;`,
+    therapy:  `-- therapy is a small table: one row per drug named by a therapeutic-response proposition\nSELECT name\nFROM '{BASE}/therapy.parquet'\nORDER BY name;`,
     bytype:   `SELECT conceptType, count(*) AS n\nFROM '{BASE}/condition.parquet'\nGROUP BY 1 ORDER BY n DESC;`,
   };
 

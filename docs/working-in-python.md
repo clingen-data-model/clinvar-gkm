@@ -9,14 +9,21 @@ Parquet, follows their `#/section/id` pointers, builds the libraries' pydantic m
 serializes the models back to JSON.
 
 It assumes the bundle layout described in [Output Format](output-reference/overview.md) and
-[ID References](output-reference/id-references.md), and, for the Parquet section, the `data` column described in
-[The 22 Tables](parquet/tables.md#the-data-column).
+[ID References](output-reference/id-references.md), and, for the Parquet section, the tables described in
+[The 20 Tables](parquet/tables.md).
 
 !!! info "Tested with"
-    Every code block on this page was run on **2026-10-22**, with Python 3.12, against 1.1.0 data: the
-    sample bundle, the 2026-10-18 weekly delta, and the Parquet dataset built from 2026-10-18. Versions:
-    `ga4gh.vrs` 2.4.0a6, `ga4gh.cat_vrs` 0.8.0a6, `ga4gh.va_spec` 0.5.0a7, `ga4gh.gkm` 0.4.1,
-    `pydantic` 2.14.1, `duckdb` 2.0.0, `ijson` 3.6.0, and the ClinVar-GKM schema tree at tag `1.1.0`.
+    Every code block on this page was run on **2026-11-18** with:
+
+    - Python 3.12.8, `ga4gh.vrs` 2.4.0a6, `ga4gh.cat_vrs` 0.8.0a6, `ga4gh.va_spec` 0.5.0a7, `ga4gh.gkm` 0.4.1,
+      `pydantic` 2.14.3, `duckdb` 1.5.4, `pyarrow` 26.0.1, `ijson` 3.6.0, `gkm-bundle-parquet` 2.0.0, and the
+      ClinVar-GKM schema tree at tag `1.1.0`.
+    - **Bundle examples:** 1.1.0 data, the sample bundle and the 2026-10-18 weekly delta.
+    - **Parquet examples:** 2.0 tables built by `gkm-bundle-parquet` 2.0.0 from four variants of the 2026-10-31
+      release (built as schema 1.2.0), and a mini-bundle cut from that release. The published set at
+      `v1/1.2/parquet/` has the same columns and more rows.
+
+    The Parquet files are written with DuckDB 1.5.4: the `duckdb_version` in their `manifest.json`.
 
 ---
 
@@ -41,7 +48,7 @@ the same three pre-releases.
 python3 -m venv .venv
 . .venv/bin/activate
 pip install -q "ga4gh.vrs==2.4.0a6" "ga4gh.cat_vrs==0.8.0a6" "ga4gh.va_spec==0.5.0a7" "ga4gh.gkm==0.4.1"
-pip install -q duckdb ijson    # for the Parquet and streaming examples
+pip install -q "duckdb==1.5.4" pyarrow ijson    # for the Parquet and streaming examples
 ```
 
 Check what is installed and which schema versions the libraries implement:
@@ -237,7 +244,7 @@ Records in the `scv`, `vcv` and `rcv` sections load as `Statement`, and `evidenc
   [Variations](output-reference/cat-vrs.md) document each one.
 - **ClinVar custom propositions** have no class in va-spec-python yet. The `propositionClinvarCustom` section
   holds ClinVar's own germline proposition types (`ClinvarOtherProposition`, `ClinvarRiskFactorProposition`,
-  …). Work with them as plain JSON, as the bundle and the Parquet `data` column provide them. Every other
+  …). Work with them as plain JSON, as the bundle provides them. Every other
   section loads into a library class without loss; see [Round trip](#round-trip).
 
 ---
@@ -373,86 +380,175 @@ as the toolkit.
 
 ## From Parquet
 
-Every [Parquet table](parquet/tables.md) has a `data` column holding each record's complete JSON as a string,
-exactly as in the bundle, so `json.loads(data)` gives the same record the bundle does. Read a few rows
-remotely with DuckDB, and build the models:
+The [Parquet tables](parquet/tables.md) have no `data` column: every property of a record is its own typed
+column, named after the bundle property, and a reference is the bare id of the record it names, not a `#/…` pointer (see
+[No `data` column](parquet/migrating-from-1.1.md#no-data-column)). How close a row is to its bundle record
+decides how to get a model from it:
+
+- **The VRS tables** (`allele`, `location`, `sequenceReference`): a row without its NULL columns is the bundle
+  record, with bare-id references, apart from the few columns noted below. It builds the model directly.
+- **Every other table** keeps values in a table's shape: extension values in `value_<kind>` slots, list
+  references as `{id, section}` STRUCTs, a `_section` column beside a reference, some nested values as JSON text.
+  Query those tables for what you need, then take the records themselves from the bundle.
+
+[Build Your Own Tables and Mini-Bundles](parquet/build-your-own.md) covers `gkm-bundle-parquet`, the tool that
+builds the tables and cuts mini-bundles.
+
+### VRS records from rows
+
+Read rows as dictionaries through pyarrow, drop the NULLs, and build the models. Here, the alleles of three
+variants: `variation.members` gives each member's id and the table it is in.
 
 ```python
 import duckdb
 
 P = "https://data.clinvar-gkm.org/v1/1.2/parquet"
 
-rows = duckdb.sql(f"SELECT id, location_id, data FROM '{P}/allele.parquet' LIMIT 3").fetchall()
-for allele_id, location_id, data in rows:
-    print(allele_id, vrs.Allele(**json.loads(data)).name)
-```
 
-```text
-ga4gh:VA.gaVM-oJ-UMO3cZMxe8-U0ktIKu7YvQK4 NC_000015.10:g.78513242G>A
-ga4gh:VA.plnkuDHIFWLbLgn729ZU4dZlFhtM1Jco NC_000016.10:g.31224570C>A
-ga4gh:VA.0Om9Ephu36fbTCIM_H4ushaqsJGXPOes NC_000017.11:g.41715616G>A
-```
+def strip_nulls(value):
+    """A row, or a STRUCT or list inside it, without its NULL fields."""
+    if isinstance(value, dict):
+        return {k: strip_nulls(v) for k, v in value.items() if v is not None}
+    if isinstance(value, list):
+        return [strip_nulls(v) for v in value]
+    return value
 
-Inside `data`, references are bundle pointers; the typed columns carry the bare id (`location_id`). Follow a
-reference by looking the id up in the table its prefix names (see
-[Ids tell you where to look](parquet/tables.md#ids-tell-you-where-to-look)). Here, the alleles' locations and
-sequence references, and the same identifier check as above:
 
-```python
-def by_id(table, ids, columns="id, data"):
+def rows(query, params=()):
+    """Run a query; return each row as a dict of column name to value, without NULLs."""
+    table = duckdb.execute(query, list(params)).to_arrow_table()
+    return [strip_nulls(row) for row in table.to_pylist()]
+
+
+def by_id(table, ids, columns="*"):
     """Fetch the rows of one table whose id is in ids, keyed by id."""
     marks = ", ".join("?" * len(ids))
     query = f"SELECT {columns} FROM '{P}/{table}.parquet' WHERE id IN ({marks})"
-    return {row[0]: row[1:] for row in duckdb.execute(query, list(ids)).fetchall()}
+    return {row["id"]: row for row in rows(query, ids)}
 
 
-locations = by_id("location", [location_id for _, location_id, _ in rows], "id, sequence_reference_id, data")
-sequences = by_id("sequenceReference", [sequence_id for sequence_id, _ in locations.values()])
+variants = by_id("variation", ["clinvar:10", "clinvar:12582", "clinvar:51592"], "id, members")
+alleles = by_id("allele", [m["id"] for v in variants.values() for m in v["members"] if m["section"] == "allele"])
+for allele_id, row in alleles.items():
+    model = vrs.Allele(**row)
+    print(allele_id, model.name, model.location.root)
+```
 
-for allele_id, location_id, data in rows:
-    sequence_id, location_data = locations[location_id]
-    inline = content(json.loads(location_data)) | {"sequenceReference": json.loads(sequences[sequence_id][0])}
-    recomputed = ga4gh_identify(vrs.Allele(**content(json.loads(data)) | {"location": inline}))
+```text
+ga4gh:VA.Apas_jvqBJU7l4DGHGlvTGRY3BBh-UR9 NC_000013.11:g.32338445A>C ga4gh:SL.Gga5J2ccypatzYD5tBIeQEU9K4sPXc6J
+ga4gh:VA.ELQCnIBGqaTl0AEE0Az18XZ2cgIHAQIY NC_000006.12:g.26090951C>G ga4gh:SL.Eg_6kV6Bb4FMjm9kEolHZ_4NhU8lBEsZ
+ga4gh:VA.LDaqvF3c3y1IG8wF4mORiRfB--9Jjfzp NC_000012.12:g.25245350C>T ga4gh:SL.qaHcVvdl8j0lpLRt49hE-bFI81128Mk9
+```
+
+The allele's `location` is a bare id. Follow it, and the location's `sequenceReference`, and recompute the
+identifiers as [above](#vrs-alleles-and-their-identifiers):
+
+```python
+# The record's own properties: start_min, start_max, end_min and end_max are derived columns
+locations = by_id("location", [row["location"] for row in alleles.values()],
+                  'id, type, digest, sequenceReference, start, "end"')
+# extensions keeps its values in value_<kind> slots; the identifier doesn't use it
+sequences = by_id("sequenceReference", [row["sequenceReference"] for row in locations.values()],
+                  "* EXCLUDE (extensions)")
+
+for allele_id, row in alleles.items():
+    location_row = locations[row["location"]]
+    inline = content(location_row) | {"sequenceReference": sequences[location_row["sequenceReference"]]}
+    recomputed = ga4gh_identify(vrs.Allele(**content(row) | {"location": inline}))
     print(allele_id, recomputed == allele_id)
 ```
 
 ```text
-ga4gh:VA.gaVM-oJ-UMO3cZMxe8-U0ktIKu7YvQK4 True
-ga4gh:VA.plnkuDHIFWLbLgn729ZU4dZlFhtM1Jco True
-ga4gh:VA.0Om9Ephu36fbTCIM_H4ushaqsJGXPOes True
+ga4gh:VA.Apas_jvqBJU7l4DGHGlvTGRY3BBh-UR9 True
+ga4gh:VA.ELQCnIBGqaTl0AEE0Az18XZ2cgIHAQIY True
+ga4gh:VA.LDaqvF3c3y1IG8wF4mORiRfB--9Jjfzp True
 ```
 
-The same pattern links a proposition to its statement and its variant. `scv.proposition_id` and
-`variation.id` are the join keys ([Joining Tables](parquet/joining.md) covers every hop):
+- **Ranges.** A location whose `start` or `end` is a VRS Range has NULL in that column. The bounds are in
+  `start_min` and `start_max` (`end_min`, `end_max`), and the record's value is `[start_min, start_max]`, with
+  `null` for an open bound. Copy-number locations are the usual case.
+- **Sequence references.** `id` is the record's bundle key, which the record itself doesn't carry, and
+  `extensions` keeps its values in `value_<kind>` slots.
+- **Checked.** In a build of the 2026-10-31 delta, every `allele` row (16,557) and `location` row (11,127), read
+  this way, equals its bundle record with the record's `#/…` pointers cut to bare ids.
+
+### Statements, propositions and variants
+
+For the other tables, query the columns. The proposition → statement → variant walk from the bundle examples,
+from the tables (`scv.proposition` and `variation.id` are the join keys; [Joining Tables](parquet/joining.md)
+covers every hop):
 
 ```python
-(prop_id, prop_data), = duckdb.sql(
-    f"SELECT id, data FROM '{P}/propositionClinvarCustom.parquet' "
-    "WHERE type = 'ClinvarRiskFactorProposition' AND gene_context_id IS NOT NULL LIMIT 1"
-).fetchall()
-(scv_data,), = duckdb.execute(
-    f"SELECT data FROM '{P}/scv.parquet' WHERE proposition_id = ?", [prop_id]).fetchall()
-risk = json.loads(prop_data)
-variant_id = risk["subject"].removeprefix("#/variation/")
-(variant_data,) = by_id("variation", [variant_id])[variant_id]
+prop_row = rows(f"""
+    SELECT id, subject, predicate, geneContextQualifier.name AS gene
+    FROM '{P}/propositionClinvarCustom.parquet'
+    WHERE subject = 'clinvar:10' AND type = 'ClinvarRiskFactorProposition'
+      AND geneContextQualifier.primaryCoding IS NOT NULL
+    ORDER BY id LIMIT 1""")[0]
+scv_row = rows(f"SELECT id, classification.name AS classification FROM '{P}/scv.parquet' WHERE proposition = ?",
+               [prop_row["id"]])[0]
+variant_row = by_id("variation", [prop_row["subject"]], "id, name")[prop_row["subject"]]
 
-print(prop_id, risk["predicate"], risk["geneContextQualifier"]["name"])
-print(va.Statement(**json.loads(scv_data)).classification.name)
-print(catvrs.CategoricalVariant(**json.loads(variant_data)).name)
+print(prop_row["id"], prop_row["predicate"], prop_row["gene"])
+print(scv_row["id"], scv_row["classification"])
+print(variant_row["id"], variant_row["name"])
 ```
 
 ```text
-SCV000821694-RF isRiskFactorFor APC
-risk factor
-NM_000038.6(APC):c.3920T>A (p.Ile1307Lys)
+SCV001142520-RF isRiskFactorFor HFE
+clinvar.submission:SCV001142520.1 risk factor
+clinvar:10 NM_000410.4(HFE):c.187C>G (p.His63Asp)
+```
+
+To load these records into the library models, take them from the bundle the tables were built from: the
+weekly full of the manifest's `source_release`, which is `weekly/clinvar-gkm_00-latest_weekly.json.gz` while the
+tables are current. `gkm-bundle-parquet select` cuts a mini-bundle from it: the SCV and every record it points
+to, directly or through other records, so every pointer in it resolves inside the file.
+
+```bash
+uvx gkm-bundle-parquet@2.0.0 select \
+    --full https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz \
+    --bundle-schema https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json \
+    --driver scv --ids clinvar.submission:SCV001142520.1 --out SCV001142520.json.gz
+```
+
+`select` reads the whole bundle, so one id costs about as much as many: pass every id you need in one run
+(`--ids` takes a comma-separated list, `--ids-file` a file of ids). On a local copy of the 2026-10-31 full
+bundle, this selection took under 3 minutes. The mini-bundle loads like the sample:
+
+```python
+with gzip.open("SCV001142520.json.gz", "rt") as f:
+    mini = json.load(f)
+
+
+def lookup(pointer):
+    """resolve(), for the mini-bundle."""
+    section, key = pointer.removeprefix("#/").split("/", 1)
+    return mini[section][key]
+
+
+scv_record = mini["scv"][scv_row["id"]]
+risk = lookup(scv_record["proposition"])  # a ClinVar custom proposition: plain JSON
+print(va.Statement(**scv_record).classification.name, "|",
+      lookup(scv_record["contributions"][0]["contributor"])["name"])
+print(risk["type"], risk["predicate"], risk["geneContextQualifier"]["name"])
+print(catvrs.CategoricalVariant(**lookup(risk["subject"])).name)
+print({section: len(records) for section, records in mini.items() if isinstance(records, dict)})
+```
+
+```text
+risk factor | Center for Computational Genomics and Data Science, University of Alabama
+ClinvarRiskFactorProposition isRiskFactorFor HFE
+NM_000410.4(HFE):c.187C>G (p.His63Asp)
+{'sequenceReference': 1, 'location': 1, 'allele': 1, 'gene': 2, 'variation': 1, 'condition': 1, 'submitter': 1, 'propositionClinvarCustom': 1, 'scv': 1}
 ```
 
 !!! warning "Remote reads of big tables are slow"
-    The files are not sorted by id, so a filter reads the filtered column from every row group, one HTTP
-    request each. On 2026-10-22, a `LIMIT 3` read of a large table took 10–25 seconds, an id lookup in
-    `location` 10–20 seconds, and the proposition → statement → variant lookup above 40–125 seconds in all.
-    The CDN allows 250 requests per 10 seconds per client. For anything beyond a handful of lookups, download
-    the tables you need and query them locally ([Working at Scale](parquet/performance.md#local-or-remote)).
+    The tables are sorted by `id`, and each row group's id range is in the file footer, so a lookup by `id`
+    reads only the row groups that can hold it. A filter on any other column (`scv.proposition` above) reads
+    that column from every row group, one HTTP request each, and the CDN limits each client to about 55
+    requests per 10 seconds. For anything beyond a handful of lookups, download the tables you need and query
+    them locally ([Working at Scale](parquet/performance.md#local-or-remote)).
 
 ---
 
@@ -543,7 +639,8 @@ to work with it:
 - **Stream it.** [`ijson`](https://pypi.org/project/ijson/) reads one record at a time; `kvitems(f, "scv")`
   yields each `(id, record)` of a section. Build a model per record, keep what you need, and memory stays
   flat. One pass reads the whole file.
-- **Query the Parquet** for the latest release, and fetch the `data` of just the records you need, as above.
+- **Query the Parquet** for the latest release to find the records you need, and cut just those out of the
+  bundle with `gkm-bundle-parquet select`, as [above](#statements-propositions-and-variants).
 - **Cut a sub-bundle.** The [Sub-Bundle Extraction](pipeline/sub-bundle.md) tool, which made the sample
   above, extracts a self-contained bundle for a list of statements. It reads the project's BigQuery tables,
   not a published file, so it needs access to those datasets.

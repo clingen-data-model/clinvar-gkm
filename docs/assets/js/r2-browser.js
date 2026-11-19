@@ -230,7 +230,12 @@
     var f = folder(title, true, dateBadge(parquetDate(p)));
     var manifest = p.manifest || (/00-latest/.test(dir) ? null : dir + "manifest.json");
     if (manifest) f.appendChild(fileRow(baseName(manifest), url(manifest)));
-    (p.sections && p.sections.length ? p.sections : PARQUET_SECTIONS).forEach(function (s) {
+    // Fallback when the index lists no sections: the 1.1 (BigQuery) set has 22 tables, the 2.0 set 20
+    // (one evidenceLine table, no vcv_evidenceLine / rcv_evidenceLine).
+    var fallback = /^BigQuery/.test(p.builder || "") ? PARQUET_SECTIONS : PARQUET_SECTIONS.filter(function (s) {
+      return s !== "vcv_evidenceLine" && s !== "rcv_evidenceLine";
+    });
+    (p.sections && p.sections.length ? p.sections : fallback).forEach(function (s) {
       f.appendChild(fileRow(s + ".parquet", url(dir + s + ".parquet")));
     });
     mount.appendChild(f);

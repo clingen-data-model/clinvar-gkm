@@ -102,6 +102,50 @@ required. The rules are in
   still carries the upstream code `pathogenic/Likely pathogenic`. Compare codes case-insensitively; see
   [Known Issues](known-issues.md#scv-and-aggregate-codes-for-pathogeniclikely-pathogenic-differ-in-case).
 
+### Breaking for Parquet users: tables built by gkm-bundle-parquet 2.0
+
+From 1.2.0 the Parquet tables are built from the JSON bundle by
+[`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) 2.0.0, generated from the
+1.2.0 schema, and published at `v1/1.2/parquet/`. They replace the 22 tables exported from BigQuery for the 1.1
+line. **The JSON bundles are unaffected**: this changes only the Parquet tables. Queries written for the 1.1 tables
+need rewriting; [Moving from the 1.1 Tables](../parquet/migrating-from-1.1.md) maps every table and column and
+rewrites nine common queries.
+
+- **20 tables, not 22.** SCV, VCV and RCV evidence lines are all in `evidenceLine`; `vcv_evidenceLine` and
+  `rcv_evidenceLine` are gone.
+- **No `data` column.** Every property of a record has its own typed column, at any depth, named as in the bundle
+  (camelCase). `to_json()` returns a row as JSON, and `gkm-bundle-parquet rebuild` turns the tables back into
+  the bundle's records exactly.
+- **References are bare ids, with a `_section` column** where a reference can point to more than one table
+  (`object_section`, `proposition_section`); lists of such references are `STRUCT(id, section)[]`.
+- **Qualifiers and gene context are STRUCTs**, as in the bundle: `geneContextQualifier`,
+  `modeOfInheritanceQualifier`, `penetranceQualifier`. The four proposition tables no longer share one schema;
+  read them together with `read_parquet('proposition*.parquet', union_by_name = true)`.
+- **Extension values have one column per kind**, `value_string`, `value_object`, `value_object_array` and
+  others; a few deeply nested positions are JSON text.
+- **Smaller:** `location.end` (quote it: `"end"`), contribution dates as ISO text, rows sorted by `id`, and
+  `therapy` and `therapyGroup` key on `id` like every other table.
+- **4.6 GB instead of 13.2 GB** for a whole release.
+
+| 1.1 column | 2.0 column |
+| --- | --- |
+| `proposition_id` (on `scv`, `vcv`, `rcv`) | `proposition` |
+| `has_evidence_lines` | `hasEvidenceLines` |
+| `subject_variant_id` | `subject` |
+| `object_id`, `object_type` | `object`, `object_section` |
+| `gene_context_name`, `gene_context_id` | `geneContextQualifier.name`, `'ncbigene:' \|\| geneContextQualifier.primaryCoding.code` |
+| `mode_of_inheritance`, `penetrance` | `modeOfInheritanceQualifier.name`, `penetranceQualifier.name` |
+| `vcv_evidenceLine.evidence_items` | `evidenceLine.hasEvidenceItems[].id` |
+| `location.loc_start`, `loc_end`, `sequence_reference_id` | `location.start`, `"end"`, `sequenceReference` |
+| `data->>'$.…'` | the typed column of the same path |
+
+**Timeline.** The 1.1 tables at `v1/1.1/parquet/` stay downloadable, not rebuilt, until the first 1.2 Parquet set
+is published, shortly after the `v1/1.2/` line starts; the live console has no tables in that short gap. From then on the
+2.0 tables at `v1/1.2/parquet/` are rebuilt every release and the console reads them, and `v1/1.1/parquet/` is
+deleted, as a frozen line keeps no Parquet: download the 1.1 tables before 1.2.0 is published if you need them.
+To build tables for any release yourself, see
+[Build Your Own Tables and Mini-Bundles](../parquet/build-your-own.md).
+
 ### Fixes
 
 - **VCV and RCV aggregate `strength` now matches the strength the SCVs carry**
@@ -205,7 +249,7 @@ published under a new line folder, **`v1/1.1/`**, in a new R2 layout that mirror
   `object_type` (the table `object_id` points at: `condition`, `conditionSet`, `therapy` or `therapyGroup`)
   and the columns only some of the old tables had (`condition_qualifier_id`, `mode_of_inheritance`,
   `penetrance`). The section is a function of the proposition `type` alone; see the
-  [migration table](../parquet/tables.md#proposition-migration). The bundle schema's
+  [proposition tables](../parquet/tables.md#proposition-tables). The bundle schema's
   `propositionClinvarCustom` section no longer lists the abstract `ClinvarGermlineCustomProposition` base, so
   each record must carry one of the concrete `Clinvar*` types (every published record already does). The
   Parquet entries below name the pre-1.1.0 tables.

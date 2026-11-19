@@ -56,7 +56,7 @@ New releases are produced within a day or two after ClinVar's XML releases and a
 ## Getting Started
 
 !!! tip "Prefer tables to JSON?"
-    The latest release is also published as one set of **22 typed [Parquet](data-access/parquet.md) tables**, rebuilt every week, that you can query with SQL, with no database and no data loading. [**Query the Data**](parquet/index.md) starts with a live query console in your browser and works up to joins, recipes and large-scale analysis.
+    The latest release is also published as one set of **20 typed [Parquet](data-access/parquet.md) tables**, rebuilt every week, that you can query with SQL, with no database and no data loading. [**Query the Data**](parquet/index.md) starts with a live query console in your browser and works up to joins, recipes and large-scale analysis.
 
 ### Download the Latest Release
 
@@ -140,7 +140,7 @@ The SCV statements for this variant reference it via `#/variation/clinvar:10` in
 
 ## Data Access
 
-ClinVar-GKM is distributed as **official monthly full bundles**, **weekly full bundles** and **weekly deltas**, laid out like NCBI's ClinVar XML folder, plus one typed Parquet dataset (one file per section) for the latest release. Each bundle is a gzip-compressed JSON file. The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
+ClinVar-GKM is distributed as **official monthly full bundles**, **weekly full bundles** and **weekly deltas**, laid out like NCBI's ClinVar XML folder, plus one typed Parquet dataset (one file per section) for the latest release, built from the bundle. Each bundle is a gzip-compressed JSON file. The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.
 
 ### Release Schedule
 

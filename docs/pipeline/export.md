@@ -165,7 +165,8 @@ built from the **published weekly full** of the newest release by
 [gkm-bundle-parquet](https://github.com/clingen-data-model/gkm-bundle-parquet), a separate, independently versioned
 tool for any GKM bundle, installed from [PyPI](https://pypi.org/project/gkm-bundle-parquet/2.0.0/) and pinned to
 **2.0.0**. BigQuery exports no Parquet: every table and value is derived from the bundle, so the bundle stays the
-record and the Parquet set is a convenience that can be regenerated from it.
+record and the Parquet set is a convenience that can be regenerated from it. To build the same tables yourself, or
+cut a mini-bundle from a full bundle, see [Build Your Own Tables and Mini-Bundles](../parquet/build-your-own.md).
 
 `run-release.sh` runs this step as its stage 6, after stage 5 has uploaded the weekly full; `--skip-parquet` skips it
 and leaves the previous set in place. It can also be run on its own for a release that is already published:
