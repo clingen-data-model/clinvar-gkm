@@ -1,0 +1,8 @@
+{#-
+  Override of the theme's 404 page: the theme's "Skip to content" link points to
+  #__skip, but its 404 heading has no id, so the link has no target.
+-#}
+{% extends "main.html" %}
+{% block content %}
+  <h1 id="__skip">404 - Not found</h1>
+{% endblock %}

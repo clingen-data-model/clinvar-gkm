@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClinVar-GKM Primer</title>
+<style>
+  /* ---- Palette: shared with docs/assets/diagrams/bundle-section-map.html ---- */
+  :root {
+    --bg: #FFFFFF; --panel: #F7F6F2; --ink: #1B2430; --ink-soft: #5B6572;
+    --line: #B9C0C8; --line-strong: #8A939E; --box: #FFFFFF; --hdr: #F0EEE7;
+    --accent: #3E6B6B; --id: #7A4D9C;
+    /* spec family hues */
+    --vrs: #2C6FB5; --catvrs: #3E8E7E; --vaspec: #8D5BB0; --core: #B8862F;
+    --shadow: 0 8px 30px rgba(20,28,40,.12);
+  }
+  :root[data-theme="dark"] {
+    --bg: #11161C; --panel: #171D24; --ink: #E7E9EC; --ink-soft: #97A1AC;
+    --line: #3A434D; --line-strong: #4B5560; --box: #1B222A; --hdr: #232B34;
+    --accent: #7FC4C4; --id: #C6A0E0;
+    --vrs: #6BA8E0; --catvrs: #6FC4B2; --vaspec: #C6A0E0; --core: #E0BE73;
+    --shadow: 0 10px 34px rgba(0,0,0,.45);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #11161C; --panel: #171D24; --ink: #E7E9EC; --ink-soft: #97A1AC;
+      --line: #3A434D; --line-strong: #4B5560; --box: #1B222A; --hdr: #232B34;
+      --accent: #7FC4C4; --id: #C6A0E0;
+      --vrs: #6BA8E0; --catvrs: #6FC4B2; --vaspec: #C6A0E0; --core: #E0BE73;
+      --shadow: 0 10px 34px rgba(0,0,0,.45);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif; overflow: hidden; }
+  code, .mono { font-family: ui-monospace, "SF Mono", Consolas, monospace; }
+
+  /* ---------------- Stage scaling ---------------- */
+  #viewport { position: fixed; inset: 0; display: grid; place-items: center; overflow: hidden;
+    background: radial-gradient(1200px 700px at 50% -10%, color-mix(in srgb, var(--accent) 9%, var(--bg)), var(--bg)); }
+  #stage { position: relative; width: 1280px; height: 720px; transform: scale(var(--scale, 1));
+    transform-origin: center center; }
+
+  .slide { position: absolute; inset: 0; padding: 50px 68px 60px; display: flex; flex-direction: column;
+    opacity: 0; visibility: hidden; transition: opacity .35s ease; background: var(--bg);
+    border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+  .slide.active { opacity: 1; visibility: visible; }
+  @media (prefers-reduced-motion: reduce) { .slide { transition: none; } }
+
+  /* subtle corner brand mark */
+  .slide::after { content: ""; position: absolute; right: 0; bottom: 0; width: 220px; height: 220px;
+    background: radial-gradient(circle at bottom right, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%);
+    pointer-events: none; }
+
+  .kicker { font-size: 14px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent);
+    font-weight: 700; margin: 0 0 10px; }
+  .slide h2 { font-size: 36px; line-height: 1.12; margin: 0 0 6px; font-weight: 800; letter-spacing: -.01em; }
+  .slide h2 .q { color: var(--accent); }
+  .lede { font-size: 20px; line-height: 1.5; color: var(--ink-soft); margin: 6px 0 20px; max-width: 980px; }
+  .slide .body { flex: 1 1 auto; min-height: 0; }
+  .foot { position: absolute; left: 68px; right: 210px; bottom: 18px; font-size: 12px; color: var(--ink-soft);
+    letter-spacing: .02em; line-height: 1.5; }
+  .foot a { color: var(--accent); font-weight: 600; text-decoration: none; white-space: nowrap; }
+  .foot a:hover { text-decoration: underline; }
+  .foot .dl::before { content: "Docs → "; color: var(--ink-soft); font-weight: 400; }
+  #s-title .docsite { margin-top: 20px; font-size: 16px; color: var(--ink-soft); }
+  #s-title .docsite a { color: var(--accent); font-weight: 700; text-decoration: none;
+    border-bottom: 2px solid color-mix(in srgb, var(--accent) 45%, transparent); }
+  #s-title .docsite a:hover { border-bottom-color: var(--accent); }
+
+  /* ---------------- Reusable bits ---------------- */
+  .cols { display: grid; gap: 18px; }
+  .c2 { grid-template-columns: 1fr 1fr; }
+  .c3 { grid-template-columns: repeat(3, 1fr); }
+  .c4 { grid-template-columns: repeat(4, 1fr); }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .card h3 { margin: 0 0 6px; font-size: 18px; }
+  .card p { margin: 0; font-size: 15px; line-height: 1.45; color: var(--ink-soft); }
+  .card .big { font-size: 30px; font-weight: 800; color: var(--ink); letter-spacing: -.01em; }
+
+  ul.ticks { list-style: none; margin: 0; padding: 0; }
+  ul.ticks li { position: relative; padding: 7px 0 7px 30px; font-size: 18px; line-height: 1.4; }
+  ul.ticks li::before { content: "▸"; position: absolute; left: 6px; color: var(--accent); font-weight: 700; }
+  ul.ticks li b { font-weight: 700; }
+
+  .pill { display: inline-block; font-family: ui-monospace, monospace; font-size: 12px; color: var(--id);
+    background: color-mix(in srgb, var(--id) 12%, transparent); border: 1px solid color-mix(in srgb, var(--id) 40%, transparent);
+    border-radius: 4px; padding: 1px 7px; }
+  .arrow { color: var(--accent); font-weight: 700; }
+
+  /* chip w/ popup */
+  .chip { position: relative; display: inline-flex; align-items: center; gap: 6px; cursor: help;
+    font-size: 15px; font-weight: 600; padding: 6px 11px; border-radius: 999px;
+    background: var(--box); border: 1px solid var(--line-strong); color: var(--ink); outline: none; }
+  .chip:hover, .chip:focus-visible, .chip.pinned { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .chip .i { width: 16px; height: 16px; border-radius: 50%; font-size: 11px; font-weight: 800; line-height: 16px;
+    text-align: center; color: var(--bg); background: var(--accent); }
+  .chip .tip { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
+    width: 340px; max-width: 46vw; white-space: normal; overflow-wrap: break-word; word-break: normal;
+    background: var(--box); color: var(--ink); border: 1px solid var(--line-strong);
+    border-radius: 9px; padding: 10px 13px; font-size: 12px; font-weight: 400; line-height: 1.45;
+    box-shadow: var(--shadow); opacity: 0; visibility: hidden; transition: opacity .15s ease; z-index: 40;
+    text-align: left; }
+  .chip .tip::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 7px solid transparent; border-top-color: var(--box); }
+  .chip:hover .tip, .chip:focus-within .tip, .chip.pinned .tip { opacity: 1; visibility: visible; }
+  .chip .tip b { color: var(--accent); }
+  .chip .tip code { font-size: 12px; background: color-mix(in srgb, var(--ink) 8%, transparent); padding: 0 4px; border-radius: 3px; }
+
+  /* spec-tinted chip variants */
+  .chip.vrs    { border-color: color-mix(in srgb, var(--vrs) 60%, var(--line)); }
+  .chip.vrs .i { background: var(--vrs); }
+  .chip.catvrs    { border-color: color-mix(in srgb, var(--catvrs) 60%, var(--line)); }
+  .chip.catvrs .i { background: var(--catvrs); }
+  .chip.vaspec    { border-color: color-mix(in srgb, var(--vaspec) 60%, var(--line)); }
+  .chip.vaspec .i { background: var(--vaspec); }
+  .chip.core    { border-color: color-mix(in srgb, var(--core) 60%, var(--line)); }
+  .chip.core .i { background: var(--core); }
+
+  /* drawer (reused house component) */
+  /* overflow:visible so chip tooltips inside a drawer aren't clipped; header corners rounded to match */
+  .drawer { background: var(--box); border: 1px solid var(--line-strong); border-radius: 8px; overflow: visible; width: 100%; }
+  .drawer .head { padding: 7px 12px; background: var(--hdr); border-radius: 7px 7px 0 0; }
+  .drawer .skey { font-weight: 800; font-size: 15px; font-family: ui-monospace, monospace; }
+  .drawer .skey::before { content: "{ } "; color: var(--ink-soft); font-weight: 400; opacity: .55; }
+  .drawer .otype { font-size: 11px; color: var(--ink-soft); margin-top: 1px; }
+  .drawer .dbody { padding: 10px 12px; }
+  .drawer .eid { display: inline-block; font-family: ui-monospace, monospace; font-size: 12px; color: var(--id);
+    background: color-mix(in srgb, var(--id) 12%, transparent); border: 1px solid color-mix(in srgb, var(--id) 40%, transparent);
+    border-radius: 4px; padding: 1px 7px; margin-bottom: 8px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .drawer .ref { font-family: ui-monospace, monospace; font-size: 12.5px; color: var(--ink-soft); margin: 3px 0; white-space: nowrap; }
+  .drawer .ref b { color: var(--ink); } .drawer .ref .to { color: var(--accent); }
+  .drawer .leaf { font-family: ui-monospace, monospace; font-size: 12px; color: var(--ink-soft); font-style: italic; }
+  .conn { display: flex; flex-direction: column; align-items: center; color: var(--ink-soft); }
+  .conn .l { width: 2px; height: 14px; background: var(--line-strong); }
+  .conn .r { font-family: ui-monospace, monospace; font-size: 11px; margin: 2px 0; }
+  .conn .a { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid var(--line-strong); }
+
+  /* XML-complexity tree (slide 3) — grounded in ClinVar_VCV.xsd */
+  .xmlbox { background: var(--box); border: 1px solid var(--line-strong); border-radius: 8px;
+    padding: 11px 13px; font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: 12.5px;
+    line-height: 1.58; color: var(--ink-soft); overflow: hidden; }
+  .xmlbox .ln { white-space: pre; display: block; border-radius: 3px; padding: 0 4px; }
+  .xmlbox .tg { color: var(--accent); }
+  .xmlbox .at { color: var(--id); }
+  .xmlbox .cm { color: var(--ink-soft); opacity: .68; font-style: italic; }
+  .xmlbox .hot { background: color-mix(in srgb, var(--accent) 15%, transparent); }
+  .xmlbox .mk { color: var(--accent); font-weight: 700; font-style: normal; }
+  .painlist { display: flex; flex-direction: column; gap: 10px; }
+  .painlist .p { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent);
+    border-radius: 8px; padding: 9px 13px; }
+  .painlist .p h3 { margin: 0 0 2px; font-size: 15px; }
+  .painlist .p p { margin: 0; font-size: 13px; color: var(--ink-soft); line-height: 1.38; }
+
+  a { color: var(--accent); }
+
+  /* stack-layer bars */
+  .layer { display: flex; align-items: center; gap: 16px; padding: 14px 18px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--panel); margin-bottom: 10px; }
+  .layer .tag { font-weight: 800; font-size: 17px; min-width: 128px; }
+  .layer .desc { font-size: 15px; color: var(--ink-soft); }
+  .layer.vrs    { border-left: 6px solid var(--vrs); }    .layer.vrs .tag { color: var(--vrs); }
+  .layer.catvrs { border-left: 6px solid var(--catvrs); } .layer.catvrs .tag { color: var(--catvrs); }
+  .layer.vaspec { border-left: 6px solid var(--vaspec); } .layer.vaspec .tag { color: var(--vaspec); }
+  .layer.core   { border-left: 6px solid var(--core); }   .layer.core .tag { color: var(--core); }
+  .layer .ver { font-family: ui-monospace, monospace; font-size: 11.5px; font-weight: 700; margin-left: 9px;
+    padding: 1px 8px; border-radius: 999px; vertical-align: middle;
+    background: color-mix(in srgb, currentColor 15%, transparent);
+    border: 1px solid color-mix(in srgb, currentColor 50%, transparent); }
+
+  .tag-s { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
+
+  .group-h { font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 9px; }
+  .group-h.vrs { color: var(--vrs); } .group-h.catvrs { color: var(--catvrs); }
+  .group-h.vaspec { color: var(--vaspec); } .group-h.core { color: var(--core); }
+  .chipwrap { display: flex; flex-wrap: wrap; gap: 9px; }
+
+  /* flow (horizontal) */
+  .flow { display: flex; align-items: stretch; gap: 0; }
+  .flow .step { flex: 1 1 0; background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 13px 15px; }
+  .flow .step h3 { margin: 0 0 4px; font-size: 16px; }
+  .flow .step p { margin: 0; font-size: 13.5px; color: var(--ink-soft); line-height: 1.4; }
+  .flow .ar { align-self: center; color: var(--accent); font-size: 26px; font-weight: 800; padding: 0 10px; }
+
+  /* fork: SCV branches into two independent aggregations (slide 6) */
+  .fork { display: grid; grid-template-columns: 1.15fr auto 1.15fr; grid-template-rows: auto auto;
+    gap: 12px 14px; align-items: center; }
+  .fork > .src { grid-column: 1; grid-row: 1 / span 2; }
+  .forkbox { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+  .forkbox h3 { margin: 0 0 3px; font-size: 18px; }
+  .forkbox p { margin: 0; font-size: 13px; color: var(--ink-soft); line-height: 1.4; }
+  .forkbox.src { border-left: 5px solid var(--vaspec); }
+  .forkbox.vcv { border-left: 5px solid var(--catvrs); }
+  .forkbox.rcv { border-left: 5px solid var(--vrs); }
+  .fork .lbl { font-size: 12.5px; color: var(--ink-soft); text-align: center; white-space: nowrap; }
+  .fork .lbl .a { color: var(--accent); font-weight: 700; }
+
+  /* ---------------- Title slide ---------------- */
+  #s-title { align-items: flex-start; justify-content: center;
+    background: linear-gradient(140deg, color-mix(in srgb, var(--accent) 16%, var(--bg)), var(--bg) 60%); }
+  #s-title h1 { font-size: 66px; line-height: 1.02; margin: 0 0 14px; font-weight: 900; letter-spacing: -.02em; }
+  #s-title h1 .dash { color: var(--accent); }
+  #s-title .sub { font-size: 23px; color: var(--ink-soft); max-width: 900px; line-height: 1.45; }
+  #s-title .meta { margin-top: 26px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* ---------------- Chrome ---------------- */
+  #prog { position: fixed; left: 0; top: 0; height: 4px; width: 100%; background: transparent; z-index: 30; }
+  #prog > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s ease; }
+  #counter { position: fixed; right: 16px; bottom: 12px; font-size: 13px; color: var(--ink-soft);
+    font-family: ui-monospace, monospace; z-index: 30; background: color-mix(in srgb, var(--bg) 80%, transparent);
+    padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); }
+  #navbtns { position: fixed; right: 16px; bottom: 44px; display: flex; gap: 6px; z-index: 30; }
+  .cbtn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--box);
+    color: var(--ink); font-size: 16px; cursor: pointer; display: grid; place-items: center; }
+  .cbtn:hover { border-color: var(--accent); color: var(--accent); }
+  #toolbar { position: fixed; right: 16px; top: 12px; display: flex; gap: 6px; z-index: 30; }
+
+  /* notes panel */
+  #notes { position: fixed; left: 0; right: 0; bottom: 0; max-height: 42vh; overflow: auto; z-index: 45;
+    background: var(--panel); border-top: 2px solid var(--accent); padding: 16px 22px 18px;
+    transform: translateY(100%); transition: transform .25s ease; box-shadow: 0 -8px 30px rgba(0,0,0,.25); }
+  #notes.open { transform: translateY(0); }
+  #notes h4 { margin: 0 0 8px; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  #notes .ncontent { font-size: 15px; line-height: 1.5; color: var(--ink); max-width: 1000px; }
+  #notes .ncontent li { margin: 4px 0; }
+
+  /* help overlay */
+  #help { position: fixed; inset: 0; z-index: 60; display: none; place-items: center;
+    background: color-mix(in srgb, var(--bg) 70%, transparent); backdrop-filter: blur(3px); }
+  #help.open { display: grid; }
+  #help .panel { background: var(--box); border: 1px solid var(--line-strong); border-radius: 14px;
+    padding: 24px 28px; width: 440px; box-shadow: var(--shadow); }
+  #help h3 { margin: 0 0 14px; font-size: 20px; }
+  #help table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  #help td { padding: 6px 4px; border-bottom: 1px solid var(--line); }
+  #help kbd { font-family: ui-monospace, monospace; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 5px; padding: 1px 7px; font-size: 13px; }
+  #help .close { margin-top: 16px; font-size: 13px; color: var(--ink-soft); }
+
+  @media (max-width: 700px) { #navbtns, #toolbar { display: none; } }
+</style>
+</head>
+<body>
+<div id="prog"><i></i></div>
+
+<div id="viewport">
+  <div id="stage">
+
+    <!-- 1. TITLE -->
+    <section class="slide" id="s-title">
+      <div>
+        <div class="kicker">A GA4GH / GKM Primer · ClinGen</div>
+        <h1>ClinVar<span class="dash">-</span>GKM</h1>
+        <div class="sub">ClinVar — standardized. Every ClinVar release rebuilt as a computable
+          <b>GKM</b> bundle: <b>VRS</b> · <b>Cat-VRS</b> · <b>VA-Spec</b>, on <b>GKM-Core</b>.
+          Built on the <b>newest GKM releases</b> across all four.</div>
+        <div class="meta">
+          <span class="tag-s">GA4GH Connect · Oct 2, 2026</span>
+          <span class="tag-s">~8-minute primer</span>
+          <span class="tag-s">New to VA-Spec? Start here</span>
+          <span class="tag-s">CC0 / open data</span>
+        </div>
+        <div class="docsite">Full documentation — every topic links to its page:
+          <a href="https://clingen-data-model.github.io/clinvar-gkm/" target="_blank" rel="noopener">clingen-data-model.github.io/clinvar-gkm</a></div>
+      </div>
+      <div class="foot">Use <b>←</b> / <b>→</b> to navigate · press <b>?</b> for all shortcuts</div>
+      <aside class="snotes" hidden>
+        <ul>
+          <li>One-line framing: ClinVar is an indispensable, complete resource — this project reorganizes the same data into a standards-based form that's easier to access and analyze with consistency.</li>
+          <li>Audience knows ClinVar; most are new to VA-Spec. We'll give just enough GKM to be dangerous.</li>
+          <li>Two things to remember: it's on the <em>newest</em> GKM release, and real production consumers are now adopting it.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 2. THE PROBLEM -->
+    <section class="slide">
+      <div class="kicker">The starting point</div>
+      <h2>ClinVar's complete truth lives in the <span class="q">weekly XML</span></h2>
+      <p class="lede">The full, authoritative snapshot — every variation, submission, aggregate, and provenance
+        detail — is released weekly as XML, alongside convenient VCF / CSV reports and targeted Entrez
+        E-utilities queries. ClinVar-GKM adds a consistent, standards-native organization of that same data.</p>
+      <div class="body">
+        <div class="cols c3">
+          <div class="card">
+            <h3>XML = source of truth</h3>
+            <p>The only representation carrying the complete database snapshot, refreshed weekly. Everything else is derived from it.</p>
+          </div>
+          <div class="card">
+            <h3>Focused products for focused needs</h3>
+            <p>ClinVar's VCF, tab-delimited summaries, and E-utilities queries are convenient, targeted views into the full archive.</p>
+          </div>
+          <div class="card">
+            <h3>Where ClinVar-GKM helps</h3>
+            <p>A GA4GH-standard reorganization of the same complete data — adding computable variant identity and an explicit statement model for consistent, accurate analysis.</p>
+          </div>
+        </div>
+        <div style="margin-top:22px; display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+          <span style="font-size:17px;color:var(--ink-soft)">What consumers really want:</span>
+          <span class="chip" tabindex="0">a stable variant id
+            <span class="tip"><b>VRS identity</b> — the same variant resolves to the same
+            <code>ga4gh:VA.&hellip;</code> digest everywhere, so you can join across systems without heuristics.</span></span>
+          <span class="chip" tabindex="0">explicit assertions
+            <span class="tip"><b>Statements &amp; propositions</b> — a machine-readable "who said variant X relates to
+            condition Y, how, and on what evidence."</span></span>
+          <span class="chip" tabindex="0">traceable provenance
+            <span class="tip"><b>Provenance</b> — every value traceable to its submission and to the exact transformation that produced it.</span></span>
+        </div>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/" target="_blank" rel="noopener">Home · Why ClinVar-GKM</a></span></div>
+      <aside class="snotes" hidden>
+        <ul>
+          <li>Be fair to ClinVar: the weekly XML is the complete, authoritative snapshot, and many pipelines already consume it (directly or via E-utilities). The point is NOT that it's bad.</li>
+          <li>The convenient products (VCF, variant_summary/submission_summary, eutils) are great but partial/flattened — you can't rebuild the full picture from them.</li>
+          <li>The gap ClinVar-GKM fills: the XML's completeness, but standards-native — stable identity + explicit assertions + traceable provenance (the three chips).</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 2b. ANATOMY OF THE XML — what "just extract the SCVs" takes -->
+    <section class="slide">
+      <div class="kicker">The source of truth, up close</div>
+      <h2>The complete record: one SCV, <span class="q">five levels in</span></h2>
+      <p class="lede">In the weekly VCV XML, a single submitted record (a <span class="mono">ClinicalAssertion</span>)
+        lives inside every variant's <span class="mono">&lt;VariationArchive&gt;</span>. The format is comprehensive
+        and deeply structured — ClinVar-GKM reorganizes the same information into a flat, consistent shape.</p>
+      <div class="body" style="display:flex; gap:24px; align-items:stretch;">
+        <div style="flex:1.32">
+          <div class="xmlbox">
+<span class="ln"><span class="tg">&lt;ClinVarVariationRelease&gt;</span>                  <span class="cm">weekly snapshot root</span></span>
+<span class="ln">  <span class="tg">&lt;VariationArchive</span> <span class="at">Accession="VCV000012345"</span>&gt;  <span class="cm">one per variant · millions</span></span>
+<span class="ln">    <span class="tg">&lt;ClassifiedRecord&gt;</span></span>
+<span class="ln">      <span class="tg">&lt;SimpleAllele&gt;</span> Location · HGVSlist · GeneList  <span class="cm">variant — aggregate form</span></span>
+<span class="ln">      <span class="tg">&lt;RCVList&gt;</span> &lt;RCVAccession …/&gt;</span>
+<span class="ln">      <span class="tg">&lt;Classifications&gt;</span> Germline · Somatic · Oncogenicity  <span class="cm">3 types</span></span>
+<span class="ln">      <span class="tg">&lt;ClinicalAssertionList&gt;</span></span>
+<span class="ln hot">        <span class="tg">&lt;ClinicalAssertion&gt;</span>             <span class="mk">◀ one SCV — 5 levels deep</span></span>
+<span class="ln hot">          <span class="tg">&lt;ClinVarAccession</span> <span class="at">Accession="SCV000045678"</span></span>
+<span class="ln hot">                            <span class="at">SubmitterName="…" OrgID="…"/&gt;</span></span>
+<span class="ln hot">          <span class="tg">&lt;Classification&gt;</span> ReviewStatus · Description  <span class="cm">per-SCV</span></span>
+<span class="ln hot">          <span class="tg">&lt;SimpleAllele&gt;</span> GeneList · Location · HGVSlist  <span class="cm">variant — submitted form</span></span>
+<span class="ln hot">          <span class="tg">&lt;TraitSet&gt;&lt;Trait&gt;</span> Name · XRef          <span class="cm">submitted condition</span></span>
+<span class="ln hot">          <span class="tg">&lt;ObservedInList&gt;</span> Sample · Method · ObservedData</span>
+<span class="ln hot">          <span class="tg">&lt;Comment/&gt; &lt;Citation/&gt; &lt;XRefList/&gt; &lt;AttributeSet/&gt;</span></span>
+<span class="ln">        <span class="tg">&lt;/ClinicalAssertion&gt;</span>   × N submitters</span>
+<span class="ln">      <span class="tg">&lt;/ClinicalAssertionList&gt;</span></span>
+<span class="ln">      <span class="tg">&lt;TraitMappingList/&gt;</span> · <span class="tg">&lt;DeletedSCVList/&gt;</span> …</span>
+<span class="ln">    <span class="tg">&lt;/ClassifiedRecord&gt;</span> … <span class="tg">&lt;/VariationArchive&gt;</span></span>
+          </div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:12px;">
+          <div class="painlist">
+            <div class="p"><h3>Comprehensive &amp; deeply nested</h3><p>A submitted record lives within each variant's archive — complete detail, across millions of variants, every week.</p></div>
+            <div class="p"><h3>Represented at multiple levels</h3><p>The variant and condition appear both in aggregate and per submission — rich detail to align across records.</p></div>
+            <div class="p"><h3>Flexible by design</h3><p>SimpleAllele | Haplotype | Genotype at each level; three classification types; optional lists throughout.</p></div>
+          </div>
+          <div class="card" style="background:var(--box); margin-top:auto;">
+            <p style="font-size:14px;color:var(--ink)"><b>ClinVar-GKM reorganizes this same complete information
+            into a consistent, standardized shape</b> — easier to access and analyze, with stable identity and full traceability.</p>
+          </div>
+        </div>
+      </div>
+      <div class="foot">Structure per ClinVar's VCV schema (<span class="mono">ClinVar_VCV.xsd</span>), document order; element set abbreviated, ids illustrative. &middot; <span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/pipeline/" target="_blank" rel="noopener">Pipeline</a></span></div>
+      <aside class="snotes" hidden>
+        <ul>
+          <li>Tone: respectful. ClinVar's XML is comprehensive and complete — this slide shows its real structure, not a flaw.</li>
+          <li>Key beats: a single SCV is a ClinicalAssertion 5 levels in; the variant appears in aggregate and per submission; flexible choices (SimpleAllele|Haplotype|Genotype) + 3 classification types.</li>
+          <li>Payoff line: ClinVar-GKM reorganizes the same complete data into a consistent, standardized shape — easier, more consistent access and analysis.</li>
+          <li>If asked: structure is from ClinVar's published VCV XSD; element names real, order real, values illustrative.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 3. WHAT IT IS -->
+    <section class="slide">
+      <div class="kicker">What it is</div>
+      <h2>Every ClinVar release, rebuilt as one <span class="q">GKM bundle</span></h2>
+      <p class="lede">A consistent, semantically rich representation of the <b>entire</b> ClinVar release —
+        variations, submitted (SCV), variant-aggregate (VCV), and condition-aggregate (RCV) classifications.</p>
+      <div class="body">
+        <div class="cols c4">
+          <div class="card"><div class="big">1 JSON</div><p>A single bundle of ~20 cross-linked sections, plus typed <b>Parquet</b> (one file per section).</p></div>
+          <div class="card"><div class="big">100%</div><p>Every variation, SCV, VCV &amp; RCV from the matching ClinVar XML release.</p></div>
+          <div class="card"><div class="big">~1–2 d</div><p>Published within a day or two of each ClinVar release; synced to ClinVar's cadence.</p></div>
+          <div class="card"><div class="big">CC0</div><p>Public-domain dedication — same terms as the source ClinVar data. No auth, no egress fees.</p></div>
+        </div>
+        <div style="margin-top:20px" class="card">
+          <p style="font-size:16px;color:var(--ink)"><b>Built and maintained by the ClinGen driver project</b> — and a real-world validation
+          of the GA4GH VRS, Cat-VRS, and VA-Spec standards against real-world ClinVar data at full scale.</p>
+        </div>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/overview/" target="_blank" rel="noopener">Output Format</a></span></div>
+      <aside class="snotes" hidden>
+        <ul>
+          <li>Emphasize "the entire release" — not a sample, not just pathogenic, not just germline.</li>
+          <li>Two artifacts: JSON bundle for graph traversal, Parquet for analytics. Both every release.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 4. GKM STACK -->
+    <section class="slide">
+      <div class="kicker">The standards</div>
+      <h2>GKM = three GA4GH specs on a shared core</h2>
+      <p class="lede"><b>GKM</b> (Genomic Knowledge Model) is the schema set; <b>GKS</b> (Genomic Knowledge Standards)
+        is the GA4GH workstream that curates it. ClinVar-GKM is built on the <b>newest releases across all four</b> — all freshly published.</p>
+      <div class="body">
+        <div class="layer vaspec">
+          <span class="tag">VA-Spec <span class="ver">1.1.0</span></span>
+          <span class="desc">Variant <b>annotations</b> — Statements, Propositions, Evidence Lines, provenance. Every classification is a VA-Spec Statement.</span>
+        </div>
+        <div class="layer catvrs">
+          <span class="tag">Cat-VRS <span class="ver">1.1.1</span></span>
+          <span class="desc"><b>Categorical</b> variation — canonical alleles &amp; copy-number categories with defining constraints.</span>
+        </div>
+        <div class="layer vrs">
+          <span class="tag">VRS <span class="ver">2.1.1</span></span>
+          <span class="desc">Variant <b>identity</b> — a computable, digest-based id. Same variant → same <code class="mono">ga4gh:VA</code> everywhere.</span>
+        </div>
+        <div class="layer core">
+          <span class="tag">GKM-Core <span class="ver">1.3.0</span></span>
+          <span class="desc">Shared building blocks — <b>MappableConcept</b>, <b>ConceptSet</b>, Agent, Extension — used across all three.</span>
+        </div>
+      </div>
+      <div class="foot">All four freshly released · each ships a Python library (vrs-python · cat-vrs-python · va-spec-python) that parses these bundles into validated models. &middot; <span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/reference/gks-standards/" target="_blank" rel="noopener">GA4GH Standards</a></span></div>
+      <aside class="snotes" hidden>
+        <ul>
+          <li>Read bottom-up: identity → categories → annotations, all on shared core types.</li>
+          <li>"Newest releases" matters — built on freshly published versions across all four: VA-Spec 1.1.0, Cat-VRS 1.1.1, VRS 2.1.1, GKM-Core 1.3.0. Early adopters are validating these in production, not a frozen old draft.</li>
+          <li>Mention the reference Python libs exist so adoption isn't "parse raw JSON yourself."</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 5. CLINVAR -> STATEMENTS -->
+    <section class="slide">
+      <div class="kicker">The core idea</div>
+      <h2>Classifications become <span class="q">VA-Spec Statements</span></h2>
+      <p class="lede">ClinVar's submitted and aggregate records all map onto one shape — each is a Statement
+        carrying a classification, a proposition, evidence, and provenance.</p>
+      <div class="body">
+        <div class="fork" style="margin-bottom:16px">
+          <div class="forkbox src"><h3>SCV</h3><p>Submitted classification — what one lab, expert panel, or group asserted. The source for every aggregate.</p></div>
+          <div class="lbl"><span class="a">aggregate by variant &rarr;</span></div>
+          <div class="forkbox vcv"><h3>VCV</h3><p>Variant-level aggregate — all SCVs for one variant.</p></div>
+          <div class="lbl"><span class="a">by variant + condition &rarr;</span></div>
+          <div class="forkbox rcv"><h3>RCV</h3><p>Condition-level aggregate — SCVs for one variant + condition.</p></div>
+        </div>
+        <div class="cols c2">
+          <div class="card" style="border-left:4px solid var(--accent)">
+            <h3>Two separate aggregations</h3>
+            <p>VCV and RCV both roll up the same SCVs — in <b>parallel</b>, not a chain. An RCV may be associated with a VCV, but does <b>not</b> drive the VCV's classification.</p>
+          </div>
+          <div class="card" style="border-left:4px solid var(--vaspec)">
+            <h3>Same proposition &amp; semantics</h3>
+            <p>Aggregate statements reuse the <b>same proposition type and meaning</b> as their SCVs — only <em>how</em> the aggregate classification is derived differs. A deliberate, community-aligned choice.</p>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/pipeline/vcv-statements/vcv-aggregation-rules/" target="_blank" rel="noopener">VCV Aggregation Rules</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/profiles/propositions/" target="_blank" rel="noopener">Propositions</a></div>
+      <aside class="snotes" hidden>
+        <ul>
+          <li>Correction to the usual diagram: SCVs aggregate UP to VCVs (by variant) and SEPARATELY to RCVs (by variant + condition). Two parallel aggregations — NOT SCV→VCV→RCV. An RCV can be associated with a VCV but does not affect the VCV's derived classification.</li>
+          <li>Design decision (GA4GH community feedback, Connect — Montreal 2026): keep the SAME proposition type and semantics at the aggregate levels as the SCVs, even though the aggregate classification is DERIVED differently. E.g. a VCV pathogenicity aggregate uses VariantPathogenicityProposition / isCausalFor, matching its SCVs.</li>
+          <li>The one shape: SCV / VCV / RCV are each a VA-Spec Statement (classification + proposition + evidence + provenance). Aggregation mechanics are covered under provenance.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 6. BUNDLE SHAPE -->
+    <section class="slide">
+      <div class="kicker">The output</div>
+      <h2>The <span class="q">GKM Bundle</span> — one JSON object, cross-linked by pointers</h2>
+      <p class="lede">A <b>GKM Bundle</b> compacts the data: every reused component — alleles, conditions, submitters —
+        is stored <b>once</b> with an id in a section dictionary, and everything else references it by a
+        <code class="mono">#/section/id</code> JSON pointer, like a <b>foreign key</b>.</p>
+      <div class="body" style="display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; gap:26px; align-items:flex-start; flex:1 1 auto; min-height:0;">
+        <div style="flex:1.1">
+          <div class="drawer" style="margin-bottom:0">
+            <div class="head"><div class="skey">scv</div><div class="otype">ClinvarScvStatement · va-spec Statement</div></div>
+            <div class="dbody">
+              <div class="eid">clinvar.submission:SCV001571657.2</div>
+              <div class="ref"><b>proposition</b> <span class="arrow">→</span> <span class="to">#/varcond-proposition/</span></div>
+              <div class="ref"><b>contributions[].agent</b> <span class="arrow">→</span> <span class="to">#/submitter/</span></div>
+              <div class="ref"><b>hasEvidenceLines[]</b> <span class="arrow">→</span> <span class="to">#/evidenceLine/</span></div>
+            </div>
+          </div>
+          <div class="conn"><div class="l"></div><div class="r">proposition 1..1</div><div class="a"></div></div>
+          <div class="drawer">
+            <div class="head"><div class="skey">varcond-proposition</div><div class="otype">VariantPathogenicityProposition</div></div>
+            <div class="dbody">
+              <div class="eid">SCV001571657-PATH</div>
+              <div class="ref"><b>subject</b> <span class="arrow">→</span> <span class="to">#/variation/</span></div>
+              <div class="ref"><b>object</b> <span class="arrow">→</span> <span class="to">#/condition|conditionSet/</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1; align-self:center">
+          <div class="card" style="background:var(--box)">
+            <p style="font-size:14px;color:var(--ink);line-height:1.6" class="mono">
+              { <b>scv, vcv, rcv, evidenceLine,</b><br>
+              &nbsp; <b>varcond-</b> / <b>vartumor-</b> / <b>vartherapy-</b> / <b>varcustom-proposition,</b><br>
+              &nbsp; <b>condition, conditionSet, therapy, therapyGroup, submitter,</b><br>
+              &nbsp; <b>variation, allele, location, sequenceReference,</b><br>
+              &nbsp; <b>gene, copyNumberCount, copyNumberChange</b> }
+            </p>
+          </div>
+          <ul class="ticks" style="margin-top:12px">
+            <li><b>Compact</b> — each reused object is stored once under an id; others point to it, never copy it.</li>
+            <li><b>Typed &amp; self-describing</b> — one object type per section.</li>
+            <li><b>Traversable</b> — follow pointers from a statement to the sequence reference.</li>
+          </ul>
+        </div>
+        </div>
+        <div class="card" style="border-left:4px solid var(--accent); padding:10px 14px;">
+          <p style="font-size:13.5px;color:var(--ink)"><b>GKM Starter Kit · Toolkit</b> (in active development) — reads a
+          bundle's <b>JSON Schema</b> to <b>validate, load, and work with</b> the data in Python, so consumers start
+          from a validated model, not raw JSON.</p>
+        </div>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/overview/" target="_blank" rel="noopener">Output Format</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/id-references/" target="_blank" rel="noopener">ID References</a></div>
+      <aside class="snotes" hidden>
+        <ul>
+          <li>Name it: this is the "GKM Bundle" — a compaction where reused components get ids and live once in section dictionaries; references are #/section/id JSON pointers, like foreign keys.</li>
+          <li>Pointers, not nesting: an allele appears once, referenced by everything that needs it — smaller files, one source of truth per object.</li>
+          <li>GKM Starter Kit / Toolkit (being built): schema-driven validate + read + use in Python — the recommended starting point (revisited on the closing slide).</li>
+          <li>Interactive version of this map lives in the docs (Data Model → bundle section map).</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 7. CLASS INVENTORY -->
+    <section class="slide">
+      <div class="kicker">What's in play</div>
+      <h2>The GKM classes ClinVar-GKM uses <span style="font-size:17px;color:var(--ink-soft);font-weight:500">(hover any chip)</span></h2>
+      <div class="body" style="display:grid; grid-template-columns:1fr 1fr; gap:16px 30px; align-content:start;">
+        <div>
+          <p class="group-h vrs">VRS · variant identity</p>
+          <div class="chipwrap">
+            <span class="chip vrs" tabindex="0"><span class="i">i</span>Allele<span class="tip"><b>VRS Allele</b> — a specific sequence change at a Location, globally identified by a <code>ga4gh:VA</code> digest.</span></span>
+            <span class="chip vrs" tabindex="0"><span class="i">i</span>CNV Count<span class="tip"><b>CopyNumberCount</b> — an absolute copy number over a location (VRS).</span></span>
+            <span class="chip vrs" tabindex="0"><span class="i">i</span>CNV Change<span class="tip"><b>CopyNumberChange</b> — a relative copy-number gain/loss over a location (VRS).</span></span>
+            <span class="chip vrs" tabindex="0">SequenceLocation<span class="tip"><b>SequenceLocation</b> — a position/range on a reference sequence.</span></span>
+            <span class="chip vrs" tabindex="0">SequenceReference<span class="tip"><b>SequenceReference</b> — the reference sequence (refget accession + molecule type).</span></span>
+          </div>
+        </div>
+        <div>
+          <p class="group-h catvrs">Cat-VRS · categorical variation</p>
+          <div class="chipwrap">
+            <span class="chip catvrs" tabindex="0"><span class="i">i</span>CategoricalVariant<span class="tip"><b>CategoricalVariant</b> — Cat-VRS grouping tying a ClinVar variation to its VRS representation via constraints. Recipes: CanonicalAllele, CategoricalCnvCount, CategoricalCnvChange.</span></span>
+          </div>
+          <p class="group-h vaspec" style="margin-top:18px">VA-Spec · annotations</p>
+          <div class="chipwrap">
+            <span class="chip vaspec" tabindex="0"><span class="i">i</span>Statement<span class="tip"><b>Statement</b> — a complete assertion: classification + proposition + evidence + provenance. SCV / VCV / RCV.</span></span>
+            <span class="chip vaspec" tabindex="0"><span class="i">i</span>Proposition<span class="tip"><b>Proposition</b> — the claim being assessed: subject (variant), predicate, object (condition/therapy).</span></span>
+            <span class="chip vaspec" tabindex="0"><span class="i">i</span>EvidenceLine<span class="tip"><b>EvidenceLine</b> — links a proposition to evidence items with direction + strength.</span></span>
+          </div>
+        </div>
+        <div style="grid-column:1 / -1; margin-top:2px">
+          <p class="group-h core">GKM-Core · shared building blocks</p>
+          <div class="chipwrap">
+            <span class="chip core" tabindex="0"><span class="i">i</span>MappableConcept<span class="tip"><b>MappableConcept</b> — one concept (conceptType + name + codings/mappings). Used for classifications, conditions, genes, therapies.</span></span>
+            <span class="chip core" tabindex="0"><span class="i">i</span>ConceptSet<span class="tip"><b>ConceptSet</b> — a group of concepts with a membershipOperator (AND/OR). Multi-condition objects; combination therapies.</span></span>
+            <span class="chip core" tabindex="0">Agent<span class="tip"><b>Agent</b> — a submitter / contributor on a statement's contributions.</span></span>
+            <span class="chip core" tabindex="0">Extension<span class="tip"><b>Extension</b> — name/value pair carrying ClinVar-specific metadata outside the core specs.</span></span>
+          </div>
+        </div>
+        <div style="grid-column:1 / -1; margin-top:26px">
+          <div class="card" style="background:var(--box)">
+            <p style="font-size:16px;color:var(--ink)"><b>MappableConcept</b> and <b>ConceptSet</b> thread through
+            everything — classifications, conditions, genes, therapies. Every component here is exercised by real
+            consumers, and is part of the datatype scope they help mature.</p>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/" target="_blank" rel="noopener">Data Model</a></span></div>
+      <aside class="snotes" hidden>
+        <ul>
+          <li>This is the "datatype scope" slide. The named components are exactly what consumers will exercise.</li>
+          <li>Let them hover a couple live during Q&amp;A rather than reading all definitions aloud.</li>
+          <li>Tie back: MappableConcept + ConceptSet (core) show up everywhere — classifications, conditions, therapies.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 8. WORKED EXAMPLE -->
+    <section class="slide">
+      <div class="kicker">Worked example</div>
+      <h2>One variant, end to end — <span class="mono" style="font-size:26px">clinvar:10</span> (HFE p.His63Asp)</h2>
+      <p class="lede">Follow the pointers: a statement's proposition names the variation, which resolves through
+        Cat-VRS → VRS down to the reference sequence.</p>
+      <div class="body" style="display:flex; gap:28px; align-items:flex-start;">
+        <div style="flex:1">
+          <div class="drawer">
+            <div class="head"><div class="skey">scv</div><div class="otype">ClinvarScvStatement · Pathogenic</div></div>
+            <div class="dbody">
+              <div class="eid">clinvar.submission:SCV00&hellip; <span style="opacity:.6">(illustrative)</span></div>
+              <div class="ref"><b>classification</b>: <span style="color:var(--ink)">Pathogenic</span> <span class="chip" tabindex="0" style="padding:1px 7px;font-size:11px;vertical-align:middle">direction / strength<span class="tip"><b>Direction</b> = supports / disputes / neutral; <b>Strength</b> = definitive / likely / strong / potential.</span></span></div>
+              <div class="ref"><b>quality</b>: <span style="color:var(--ink)">criteria provided</span> <span class="chip" tabindex="0" style="padding:1px 7px;font-size:11px;vertical-align:middle">review status<span class="tip"><b>quality</b> <span style="opacity:.7">(va-spec — a newer attribute)</span> — the SCV's <b>review status</b> / submission level (e.g. "criteria provided", "expert panel"). It maps to ClinVar's star rating and <b>drives aggregation</b>: the highest review status wins when SCVs roll up into a VCV / RCV.</span></span></div>
+              <div class="ref"><b>proposition</b> <span class="arrow">→</span> <span class="to">#/varcond-proposition/</span></div>
+            </div>
+          </div>
+          <div class="conn"><div class="l"></div><div class="r">proposition</div><div class="a"></div></div>
+          <div class="drawer">
+            <div class="head"><div class="skey">varcond-proposition</div><div class="otype">VariantPathogenicityProposition</div></div>
+            <div class="dbody">
+              <div class="ref"><b>subject</b> <span class="arrow">→</span> <span class="to">#/variation/clinvar:10</span></div>
+              <div class="ref"><b>predicate</b>: <span class="mono" style="color:var(--ink)">isCausalFor</span></div>
+              <div class="ref"><b>object</b> <span class="arrow">→</span> <span class="to">#/condition/</span> <span style="opacity:.7">(hemochromatosis)</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div class="drawer">
+            <div class="head"><div class="skey">variation</div><div class="otype">CategoricalVariant · Cat-VRS (CanonicalAllele)</div></div>
+            <div class="dbody">
+              <div class="eid">clinvar:10</div>
+              <div class="leaf">name: NM_000410.4(HFE):c.187C&gt;G (p.His63Asp)</div>
+              <div class="ref" style="margin-top:6px"><b>members[]</b> <span class="arrow">→</span> <span class="to">#/allele/</span></div>
+            </div>
+          </div>
+          <div class="conn"><div class="l"></div><div class="r">members</div><div class="a"></div></div>
+          <div class="drawer">
+            <div class="head"><div class="skey">allele</div><div class="otype">Allele · VRS</div></div>
+            <div class="dbody">
+              <div class="eid">ga4gh:VA.ELQCnIBGqaTl0AEE&hellip;</div>
+              <div class="ref"><b>location</b> <span class="arrow">→</span> <span class="to">#/location/</span> <span class="arrow">→</span> <span class="to">#/sequenceReference/</span></div>
+            </div>
+          </div>
+          <div style="margin-top:12px; font-size:14px; color:var(--ink-soft)">
+            That <span class="pill">ga4gh:VA</span> digest is the <b>same</b> wherever this variant appears — the join key across systems.
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/examples/" target="_blank" rel="noopener">Examples</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/profiles/review-status/" target="_blank" rel="noopener">Review Status</a></div>
+      <aside class="snotes" hidden>
+        <ul>
+          <li>HFE p.His63Asp = clinvar:10, the same example used on the docs home page. The allele digest is real.</li>
+          <li>Statement/condition ids here are illustrative — the point is the <em>traversal</em>, not the exact ids.</li>
+          <li><b>quality</b> is the newer va-spec attribute (replaced "confidence"): it carries ClinVar's review status / submission level and MAPS to the star rating. It's the key driver of aggregation — winner-takes-all by highest review status when SCVs roll up to VCV/RCV (ties back to slide 6).</li>
+          <li>Punchline: the VRS digest is the stable cross-system join key — identity solved.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 9. PROFILES & RECIPES -->
+    <section class="slide">
+      <div class="kicker">Standards in practice</div>
+      <h2>Community profiles &amp; recipes — <span class="q">in play</span></h2>
+      <p class="lede">ClinVar-GKM doesn't invent shapes where the community already defined them. It applies the
+        agreed Cat-VRS recipes and VA-Spec community profiles, then layers its own statement conventions.</p>
+      <div class="body">
+        <div class="cols c3">
+          <div class="card">
+            <h3 style="color:var(--catvrs)">Cat-VRS recipes</h3>
+            <ul class="ticks" style="margin-top:6px">
+              <li style="font-size:15px">CanonicalAllele</li>
+              <li style="font-size:15px">CategoricalCnvCount</li>
+              <li style="font-size:15px">CategoricalCnvChange</li>
+            </ul>
+            <p style="margin-top:6px">How a variation's VRS representation is constrained.</p>
+          </div>
+          <div class="card">
+            <h3 style="color:var(--vaspec)">VA-Spec community profiles</h3>
+            <ul class="ticks" style="margin-top:6px">
+              <li style="font-size:15px"><b>ACMG/AMP 2015</b> — germline pathogenicity</li>
+              <li style="font-size:15px"><b>AMP/ASCO/CAP 2017</b> — somatic clinical significance</li>
+              <li style="font-size:15px"><b>CCV / VICC 2022</b> — oncogenicity</li>
+            </ul>
+            <p style="margin-top:6px">The classification frameworks ClinVar submissions use.</p>
+          </div>
+          <div class="card">
+            <h3 style="color:var(--accent)">ClinVar-GKM profiles</h3>
+            <ul class="ticks" style="margin-top:6px">
+              <li style="font-size:15px"><b>14</b> statement types</li>
+              <li style="font-size:15px">classification → direction + strength</li>
+              <li style="font-size:15px">review status → star ranks &amp; aggregation</li>
+            </ul>
+            <p style="margin-top:6px">Documented mappings, consistently applied every release.</p>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/profiles/" target="_blank" rel="noopener">Profiles</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/reference/gks-standards/" target="_blank" rel="noopener">GA4GH Standards</a></div>
+      <aside class="snotes" hidden>
+        <ul>
+          <li>Framing: we conform to community agreements first; our profiles only fill the gaps ClinVar needs.</li>
+          <li>The three columns = variant shape (Cat-VRS), assertion frameworks (VA-Spec profiles), ClinVar conventions.</li>
+          <li>All of these mapping tables are published in the docs (Data Model → Profiles).</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 10. IMPLEMENTER PROFILES: CUSTOM PROPS + EXTENSIONS -->
+    <section class="slide">
+      <div class="kicker">Implementer profiles</div>
+      <h2>Where ClinVar needs more: <span class="q">custom propositions + extensions</span></h2>
+      <p class="lede">ClinVar carries assertion types and data values the base specs don't cover. ClinVar-GKM meets
+        them <b>within</b> the standards — via implementer-defined proposition types and typed extensions.</p>
+      <div class="body" style="display:grid; grid-template-columns:1fr 1fr; gap:22px;">
+        <div class="card">
+          <h3>Proposition types</h3>
+          <p style="margin-bottom:10px"><b>6 standard</b> GA4GH types used where they exist:</p>
+          <div class="chipwrap" style="margin-bottom:14px">
+            <span class="pill">Pathogenicity</span><span class="pill">Oncogenicity</span><span class="pill">ClinicalSignificance</span>
+            <span class="pill">TherapeuticResponse</span><span class="pill">Diagnostic</span><span class="pill">Prognostic</span>
+          </div>
+          <p style="margin-bottom:10px"><b>8 ClinVar custom</b> types for submissions the specs don't model:</p>
+          <div class="chipwrap">
+            <span class="pill">RiskFactor</span><span class="pill">Protective</span><span class="pill">DrugResponse</span>
+            <span class="pill">Affects</span><span class="pill">Association</span><span class="pill">ConfersSensitivity</span>
+            <span class="pill">Other</span><span class="pill">NotProvided</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>ClinVar-specific extensions</h3>
+          <p>Typed <b>Extension</b> name/value pairs carry the values ClinVar consumers depend on — without breaking schema conformance:</p>
+          <ul class="ticks" style="margin-top:8px">
+            <li style="font-size:16px">Submitted conditions &amp; mappings</li>
+            <li style="font-size:16px">Review status &amp; submission details</li>
+            <li style="font-size:16px">HGVS / SPDI / VCF expressions</li>
+            <li style="font-size:16px">Conflicting-classification explanations</li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot">Standard where possible · custom where ClinVar requires it · always schema-valid. &middot; <span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/propositions/" target="_blank" rel="noopener">Propositions</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/pipeline/scv-statements/scv-extensions/" target="_blank" rel="noopener">SCV Extensions</a></div>
+      <aside class="snotes" hidden>
+        <ul>
+          <li>This answers the skeptic: "my weird ClinVar field — is it lost?" No — it's in a typed extension.</li>
+          <li>Custom propositions are namespaced ClinVar* types, not hacks — they validate against the clinvar-gkm schema.</li>
+          <li>This is exactly the surface consumers will pressure-test and help normalize.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 11. DOWNLOADS -->
+    <section class="slide">
+      <div class="kicker">Get the data</div>
+      <h2>Downloads: monthly full + weekly deltas</h2>
+      <p class="lede">Hosted on Cloudflare R2 — free, no authentication, no egress fees. JSON bundle and typed
+        Parquet, with stable <code class="mono">00-latest</code> URLs.</p>
+      <div class="body">
+        <div class="cols c3">
+          <div class="card"><h3>Monthly full</h3><p>Complete bundle (+ Parquet), aligned to ClinVar's monthly VCV release.</p></div>
+          <div class="card"><h3>Weekly delta</h3><p>Added + updated records for every ClinVar release, plus a change manifest.</p></div>
+          <div class="card"><h3>Typed Parquet</h3><p>One file per section — query with DuckDB / pandas, no JSON parsing.</p></div>
+        </div>
+        <div class="card mono" style="margin-top:16px; background:var(--box); font-size:14px; line-height:1.7">
+          <span style="color:var(--ink-soft)"># latest monthly full bundle</span><br>
+          curl -O https://&hellip;.r2.dev/datasets/<b>clinvar-gkm_00-latest.json.gz</b><br>
+          <span style="color:var(--ink-soft)"># latest weekly delta + manifest (added / updated / deleted)</span><br>
+          curl -O https://&hellip;.r2.dev/deltas/00-latest/<b>clinvar-gkm-delta_00-latest.json.gz</b>
+        </div>
+        <div style="margin-top:14px; display:flex; gap:12px; align-items:center; flex-wrap:wrap">
+          <span style="font-size:16px;color:var(--ink-soft)">Replay model:</span>
+          <span class="tag-s">latest full</span><span class="arrow">+</span>
+          <span class="tag-s">deltas since</span><span class="arrow">=</span>
+          <span class="tag-s">current state</span>
+          <span class="chip" tabindex="0" style="margin-left:6px">manifest-driven<span class="tip"><b>manifest.json</b> lists per-section <b>A</b>dded / <b>U</b>pdated / <b>D</b>eleted keys, and names the checkpoint full to replay onto.</span></span>
+        </div>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/download/" target="_blank" rel="noopener">Downloads</a></span></div>
+      <aside class="snotes" hidden>
+        <ul>
+          <li>No auth / no egress is a real adoption lever — point it out.</li>
+          <li>Two cadences: monthly full (checkpoint) + weekly deltas. Consumers replay deltas onto the latest full.</li>
+          <li>Parquet path = analysts; JSON path = integrators. Both first-class.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 12. PROVENANCE / TRANSPARENCY -->
+    <section class="slide">
+      <div class="kicker">Transparency</div>
+      <h2>You can see <span class="q">exactly how every value was produced</span></h2>
+      <p class="lede">The transformation isn't a black box. The whole pipeline — ClinVar XML in, GKM bundle out —
+        is documented step by step and verified every release.</p>
+      <div class="body">
+        <div class="flow" style="margin-bottom:18px">
+          <div class="step"><h3>1 · Identity</h3><p>Extract &amp; normalize variants (incremental).</p></div>
+          <div class="ar">→</div>
+          <div class="step"><h3>2 · VRS</h3><p>vrs-python assigns digest ids.</p></div>
+          <div class="ar">→</div>
+          <div class="step"><h3>3 · Model</h3><p>Cat-VRS, conditions, SCV/VCV/RCV statements.</p></div>
+          <div class="ar">→</div>
+          <div class="step"><h3>4 · Publish</h3><p>Change-log → deltas → R2.</p></div>
+        </div>
+        <div class="cols c3">
+          <div class="card"><h3>Open method</h3><p>BigQuery stored procedures + an external VRS step — all documented, with both a Pipeline track and a consumer Output-Reference track.</p></div>
+          <div class="card"><h3>Verified releases</h3><p>Releases are <b>oracle-gated</b> — reconstruction checks must match (0-diff) before a release ships. Release notes record what changed.</p></div>
+          <div class="card"><h3>Traceable records</h3><p>Every statement links to its contributing submissions and carries provenance extensions — back to the submitter.</p></div>
+        </div>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/pipeline/" target="_blank" rel="noopener">Pipeline Overview</a></span></div>
+      <aside class="snotes" hidden>
+        <ul>
+          <li>This is the differentiator vs. "someone's reprocessed ClinVar." Method is open and verified.</li>
+          <li>Oracle-gating = automated reconstruction must reproduce the source exactly before publish. 0-diff.</li>
+          <li>Two doc audiences: how it's built (Pipeline) vs. how to consume it (Output Reference).</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 13. CONSUMERS -->
+    <section class="slide">
+      <div class="kicker">Momentum</div>
+      <h2>Groups are adopting this for <span class="q">production</span></h2>
+      <p class="lede">Real consumers are the forcing function: as they build on ClinVar-GKM, they solidify — and
+        <b>normalize</b> — the maturity of the GKM model and the scope of datatypes applied.</p>
+      <div class="body" style="display:flex; gap:28px; align-items:stretch;">
+        <div style="flex:1.1">
+          <div class="cols c2" style="gap:14px">
+            <div class="card"><h3>ClinGen LDH</h3><p>Linked Data Hub — consuming ClinVar-GKM as standardized input.</p></div>
+            <div class="card"><h3>Epic</h3><p>Bringing standardized ClinVar into the clinical/EHR setting.</p></div>
+          </div>
+          <div class="card" style="margin-top:14px"><h3>…and more early adopters</h3><p>Additional knowledge bases and platform teams are evaluating it now.</p></div>
+        </div>
+        <div style="flex:1" class="card">
+          <h3>Consumers demonstrate component utility</h3>
+          <p style="margin-bottom:10px">Each adopter exercises — and validates — the GKM components in real workflows:</p>
+          <div class="chipwrap">
+            <span class="pill">MappableConcept</span><span class="pill">ConceptSet</span><span class="pill">CategoricalVariant</span>
+            <span class="pill">Allele</span><span class="pill">CNV Count</span><span class="pill">CNV Change</span>
+            <span class="pill">Statement</span><span class="pill">Proposition</span><span class="pill">EvidenceLine</span>
+          </div>
+          <p style="margin-top:12px; font-size:14px">Their feedback drives what matures first and which datatypes expand.</p>
+        </div>
+      </div>
+      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/user-story/" target="_blank" rel="noopener">User Stories</a></div>
+      <aside class="snotes" hidden>
+        <ul>
+          <li>Name the consumers (per decision). Keep claims measured: "adopting / evaluating," not "shipped."</li>
+          <li>Core message: adoption normalizes the model — maturity and datatype scope are driven by real use, not committee alone.</li>
+          <li>Invite the room: if you're a consumer, which components matter to you? That shapes the roadmap.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 14. GET STARTED -->
+    <section class="slide">
+      <div class="kicker">Start here</div>
+      <h2>Explore it, build on it, tell us what's missing</h2>
+      <div class="body" style="display:grid; grid-template-columns:1fr 1fr; gap:18px; align-content:start;">
+        <div class="card">
+          <h3>Docs &amp; data</h3>
+          <ul class="ticks" style="margin-top:6px">
+            <li style="font-size:16px"><b>Docs site</b> —
+              <a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/overview/" target="_blank" rel="noopener">Data Guide</a> ·
+              <a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/" target="_blank" rel="noopener">Data Model</a> ·
+              <a href="https://clingen-data-model.github.io/clinvar-gkm/pipeline/" target="_blank" rel="noopener">Pipeline</a> ·
+              <a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/examples/" target="_blank" rel="noopener">Examples</a> ·
+              <a href="https://clingen-data-model.github.io/clinvar-gkm/reference/glossary/" target="_blank" rel="noopener">Glossary</a></li>
+            <li style="font-size:16px"><b><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/download/" target="_blank" rel="noopener">Downloads</a></b> — monthly full + weekly deltas (JSON &amp; Parquet)</li>
+            <li style="font-size:16px"><b><a href="https://ga4gh.github.io/gkm-starter-kit/" target="_blank" rel="noopener">GKM Starter Kit</a></b> + vrs-python / cat-vrs-python / va-spec-python</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Feedback loop</h3>
+          <ul class="ticks" style="margin-top:6px">
+            <li style="font-size:16px"><b><a href="https://github.com/clingen-data-model/clinvar-gkm/issues" target="_blank" rel="noopener">GitHub issues</a></b> — data questions, bugs, format requests</li>
+            <li style="font-size:16px"><b><a href="https://clingen-data-model.github.io/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap</a></b> — driven by labeled GitHub Discussions (upvote to prioritize)</li>
+            <li style="font-size:16px">Tell us which <b>components</b> &amp; <b>datatypes</b> you need next</li>
+          </ul>
+        </div>
+        <div class="card" style="grid-column:1 / -1; background:var(--box)">
+          <p style="font-size:17px;color:var(--ink)"><b><a href="https://clingen-data-model.github.io/clinvar-gkm/" target="_blank" rel="noopener">clingen-data-model.github.io/clinvar-gkm</a></b>
+            &nbsp;·&nbsp; <a href="https://github.com/clingen-data-model/clinvar-gkm" target="_blank" rel="noopener">github.com/clingen-data-model/clinvar-gkm</a> &nbsp;·&nbsp; CC0</p>
+        </div>
+      </div>
+      <div class="foot">Thank you — questions welcome. Press <b>?</b> for navigation shortcuts.</div>
+      <aside class="snotes" hidden>
+        <ul>
+          <li>Close on the ask: adopt it, and file feedback — the roadmap is literally upvote-driven.</li>
+          <li>Point to the Starter Kit + Python libs so "getting started" isn't "parse JSON by hand."</li>
+          <li>Leave the URL up during Q&amp;A.</li>
+        </ul>
+      </aside>
+    </section>
+
+  </div><!-- /stage -->
+</div><!-- /viewport -->
+
+<!-- chrome -->
+<div id="counter">1 / 15</div>
+<div id="navbtns">
+  <button class="cbtn" id="prev" title="Previous (←)" aria-label="Previous slide">‹</button>
+  <button class="cbtn" id="next" title="Next (→)" aria-label="Next slide">›</button>
+</div>
+<div id="toolbar">
+  <button class="cbtn" id="btn-notes" title="Speaker notes (S)" aria-label="Toggle speaker notes">✎</button>
+  <button class="cbtn" id="btn-theme" title="Toggle theme (T)" aria-label="Toggle light/dark theme">◐</button>
+  <button class="cbtn" id="btn-full" title="Fullscreen (F)" aria-label="Toggle fullscreen">⤢</button>
+  <button class="cbtn" id="btn-help" title="Shortcuts (?)" aria-label="Show keyboard shortcuts">?</button>
+</div>
+
+<aside id="notes" aria-live="polite">
+  <h4>Speaker notes</h4>
+  <div class="ncontent"></div>
+</aside>
+
+<div id="help" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+  <div class="panel">
+    <h3>Keyboard shortcuts</h3>
+    <table>
+      <tr><td><kbd>→</kbd> <kbd>Space</kbd> <kbd>PgDn</kbd></td><td>Next slide</td></tr>
+      <tr><td><kbd>←</kbd> <kbd>PgUp</kbd></td><td>Previous slide</td></tr>
+      <tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td>First / last slide</td></tr>
+      <tr><td><kbd>S</kbd> or <kbd>N</kbd></td><td>Toggle speaker notes</td></tr>
+      <tr><td><kbd>T</kbd></td><td>Toggle light / dark theme</td></tr>
+      <tr><td><kbd>F</kbd></td><td>Toggle fullscreen</td></tr>
+      <tr><td><kbd>?</kbd></td><td>Show / hide this help</td></tr>
+    </table>
+    <div class="close">Tip: hover (or focus + click) any <b>info chip</b> for a definition.</div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var total = slides.length;
+  var i = 0;
+  var stage = document.getElementById("stage");
+  var counter = document.getElementById("counter");
+  var progbar = document.querySelector("#prog > i");
+  var notes = document.getElementById("notes");
+  var ncontent = notes.querySelector(".ncontent");
+  var help = document.getElementById("help");
+
+  // ---- deep-link via hash (#3) and restore ----
+  function fromHash() {
+    var n = parseInt((location.hash || "").replace("#", ""), 10);
+    return (n >= 1 && n <= total) ? n - 1 : 0;
+  }
+
+  function render() {
+    slides.forEach(function (s, n) { s.classList.toggle("active", n === i); });
+    counter.textContent = (i + 1) + " / " + total;
+    progbar.style.width = ((i) / (total - 1) * 100) + "%";
+    if (notes.classList.contains("open")) updateNotes();
+    if (location.hash !== "#" + (i + 1)) {
+      try { history.replaceState(null, "", "#" + (i + 1)); } catch (e) { location.hash = i + 1; }
+    }
+  }
+  function go(n) { i = Math.max(0, Math.min(total - 1, n)); render(); }
+  function next() { go(i + 1); }
+  function prev() { go(i - 1); }
+
+  function updateNotes() {
+    var src = slides[i].querySelector(".snotes");
+    ncontent.innerHTML = src ? src.innerHTML : "<p>(no notes)</p>";
+  }
+  function toggleNotes() {
+    notes.classList.toggle("open");
+    if (notes.classList.contains("open")) updateNotes();
+  }
+
+  // ---- theme ----
+  var THEME_KEY = "cgkm-primer-theme";
+  function applyTheme(t) {
+    var root = document.documentElement;
+    if (t === "light" || t === "dark") root.setAttribute("data-theme", t);
+    else root.removeAttribute("data-theme");
+  }
+  function currentTheme() {
+    var t = document.documentElement.getAttribute("data-theme");
+    if (t) return t;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  function toggleTheme() {
+    var t = currentTheme() === "dark" ? "light" : "dark";
+    applyTheme(t);
+    try { localStorage.setItem(THEME_KEY, t); } catch (e) {}
+  }
+  try { var saved = localStorage.getItem(THEME_KEY); if (saved) applyTheme(saved); } catch (e) {}
+
+  // ---- fullscreen ----
+  function toggleFull() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+  }
+
+  // ---- scaling ----
+  function fit() {
+    var pad = 24;
+    var sx = (window.innerWidth - pad) / 1280;
+    var sy = (window.innerHeight - pad) / 720;
+    stage.style.setProperty("--scale", Math.min(sx, sy));
+  }
+  window.addEventListener("resize", fit);
+
+  // ---- popups: click-to-pin (hover/focus handled by CSS) ----
+  document.addEventListener("click", function (e) {
+    var chip = e.target.closest ? e.target.closest(".chip") : null;
+    document.querySelectorAll(".chip.pinned").forEach(function (c) {
+      if (c !== chip) c.classList.remove("pinned");
+    });
+    if (chip) { chip.classList.toggle("pinned"); e.stopPropagation(); }
+  });
+
+  // ---- click zones to advance (ignore interactive targets) ----
+  document.getElementById("viewport").addEventListener("click", function (e) {
+    if (e.target.closest(".chip, a, button")) return;
+    if (help.classList.contains("open")) return;
+    var x = e.clientX / window.innerWidth;
+    if (x < 0.25) prev(); else if (x > 0.5) next();
+  });
+
+  // ---- keyboard ----
+  document.addEventListener("keydown", function (e) {
+    var k = e.key;
+    if (k === "?" || (k === "/" && e.shiftKey)) { help.classList.toggle("open"); e.preventDefault(); return; }
+    if (k === "Escape") {
+      if (help.classList.contains("open")) help.classList.remove("open");
+      else if (notes.classList.contains("open")) notes.classList.remove("open");
+      else document.querySelectorAll(".chip.pinned").forEach(function (c) { c.classList.remove("pinned"); });
+      return;
+    }
+    if (help.classList.contains("open")) return;
+    switch (k) {
+      case "ArrowRight": case " ": case "PageDown": case "j": next(); e.preventDefault(); break;
+      case "ArrowLeft": case "PageUp": case "k": prev(); e.preventDefault(); break;
+      case "Home": go(0); e.preventDefault(); break;
+      case "End": go(total - 1); e.preventDefault(); break;
+      case "s": case "S": case "n": case "N": toggleNotes(); break;
+      case "t": case "T": toggleTheme(); break;
+      case "f": case "F": toggleFull(); break;
+      default: break;
+    }
+  });
+
+  // ---- buttons ----
+  document.getElementById("prev").addEventListener("click", prev);
+  document.getElementById("next").addEventListener("click", next);
+  document.getElementById("btn-notes").addEventListener("click", toggleNotes);
+  document.getElementById("btn-theme").addEventListener("click", toggleTheme);
+  document.getElementById("btn-full").addEventListener("click", toggleFull);
+  document.getElementById("btn-help").addEventListener("click", function () { help.classList.toggle("open"); });
+  help.addEventListener("click", function (e) { if (e.target === help) help.classList.remove("open"); });
+  window.addEventListener("hashchange", function () { var n = fromHash(); if (n !== i) go(n); });
+
+  // ---- init ----
+  i = fromHash();
+  fit();
+  render();
+})();
+</script>
+</body>
+</html>
