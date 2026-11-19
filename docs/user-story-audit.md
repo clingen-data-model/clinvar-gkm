@@ -56,7 +56,7 @@ ClinVar-GKM makes the whole submission set queryable and self-describing:
 - **The whole release is typed Parquet** — one file per bundle section, each with an `id`, typed columns
   for the common fields, and the full JSON object — so filtering *your* SCVs and joining them to
   conditions, therapies, and variants is ordinary SQL.
-- **Releases are dated and incremental.** The Parquet dataset at `v1/1.1/parquet/` is rebuilt from the
+- **Releases are dated and incremental.** The Parquet dataset at `v1/1.2/parquet/` is rebuilt from the
   newest release every week, so the same audit re-runs against each release and its results can be diffed
   over time.
 
@@ -78,7 +78,7 @@ single DuckDB query flags the records that need a second look:
 ```sql
 -- Everything submitter 196472 has in ClinVar, flagged for review.
 -- (scv.parquet, the four proposition*.parquet tables and condition.parquet
---  from v1/1.1/parquet/ — rebuilt from the newest release every week.)
+--  from v1/1.2/parquet/ — rebuilt from the newest release every week.)
 WITH mine AS (
   SELECT
     s.id,
@@ -135,7 +135,7 @@ and newly odd conditions surface on their own.
 ## How to explore this
 
 - **Get the data** — [Parquet Files](data-access/parquet.md) (the one Parquet dataset, at
-  `v1/1.1/parquet/`).
+  `v1/1.2/parquet/`).
 - **See one submitter's whole footprint** — open
   [`nch-igm-bundle.json.gz`](https://github.com/clingen-data-model/clinvar-gkm/blob/main/nch-igm-bundle.json.gz)
   (2,443 SCVs, self-contained).

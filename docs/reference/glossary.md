@@ -267,7 +267,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   In a line's `index.json`, the ClinVar weekly release a monthly full, or the Parquet set, was built from.
 
 **Version line**
-:   The folder `v{major}/{major}.{minor}/` (e.g. `v1/1.1/`) that holds every release of one schema MINOR version, with its own `index.json` and feed. A line is `current` or `frozen`. See [Versioning & Releases](versioning.md).
+:   The folder `v{major}/{major}.{minor}/` (e.g. `v1/1.2/`) that holds every release of one schema MINOR version, with its own `index.json` and feed. A line is `current` or `frozen`. See [Versioning & Releases](versioning.md).
 
 ---
 

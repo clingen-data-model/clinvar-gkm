@@ -47,7 +47,7 @@ and you don't need a Broad Institute or GitHub account.
 ## Other ways to follow along
 
 - **Release feed:** each version line publishes an Atom feed, for example
-  `https://data.clinvar-gkm.org/v1/1.1/feed.xml`, which any feed reader can follow. It lists every published
+  `https://data.clinvar-gkm.org/v1/1.2/feed.xml`, which any feed reader can follow. It lists every published
   release, including each weekly update.
 - **GitHub:** watch the [repository](https://github.com/clingen-data-model/clinvar-gkm). Choose **Custom**, then
   **Releases** and **Discussions**, to get tagged releases and change proposals.

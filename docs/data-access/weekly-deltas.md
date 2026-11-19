@@ -6,15 +6,15 @@ Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-f
 
 The list groups deltas by year, newest first: the current year is open, and each earlier year is a collapsible list under **Archived years**.
 
-A weekly delta is published for every ClinVar release. Each delta is a bundle, its `.sha256` checksum and its manifest. The current month's deltas sit directly in `v1/1.1/deltas/`; earlier months of the year are in `deltas/YYYY-MM/`, and prior years in `archive/YYYY/deltas/YYYY-MM/`:
+A weekly delta is published for every ClinVar release. Each delta is a bundle, its `.sha256` checksum and its manifest. The current month's deltas sit directly in `v1/1.2/deltas/`; earlier months of the year are in `deltas/YYYY-MM/`, and prior years in `archive/YYYY/deltas/YYYY-MM/`:
 
 ```text
-v1/1.1/deltas/
-  clinvar-gkm-delta_2026-1018.json.gz             added + updated records (same section structure as the full bundle)
-  clinvar-gkm-delta_2026-1018.json.gz.sha256
-  clinvar-gkm-delta_2026-1018.manifest.json       per-section adds, updates, and deletes for this release
-  2026-09/
-    clinvar-gkm-delta_2026-0905.json.gz           a finished month, moved here when October's first release posted
+v1/1.2/deltas/
+  clinvar-gkm-delta_2026-1206.json.gz             added + updated records (same section structure as the full bundle)
+  clinvar-gkm-delta_2026-1206.json.gz.sha256
+  clinvar-gkm-delta_2026-1206.manifest.json       per-section adds, updates, and deletes for this release
+  2026-11/
+    clinvar-gkm-delta_2026-1108.json.gz           a finished month, moved here when December's first release posted
     ...
 ```
 
@@ -22,12 +22,13 @@ A delta's folder changes when its month or year rolls over; its file name and by
 
 ??? example "Download a weekly delta with curl / Python"
     ```bash
-    # A delta of the current month, its checksum and its manifest
-    BASE="https://data.clinvar-gkm.org/v1/1.1/deltas"
-    curl -O "${BASE}/clinvar-gkm-delta_2026-1018.json.gz"
-    curl -O "${BASE}/clinvar-gkm-delta_2026-1018.json.gz.sha256"
-    curl -O "${BASE}/clinvar-gkm-delta_2026-1018.manifest.json"
-    sha256sum -c clinvar-gkm-delta_2026-1018.json.gz.sha256   # macOS: shasum -a 256 -c
+    # A delta of the current month (its date is in index.json), its checksum and its manifest
+    BASE="https://data.clinvar-gkm.org/v1/1.2/deltas"
+    D="2026-1206"
+    curl -O "${BASE}/clinvar-gkm-delta_${D}.json.gz"
+    curl -O "${BASE}/clinvar-gkm-delta_${D}.json.gz.sha256"
+    curl -O "${BASE}/clinvar-gkm-delta_${D}.manifest.json"
+    sha256sum -c "clinvar-gkm-delta_${D}.json.gz.sha256"   # macOS: shasum -a 256 -c
     ```
 
     ```python
@@ -37,7 +38,7 @@ A delta's folder changes when its month or year rolls over; its file name and by
     BASE = "https://data.clinvar-gkm.org"
 
     # The newest delta, from the line's release index
-    index = json.load(urllib.request.urlopen(f"{BASE}/v1/1.1/index.json"))
+    index = json.load(urllib.request.urlopen(f"{BASE}/v1/1.2/index.json"))
     newest = max(index["deltas"], key=lambda d: d["release"])
     for path in (newest["bundle"]["path"], newest["manifest"]):
         urllib.request.urlretrieve(f"{BASE}/{path}", path.rsplit("/", 1)[-1])
@@ -53,14 +54,14 @@ Each delta's manifest, `clinvar-gkm-delta_YYYY-MMDD.manifest.json`, describes ex
 
 ```json
 {
-  "release": "2026-10-11",
-  "baseline_release": "2026-10-04",
-  "compare_release": "2026-10-11",
-  "pipeline_version": "1.1.0",
+  "release": "2026-11-15",
+  "baseline_release": "2026-11-08",
+  "compare_release": "2026-11-15",
+  "pipeline_version": "1.2.0",
   "checkpoint_full": {
-    "path": "v1/1.1/clinvar-gkm_2026-10.json.gz",
-    "release": "2026-09-28",
-    "month": "2026-10",
+    "path": "v1/1.2/clinvar-gkm_2026-11.json.gz",
+    "release": "2026-10-31",
+    "month": "2026-11",
     "sha256": "5d41402abc4b2a76…"
   },
   "sections": {
@@ -69,10 +70,10 @@ Each delta's manifest, `clinvar-gkm-delta_YYYY-MMDD.manifest.json`, describes ex
     "vcv":     { "added": 44,   "updated": 96,  "deleted": [] }
   },
   "counts": { "A": 2063, "U": 647, "D": 2 },
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "bundle": {
-    "name": "clinvar-gkm-delta_2026-1011.json.gz",
-    "path": "v1/1.1/deltas/clinvar-gkm-delta_2026-1011.json.gz",
+    "name": "clinvar-gkm-delta_2026-1115.json.gz",
+    "path": "v1/1.2/deltas/clinvar-gkm-delta_2026-1115.json.gz",
     "size": 104857600,
     "sha256": "9e107d9d372bb682…"
   },
@@ -86,7 +87,7 @@ Each delta's manifest, `clinvar-gkm-delta_YYYY-MMDD.manifest.json`, describes ex
 | `baseline_release` | The prior release this delta was diffed against — `null` only on the very first release |
 | `compare_release` | The release the changes are computed to (equals `release`) |
 | `pipeline_version` | The pipeline build stamp that produced the delta (`git describe` of the pipeline code) |
-| `checkpoint_full` | The official monthly this delta's chain replays onto — the newest monthly whose `source_release` is on or before this delta's `baseline_release` — as `{path, release, month, sha256}`. `release` is that monthly's **`source_release`** (a `YYYY-MM-DD` release date, comparable with `baseline_release`), `month` is its `YYYY-MM` label, and `sha256` is its checksum. `path` is where the monthly was when the delta was published; after a year rollover, find it in `index.json` by `month`. `null` before the first monthly full is published |
+| `checkpoint_full` | The official monthly this delta's chain replays onto — the newest monthly whose `source_release` is on or before this delta's `baseline_release` — as `{path, release, month, sha256}`. `release` is that monthly's **`source_release`** (a `YYYY-MM-DD` release date, comparable with `baseline_release`), `month` is its `YYYY-MM` label, and `sha256` is its checksum. `path` is where the monthly was when the delta was published; after a year rollover, find it in `index.json` by `month`. Every line starts with a monthly, so a delta always has one (the first delta of a line is refused unless its `baseline_release` is that monthly's `source_release`) |
 | `sections` | Per-section change summary — `added` and `updated` counts plus a `deleted` list of primary keys |
 | `counts` | Roll-up totals across all sections — `A` (added), `U` (updated), `D` (deleted) |
 | `schema_version` | The delta bundle's own `schema_version` |
@@ -97,7 +98,7 @@ Each delta's manifest, `clinvar-gkm-delta_YYYY-MMDD.manifest.json`, describes ex
 
 ### Consumer Replay Model
 
-A monthly full plus the deltas after it rebuild the state at any weekly release. Every official monthly has a **`source_release`** in `index.json`: the weekly release it was built from (the `2026-10` monthly has `source_release` `2026-09-28`). Each delta records the release it was diffed against (`baseline_release`) and the release it brings you to (`release`).
+A monthly full plus the deltas after it rebuild the state at any weekly release. Every official monthly has a **`source_release`** in `index.json`: the weekly release it was built from (in the frozen `v1/1.1/` line, the `2026-10` monthly has `source_release` `2026-09-28`). Each delta records the release it was diffed against (`baseline_release`) and the release it brings you to (`release`).
 
 For each delta, apply the manifest's deletes first, then upsert every record present in the delta bundle, section by section.
 
@@ -109,9 +110,12 @@ Weekly full bundles are kept only for the current month ([Weekly Full Bundles](w
 2. Apply, in release order, **every delta whose `release` is later than that `source_release` and ≤ W**.
 3. **Check the chain** as you go: the first delta's `baseline_release` equals the monthly's `source_release`, and each later delta's `baseline_release` equals the previous delta's `release`. A mismatch means a release is missing; stop rather than apply a partial chain.
 
-The deltas to apply are chosen by **release date, not by month**. The `2026-10` monthly is built from `2026-09-28`, so rebuilding `2026-10-11` takes the `2026-10` monthly and applies the `2026-10-04` and `2026-10-11` deltas, both from the monthly's own month. (An earlier version of this page skipped deltas from the monthly's month; that missed them.)
+The deltas to apply are chosen by **release date, not by month**. In `v1/1.1/`, the `2026-10` monthly is built from `2026-09-28`, so rebuilding `2026-10-11` takes the `2026-10` monthly and applies the `2026-10-04` and `2026-10-11` deltas, both from the monthly's own month. (An earlier version of this page skipped deltas from the monthly's month; that missed them.)
 
 A delta's `checkpoint_full` names the newest monthly whose `source_release` is on or before the delta's `baseline_release`, so it is the right base for that delta and every delta after it up to the next monthly. Its `release` is the monthly's `source_release`, the release the first delta of the chain must have as its `baseline_release`.
+
+!!! note "A line starts at its first monthly"
+    Each version line holds only its own releases. `v1/1.2/` starts with one **checkpoint monthly**, the first 1.2.0 full, and its deltas run forward from it: the first delta's `baseline_release` is that monthly's `source_release`. A week before the checkpoint is rebuilt from the frozen line that held it, `v1/1.1/` (its `index.json`), with 1.1.0 records. The recipe below works on any line: set `LINE`.
 
 !!! note "Delta manifests in the frozen `v1/1.0/` line"
     The 1.0.1 delta manifests in `v1/1.0/` are kept byte-identical, so their paths still name the pre-1.1.0 `v1/datasets/` and `v1/deltas/` keys and every `checkpoint_full` says `2026-10`. For that line, pick the monthly from `v1/1.0/index.json` (each monthly's `source_release`) as above, not from `checkpoint_full`.
@@ -123,7 +127,8 @@ A delta's `checkpoint_full` names the newest monthly whose `source_release` is o
     import urllib.request
 
     BASE = "https://data.clinvar-gkm.org"
-    W = "2026-10-11"   # the weekly release to rebuild, YYYY-MM-DD
+    W = None       # the weekly release to rebuild, YYYY-MM-DD; None = the line's newest
+    LINE = None    # None = the current line; or a frozen one, e.g. "v1/1.1"
 
 
     def fetch_json(url):
@@ -136,10 +141,12 @@ A delta's `checkpoint_full` names the newest monthly whose `source_release` is o
             return json.loads(gzip.decompress(r.read()))
 
 
-    # 0. The current line's release index, via the root version manifest.
+    # 0. The line's release index, via the root version manifest.
     root = fetch_json(f"{BASE}/index.json")
-    line = next(v for v in root["versions"].values() if v["status"] == "current")
+    line = next(v for v in root["versions"].values()
+                if v["line"] == LINE or (LINE is None and v["status"] == "current"))
     index = fetch_json(f"{BASE}/{line['index'].lstrip('/')}")
+    W = W or index["latest_release"]
 
     # Monthlies and deltas of the current year, plus those moved to archive/YYYY/.
     monthlies = list(index["datasets"]["monthly"])

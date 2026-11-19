@@ -1,6 +1,6 @@
 # Output File
 
-ClinVar-GKM is published as **gzip-compressed JSON files** in the bundle format — a **monthly full bundle** and **weekly full bundles** containing all data for a release, plus a **weekly delta** carrying only the records changed since the prior release. For analytical workloads, one set of typed **Parquet files** (one per bundle section) is derived from the newest release, published under `v1/1.1/parquet/` and rebuilt every release; deltas have no Parquet. See [Parquet Files](parquet.md).
+ClinVar-GKM is published as **gzip-compressed JSON files** in the bundle format — a **monthly full bundle** and **weekly full bundles** containing all data for a release, plus a **weekly delta** carrying only the records changed since the prior release. For analytical workloads, one set of typed **Parquet files** (one per bundle section) is derived from the newest release, published under `v1/1.2/parquet/` and rebuilt every release; deltas have no Parquet. See [Parquet Files](parquet.md).
 
 ---
 
@@ -74,7 +74,7 @@ archive/yyyy/deltas/yyyy-mm/clinvar-gkm-delta_*     (prior years)
 
 For example, `deltas/clinvar-gkm-delta_2026-1018.json.gz` for the October 18, 2026 release, which moves to `deltas/2026-10/` when November's first release is published. The delta bundle carries only added and updated records; deletes and per-section change counts are recorded in the accompanying manifest. See [Weekly Deltas](weekly-deltas.md) for the delta model and replay recipe.
 
-Every bundle has a `<file>.sha256` sidecar. All paths are relative to the line folder, `https://data.clinvar-gkm.org/v1/1.1/`.
+Every bundle has a `<file>.sha256` sidecar. All paths are relative to the line folder, `https://data.clinvar-gkm.org/v1/1.2/`.
 
 ---
 

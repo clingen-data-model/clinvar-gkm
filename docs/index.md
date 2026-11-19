@@ -2,8 +2,8 @@
 
 ClinVar-GKM provides a standardized, machine-readable representation of [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) release data using the **GKM (Genomic Knowledge Model)** schema set — VRS, Cat-VRS, and VA-Spec — from the GA4GH [Genomic Knowledge Standards](https://www.ga4gh.org/genomic-knowledge-standards/) workstream. It is developed and maintained by the [ClinGen](https://clinicalgenome.org/) driver project.
 
-!!! warning "1.1.0 moved every download URL"
-    1.1.0 (released 2026-10-22) moved every download URL to `v1/1.1/` and renamed the proposition sections — see the [changelog migration notes](reference/changelog.md#110).
+!!! warning "1.2.0 starts a new version line, `v1/1.2/`"
+    1.2.0 publishes into a new line folder, `v1/1.2/`, starting with one checkpoint monthly. The 1.1.x releases stay, unchanged, in the frozen line `v1/1.1/`. Change `v1/1.1/` to `v1/1.2/` in your scripts — see [Version Lines](data-access/release-model.md#version-lines) and the [changelog](reference/changelog.md).
 
 !!! info "New here?"
     [**How to Read These Docs**](reading-guide.md) maps each section to what it gives you, with three reading paths: understanding the data from ClinVar's website, following how ClinVar's XML becomes this format, and building a pipeline or application on it.
@@ -64,7 +64,7 @@ The latest ClinVar-GKM release is available as a single compressed JSON file:
 
 ```bash
 # Download the newest official monthly release
-curl -O https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz
+curl -O https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
 
 # Decompress
 gunzip clinvar-gkm_00-latest.json.gz
@@ -155,15 +155,15 @@ The stable filenames `clinvar-gkm_00-latest.json.gz` (official monthly) and `wee
 Download the newest official monthly and the newest weekly full:
 
 ```bash
-curl -O https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz
-curl -O https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz
+curl -O https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
+curl -O https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
 ```
 
 See [How Releases Work](data-access/release-model.md) for the release model, and [Weekly Deltas](data-access/weekly-deltas.md) for the deltas and the replay recipe.
 
 ### Directory Structure
 
-All paths are under the current line folder, `v1/1.1/`:
+All paths are under the current line folder, `v1/1.2/`:
 
 ```text
 clinvar-gkm_00-latest.json.gz                newest official monthly full

@@ -59,9 +59,22 @@ explains the profiles and their rules, and each class page lists what its profil
   (`https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json`); a 1.1.0 bundle keeps
   validating against 1.1.0. If you write your own records to these schemas, a property, value, pointer or key
   form that 1.1.0 accepted but the pipeline never writes now fails.
-- **A new line folder.** As a MINOR, 1.2.0 is published into `v1/1.2/`; `v1/1.1/` is then frozen and kept,
-  its files unchanged ([ADR 0009](../decisions/0009-r2-layout-mirrors-ncbi-clinvar.md)). The Parquet set is
-  built by `gkm-bundle-parquet` 2.0.0.
+- **A new line folder, `v1/1.2/`.** As a MINOR, 1.2.0 is published into `v1/1.2/`
+  ([ADR 0009](../decisions/0009-r2-layout-mirrors-ncbi-clinvar.md)). Change `v1/1.1/` to `v1/1.2/` in your
+  download URLs, or follow the root `index.json`, whose `current` names the line. The new line starts with
+  one **checkpoint monthly**, the first 1.2.0 full, published as the official monthly of the ClinVar month it
+  is the source of; its weekly fulls and deltas run forward from it, and the first delta's `baseline_release`
+  is that monthly's `source_release`. Earlier releases are not republished as 1.2.0.
+- **`v1/1.1/` is frozen.** Its monthlies, `00-latest` copy and deltas stay at their paths with their bytes,
+  and it gains a `MANIFEST.json` (size and sha256 of every bundle and delta manifest) and a `README.txt`. Its
+  weekly fulls and its Parquet set are deleted at the freeze: rebuild a 1.1 week from a monthly plus the deltas
+  ([Rebuild a past week](../data-access/weekly-deltas.md#rebuild-a-past-week)). The root `index.json` and
+  `v1/1.1/index.json` give it `"status": "frozen"` and `"superseded_by": "v1/1.2"`. The 1.2 Parquet set, at
+  `v1/1.2/parquet/`, is built from the bundle by `gkm-bundle-parquet` 2.0.0.
+- **Release tooling.** `run-release.sh --bootstrap-monthly=YYYY-MM` starts an empty line with its checkpoint
+  monthly, after checking that the release is ClinVar's YYYY-MM monthly source (ADR 0002); a normal release
+  into a line without a monthly is refused, and so is a first delta that does not start at the line's
+  checkpoint. `r2-freeze-line.sh` freezes a superseded line (dry run by default).
 
 ### Fixes
 
