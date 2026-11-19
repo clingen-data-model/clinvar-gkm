@@ -1,0 +1,11 @@
+# Docs release lines built from a ref other than their tag (ADR 0011 §6).
+# build-versioned-docs.sh builds a listed line from <source> on every trigger (release,
+# schedule, dispatch), pins its repository-file links to <source>, and shows and links
+# <label> in the header. List a line only when its tag's docs don't describe the release;
+# remove the entry when a newer tag of that line has correct docs.
+#
+# 1.1: the 1.1.0 tag was cut on 1.0 without main's 1.1.0 docs (old v1/datasets/ URLs, no
+# 1.1.0 changelog section). 036bec2 is main right after the 1.1.0 forward-merge (#188).
+#
+# line  source                                    label
+1.1     036bec25e342d6c572a94a8afde2a13964fbc049  1.1.0

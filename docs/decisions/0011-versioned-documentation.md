@@ -49,20 +49,25 @@ grey and say they aren't current.
    the ref's tree (the tag is never changed), copies in the files this feature owns (`docs/overrides/main.html`,
    `partials/header.html`, `partials/source.html`, `404.html`, `versions.js`, `versions.css`) from the checkout
    running the build, sets `site_url`, adds the `[project.extra.version]` table if missing, regenerates the
-   Roadmap, and runs `zensical build --clean --strict` and `check-site-links.py`. This is how `1.1` is built from
-   the `1.1.0` tag, whose config predates versioning. Content a tag's docs should have but don't is added by a
-   patch in `src/scripts/docs-ref-patches/<tag>/`, applied to the exported tree before the build (a patch that
-   doesn't apply stops it): the `1.1.0` tag's changelog has no 1.1.0 section, because the notes were written
-   after the tag, so `1.1.0/changelog-1.1.0-section.patch` adds that section as it reads on `main`.
+   Roadmap, and runs `zensical build --clean --strict` and `check-site-links.py`. This is how `1.1`, whose config
+   predates versioning, gets the selector.
+   **A line whose tag lacks its docs is built from another ref.** `src/scripts/docs-line-sources.txt` maps a
+   release line to the ref its pages are built from and the release its header shows. The build script applies
+   it on every trigger (release, schedule, dispatch), so the daily rebuild can't bring the tag's docs back. The
+   `1.1.0` tag was cut on `1.0` without `main`'s 1.1.0 docs: its pages give the pre-1.1 `v1/datasets/…`
+   download URLs, which return 404, and its changelog has no 1.1.0 section. `1.1` is therefore built from
+   `036bec2` (`main` right after the 1.1.0 forward-merge, #188) and shown as `1.1.0`. Remove a line's entry when
+   a newer tag of that line has correct docs; after changing the file, dispatch the line to rebuild it.
 7. **Each version shows and links its own ref.** The build sets `[project.extra.source]` to the ref it was built
-   from: `main` (labelled with the build commit) for `dev`, the tag for a release. The header's repository widget
-   (`partials/source.html`) shows that ref and links `…/tree/<ref>`, instead of the latest GitHub release the theme
+   from: `main` (labelled with the build commit) for `dev`, the tag (or the line's label) for a release. The
+   header's repository widget (`partials/source.html`) shows that ref and links `…/tree/<ref>`, instead of the latest GitHub release the theme
    fetches from the GitHub API; the stars and forks counts, which come from the same lookup, are dropped.
-   `edit_uri` follows the ref (`edit/main/docs/` for `dev`, `blob/<tag>/docs/` for a release, since a tag can't
-   be edited); the edit and view buttons aren't enabled today. For a release, `src/scripts/pin-repo-links.py`
-   rewrites the pages' links to this repository's files on `main` (`/blob/main/…`, `/tree/main/…`,
-   `/raw/main/…`) in the exported tree to the tag, so a `1.1` page links the `1.1.0` files; a path the tag
-   doesn't have stays on `main` and is listed in the build log. Links to issues, discussions, pull requests and
+   `edit_uri` follows the ref the pages come from (`edit/main/docs/` for `dev`, `blob/<ref>/docs/` for a
+   release, since a tag can't be edited); the edit and view buttons aren't enabled today. For a release,
+   `src/scripts/pin-repo-links.py` rewrites the pages' links to this repository's files on `main`
+   (`/blob/main/…`, `/tree/main/…`, `/raw/main/…`) in the exported tree to the ref the pages come from (the tag,
+   or the line's source ref, so a `1.1` page links the `036bec2` files, where each linked path exists); a path
+   the ref doesn't have stays on `main` and is listed in the build log. Links to issues, discussions, pull requests and
    releases stay as written: they are live, not versioned.
 8. **When each version is deployed** (`.github/workflows/deploy-docs.yml`):
 
