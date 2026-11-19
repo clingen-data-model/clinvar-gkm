@@ -7,7 +7,7 @@ ClinVar-GKM publishes all of ClinVar as **Parquet** — 22 typed tables you quer
 
 ## Run a query now
 
-The console below runs SQL **in your browser**, directly against the published data at `data.clinvar-gkm.org`. It reads the one published Parquet dataset, `v1/1.1/parquet/`, overwritten every release; the **Release** label shows the release it was built from. Pick an example from the dropdown and press **Run**. The first query loads the engine (a few seconds, once); everything after is immediate. A query still running after 10 seconds is stopped, and the console shows the commands to download the tables it reads and run the same query on your machine.
+The console below runs SQL **in your browser**, directly against the published data at `data.clinvar-gkm.org`. It reads the one published Parquet dataset, `v1/1.2/parquet/`, overwritten every release; the **Release** label shows the release it was built from. Pick an example from the dropdown and press **Run**. The first query loads the engine (a few seconds, once); everything after is immediate. A query still running after 10 seconds is stopped, and the console shows the commands to download the tables it reads and run the same query on your machine.
 
 <iframe src="../assets/duckdb-console.html" style="width:100%; height:640px; border:1px solid rgba(128,128,128,.25); border-radius:8px;" title="ClinVar-GKM live query console" loading="lazy"></iframe>
 
@@ -41,7 +41,7 @@ These queries name the file as `'condition.parquet'` — how you run them once t
 To go past the browser console — larger queries, your own scripts, repeated work — download the file and query it with [DuckDB](https://duckdb.org/docs/installation/), a single self-contained binary.
 
 ```bash
-BASE="https://data.clinvar-gkm.org/v1/1.1/parquet"
+BASE="https://data.clinvar-gkm.org/v1/1.2/parquet"
 curl -O "${BASE}/condition.parquet"
 
 duckdb -c "SELECT id, name FROM 'condition.parquet' WHERE name ILIKE '%marfan%'"

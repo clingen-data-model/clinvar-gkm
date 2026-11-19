@@ -5,11 +5,11 @@ ClinVar-GKM pipeline.
 
 ## Release status
 
-The current release is **`1.1.0`**. It regroups the proposition sections by meaning and carries a set of data
-corrections, all delivered by one full rebuild of every published release. It is built on the finalized
-**GKM (Genomic Knowledge Model)** standards — VRS 2.1.1, Cat-VRS 1.1.1, VA-Spec 1.1.0, and GKM-Core 1.3.0 — and
-published under `v1/1.1/`; the 1.0.1 releases are kept, frozen, under `v1/1.0/`. See the
-[Changelog](changelog.md#110) for what 1.1.0 changed.
+The current line is **`1.2`** (schema `1.2.0`): the ClinVar profiles narrowed to exactly what the pipeline
+writes. It is built on the finalized **GKM (Genomic Knowledge Model)** standards — VRS 2.1.1, Cat-VRS 1.1.1,
+VA-Spec 1.1.0, and GKM-Core 1.3.0 — and published under `v1/1.2/`, starting with one checkpoint monthly. The
+1.1.x releases are kept, frozen, under `v1/1.1/`, and the 1.0.1 releases under `v1/1.0/`. See the
+[Changelog](changelog.md) for what 1.2.0 changes and [1.1.0](changelog.md#110) for the release before it.
 
 ## Data coverage
 

@@ -15,7 +15,7 @@
 # an uploader that posts a monthly passes --source YYYY-MM=YYYY-MM-DD for it (republish passes the whole table).
 #
 # Usage:
-#   ./generate-r2-index.sh [--dry-run] [--line v1/1.1/] [--source YYYY-MM=YYYY-MM-DD]... [--no-root]
+#   ./generate-r2-index.sh [--dry-run] [--line v1/1.2/] [--source YYYY-MM=YYYY-MM-DD]... [--no-root]
 #   ./generate-r2-index.sh --listing FILE [--sidecars DIR] ...   # offline, from a saved listing; implies --dry-run
 set -euo pipefail
 

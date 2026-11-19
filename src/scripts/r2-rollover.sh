@@ -1,5 +1,5 @@
 #!/bin/bash
-# Month and year rollover of a version line (R2_LINE, default v1/1.1/), NCBI-style. Run when a release is posted
+# Month and year rollover of a version line (R2_LINE, default v1/1.2/), NCBI-style. Run when a release is posted
 # (run-release.sh runs it before and after the weekly uploads); the plan comes from r2_layout.py plan_rollover:
 #
 #   month rollover   the first release of a new month moves the finished month's deltas (bundle, .sha256,

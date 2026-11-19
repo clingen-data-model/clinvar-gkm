@@ -1,5 +1,5 @@
 #!/bin/bash
-# Upload a ClinVar-GKM FULL bundle to its place in the version line (R2_LINE, default v1/1.1/; layout in
+# Upload a ClinVar-GKM FULL bundle to its place in the version line (R2_LINE, default v1/1.2/; layout in
 # r2_layout.py). Two kinds of full, NCBI-style:
 #
 #   --weekly                 the weekly full of <export_date>:

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Backfill a past official monthly ClinVar-GKM bundle into the version line (R2_LINE, default v1/1.1/).
+# Backfill a past official monthly ClinVar-GKM bundle into the version line (R2_LINE, default v1/1.2/).
 #
 # A thin wrapper over upload-gkm-to-r2.sh --month-label, which already does what a backfill needs:
 #   * a month of the line's current year goes to <line>clinvar-gkm_YYYY-MM.json.gz, a prior year's month to

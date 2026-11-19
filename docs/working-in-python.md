@@ -380,7 +380,7 @@ remotely with DuckDB, and build the models:
 ```python
 import duckdb
 
-P = "https://data.clinvar-gkm.org/v1/1.1/parquet"
+P = "https://data.clinvar-gkm.org/v1/1.2/parquet"
 
 rows = duckdb.sql(f"SELECT id, location_id, data FROM '{P}/allele.parquet' LIMIT 3").fetchall()
 for allele_id, location_id, data in rows:

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Upload the ONE ClinVar-GKM Parquet set of the version line (R2_LINE, default v1/1.1/) to <line>parquet/.
+# Upload the ONE ClinVar-GKM Parquet set of the version line (R2_LINE, default v1/1.2/) to <line>parquet/.
 #
 # Parquet is derived from the JSON bundle and is not a release record (ADR 0008): one set, rebuilt every release
 # from the newest dataset and overwritten in place. There is no Parquet in archives; past states are rebuilt from

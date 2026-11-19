@@ -12,11 +12,11 @@ ClinVar-GKM is distributed as **official monthly full bundles**, **weekly full b
 Download the newest official monthly and the newest weekly full:
 
 ```bash
-curl -O https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz
-curl -O https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz
+curl -O https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
+curl -O https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
 ```
 
-The full bundle is a single JSON object containing all bundle sections — variations, statements, propositions, conditions, and supporting reference data. A delta uses the same section structure but carries only the records added or updated since its baseline release. The Parquet dataset (one file per section) is derived from the bundle, published at `v1/1.1/parquet/` and overwritten every release. See [Output Format](../output-reference/overview.md) for the complete structure, [Weekly Deltas](weekly-deltas.md) for the replay model, and [Parquet Files](parquet.md) for the full Parquet list.
+The full bundle is a single JSON object containing all bundle sections — variations, statements, propositions, conditions, and supporting reference data. A delta uses the same section structure but carries only the records added or updated since its baseline release. The Parquet dataset (one file per section) is derived from the bundle, published at `v1/1.2/parquet/` and overwritten every release. See [Output Format](../output-reference/overview.md) for the complete structure, [Weekly Deltas](weekly-deltas.md) for the replay model, and [Parquet Files](parquet.md) for the full Parquet list.
 
 ---
 
@@ -34,7 +34,7 @@ The stable filenames `clinvar-gkm_00-latest.json.gz` (official monthly) and `wee
 
 ## Directory Structure
 
-All paths are under the current line folder, `v1/1.1/` (see [Downloads](download.md#directory-structure) for the version folders):
+All paths are under the current line folder, `v1/1.2/` (see [Downloads](download.md#directory-structure) for the version folders):
 
 ```text
 clinvar-gkm_00-latest.json.gz                newest official monthly full

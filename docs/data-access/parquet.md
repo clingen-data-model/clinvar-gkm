@@ -9,12 +9,12 @@ Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-f
     The JSON bundles are the release record. Parquet is a convenience: every value in it can be recomputed from the bundle. **One** Parquet dataset is published, rebuilt every release (weekly) from the newest weekly release and overwritten in place. There are no dated, per-delta or archived Parquet sets.
 
 !!! warning "The current set is not being rebuilt"
-    The published set is still the one exported from BigQuery for the **2026-10-24** release (its `manifest.json` gives `builder: "BigQuery export"` and `source_release: "2026-10-24"`). Releases since then don't rebuild it, so it lags the bundles. It will be replaced by the default set that the [`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) tool (2.0.0, not yet released) builds from the bundle, starting with ClinVar-GKM schema 1.2.0. From then on Parquet is built only from the bundle, never from BigQuery. For data newer than 2026-10-24, use the [weekly full bundles](weekly-full.md).
+    The last published set is the one exported from BigQuery for the **2026-10-24** release, in the 1.1 line at `v1/1.1/parquet/` (its `manifest.json` gives `builder: "BigQuery export"` and `source_release: "2026-10-24"`). It lags the bundles, and it is deleted when `v1/1.1/` is frozen: a frozen line keeps no Parquet. The 1.2 line's set, at `v1/1.2/parquet/`, is the default set that the [`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) tool (2.0.0, not yet released) builds from the 1.2.0 bundles; until it is published, `v1/1.2/parquet/` is empty. From then on Parquet is built only from the bundle, never from BigQuery. For data newer than 2026-10-24, use the [weekly full bundles](weekly-full.md).
 
-The dataset lives at one stable path, `v1/1.1/parquet/`, one file per section, with a `manifest.json` beside it:
+The dataset lives at one stable path, `v1/1.2/parquet/`, one file per section, with a `manifest.json` beside it:
 
 ```text
-v1/1.1/parquet/
+v1/1.2/parquet/
   {section}.parquet      22 files, one per bundle section
   manifest.json          build date, source release and dataset, builder, schema version, each file's size and sha256,
                          and the ClinVar source, attribution, disclaimer and license scope
@@ -71,7 +71,7 @@ Download individual sections or all files at once:
 ??? example "Download sections with curl"
     ```bash
     # The one published Parquet dataset, overwritten every release; manifest.json names its release.
-    BASE="https://data.clinvar-gkm.org/v1/1.1/parquet"
+    BASE="https://data.clinvar-gkm.org/v1/1.2/parquet"
     mkdir -p clinvar-gkm-parquet && cd clinvar-gkm-parquet
     curl -O "${BASE}/manifest.json"
 
