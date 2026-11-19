@@ -50,7 +50,10 @@ grey and say they aren't current.
    `partials/header.html`, `partials/source.html`, `404.html`, `versions.js`, `versions.css`) from the checkout
    running the build, sets `site_url`, adds the `[project.extra.version]` table if missing, regenerates the
    Roadmap, and runs `zensical build --clean --strict` and `check-site-links.py`. This is how `1.1` is built from
-   the `1.1.0` tag, whose config predates versioning.
+   the `1.1.0` tag, whose config predates versioning. Content a tag's docs should have but don't is added by a
+   patch in `src/scripts/docs-ref-patches/<tag>/`, applied to the exported tree before the build (a patch that
+   doesn't apply stops it): the `1.1.0` tag's changelog has no 1.1.0 section, because the notes were written
+   after the tag, so `1.1.0/changelog-1.1.0-section.patch` adds that section as it reads on `main`.
 7. **Each version shows and links its own ref.** The build sets `[project.extra.source]` to the ref it was built
    from: `main` (labelled with the build commit) for `dev`, the tag for a release. The header's repository widget
    (`partials/source.html`) shows that ref and links `…/tree/<ref>`, instead of the latest GitHub release the theme

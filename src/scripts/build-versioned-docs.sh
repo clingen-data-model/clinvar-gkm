@@ -13,6 +13,9 @@
 # tag built before versioned docs existed still gets the version selector, the
 # version notice and the colours:
 #   - OVERLAY (below): template overrides, versions.js and versions.css;
+#   - src/scripts/docs-ref-patches/<ref>/*.patch: content fixes for that ref's docs,
+#     such as release notes written after the tag (1.1.0's changelog lacks its own
+#     1.1.0 section);
 #   - zensical.toml: site_url becomes <site_url of this checkout><version>/, the
 #     [project.extra.version] table is added when the ref's config lacks it, and
 #     [project.extra.source] names the ref the version was built from (`main` for dev,
@@ -77,6 +80,18 @@ for f in $OVERLAY; do
   mkdir -p "$TMP/$(dirname "$f")"
   cp "$REPO/$f" "$TMP/$f"
 done
+
+# Per-ref content fixes: src/scripts/docs-ref-patches/<ref>/*.patch are applied (in name
+# order) to that ref's exported tree, e.g. to add release notes written after the tag was
+# cut. A patch that doesn't apply stops the build.
+PATCHES="$REPO/src/scripts/docs-ref-patches/$REF"
+if [ -d "$PATCHES" ]; then
+  for p in "$PATCHES"/*.patch; do
+    [ -e "$p" ] || continue
+    echo "== Applying $(basename "$p") to $REF"
+    (cd "$TMP" && git apply --verbose "$p")
+  done
+fi
 
 "$PYTHON" - "$TMP/zensical.toml" "$VERSION_URL" "$SOURCE_REF" "$SOURCE_LABEL" <<'EOF'
 import json, re, sys
