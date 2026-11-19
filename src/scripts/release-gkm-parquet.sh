@@ -9,7 +9,9 @@
 #
 # This is the only way the published Parquet is made: BigQuery exports no Parquet. The tool reads the weekly full
 # from its public URL and checks it against the sha256 in the published .sha256 sidecar, which this script
-# downloads first (it stops if the sidecar is missing). The tables are the tool's generated default for the
+# downloads first. A release with no weekly full (the release that starts a version line publishes only its
+# checkpoint monthly) is read from the line's monthly whose source_release in <line>index.json is this release,
+# with the sha256 the index gives; with neither, it stops. The tables are the tool's generated default for the
 # bundle schema (no column set): --bundle-schema is the schema's w3id URL for the assembler's SCHEMA_VERSION, and
 # --version-property schema_version names the root property that holds the bundle's version.
 #
@@ -57,14 +59,36 @@ MEMORY_ARGS=(); [[ -n "${PARQUET_MEMORY_LIMIT:-}" ]] && MEMORY_ARGS=(--memory-li
 echo "=== ClinVar-GKM Parquet (${PARQUET_TOOL[*]}, schema ${SCHEMA_VERSION}) from ${FULL_URL} -> ${PARQUET_DIR} ==="
 $DRY_RUN && echo "  Mode: DRY RUN"
 
-# The weekly full's sha256, from its published sidecar (`sha256sum -c` format). Steps 1 and 2 read the full.
+# The monthly of the line whose source_release is this release (not the 00-latest copy), as "<path> <sha256>"
+# from the line's published index.json; empty if there is none.
+checkpoint_monthly() {
+  curl -fsSL "${R2_PUBLIC_URL}/${R2_LINE}index.json" | python3 -c '
+import json, sys
+idx = json.load(sys.stdin)
+hits = [m for m in (idx.get("datasets") or {}).get("monthly") or []
+        if m.get("source_release") == sys.argv[1] and not m.get("latest")]
+if len(hits) == 1:
+    print(hits[0]["path"], hits[0]["sha256"])
+' "${EXPORT_DATE}"
+}
+
+# The bundle the tool reads and its sha256: the weekly full, with the sha256 from its published sidecar
+# (`sha256sum -c` format), or else the line's checkpoint monthly of this release. Steps 1 and 2 read it.
 if (( START_STEP <= 2 )); then
   if $DRY_RUN; then
-    FULL_SHA256="<sha256 from ${FULL_URL}.sha256>"
+    FULL_SHA256="<sha256 from ${FULL_URL}.sha256, or the index's monthly with source_release ${EXPORT_DATE}>"
   else
     FULL_SHA256="$(curl -fsSL "${FULL_URL}.sha256" | awk '{print $1; exit}')" || FULL_SHA256=""
+    if [[ -z "${FULL_SHA256}" ]]; then
+      read -r monthly_path FULL_SHA256 <<< "$(checkpoint_monthly)" || true
+      [[ -n "${monthly_path:-}" ]] || {
+        echo "ERROR: ${EXPORT_DATE} has no weekly full (${FULL_URL}.sha256) and no monthly in" \
+          "${R2_PUBLIC_URL}/${R2_LINE}index.json with source_release ${EXPORT_DATE}; is the release published?"; exit 1; }
+      FULL_URL="${R2_PUBLIC_URL}/${monthly_path}"
+      echo "  No weekly full for ${EXPORT_DATE}: reading the line's checkpoint monthly ${FULL_URL}"
+    fi
     [[ "${FULL_SHA256}" =~ ^[0-9a-f]{64}$ ]] || {
-      echo "ERROR: ${FULL_URL}.sha256 is missing or malformed; is the ${EXPORT_DATE} weekly full published?"; exit 1; }
+      echo "ERROR: the sha256 of ${FULL_URL} is malformed: '${FULL_SHA256}'"; exit 1; }
   fi
   BUNDLE_ARGS=(--full "${FULL_URL}" --sha256 "${FULL_SHA256}" --bundle-schema "${BUNDLE_SCHEMA}"
     --version-property schema_version)
