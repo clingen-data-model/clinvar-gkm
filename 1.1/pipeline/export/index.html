@@ -199,7 +199,7 @@
       <div class="md-header__source">
         
 
-  <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/036bec2" title="Go to repository" class="md-source">
+  <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/1.1.0" title="Go to repository" class="md-source">
     <div class="md-source__icon md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">036bec2</li>
+        <li class="md-source__fact md-source__fact--version">1.1.0</li>
       </ul>
     </div>
   </a>
@@ -522,7 +522,7 @@
     <div class="md-nav__source">
       
 
-  <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/036bec2" title="Go to repository" class="md-source">
+  <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/1.1.0" title="Go to repository" class="md-source">
     <div class="md-source__icon md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -530,7 +530,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">036bec2</li>
+        <li class="md-source__fact md-source__fact--version">1.1.0</li>
       </ul>
     </div>
   </a>
@@ -5117,7 +5117,7 @@ delta):</p>
 <hr />
 <h2 id="r2-bucket-cors-policy">R2 bucket CORS policy<a class="headerlink" href="#r2-bucket-cors-policy" title="Permanent link">&para;</a></h2>
 <p>The release browsers on the Downloads pages — the <a href="../../data-access/monthly-full/">Monthly Full Bundles</a>, <a href="../../data-access/weekly-full/">Weekly Full Bundles</a>, <a href="../../data-access/weekly-deltas/">Weekly Deltas</a>, and <a href="../../data-access/parquet/">Parquet Files</a> child pages, plus the Downloads hub's Latest Release view — each do a cross-origin <code>fetch()</code> of <code>index.json</code> from the docs site. That only works if the public R2 bucket serves a CORS policy allowing <code>GET</code> from other origins — otherwise the browsers block the read and can't populate (they then show a network/CORS message with a <code>curl</code> fallback).</p>
-<p>The policy is checked in at <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/036bec2/src/scripts/r2-cors.json"><code>src/scripts/r2-cors.json</code></a> (<code>GET</code>/<code>HEAD</code> from <code>*</code> — appropriate for public, read-only data). It is <strong>not</strong> applied by the release scripts, because their object-scoped <code>r2</code> upload token cannot read or write bucket configuration (<code>PutBucketCors</code> → <code>AccessDenied</code>). Apply it once with an <strong>Admin Read &amp; Write</strong> R2 token:</p>
+<p>The policy is checked in at <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/036bec25e342d6c572a94a8afde2a13964fbc049/src/scripts/r2-cors.json"><code>src/scripts/r2-cors.json</code></a> (<code>GET</code>/<code>HEAD</code> from <code>*</code> — appropriate for public, read-only data). It is <strong>not</strong> applied by the release scripts, because their object-scoped <code>r2</code> upload token cannot read or write bucket configuration (<code>PutBucketCors</code> → <code>AccessDenied</code>). Apply it once with an <strong>Admin Read &amp; Write</strong> R2 token:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># after configuring an admin token as an aws profile (default name: r2admin)</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>./src/scripts/apply-r2-cors.sh<span class="w">            </span><span class="c1"># or: ./src/scripts/apply-r2-cors.sh &lt;profile&gt;</span>
 </code></pre></div>

@@ -199,7 +199,7 @@
       <div class="md-header__source">
         
 
-  <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/036bec2" title="Go to repository" class="md-source">
+  <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/1.1.0" title="Go to repository" class="md-source">
     <div class="md-source__icon md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">036bec2</li>
+        <li class="md-source__fact md-source__fact--version">1.1.0</li>
       </ul>
     </div>
   </a>
@@ -522,7 +522,7 @@
     <div class="md-nav__source">
       
 
-  <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/036bec2" title="Go to repository" class="md-source">
+  <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/1.1.0" title="Go to repository" class="md-source">
     <div class="md-source__icon md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -530,7 +530,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">036bec2</li>
+        <li class="md-source__fact md-source__fact--version">1.1.0</li>
       </ul>
     </div>
   </a>
@@ -4949,7 +4949,7 @@
 </ul>
 <p>Each output record pairs the original <code>variation_identity</code> input (<code>in</code>) with the VRS resolution result (<code>out</code>).</p>
 <h4 id="running-vrsify">Running vrsify<a class="headerlink" href="#running-vrsify" title="Permanent link">&para;</a></h4>
-<p>In the pipeline, <code>run-release.sh</code> runs this step as <code>src/vrsify/vrsify.sh YYYY-MM-DD</code>, which calls the resolver installed as a pinned dependency (<code>src/vrsify/requirements.txt</code>) instead of the <code>misc/clinvar-vrsification</code> script. <code>vrsify.sh</code> exits before starting unless four variables are set: <code>SEQREPO_ROOT_DIR</code>, <code>SEQREPO_DATAPROXY_URL</code>, <code>HGVS_SEQREPO_DIR</code> and <code>GENE_NORM_DB_URL</code>. It does not check <code>UTA_DB_URL</code>, and its comments describe UTA as needed only for liftover. The resolver still reaches UTA for some records; when <code>UTA_DB_URL</code> is unset, the UTA client falls back to the public UTA endpoint, which timed out on 33 records in the 2026-10-18 run. Export <code>UTA_DB_URL</code> pointing at a reachable UTA, in practice a local container from the variation-normalizer compose setup in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/036bec2/src/vrsify"><code>src/vrsify/README.md</code></a>.</p>
+<p>In the pipeline, <code>run-release.sh</code> runs this step as <code>src/vrsify/vrsify.sh YYYY-MM-DD</code>, which calls the resolver installed as a pinned dependency (<code>src/vrsify/requirements.txt</code>) instead of the <code>misc/clinvar-vrsification</code> script. <code>vrsify.sh</code> exits before starting unless four variables are set: <code>SEQREPO_ROOT_DIR</code>, <code>SEQREPO_DATAPROXY_URL</code>, <code>HGVS_SEQREPO_DIR</code> and <code>GENE_NORM_DB_URL</code>. It does not check <code>UTA_DB_URL</code>, and its comments describe UTA as needed only for liftover. The resolver still reaches UTA for some records; when <code>UTA_DB_URL</code> is unset, the UTA client falls back to the public UTA endpoint, which timed out on 33 records in the 2026-10-18 run. Export <code>UTA_DB_URL</code> pointing at a reachable UTA, in practice a local container from the variation-normalizer compose setup in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/036bec25e342d6c572a94a8afde2a13964fbc049/src/vrsify"><code>src/vrsify/README.md</code></a>.</p>
 <p><strong>Output:</strong> <code>vi-normalized-no-liftover.jsonl.gz</code> on GCS.</p>
 <h3 id="step-3-transform-vrs-locations">Step 3: Transform VRS locations<a class="headerlink" href="#step-3-transform-vrs-locations" title="Permanent link">&para;</a></h3>
 <p>VRS <code>SequenceLocation</code> objects use array-valued <code>start</code> and <code>end</code> fields to represent imprecise ranges (inner/outer bounds). BigQuery does not natively support loading these mixed scalar/array values, so a minor transformation is needed before the data can be imported.</p>
@@ -5005,7 +5005,7 @@
 <p class="admonition-title">Limited Scope</p>
 <p>VRS processing currently resolves only the <strong>single best expression</strong> per variation — the defining allele for each Canonical Allele as selected by the <a href="../variation-identity/#precedence-hierarchy">precedence hierarchy</a>. Only variations that vrs-python can handle are successfully resolved; the remainder carry errors in the output.</p>
 </div>
-<p>The full release now runs from a single command — <code>src/scripts/run-release.sh</code> chains variation identity, the export, this vrsify stage (via <code>src/vrsify/vrsify.sh</code>), and the transform/load/procedures/publish stages. See <a href="../#single-command-run">Single-command run</a>. The vrsify resolver is installed as a pinned dependency rather than forked (see <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/036bec2/src/vrsify"><code>src/vrsify/README.md</code></a>); it still requires local SeqRepo and gene-normalizer services and a reachable UTA (see <a href="#running-vrsify">Running vrsify</a>).</p>
+<p>The full release now runs from a single command — <code>src/scripts/run-release.sh</code> chains variation identity, the export, this vrsify stage (via <code>src/vrsify/vrsify.sh</code>), and the transform/load/procedures/publish stages. See <a href="../#single-command-run">Single-command run</a>. The vrsify resolver is installed as a pinned dependency rather than forked (see <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/036bec25e342d6c572a94a8afde2a13964fbc049/src/vrsify"><code>src/vrsify/README.md</code></a>); it still requires local SeqRepo and gene-normalizer services and a reachable UTA (see <a href="#running-vrsify">Running vrsify</a>).</p>
 <p>One area of improvement remains planned:</p>
 <ul>
 <li><strong>Broader expression coverage</strong> — expand VRS processing to resolve <strong>all variant expressions</strong> in ClinVar — the full <code>hgvs_list</code> preserved in the <code>variation_hgvs</code> table — rather than only the single selected source. This will provide richer downstream representation with multiple VRS identities per variation.</li>
