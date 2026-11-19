@@ -131,7 +131,9 @@ version.
   still change, so don't rely on it for production use. Its header is orange, with a notice to the same effect.
 
 The repository link at the right of the header names the source each version was built from, and its links to
-repository files point there too: the release tag (such as `1.1.0`) for a release, `main` for `dev`.
+repository files point there too: the release tag (such as `1.1.0`) for a release, `main` for `dev`. The
+`1.1` docs are built from the `main` commit that documented 1.1.0 (`036bec2`), because the `1.1.0` tag was cut
+without them, so their repository-file links point at that commit.
 
 To link to a page in whatever release is latest, use a link without a version, such as
 `https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/changelog/`. To pin a link to one version,

@@ -13,21 +13,22 @@
 # tag built before versioned docs existed still gets the version selector, the
 # version notice and the colours:
 #   - OVERLAY (below): template overrides, versions.js and versions.css;
-#   - src/scripts/docs-ref-patches/<ref>/*.patch: content fixes for that ref's docs,
-#     such as release notes written after the tag (1.1.0's changelog lacks its own
-#     1.1.0 section);
 #   - zensical.toml: site_url becomes <site_url of this checkout><version>/, the
 #     [project.extra.version] table is added when the ref's config lacks it, and
-#     [project.extra.source] names the ref the version was built from (`main` for dev,
-#     else <ref>), which the header's repository widget shows and links; edit_uri
-#     points at the same ref;
+#     [project.extra.source] names the release the version shows (`main` for dev,
+#     else <ref>, or the line's label), which the header's repository widget shows and
+#     links; edit_uri points at the ref the pages come from;
 #   - links in the pages to this repository's files on `main` (/blob/main/...,
-#     /tree/main/..., /raw/main/...) are rewritten to <ref> for a release version
-#     (pin-repo-links.py; a path the ref doesn't have stays on main);
+#     /tree/main/..., /raw/main/...) are rewritten to the ref the pages come from, for
+#     a release version (pin-repo-links.py; a path the ref doesn't have stays on main);
 #   - the Roadmap table is regenerated from GitHub Discussions with this checkout's
 #     generate-roadmap.py (non-fatal: without GH_TOKEN or on an API error the ref's
 #     committed table stays).
 # Then `zensical build --clean --strict` and check-site-links.py run on the result.
+#
+# A release line listed in docs-line-sources.txt is always built from the source ref
+# given there and shown as its label, whatever <ref> is passed: every trigger (release,
+# schedule, dispatch) then builds the same docs for that line.
 #
 # Env: ZENSICAL (default: zensical), PYTHON (default: python3), GH_TOKEN (roadmap).
 set -euo pipefail
@@ -60,14 +61,22 @@ SITE_URL=$("$PYTHON" -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1
 case "$SITE_URL" in */) ;; *) SITE_URL="$SITE_URL/" ;; esac
 VERSION_URL="$SITE_URL$VERSION/"
 
-# The ref the version's pages show and link to: dev is main (labelled with the commit it
-# was built from); a release is the tag (or other ref) it was built from.
+# The release the version's header shows and links: dev is main (labelled with the commit
+# it was built from); a release is the tag it was built from, unless docs-line-sources.txt
+# maps its line to another source ref, shown as the line's label.
 if [ "$VERSION" = "dev" ]; then
   SOURCE_REF=main
   SOURCE_LABEL="main ($(git -C "$REPO" rev-parse --short "$REF^{commit}"))"
 else
   SOURCE_REF=$REF
-  SOURCE_LABEL=$REF
+  while read -r line src label; do
+    if [ "$line" = "$VERSION" ]; then
+      echo "== $VERSION: building the docs from $src, shown as $label ($REF requested; docs-line-sources.txt)"
+      REF=$src
+      SOURCE_REF=$label
+    fi
+  done < <(grep -v '^#' "$REPO/src/scripts/docs-line-sources.txt")
+  SOURCE_LABEL=$SOURCE_REF
 fi
 
 TMP=$(mktemp -d "${TMPDIR:-/tmp}/versioned-docs.XXXXXX")
@@ -81,26 +90,14 @@ for f in $OVERLAY; do
   cp "$REPO/$f" "$TMP/$f"
 done
 
-# Per-ref content fixes: src/scripts/docs-ref-patches/<ref>/*.patch are applied (in name
-# order) to that ref's exported tree, e.g. to add release notes written after the tag was
-# cut. A patch that doesn't apply stops the build.
-PATCHES="$REPO/src/scripts/docs-ref-patches/$REF"
-if [ -d "$PATCHES" ]; then
-  for p in "$PATCHES"/*.patch; do
-    [ -e "$p" ] || continue
-    echo "== Applying $(basename "$p") to $REF"
-    (cd "$TMP" && git apply --verbose "$p")
-  done
-fi
-
-"$PYTHON" - "$TMP/zensical.toml" "$VERSION_URL" "$SOURCE_REF" "$SOURCE_LABEL" <<'EOF'
+"$PYTHON" - "$TMP/zensical.toml" "$VERSION_URL" "$SOURCE_REF" "$SOURCE_LABEL" "$REF" <<'EOF'
 import json, re, sys
-path, url, ref, label = sys.argv[1:]
+path, url, ref, label, content = sys.argv[1:]
 text = open(path, encoding="utf-8").read()
 text, n = re.subn(r'(?m)^site_url\s*=.*$', f'site_url = "{url}"', text, count=1)
 if n != 1:
     sys.exit(f"error: no site_url line in {path}")
-edit = "edit/main/docs/" if ref == "main" else f"blob/{ref}/docs/"  # a tag can't be edited
+edit = "edit/main/docs/" if ref == "main" else f"blob/{content}/docs/"  # a tag can't be edited
 text = re.sub(r'(?m)^edit_uri\s*=.*$', f'edit_uri = "{edit}"', text, count=1)
 if "[project.extra.version]" not in text:
     text = text.rstrip("\n") + '\n\n[project.extra.version]\nprovider = "mike"\nalias = true\n'

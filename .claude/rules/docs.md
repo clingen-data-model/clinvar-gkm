@@ -30,8 +30,11 @@ for and keeps the others:
   versioning files (`docs/overrides/main.html`, `partials/header.html`, `partials/source.html`, `404.html`,
   `assets/js/versions.js`, `stylesheets/versions.css`) onto the ref and sets `site_url` per version. The header's
   repository widget shows the version's ref (`main` for dev, the tag for a release), and for a release
-  `pin-repo-links.py` rewrites `…/clinvar-gkm/blob/main/…` (and `tree`, `raw`) links to the tag. Keep writing
-  repo-file links as `/blob/main/…` in the source; the build pins them. Keep those files buildable against
+  `pin-repo-links.py` rewrites `…/clinvar-gkm/blob/main/…` (and `tree`, `raw`) links to the ref the pages come
+  from. Keep writing repo-file links as `/blob/main/…` in the source; the build pins them.
+- `src/scripts/docs-line-sources.txt` builds a release line from another ref, on every trigger, when its tag lacks
+  its docs: `1.1` → `036bec2`, shown as `1.1.0` (the `1.1.0` tag was cut without `main`'s 1.1.0 docs). After
+  editing it, dispatch that line (`-f ref=1.1.0 -f version=1.1`); a push to `main` rebuilds only `dev`. Keep those files buildable against
   the oldest published version: after changing them, check `build-versioned-docs.sh 1.1.0 1.1 <out>`.
 - **Before publishing a release from a branch that predates ADR 0011 (`1.0`)**, bring this workflow and its
   scripts onto it or drop its `release` trigger: the `release` event runs the workflow file at the tag, and the
