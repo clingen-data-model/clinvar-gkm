@@ -118,9 +118,10 @@ required. The rules are in
   gives the label its `primaryCoding`; see [`quality`, `direction`, and
   `strength`](../pipeline/vcv-statements/vcv-aggregation-rules.md#quality-direction-and-strength). A
   classification-layer statement with one SCV still passes that SCV's direction through. A label with no lookup
-  row keeps the old rule: `neutral` for `Conflicting classifications of …`, `supports` for combinations and the
-  FLAG label. In the 2026-10-31 full release this changes the direction of 1,751 of the 21,309,008 VCV and RCV
-  records (687 VCV, 1,064 RCV), all from `supports`:
+  row is `neutral` if it is `Conflicting classifications of …` (as before) or the FLAG label
+  `no classifications from unflagged records`; a combination takes the direction every SCV in its group
+  carries, or `supports` when they differ. In the 2026-10-31 full release this changes the direction of 4,779
+  of the 21,309,008 VCV and RCV records (1,761 VCV, 3,018 RCV), all from `supports`:
     - **Somatic clinical impact whose tier is III or IV:** a multi-SCV classification group, any priority
       statement, and an aggregate statement won by the priority layer. Tier III goes to `neutral` (447) and
       Tier IV to `disputes` (187).
@@ -130,6 +131,13 @@ required. The rules are in
       `association not found` to `disputes` (16).
     - **Multi-SCV groups labelled VUS-high, VUS-mid, VUS-low, Uncertain risk allele, conflicting data from
       submitters or association not found** get the same values. The 2026-10-31 release has none.
+    - **Combinations of neutral terms** (`Uncertain significance/Uncertain risk allele`, `/VUS-high`,
+      `/VUS-mid`, `/VUS-low`): a multi-SCV classification group and an aggregate statement it wins go to
+      `neutral` (478: 400 VCV, 78 RCV). Every other combination in the release has `supports` terms only, so it
+      keeps `supports`.
+    - **The FLAG label** `no classifications from unflagged records`: a multi-SCV classification group and every
+      aggregate statement with this label go to `neutral` (2,550: 674 VCV, 1,876 RCV). A one-SCV FLAG
+      classification group still passes its flagged SCV's direction through.
 
     No other direction changes; every statement still has a direction. If you filter aggregate statements by
     `direction`, expect these values from the first 1.2.0 release.

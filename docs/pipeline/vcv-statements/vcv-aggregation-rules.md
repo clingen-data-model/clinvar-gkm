@@ -193,10 +193,17 @@ These statement-level fields are derived from the aggregate classification label
   aggregate-layer statement) takes the `direction` of the `clinvar_clinsig_types` row that gives the label its
   coding: the same lookup by proposition type and label, with the somatic tier label in place of the decorated
   one. The priority layer takes the top tier's direction and the aggregate layer the winning layer's. A label
-  with no lookup row has no SCV direction to follow, so it keeps a fixed rule: `neutral` for a conflicting
-  label, `supports` for the others (combinations and the FLAG label). A combination of neutral terms, such as
-  `Uncertain significance/Uncertain risk allele`, therefore gets `supports`. Every VCV and RCV statement has a
-  direction. Column `agg_direction` of `gkm_vcv_proc` / `gkm_rcv_proc`.
+  with no lookup row follows these rules:
+
+    - A conflicting label (`Conflicting classifications of …`) is `neutral`.
+    - The FLAG label `no classifications from unflagged records` is `neutral`, because no unflagged
+      classification exists.
+    - A combination (such as `Uncertain significance/VUS-high`) takes the direction its SCVs carry when every
+      SCV in the classification group has the same direction, and `supports` when they differ.
+
+    A combination of neutral terms, such as `Uncertain significance/Uncertain risk allele`, is therefore
+    `neutral`, and a combination of P/LP-side terms is `supports`. Every VCV and RCV statement has a direction.
+    Column `agg_direction` of `gkm_vcv_proc` / `gkm_rcv_proc`.
 
     | Proposition type | Label | `direction` |
     | --- | --- | --- |
@@ -213,7 +220,9 @@ These statement-level fields are derived from the aggregate classification label
     | conflicting data from submitters | conflicting data from submitters | neutral |
     | ClinVar's other proposition types | Affects; confers sensitivity; drug response; not provided; other; protective; risk factor | supports |
     | any (no lookup row) | Conflicting classifications of pathogenicity / of oncogenicity | neutral |
-    | any (no lookup row) | combinations not in the lookup, such as Likely pathogenic/Likely risk allele or Uncertain significance/VUS-high; the FLAG label `no classifications from unflagged records` | supports |
+    | any (no lookup row) | the FLAG label `no classifications from unflagged records` | neutral |
+    | any (no lookup row) | combinations not in the lookup whose SCVs all share a direction, such as Uncertain significance/VUS-high (neutral) or Likely pathogenic/Likely risk allele (supports) | the SCVs' direction |
+    | any (no lookup row) | combinations not in the lookup whose SCVs differ in direction | supports |
 - **`strength`** — the strength the SCVs carry for the label. A classification-layer group with one SCV passes
   that SCV's strength through. Every other statement (a multi-SCV group, and every priority- and aggregate-layer
   statement) takes the `strength_label` of the `clinvar_clinsig_types` row that gives the label its coding: the

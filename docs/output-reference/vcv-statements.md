@@ -99,7 +99,8 @@ The `direction` field is a string: the direction the SCVs carry for the aggregat
 | Uncertain significance; VUS-high, VUS-mid, VUS-low; Uncertain risk allele; Tier III; conflicting data from submitters | `neutral` |
 | Benign; Likely benign; Benign/Likely benign; Tier IV; association not found | `disputes` |
 | Conflicting classifications of pathogenicity / oncogenicity (no lookup row) | `neutral` |
-| Combinations not in the lookup, such as Uncertain significance/VUS-high, and the FLAG label (no lookup row) | `supports` |
+| The FLAG label `no classifications from unflagged records` (no lookup row) | `neutral` |
+| Combinations not in the lookup, such as Uncertain significance/VUS-high (no lookup row) | the direction every SCV in the group carries; `supports` if they differ |
 
 A somatic clinical impact statement takes its tier's direction (at the priority and aggregate layers, the top
 tier's). A classification-layer statement with one SCV passes that SCV's direction through. See
