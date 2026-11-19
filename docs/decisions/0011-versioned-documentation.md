@@ -47,11 +47,21 @@ grey and say they aren't current.
    result is cached for the browser tab so the next page doesn't flash indigo first.
 6. **Older tags get the feature by overlay.** `src/scripts/build-versioned-docs.sh <ref> <version> <out>` exports
    the ref's tree (the tag is never changed), copies in the files this feature owns (`docs/overrides/main.html`,
-   `partials/header.html`, `404.html`, `versions.js`, `versions.css`) from the checkout running the build, sets
-   `site_url`, adds the `[project.extra.version]` table if missing, regenerates the Roadmap, and runs
-   `zensical build --clean --strict` and `check-site-links.py`. This is how `1.1` is built from the `1.1.0` tag,
-   whose config predates versioning.
-7. **When each version is deployed** (`.github/workflows/deploy-docs.yml`):
+   `partials/header.html`, `partials/source.html`, `404.html`, `versions.js`, `versions.css`) from the checkout
+   running the build, sets `site_url`, adds the `[project.extra.version]` table if missing, regenerates the
+   Roadmap, and runs `zensical build --clean --strict` and `check-site-links.py`. This is how `1.1` is built from
+   the `1.1.0` tag, whose config predates versioning.
+7. **Each version shows and links its own ref.** The build sets `[project.extra.source]` to the ref it was built
+   from: `main` (labelled with the build commit) for `dev`, the tag for a release. The header's repository widget
+   (`partials/source.html`) shows that ref and links `…/tree/<ref>`, instead of the latest GitHub release the theme
+   fetches from the GitHub API; the stars and forks counts, which come from the same lookup, are dropped.
+   `edit_uri` follows the ref (`edit/main/docs/` for `dev`, `blob/<tag>/docs/` for a release, since a tag can't
+   be edited); the edit and view buttons aren't enabled today. For a release, `src/scripts/pin-repo-links.py`
+   rewrites the pages' links to this repository's files on `main` (`/blob/main/…`, `/tree/main/…`,
+   `/raw/main/…`) in the exported tree to the tag, so a `1.1` page links the `1.1.0` files; a path the tag
+   doesn't have stays on `main` and is listed in the build log. Links to issues, discussions, pull requests and
+   releases stay as written: they are live, not versioned.
+8. **When each version is deployed** (`.github/workflows/deploy-docs.yml`):
 
     | Trigger | Builds |
     | --- | --- |
@@ -63,7 +73,7 @@ grey and say they aren't current.
 
     The latest release is rebuilt on the Roadmap triggers because the Roadmap is a live page (ADR 0003) and the
     latest release is the version most readers see. Older releases keep the Roadmap they had.
-8. **Publishing keeps the other versions.** A run builds only its versions, then checks out `gh-pages`, replaces
+9. **Publishing keeps the other versions.** A run builds only its versions, then checks out `gh-pages`, replaces
    those folders, rewrites the root files and pushes; if another run pushed first, it starts again from the new
    tip. Runs are serialized per version (`concurrency: deploy-docs-<version>`), so a main merge can't cancel a
    release deploy.
@@ -76,8 +86,9 @@ grey and say they aren't current.
   turns the previous line grey.
 - **The `release` event runs the workflow file at the tag.** A tag whose tree has the old whole-site
   `deploy-docs.yml` would overwrite every version with one unversioned build. Before publishing a release from
-  a branch that predates this ADR — the `1.0` branch today — bring this workflow and the two scripts onto that
-  branch, or remove its `release` trigger.
+  a branch that predates this ADR — the `1.0` branch today — bring this workflow and its scripts
+  (`build-versioned-docs.sh`, `docs-versions.py`, `pin-repo-links.py`) onto that branch, or remove its `release`
+  trigger.
 - The overlay files must keep building against the oldest published docs version. A change to them is checked
   by building `1.1` from its tag (`build-versioned-docs.sh 1.1.0 1.1 <out>`).
 - Search is per version; results come from the version being read.

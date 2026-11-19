@@ -27,10 +27,13 @@ for and keeps the others:
 
 - A docs-only merge to `main` updates `dev` only. Released docs change only with a release (or a dispatch).
 - Every version is built by `src/scripts/build-versioned-docs.sh <ref> <version> <out>`, which overlays the
-  versioning files (`docs/overrides/main.html`, `partials/header.html`, `404.html`, `assets/js/versions.js`,
-  `stylesheets/versions.css`) onto the ref and sets `site_url` per version. Keep those files buildable against
+  versioning files (`docs/overrides/main.html`, `partials/header.html`, `partials/source.html`, `404.html`,
+  `assets/js/versions.js`, `stylesheets/versions.css`) onto the ref and sets `site_url` per version. The header's
+  repository widget shows the version's ref (`main` for dev, the tag for a release), and for a release
+  `pin-repo-links.py` rewrites `…/clinvar-gkm/blob/main/…` (and `tree`, `raw`) links to the tag. Keep writing
+  repo-file links as `/blob/main/…` in the source; the build pins them. Keep those files buildable against
   the oldest published version: after changing them, check `build-versioned-docs.sh 1.1.0 1.1 <out>`.
-- **Before publishing a release from a branch that predates ADR 0011 (`1.0`)**, bring this workflow and the two
+- **Before publishing a release from a branch that predates ADR 0011 (`1.0`)**, bring this workflow and its
   scripts onto it or drop its `release` trigger: the `release` event runs the workflow file at the tag, and the
   old one overwrites the whole site.
 - `concurrency: deploy-docs-<version>` lets a newer run for the same version supersede one in progress; runs for

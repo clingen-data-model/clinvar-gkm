@@ -113,6 +113,9 @@ version.
 - **`dev (unreleased)`** is built from the `main` branch. It describes changes that are not released yet and may
   still change, so don't rely on it for production use. Its header is orange, with a notice to the same effect.
 
+The repository link at the right of the header names the source each version was built from, and its links to
+repository files point there too: the release tag (such as `1.1.0`) for a release, `main` for `dev`.
+
 To link to a page in whatever release is latest, use a link without a version, such as
 `https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/changelog/`. To pin a link to one version,
 include it: `…/clinvar-gkm/1.1/reference/changelog/`. The decision record is

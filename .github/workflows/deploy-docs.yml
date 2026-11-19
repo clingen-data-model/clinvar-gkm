@@ -28,6 +28,7 @@ on:
       - '.github/workflows/deploy-docs.yml'
       - 'src/scripts/build-versioned-docs.sh'
       - 'src/scripts/docs-versions.py'
+      - 'src/scripts/pin-repo-links.py'
       - 'src/scripts/check-site-links.py'
   # Roadmap membership/status changes fire discussion events; upvote-based
   # re-ordering is picked up by the daily schedule (upvotes don't fire events).
