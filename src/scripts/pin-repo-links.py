@@ -21,6 +21,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import unquote
 
 LINK = re.compile(
     r"(https://github\.com/clingen-data-model/clinvar-gk[ms])/(blob|tree|raw)/main"
@@ -59,7 +60,7 @@ def main():
 
     def sub(m):
         nonlocal rewritten
-        path = (m.group(3) or "").strip("/")
+        path = unquote(m.group(3) or "").strip("/")
         if path in known:
             rewritten += 1
             return f"{m.group(1)}/{m.group(2)}/{args.ref}{m.group(3) or ''}"
