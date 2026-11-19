@@ -1,5 +1,20 @@
 name: Deploy Documentation
 
+# Versioned docs (ADR 0011). gh-pages holds one folder per docs version, plus root
+# files written by src/scripts/docs-versions.py:
+#   1.1/, 1.2/, ...   one per release line (a patch release rebuilds its line in place)
+#   dev/              built from main: unreleased changes
+#   versions.json     the version selector's list; `latest` = the highest release line
+#   index.html        redirects to the latest release
+#   404.html          sends unversioned (pre-versioning) links to the same page in the latest release
+# Each run builds only the versions it is for and leaves the other folders alone.
+#
+#   push to main (docs paths) ............ dev
+#   release: published, tag X.Y.Z ........ X.Y from the tag (not a prerelease)
+#   schedule / discussion (roadmap) ...... dev, and the latest release from its newest tag
+#   workflow_dispatch, no inputs ......... dev (run it on main)
+#   workflow_dispatch, ref + version ..... that ref as that version, e.g. 1.1.0 as 1.1
+
 on:
   release:
     types: [published]
@@ -11,6 +26,9 @@ on:
       - 'docs/**'
       - 'zensical.toml'
       - '.github/workflows/deploy-docs.yml'
+      - 'src/scripts/build-versioned-docs.sh'
+      - 'src/scripts/docs-versions.py'
+      - 'src/scripts/check-site-links.py'
   # Roadmap membership/status changes fire discussion events; upvote-based
   # re-ordering is picked up by the daily schedule (upvotes don't fire events).
   discussion:
@@ -18,15 +36,26 @@ on:
   schedule:
     - cron: '17 13 * * *'
   workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Tag (or commit) to build, e.g. 1.1.0. Leave blank to build the dispatched branch (main) as dev.'
+        required: false
+        default: ''
+      version:
+        description: 'Docs version to publish it as: a release line such as 1.1, or dev. Required with ref.'
+        required: false
+        default: ''
 
 permissions:
   contents: write
   discussions: read
 
-# One deploy at a time; a newer run supersedes one still in progress, so
-# back-to-back merges can't publish out of order.
+# One run per docs version at a time; a newer run for the same version supersedes one
+# still in progress, so back-to-back merges can't publish out of order. Runs for
+# different versions (a release and a main merge) don't cancel each other; they
+# serialize on the gh-pages push below.
 concurrency:
-  group: deploy-docs
+  group: deploy-docs-${{ github.event_name == 'release' && github.event.release.tag_name || inputs.version || 'dev' }}
   cancel-in-progress: true
 
 jobs:
@@ -34,6 +63,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # tags: release versions are built from their tag
 
       - uses: actions/setup-python@v5
         with:
@@ -41,23 +72,107 @@ jobs:
 
       - run: pip install -r docs/requirements.txt
 
-      # Regenerate the Roadmap table from GitHub Discussions labeled
-      # "roadmap authorized" (ordered by upvotes). Non-fatal: a transient API
-      # failure falls back to the committed snapshot rather than blocking deploy.
-      - name: Generate roadmap from discussions
-        continue-on-error: true
+      - name: Choose the versions to build
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          TAG: ${{ github.event.release.tag_name }}
+          PRERELEASE: ${{ github.event.release.prerelease }}
+          IN_REF: ${{ inputs.ref }}
+          IN_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin gh-pages:refs/remotes/origin/gh-pages
+          targets=""
+          case "$EVENT" in
+            release)
+              if [ "$PRERELEASE" = "true" ] || ! [[ "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                echo "Release $TAG is a prerelease or not X.Y.Z; no docs version to publish."
+              else
+                targets="$TAG ${TAG%.*}"
+              fi
+              ;;
+            workflow_dispatch)
+              if [ -n "$IN_REF" ]; then
+                [ -n "$IN_VERSION" ] || { echo "::error::version is required with ref"; exit 1; }
+                targets="$IN_REF $IN_VERSION"
+              else
+                [ "$GITHUB_REF" = "refs/heads/main" ] || { echo "::error::dev is built from main only"; exit 1; }
+                targets="HEAD dev"
+              fi
+              ;;
+            push)
+              targets="HEAD dev"
+              ;;
+            schedule|discussion)
+              targets="HEAD dev"
+              # Rebuild the latest release too, so its Roadmap page stays current.
+              latest=""
+              vj="$RUNNER_TEMP/versions.json"
+              if git show origin/gh-pages:versions.json > "$vj" 2>/dev/null; then
+                latest=$(python -c 'import json, sys; print(next((v["version"] for v in json.load(open(sys.argv[1])) if "latest" in v["aliases"]), ""))' "$vj")
+              fi
+              if [ -n "$latest" ]; then
+                tag=$(git tag -l --sort=-v:refname "$latest.*" | grep -E "^${latest//./\\.}\.[0-9]+$" | head -1 || true)
+                if [ -n "$tag" ]; then targets="$targets
+          $tag $latest"; fi
+              fi
+              ;;
+          esac
+          echo "Targets:"; echo "${targets:-(none)}"
+          {
+            echo "targets<<EOF"
+            echo "$targets"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      # Each build overlays this checkout's versioning templates onto the ref, sets
+      # site_url to .../<version>/, regenerates the Roadmap (non-fatal), and runs
+      # `zensical build --clean --strict` and check-site-links.py.
+      - name: Build docs versions
+        if: steps.plan.outputs.targets != ''
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python src/scripts/generate-roadmap.py
+          TARGETS: ${{ steps.plan.outputs.targets }}
+        run: |
+          set -euo pipefail
+          while read -r ref version; do
+            [ -n "$ref" ] || continue
+            src/scripts/build-versioned-docs.sh "$ref" "$version" "built/$version"
+          done <<< "$TARGETS"
 
-      - run: zensical build --clean --strict
-
-      # --strict doesn't check #fragments or links in raw HTML (iframes, diagrams,
-      # the console); check every internal link in the built site.
-      - name: Check site links and anchors
-        run: python src/scripts/check-site-links.py site
-
-      - uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ github.token }}
-          publish_dir: ./site
+      - name: Publish to gh-pages
+        if: steps.plan.outputs.targets != ''
+        run: |
+          set -euo pipefail
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # shellcheck disable=SC2012  # version names are dev or X.Y
+          versions=$(ls built | tr '\n' ' ')
+          adds=""
+          for v in $versions; do adds="$adds --add $v"; done
+          # Another version's run may push first; start again from the new gh-pages tip.
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags origin gh-pages:refs/remotes/origin/gh-pages
+            rm -rf pages
+            git worktree prune
+            git worktree add --detach pages origin/gh-pages
+            for v in $versions; do
+              rsync -a --delete "built/$v/" "pages/$v/"
+            done
+            # shellcheck disable=SC2086
+            python src/scripts/docs-versions.py pages $adds
+            git -C pages add -A
+            if git -C pages diff --cached --quiet; then
+              echo "gh-pages already up to date."
+              exit 0
+            fi
+            git -C pages commit -q -m "docs: publish ${versions% } from ${GITHUB_SHA::7}"
+            if git -C pages push origin HEAD:gh-pages; then
+              exit 0
+            fi
+            echo "Push rejected (attempt $attempt); retrying."
+            sleep $((attempt * 5))
+          done
+          echo "::error::could not push to gh-pages"
+          exit 1
