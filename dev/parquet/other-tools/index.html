@@ -16,7 +16,7 @@
         <link rel="prev" href="../performance/">
       
       
-        <link rel="next" href="../../working-in-python/">
+        <link rel="next" href="../build-your-own/">
       
       
         
@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -380,6 +380,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -534,7 +538,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -4183,6 +4187,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4279,7 +4287,7 @@
   <span class="md-ellipsis">
     
   
-  The 22 Tables
+  The 20 Tables
 
     
   </span>
@@ -4549,6 +4557,60 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Build Your Own Tables and Mini-Bundles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../migrating-from-1.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Moving from 1.1 to 2.0
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -6426,19 +6488,20 @@
 <h1 id="beyond-duckdb">Beyond DuckDB<a class="headerlink" href="#beyond-duckdb" title="Permanent link">&para;</a></h1>
 <div class="admonition info">
 <p class="admonition-title">Release</p>
-<p>Outputs and timings on this page are from the <strong>2026-10 monthly release</strong> (published 14 Oct 2026), run on a laptop against downloaded files with pyarrow 26, pandas 3, polars 2 and DuckDB 1.5.</p>
+<p>The expected answer is from the <strong>2026-10-31 release</strong>. The Python snippets were run against tables built with
+<code>gkm-bundle-parquet</code> 2.0.0, with Python 3.12, DuckDB 1.5.4, pyarrow 26.0.1, pandas 3.1.1 and polars 2.1.0.</p>
 </div>
 <p>Parquet is an open format, so any tool that reads it can read these files. This page does the <strong>same small task</strong> in each, so you can compare them: count the expert-panel SCVs by normalized classification, reading only the two fields that needs.</p>
 <p>The expected answer, whichever tool you use:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>code                    n
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pathogenic              9,906
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>uncertain significance  3,954
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>likely pathogenic       2,940
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>likely benign           2,822
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>benign                  2,807
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pathogenic              10,068
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>uncertain significance   4,081
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>likely pathogenic        3,069
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>benign                   2,881
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>likely benign            2,867
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>…
 </code></pre></div>
-<p>Whatever the tool, the rule from <a href="../table-anatomy/#never-select-on-a-big-table">Anatomy of a Table</a> holds: <strong>read only the columns you need.</strong> <code>scv.parquet</code> is 3.2 GB on disk and about 21 GB once loaded whole (2026-10-18 release).</p>
+<p>Whatever the tool, the rule from <a href="../table-anatomy/#never-select-on-a-big-table">Anatomy of a Table</a> holds: <strong>read only the columns you need.</strong> <code>scv.parquet</code> is 784 MB on disk in 2026-10-31, and several times that once loaded whole.</p>
 <h2 id="python">Python<a class="headerlink" href="#python" title="Permanent link">&para;</a></h2>
 <h3 id="duckdb-from-python">DuckDB from Python<a class="headerlink" href="#duckdb-from-python" title="Permanent link">&para;</a></h3>
 <p>The SQL on the rest of this track runs unchanged from Python, and <code>.df()</code> hands the result to pandas:</p>
@@ -6454,27 +6517,28 @@
 </code></pre></div>
 <p>Use this when the work is mostly joins and filtering: DuckDB does them out of memory, and only the small result becomes a DataFrame.</p>
 <h3 id="pyarrow">pyarrow<a class="headerlink" href="#pyarrow" title="Permanent link">&para;</a></h3>
-<p>pyarrow reads the schema and metadata from the footer, and can read individual fields out of nested columns:</p>
+<p>pyarrow reads the schema and metadata from the footer, and can read individual fields out of nested columns. The footer also says what built the file: its key-value metadata has <code>gkm_bundle_parquet.*</code> entries such as <code>tool_version</code> and <code>bundle_schema_version</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow.parquet</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pq</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow.compute</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pc</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">pf</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">ParquetFile</span><span class="p">(</span><span class="s2">"scv.parquet"</span><span class="p">)</span>                     <span class="c1"># opening reads only the footer</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nb">print</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">num_rows</span><span class="p">,</span> <span class="s2">"rows in"</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">num_row_groups</span><span class="p">,</span> <span class="s2">"row groups"</span><span class="p">)</span>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="nb">print</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">schema_arrow</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"quality"</span><span class="p">)</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c1"># Read two nested fields, not the whole table; they come back as columns "code" and "name"</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">t</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="s2">"scv.parquet"</span><span class="p">,</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>                  <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"classification.primaryCoding.code"</span><span class="p">,</span> <span class="s2">"quality.name"</span><span class="p">])</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="n">ep</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pc</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">"name"</span><span class="p">],</span> <span class="s2">"expert panel"</span><span class="p">))</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="nb">print</span><span class="p">(</span><span class="n">ep</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">"code"</span><span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">([(</span><span class="s2">"code"</span><span class="p">,</span> <span class="s2">"count"</span><span class="p">)])</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>        <span class="o">.</span><span class="n">sort_by</span><span class="p">([(</span><span class="s2">"code_count"</span><span class="p">,</span> <span class="s2">"descending"</span><span class="p">)])</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">to_pylist</span><span class="p">())</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="nb">print</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="sa">b</span><span class="s2">"gkm_bundle_parquet.bundle_schema_version"</span><span class="p">])</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="c1"># Read two nested fields, not the whole table; they come back as columns "code" and "name"</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">t</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="s2">"scv.parquet"</span><span class="p">,</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>                  <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"classification.primaryCoding.code"</span><span class="p">,</span> <span class="s2">"quality.name"</span><span class="p">])</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="n">ep</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pc</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">"name"</span><span class="p">],</span> <span class="s2">"expert panel"</span><span class="p">))</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="nb">print</span><span class="p">(</span><span class="n">ep</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">"code"</span><span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">([(</span><span class="s2">"code"</span><span class="p">,</span> <span class="s2">"count"</span><span class="p">)])</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        <span class="o">.</span><span class="n">sort_by</span><span class="p">([(</span><span class="s2">"code_count"</span><span class="p">,</span> <span class="s2">"descending"</span><span class="p">)])</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">to_pylist</span><span class="p">())</span>
 </code></pre></div>
 <p>A dotted path in <code>columns=</code> reads just that leaf. Note that the result names the column by its last segment (<code>code</code>, <code>name</code>), not the full path.</p>
 <h3 id="pandas">pandas<a class="headerlink" href="#pandas" title="Permanent link">&para;</a></h3>
 <p>pandas reads Parquet through pyarrow, with the same <code>columns=</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># columns= is essential: without it pandas loads every column, about 21 GB for scv</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># columns= is essential: without it pandas loads every column of scv, decompressed</span>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">"scv.parquet"</span><span class="p">,</span>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>                     <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"classification.primaryCoding.code"</span><span class="p">,</span> <span class="s2">"quality.name"</span><span class="p">])</span>
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>                               <span class="c1"># ['code', 'name']</span>
@@ -6482,7 +6546,8 @@
 </code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Never <code>pd.read_parquet</code> a big table without <code>columns=</code></p>
-<p>It loads every column, including the multi-GB <code>data</code> column, into memory. On <code>scv.parquet</code> that is about 21 GB. The process is killed or the machine swaps.</p>
+<p>It loads every column into memory, decompressed: several times the file's size on disk, most of it free text
+and extensions you didn't ask for. On the big tables the process is killed or the machine swaps.</p>
 </div>
 <h3 id="polars">polars<a class="headerlink" href="#polars" title="Permanent link">&para;</a></h3>
 <p>polars' <code>scan_parquet</code> is lazy: it builds a query plan and, on <code>.collect()</code>, reads only the columns and rows the plan needs:</p>
@@ -6512,14 +6577,15 @@
 <a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="nf">count</span><span class="p">(</span><span class="n">code</span><span class="p">,</span><span class="w"> </span><span class="n">sort</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w"> </span><span class="o">|&gt;</span>
 <a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="nf">collect</span><span class="p">()</span>
 </code></pre></div>
-<p>The <code>duckdb</code> R package is the other route: it runs the SQL from this track unchanged.</p>
+<p>The <code>duckdb</code> R package is the other route: it runs the SQL from this track unchanged. (The R snippet has not been re-run against the 2.0 tables.)</p>
 <h2 id="spark-and-cloud-warehouses">Spark and cloud warehouses<a class="headerlink" href="#spark-and-cloud-warehouses" title="Permanent link">&para;</a></h2>
 <p>The files load directly into Spark (<code>spark.read.parquet(...)</code>) and into cloud warehouses: as BigQuery external or loaded tables from a Cloud Storage copy, or as Athena tables over an S3 copy. Copy the files into your own bucket first; <code>data.clinvar-gkm.org</code> is a download host, not a query endpoint for warehouse engines.</p>
 <p>What survives the trip:</p>
 <ul>
 <li><strong><code>STRUCT</code> and <code>LIST</code> columns</strong> arrive as the engine's record and array types (<code>STRUCT</code>/<code>ARRAY</code> in BigQuery and Spark, <code>struct</code>/<code>array</code> in Athena), so dotted access like <code>classification.name</code> works the same way.</li>
-<li><strong><code>data</code> is a string everywhere.</strong> Parse it with the engine's JSON functions (<code>JSON_VALUE</code> in BigQuery, <code>get_json_object</code> in Spark) only when a field has no typed column.</li>
-<li><strong>Ids are plain strings.</strong> The joins on <a href="../joining/">Joining Tables</a> translate directly, prefix dispatch included.</li>
+<li><strong>Every field is a typed column</strong>, except the few nested positions kept as JSON text (see <a href="../table-anatomy/#extensions">Extensions</a>); parse those with the engine's JSON functions (<code>JSON_VALUE</code> in BigQuery, <code>get_json_object</code> in Spark).</li>
+<li><strong>Ids are plain strings.</strong> The joins on <a href="../joining/">Joining Tables</a> translate directly, <code>_section</code> dispatch included.</li>
+<li><strong>Column names are camelCase</strong> (<code>primaryCoding</code>, <code>hasEvidenceLines</code>), as in the bundle. Some engines fold unquoted names to lower case; check how yours matches Parquet column names.</li>
 </ul>
 <h2 id="spreadsheets-and-gui-tools">Spreadsheets and GUI tools<a class="headerlink" href="#spreadsheets-and-gui-tools" title="Permanent link">&para;</a></h2>
 <p>Excel, Google Sheets and most GUI tools can't open Parquet, and even those that can shouldn't open a multi-GB table. Filter to the rows you need first, then export that slice to CSV:</p>
@@ -6527,7 +6593,7 @@
 </code></pre></div>
 <p><a href="../recipes/#export">Recipes → Export a slice</a> has a fuller example. With no terminal at all, the <a href="https://shell.duckdb.org" rel="noopener" target="_blank">DuckDB Web Shell</a> can open a small downloaded file in the browser and export the result.</p>
 <h2 id="which-tool-when">Which tool when<a class="headerlink" href="#which-tool-when" title="Permanent link">&para;</a></h2>
-<p>For exploring and for joins, <strong>DuckDB</strong>, from the command line or from Python or R: it reads only what a query needs and handles joins larger than memory. For a dataframe workflow in Python, <strong>polars</strong> with <code>scan_parquet</code> gives the same column pruning with a dataframe API. Use <strong>pandas</strong> or <strong>pyarrow</strong> when a library you depend on expects their objects, and always pass <code>columns=</code>. Reach for <strong>Spark or a warehouse</strong> only when the data has to live next to other large data in your cloud. For everyone else, a few GB of Parquet on a laptop is small.</p>
+<p>For exploring and for joins, <strong>DuckDB</strong>, from the command line or from Python or R: it reads only what a query needs and handles joins larger than memory. For a dataframe workflow in Python, <strong>polars</strong> with <code>scan_parquet</code> gives the same column pruning with a dataframe API. Use <strong>pandas</strong> or <strong>pyarrow</strong> when a library you depend on expects their objects, and always pass <code>columns=</code>. Reach for <strong>Spark or a warehouse</strong> only when the data has to live next to other large data in your cloud. For everyone else, 4.6 GB of Parquet on a laptop is small.</p>
 
 
 

@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -378,6 +378,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -532,7 +536,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -4300,6 +4304,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4393,7 +4401,7 @@
   <span class="md-ellipsis">
     
   
-  The 22 Tables
+  The 20 Tables
 
     
   </span>
@@ -4502,6 +4510,60 @@
     
   
   Beyond DuckDB
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parquet/build-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Build Your Own Tables and Mini-Bundles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parquet/migrating-from-1.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Moving from 1.1 to 2.0
 
     
   </span>
@@ -6348,7 +6410,7 @@
 
 
 <h1 id="downloads">Downloads<a class="headerlink" href="#downloads" title="Permanent link">&para;</a></h1>
-<p>ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas (JSON), with one typed Parquet dataset of the latest release, free from Cloudflare R2 — no authentication, no egress fees. The layout follows NCBI's ClinVar FTP site. New here? See <a href="../release-model/">How Releases Work</a>.</p>
+<p>ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas (JSON), with one typed Parquet dataset of the latest release built from the bundle, free from Cloudflare R2 — no authentication, no egress fees. The layout follows NCBI's ClinVar FTP site. New here? See <a href="../release-model/">How Releases Work</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">1.2.0 starts a new version line, <code>v1/1.2/</code></p>
 <p>1.2.0 publishes into a new line folder, <code>v1/1.2/</code>, which starts with one checkpoint monthly and adds deltas from there. The 1.1.x releases stay, unchanged, in the frozen line <code>v1/1.1/</code> (monthlies, deltas and archive; its weekly fulls and Parquet set are removed at the freeze). Change <code>v1/1.1/</code> to <code>v1/1.2/</code> in your scripts, or read the current line from the root <code>index.json</code>. See <a href="../release-model/#version-lines">Version Lines</a> and the <a href="../../reference/changelog/">changelog</a>.</p>
@@ -6400,10 +6462,11 @@ The interactive release table needs JavaScript. Without it, fetch the release in
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>        clinvar-gkm_YYYY-MM.json.gz           monthly fulls from prior years
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>        deltas/YYYY-MM/                       deltas from prior years
 <a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    parquet/
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>      {section}.parquet                       ONE Parquet dataset, the latest (derived; overwritten every release)
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>      {section}.parquet                       ONE Parquet dataset, the latest (built from the bundle; overwritten every release)
 <a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>      manifest.json                           build date, source release, builder, per-file sha256
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>  1.1/                                        frozen line: the 1.1.x releases (monthlies, deltas, MANIFEST.json; no weekly fulls, no Parquet)
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>  1.0/                                        frozen line: the 1.0.1 generation (bundles, delta manifests, MANIFEST.json; no Parquet)
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>      table-spec.json                         every table's columns, types and derivations
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>  1.1/                                        frozen line: the 1.1.x releases (monthlies, deltas, MANIFEST.json; no weekly fulls, no Parquet)
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>  1.0/                                        frozen line: the 1.0.1 generation (bundles, delta manifests, MANIFEST.json; no Parquet)
 </code></pre></div>
 <p>Every bundle has a <code>&lt;file&gt;.sha256</code> sidecar (<code>sha256sum -c</code> format), like NCBI's <code>.md5</code> files.</p>
 <h3 id="when-files-move">When files move<a class="headerlink" href="#when-files-move" title="Permanent link">&para;</a></h3>

@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -380,6 +380,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -534,7 +538,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -4183,6 +4187,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4279,7 +4287,7 @@
   <span class="md-ellipsis">
     
   
-  The 22 Tables
+  The 20 Tables
 
     
   </span>
@@ -4414,10 +4422,32 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What you need
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#name-your-columns" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
         Name your columns
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#look-up-by-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Look up by id
       </span>
     </span>
   </a>
@@ -4564,6 +4594,60 @@
     
   
   Beyond DuckDB
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Build Your Own Tables and Mini-Bundles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../migrating-from-1.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Moving from 1.1 to 2.0
 
     
   </span>
@@ -6323,10 +6407,32 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What you need
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#name-your-columns" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
         Name your columns
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#look-up-by-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Look up by id
       </span>
     </span>
   </a>
@@ -6470,28 +6576,63 @@
 <h1 id="working-at-scale">Working at Scale<a class="headerlink" href="#working-at-scale" title="Permanent link">&para;</a></h1>
 <div class="admonition info">
 <p class="admonition-title">Release</p>
-<p>Timings and measured results on this page are from the <strong>2026-10 monthly release</strong> (published 14 Oct 2026), measured with DuckDB 1.5 on a laptop. File and column sizes are from the <strong>2026-10-18 release</strong>. Your numbers will differ with the release and your machine.</p>
+<p>File and row-group sizes on this page are from a <code>gkm-bundle-parquet</code> 2.0.0 build of the <strong>2026-10-31
+release</strong>. Timings and peak memory for queries over the full 2.0 tables have not been measured yet; the habits
+below don't depend on them. Your numbers will differ with the release and your machine.</p>
 </div>
-<p>Nine tables are over 500 MB: <code>variation</code> (3.9 GB), <code>scv</code> (3.2 GB), <code>propositionPathogenicity</code> (1.5 GB), <code>allele</code> (1.1 GB), <code>location</code>, and the RCV and VCV statements and evidence lines (0.5–0.9 GB each). The other thirteen are each about 11 MB or less. A handful of habits keeps queries over the big ones fast on a laptop.</p>
+<p>The 2026-10-31 tables total <strong>4.6 GB</strong>. Eight are over 100 MB: <code>variation</code> (1.66 GB), <code>scv</code> (784 MB), <code>allele</code> (701 MB), <code>location</code> (427 MB), <code>propositionPathogenicity</code> (401 MB), <code>evidenceLine</code> (265 MB), <code>rcv</code> (182 MB) and <code>vcv</code> (145 MB). The other twelve are each 5 MB or less. A handful of habits keeps queries over the big ones fast on a laptop.</p>
+<h2 id="requirements">What you need<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DuckDB</strong></td>
+<td>The files are written with DuckDB <strong>1.5.4</strong> (each file's <code>gkm_bundle_parquet.duckdb_version</code> metadata and the manifest's <code>duckdb_version</code> say so). The queries in this track were run with DuckDB 1.5.4, from the command line and from Python. Any reader with Parquet nested types (<code>STRUCT</code>, lists) reads the files; the SQL uses DuckDB syntax.</td>
+</tr>
+<tr>
+<td><strong>Disk</strong></td>
+<td>4.6 GB for all 20 tables. Most questions need only a few: the <a href="../tables/#column-reference">column reference</a> gives every table's size. <code>condition</code>, <code>conditionSet</code>, <code>gene</code>, <code>submitter</code>, <code>therapy</code>, <code>therapyGroup</code> and the three smaller proposition tables together are under 20 MB. Add room for DuckDB's spill files when a big join runs short of memory (see <a href="#settings">settings</a>).</td>
+</tr>
+<tr>
+<td><strong>Memory</strong></td>
+<td>Depends on the query, not the file size: a query reads only the columns it names. Lookups and filters on one table need little. A join or <code>GROUP BY</code> across two of the big tables is the heavy case; DuckDB caps itself at 80 % of RAM and spills to disk past that, so it finishes on a laptop, more slowly. Loading a whole big table into pandas needs its full decompressed size, several times its size on disk.</td>
+</tr>
+<tr>
+<td><strong>Python</strong></td>
+<td><code>duckdb</code> 1.5.4 and, for Arrow or pandas, <code>pyarrow</code>; see <a href="../../working-in-python/">Working in Python</a> for a tested set of versions.</td>
+</tr>
+<tr>
+<td><strong>To build the tables yourself</strong></td>
+<td>A full build needs far more: about 65 GiB of memory and 65 GB of working disk; see <a href="../build-your-own/#a-full-bundle">Build Your Own</a>.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="name-your-columns">Name your columns<a class="headerlink" href="#name-your-columns" title="Permanent link">&para;</a></h2>
-<p>Parquet stores each column separately, and a query reads only the columns it names. This is the single biggest lever you have. In <code>scv.parquet</code> the <code>data</code> column is 2.1 GB of the 3.2 GB on disk and 15.7 GB of the 21 GB in memory (<a href="../table-anatomy/#never-select-on-a-big-table">the breakdown</a>). A query that leaves it out reads a quarter of the file; one that names two small fields reads almost none of it.</p>
+<p>Parquet stores each column separately, and a query reads only the columns it names. This is the single biggest lever you have. In <code>scv.parquet</code>, the free-text <code>description</code> and the <code>extensions</code> are most of the table, on disk and far more in memory (<a href="../table-anatomy/#never-select-on-a-big-table">the breakdown</a>). A query that names two small fields reads almost none of it.</p>
 <p>To see where any table's bytes are, ask its metadata. This reads only the file footer:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">split_part</span><span class="p">(</span><span class="n">path_in_schema</span><span class="p">,</span><span class="w"> </span><span class="s1">','</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w">          </span><span class="k">AS</span><span class="w"> </span><span class="n">col</span><span class="p">,</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">total_compressed_size</span><span class="p">)</span><span class="w">   </span><span class="o">/</span><span class="w"> </span><span class="mi">1</span><span class="n">e9</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gb_on_disk</span><span class="p">,</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">total_uncompressed_size</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1</span><span class="n">e9</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gb_in_memory</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">total_compressed_size</span><span class="p">)</span><span class="w">   </span><span class="o">/</span><span class="w"> </span><span class="mi">1</span><span class="n">e6</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mb_on_disk</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">total_uncompressed_size</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1</span><span class="n">e6</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mb_in_memory</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">FROM</span><span class="w"> </span><span class="n">parquet_metadata</span><span class="p">(</span><span class="s1">'scv.parquet'</span><span class="p">)</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">gb_in_memory</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">mb_in_memory</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
 <p>The same holds for fields inside a <code>STRUCT</code>: <code>classification.name</code> reads that one field, not the whole <code>classification</code> record. Selecting <code>*</code> or the struct as a whole reads everything.</p>
+<h2 id="look-up-by-id">Look up by id<a class="headerlink" href="#look-up-by-id" title="Permanent link">&para;</a></h2>
+<p>Every table is <strong>sorted by <code>id</code></strong> and written in row groups of up to 122,880 rows, each with the minimum and maximum <code>id</code> it holds. A filter on <code>id</code> (<code>WHERE id = …</code>, <code>WHERE id LIKE 'VCV000000010.%'</code>) lets DuckDB skip every row group whose range can't match, so it reads one or two row groups instead of the whole file. That is what makes the evidence-line lookups in <a href="../joining/#seam-d-inside-an-aggregate">Seam D</a> fast: filtering <code>evidenceLine</code> by an accession prefix reads one row group of about 176.</p>
+<p>A filter on any other column (<code>subject</code>, <code>object</code>, <code>name</code>) can't skip anything, because those values are spread across the file. When you look up by such a column again and again, <a href="#materialize-join-tables">materialize</a> a copy sorted by it.</p>
 <h2 id="nested-lists">Reach into nested lists without <code>unnest</code><a class="headerlink" href="#nested-lists" title="Permanent link">&para;</a></h2>
-<p>Several columns are lists of records: <code>variation.extensions</code>, <code>variation.members</code>, <code>scv.contributions</code>, <code>scv.reportedIn</code>. To filter on something inside them, prefer a <strong>list comprehension</strong>, <code>[x.field FOR x IN list IF …]</code>, over <code>unnest</code>. <code>unnest</code> turns every list element into its own row before filtering; a comprehension filters each list in place.</p>
-<p>The difference is large. Finding the variants in one gene by filtering <code>variation.extensions</code> takes <strong>4 s and 1.5 GB</strong> as a comprehension and <strong>37 s and 2.5 GB</strong> with <code>unnest</code>, for the same 5,942 variants. The <a href="../recipes/#gene-rollup">gene rollup recipe</a> shows the comprehension.</p>
+<p>Several columns are lists of records: <code>variation.extensions</code>, <code>variation.members</code>, <code>scv.contributions</code>, <code>scv.reportedIn</code>. To filter on something inside them, prefer a <strong>list comprehension</strong>, <code>[x.field FOR x IN list IF …]</code>, over <code>unnest</code>. <code>unnest</code> turns every list element into its own row before filtering; a comprehension filters each list in place, which is many times faster on <code>variation</code>. The <a href="../recipes/#gene-rollup">gene rollup recipe</a> shows the comprehension.</p>
 <p>Use comprehensions rather than lambda functions (<code>list_filter(l, x -&gt; …)</code>). DuckDB 1.5 deprecates that arrow syntax, and the replacement (<code>lambda x: …</code>) is too new for the browser console's engine. Comprehensions work in both.</p>
 <h2 id="equi-joins">Join on a plain equality<a class="headerlink" href="#equi-joins" title="Permanent link">&para;</a></h2>
-<p>DuckDB joins two big tables fast, with a <strong>hash join</strong>, when the <code>ON</code> clause is one equality between them. Add a second condition (<code>ON p.object_type = 'condition' AND c.id = p.object_id</code>), or join through a function (<code>ON list_contains(v.members, a.id)</code>), and DuckDB 1.5 plans a <strong>nested-loop join</strong> instead, which compares row against row and runs for over an hour on <code>propositionPathogenicity</code>. Fold the extra condition into the key, <code>ON c.id = CASE WHEN p.object_type = 'condition' THEN p.object_id END</code>, or <code>unnest</code> the list in a subquery and join on the plain column. <a href="../joining/#seam-b-proposition-condition-or-conditionset">Seam B</a> shows the first; <a href="../recipes/#find-the-variant">Find the variant</a> shows the second. Put <code>EXPLAIN</code> in front of a query to check before you run it: <code>HASH_JOIN</code> is the fast kind; <code>NESTED_LOOP_JOIN</code>, <code>BLOCKWISE_NL_JOIN</code> and <code>PIECEWISE_MERGE_JOIN</code> are the slow kinds.</p>
+<p>DuckDB joins two big tables fast, with a <strong>hash join</strong>, when the <code>ON</code> clause is one equality between them. Add a second condition (<code>ON p.object_section = 'condition' AND c.id = p.object</code>), or join through a function (<code>ON list_contains(…)</code>), and DuckDB 1.5 plans a <strong>nested-loop join</strong> instead, which compares row against row and can run for hours on <code>propositionPathogenicity</code>. Fold the extra condition into the key, <code>ON c.id = CASE WHEN p.object_section = 'condition' THEN p.object END</code>, or <code>unnest</code> the list in a subquery and join on the plain column. <a href="../joining/#seam-b-proposition-condition-or-conditionset">Seam B</a> shows the first; <a href="../recipes/#find-the-variant">Find the variant</a> shows the second. Put <code>EXPLAIN</code> in front of a query to check before you run it: <code>HASH_JOIN</code> is the fast kind; <code>NESTED_LOOP_JOIN</code>, <code>BLOCKWISE_NL_JOIN</code> and <code>PIECEWISE_MERGE_JOIN</code> are the slow kinds.</p>
 <h2 id="local-or-remote">Local or remote<a class="headerlink" href="#local-or-remote" title="Permanent link">&para;</a></h2>
-<p>DuckDB reads Parquet over HTTPS with <strong>range requests</strong>: it fetches the file's footer first, then only the byte ranges of the row groups and columns a query needs. That makes some remote queries as cheap as local ones and others impossible:</p>
+<p>DuckDB reads Parquet over HTTPS with <strong>range requests</strong>: it fetches the file's footer first, then only the byte ranges of the row groups and columns a query needs. That makes some remote queries as cheap as local ones and others impractical:</p>
 <table>
 <thead>
 <tr>
@@ -6504,11 +6645,16 @@
 <tr>
 <td><code>DESCRIBE</code>, <code>count(*)</code>, <code>parquet_metadata(…)</code></td>
 <td>footer only</td>
-<td>yes, in under a second on any table</td>
+<td>yes, in about a second on any table</td>
 </tr>
 <tr>
 <td><code>LIMIT n</code> without a filter</td>
 <td>footer + first row group</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>A filter on <code>id</code></td>
+<td>footer + the row groups whose range matches</td>
 <td>yes</td>
 </tr>
 <tr>
@@ -6517,14 +6663,13 @@
 <td>yes</td>
 </tr>
 <tr>
-<td>A filter, <code>GROUP BY</code> or join over a big table</td>
-<td>one per row group per column; 55 row groups in <code>scv</code>, about 223 in <code>propositionPathogenicity</code></td>
-<td><strong>slowly</strong>: 10–35 s per query, reading hundreds of MB; download for repeated or heavier work</td>
+<td>Any other filter, <code>GROUP BY</code> or join over a big table</td>
+<td>one per row group per column: about 56 row groups in <code>scv</code>, 228 in <code>propositionPathogenicity</code>, 176 in <code>evidenceLine</code></td>
+<td><strong>slowly</strong>, and a burst of requests can be refused; download for repeated or heavier work</td>
 </tr>
 </tbody>
 </table>
-<p>The published files are not sorted by any lookup key, so even a filter for a single variant or SCV has to read every row group of the filtered column. The CDN in front of <code>data.clinvar-gkm.org</code> allows <strong>250 requests per 10 seconds</strong> per client IP and blocks for 10 seconds past that (HTTP 429). From the command line, single-table scans and two-table joins on the big tables now complete within it (a <code>GROUP BY</code> over all of <code>scv</code> in about 30 s; a variant's PubMed ids in about 25 s), but each reads hundreds of megabytes, so repeated or larger work belongs on a downloaded copy.</p>
-<p>The rule: <strong>query remotely to explore, download to analyze.</strong> Download the tables a question needs once (see <a href="../#put-the-file-on-your-machine">Start Here</a>), and every query on this page and in <a href="../recipes/">Recipes</a> runs in seconds.</p>
+<p>The CDN in front of <code>data.clinvar-gkm.org</code> allows about <strong>55 requests per 10 seconds</strong> per client and refuses more with <strong>HTTP 429</strong> for a short time. The rule: <strong>query remotely to explore, download to analyze.</strong> Download the tables a question needs once (see <a href="../#put-the-file-on-your-machine">Start Here</a>), and the queries on this page and in <a href="../recipes/">Recipes</a> run locally.</p>
 <h2 id="settings">DuckDB settings for a laptop<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h2>
 <p>DuckDB's defaults suit most queries here: it uses every CPU core, caps itself at 80 % of RAM, and spills to a <code>.tmp</code> directory when a query needs more. When a big join or <code>GROUP BY</code> runs out of memory, you see this:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Out of Memory Error: could not allocate block of size 256.0 KiB (953.5 MiB/953.6 MiB used)
@@ -6561,11 +6706,10 @@
 </tr>
 </tbody>
 </table>
-<p>A <code>GROUP BY</code> on <code>scv.description</code>, a free-text column with millions of distinct values, fails as above with a 1 GB memory limit. With <code>threads = 2</code> and <code>preserve_insertion_order = false</code> added, it finishes in under 3 seconds within the same limit.</p>
 <p>For work you repeat, open a database file (<code>duckdb clinvar-gkm.duckdb</code>) rather than an in-memory session. Tables you create there persist, which is what makes the next section possible.</p>
 <h2 id="materialize-join-tables">Materialize the joins you repeat<a class="headerlink" href="#materialize-join-tables" title="Permanent link">&para;</a></h2>
-<p>Statements and propositions live in separate tables. An SCV row holds its classification but not the variant or condition it is about. Those are on the proposition, in one of four tables, each spelling the columns slightly differently. So any question about statements by <strong>subject</strong> (a variant), <strong>object</strong> (a condition, tumor type or therapy) or <strong>qualifier</strong> (gene context, mode of inheritance, penetrance) has to join two multi-GB tables first.</p>
-<p>Paying for that join on every query is slow locally, and slower over the network: <code>scv.parquet</code> has no variant column, so a lookup for one variant must read every row group of the file. From the command line that takes about 25 seconds and hundreds of megabytes per query; in the browser's <a href="../#run-a-query-now">live console</a> it can also exhaust memory or trip the CDN's rate limit (<strong>HTTP 429</strong>).</p>
+<p>Statements and propositions live in separate tables. An SCV row holds its classification but not the variant or condition it is about. Those are on the proposition, in one of four tables with different qualifier columns. So any question about statements by <strong>subject</strong> (a variant), <strong>object</strong> (a condition, tumor type or therapy) or <strong>qualifier</strong> (gene context, mode of inheritance, penetrance) has to join two big tables first.</p>
+<p>Paying for that join on every query is slow locally, and slower over the network: <code>scv.parquet</code> is sorted by SCV id and has no variant column, so a lookup for one variant must read every row group of the file. In the browser's <a href="../#run-a-query-now">live console</a> it can also exhaust memory or trip the CDN's rate limit (<strong>HTTP 429</strong>).</p>
 <p>The fix is to run the join <strong>once</strong>, store the result as a table sorted by the column you look up most, and query that table instead. DuckDB has no <code>CREATE MATERIALIZED VIEW</code>; <code>CREATE TABLE … AS SELECT</code> in a database file does the same job. You refresh it by re-running the script when you download a new release.</p>
 <h3 id="build-it">Build it<a class="headerlink" href="#build-it" title="Permanent link">&para;</a></h3>
 <p>Download the four proposition tables and <code>scv.parquet</code> (see <a href="../#put-the-file-on-your-machine">Start Here</a>), then run this in the same directory. It writes a database file, <code>clinvar-gkm.duckdb</code>, that persists between sessions:</p>
@@ -6574,31 +6718,35 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">-- materialize.sql</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">SET</span><span class="w"> </span><span class="n">preserve_insertion_order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">false</span><span class="p">;</span><span class="w">   </span><span class="c1">-- lets DuckDB build large tables with less memory</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1">-- 1. One proposition table: the four tables share one column schema, so one glob reads them all.</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1">-- 1. One proposition table: union_by_name lines up the four tables' different qualifier columns.</span>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">prop</span><span class="w"> </span><span class="k">AS</span>
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">proposition_type</span><span class="p">,</span><span class="w"> </span><span class="n">predicate</span><span class="p">,</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">       </span><span class="n">subject_variant_id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">variant_id</span><span class="p">,</span><span class="w"> </span><span class="n">object_id</span><span class="p">,</span><span class="w"> </span><span class="n">object_type</span><span class="p">,</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">       </span><span class="n">gene_context_name</span><span class="p">,</span><span class="w"> </span><span class="n">gene_context_id</span><span class="p">,</span><span class="w"> </span><span class="n">mode_of_inheritance</span><span class="p">,</span><span class="w"> </span><span class="n">penetrance</span><span class="p">,</span><span class="w"> </span><span class="n">condition_qualifier_id</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">FROM</span><span class="w"> </span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">'proposition*.parquet'</span><span class="p">);</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="c1">-- 2. SCV statements with their proposition's subject, object and qualifiers inlined,</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="c1">--    sorted by variant so a lookup by variant touches one small slice of the table.</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">scv_by_variant</span><span class="w"> </span><span class="k">AS</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">variant_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">object_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">object_type</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">proposition_type</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">predicate</span><span class="p">,</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">       </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">mode_of_inheritance</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">penetrance</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">condition_qualifier_id</span><span class="p">,</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">       </span><span class="n">s</span><span class="p">.</span><span class="n">id</span><span class="w">                     </span><span class="k">AS</span><span class="w"> </span><span class="n">scv_id</span><span class="p">,</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">       </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">classification</span><span class="p">,</span>
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">       </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w">           </span><span class="k">AS</span><span class="w"> </span><span class="n">submission_level</span><span class="p">,</span>
-<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">       </span><span class="n">s</span><span class="p">.</span><span class="n">direction</span><span class="p">,</span>
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">       </span><span class="p">[</span><span class="k">c</span><span class="p">.</span><span class="n">contributor</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">contributions</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">activityType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'submitted'</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">submitter_id</span><span class="p">,</span>
-<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">       </span><span class="p">[</span><span class="n">r</span><span class="p">.</span><span class="n">pmid</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">reportedIn</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">pmid</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">]</span><span class="w">                        </span><span class="k">AS</span><span class="w"> </span><span class="n">pmids</span>
-<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span><span class="w"> </span><span class="n">s</span>
-<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="k">JOIN</span><span class="w"> </span><span class="n">prop</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition_id</span>
-<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">variant_id</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">id</span><span class="p">;</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">       </span><span class="n">subject</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">variant_id</span><span class="p">,</span><span class="w"> </span><span class="k">object</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">object_id</span><span class="p">,</span><span class="w"> </span><span class="n">object_section</span><span class="p">,</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">       </span><span class="n">geneContextQualifier</span><span class="p">.</span><span class="n">name</span><span class="w">                    </span><span class="k">AS</span><span class="w"> </span><span class="n">gene_context_name</span><span class="p">,</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">       </span><span class="s1">'ncbigene:'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">geneContextQualifier</span><span class="p">.</span><span class="n">primaryCoding</span><span class="p">.</span><span class="n">code</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gene_context_id</span><span class="p">,</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">       </span><span class="n">modeOfInheritanceQualifier</span><span class="p">.</span><span class="n">name</span><span class="w">              </span><span class="k">AS</span><span class="w"> </span><span class="n">mode_of_inheritance</span><span class="p">,</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">       </span><span class="n">penetranceQualifier</span><span class="p">.</span><span class="n">name</span><span class="w">                     </span><span class="k">AS</span><span class="w"> </span><span class="n">penetrance</span><span class="p">,</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">       </span><span class="n">conditionQualifier</span><span class="w">                           </span><span class="k">AS</span><span class="w"> </span><span class="n">condition_qualifier_id</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="k">FROM</span><span class="w"> </span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">'proposition*.parquet'</span><span class="p">,</span><span class="w"> </span><span class="n">union_by_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">);</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="c1">-- 2. SCV statements with their proposition's subject, object and qualifiers inlined,</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="c1">--    sorted by variant so a lookup by variant touches one small slice of the table.</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">scv_by_variant</span><span class="w"> </span><span class="k">AS</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">variant_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">object_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">object_section</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">proposition_type</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">predicate</span><span class="p">,</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">       </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">mode_of_inheritance</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">penetrance</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">condition_qualifier_id</span><span class="p">,</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">       </span><span class="n">s</span><span class="p">.</span><span class="n">id</span><span class="w">                     </span><span class="k">AS</span><span class="w"> </span><span class="n">scv_id</span><span class="p">,</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">       </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">classification</span><span class="p">,</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">       </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w">           </span><span class="k">AS</span><span class="w"> </span><span class="n">submission_level</span><span class="p">,</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="w">       </span><span class="n">s</span><span class="p">.</span><span class="n">direction</span><span class="p">,</span>
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="w">       </span><span class="p">[</span><span class="k">c</span><span class="p">.</span><span class="n">contributor</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">contributions</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">activityType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'submitted'</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">submitter_id</span><span class="p">,</span>
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="w">       </span><span class="p">[</span><span class="n">r</span><span class="p">.</span><span class="n">pmid</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">reportedIn</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">pmid</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">]</span><span class="w">                        </span><span class="k">AS</span><span class="w"> </span><span class="n">pmids</span>
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span><span class="w"> </span><span class="n">s</span>
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="k">JOIN</span><span class="w"> </span><span class="n">prop</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition</span>
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">variant_id</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">id</span><span class="p">;</span>
 </code></pre></div>
-<p>The build takes about <strong>30 seconds</strong> and peaks near <strong>5 GB</strong> of memory. Every one of the 6,735,011 SCVs finds its proposition, and the database file comes to about 650 MB. Only the columns the questions below need are carried over. Add others, such as <code>s.description</code> or <code>s.specifiedBy.name</code>, the same way.</p>
+<p>Only the columns the questions below need are carried over. Add others, such as <code>s.description</code> or <code>s.specifiedBy.name</code>, the same way.</p>
 <h3 id="query-it">Query it<a class="headerlink" href="#query-it" title="Permanent link">&para;</a></h3>
-<p>Each of these returns in about <strong>10 ms</strong>, where the same question against the raw Parquet files means a multi-GB join.</p>
+<p>Each of these reads one small, sorted table, where the same question against the raw Parquet files means a join of two big ones.</p>
 <p><strong>By subject (a variant)</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">-- PubMed ids cited by the SCVs for one variant</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">pmid</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n_scvs</span><span class="p">,</span>
@@ -6631,22 +6779,20 @@
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">       </span><span class="n">v</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">vcv_id</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">classification</span><span class="p">,</span>
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">       </span><span class="n">v</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">aggregate_level</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">direction</span>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'vcv.parquet'</span><span class="w"> </span><span class="n">v</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">JOIN</span><span class="w"> </span><span class="n">prop</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">proposition_id</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">JOIN</span><span class="w"> </span><span class="n">prop</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">proposition</span>
 <a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">variant_id</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">id</span><span class="p">;</span>
 </code></pre></div>
-<p>It builds in about 6 seconds and holds all 9,079,449 VCV statements. For <code>rcv</code>, swap in <code>rcv.parquet</code>.</p>
+<p>For <code>rcv</code>, swap in <code>rcv.parquet</code>.</p>
 <h3 id="share-it-as-a-sorted-parquet-file">Share it as a sorted Parquet file<a class="headerlink" href="#share-it-as-a-sorted-parquet-file" title="Permanent link">&para;</a></h3>
-<p>A materialized table can go back out as Parquet. Because the rows are sorted by <code>variant_id</code>, DuckDB's per-row-group min/max statistics let a reader skip almost all of the file:</p>
+<p>A materialized table can go back out as Parquet. Because the rows are sorted by <code>variant_id</code>, DuckDB's per-row-group min/max statistics let a reader skip almost all of the file, the same way the published tables skip by <code>id</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">COPY</span><span class="w"> </span><span class="n">scv_by_variant</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="s1">'scv_by_variant.parquet'</span><span class="w"> </span><span class="p">(</span><span class="n">FORMAT</span><span class="w"> </span><span class="n">parquet</span><span class="p">);</span>
 </code></pre></div>
-<p>The result is about <strong>107 MB</strong>, versus 3.2 GB for <code>scv.parquet</code>. A <code>WHERE variant_id = 'clinvar:10'</code> lookup reads <strong>1 of its 55 row groups</strong>. The same layout is what would make per-variant queries practical over the network, where every row group read is a request.</p>
+<p>The same layout is what would make per-variant queries practical over the network, where every row group read is a request.</p>
 <h2 id="confusing-errors">Errors that look worse than they are<a class="headerlink" href="#confusing-errors" title="Permanent link">&para;</a></h2>
-<p><strong><code>Parser Error: syntax error at or near "name"</code></strong>: a column alias without <code>AS</code>. Many words used as column names in these tables are reserved in SQL, so <code>SELECT value-&gt;&gt;'name' name</code> fails while <code>SELECT value-&gt;&gt;'name' AS name</code> works. The same goes for <code>type</code>, <code>data</code>, <code>key</code>, <code>value</code>, <code>rows</code>, <code>names</code>, <code>target</code>, <code>role</code>, <code>end</code> and <code>year</code>. Always write <code>AS</code>.</p>
+<p><strong><code>Parser Error: syntax error at or near "end"</code></strong>: <code>end</code> is a reserved word, and <code>location</code> has a column named <code>end</code>. Quote it: <code>"end"</code>. The same error with <code>"name"</code> means a column alias without <code>AS</code>: many words used as column names in these tables are reserved, so <code>SELECT name name FROM 'condition.parquet'</code> fails while <code>SELECT name AS name …</code> works. The same goes for <code>type</code>, <code>value</code>, <code>system</code>, <code>key</code>, <code>rows</code> and <code>year</code>. Always write <code>AS</code>.</p>
 <p><strong><code>Conversion Error: … can't be cast to the destination type STRUCT(…)</code></strong>: comparing a <code>STRUCT</code> column to text, as in <code>WHERE classification = 'Pathogenic'</code>. Name the field: <code>classification.name</code>. See <a href="../table-anatomy/#reading-a-struct-column">Reading a <code>STRUCT</code> column</a>.</p>
-<p><strong>Text that prints <code>\n</code></strong>: the DuckDB command line shows a newline inside a value as <code>\n</code>, so a list joined with newlines looks broken:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>│ GM1 gangliosidosis\nMucopolysaccharidosis, MPS-IV-B │
-</code></pre></div>
-<p>The data is fine. Switch to <code>.mode line</code> to see the value as written, or join with <code>'; '</code> instead.</p>
+<p><strong><code>Binder Error: Referenced column "conditionQualifier" not found</code></strong> or <strong><code>schema mismatch in glob</code></strong>: reading <code>proposition*.parquet</code> without <code>union_by_name = true</code>. The four tables have <a href="../tables/#proposition-columns">different columns</a>.</p>
+<p><strong>Text that prints <code>\n</code></strong>: the DuckDB command line shows a newline inside a value as <code>\n</code>, so a list joined with newlines looks broken. The data is fine. Switch to <code>.mode line</code> to see the value as written, or join with <code>'; '</code> instead.</p>
 <p><strong><code>HTTP 429 Too Many Requests</code></strong>: a remote query read too many row groups; see <a href="#local-or-remote">Local or remote</a>.</p>
 
 

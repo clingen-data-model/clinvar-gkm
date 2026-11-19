@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -380,6 +380,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -534,7 +538,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -4183,6 +4187,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4279,7 +4287,7 @@
   <span class="md-ellipsis">
     
   
-  The 22 Tables
+  The 20 Tables
 
     
   </span>
@@ -4388,6 +4396,60 @@
     
   
   Beyond DuckDB
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./build-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Build Your Own Tables and Mini-Bundles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./migrating-from-1.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Moving from 1.1 to 2.0
 
     
   </span>
@@ -6233,14 +6295,20 @@
 <h1 id="start-here">Start Here<a class="headerlink" href="#start-here" title="Permanent link">&para;</a></h1>
 <div class="admonition info">
 <p class="admonition-title">Release</p>
-<p>Counts on this page are from the <strong>2026-10-18 release</strong>. Parquet is derived from the bundle and regenerated each release, and one dataset is published, overwritten every release, so the console's numbers are today's and may be higher than this page's.</p>
+<p>Counts on this page are from the <strong>2026-10-31 release</strong>. The Parquet tables are built from the JSON bundle and rebuilt each release, and one set is published per release line, overwritten every release, so the console's numbers are today's and may be higher than this page's.</p>
 </div>
-<p>ClinVar-GKM publishes all of ClinVar as <strong>Parquet</strong> — 22 typed tables you query with SQL, with no database server and no data-loading step. This page gets a real answer from real ClinVar data in about five minutes: no joins, no genomics background, and — to begin — nothing to install.</p>
+<div class="admonition warning">
+<p class="admonition-title">New tables from release 1.2.0</p>
+<p>From release 1.2.0 the tables are built by <code>gkm-bundle-parquet</code> 2.0 and published at <code>v1/1.2/parquet/</code>: 20 tables
+with different columns from the 22 BigQuery-exported tables at <code>v1/1.1/parquet/</code>. This track describes the new
+tables. If you have queries for the old ones, see <a href="migrating-from-1.1/">Moving from the 1.1 Tables</a>.</p>
+</div>
+<p>ClinVar-GKM publishes all of ClinVar as <strong>Parquet</strong> — 20 typed tables you query with SQL, with no database server and no data-loading step. This page gets a real answer from real ClinVar data in about five minutes: no joins, no genomics background, and — to begin — nothing to install.</p>
 <h2 id="run-a-query-now">Run a query now<a class="headerlink" href="#run-a-query-now" title="Permanent link">&para;</a></h2>
-<p>The console below runs SQL <strong>in your browser</strong>, directly against the published data at <code>data.clinvar-gkm.org</code>. It reads the one published Parquet dataset, <code>v1/1.2/parquet/</code>, overwritten every release; the <strong>Release</strong> label shows the release it was built from. Pick an example from the dropdown and press <strong>Run</strong>. The first query loads the engine (a few seconds, once); everything after is immediate. A query still running after 10 seconds is stopped, and the console shows the commands to download the tables it reads and run the same query on your machine.</p>
+<p>The console below runs SQL <strong>in your browser</strong>, directly against the published data at <code>data.clinvar-gkm.org</code>. It reads the Parquet set of the current release line, <code>v1/1.2/parquet/</code>, overwritten every release; the <strong>Release</strong> label shows the release it was built from. When a new line starts, its Parquet set is published shortly after its first release, and the console has no tables to read until then (see <a href="migrating-from-1.1/#timeline">the timeline</a>). Pick an example from the dropdown and press <strong>Run</strong>. The first query loads the engine (a few seconds, once); everything after is immediate. A query still running after 10 seconds is stopped, and the console shows the commands to download the tables it reads and run the same query on your machine.</p>
 <iframe src="../assets/duckdb-console.html" style="width:100%; height:640px; border:1px solid rgba(128,128,128,.25); border-radius:8px;" title="ClinVar-GKM live query console" loading="lazy"></iframe>
 
-<p>The first example counts every <strong>condition</strong> in ClinVar: <strong>23,414</strong>. <code>condition.parquet</code> is the right table to start with — about 5 MB, one row per condition, and a plain-English <code>name</code> column, with none of the variant identifiers or nested structures the larger tables carry.</p>
+<p>The first example counts every <strong>condition</strong> in ClinVar: <strong>23,426</strong>. <code>condition.parquet</code> is the right table to start with — about 2 MB, one row per condition, and a plain-English <code>name</code> column, with none of the variant identifiers or nested structures the larger tables carry.</p>
 <hr />
 <h2 id="three-queries">Three queries<a class="headerlink" href="#three-queries" title="Permanent link">&para;</a></h2>
 <p>Each of these is in the console's <strong>Example</strong> dropdown. Read them top to bottom — they go from "how much is here" to "find the one I care about".</p>
@@ -6263,7 +6331,7 @@
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>duckdb<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT id, name FROM 'condition.parquet' WHERE name ILIKE '%marfan%'"</span>
 </code></pre></div>
-<p>The <a href="../data-access/parquet/">Downloads → Parquet Files</a> page lists every file and the stable URL. Parquet is derived from the bundle and regenerated each release: the published set is always the latest release.</p>
+<p>The <a href="../data-access/parquet/">Downloads → Parquet Files</a> page lists every file and the stable URL. The tables are built from the bundle and rebuilt each release: the published set is always the latest release. For an earlier release, or for just the records you need, <a href="build-your-own/">build the tables yourself</a> from a published bundle.</p>
 <hr />
 <h2 id="no-terminal-at-all">No terminal at all<a class="headerlink" href="#no-terminal-at-all" title="Permanent link">&para;</a></h2>
 <p>Two ways to query without installing anything:</p>
@@ -6278,13 +6346,15 @@
 </code></pre></div>
 <hr />
 <h2 id="where-to-go-next">Where to go next<a class="headerlink" href="#where-to-go-next" title="Permanent link">&para;</a></h2>
-<p><code>condition.parquet</code> is 1 of 22 tables. The rest hold the variants, the clinical assertions (SCVs), and the ClinVar aggregates (VCVs and RCVs) — and they reference each other. The <a href="tables/">table map</a> shows all 22 at a glance; from there, pick by the question you have:</p>
+<p><code>condition.parquet</code> is 1 of 20 tables. The rest hold the variants, the clinical assertions (SCVs), and the ClinVar aggregates (VCVs and RCVs) — and they reference each other. The <a href="tables/">table map</a> shows all 20 at a glance; from there, pick by the question you have:</p>
 <ul>
 <li><strong>What columns does a table have?</strong> — <a href="table-anatomy/">Anatomy of a Table</a></li>
 <li><strong>How do the tables join?</strong> — <a href="joining/">Joining Tables</a></li>
 <li><strong>Give me a working query for a real task</strong> — <a href="recipes/">Recipes</a></li>
 <li><strong>The big tables are slow or run out of memory</strong> — <a href="performance/">Working at Scale</a></li>
 <li><strong>I work in Python, R, or Spark</strong> — <a href="other-tools/">Beyond DuckDB</a></li>
+<li><strong>I want the tables for another release, or a small slice as JSON</strong> — <a href="build-your-own/">Build Your Own Tables and Mini-Bundles</a></li>
+<li><strong>I have queries for the 1.1 tables</strong> — <a href="migrating-from-1.1/">Moving from the 1.1 Tables</a></li>
 </ul>
 
 

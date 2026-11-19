@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -380,6 +380,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -534,7 +538,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -4181,6 +4185,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4277,7 +4285,7 @@
   <span class="md-ellipsis">
     
   
-  The 22 Tables
+  The 20 Tables
 
     
   </span>
@@ -4386,6 +4394,60 @@
     
   
   Beyond DuckDB
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parquet/build-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Build Your Own Tables and Mini-Bundles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parquet/migrating-from-1.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Moving from 1.1 to 2.0
 
     
   </span>
@@ -6372,8 +6434,8 @@ many years. Several quality questions are hard to answer from ClinVar's web UI o
   review status / star level), <code>direction</code> and <code>strength</code>, submitter <code>contributions</code> (each with a date
   and activity type), and a <code>proposition</code> linking the variant to a condition — or, for therapeutic
   response, to a therapy or therapy group.</li>
-<li><strong>The whole release is typed Parquet</strong> — one file per bundle section, each with an <code>id</code>, typed columns
-  for the common fields, and the full JSON object — so filtering <em>your</em> SCVs and joining them to
+<li><strong>The whole release is typed Parquet</strong> — one file per bundle section, keyed by <code>id</code>, with every
+  property of a record in its own typed column — so filtering <em>your</em> SCVs and joining them to
   conditions, therapies, and variants is ordinary SQL.</li>
 <li><strong>Releases are dated and incremental.</strong> The Parquet dataset at <code>v1/1.2/parquet/</code> is rebuilt from the
   newest release every week, so the same audit re-runs against each release and its results can be diffed
@@ -6404,9 +6466,9 @@ single DuckDB query flags the records that need a second look:</p>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">       </span><span class="k">FROM</span><span class="w"> </span><span class="k">unnest</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">contributions</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="k">c</span><span class="p">)</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">      </span><span class="k">WHERE</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">activityType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'evaluated'</span><span class="p">)</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">last_evaluated</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span><span class="w"> </span><span class="n">s</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="k">JOIN</span><span class="w"> </span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">'proposition*.parquet'</span><span class="p">)</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="k">JOIN</span><span class="w"> </span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">'proposition*.parquet'</span><span class="p">,</span><span class="w"> </span><span class="n">union_by_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">)</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="s1">'condition.parquet'</span><span class="w"> </span><span class="n">cond</span><span class="w">          </span><span class="c1">-- CASE keeps this an equi-join (fast); an AND in ON plans a nested loop</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">         </span><span class="k">ON</span><span class="w"> </span><span class="n">cond</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">object_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'condition'</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">object_id</span><span class="w"> </span><span class="k">END</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">         </span><span class="k">ON</span><span class="w"> </span><span class="n">cond</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">object_section</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'condition'</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="k">object</span><span class="w"> </span><span class="k">END</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span><span class="k">WHERE</span><span class="w"> </span><span class="n">list_contains</span><span class="p">(</span>
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">          </span><span class="p">[</span><span class="k">c</span><span class="p">.</span><span class="n">contributor</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">contributions</span><span class="p">],</span>
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">          </span><span class="s1">'clinvar.submitter:196472'</span><span class="p">)</span>
@@ -6423,13 +6485,15 @@ single DuckDB query flags the records that need a second look:</p>
 <a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">stale</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="n">weak_status</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="n">odd_condition</span>
 <a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">last_evaluated</span><span class="p">;</span>
 </code></pre></div>
-<p>The column shapes follow the bundle's JSON field names; run <code>DESCRIBE SELECT * FROM 'scv.parquet'</code> to
-confirm them for a given release. The four proposition tables share one column schema, so
-<code>read_parquet('proposition*.parquet')</code> covers every SCV; a condition-set object (<code>object_type</code> =
-<code>conditionSet</code>) has no <code>condition.parquet</code> row and is flagged for a look. The same idea extends to therapies:
-filter the propositions on <code>object_type IN ('therapy', 'therapyGroup')</code> and join <code>object_id</code> to the
-<code>therapy</code> / <code>therapyGroup</code> tables (with <code>condition_qualifier_id</code> for the tumor type) to spot a malformed or
-unexpected drug or drug combination.</p>
+<p>The columns are named after the bundle's properties; run <code>DESCRIBE SELECT * FROM 'scv.parquet'</code> to
+see them. Each proposition table has only the columns its propositions use, so
+<code>read_parquet('proposition*.parquet', union_by_name = true)</code> reads all four and covers every SCV. A
+contribution <code>date</code> is <code>YYYY-MM-DD</code> text, so <code>max</code> and the comparison with <code>'2022-01-01'</code> work on it directly. A
+condition-set object (<code>object_section</code> = <code>conditionSet</code>) has no <code>condition.parquet</code> row and is flagged for a
+look. The same idea extends to therapies: filter the propositions on <code>object_section IN ('therapy',
+'therapyGroup')</code> and join <code>object</code> to the <code>id</code> of the <code>therapy</code> / <code>therapyGroup</code> tables (with
+<code>propositionSomaticClinicalImpact.conditionQualifier</code> for the tumor type) to spot a malformed or unexpected drug
+or drug combination.</p>
 <p>Because the Parquet dataset is rebuilt from every weekly release, running the query each week and diffing
 against the previous run's output turns the audit into a standing report — new stale rows, newly flagged statuses,
 and newly odd conditions surface on their own.</p>

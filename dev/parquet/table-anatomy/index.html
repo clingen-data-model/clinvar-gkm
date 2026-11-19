@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -380,6 +380,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -534,7 +538,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -4183,6 +4187,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4328,10 +4336,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-data-column-holds-everything-else" class="md-nav__link">
+  <a href="#reading-a-struct-column" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        The <code>data</code> column holds everything else
+        Reading a <code>STRUCT</code> column
       </span>
     </span>
   </a>
@@ -4339,10 +4347,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#reading-a-struct-column" class="md-nav__link">
+  <a href="#extensions" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Reading a <code>STRUCT</code> column
+        Extensions
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whole-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The whole record
       </span>
     </span>
   </a>
@@ -4394,7 +4413,7 @@
   <span class="md-ellipsis">
     
   
-  The 22 Tables
+  The 20 Tables
 
     
   </span>
@@ -4503,6 +4522,60 @@
     
   
   Beyond DuckDB
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Build Your Own Tables and Mini-Bundles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../migrating-from-1.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Moving from 1.1 to 2.0
 
     
   </span>
@@ -6284,10 +6357,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-data-column-holds-everything-else" class="md-nav__link">
+  <a href="#reading-a-struct-column" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        The <code>data</code> column holds everything else
+        Reading a <code>STRUCT</code> column
       </span>
     </span>
   </a>
@@ -6295,10 +6368,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#reading-a-struct-column" class="md-nav__link">
+  <a href="#extensions" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Reading a <code>STRUCT</code> column
+        Extensions
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whole-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The whole record
       </span>
     </span>
   </a>
@@ -6348,14 +6432,15 @@
 <h1 id="anatomy-of-a-table">Anatomy of a Table<a class="headerlink" href="#anatomy-of-a-table" title="Permanent link">&para;</a></h1>
 <div class="admonition info">
 <p class="admonition-title">Release</p>
-<p>Outputs, sizes and counts on this page are from the <strong>2026-10 monthly release</strong> (published 14 Oct 2026). They change with every release; re-run a query to get today's numbers.</p>
+<p>Outputs and counts on this page are from the <strong>2026-10-31 release</strong>, built with <code>gkm-bundle-parquet</code> 2.0.0.
+They change with every release; re-run a query to get today's numbers.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">One bundle section, one table</p>
-<p>The JSON bundle is organized into 22 named <strong>sections</strong> (<code>variation</code>, <code>scv</code>, <code>condition</code>, …). The Parquet release turns each section into exactly one <strong>table</strong>, stored as one file (<code>variation.parquet</code>, <code>scv.parquet</code>, <code>condition.parquet</code>, …), with one row per object in that section. This track calls them tables.</p>
+<p>The JSON bundle is organized into 20 named <strong>sections</strong> (<code>variation</code>, <code>scv</code>, <code>condition</code>, …). The Parquet release turns each section into exactly one <strong>table</strong>, stored as one file (<code>variation.parquet</code>, <code>scv.parquet</code>, <code>condition.parquet</code>, …), with one row per record in that section. This track calls them tables.</p>
 </div>
-<p>All 22 tables are built the same way, so what you learn reading one applies to the rest. This page covers what they have in common: how to read a table's schema, the <code>id</code> and <code>data</code> columns, the column types and how to reach inside nested ones, and which columns to leave alone. The <a href="../tables/#column-reference">column reference</a> then documents each table individually in that shared shape. Everything here stays inside one table at a time; no joins.</p>
-<p>Every query here except the last runs in the <a href="../#run-a-query-now">live console</a>. Paste it in and replace <code>'&lt;table&gt;.parquet'</code> with <code>'{BASE}/&lt;table&gt;.parquet'</code>. The last one scans a 3 GB table, so it belongs on your machine.</p>
+<p>All 20 tables are generated from the bundle's schema by the same rules, so what you learn reading one applies to the rest. This page covers what they have in common: how to read a table's schema, the <code>id</code> column, the column types and how to reach inside nested ones, extensions, getting a whole record back, and which columns to leave alone. The <a href="../tables/#column-reference">column reference</a> then documents each table individually in that shared shape. Everything here stays inside one table at a time; no joins.</p>
+<p>Every query here except the last two runs in the <a href="../#run-a-query-now">live console</a>. Paste it in and replace <code>'&lt;table&gt;.parquet'</code> with <code>'{BASE}/&lt;table&gt;.parquet'</code>. The last two scan all of <code>scv.parquet</code>, so they belong on your machine.</p>
 <h2 id="read-the-schema-first">Read the schema first<a class="headerlink" href="#read-the-schema-first" title="Permanent link">&para;</a></h2>
 <p><code>DESCRIBE</code> lists a table's columns and types. It reads only the file's footer, so it is instant even on the largest table, locally or over the network.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">DESCRIBE</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'condition.parquet'</span><span class="p">;</span>
@@ -6363,13 +6448,13 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>column_name    column_type
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>id             VARCHAR
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>type           VARCHAR
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>conceptType    VARCHAR
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>name           VARCHAR
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>aliases        VARCHAR[]
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>primaryCoding  STRUCT("name" VARCHAR, code VARCHAR, "system" VARCHAR, iris VARCHAR[])
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>mappings       STRUCT(coding STRUCT("name" VARCHAR, code VARCHAR, "system" VARCHAR, iris VARCHAR[]), relation VARCHAR)[]
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>name           VARCHAR
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>aliases        VARCHAR[]
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>conceptType    VARCHAR
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>primaryCoding  STRUCT("name" VARCHAR, "system" VARCHAR, code VARCHAR, iris STRUCT(id VARCHAR, section VARCHAR)[])
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>mappings       STRUCT(coding STRUCT("system" VARCHAR, code VARCHAR, iris STRUCT(id VARCHAR, section VARCHAR)[]), relation VARCHAR)[]
 </code></pre></div>
-<p>The types you will meet:</p>
+<p>Column names are the bundle's own field names, camelCase included. The types you will meet:</p>
 <table>
 <thead>
 <tr>
@@ -6380,7 +6465,7 @@
 </thead>
 <tbody>
 <tr>
-<td><code>VARCHAR</code>, <code>BIGINT</code></td>
+<td><code>VARCHAR</code>, <code>BIGINT</code>, <code>BOOLEAN</code></td>
 <td>A plain value</td>
 <td>Use the column directly</td>
 </tr>
@@ -6399,56 +6484,119 @@
 <td>A list of records</td>
 <td><code>unnest(mappings)</code>, then dot into each one</td>
 </tr>
+<tr>
+<td><code>STRUCT(id, section)[]</code></td>
+<td>A list of <strong>references</strong></td>
+<td><code>m.id</code> is the referenced row's id, <code>m.section</code> its table</td>
+</tr>
 </tbody>
 </table>
 <p>Run the same <code>DESCRIBE</code> on <code>scv.parquet</code> and most of its columns are <code>STRUCT</code>s: <code>classification</code>, <code>strength</code>, <code>quality</code>, <code>specifiedBy</code>, <code>contributions</code>, <code>extensions</code>. The full list for every table, with a description of each column, is in the <a href="../tables/#column-reference">column reference</a>.</p>
 <h2 id="every-table-has-an-id">Every table has an <code>id</code><a class="headerlink" href="#every-table-has-an-id" title="Permanent link">&para;</a></h2>
-<p>Every row has an <code>id</code>, and its shape tells you which table it belongs to (<code>clinvar.trait:2645</code> is a condition, <code>clinvar:51592</code> a variant; see <a href="../tables/#ids-tell-you-where-to-look">Ids tell you where to look</a>). Ids are how tables connect, and they are how you look up one row.</p>
-<p>Two tables spell it differently: in <code>therapy</code> and <code>therapyGroup</code> the id column is <code>key</code>, and the JSON object is in <code>value</code>.</p>
-<h2 id="the-data-column-holds-everything-else">The <code>data</code> column holds everything else<a class="headerlink" href="#the-data-column-holds-everything-else" title="Permanent link">&para;</a></h2>
-<p>Most tables also have a <code>data</code> column: the row's complete JSON object as a string. The typed columns are a fast subset of it. Anything without a typed column is still in <code>data</code>, and <code>-&gt;&gt;</code> reaches into it with a JSON path:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">-- The alternate base and the gnomAD-style id of the first five alleles; neither has a typed column</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">       </span><span class="n">name</span><span class="p">,</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">       </span><span class="k">data</span><span class="o">-&gt;&gt;</span><span class="s1">'$.state.sequence'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">alt</span><span class="p">,</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">       </span><span class="p">[</span><span class="n">e</span><span class="p">.</span><span class="n">value</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="k">data</span><span class="o">-&gt;</span><span class="s1">'$.expressions'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">STRUCT</span><span class="p">(</span><span class="n">syntax</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">)[])</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">                </span><span class="k">IF</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">syntax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'gnomad'</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gnomad</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'allele.parquet'</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>id                                         name                         alt  gnomad
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>ga4gh:VA.KqJix9Wg3wCbUTjTt8CLY4TXToP2NyoC  NC_000016.10:g.376236G&gt;A     A    16-376236-G-A
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>ga4gh:VA.B4RiRl78A-gSU0a3yOz_aLl2jR7qxpdW  NC_000002.12:g.107882735G&gt;A  A    2-107882735-G-A
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>ga4gh:VA.E8L_Ltq8nC8OPjbEk1jasgkF9SXDKEkf  NC_000017.11:g.8173472G&gt;A    A    17-8173472-G-A
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>…
-</code></pre></div>
-<p><code>-&gt;&gt;</code> returns text, and <code>-&gt;</code> returns JSON that you can <code>CAST</code> to a typed list or struct, as <code>expressions</code> is here. In <code>therapy</code> and <code>therapyGroup</code> the same JSON is in <code>value</code>. Before 1.1.0, <code>condition</code> had no <code>data</code> column.</p>
+<p>Every row has an <code>id</code>, and its shape tells you which table it belongs to (<code>clinvar.trait:2645</code> is a condition, <code>clinvar:51592</code> a variant; see <a href="../tables/#ids-tell-you-where-to-look">Ids tell you where to look</a>). Ids are how tables connect, and they are how you look up one row. Rows are stored sorted by <code>id</code>, so a lookup by id reads only a small part of the file.</p>
+<p>A column that refers to another row holds that row's bare id. When it could refer to more than one table, a <code>_section</code> column next to it says which: <code>object</code> and <code>object_section</code> on a proposition, <code>proposition</code> and <code>proposition_section</code> on a statement.</p>
 <h2 id="reading-a-struct-column">Reading a <code>STRUCT</code> column<a class="headerlink" href="#reading-a-struct-column" title="Permanent link">&para;</a></h2>
 <p>The most common first mistake is to treat a <code>STRUCT</code> column as text. In <code>scv.parquet</code>, <code>classification</code> is a whole record (a GA4GH <em>MappableConcept</em>), not a string:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">classification</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Pathogenic'</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">classification</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Pathogenic'</span><span class="p">;</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Conversion Error: Type VARCHAR with value 'Pathogenic' can't be cast to the destination type
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>STRUCT("type" VARCHAR, conceptType VARCHAR, "name" VARCHAR, primaryCoding STRUCT(code VARCHAR, "system" VARCHAR), …)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Conversion Error: Type VARCHAR with value 'Pathogenic' can't be cast to the destination type
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>STRUCT("type" VARCHAR, "name" VARCHAR, "extensions" STRUCT("name" VARCHAR, value_string VARCHAR)[], conceptType VARCHAR, primaryCoding STRUCT("system" VARCHAR, code VARCHAR))
 </code></pre></div>
 <p>Name the field you want with a dot:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">       </span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w">                </span><span class="k">AS</span><span class="w"> </span><span class="n">classification</span><span class="p">,</span><span class="w">   </span><span class="c1">-- what the submitter wrote</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">       </span><span class="n">classification</span><span class="p">.</span><span class="n">primaryCoding</span><span class="p">.</span><span class="n">code</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">code</span><span class="p">,</span><span class="w">             </span><span class="c1">-- the normalized value</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">       </span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w">                       </span><span class="k">AS</span><span class="w"> </span><span class="n">submission_level</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">       </span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w">                </span><span class="k">AS</span><span class="w"> </span><span class="n">classification</span><span class="p">,</span><span class="w">   </span><span class="c1">-- what the submitter wrote</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">       </span><span class="n">classification</span><span class="p">.</span><span class="n">primaryCoding</span><span class="p">.</span><span class="n">code</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">code</span><span class="p">,</span><span class="w">             </span><span class="c1">-- the normalized value</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">       </span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w">                       </span><span class="k">AS</span><span class="w"> </span><span class="n">submission_level</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
 </code></pre></div>
 <p>The same goes for <code>strength</code>, <code>quality</code>, and <code>condition.primaryCoding</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">primaryCoding</span><span class="p">.</span><span class="n">code</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">medgen_cui</span><span class="p">,</span><span class="w"> </span><span class="n">aliases</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">first_alias</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">(</span><span class="n">aliases</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n_aliases</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'condition.parquet'</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Marfan syndrome'</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">primaryCoding</span><span class="p">.</span><span class="n">code</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">medgen_cui</span><span class="p">,</span><span class="w"> </span><span class="n">aliases</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">first_alias</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">(</span><span class="n">aliases</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n_aliases</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'condition.parquet'</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Marfan syndrome'</span><span class="p">;</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>id                  name             medgen_cui  first_alias                   n_aliases
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>clinvar.trait:2645  Marfan syndrome  C0024796    FBN1-Related Marfan Syndrome  5
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>id                  name             medgen_cui  first_alias              n_aliases
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>clinvar.trait:2645  Marfan syndrome  C0024796    MARFAN SYNDROME, TYPE I          5
 </code></pre></div>
+<h2 id="extensions">Extensions<a class="headerlink" href="#extensions" title="Permanent link">&para;</a></h2>
+<p>Many records carry an <code>extensions</code> list: named ClinVar attributes that the GA4GH models have no field for. Each element has a <code>name</code> and a value, and the value can be text on one extension and a list of records on another. So an extension's value is spread over <strong>one column per kind of value</strong>, named <code>value_&lt;kind&gt;</code>, and in each element exactly one of them is set:</p>
+<table>
+<thead>
+<tr>
+<th>Slot</th>
+<th>Holds</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>value_string</code></td>
+<td>text</td>
+<td><code>clinvarReviewStatus</code> on <code>vcv</code> and <code>rcv</code>; <code>clinvarScvReviewStatus</code>, <code>submissionLevel</code> on <code>scv</code>; <code>clinvarVariationType</code> on <code>variation</code>; <code>geneContextSource</code> on the gene context</td>
+</tr>
+<tr>
+<td><code>value_string_array</code></td>
+<td>a list of text</td>
+<td><code>submittedGeneSymbols</code> on the gene context</td>
+</tr>
+<tr>
+<td><code>value_boolean</code></td>
+<td>true or false</td>
+<td>on a citation's extensions</td>
+</tr>
+<tr>
+<td><code>value_object</code></td>
+<td>one record</td>
+<td><code>submittedCondition</code>, <code>submittedConditionSet</code> on <code>scv</code> and <code>evidenceLine</code></td>
+</tr>
+<tr>
+<td><code>value_object_array</code></td>
+<td>a list of records</td>
+<td><code>clinvarHgvsList</code>, <code>clinvarGeneList</code> on <code>variation</code>; <code>additionalClinvarMethodCitations</code> on <code>scv.specifiedBy</code></td>
+</tr>
+</tbody>
+</table>
+<p>A table's <code>extensions</code> has only the slots its extensions use. Pick an extension by name with a list comprehension, then read the slot:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">       </span><span class="p">[</span><span class="n">e</span><span class="p">.</span><span class="n">value_string</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">extensions</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'clinvarReviewStatus'</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">review_status</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'vcv.parquet'</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'VCV000051592.%'</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">regexp_matches</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="s1">'-(PG|EP|CP|NOCP|NOCL|FLAG)(-T[0-9])?$'</span><span class="p">);</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>id                       review_status
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>VCV000051592.122-G-NP    no classification provided
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>VCV000051592.122-G-PATH  reviewed by expert panel
+</code></pre></div>
+<p>When two extensions share a <code>value_object_array</code> slot, the slot's record has the fields of both, and the fields the other one uses are NULL: <code>clinvarGeneList</code> entries fill <code>gene</code>, <code>relationship_type</code> and <code>source</code>; <code>clinvarHgvsList</code> entries fill <code>nucleotideExpression</code>, <code>proteinExpression</code>, <code>molecularConsequence</code> and the MANE flags.</p>
+<p>A few deeply nested positions are kept as <strong>JSON text</strong> instead, because the schema allows anything there. The one you are likely to meet is a submitted condition set's members, <code>value_object.concepts</code>, a list of JSON strings. Read them with DuckDB's JSON functions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">id</span><span class="p">,</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">       </span><span class="n">json_extract_string</span><span class="p">(</span><span class="k">c</span><span class="p">,</span><span class="w"> </span><span class="s1">'$.medgen_id'</span><span class="p">)</span><span class="w">        </span><span class="k">AS</span><span class="w"> </span><span class="n">medgen_id</span><span class="p">,</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">       </span><span class="n">json_extract_string</span><span class="p">(</span><span class="k">c</span><span class="p">,</span><span class="w"> </span><span class="s1">'$.normalized_match'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">condition_id</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span><span class="w"> </span><span class="n">s</span><span class="p">,</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">     </span><span class="k">unnest</span><span class="p">([</span><span class="n">e</span><span class="p">.</span><span class="n">value_object</span><span class="p">.</span><span class="n">concepts</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">extensions</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'submittedConditionSet'</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="k">c</span><span class="p">)</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'clinvar.submission:SCV000893709.1'</span><span class="p">;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>id                                 medgen_id  condition_id
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>clinvar.submission:SCV000893709.1  C3280096   clinvar.trait:9587
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>clinvar.submission:SCV000893709.1  C2673520   clinvar.trait:5535
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>clinvar.submission:SCV000893709.1  C3469186   clinvar.trait:9582
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>clinvar.submission:SCV000893709.1  C0162532   clinvar.trait:3370
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>clinvar.submission:SCV000893709.1  C0268323   clinvar.trait:9601
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>clinvar.submission:SCV000893709.1             clinvar.trait:222
+</code></pre></div>
+<h2 id="whole-records">The whole record<a class="headerlink" href="#whole-records" title="Permanent link">&para;</a></h2>
+<p>There is no column holding the row's JSON. The typed columns <strong>are</strong> the record: every field of every bundle record is in a column. To get a row back as JSON, use <code>to_json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">to_json</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">record</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'allele.parquet'</span><span class="w"> </span><span class="n">a</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'ga4gh:VA.Apas_jvqBJU7l4DGHGlvTGRY3BBh-UR9'</span><span class="p">;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>record
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>{"id":"ga4gh:VA.Apas_jvqBJU7l4DGHGlvTGRY3BBh-UR9","type":"Allele","name":"NC_000013.11:g.32338445A&gt;C","digest":"Apas_jvqBJU7l4DGHGlvTGRY3BBh-UR9","expressions":[{"syntax":"spdi","value":"NC_000013.11:32338444:A:C"},{"syntax":"hgvs.g","value":"NC_000013.11:g.32338445A&gt;C"},{"syntax":"gnomad","value":"13-32338445-A-C"}],"location":"ga4gh:SL.Gga5J2ccypatzYD5tBIeQEU9K4sPXc6J","state":{"type":"LiteralSequenceExpression","length":null,"sequence":"C","repeatSubunitLength":null}}
+</code></pre></div>
+<p>Two things differ from the bundle record. References are bare ids where the bundle has a pointer (<code>"location": "ga4gh:SL.…"</code> for <code>"#/location/ga4gh:SL.…"</code>), and a field the record doesn't have is written as <code>null</code> (<code>"length": null</code>). For the records exactly as published, rebuild the bundle from the tables with <a href="../build-your-own/#rebuild-the-bundle"><code>gkm-bundle-parquet rebuild</code></a>, or download the JSON bundle.</p>
 <h2 id="never-select-on-a-big-table">Never <code>SELECT *</code> on a big table<a class="headerlink" href="#never-select-on-a-big-table" title="Permanent link">&para;</a></h2>
-<p>This is the one warning on this page that costs real time if ignored. Parquet stores each column separately and compressed. A query reads only the columns it names, so naming fewer columns means reading less. <code>SELECT *</code> names them all, and on a big table "all" is mostly the <code>data</code> column.</p>
-<p>Here is <code>scv.parquet</code> in the 2026-10-18 release, by column:</p>
+<p>Parquet stores each column separately and compressed. A query reads only the columns it names, so naming fewer columns means reading less. <code>SELECT *</code> names them all.</p>
+<p>Here is <code>scv.parquet</code> built from the 2026-10-31 weekly delta (33,417 submissions), by column:</p>
 <table>
 <thead>
 <tr>
@@ -6459,86 +6607,81 @@
 </thead>
 <tbody>
 <tr>
-<td><code>data</code></td>
-<td style="text-align: right;">2.10 GB</td>
-<td style="text-align: right;"><strong>15.71 GB</strong></td>
-</tr>
-<tr>
 <td><code>description</code></td>
-<td style="text-align: right;">0.42 GB</td>
-<td style="text-align: right;">2.21 GB</td>
+<td style="text-align: right;">2.74 MB</td>
+<td style="text-align: right;">15.17 MB</td>
 </tr>
 <tr>
 <td><code>extensions</code></td>
-<td style="text-align: right;">0.39 GB</td>
-<td style="text-align: right;">1.64 GB</td>
-</tr>
-<tr>
-<td><code>classification</code></td>
-<td style="text-align: right;">0.12 GB</td>
-<td style="text-align: right;">0.92 GB</td>
+<td style="text-align: right;">0.99 MB</td>
+<td style="text-align: right;">6.82 MB</td>
 </tr>
 <tr>
 <td><code>id</code></td>
-<td style="text-align: right;">0.06 GB</td>
-<td style="text-align: right;">0.25 GB</td>
+<td style="text-align: right;">0.18 MB</td>
+<td style="text-align: right;">1.24 MB</td>
+</tr>
+<tr>
+<td><code>proposition</code></td>
+<td style="text-align: right;">0.17 MB</td>
+<td style="text-align: right;">0.70 MB</td>
 </tr>
 <tr>
 <td>everything else</td>
-<td style="text-align: right;">0.13 GB</td>
-<td style="text-align: right;">0.30 GB</td>
+<td style="text-align: right;">0.35 MB</td>
+<td style="text-align: right;">0.90 MB</td>
 </tr>
 <tr>
 <td><strong>whole table</strong></td>
-<td style="text-align: right;"><strong>3.21 GB</strong></td>
-<td style="text-align: right;"><strong>21.0 GB</strong></td>
+<td style="text-align: right;"><strong>4.44 MB</strong></td>
+<td style="text-align: right;"><strong>24.82 MB</strong></td>
 </tr>
 </tbody>
 </table>
-<p>A 3 GB file becomes about <strong>21 GB</strong> once decompressed, three quarters of it the <code>data</code> column. <code>SELECT * FROM 'scv.parquet'</code>, or loading it whole into pandas, asks for all of it. On a laptop the machine swaps until it is unusable or the process is killed; in the browser console the tab runs out of memory.</p>
-<p>The fix is always the same: <strong>name the columns you need</strong>, and leave <code>data</code> out unless you need something only it holds. The sizes of every table are in the <a href="../tables/#column-reference">column reference</a>.</p>
+<p>The table is more than five times larger once decompressed, and most of that is the free-text <code>description</code> and the <code>extensions</code>. The full release's <code>scv.parquet</code> is 784 MB on disk; <code>SELECT * FROM 'scv.parquet'</code>, or loading it whole into pandas, asks for all of it, decompressed. In the browser console the tab runs out of memory.</p>
+<p>The fix is always the same: <strong>name the columns you need</strong>. The sizes of every table are in the <a href="../tables/#column-reference">column reference</a>.</p>
 <h2 id="a-worked-example-what-do-submitters-say">A worked example: what do submitters say?<a class="headerlink" href="#a-worked-example-what-do-submitters-say" title="Permanent link">&para;</a></h2>
-<p>Count every SCV by its classification. The query reads only the <code>classification</code> fields (well under 1 MB on disk) instead of the whole 3 GB file, so it finishes in a fraction of a second on downloaded files. Over the network it needs a request per row group, which trips the console's rate limit, so run this one locally.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">classification</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ALL</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+<p>Count every SCV by its classification. The query reads only the <code>classification</code> fields instead of the whole file, so it finishes in a fraction of a second on downloaded files. Over the network it needs a request per row group, which trips the console's rate limit, so run this one locally.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">classification</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ALL</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
-<p>It returns <strong>44</strong> distinct values, and some of them are the same call written differently:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>classification            n
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>Uncertain significance    3,293,960
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>Likely benign             1,881,719
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>Benign                      648,029
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>Pathogenic                  517,828
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>Likely pathogenic           282,443
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>Uncertain Significance       32,593
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>…
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>pathogenic                    2,792
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>…
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>PATHOGENIC                       22
+<p>It returns <strong>44</strong> distinct values in 2026-10-31, and some of them are the same call written differently:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>classification            n
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>Uncertain significance    3,369,435
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>Likely benign             1,920,932
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>Benign                      649,701
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>Pathogenic                  535,920
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>Likely pathogenic           293,502
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>Uncertain Significance       32,732
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>…
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>pathogenic                    2,792
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>…
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>PATHOGENIC                       22
 </code></pre></div>
 <p><code>classification.name</code> is the text the submitter sent, so case varies. Group by the normalized <code>primaryCoding.code</code> instead, and keep its <code>system</code> (the guideline the classification follows), because the same code can come from different guidelines:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">classification</span><span class="p">.</span><span class="n">primaryCoding</span><span class="p">.</span><span class="n">code</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">code</span><span class="p">,</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">       </span><span class="n">classification</span><span class="p">.</span><span class="n">primaryCoding</span><span class="p">.</span><span class="k">system</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">guideline</span><span class="p">,</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ALL</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">classification</span><span class="p">.</span><span class="n">primaryCoding</span><span class="p">.</span><span class="n">code</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">code</span><span class="p">,</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">       </span><span class="n">classification</span><span class="p">.</span><span class="n">primaryCoding</span><span class="p">.</span><span class="k">system</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">guideline</span><span class="p">,</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ALL</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>code                    guideline                                           n
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>uncertain significance  ACMG Guidelines, 2015                               3,326,410
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>likely benign           ACMG Guidelines, 2015                               1,902,052
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>benign                  ACMG Guidelines, 2015                                 651,462
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>pathogenic              ACMG Guidelines, 2015                                 520,642
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>likely pathogenic       ACMG Guidelines, 2015                                 290,567
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>not provided            ClinVar                                                29,121
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>…
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>tier 1                  AMP/ASCO/CAP (AAC) Guidelines, 2017                     1,018
-<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>likely oncogenic        ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022        998
-<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>…
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>code                    guideline                                           n
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>uncertain significance  ACMG Guidelines, 2015                               3,401,911
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>likely benign           ACMG Guidelines, 2015                               1,941,309
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>benign                  ACMG Guidelines, 2015                                 653,132
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>pathogenic              ACMG Guidelines, 2015                                 538,734
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>likely pathogenic       ACMG Guidelines, 2015                                 302,236
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>not provided            ClinVar                                                29,122
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>…
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>likely oncogenic        ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022      1,321
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>tier 1                  AMP/ASCO/CAP (AAC) Guidelines, 2017                     1,018
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>…
 </code></pre></div>
 <p>That collapses the 44 spellings into <strong>34</strong> code–guideline pairs. The normalization goes beyond case: the one SCV that says <code>no known pathogenicity</code> is counted under <code>benign</code>.</p>
-<p>Next: the <a href="../tables/">22 tables</a> and how they fit together, then <a href="../joining/">joining them</a>.</p>
+<p>Next: the <a href="../tables/">20 tables</a> and how they fit together, then <a href="../joining/">joining them</a>.</p>
 
 
 

@@ -331,6 +331,12 @@
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/dev/parquet/other-tools/</loc>
       </url>
       <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/dev/parquet/build-your-own/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/dev/parquet/migrating-from-1.1/</loc>
+      </url>
+      <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/dev/working-in-python/</loc>
       </url>
       <url>

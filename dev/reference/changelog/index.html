@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -362,6 +362,10 @@
       
         
           
+        
+      
+        
+      
         
       
         
@@ -532,7 +536,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -4174,6 +4178,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4267,7 +4275,7 @@
   <span class="md-ellipsis">
     
   
-  The 22 Tables
+  The 20 Tables
 
     
   </span>
@@ -4376,6 +4384,60 @@
     
   
   Beyond DuckDB
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parquet/build-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Build Your Own Tables and Mini-Bundles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parquet/migrating-from-1.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Moving from 1.1 to 2.0
 
     
   </span>
@@ -5910,6 +5972,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#breaking-for-parquet-users-tables-built-by-gkm-bundle-parquet-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Breaking for Parquet users: tables built by gkm-bundle-parquet 2.0
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#fixes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6334,6 +6407,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#breaking-for-parquet-users-tables-built-by-gkm-bundle-parquet-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Breaking for Parquet users: tables built by gkm-bundle-parquet 2.0
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#fixes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6559,6 +6643,82 @@ required. The rules are in
   still carries the upstream code <code>pathogenic/Likely pathogenic</code>. Compare codes case-insensitively; see
   <a href="../known-issues/#scv-and-aggregate-codes-for-pathogeniclikely-pathogenic-differ-in-case">Known Issues</a>.</li>
 </ul>
+<h3 id="breaking-for-parquet-users-tables-built-by-gkm-bundle-parquet-20">Breaking for Parquet users: tables built by gkm-bundle-parquet 2.0<a class="headerlink" href="#breaking-for-parquet-users-tables-built-by-gkm-bundle-parquet-20" title="Permanent link">&para;</a></h3>
+<p>From 1.2.0 the Parquet tables are built from the JSON bundle by
+<a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>gkm-bundle-parquet</code></a> 2.0.0, generated from the
+1.2.0 schema, and published at <code>v1/1.2/parquet/</code>. They replace the 22 tables exported from BigQuery for the 1.1
+line. <strong>The JSON bundles are unaffected</strong>: this changes only the Parquet tables. Queries written for the 1.1 tables
+need rewriting; <a href="../../parquet/migrating-from-1.1/">Moving from the 1.1 Tables</a> maps every table and column and
+rewrites nine common queries.</p>
+<ul>
+<li><strong>20 tables, not 22.</strong> SCV, VCV and RCV evidence lines are all in <code>evidenceLine</code>; <code>vcv_evidenceLine</code> and
+  <code>rcv_evidenceLine</code> are gone.</li>
+<li><strong>No <code>data</code> column.</strong> Every property of a record has its own typed column, at any depth, named as in the bundle
+  (camelCase). <code>to_json()</code> returns a row as JSON, and <code>gkm-bundle-parquet rebuild</code> turns the tables back into
+  the bundle's records exactly.</li>
+<li><strong>References are bare ids, with a <code>_section</code> column</strong> where a reference can point to more than one table
+  (<code>object_section</code>, <code>proposition_section</code>); lists of such references are <code>STRUCT(id, section)[]</code>.</li>
+<li><strong>Qualifiers and gene context are STRUCTs</strong>, as in the bundle: <code>geneContextQualifier</code>,
+  <code>modeOfInheritanceQualifier</code>, <code>penetranceQualifier</code>. The four proposition tables no longer share one schema;
+  read them together with <code>read_parquet('proposition*.parquet', union_by_name = true)</code>.</li>
+<li><strong>Extension values have one column per kind</strong>, <code>value_string</code>, <code>value_object</code>, <code>value_object_array</code> and
+  others; a few deeply nested positions are JSON text.</li>
+<li><strong>Smaller:</strong> <code>location.end</code> (quote it: <code>"end"</code>), contribution dates as ISO text, rows sorted by <code>id</code>, and
+  <code>therapy</code> and <code>therapyGroup</code> key on <code>id</code> like every other table.</li>
+<li><strong>4.6 GB instead of 13.2 GB</strong> for a whole release.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>1.1 column</th>
+<th>2.0 column</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>proposition_id</code> (on <code>scv</code>, <code>vcv</code>, <code>rcv</code>)</td>
+<td><code>proposition</code></td>
+</tr>
+<tr>
+<td><code>has_evidence_lines</code></td>
+<td><code>hasEvidenceLines</code></td>
+</tr>
+<tr>
+<td><code>subject_variant_id</code></td>
+<td><code>subject</code></td>
+</tr>
+<tr>
+<td><code>object_id</code>, <code>object_type</code></td>
+<td><code>object</code>, <code>object_section</code></td>
+</tr>
+<tr>
+<td><code>gene_context_name</code>, <code>gene_context_id</code></td>
+<td><code>geneContextQualifier.name</code>, <code>'ncbigene:' \|\| geneContextQualifier.primaryCoding.code</code></td>
+</tr>
+<tr>
+<td><code>mode_of_inheritance</code>, <code>penetrance</code></td>
+<td><code>modeOfInheritanceQualifier.name</code>, <code>penetranceQualifier.name</code></td>
+</tr>
+<tr>
+<td><code>vcv_evidenceLine.evidence_items</code></td>
+<td><code>evidenceLine.hasEvidenceItems[].id</code></td>
+</tr>
+<tr>
+<td><code>location.loc_start</code>, <code>loc_end</code>, <code>sequence_reference_id</code></td>
+<td><code>location.start</code>, <code>"end"</code>, <code>sequenceReference</code></td>
+</tr>
+<tr>
+<td><code>data-&gt;&gt;'$.…'</code></td>
+<td>the typed column of the same path</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Timeline.</strong> The 1.1 tables at <code>v1/1.1/parquet/</code> stay downloadable, not rebuilt, until the first 1.2 Parquet set
+is published, shortly after the <code>v1/1.2/</code> line starts; the live console has no tables in that short gap. From then on the
+2.0 tables at <code>v1/1.2/parquet/</code> are rebuilt every release and the console reads them, and <code>v1/1.1/parquet/</code> is
+deleted, as a frozen line keeps no Parquet: download the 1.1 tables before 1.2.0 is published if you need them.
+To build tables for any release yourself, see
+<a href="../../parquet/build-your-own/">Build Your Own Tables and Mini-Bundles</a>.</p>
 <h3 id="fixes">Fixes<a class="headerlink" href="#fixes" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
@@ -6663,7 +6823,7 @@ published under a new line folder, <strong><code>v1/1.1/</code></strong>, in a n
   <code>object_type</code> (the table <code>object_id</code> points at: <code>condition</code>, <code>conditionSet</code>, <code>therapy</code> or <code>therapyGroup</code>)
   and the columns only some of the old tables had (<code>condition_qualifier_id</code>, <code>mode_of_inheritance</code>,
   <code>penetrance</code>). The section is a function of the proposition <code>type</code> alone; see the
-  <a href="../../parquet/tables/#proposition-migration">migration table</a>. The bundle schema's
+  <a href="../../parquet/tables/#proposition-tables">proposition tables</a>. The bundle schema's
   <code>propositionClinvarCustom</code> section no longer lists the abstract <code>ClinvarGermlineCustomProposition</code> base, so
   each record must carry one of the concrete <code>Clinvar*</code> types (every published record already does). The
   Parquet entries below name the pre-1.1.0 tables.</li>

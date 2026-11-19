@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -378,6 +378,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -532,7 +536,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -4406,6 +4410,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4499,7 +4507,7 @@
   <span class="md-ellipsis">
     
   
-  The 22 Tables
+  The 20 Tables
 
     
   </span>
@@ -4608,6 +4616,60 @@
     
   
   Beyond DuckDB
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parquet/build-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Build Your Own Tables and Mini-Bundles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parquet/migrating-from-1.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Moving from 1.1 to 2.0
 
     
   </span>
@@ -6767,7 +6829,7 @@ shows the code. The toolkit's loader (<code>load_bundle</code>, <code>resolve</c
 <a href="../../working-in-python/#loading-bundles">upstream updates</a> before it reads ClinVar-GKM bundles.</p>
 <hr />
 <h2 id="parquet-output">Parquet Output<a class="headerlink" href="#parquet-output" title="Permanent link">&para;</a></h2>
-<p>In addition to the JSON bundle, the latest release is published as <strong>typed Parquet files</strong>, one per table (22 tables: the bundle sections, with the VCV and RCV evidence lines in their own tables). They are written by BigQuery <code>EXPORT DATA</code> queries, not by the assembler, and use columnar storage with named, typed columns for each section's fields, making them suitable for analytical workloads, DuckDB, pandas, or Apache Spark.</p>
+<p>In addition to the JSON bundle, the latest release is published as <strong>typed Parquet files</strong>, one per bundle section (20 tables). They are built from the published bundle by <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>gkm-bundle-parquet</code></a> 2.0.0, not by the assembler. Every property of a record is a typed column, named after the bundle property, with references as bare ids, which makes them suitable for analytical workloads, DuckDB, pandas, or Apache Spark. The tables hold the records without loss: the tool rebuilds the bundle's records from them.</p>
 <p>See <a href="../../pipeline/export/#step-3-rebuild-the-latest-parquet">Export &amp; Distribute</a> for how the Parquet files are produced (derived from the bundle, latest release only). To query them — every table's columns, how the tables join, and runnable recipes — see <a href="../../parquet/">Query the Data</a>.</p>
 <hr />
 <h2 id="inlining-references">Inlining References<a class="headerlink" href="#inlining-references" title="Permanent link">&para;</a></h2>

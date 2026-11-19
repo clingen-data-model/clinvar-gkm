@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -378,6 +378,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -532,7 +536,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -4311,6 +4315,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4404,7 +4412,7 @@
   <span class="md-ellipsis">
     
   
-  The 22 Tables
+  The 20 Tables
 
     
   </span>
@@ -4513,6 +4521,60 @@
     
   
   Beyond DuckDB
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parquet/build-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Build Your Own Tables and Mini-Bundles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parquet/migrating-from-1.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Moving from 1.1 to 2.0
 
     
   </span>
@@ -6377,25 +6439,27 @@
 </div>
 <div class="admonition info">
 <p class="admonition-title">Parquet is derived from the bundle and overwritten every release</p>
-<p>The JSON bundles are the release record. Parquet is a convenience: every value in it can be recomputed from the bundle. <strong>One</strong> Parquet dataset is published, rebuilt every release (weekly) from the newest weekly release and overwritten in place. There are no dated, per-delta or archived Parquet sets.</p>
+<p>The JSON bundles are the release record. Parquet is a convenience: the tables hold the bundle's records, and the bundle can be rebuilt from them. <strong>One</strong> Parquet dataset is published per release line, rebuilt every release (weekly) from the newest weekly release and overwritten in place. There are no dated, per-delta or archived Parquet sets.</p>
 </div>
 <div class="admonition warning">
-<p class="admonition-title">The current set is not being rebuilt</p>
-<p>The last published set is the one exported from BigQuery for the <strong>2026-10-24</strong> release, in the 1.1 line at <code>v1/1.1/parquet/</code> (its <code>manifest.json</code> gives <code>builder: "BigQuery export"</code> and <code>source_release: "2026-10-24"</code>). It lags the bundles, and it is deleted when <code>v1/1.1/</code> is frozen: a frozen line keeps no Parquet. The 1.2 line's set, at <code>v1/1.2/parquet/</code>, is the default set that the <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>gkm-bundle-parquet</code></a> tool (2.0.0, not yet released) builds from the 1.2.0 bundles; until it is published, <code>v1/1.2/parquet/</code> is empty. From then on Parquet is built only from the bundle, never from BigQuery. For data newer than 2026-10-24, use the <a href="../weekly-full/">weekly full bundles</a>.</p>
+<p class="admonition-title">Two sets of tables during the move to 1.2</p>
+<p>The 1.1 line's set, at <code>v1/1.1/parquet/</code>, is the one exported from BigQuery for the <strong>2026-10-24</strong> release (its <code>manifest.json</code> gives <code>builder: "BigQuery export"</code> and <code>source_release: "2026-10-24"</code>). It is not rebuilt, so it lags the bundles, and it is deleted once the 1.2 set is published: a frozen line keeps no Parquet. Its 22 tables have different columns; see <a href="../../parquet/migrating-from-1.1/">Moving from the 1.1 Tables</a>.</p>
+<p>This page describes the 1.2 line's set, at <code>v1/1.2/parquet/</code>: the 20 tables that <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>gkm-bundle-parquet</code></a> 2.0 builds from each 1.2 release's bundle, published from the first 1.2 release on. Parquet is built only from the bundle, never from BigQuery. Until the first 1.2 set is published, <code>v1/1.2/parquet/</code> is empty: for data newer than 2026-10-24, use the <a href="../download/">bundles</a> or <a href="../../parquet/build-your-own/">build the tables yourself</a>.</p>
 </div>
-<p>The dataset lives at one stable path, <code>v1/1.2/parquet/</code>, one file per section, with a <code>manifest.json</code> beside it:</p>
+<p>The dataset lives at one stable path, <code>v1/1.2/parquet/</code>, one file per section, with a <code>manifest.json</code> and a <code>table-spec.json</code> beside it:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>v1/1.2/parquet/
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  {section}.parquet      22 files, one per bundle section
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  manifest.json          build date, source release and dataset, builder, schema version, each file's size and sha256,
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                         and the ClinVar source, attribution, disclaimer and license scope
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  {section}.parquet      20 files, one per bundle section
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  manifest.json          build date, source release and dataset, builder, schema version, each file's size, rows and sha256,
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                         the records sha256 the tables rebuild to, and the ClinVar source, attribution, disclaimer and license scope
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  table-spec.json        the table spec: every table's columns, how each maps to the bundle, and the foreign keys
 </code></pre></div>
 <p>The manifest also carries the data's provenance: <code>source</code> (ClinVar at NCBI, its data use policy and a citation), <code>attribution</code>, <code>disclaimer</code> and <code>license</code> (CC0 scope), matching <a href="../../data-use/">Data Use and Citation</a>. The manifest names the release the dataset was built from, so check it before comparing results with a bundle (the index's Parquet entry carries the same <code>source_release</code>). For an earlier state, see <a href="#earlier-releases">Earlier releases</a>.</p>
 <h2 id="the-latest-set">The latest set<a class="headerlink" href="#the-latest-set" title="Permanent link">&para;</a></h2>
 <div class="r2-browser" data-r2-type="parquet-latest"></div>
 
 <h2 id="available-parquet-files">Available Parquet files<a class="headerlink" href="#available-parquet-files" title="Permanent link">&para;</a></h2>
-<p>Each Parquet file contains one bundle section with typed, query-friendly columns extracted from the JSON objects. Nearly every section includes an <code>id</code> column (the object identifier) and a <code>data</code> column (the full JSON object as a string), plus additional typed columns for key fields — enabling efficient filtering and aggregation without parsing JSON. The exception: <code>therapy</code> and <code>therapyGroup</code> name the id column <code>key</code> and hold the JSON object in <code>value</code>. Before 1.1.0, <code>condition</code> had no <code>data</code> column and <code>therapy</code> / <code>therapyGroup</code> had only <code>key</code> and <code>value</code>. The <a href="../../parquet/tables/#column-reference">column reference</a> lists every column of every section.</p>
-<p>Available Parquet files (22 sections):</p>
+<p>Each Parquet file holds one bundle section, one row per record. Every table has an <code>id</code> column, and every field of the record has a typed column named after it, so filtering and aggregation need no JSON parsing. The tables are generated from the bundle's JSON Schema, with no hand-chosen columns. The <a href="../../parquet/tables/#column-reference">column reference</a> lists every column of every section.</p>
+<p>Available Parquet files (20 sections):</p>
 <table>
 <thead>
 <tr>
@@ -6470,15 +6534,7 @@
 </tr>
 <tr>
 <td><code>evidenceLine.parquet</code></td>
-<td>SCV evidence line records</td>
-</tr>
-<tr>
-<td><code>vcv_evidenceLine.parquet</code></td>
-<td>VCV evidence line records</td>
-</tr>
-<tr>
-<td><code>rcv_evidenceLine.parquet</code></td>
-<td>RCV evidence line records</td>
+<td>Evidence line records of SCV, VCV and RCV statements</td>
 </tr>
 <tr>
 <td><code>scv.parquet</code></td>
@@ -6514,14 +6570,13 @@
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>curl<span class="w"> </span>-O<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/propositionPathogenicity.parquet"</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>curl<span class="w"> </span>-O<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/condition.parquet"</span>
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1"># Or download all 22 sections</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1"># Or download all 20 sections</span>
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="k">for</span><span class="w"> </span>section<span class="w"> </span><span class="k">in</span><span class="w"> </span>sequenceReference<span class="w"> </span>location<span class="w"> </span>allele<span class="w"> </span>copyNumberCount<span class="w"> </span>copyNumberChange<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">               </span>gene<span class="w"> </span>variation<span class="w"> </span>condition<span class="w"> </span>conditionSet<span class="w"> </span>therapy<span class="w"> </span>therapyGroup<span class="w"> </span>submitter<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">               </span>propositionPathogenicity<span class="w"> </span>propositionOncogenicity<span class="w"> </span>propositionSomaticClinicalImpact<span class="w"> </span>propositionClinvarCustom<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">               </span>evidenceLine<span class="w"> </span>vcv_evidenceLine<span class="w"> </span>rcv_evidenceLine<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">               </span>scv<span class="w"> </span>vcv<span class="w"> </span>rcv<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span>curl<span class="w"> </span>-O<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">section</span><span class="si">}</span><span class="s2">.parquet"</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="k">done</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">               </span>evidenceLine<span class="w"> </span>scv<span class="w"> </span>vcv<span class="w"> </span>rcv<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">  </span>curl<span class="w"> </span>-O<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">section</span><span class="si">}</span><span class="s2">.parquet"</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="k">done</span>
 </code></pre></div>
 </details>
 <h3 id="query">Query<a class="headerlink" href="#query" title="Permanent link">&para;</a></h3>
@@ -6550,11 +6605,11 @@
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Join SCVs with propositions to find pathogenic variants for a specific condition</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>duckdb<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="s2">  SELECT s.id, s.classification.name AS classification, p.predicate, p.object_id</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="s2">  SELECT s.id, s.classification.name AS classification, p.predicate, p.object</span>
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="s2">  FROM 'scv.parquet' s</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="s2">  JOIN 'propositionPathogenicity.parquet' p ON s.proposition_id = p.id</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="s2">  JOIN 'propositionPathogenicity.parquet' p ON s.proposition = p.id</span>
 <a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="s2">  WHERE s.classification.name = 'Pathogenic'</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="s2">    AND p.object_id = 'clinvar.trait:9580'</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="s2">    AND p.object = 'clinvar.trait:9580'</span>
 <a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="s2">  LIMIT 10;</span>
 <a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="s2">"</span>
 </code></pre></div>
@@ -6576,21 +6631,17 @@
 <p>With <code>pandas</code> / <code>pyarrow</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="c1"># Load a section into a DataFrame</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">scv</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">"scv.parquet"</span><span class="p">)</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="c1"># Load only the columns you need: a dotted path reads one field of a struct</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">scv</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">"scv.parquet"</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"classification.name"</span><span class="p">,</span> <span class="s2">"proposition"</span><span class="p">])</span>
 <a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="c1"># Filter pathogenic SCVs — classification is a MappableConcept struct (dict), so read .name</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="n">pathogenic</span> <span class="o">=</span> <span class="n">scv</span><span class="p">[</span><span class="n">scv</span><span class="p">[</span><span class="s2">"classification"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">))</span> <span class="o">==</span> <span class="s2">"Pathogenic"</span><span class="p">]</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="c1"># The struct field comes back named by its last segment</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="n">pathogenic</span> <span class="o">=</span> <span class="n">scv</span><span class="p">[</span><span class="n">scv</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Pathogenic"</span><span class="p">]</span>
 <a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pathogenic</span><span class="p">)</span><span class="si">}</span><span class="s2"> pathogenic SCVs"</span><span class="p">)</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="c1"># Access the full JSON when you need nested fields</span>
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="n">record</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">pathogenic</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"data"</span><span class="p">])</span>
-<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"proposition"</span><span class="p">])</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="nb">print</span><span class="p">(</span><span class="n">pathogenic</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"proposition"</span><span class="p">])</span>
 </code></pre></div>
 </details>
 <h3 id="column-reference">Column Reference<a class="headerlink" href="#column-reference" title="Permanent link">&para;</a></h3>
-<p>The complete per-table reference — every column, type and description for all 22 sections — is in <a href="../../parquet/tables/#column-reference">Query the Data → The 22 Tables</a>. A summary:</p>
+<p>The complete per-table reference — every column, type and description for all 20 sections — is in <a href="../../parquet/tables/#column-reference">Query the Data → The 20 Tables</a>. A summary:</p>
 <p>Statement sections (<code>scv</code>, <code>vcv</code>, <code>rcv</code>) share a common set of typed columns:</p>
 <table>
 <thead>
@@ -6612,9 +6663,14 @@
 <td>Statement type</td>
 </tr>
 <tr>
-<td><code>proposition_id</code></td>
+<td><code>proposition</code></td>
 <td>string</td>
-<td>FK to the matching proposition Parquet — one of <code>propositionPathogenicity</code>, <code>propositionOncogenicity</code>, <code>propositionSomaticClinicalImpact</code>, <code>propositionClinvarCustom</code>, by the proposition's type; <code>read_parquet('proposition*.parquet')</code> covers all four</td>
+<td>The proposition's id</td>
+</tr>
+<tr>
+<td><code>proposition_section</code></td>
+<td>string</td>
+<td>The table that holds it: <code>propositionPathogenicity</code>, <code>propositionOncogenicity</code>, <code>propositionSomaticClinicalImpact</code> or <code>propositionClinvarCustom</code>; <code>read_parquet('proposition*.parquet', union_by_name = true)</code> covers all four</td>
 </tr>
 <tr>
 <td><code>classification</code></td>
@@ -6624,7 +6680,7 @@
 <tr>
 <td><code>strength</code></td>
 <td>struct (MappableConcept)</td>
-<td>Use <code>strength.name</code> — e.g., "definitive", "likely"</td>
+<td>Use <code>strength.name</code> — e.g., "Definitive", "Likely"</td>
 </tr>
 <tr>
 <td><code>direction</code></td>
@@ -6634,29 +6690,23 @@
 <tr>
 <td><code>quality</code></td>
 <td>struct (MappableConcept)</td>
-<td>Use <code>quality.name</code> — submission level, e.g., "criteria provided"</td>
+<td>Use <code>quality.name</code> — submission or aggregate level, e.g., "criteria provided"</td>
 </tr>
 <tr>
-<td><code>has_evidence_lines</code></td>
+<td><code>hasEvidenceLines</code></td>
 <td>list\&lt;string&gt;</td>
-<td>FK references to evidence line Parquet (<code>evidenceLine</code> for SCV, <code>vcv_evidenceLine</code> for VCV, <code>rcv_evidenceLine</code> for RCV)</td>
+<td>Ids of the statement's evidence lines, all in <code>evidenceLine</code></td>
 </tr>
 <tr>
 <td><code>extensions</code></td>
-<td>string</td>
-<td>JSON array of extensions</td>
-</tr>
-<tr>
-<td><code>data</code></td>
-<td>string</td>
-<td>Full JSON object</td>
+<td>list\&lt;struct&gt;</td>
+<td>Named ClinVar attributes, each value in the <code>value_&lt;kind&gt;</code> field for its kind (e.g. <code>value_string</code>)</td>
 </tr>
 </tbody>
 </table>
-<p>SCV statements include additional columns: <code>description</code>, <code>contributions</code>, <code>reportedIn</code> and <code>specifiedBy</code>. <code>reportedIn</code> is a list of citation Documents, one per ClinVar citation, and <code>specifiedBy.reportedIn</code> is the assertion method's Document. From 1.1.0 each Document also has <code>name</code>, <code>documentType</code> and <code>extensions</code>; see <a href="../../parquet/tables/#scv"><code>scv</code></a>.</p>
-<p>The four proposition tables share <strong>one column schema</strong> (from 1.1.0): <code>id</code>, <code>type</code>, <code>predicate</code>, <code>subject_variant_id</code>, <code>object_id</code>, <code>object_type</code>, <code>condition_qualifier_id</code>, <code>gene_context_id</code>, <code>gene_context_name</code>, <code>submitted_gene_symbols</code>, <code>gene_context_source</code>, <code>mode_of_inheritance</code>, <code>penetrance</code> and <code>data</code>, so <code>read_parquet('proposition*.parquet')</code> reads them as one table. This enables JOINs across statements, variants, and conditions without parsing JSON. See <a href="../../parquet/tables/#gene-context">Gene context</a> for what the gene context is (one representative gene per variant, not a submitter-asserted gene), and <a href="../../parquet/tables/#proposition-columns">The shared columns</a> for each column.</p>
+<p>SCV statements include additional columns: <code>description</code>, <code>contributions</code>, <code>reportedIn</code> and <code>specifiedBy</code>. <code>reportedIn</code> is a list of citation Documents, one per ClinVar citation, and <code>specifiedBy.reportedIn</code> is the assertion method's Document; see <a href="../../parquet/tables/#scv"><code>scv</code></a>.</p>
+<p>The four proposition tables share <code>id</code>, <code>type</code>, <code>subject</code>, <code>predicate</code>, <code>object</code>, <code>object_section</code> and <code>geneContextQualifier</code>, and add the qualifiers their types allow (<code>modeOfInheritanceQualifier</code>, <code>penetranceQualifier</code>, <code>conditionQualifier</code>), so read them together with <code>union_by_name = true</code>. See <a href="../../parquet/tables/#gene-context">Gene context</a> for what the gene context is (one representative gene per variant, not a submitter-asserted gene), and <a href="../../parquet/tables/#proposition-columns">The columns</a> for each column.</p>
 <p>Run <code>DESCRIBE</code> in DuckDB to see the full schema for any section.</p>
-<p>These examples demonstrate cross-section JOINs using typed columns. Most analytical queries can be answered without parsing JSON — the proposition's <code>gene_context_name</code> column carries the gene symbol directly, and the condition's <code>primaryCoding</code> struct carries the MedGen code. (These queries join <code>scv.parquet</code> to <code>propositionPathogenicity.parquet</code>; swap in <code>read_parquet('proposition*.parquet')</code> to include every kind of claim, since the four tables have the same columns.)</p>
 <p>For how the sections join — including the columns that point at more than one table, where a single-table join silently drops rows — see <a href="../../parquet/joining/">Joining Tables</a>; for task-oriented queries, see <a href="../../parquet/recipes/">Recipes</a>.</p>
 <details class="example">
 <summary>Example cross-section queries (SQL)</summary>
@@ -6668,26 +6718,27 @@
 <a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">direction</span><span class="p">,</span>
 <a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">strength</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">strength</span><span class="p">,</span>
 <a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">review_status</span><span class="p">,</span>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gene</span><span class="p">,</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="n">p</span><span class="p">.</span><span class="n">geneContextQualifier</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gene</span><span class="p">,</span>
 <a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">    </span><span class="k">c</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">condition_name</span><span class="p">,</span>
 <a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="k">c</span><span class="p">.</span><span class="n">primaryCoding</span><span class="p">.</span><span class="n">code</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">condition_code</span>
 <a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span><span class="w"> </span><span class="n">s</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="k">JOIN</span><span class="w"> </span><span class="s1">'propositionPathogenicity.parquet'</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span>
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="s1">'condition.parquet'</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">object_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">id</span>
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'BRCA1'</span>
-<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="k">JOIN</span><span class="w"> </span><span class="s1">'propositionPathogenicity.parquet'</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="s1">'condition.parquet'</span><span class="w"> </span><span class="k">c</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">       </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">object_section</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'condition'</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="k">object</span><span class="w"> </span><span class="k">END</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">geneContextQualifier</span><span class="p">.</span><span class="n">primaryCoding</span><span class="p">.</span><span class="n">code</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'672'</span><span class="w">    </span><span class="c1">-- BRCA1 (NCBI Gene 672)</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
 </code></pre></div>
 <p><strong>Classification summary for a gene:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1">-- Count SCVs by classification and review status for BRCA2</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">SELECT</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gene</span><span class="p">,</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="n">p</span><span class="p">.</span><span class="n">geneContextQualifier</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gene</span><span class="p">,</span>
 <a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">classification</span><span class="p">,</span>
 <a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">review_status</span><span class="p">,</span>
 <a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">direction</span><span class="p">,</span>
 <a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">scv_count</span>
 <a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span><span class="w"> </span><span class="n">s</span>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="k">JOIN</span><span class="w"> </span><span class="s1">'propositionPathogenicity.parquet'</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span>
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'BRCA2'</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="k">JOIN</span><span class="w"> </span><span class="s1">'propositionPathogenicity.parquet'</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">geneContextQualifier</span><span class="p">.</span><span class="n">primaryCoding</span><span class="p">.</span><span class="n">code</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'675'</span><span class="w">    </span><span class="c1">-- BRCA2</span>
 <a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ALL</span>
 <a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">scv_count</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
@@ -6699,76 +6750,54 @@
 <a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">review_status</span><span class="p">,</span>
 <a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="k">c</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">condition_name</span>
 <a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span><span class="w"> </span><span class="n">s</span>
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="k">JOIN</span><span class="w"> </span><span class="s1">'propositionPathogenicity.parquet'</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span>
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="s1">'condition.parquet'</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">object_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">id</span>
-<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'TP53'</span>
-<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'criteria provided'</span><span class="p">,</span><span class="w"> </span><span class="s1">'reviewed by expert panel'</span><span class="p">)</span>
-<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="k">JOIN</span><span class="w"> </span><span class="s1">'propositionPathogenicity.parquet'</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="s1">'condition.parquet'</span><span class="w"> </span><span class="k">c</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">       </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">object_section</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'condition'</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="k">object</span><span class="w"> </span><span class="k">END</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">geneContextQualifier</span><span class="p">.</span><span class="n">primaryCoding</span><span class="p">.</span><span class="n">code</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'7157'</span><span class="w">   </span><span class="c1">-- TP53</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'criteria provided'</span><span class="p">,</span><span class="w"> </span><span class="s1">'expert panel'</span><span class="p">)</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
 </code></pre></div>
 <p><strong>Cross-gene comparison — classification breakdown for multiple genes:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1">-- Compare pathogenicity classification distributions across genes</span>
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">SELECT</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gene</span><span class="p">,</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="n">p</span><span class="p">.</span><span class="n">geneContextQualifier</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gene</span><span class="p">,</span>
 <a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">classification</span><span class="p">,</span>
 <a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n</span>
 <a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span><span class="w"> </span><span class="n">s</span>
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="k">JOIN</span><span class="w"> </span><span class="s1">'propositionPathogenicity.parquet'</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span>
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'BRCA1'</span><span class="p">,</span><span class="w"> </span><span class="s1">'BRCA2'</span><span class="p">,</span><span class="w"> </span><span class="s1">'TP53'</span><span class="p">,</span><span class="w"> </span><span class="s1">'MLH1'</span><span class="p">)</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="k">JOIN</span><span class="w"> </span><span class="s1">'propositionPathogenicity.parquet'</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">geneContextQualifier</span><span class="p">.</span><span class="n">primaryCoding</span><span class="p">.</span><span class="n">code</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'672'</span><span class="p">,</span><span class="w"> </span><span class="s1">'675'</span><span class="p">,</span><span class="w"> </span><span class="s1">'7157'</span><span class="p">,</span><span class="w"> </span><span class="s1">'4292'</span><span class="p">)</span><span class="w">   </span><span class="c1">-- BRCA1, BRCA2, TP53, MLH1</span>
 <a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'criteria provided'</span>
-<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">gene</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ALL</span>
 <a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">gene</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
-<p><strong>Accessing fields not in typed columns</strong> — some fields, like submitter names, HGVS expressions, and assertion methods, are only available in the <code>data</code> column (full JSON string). Use DuckDB's <code>json_extract_string</code> to access them:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1">-- SCVs with submitter name and assertion method (from JSON)</span>
+<p>The gene filters use the NCBI Gene number in <code>geneContextQualifier.primaryCoding.code</code>, not the symbol in <code>.name</code>: a few SCVs carry a submitted symbol there with no normalized gene (see <a href="../../parquet/tables/#gene-context">Gene context</a>).</p>
+<p><strong>Submitter names and assertion methods</strong> are typed columns too: join <code>submitter</code> on the contributor id, and read <code>specifiedBy.name</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1">-- SCVs with submitter name and assertion method</span>
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">SELECT</span>
 <a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">scv_id</span><span class="p">,</span>
 <a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">classification</span><span class="p">,</span>
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gene</span><span class="p">,</span>
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">    </span><span class="n">json_extract_string</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="k">data</span><span class="p">,</span><span class="w"> </span><span class="s1">'$.contributions[0].agent.name'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">submitter</span><span class="p">,</span>
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">    </span><span class="n">json_extract_string</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="k">data</span><span class="p">,</span><span class="w"> </span><span class="s1">'$.specifiedBy.name'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">method</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="n">p</span><span class="p">.</span><span class="n">geneContextQualifier</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gene</span><span class="p">,</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">    </span><span class="n">sub</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">submitter</span><span class="p">,</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">specifiedBy</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">method</span>
 <a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span><span class="w"> </span><span class="n">s</span>
-<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="k">JOIN</span><span class="w"> </span><span class="s1">'propositionPathogenicity.parquet'</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span>
-<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">gene_context_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'BRCA1'</span>
-<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Pathogenic'</span>
-<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'reviewed by expert panel'</span>
-<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="k">LIMIT</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="k">JOIN</span><span class="w"> </span><span class="s1">'propositionPathogenicity.parquet'</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">proposition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">id</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="s1">'submitter.parquet'</span><span class="w"> </span><span class="n">sub</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">       </span><span class="k">ON</span><span class="w"> </span><span class="n">sub</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="k">c</span><span class="p">.</span><span class="n">contributor</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">contributions</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">activityType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'submitted'</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">geneContextQualifier</span><span class="p">.</span><span class="n">primaryCoding</span><span class="p">.</span><span class="n">code</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'672'</span><span class="w">    </span><span class="c1">-- BRCA1</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Pathogenic'</span>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">quality</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'expert panel'</span>
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="k">LIMIT</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
 </code></pre></div>
 </details>
-<p>When to use each access path:</p>
-<table>
-<thead>
-<tr>
-<th>Approach</th>
-<th>Best for</th>
-<th>Tradeoff</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Typed columns only</td>
-<td>Filtering, counting, grouping, JOINs on classification, gene, condition, review status</td>
-<td>Fast; covers most analytical questions</td>
-</tr>
-<tr>
-<td>Typed columns + <code>json_extract_string</code></td>
-<td>Ad-hoc queries needing submitter names, HGVS, methods</td>
-<td>Slightly slower; syntax is verbose</td>
-</tr>
-<tr>
-<td>Parse <code>data</code> column in application code</td>
-<td>Bulk processing needing many nested fields</td>
-<td>Full flexibility; requires application-side JSON parsing</td>
-</tr>
-</tbody>
-</table>
+<p>To get whole records back as JSON, use <code>to_json()</code> on a row, or rebuild the bundle from the tables with <code>gkm-bundle-parquet rebuild</code>; see <a href="../../parquet/table-anatomy/#whole-records">The whole record</a>.</p>
 <h2 id="earlier-releases">Earlier releases<a class="headerlink" href="#earlier-releases" title="Permanent link">&para;</a></h2>
-<p>Only the current Parquet dataset is published; it is overwritten every release, and weekly deltas, archives and frozen lines carry no Parquet. To work with an earlier state:</p>
+<p>Only the current Parquet dataset of each live line is published; it is overwritten every release, and weekly deltas, archives and frozen lines carry no Parquet. To work with an earlier state:</p>
 <ul>
-<li><strong>Rebuild it from the bundles.</strong> Every official monthly stays published (in <code>archive/YYYY/</code> after its year ends) with a <code>.sha256</code> sidecar, and so does every delta. Rebuild the bundle for the week you need with the <a href="../weekly-deltas/#rebuild-a-past-week">replay recipe</a>, then read the sections you need.</li>
-<li><strong>Convert a bundle to Parquet with <code>clinvar-gkm-parquet</code> (planned).</strong> <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>clinvar-gkm-parquet</code></a> is a separate, versioned tool that builds this Parquet layout from a published bundle and writes the same <code>manifest.json</code>. It is in design and not yet released; until it is, earlier Parquet can't be downloaded or rebuilt in this layout.</li>
+<li><strong>Build it from the bundles.</strong> Every official monthly stays published (in <code>archive/YYYY/</code> after its year ends) with a <code>.sha256</code> sidecar, and so does every delta. Rebuild the bundle for the week you need with the <a href="../weekly-deltas/#rebuild-a-past-week">replay recipe</a>, then build its tables with <a href="../../parquet/build-your-own/"><code>gkm-bundle-parquet</code></a> (on <a href="https://pypi.org/project/gkm-bundle-parquet/">PyPI</a>), the tool that builds the published set. A full build needs a large machine; see <a href="../../parquet/build-your-own/#a-full-bundle">Build Your Own</a>. The columns come from the bundle's own schema version, so a bundle of schema 1.1.0 gives a wider set of tables than the 1.2.0 tables described here.</li>
+<li><strong>Take only what you need.</strong> <code>gkm-bundle-parquet select</code> cuts a <a href="../../parquet/build-your-own/#cut-a-mini-bundle">mini-bundle</a> (one variant, gene or submitter and everything it refers to) from any published bundle, without a large machine.</li>
 <li><strong>The 1.0.1 generation</strong> is the frozen line <code>v1/1.0/</code>: its bundles and delta manifests, with no Parquet.</li>
 </ul>
-<p>Parquet downloaded from an earlier release keeps its old tables and columns; see the <a href="../../reference/changelog/">changelog</a> for what changed.</p>
+<p>Parquet downloaded from an earlier release keeps its old tables and columns; see the <a href="../../reference/changelog/">changelog</a> for what changed, and <a href="../../parquet/migrating-from-1.1/">Moving from the 1.1 Tables</a> for the 1.1 tables.</p>
 
 
 

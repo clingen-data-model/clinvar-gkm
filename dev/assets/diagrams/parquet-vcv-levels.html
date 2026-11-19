@@ -85,7 +85,7 @@
     font-size: 11.5px; line-height: 1.5; max-width: 86ch; }
   .foot b { color: var(--muted); } .foot a { color: var(--poly); }
 
-  /* table boxes link to the column reference on The 22 Tables */
+  /* table boxes link to the column reference on the Tables page */
   a.tl { cursor: pointer; }
   a.tl:hover .b, a.tl:focus .b { stroke: var(--poly); stroke-width: 2; }
   a.tl:hover .nm, a.tl:hover .sl { text-decoration: underline; }
@@ -114,7 +114,7 @@
 <h1>Reading a variant's statements</h1>
 <p class="lede">
   One VCV (or RCV) statement id carries three axes — <b>Germline vs Somatic</b>, the <b>proposition type</b>, and
-  the <b>aggregate level</b> — each mapped to a concrete field. Figures are from the 2026-10-18 release.
+  the <b>aggregate level</b> — each mapped to a concrete field. Figures are from the 2026-10-31 release.
 </p>
 <nav class="mini" aria-label="Diagrams in this frame"><ol>
   <li><a href="#d-1"><span class="arr" aria-hidden="true">▸</span>1 · Statement id</a></li>
@@ -167,25 +167,25 @@
   <table>
     <thead><tr><th>Lane</th><th>Code</th><th>Proposition type</th><th class="num">Roots</th></tr></thead>
     <tbody>
-      <tr><td class="lane-g">G</td><td class="m">PATH</td><td class="m">VariantPathogenicityProposition</td><td class="num">4,434,756</td></tr>
+      <tr><td class="lane-g">G</td><td class="m">PATH</td><td class="m">VariantPathogenicityProposition</td><td class="num">4,451,497</td></tr>
       <tr><td class="lane-g">G</td><td class="m">NP</td><td class="m">ClinvarNotProvidedProposition</td><td class="num">27,921</td></tr>
       <tr><td class="lane-g">G</td><td class="m">DR</td><td class="m">ClinvarDrugResponseProposition</td><td class="num">2,760</td></tr>
       <tr><td class="lane-g">G</td><td class="m">OTH</td><td class="m">ClinvarOtherProposition</td><td class="num">2,171</td></tr>
       <tr><td class="lane-g">G</td><td class="m">RF</td><td class="m">ClinvarRiskFactorProposition</td><td class="num">1,072</td></tr>
       <tr><td class="lane-g">G</td><td class="m">ASSOC</td><td class="m">ClinvarAssociationProposition</td><td class="num">525</td></tr>
-      <tr><td class="lane-g">G</td><td class="m">AFF</td><td class="m">ClinvarAffectsProposition</td><td class="num">331</td></tr>
+      <tr><td class="lane-g">G</td><td class="m">AFF</td><td class="m">ClinvarAffectsProposition</td><td class="num">332</td></tr>
       <tr><td class="lane-g">G</td><td class="m">CDFS</td><td class="m">ClinvarConflictingDataFromSubmitterProposition</td><td class="num">192</td></tr>
       <tr><td class="lane-g">G</td><td class="m">PROTECT</td><td class="m">ClinvarProtectiveProposition</td><td class="num">99</td></tr>
       <tr><td class="lane-g">G</td><td class="m">CS</td><td class="m">ClinvarConfersSensitivityProposition</td><td class="num">20</td></tr>
-      <tr><td class="lane-s">S</td><td class="m">ONCO</td><td class="m">VariantOncogenicityProposition</td><td class="num">1,905</td></tr>
+      <tr><td class="lane-s">S</td><td class="m">ONCO</td><td class="m">VariantOncogenicityProposition</td><td class="num">2,425</td></tr>
       <tr><td class="lane-s">S</td><td class="m">SCI</td><td class="m">VariantClinicalSignificanceProposition</td><td class="num">1,317</td></tr>
     </tbody>
   </table>
 </div>
 <details class="q"><summary>Query — decode a variant's statement ids, with proposition type, quality, and classification</summary>
 <pre><span class="c">-- the axes fall out of the id; join the proposition for its type, read quality + classification</span>
-WITH prop AS (                    <span class="c">-- the four proposition tables share one schema</span>
-    SELECT id, type FROM read_parquet('proposition*.parquet')
+WITH prop AS (                    <span class="c">-- union_by_name reads the four proposition tables as one</span>
+    SELECT id, type FROM read_parquet('proposition*.parquet', union_by_name = true)
 )
 SELECT regexp_extract(v.id, '-([GS])-', 1)                                      AS lane,
        regexp_extract(v.id, '-[GS]-([A-Z]+)', 1)                                AS class_code,
@@ -194,7 +194,7 @@ SELECT regexp_extract(v.id, '-([GS])-', 1)                                      
        v.quality.name        AS quality,
        v.classification.name AS classification
 FROM 'vcv.parquet' v
-LEFT JOIN prop p ON p.id = v.proposition_id
+LEFT JOIN prop p ON p.id = v.proposition
 WHERE v.id LIKE 'VCV000012871.%' ORDER BY level;</pre>
 <div class="out">lane  class_code  level  proposition_type                 quality                         classification
 G     PATH        CP     VariantPathogenicityProposition  criteria provided               Pathogenic
@@ -206,19 +206,19 @@ G     PATH        root   VariantPathogenicityProposition  expert panel          
 <!-- ============ 2. LANES + SCI ============ -->
 <div class="subhd" id="d-2">2 · Two lanes — and the extra layer under Somatic</div>
 <p class="subsub">99.9 % of statements are germline, and germline is <em>direct</em>:
-  variant → proposition → statement. Somatic is tiny (0.09 %) but one somatic kind — <b>clinical impact (SCI)</b>
+  variant → proposition → statement. Somatic is tiny (0.10 %) but one somatic kind — <b>clinical impact (SCI)</b>
   — has an extra layer worth knowing.</p>
 <figure>
   <div class="frame">
-  <svg class="d w820" viewBox="0 0 820 128" role="img" aria-label="Two lanes. Germline, 99.9 percent, is direct: variation to proposition to statement. Somatic, 0.09 percent, is oncogenicity (direct) plus somatic clinical impact, which adds evidence lines.">
+  <svg class="d w820" viewBox="0 0 820 128" role="img" aria-label="Two lanes. Germline, 99.9 percent, is direct: variation to proposition to statement. Somatic, 0.10 percent, is oncogenicity (direct) plus somatic clinical impact, which adds evidence lines.">
     <rect class="b g" x="24" y="20" width="372" height="88" rx="8"/>
-    <text class="hd" x="40" y="42">GERMLINE</text><text class="ct" x="150" y="42">9,157,780 · 99.9 %</text>
+    <text class="hd" x="40" y="42">GERMLINE</text><text class="ct" x="150" y="42">9,191,595 · 99.9 %</text>
     <text class="sl" x="40" y="66">variation → proposition → statement</text>
     <text class="ct" x="40" y="84">direct: PATH + the custom types (see table above)</text>
     <text class="ct" x="40" y="98">classification.name carries the call</text>
 
     <rect class="b g" x="432" y="20" width="364" height="88" rx="8"/>
-    <text class="hd" x="448" y="42">SOMATIC</text><text class="ct" x="548" y="42">7,871 · 0.09 %</text>
+    <text class="hd" x="448" y="42">SOMATIC</text><text class="ct" x="548" y="42">8,913 · 0.10 %</text>
     <text class="sl" x="448" y="66">ONCO — direct, like germline</text>
     <text class="sl" x="448" y="84">SCI — adds evidence lines ↓</text>
     <text class="ct" x="448" y="98">the only lane with an extra layer</text>
@@ -227,14 +227,14 @@ G     PATH        root   VariantPathogenicityProposition  expert panel          
 </figure>
 <p class="note"><b>Somatic clinical impact (SCI) has a parent claim plus specific-impact evidence lines.</b>
   The SCI statement's own proposition is a <code>VariantClinicalSignificanceProposition</code> (the general
-  "has clinical significance" claim). Each of its evidence lines — the shared-PK <code>evidenceLine</code> table
-  (<code>ClinvarSomaticEvidenceLine</code>) — carries a <code>target_proposition_id</code> pointing at the
+  "has clinical significance" claim). Its evidence line — the <code>evidenceLine</code> row whose id is the
+  SCV's own id (<code>ClinvarSomaticEvidenceLine</code>) — carries a <code>targetProposition</code> pointing at the
   <em>specific</em> impact (therapeutic response / diagnostic / prognostic), and an <code>evidenceOutcome</code>
   holding the AMP/ASCO/CAP tier (<code>Level A/B</code> = Tier I, <code>Level C/D</code> = Tier II; the
   <code>-T1/-T2</code> in the id).</p>
 <figure>
   <div class="frame">
-  <svg class="d w820" viewBox="0 0 820 212" role="img" aria-label="Somatic clinical impact linkage: an SCV SCI statement has a proposition_id to a VariantClinicalSignificanceProposition parent, and has_evidence_lines to an evidenceLine (ClinvarSomaticEvidenceLine) whose target_proposition_id points to a VariantTherapeuticResponse, Diagnostic or Prognostic proposition, with an evidenceOutcome tier.">
+  <svg class="d w820" viewBox="0 0 820 212" role="img" aria-label="Somatic clinical impact linkage: an SCV SCI statement has a proposition to a VariantClinicalSignificanceProposition parent, and hasEvidenceLines to an evidenceLine (ClinvarSomaticEvidenceLine) whose targetProposition points to a VariantTherapeuticResponse, Diagnostic or Prognostic proposition, with an evidenceOutcome tier.">
     <defs>
       <marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,1.2 L8.6,5 L0,8.8 z" fill="currentColor"/></marker>
       <marker id="ap" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,1.2 L8.6,5 L0,8.8 z" fill="var(--poly)"/></marker>
@@ -255,9 +255,9 @@ G     PATH        root   VariantPathogenicityProposition  expert panel          
     <text class="nm" x="464" y="158">TR · DIAG · PROG</text>
     <text class="ct" x="464" y="174">specific impact · tier A/B · C/D</text>
 
-    <text class="lb p" x="260" y="42" text-anchor="middle">proposition_id</text>
-    <text class="lb" x="122" y="110">has_evidence_lines[]</text>
-    <text class="lb p" x="382" y="157" text-anchor="middle">target_proposition_id</text>
+    <text class="lb p" x="260" y="42" text-anchor="middle">proposition</text>
+    <text class="lb" x="122" y="110">hasEvidenceLines[]</text>
+    <text class="lb p" x="382" y="157" text-anchor="middle">targetProposition</text>
 
     <path class="e poly" d="M204,51 H316" marker-end="url(#ap)"/>
     <path class="e" d="M114,78 V132" marker-end="url(#a)"/>
@@ -275,7 +275,7 @@ G     PATH        root   VariantPathogenicityProposition  expert panel          
 SELECT tp.type AS evidence_target_proposition, tp.predicate,
        e.evidenceOutcome.name AS tier, count(*) n
 FROM 'evidenceLine.parquet' e
-JOIN 'propositionSomaticClinicalImpact.parquet' tp ON tp.id = e.target_proposition_id
+JOIN 'propositionSomaticClinicalImpact.parquet' tp ON tp.id = e.targetProposition
 GROUP BY 1, 2, 3 ORDER BY n DESC;</pre>
 <div class="out">evidence_target_proposition            predicate                           tier       n
 VariantDiagnosticProposition           isDiagnosticInclusionCriterionFor   Level A/B  987
@@ -338,16 +338,16 @@ VariantPrognosticProposition           associatedWithBetterOutcomeFor      Level
   </svg>
   </div>
   <figcaption>
-    The root cites every child through <code>has_evidence_lines[] → evidence_items[]</code>, and each child cites
+    The root cites every child through <code>hasEvidenceLines[] → hasEvidenceItems[]</code>, and each child cites
     its SCVs the same way; the root cites <strong>zero</strong> SCVs. The call comes from the highest level that
     has submissions: a variant whose best are criteria-provided contributes <code>CP</code> and ignores the
     <code>NOCP</code> below it — but a variant whose best submissions are <code>NOCP</code> contributes
-    <code>NOCP</code>. 136,595 variants top out at <code>NOCP</code>; 7,529 at <code>NOCL</code>. Flagged
+    <code>NOCP</code>, and one whose best are <code>NOCL</code> contributes <code>NOCL</code>. Flagged
     submissions are set apart.
   </figcaption>
 </figure>
 <p class="note"><b>PG and EP co-contribute.</b> When a variant carries both a practice-guideline and an
-  expert-panel submission (23 variants do), both are retained and contribute — the practice guideline is higher
+  expert-panel submission, both are retained and contribute — the practice guideline is higher
   quality but does <em>not</em> mask or override the expert panel. The strict highest-present-wins masking applies
   <em>below</em> them: CP over NOCP over NOCL.</p>
 <details class="q"><summary>Query — rank submissions by review level (the aggregate adopts the highest present)</summary>
@@ -361,15 +361,15 @@ SELECT s.quality.name AS review_status,
 FROM 'scv.parquet' s GROUP BY 1, 2 ORDER BY precedence DESC;</pre>
 <div class="out">review_status                     precedence   n
 practice guidelines                    5         2,503
-expert panel                           4        23,151
-criteria provided                      3     6,380,199
-no assertion criteria provided         2       415,483
+expert panel                           4        23,413
+criteria provided                      3     6,407,905
+no assertion criteria provided         2       415,394
 no classification                      1        28,994
-flagged                                0         3,451</div>
+flagged                                0         3,586</div>
 </details>
 
 <p class="foot">Every count, table, and query output here — including the id examples and the mapping table — is
-  from the ClinVar-GKM <b>2026-10-18</b> release. Figures change between releases, so don't assume they
+  from the ClinVar-GKM <b>2026-10-31</b> release. Figures change between releases, so don't assume they
   are the latest. See <a href="../../data-access/parquet/" target="_top">Downloads &rarr; Parquet Files</a> for
   current releases.</p>
 </div>

@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -378,6 +378,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -532,7 +536,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -4272,6 +4276,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4365,7 +4373,7 @@
   <span class="md-ellipsis">
     
   
-  The 22 Tables
+  The 20 Tables
 
     
   </span>
@@ -4474,6 +4482,60 @@
     
   
   Beyond DuckDB
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parquet/build-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Build Your Own Tables and Mini-Bundles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parquet/migrating-from-1.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Moving from 1.1 to 2.0
 
     
   </span>
@@ -6331,7 +6393,7 @@
 </table>
 <p>A move changes a file's folder, never its bytes, name or checksum. Deleting the weekly fulls is the one deliberate exception to "published bundles are never removed": every deleted week can be rebuilt exactly from a monthly plus deltas (<a href="../weekly-deltas/#rebuild-a-past-week">Rebuild a past week</a>).</p>
 <h2 id="parquet">Parquet<a class="headerlink" href="#parquet" title="Permanent link">&para;</a></h2>
-<p><strong>Parquet is derived from the bundle.</strong> One Parquet dataset is published, at <code>v1/1.2/parquet/</code>, rebuilt from the newest weekly release and <strong>overwritten every release</strong>. Its <code>manifest.json</code> gives the build date, the release and dataset it was built from, the builder, the schema version, and every file's size and sha256. No Parquet is kept per month, per delta, in <code>archive/</code> or in frozen lines. Past Parquet is rebuilt from the monthly bundles with <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>clinvar-gkm-parquet</code></a>, a separate tool that is planned but not yet released. See <a href="../parquet/">Parquet Files</a>.</p>
+<p><strong>Parquet is derived from the bundle.</strong> One Parquet dataset is published, at <code>v1/1.2/parquet/</code>, rebuilt from the newest weekly release and <strong>overwritten every release</strong>. Its <code>manifest.json</code> gives the build date, the release and dataset it was built from, the builder, the schema version, and every file's size and sha256. No Parquet is kept per month, per delta, in <code>archive/</code> or in frozen lines. Past Parquet is rebuilt from the monthly bundles with <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>gkm-bundle-parquet</code></a> (<a href="https://pypi.org/project/gkm-bundle-parquet/">PyPI</a>), the separate tool that builds the published set; see <a href="../../parquet/build-your-own/">Build Your Own Tables and Mini-Bundles</a>. See <a href="../parquet/">Parquet Files</a>.</p>
 <h2 id="version-lines">Version Lines<a class="headerlink" href="#version-lines" title="Permanent link">&para;</a></h2>
 <p>Each version line has its own folder: <code>v1/1.2/</code> for 1.2.x. A PATCH release (1.2.x) only adds new dated files to <code>v1/1.2/</code>. A new MINOR — including a content-only correction that must rewrite published bundles — starts <code>v1/1.3/</code>, and a new MAJOR starts <code>v2/2.0/</code>.</p>
 <p>A new line starts with one <strong>checkpoint monthly</strong>: the first full built with the new schema, published as the official monthly of the ClinVar monthly it is the source of (ADR 0002). Its deltas run forward from it; the first delta's <code>baseline_release</code> is the checkpoint's <code>source_release</code>. Earlier releases are not republished into the new line. 1.2.0 started <code>v1/1.2/</code> this way.</p>

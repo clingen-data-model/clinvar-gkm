@@ -205,7 +205,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -376,6 +376,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -530,7 +534,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -4177,6 +4181,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4270,7 +4278,7 @@
   <span class="md-ellipsis">
     
   
-  The 22 Tables
+  The 20 Tables
 
     
   </span>
@@ -4379,6 +4387,60 @@
     
   
   Beyond DuckDB
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./parquet/build-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Build Your Own Tables and Mini-Bundles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./parquet/migrating-from-1.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Moving from 1.1 to 2.0
 
     
   </span>
@@ -6420,7 +6482,7 @@
 <h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
 <div class="admonition tip">
 <p class="admonition-title">Prefer tables to JSON?</p>
-<p>The latest release is also published as one set of <strong>22 typed <a href="data-access/parquet/">Parquet</a> tables</strong>, rebuilt every week, that you can query with SQL, with no database and no data loading. <a href="parquet/"><strong>Query the Data</strong></a> starts with a live query console in your browser and works up to joins, recipes and large-scale analysis.</p>
+<p>The latest release is also published as one set of <strong>20 typed <a href="data-access/parquet/">Parquet</a> tables</strong>, rebuilt every week, that you can query with SQL, with no database and no data loading. <a href="parquet/"><strong>Query the Data</strong></a> starts with a live query console in your browser and works up to joins, recipes and large-scale analysis.</p>
 </div>
 <h3 id="download-the-latest-release">Download the Latest Release<a class="headerlink" href="#download-the-latest-release" title="Permanent link">&para;</a></h3>
 <p>The latest ClinVar-GKM release is available as a single compressed JSON file:</p>
@@ -6484,7 +6546,7 @@
 <p><strong>Conditions</strong> represent the diseases or phenotypes that classifications are made against. Single conditions reference <code>#/condition/clinvar.trait:{id}</code>, while multi-condition sets reference <code>#/conditionSet/clinvar.traitset:{id}</code>.</p>
 <hr />
 <h2 id="data-access">Data Access<a class="headerlink" href="#data-access" title="Permanent link">&para;</a></h2>
-<p>ClinVar-GKM is distributed as <strong>official monthly full bundles</strong>, <strong>weekly full bundles</strong> and <strong>weekly deltas</strong>, laid out like NCBI's ClinVar XML folder, plus one typed Parquet dataset (one file per section) for the latest release. Each bundle is a gzip-compressed JSON file. The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.</p>
+<p>ClinVar-GKM is distributed as <strong>official monthly full bundles</strong>, <strong>weekly full bundles</strong> and <strong>weekly deltas</strong>, laid out like NCBI's ClinVar XML folder, plus one typed Parquet dataset (one file per section) for the latest release, built from the bundle. Each bundle is a gzip-compressed JSON file. The files are freely available for download from Cloudflare R2 object storage with no authentication required and no egress fees.</p>
 <h3 id="release-schedule">Release Schedule<a class="headerlink" href="#release-schedule" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Weekly releases</strong>: for every ClinVar weekly release, a weekly full bundle in <code>weekly/</code> and a delta in <code>deltas/</code> (the records added or updated since the prior release, plus a manifest listing per-section adds, updates, and deletes). <code>weekly/</code> keeps the current month only</li>

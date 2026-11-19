@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://dataexchange.clinicalgenome.org/clinvar-gkm/dev/working-in-python/">
       
       
-        <link rel="prev" href="../parquet/other-tools/">
+        <link rel="prev" href="../parquet/migrating-from-1.1/">
       
       
         <link rel="next" href="../user-story/">
@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -380,6 +380,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -534,7 +538,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
+        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
       </ul>
     </div>
   </a>
@@ -4181,6 +4185,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4277,7 +4285,7 @@
   <span class="md-ellipsis">
     
   
-  The 22 Tables
+  The 20 Tables
 
     
   </span>
@@ -4386,6 +4394,60 @@
     
   
   Beyond DuckDB
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parquet/build-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Build Your Own Tables and Mini-Bundles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parquet/migrating-from-1.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Moving from 1.1 to 2.0
 
     
   </span>
@@ -4614,6 +4676,34 @@
       </span>
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="From Parquet">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vrs-records-from-rows" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        VRS records from rows
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statements-propositions-and-variants" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Statements, propositions and variants
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -6540,6 +6630,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="From Parquet">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vrs-records-from-rows" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        VRS records from rows
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statements-propositions-and-variants" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Statements, propositions and variants
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -6630,14 +6748,21 @@
 Parquet, follows their <code>#/section/id</code> pointers, builds the libraries' pydantic models from them, and
 serializes the models back to JSON.</p>
 <p>It assumes the bundle layout described in <a href="../output-reference/overview/">Output Format</a> and
-<a href="../output-reference/id-references/">ID References</a>, and, for the Parquet section, the <code>data</code> column described in
-<a href="../parquet/tables/#the-data-column">The 22 Tables</a>.</p>
+<a href="../output-reference/id-references/">ID References</a>, and, for the Parquet section, the tables described in
+<a href="../parquet/tables/">The 20 Tables</a>.</p>
 <div class="admonition info">
 <p class="admonition-title">Tested with</p>
-<p>Every code block on this page was run on <strong>2026-10-22</strong>, with Python 3.12, against 1.1.0 data: the
-sample bundle, the 2026-10-18 weekly delta, and the Parquet dataset built from 2026-10-18. Versions:
-<code>ga4gh.vrs</code> 2.4.0a6, <code>ga4gh.cat_vrs</code> 0.8.0a6, <code>ga4gh.va_spec</code> 0.5.0a7, <code>ga4gh.gkm</code> 0.4.1,
-<code>pydantic</code> 2.14.1, <code>duckdb</code> 2.0.0, <code>ijson</code> 3.6.0, and the ClinVar-GKM schema tree at tag <code>1.1.0</code>.</p>
+<p>Every code block on this page was run on <strong>2026-11-18</strong> with:</p>
+<ul>
+<li>Python 3.12.8, <code>ga4gh.vrs</code> 2.4.0a6, <code>ga4gh.cat_vrs</code> 0.8.0a6, <code>ga4gh.va_spec</code> 0.5.0a7, <code>ga4gh.gkm</code> 0.4.1,
+  <code>pydantic</code> 2.14.3, <code>duckdb</code> 1.5.4, <code>pyarrow</code> 26.0.1, <code>ijson</code> 3.6.0, <code>gkm-bundle-parquet</code> 2.0.0, and the
+  ClinVar-GKM schema tree at tag <code>1.1.0</code>.</li>
+<li><strong>Bundle examples:</strong> 1.1.0 data, the sample bundle and the 2026-10-18 weekly delta.</li>
+<li><strong>Parquet examples:</strong> 2.0 tables built by <code>gkm-bundle-parquet</code> 2.0.0 from four variants of the 2026-10-31
+  release (built as schema 1.2.0), and a mini-bundle cut from that release. The published set at
+  <code>v1/1.2/parquet/</code> has the same columns and more rows.</li>
+</ul>
+<p>The Parquet files are written with DuckDB 1.5.4: the <code>duckdb_version</code> in their <code>manifest.json</code>.</p>
 </div>
 <hr />
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
@@ -6686,7 +6811,7 @@ the same three pre-releases.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>.<span class="w"> </span>.venv/bin/activate
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pip<span class="w"> </span>install<span class="w"> </span>-q<span class="w"> </span><span class="s2">"ga4gh.vrs==2.4.0a6"</span><span class="w"> </span><span class="s2">"ga4gh.cat_vrs==0.8.0a6"</span><span class="w"> </span><span class="s2">"ga4gh.va_spec==0.5.0a7"</span><span class="w"> </span><span class="s2">"ga4gh.gkm==0.4.1"</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>pip<span class="w"> </span>install<span class="w"> </span>-q<span class="w"> </span>duckdb<span class="w"> </span>ijson<span class="w">    </span><span class="c1"># for the Parquet and streaming examples</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>pip<span class="w"> </span>install<span class="w"> </span>-q<span class="w"> </span><span class="s2">"duckdb==1.5.4"</span><span class="w"> </span>pyarrow<span class="w"> </span>ijson<span class="w">    </span><span class="c1"># for the Parquet and streaming examples</span>
 </code></pre></div>
 <p>Check what is installed and which schema versions the libraries implement:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
@@ -6839,7 +6964,7 @@ copy-number variants, a <code>location</code>) record:</p>
   <a href="../output-reference/cat-vrs/">Variations</a> document each one.</li>
 <li><strong>ClinVar custom propositions</strong> have no class in va-spec-python yet. The <code>propositionClinvarCustom</code> section
   holds ClinVar's own germline proposition types (<code>ClinvarOtherProposition</code>, <code>ClinvarRiskFactorProposition</code>,
-  …). Work with them as plain JSON, as the bundle and the Parquet <code>data</code> column provide them. Every other
+  …). Work with them as plain JSON, as the bundle provides them. Every other
   section loads into a library class without loss; see <a href="#round-trip">Round trip</a>.</li>
 </ul>
 <hr />
@@ -6953,130 +7078,209 @@ this page. Related work: <a href="https://github.com/ga4gh/gkm-starter-kit/pull/
 </div>
 <hr />
 <h2 id="from-parquet">From Parquet<a class="headerlink" href="#from-parquet" title="Permanent link">&para;</a></h2>
-<p>Every <a href="../parquet/tables/">Parquet table</a> has a <code>data</code> column holding each record's complete JSON as a string,
-exactly as in the bundle, so <code>json.loads(data)</code> gives the same record the bundle does. Read a few rows
-remotely with DuckDB, and build the models:</p>
+<p>The <a href="../parquet/tables/">Parquet tables</a> have no <code>data</code> column: every property of a record is its own typed
+column, named after the bundle property, and a reference is the bare id of the record it names, not a <code>#/…</code> pointer (see
+<a href="../parquet/migrating-from-1.1/#no-data-column">No <code>data</code> column</a>). How close a row is to its bundle record
+decides how to get a model from it:</p>
+<ul>
+<li><strong>The VRS tables</strong> (<code>allele</code>, <code>location</code>, <code>sequenceReference</code>): a row without its NULL columns is the bundle
+  record, with bare-id references, apart from the few columns noted below. It builds the model directly.</li>
+<li><strong>Every other table</strong> keeps values in a table's shape: extension values in <code>value_&lt;kind&gt;</code> slots, list
+  references as <code>{id, section}</code> STRUCTs, a <code>_section</code> column beside a reference, some nested values as JSON text.
+  Query those tables for what you need, then take the records themselves from the bundle.</li>
+</ul>
+<p><a href="../parquet/build-your-own/">Build Your Own Tables and Mini-Bundles</a> covers <code>gkm-bundle-parquet</code>, the tool that
+builds the tables and cuts mini-bundles.</p>
+<h3 id="vrs-records-from-rows">VRS records from rows<a class="headerlink" href="#vrs-records-from-rows" title="Permanent link">&para;</a></h3>
+<p>Read rows as dictionaries through pyarrow, drop the NULLs, and build the models. Here, the alleles of three
+variants: <code>variation.members</code> gives each member's id and the table it is in.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
 <a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
 <a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="n">P</span> <span class="o">=</span> <span class="s2">"https://data.clinvar-gkm.org/v1/1.2/parquet"</span>
 <a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>
-<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="n">rows</span> <span class="o">=</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SELECT id, location_id, data FROM '</span><span class="si">{</span><span class="n">P</span><span class="si">}</span><span class="s2">/allele.parquet' LIMIT 3"</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
-<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="k">for</span> <span class="n">allele_id</span><span class="p">,</span> <span class="n">location_id</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
-<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">allele_id</span><span class="p">,</span> <span class="n">vrs</span><span class="o">.</span><span class="n">Allele</span><span class="p">(</span><span class="o">**</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">))</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">strip_nulls</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">    </span><span class="sd">"""A row, or a STRUCT or list inside it, without its NULL fields."""</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">strip_nulls</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>        <span class="k">return</span> <span class="p">[</span><span class="n">strip_nulls</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>    <span class="k">return</span> <span class="n">value</span>
+<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>
+<a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>
+<a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a><span class="k">def</span><span class="w"> </span><span class="nf">rows</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">()):</span>
+<a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a><span class="w">    </span><span class="sd">"""Run a query; return each row as a dict of column name to value, without NULLs."""</span>
+<a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a>    <span class="n">table</span> <span class="o">=</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">params</span><span class="p">))</span><span class="o">.</span><span class="n">to_arrow_table</span><span class="p">()</span>
+<a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a>    <span class="k">return</span> <span class="p">[</span><span class="n">strip_nulls</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">to_pylist</span><span class="p">()]</span>
+<a id="__codelineno-19-19" name="__codelineno-19-19" href="#__codelineno-19-19"></a>
+<a id="__codelineno-19-20" name="__codelineno-19-20" href="#__codelineno-19-20"></a>
+<a id="__codelineno-19-21" name="__codelineno-19-21" href="#__codelineno-19-21"></a><span class="k">def</span><span class="w"> </span><span class="nf">by_id</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">"*"</span><span class="p">):</span>
+<a id="__codelineno-19-22" name="__codelineno-19-22" href="#__codelineno-19-22"></a><span class="w">    </span><span class="sd">"""Fetch the rows of one table whose id is in ids, keyed by id."""</span>
+<a id="__codelineno-19-23" name="__codelineno-19-23" href="#__codelineno-19-23"></a>    <span class="n">marks</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"?"</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">))</span>
+<a id="__codelineno-19-24" name="__codelineno-19-24" href="#__codelineno-19-24"></a>    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"SELECT </span><span class="si">{</span><span class="n">columns</span><span class="si">}</span><span class="s2"> FROM '</span><span class="si">{</span><span class="n">P</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">.parquet' WHERE id IN (</span><span class="si">{</span><span class="n">marks</span><span class="si">}</span><span class="s2">)"</span>
+<a id="__codelineno-19-25" name="__codelineno-19-25" href="#__codelineno-19-25"></a>    <span class="k">return</span> <span class="p">{</span><span class="n">row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]:</span> <span class="n">row</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">ids</span><span class="p">)}</span>
+<a id="__codelineno-19-26" name="__codelineno-19-26" href="#__codelineno-19-26"></a>
+<a id="__codelineno-19-27" name="__codelineno-19-27" href="#__codelineno-19-27"></a>
+<a id="__codelineno-19-28" name="__codelineno-19-28" href="#__codelineno-19-28"></a><span class="n">variants</span> <span class="o">=</span> <span class="n">by_id</span><span class="p">(</span><span class="s2">"variation"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"clinvar:10"</span><span class="p">,</span> <span class="s2">"clinvar:12582"</span><span class="p">,</span> <span class="s2">"clinvar:51592"</span><span class="p">],</span> <span class="s2">"id, members"</span><span class="p">)</span>
+<a id="__codelineno-19-29" name="__codelineno-19-29" href="#__codelineno-19-29"></a><span class="n">alleles</span> <span class="o">=</span> <span class="n">by_id</span><span class="p">(</span><span class="s2">"allele"</span><span class="p">,</span> <span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variants</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">v</span><span class="p">[</span><span class="s2">"members"</span><span class="p">]</span> <span class="k">if</span> <span class="n">m</span><span class="p">[</span><span class="s2">"section"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"allele"</span><span class="p">])</span>
+<a id="__codelineno-19-30" name="__codelineno-19-30" href="#__codelineno-19-30"></a><span class="k">for</span> <span class="n">allele_id</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">alleles</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<a id="__codelineno-19-31" name="__codelineno-19-31" href="#__codelineno-19-31"></a>    <span class="n">model</span> <span class="o">=</span> <span class="n">vrs</span><span class="o">.</span><span class="n">Allele</span><span class="p">(</span><span class="o">**</span><span class="n">row</span><span class="p">)</span>
+<a id="__codelineno-19-32" name="__codelineno-19-32" href="#__codelineno-19-32"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">allele_id</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>ga4gh:VA.gaVM-oJ-UMO3cZMxe8-U0ktIKu7YvQK4 NC_000015.10:g.78513242G&gt;A
-<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>ga4gh:VA.plnkuDHIFWLbLgn729ZU4dZlFhtM1Jco NC_000016.10:g.31224570C&gt;A
-<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>ga4gh:VA.0Om9Ephu36fbTCIM_H4ushaqsJGXPOes NC_000017.11:g.41715616G&gt;A
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>ga4gh:VA.Apas_jvqBJU7l4DGHGlvTGRY3BBh-UR9 NC_000013.11:g.32338445A&gt;C ga4gh:SL.Gga5J2ccypatzYD5tBIeQEU9K4sPXc6J
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>ga4gh:VA.ELQCnIBGqaTl0AEE0Az18XZ2cgIHAQIY NC_000006.12:g.26090951C&gt;G ga4gh:SL.Eg_6kV6Bb4FMjm9kEolHZ_4NhU8lBEsZ
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>ga4gh:VA.LDaqvF3c3y1IG8wF4mORiRfB--9Jjfzp NC_000012.12:g.25245350C&gt;T ga4gh:SL.qaHcVvdl8j0lpLRt49hE-bFI81128Mk9
 </code></pre></div>
-<p>Inside <code>data</code>, references are bundle pointers; the typed columns carry the bare id (<code>location_id</code>). Follow a
-reference by looking the id up in the table its prefix names (see
-<a href="../parquet/tables/#ids-tell-you-where-to-look">Ids tell you where to look</a>). Here, the alleles' locations and
-sequence references, and the same identifier check as above:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">by_id</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">"id, data"</span><span class="p">):</span>
-<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">    </span><span class="sd">"""Fetch the rows of one table whose id is in ids, keyed by id."""</span>
-<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>    <span class="n">marks</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"?"</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">))</span>
-<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"SELECT </span><span class="si">{</span><span class="n">columns</span><span class="si">}</span><span class="s2"> FROM '</span><span class="si">{</span><span class="n">P</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">.parquet' WHERE id IN (</span><span class="si">{</span><span class="n">marks</span><span class="si">}</span><span class="s2">)"</span>
-<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>    <span class="k">return</span> <span class="p">{</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">ids</span><span class="p">))</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()}</span>
-<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>
+<p>The allele's <code>location</code> is a bare id. Follow it, and the location's <code>sequenceReference</code>, and recompute the
+identifiers as <a href="#vrs-alleles-and-their-identifiers">above</a>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># The record's own properties: start_min, start_max, end_min and end_max are derived columns</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="n">locations</span> <span class="o">=</span> <span class="n">by_id</span><span class="p">(</span><span class="s2">"location"</span><span class="p">,</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">"location"</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">alleles</span><span class="o">.</span><span class="n">values</span><span class="p">()],</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>                  <span class="s1">'id, type, digest, sequenceReference, start, "end"'</span><span class="p">)</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="c1"># extensions keeps its values in value_&lt;kind&gt; slots; the identifier doesn't use it</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="n">sequences</span> <span class="o">=</span> <span class="n">by_id</span><span class="p">(</span><span class="s2">"sequenceReference"</span><span class="p">,</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">"sequenceReference"</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">locations</span><span class="o">.</span><span class="n">values</span><span class="p">()],</span>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>                  <span class="s2">"* EXCLUDE (extensions)"</span><span class="p">)</span>
 <a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>
-<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="n">locations</span> <span class="o">=</span> <span class="n">by_id</span><span class="p">(</span><span class="s2">"location"</span><span class="p">,</span> <span class="p">[</span><span class="n">location_id</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">location_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">],</span> <span class="s2">"id, sequence_reference_id, data"</span><span class="p">)</span>
-<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="n">sequences</span> <span class="o">=</span> <span class="n">by_id</span><span class="p">(</span><span class="s2">"sequenceReference"</span><span class="p">,</span> <span class="p">[</span><span class="n">sequence_id</span> <span class="k">for</span> <span class="n">sequence_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">locations</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
-<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>
-<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a><span class="k">for</span> <span class="n">allele_id</span><span class="p">,</span> <span class="n">location_id</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
-<a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>    <span class="n">sequence_id</span><span class="p">,</span> <span class="n">location_data</span> <span class="o">=</span> <span class="n">locations</span><span class="p">[</span><span class="n">location_id</span><span class="p">]</span>
-<a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>    <span class="n">inline</span> <span class="o">=</span> <span class="n">content</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">location_data</span><span class="p">))</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"sequenceReference"</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">sequences</span><span class="p">[</span><span class="n">sequence_id</span><span class="p">][</span><span class="mi">0</span><span class="p">])}</span>
-<a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>    <span class="n">recomputed</span> <span class="o">=</span> <span class="n">ga4gh_identify</span><span class="p">(</span><span class="n">vrs</span><span class="o">.</span><span class="n">Allele</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">))</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"location"</span><span class="p">:</span> <span class="n">inline</span><span class="p">}))</span>
-<a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">allele_id</span><span class="p">,</span> <span class="n">recomputed</span> <span class="o">==</span> <span class="n">allele_id</span><span class="p">)</span>
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="k">for</span> <span class="n">allele_id</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">alleles</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>    <span class="n">location_row</span> <span class="o">=</span> <span class="n">locations</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">"location"</span><span class="p">]]</span>
+<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>    <span class="n">inline</span> <span class="o">=</span> <span class="n">content</span><span class="p">(</span><span class="n">location_row</span><span class="p">)</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"sequenceReference"</span><span class="p">:</span> <span class="n">sequences</span><span class="p">[</span><span class="n">location_row</span><span class="p">[</span><span class="s2">"sequenceReference"</span><span class="p">]]}</span>
+<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>    <span class="n">recomputed</span> <span class="o">=</span> <span class="n">ga4gh_identify</span><span class="p">(</span><span class="n">vrs</span><span class="o">.</span><span class="n">Allele</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"location"</span><span class="p">:</span> <span class="n">inline</span><span class="p">}))</span>
+<a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">allele_id</span><span class="p">,</span> <span class="n">recomputed</span> <span class="o">==</span> <span class="n">allele_id</span><span class="p">)</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>ga4gh:VA.gaVM-oJ-UMO3cZMxe8-U0ktIKu7YvQK4 True
-<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>ga4gh:VA.plnkuDHIFWLbLgn729ZU4dZlFhtM1Jco True
-<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>ga4gh:VA.0Om9Ephu36fbTCIM_H4ushaqsJGXPOes True
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>ga4gh:VA.Apas_jvqBJU7l4DGHGlvTGRY3BBh-UR9 True
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>ga4gh:VA.ELQCnIBGqaTl0AEE0Az18XZ2cgIHAQIY True
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>ga4gh:VA.LDaqvF3c3y1IG8wF4mORiRfB--9Jjfzp True
 </code></pre></div>
-<p>The same pattern links a proposition to its statement and its variant. <code>scv.proposition_id</code> and
-<code>variation.id</code> are the join keys (<a href="../parquet/joining/">Joining Tables</a> covers every hop):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="p">(</span><span class="n">prop_id</span><span class="p">,</span> <span class="n">prop_data</span><span class="p">),</span> <span class="o">=</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span>
-<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>    <span class="sa">f</span><span class="s2">"SELECT id, data FROM '</span><span class="si">{</span><span class="n">P</span><span class="si">}</span><span class="s2">/propositionClinvarCustom.parquet' "</span>
-<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>    <span class="s2">"WHERE type = 'ClinvarRiskFactorProposition' AND gene_context_id IS NOT NULL LIMIT 1"</span>
-<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
-<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="p">(</span><span class="n">scv_data</span><span class="p">,),</span> <span class="o">=</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>    <span class="sa">f</span><span class="s2">"SELECT data FROM '</span><span class="si">{</span><span class="n">P</span><span class="si">}</span><span class="s2">/scv.parquet' WHERE proposition_id = ?"</span><span class="p">,</span> <span class="p">[</span><span class="n">prop_id</span><span class="p">])</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
-<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="n">risk</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">prop_data</span><span class="p">)</span>
-<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a><span class="n">variant_id</span> <span class="o">=</span> <span class="n">risk</span><span class="p">[</span><span class="s2">"subject"</span><span class="p">]</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">"#/variation/"</span><span class="p">)</span>
-<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a><span class="p">(</span><span class="n">variant_data</span><span class="p">,)</span> <span class="o">=</span> <span class="n">by_id</span><span class="p">(</span><span class="s2">"variation"</span><span class="p">,</span> <span class="p">[</span><span class="n">variant_id</span><span class="p">])[</span><span class="n">variant_id</span><span class="p">]</span>
+<ul>
+<li><strong>Ranges.</strong> A location whose <code>start</code> or <code>end</code> is a VRS Range has NULL in that column. The bounds are in
+  <code>start_min</code> and <code>start_max</code> (<code>end_min</code>, <code>end_max</code>), and the record's value is <code>[start_min, start_max]</code>, with
+  <code>null</code> for an open bound. Copy-number locations are the usual case.</li>
+<li><strong>Sequence references.</strong> <code>id</code> is the record's bundle key, which the record itself doesn't carry, and
+  <code>extensions</code> keeps its values in <code>value_&lt;kind&gt;</code> slots.</li>
+<li><strong>Checked.</strong> In a build of the 2026-10-31 delta, every <code>allele</code> row (16,557) and <code>location</code> row (11,127), read
+  this way, equals its bundle record with the record's <code>#/…</code> pointers cut to bare ids.</li>
+</ul>
+<h3 id="statements-propositions-and-variants">Statements, propositions and variants<a class="headerlink" href="#statements-propositions-and-variants" title="Permanent link">&para;</a></h3>
+<p>For the other tables, query the columns. The proposition → statement → variant walk from the bundle examples,
+from the tables (<code>scv.proposition</code> and <code>variation.id</code> are the join keys; <a href="../parquet/joining/">Joining Tables</a>
+covers every hop):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">prop_row</span> <span class="o">=</span> <span class="n">rows</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="s2">    SELECT id, subject, predicate, geneContextQualifier.name AS gene</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="s2">    FROM '</span><span class="si">{</span><span class="n">P</span><span class="si">}</span><span class="s2">/propositionClinvarCustom.parquet'</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="s2">    WHERE subject = 'clinvar:10' AND type = 'ClinvarRiskFactorProposition'</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="s2">      AND geneContextQualifier.primaryCoding IS NOT NULL</span>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="s2">    ORDER BY id LIMIT 1"""</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="n">scv_row</span> <span class="o">=</span> <span class="n">rows</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SELECT id, classification.name AS classification FROM '</span><span class="si">{</span><span class="n">P</span><span class="si">}</span><span class="s2">/scv.parquet' WHERE proposition = ?"</span><span class="p">,</span>
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>               <span class="p">[</span><span class="n">prop_row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]])[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a><span class="n">variant_row</span> <span class="o">=</span> <span class="n">by_id</span><span class="p">(</span><span class="s2">"variation"</span><span class="p">,</span> <span class="p">[</span><span class="n">prop_row</span><span class="p">[</span><span class="s2">"subject"</span><span class="p">]],</span> <span class="s2">"id, name"</span><span class="p">)[</span><span class="n">prop_row</span><span class="p">[</span><span class="s2">"subject"</span><span class="p">]]</span>
 <a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>
-<a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a><span class="nb">print</span><span class="p">(</span><span class="n">prop_id</span><span class="p">,</span> <span class="n">risk</span><span class="p">[</span><span class="s2">"predicate"</span><span class="p">],</span> <span class="n">risk</span><span class="p">[</span><span class="s2">"geneContextQualifier"</span><span class="p">][</span><span class="s2">"name"</span><span class="p">])</span>
-<a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a><span class="nb">print</span><span class="p">(</span><span class="n">va</span><span class="o">.</span><span class="n">Statement</span><span class="p">(</span><span class="o">**</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">scv_data</span><span class="p">))</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-<a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a><span class="nb">print</span><span class="p">(</span><span class="n">catvrs</span><span class="o">.</span><span class="n">CategoricalVariant</span><span class="p">(</span><span class="o">**</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">variant_data</span><span class="p">))</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a><span class="nb">print</span><span class="p">(</span><span class="n">prop_row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span> <span class="n">prop_row</span><span class="p">[</span><span class="s2">"predicate"</span><span class="p">],</span> <span class="n">prop_row</span><span class="p">[</span><span class="s2">"gene"</span><span class="p">])</span>
+<a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a><span class="nb">print</span><span class="p">(</span><span class="n">scv_row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span> <span class="n">scv_row</span><span class="p">[</span><span class="s2">"classification"</span><span class="p">])</span>
+<a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a><span class="nb">print</span><span class="p">(</span><span class="n">variant_row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span> <span class="n">variant_row</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>SCV000821694-RF isRiskFactorFor APC
-<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>risk factor
-<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>NM_000038.6(APC):c.3920T&gt;A (p.Ile1307Lys)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>SCV001142520-RF isRiskFactorFor HFE
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>clinvar.submission:SCV001142520.1 risk factor
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>clinvar:10 NM_000410.4(HFE):c.187C&gt;G (p.His63Asp)
+</code></pre></div>
+<p>To load these records into the library models, take them from the bundle the tables were built from: the
+weekly full of the manifest's <code>source_release</code>, which is <code>weekly/clinvar-gkm_00-latest_weekly.json.gz</code> while the
+tables are current. <code>gkm-bundle-parquet select</code> cuts a mini-bundle from it: the SCV and every record it points
+to, directly or through other records, so every pointer in it resolves inside the file.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">    </span>--full<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">    </span>--bundle-schema<span class="w"> </span>https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">    </span>--driver<span class="w"> </span>scv<span class="w"> </span>--ids<span class="w"> </span>clinvar.submission:SCV001142520.1<span class="w"> </span>--out<span class="w"> </span>SCV001142520.json.gz
+</code></pre></div>
+<p><code>select</code> reads the whole bundle, so one id costs about as much as many: pass every id you need in one run
+(<code>--ids</code> takes a comma-separated list, <code>--ids-file</code> a file of ids). On a local copy of the 2026-10-31 full
+bundle, this selection took under 3 minutes. The mini-bundle loads like the sample:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"SCV001142520.json.gz"</span><span class="p">,</span> <span class="s2">"rt"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>    <span class="n">mini</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">lookup</span><span class="p">(</span><span class="n">pointer</span><span class="p">):</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="w">    </span><span class="sd">"""resolve(), for the mini-bundle."""</span>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>    <span class="n">section</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">pointer</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">"#/"</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>    <span class="k">return</span> <span class="n">mini</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>
+<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a>
+<a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a><span class="n">scv_record</span> <span class="o">=</span> <span class="n">mini</span><span class="p">[</span><span class="s2">"scv"</span><span class="p">][</span><span class="n">scv_row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]]</span>
+<a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a><span class="n">risk</span> <span class="o">=</span> <span class="n">lookup</span><span class="p">(</span><span class="n">scv_record</span><span class="p">[</span><span class="s2">"proposition"</span><span class="p">])</span>  <span class="c1"># a ClinVar custom proposition: plain JSON</span>
+<a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a><span class="nb">print</span><span class="p">(</span><span class="n">va</span><span class="o">.</span><span class="n">Statement</span><span class="p">(</span><span class="o">**</span><span class="n">scv_record</span><span class="p">)</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"|"</span><span class="p">,</span>
+<a id="__codelineno-26-14" name="__codelineno-26-14" href="#__codelineno-26-14"></a>      <span class="n">lookup</span><span class="p">(</span><span class="n">scv_record</span><span class="p">[</span><span class="s2">"contributions"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"contributor"</span><span class="p">])[</span><span class="s2">"name"</span><span class="p">])</span>
+<a id="__codelineno-26-15" name="__codelineno-26-15" href="#__codelineno-26-15"></a><span class="nb">print</span><span class="p">(</span><span class="n">risk</span><span class="p">[</span><span class="s2">"type"</span><span class="p">],</span> <span class="n">risk</span><span class="p">[</span><span class="s2">"predicate"</span><span class="p">],</span> <span class="n">risk</span><span class="p">[</span><span class="s2">"geneContextQualifier"</span><span class="p">][</span><span class="s2">"name"</span><span class="p">])</span>
+<a id="__codelineno-26-16" name="__codelineno-26-16" href="#__codelineno-26-16"></a><span class="nb">print</span><span class="p">(</span><span class="n">catvrs</span><span class="o">.</span><span class="n">CategoricalVariant</span><span class="p">(</span><span class="o">**</span><span class="n">lookup</span><span class="p">(</span><span class="n">risk</span><span class="p">[</span><span class="s2">"subject"</span><span class="p">]))</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<a id="__codelineno-26-17" name="__codelineno-26-17" href="#__codelineno-26-17"></a><span class="nb">print</span><span class="p">({</span><span class="n">section</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span> <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">records</span> <span class="ow">in</span> <span class="n">mini</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)})</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>risk factor | Center for Computational Genomics and Data Science, University of Alabama
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>ClinvarRiskFactorProposition isRiskFactorFor HFE
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>NM_000410.4(HFE):c.187C&gt;G (p.His63Asp)
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>{'sequenceReference': 1, 'location': 1, 'allele': 1, 'gene': 2, 'variation': 1, 'condition': 1, 'submitter': 1, 'propositionClinvarCustom': 1, 'scv': 1}
 </code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Remote reads of big tables are slow</p>
-<p>The files are not sorted by id, so a filter reads the filtered column from every row group, one HTTP
-request each. On 2026-10-22, a <code>LIMIT 3</code> read of a large table took 10–25 seconds, an id lookup in
-<code>location</code> 10–20 seconds, and the proposition → statement → variant lookup above 40–125 seconds in all.
-The CDN allows 250 requests per 10 seconds per client. For anything beyond a handful of lookups, download
-the tables you need and query them locally (<a href="../parquet/performance/#local-or-remote">Working at Scale</a>).</p>
+<p>The tables are sorted by <code>id</code>, and each row group's id range is in the file footer, so a lookup by <code>id</code>
+reads only the row groups that can hold it. A filter on any other column (<code>scv.proposition</code> above) reads
+that column from every row group, one HTTP request each, and the CDN limits each client to about 55
+requests per 10 seconds. For anything beyond a handful of lookups, download the tables you need and query
+them locally (<a href="../parquet/performance/#local-or-remote">Working at Scale</a>).</p>
 </div>
 <hr />
 <h2 id="round-trip">Round trip<a class="headerlink" href="#round-trip" title="Permanent link">&para;</a></h2>
 <p><code>model_dump(mode="json", exclude_none=True)</code> serializes a model back to JSON. Records carry no <code>null</code> fields
 (except the open bound of a VRS <code>Range</code>, which survives), so <code>exclude_none=True</code> loses nothing. Compare every
 record of the sample bundle with its round trip:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
-<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>
-<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ga4gh.core.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MappableConcept</span>
-<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>
-<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="n">MODELS</span> <span class="o">=</span> <span class="p">{</span>
-<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>    <span class="s2">"sequenceReference"</span><span class="p">:</span> <span class="n">vrs</span><span class="o">.</span><span class="n">SequenceReference</span><span class="p">,</span> <span class="s2">"location"</span><span class="p">:</span> <span class="n">vrs</span><span class="o">.</span><span class="n">SequenceLocation</span><span class="p">,</span> <span class="s2">"allele"</span><span class="p">:</span> <span class="n">vrs</span><span class="o">.</span><span class="n">Allele</span><span class="p">,</span>
-<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>    <span class="s2">"copyNumberCount"</span><span class="p">:</span> <span class="n">vrs</span><span class="o">.</span><span class="n">CopyNumberCount</span><span class="p">,</span> <span class="s2">"copyNumberChange"</span><span class="p">:</span> <span class="n">vrs</span><span class="o">.</span><span class="n">CopyNumberChange</span><span class="p">,</span>
-<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>    <span class="s2">"gene"</span><span class="p">:</span> <span class="n">MappableConcept</span><span class="p">,</span> <span class="s2">"condition"</span><span class="p">:</span> <span class="n">MappableConcept</span><span class="p">,</span> <span class="s2">"therapy"</span><span class="p">:</span> <span class="n">MappableConcept</span><span class="p">,</span>
-<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>    <span class="s2">"conditionSet"</span><span class="p">:</span> <span class="n">va</span><span class="o">.</span><span class="n">ConditionSet</span><span class="p">,</span> <span class="s2">"therapyGroup"</span><span class="p">:</span> <span class="n">va</span><span class="o">.</span><span class="n">TherapyGroup</span><span class="p">,</span> <span class="s2">"submitter"</span><span class="p">:</span> <span class="n">va</span><span class="o">.</span><span class="n">Agent</span><span class="p">,</span>
-<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>    <span class="s2">"variation"</span><span class="p">:</span> <span class="n">catvrs</span><span class="o">.</span><span class="n">CategoricalVariant</span><span class="p">,</span> <span class="s2">"evidenceLine"</span><span class="p">:</span> <span class="n">va</span><span class="o">.</span><span class="n">EvidenceLine</span><span class="p">,</span>
-<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a>    <span class="s2">"scv"</span><span class="p">:</span> <span class="n">va</span><span class="o">.</span><span class="n">Statement</span><span class="p">,</span> <span class="s2">"vcv"</span><span class="p">:</span> <span class="n">va</span><span class="o">.</span><span class="n">Statement</span><span class="p">,</span> <span class="s2">"rcv"</span><span class="p">:</span> <span class="n">va</span><span class="o">.</span><span class="n">Statement</span><span class="p">,</span>
-<a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a><span class="p">}</span>
-<a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a>
-<a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a>
-<a id="__codelineno-25-15" name="__codelineno-25-15" href="#__codelineno-25-15"></a><span class="k">def</span><span class="w"> </span><span class="nf">model_for</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
-<a id="__codelineno-25-16" name="__codelineno-25-16" href="#__codelineno-25-16"></a>    <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"proposition"</span><span class="p">):</span>
-<a id="__codelineno-25-17" name="__codelineno-25-17" href="#__codelineno-25-17"></a>        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="n">record</span><span class="p">[</span><span class="s2">"type"</span><span class="p">])</span>
-<a id="__codelineno-25-18" name="__codelineno-25-18" href="#__codelineno-25-18"></a>    <span class="k">return</span> <span class="n">MODELS</span><span class="p">[</span><span class="n">section</span><span class="p">]</span>
-<a id="__codelineno-25-19" name="__codelineno-25-19" href="#__codelineno-25-19"></a>
-<a id="__codelineno-25-20" name="__codelineno-25-20" href="#__codelineno-25-20"></a>
-<a id="__codelineno-25-21" name="__codelineno-25-21" href="#__codelineno-25-21"></a><span class="n">tally</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
-<a id="__codelineno-25-22" name="__codelineno-25-22" href="#__codelineno-25-22"></a><span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">records</span> <span class="ow">in</span> <span class="n">bundle</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-<a id="__codelineno-25-23" name="__codelineno-25-23" href="#__codelineno-25-23"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">section</span> <span class="o">!=</span> <span class="s2">"propositionClinvarCustom"</span><span class="p">:</span>  <span class="c1"># plain JSON, no library class</span>
-<a id="__codelineno-25-24" name="__codelineno-25-24" href="#__codelineno-25-24"></a>        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-<a id="__codelineno-25-25" name="__codelineno-25-25" href="#__codelineno-25-25"></a>            <span class="n">dumped</span> <span class="o">=</span> <span class="n">model_for</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">record</span><span class="p">)(</span><span class="o">**</span><span class="n">record</span><span class="p">)</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a id="__codelineno-25-26" name="__codelineno-25-26" href="#__codelineno-25-26"></a>            <span class="n">tally</span><span class="p">[</span><span class="n">section</span><span class="p">,</span> <span class="s2">"identical"</span> <span class="k">if</span> <span class="n">dumped</span> <span class="o">==</span> <span class="n">record</span> <span class="k">else</span> <span class="s2">"differs"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-25-27" name="__codelineno-25-27" href="#__codelineno-25-27"></a><span class="k">for</span> <span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">result</span><span class="p">),</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tally</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-<a id="__codelineno-25-28" name="__codelineno-25-28" href="#__codelineno-25-28"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">section</span><span class="si">:</span><span class="s2">33</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">result</span><span class="si">:</span><span class="s2">9</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">n</span><span class="si">:</span><span class="s2">5</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ga4gh.core.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MappableConcept</span>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="n">MODELS</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>    <span class="s2">"sequenceReference"</span><span class="p">:</span> <span class="n">vrs</span><span class="o">.</span><span class="n">SequenceReference</span><span class="p">,</span> <span class="s2">"location"</span><span class="p">:</span> <span class="n">vrs</span><span class="o">.</span><span class="n">SequenceLocation</span><span class="p">,</span> <span class="s2">"allele"</span><span class="p">:</span> <span class="n">vrs</span><span class="o">.</span><span class="n">Allele</span><span class="p">,</span>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a>    <span class="s2">"copyNumberCount"</span><span class="p">:</span> <span class="n">vrs</span><span class="o">.</span><span class="n">CopyNumberCount</span><span class="p">,</span> <span class="s2">"copyNumberChange"</span><span class="p">:</span> <span class="n">vrs</span><span class="o">.</span><span class="n">CopyNumberChange</span><span class="p">,</span>
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a>    <span class="s2">"gene"</span><span class="p">:</span> <span class="n">MappableConcept</span><span class="p">,</span> <span class="s2">"condition"</span><span class="p">:</span> <span class="n">MappableConcept</span><span class="p">,</span> <span class="s2">"therapy"</span><span class="p">:</span> <span class="n">MappableConcept</span><span class="p">,</span>
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a>    <span class="s2">"conditionSet"</span><span class="p">:</span> <span class="n">va</span><span class="o">.</span><span class="n">ConditionSet</span><span class="p">,</span> <span class="s2">"therapyGroup"</span><span class="p">:</span> <span class="n">va</span><span class="o">.</span><span class="n">TherapyGroup</span><span class="p">,</span> <span class="s2">"submitter"</span><span class="p">:</span> <span class="n">va</span><span class="o">.</span><span class="n">Agent</span><span class="p">,</span>
+<a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a>    <span class="s2">"variation"</span><span class="p">:</span> <span class="n">catvrs</span><span class="o">.</span><span class="n">CategoricalVariant</span><span class="p">,</span> <span class="s2">"evidenceLine"</span><span class="p">:</span> <span class="n">va</span><span class="o">.</span><span class="n">EvidenceLine</span><span class="p">,</span>
+<a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a>    <span class="s2">"scv"</span><span class="p">:</span> <span class="n">va</span><span class="o">.</span><span class="n">Statement</span><span class="p">,</span> <span class="s2">"vcv"</span><span class="p">:</span> <span class="n">va</span><span class="o">.</span><span class="n">Statement</span><span class="p">,</span> <span class="s2">"rcv"</span><span class="p">:</span> <span class="n">va</span><span class="o">.</span><span class="n">Statement</span><span class="p">,</span>
+<a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a><span class="p">}</span>
+<a id="__codelineno-28-13" name="__codelineno-28-13" href="#__codelineno-28-13"></a>
+<a id="__codelineno-28-14" name="__codelineno-28-14" href="#__codelineno-28-14"></a>
+<a id="__codelineno-28-15" name="__codelineno-28-15" href="#__codelineno-28-15"></a><span class="k">def</span><span class="w"> </span><span class="nf">model_for</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+<a id="__codelineno-28-16" name="__codelineno-28-16" href="#__codelineno-28-16"></a>    <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"proposition"</span><span class="p">):</span>
+<a id="__codelineno-28-17" name="__codelineno-28-17" href="#__codelineno-28-17"></a>        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="n">record</span><span class="p">[</span><span class="s2">"type"</span><span class="p">])</span>
+<a id="__codelineno-28-18" name="__codelineno-28-18" href="#__codelineno-28-18"></a>    <span class="k">return</span> <span class="n">MODELS</span><span class="p">[</span><span class="n">section</span><span class="p">]</span>
+<a id="__codelineno-28-19" name="__codelineno-28-19" href="#__codelineno-28-19"></a>
+<a id="__codelineno-28-20" name="__codelineno-28-20" href="#__codelineno-28-20"></a>
+<a id="__codelineno-28-21" name="__codelineno-28-21" href="#__codelineno-28-21"></a><span class="n">tally</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+<a id="__codelineno-28-22" name="__codelineno-28-22" href="#__codelineno-28-22"></a><span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">records</span> <span class="ow">in</span> <span class="n">bundle</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<a id="__codelineno-28-23" name="__codelineno-28-23" href="#__codelineno-28-23"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">section</span> <span class="o">!=</span> <span class="s2">"propositionClinvarCustom"</span><span class="p">:</span>  <span class="c1"># plain JSON, no library class</span>
+<a id="__codelineno-28-24" name="__codelineno-28-24" href="#__codelineno-28-24"></a>        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+<a id="__codelineno-28-25" name="__codelineno-28-25" href="#__codelineno-28-25"></a>            <span class="n">dumped</span> <span class="o">=</span> <span class="n">model_for</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">record</span><span class="p">)(</span><span class="o">**</span><span class="n">record</span><span class="p">)</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-28-26" name="__codelineno-28-26" href="#__codelineno-28-26"></a>            <span class="n">tally</span><span class="p">[</span><span class="n">section</span><span class="p">,</span> <span class="s2">"identical"</span> <span class="k">if</span> <span class="n">dumped</span> <span class="o">==</span> <span class="n">record</span> <span class="k">else</span> <span class="s2">"differs"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-28-27" name="__codelineno-28-27" href="#__codelineno-28-27"></a><span class="k">for</span> <span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">result</span><span class="p">),</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tally</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<a id="__codelineno-28-28" name="__codelineno-28-28" href="#__codelineno-28-28"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">section</span><span class="si">:</span><span class="s2">33</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">result</span><span class="si">:</span><span class="s2">9</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">n</span><span class="si">:</span><span class="s2">5</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>sequenceReference                 identical    24
-<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>location                          identical  1913
-<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>allele                            identical  2027
-<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>copyNumberChange                  identical     1
-<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>gene                              identical   460
-<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>variation                         identical  2032
-<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>condition                         identical   390
-<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>conditionSet                      identical    33
-<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>submitter                         identical     1
-<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a>propositionPathogenicity          identical   943
-<a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a>propositionSomaticClinicalImpact  identical  2994
-<a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a>evidenceLine                      identical  1497
-<a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a>scv                               differs    2443
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>sequenceReference                 identical    24
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>location                          identical  1913
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>allele                            identical  2027
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>copyNumberChange                  identical     1
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>gene                              identical   460
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>variation                         identical  2032
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a>condition                         identical   390
+<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a>conditionSet                      identical    33
+<a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a>submitter                         identical     1
+<a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a>propositionPathogenicity          identical   943
+<a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a>propositionSomaticClinicalImpact  identical  2994
+<a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a>evidenceLine                      identical  1497
+<a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a>scv                               differs    2443
 </code></pre></div>
 <p>Every record comes back identical except for one field:</p>
 <ul>
 <li>
 <p><strong>Contribution dates.</strong> VA-Spec 1.1.0 types <code>Contribution.date</code> as a date-time. The records carry a date
   (<code>"2019-01-22"</code>); the model parses it as midnight and writes it back with a time:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="n">dumped</span> <span class="o">=</span> <span class="n">statement</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">scv</span><span class="p">[</span><span class="s2">"contributions"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"date"</span><span class="p">],</span> <span class="s2">"-&gt;"</span><span class="p">,</span> <span class="n">dumped</span><span class="p">[</span><span class="s2">"contributions"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"date"</span><span class="p">])</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">dumped</span> <span class="o">=</span> <span class="n">statement</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">scv</span><span class="p">[</span><span class="s2">"contributions"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"date"</span><span class="p">],</span> <span class="s2">"-&gt;"</span><span class="p">,</span> <span class="n">dumped</span><span class="p">[</span><span class="s2">"contributions"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"date"</span><span class="p">])</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>2019-01-22 -&gt; 2019-01-22T00:00:00
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>2019-01-22 -&gt; 2019-01-22T00:00:00
 </code></pre></div>
 <p>Every SCV has contribution dates, so every SCV differs in those fields only. Compare dates by their
 first ten characters, or restore them after dumping.</p>
@@ -7095,21 +7299,22 @@ to work with it:</p>
 <li><strong>Stream it.</strong> <a href="https://pypi.org/project/ijson/"><code>ijson</code></a> reads one record at a time; <code>kvitems(f, "scv")</code>
   yields each <code>(id, record)</code> of a section. Build a model per record, keep what you need, and memory stays
   flat. One pass reads the whole file.</li>
-<li><strong>Query the Parquet</strong> for the latest release, and fetch the <code>data</code> of just the records you need, as above.</li>
+<li><strong>Query the Parquet</strong> for the latest release to find the records you need, and cut just those out of the
+  bundle with <code>gkm-bundle-parquet select</code>, as <a href="#statements-propositions-and-variants">above</a>.</li>
 <li><strong>Cut a sub-bundle.</strong> The <a href="../pipeline/sub-bundle/">Sub-Bundle Extraction</a> tool, which made the sample
   above, extracts a self-contained bundle for a list of statements. It reads the project's BigQuery tables,
   not a published file, so it needs access to those datasets.</li>
 </ul>
 <p>Streaming the delta's <code>scv</code> section, for example, to count classifications:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">ijson</span>
-<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>
-<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="n">classifications</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
-<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"clinvar-gkm-delta_2026-1018.json.gz"</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>    <span class="k">for</span> <span class="n">scv_id</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">ijson</span><span class="o">.</span><span class="n">kvitems</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s2">"scv"</span><span class="p">,</span> <span class="n">use_float</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>        <span class="n">classifications</span><span class="p">[</span><span class="n">va</span><span class="o">.</span><span class="n">Statement</span><span class="p">(</span><span class="o">**</span><span class="n">record</span><span class="p">)</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a><span class="nb">print</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">classifications</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">classifications</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">ijson</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="n">classifications</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"clinvar-gkm-delta_2026-1018.json.gz"</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a>    <span class="k">for</span> <span class="n">scv_id</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">ijson</span><span class="o">.</span><span class="n">kvitems</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s2">"scv"</span><span class="p">,</span> <span class="n">use_float</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a>        <span class="n">classifications</span><span class="p">[</span><span class="n">va</span><span class="o">.</span><span class="n">Statement</span><span class="p">(</span><span class="o">**</span><span class="n">record</span><span class="p">)</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a><span class="nb">print</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">classifications</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">classifications</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>18138 [('Uncertain significance', 9724), ('Likely benign', 2766), ('Likely pathogenic', 2482), ('Pathogenic', 2337)]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>18138 [('Uncertain significance', 9724), ('Likely benign', 2766), ('Likely pathogenic', 2482), ('Pathogenic', 2337)]
 </code></pre></div>
 <p><code>use_float=True</code> makes ijson return floats instead of <code>Decimal</code>.</p>
 <hr />
