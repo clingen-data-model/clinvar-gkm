@@ -76,6 +76,16 @@ the genes ClinVar associates with a variant, so such a gene has no `gene` record
 propositions. Genes with no HGNC id (`LOC*`) and NCBI-discontinued gene ids get no gene context, by design of
 the upstream method.
 
+## SCV and aggregate codes for Pathogenic/Likely pathogenic differ in case
+
+ClinVar-GKM's classification lookup (`clinvar_clinsig_types`, maintained upstream in `clinvar-ingest-bq-tools`)
+codes `Pathogenic/Likely pathogenic` as `pathogenic/Likely pathogenic`, with a capital L; every other code in it
+is lower case. An SCV classified `Pathogenic/Likely pathogenic` carries that code unchanged in its
+`classification.primaryCoding`. From 1.2.0, VCV and RCV classifications also carry a `primaryCoding`, and its
+code is always lower case, so the same label is `pathogenic/likely pathogenic` there. Compare classification
+codes case-insensitively until the lookup is fixed upstream. See
+[`classification.primaryCoding`](../pipeline/vcv-statements/vcv-aggregation-rules.md#classification-primarycoding).
+
 ## Past Parquet cannot yet be rebuilt
 
 Only the latest Parquet set is published. Past Parquet is meant to be rebuilt from the monthly bundles with
