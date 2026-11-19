@@ -203,7 +203,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -526,7 +526,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -6266,7 +6266,7 @@
 
 
 <h1 id="output-file">Output File<a class="headerlink" href="#output-file" title="Permanent link">&para;</a></h1>
-<p>ClinVar-GKM is published as <strong>gzip-compressed JSON files</strong> in the bundle format — a <strong>monthly full bundle</strong> and <strong>weekly full bundles</strong> containing all data for a release, plus a <strong>weekly delta</strong> carrying only the records changed since the prior release. For analytical workloads, one set of typed <strong>Parquet files</strong> (one per bundle section) is derived from the newest release, published under <code>v1/1.1/parquet/</code> and rebuilt every release; deltas have no Parquet. See <a href="../parquet/">Parquet Files</a>.</p>
+<p>ClinVar-GKM is published as <strong>gzip-compressed JSON files</strong> in the bundle format — a <strong>monthly full bundle</strong> and <strong>weekly full bundles</strong> containing all data for a release, plus a <strong>weekly delta</strong> carrying only the records changed since the prior release. For analytical workloads, one set of typed <strong>Parquet files</strong> (one per bundle section) is derived from the newest release, published under <code>v1/1.2/parquet/</code> and rebuilt every release; deltas have no Parquet. See <a href="../parquet/">Parquet Files</a>.</p>
 <hr />
 <h2 id="file-format">File Format<a class="headerlink" href="#file-format" title="Permanent link">&para;</a></h2>
 <p>The release file is a <code>.json.gz</code> file. The decompressed content is a single JSON object with named bundle sections at the root level — each section is a keyed collection of objects of the same class.</p>
@@ -6311,7 +6311,7 @@
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>archive/yyyy/deltas/yyyy-mm/clinvar-gkm-delta_*     (prior years)
 </code></pre></div>
 <p>For example, <code>deltas/clinvar-gkm-delta_2026-1018.json.gz</code> for the October 18, 2026 release, which moves to <code>deltas/2026-10/</code> when November's first release is published. The delta bundle carries only added and updated records; deletes and per-section change counts are recorded in the accompanying manifest. See <a href="../weekly-deltas/">Weekly Deltas</a> for the delta model and replay recipe.</p>
-<p>Every bundle has a <code>&lt;file&gt;.sha256</code> sidecar. All paths are relative to the line folder, <code>https://data.clinvar-gkm.org/v1/1.1/</code>.</p>
+<p>Every bundle has a <code>&lt;file&gt;.sha256</code> sidecar. All paths are relative to the line folder, <code>https://data.clinvar-gkm.org/v1/1.2/</code>.</p>
 <hr />
 <h2 id="working-with-the-file">Working with the File<a class="headerlink" href="#working-with-the-file" title="Permanent link">&para;</a></h2>
 <h3 id="python">Python<a class="headerlink" href="#python" title="Permanent link">&para;</a></h3>

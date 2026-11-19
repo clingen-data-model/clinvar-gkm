@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -532,7 +532,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -6307,7 +6307,7 @@
 </div>
 <hr />
 <h2 id="release-cadence">Release Cadence<a class="headerlink" href="#release-cadence" title="Permanent link">&para;</a></h2>
-<p>A <strong>weekly release</strong> is published for every ClinVar XML release, typically within 1-2 days of it. It writes the weekly full <code>weekly/clinvar-gkm_YYYY-MMDD.json.gz</code>, refreshes <code>weekly/clinvar-gkm_00-latest_weekly.json.gz</code>, and writes the delta <code>deltas/clinvar-gkm-delta_YYYY-MMDD.json.gz</code> with its manifest. All paths are under the line folder, <code>v1/1.1/</code>.</p>
+<p>A <strong>weekly release</strong> is published for every ClinVar XML release, typically within 1-2 days of it. It writes the weekly full <code>weekly/clinvar-gkm_YYYY-MMDD.json.gz</code>, refreshes <code>weekly/clinvar-gkm_00-latest_weekly.json.gz</code>, and writes the delta <code>deltas/clinvar-gkm-delta_YYYY-MMDD.json.gz</code> with its manifest. All paths are under the line folder, <code>v1/1.2/</code>.</p>
 <p>An <strong>official monthly full</strong> is published once a month, lined up with ClinVar's monthly VCV release. When ClinVar posts <code>ClinVarVCVRelease_YYYY-MM.xml.gz</code> at its <a href="https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/">XML index</a> (early in month <code>YYYY-MM</code>), our <code>clinvar-gkm_YYYY-MM</code> full is built from the most recent weekly release <strong>before</strong> ClinVar's monthly cut datetime — so e.g. the <code>2026-07</code> monthly comes from the <code>2026-06-27</code> release. That release is published as the monthly's <code>source_release</code> in <code>index.json</code>. The upload writes <code>clinvar-gkm_YYYY-MM.json.gz</code> and refreshes the <code>clinvar-gkm_00-latest.json.gz</code> pointer. Each delta manifest's <code>checkpoint_full</code> names the official monthly that precedes the delta.</p>
 <p>Every bundle has a <code>.sha256</code> checksum sidecar. From 1.1.0, a monthly or delta file is never rewritten; see the exceptions below.</p>
 <h2 id="month-and-year-rollover">Month and Year Rollover<a class="headerlink" href="#month-and-year-rollover" title="Permanent link">&para;</a></h2>
@@ -6331,9 +6331,11 @@
 </table>
 <p>A move changes a file's folder, never its bytes, name or checksum. Deleting the weekly fulls is the one deliberate exception to "published bundles are never removed": every deleted week can be rebuilt exactly from a monthly plus deltas (<a href="../weekly-deltas/#rebuild-a-past-week">Rebuild a past week</a>).</p>
 <h2 id="parquet">Parquet<a class="headerlink" href="#parquet" title="Permanent link">&para;</a></h2>
-<p><strong>Parquet is derived from the bundle.</strong> One Parquet dataset is published, at <code>v1/1.1/parquet/</code>, rebuilt from the newest weekly release and <strong>overwritten every release</strong>. Its <code>manifest.json</code> gives the build date, the release and dataset it was built from, the builder, the schema version, and every file's size and sha256. No Parquet is kept per month, per delta, in <code>archive/</code> or in frozen lines. Past Parquet is rebuilt from the monthly bundles with <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>clinvar-gkm-parquet</code></a>, a separate tool that is planned but not yet released. See <a href="../parquet/">Parquet Files</a>.</p>
+<p><strong>Parquet is derived from the bundle.</strong> One Parquet dataset is published, at <code>v1/1.2/parquet/</code>, rebuilt from the newest weekly release and <strong>overwritten every release</strong>. Its <code>manifest.json</code> gives the build date, the release and dataset it was built from, the builder, the schema version, and every file's size and sha256. No Parquet is kept per month, per delta, in <code>archive/</code> or in frozen lines. Past Parquet is rebuilt from the monthly bundles with <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>clinvar-gkm-parquet</code></a>, a separate tool that is planned but not yet released. See <a href="../parquet/">Parquet Files</a>.</p>
 <h2 id="version-lines">Version Lines<a class="headerlink" href="#version-lines" title="Permanent link">&para;</a></h2>
-<p>Each version line has its own folder: <code>v1/1.1/</code> for 1.1.x. A PATCH release (1.1.x) only adds new dated files to <code>v1/1.1/</code>. A new MINOR — including a content-only correction that must rewrite published bundles — starts <code>v1/1.2/</code>, and a new MAJOR starts <code>v2/2.0/</code>. The line it replaces is frozen and kept indefinitely, with its files unchanged. The 1.0.1 generation is the frozen line <code>v1/1.0/</code>, with bundles and delta manifests only (no Parquet). The root <code>index.json</code> lists every line and its status; see <a href="../../reference/versioning/">Versioning &amp; Releases</a>.</p>
+<p>Each version line has its own folder: <code>v1/1.2/</code> for 1.2.x. A PATCH release (1.2.x) only adds new dated files to <code>v1/1.2/</code>. A new MINOR — including a content-only correction that must rewrite published bundles — starts <code>v1/1.3/</code>, and a new MAJOR starts <code>v2/2.0/</code>.</p>
+<p>A new line starts with one <strong>checkpoint monthly</strong>: the first full built with the new schema, published as the official monthly of the ClinVar monthly it is the source of (ADR 0002). Its deltas run forward from it; the first delta's <code>baseline_release</code> is the checkpoint's <code>source_release</code>. Earlier releases are not republished into the new line. 1.2.0 started <code>v1/1.2/</code> this way.</p>
+<p>The line it replaces is <strong>frozen</strong> and kept indefinitely: its monthlies, <code>00-latest</code> copy, deltas and archive stay unchanged at their paths, and it gains a <code>MANIFEST.json</code> (every file's size and sha256) and a <code>README.txt</code>. Its weekly fulls and its Parquet set are deleted at the freeze, because neither is a record: any week is rebuilt from a monthly plus deltas, and Parquet is rebuilt from a bundle. <code>v1/1.1/</code> (schema 1.1.0, the 1.1.x releases) is frozen with <code>superseded_by: "v1/1.2"</code>; the 1.0.1 generation is the frozen line <code>v1/1.0/</code>, with bundles and delta manifests only. The root <code>index.json</code> lists every line and its status; see <a href="../../reference/versioning/">Versioning &amp; Releases</a>.</p>
 
 
 

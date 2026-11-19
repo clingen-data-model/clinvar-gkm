@@ -205,7 +205,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -530,7 +530,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -6343,8 +6343,8 @@
 <h1 id="clinvar-gkm">ClinVar-GKM<a class="headerlink" href="#clinvar-gkm" title="Permanent link">&para;</a></h1>
 <p>ClinVar-GKM provides a standardized, machine-readable representation of <a href="https://www.ncbi.nlm.nih.gov/clinvar/">ClinVar</a> release data using the <strong>GKM (Genomic Knowledge Model)</strong> schema set — VRS, Cat-VRS, and VA-Spec — from the GA4GH <a href="https://www.ga4gh.org/genomic-knowledge-standards/">Genomic Knowledge Standards</a> workstream. It is developed and maintained by the <a href="https://clinicalgenome.org/">ClinGen</a> driver project.</p>
 <div class="admonition warning">
-<p class="admonition-title">1.1.0 moved every download URL</p>
-<p>1.1.0 (released 2026-10-22) moved every download URL to <code>v1/1.1/</code> and renamed the proposition sections — see the <a href="reference/changelog/#110">changelog migration notes</a>.</p>
+<p class="admonition-title">1.2.0 starts a new version line, <code>v1/1.2/</code></p>
+<p>1.2.0 publishes into a new line folder, <code>v1/1.2/</code>, starting with one checkpoint monthly. The 1.1.x releases stay, unchanged, in the frozen line <code>v1/1.1/</code>. Change <code>v1/1.1/</code> to <code>v1/1.2/</code> in your scripts — see <a href="data-access/release-model/#version-lines">Version Lines</a> and the <a href="reference/changelog/">changelog</a>.</p>
 </div>
 <div class="admonition info">
 <p class="admonition-title">New here?</p>
@@ -6425,7 +6425,7 @@
 <h3 id="download-the-latest-release">Download the Latest Release<a class="headerlink" href="#download-the-latest-release" title="Permanent link">&para;</a></h3>
 <p>The latest ClinVar-GKM release is available as a single compressed JSON file:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Download the newest official monthly release</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Decompress</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>gunzip<span class="w"> </span>clinvar-gkm_00-latest.json.gz
@@ -6494,12 +6494,12 @@
 <p>The stable filenames <code>clinvar-gkm_00-latest.json.gz</code> (official monthly) and <code>weekly/clinvar-gkm_00-latest_weekly.json.gz</code> (weekly full) always point to the newest of each. Any past week can be rebuilt from a monthly plus the deltas after it.</p>
 <h3 id="downloads">Downloads<a class="headerlink" href="#downloads" title="Permanent link">&para;</a></h3>
 <p>Download the newest official monthly and the newest weekly full:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
 </code></pre></div>
 <p>See <a href="data-access/release-model/">How Releases Work</a> for the release model, and <a href="data-access/weekly-deltas/">Weekly Deltas</a> for the deltas and the replay recipe.</p>
 <h3 id="directory-structure">Directory Structure<a class="headerlink" href="#directory-structure" title="Permanent link">&para;</a></h3>
-<p>All paths are under the current line folder, <code>v1/1.1/</code>:</p>
+<p>All paths are under the current line folder, <code>v1/1.2/</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>clinvar-gkm_00-latest.json.gz                newest official monthly full
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>clinvar-gkm_yyyy-mm.json.gz                  official monthly fulls (current year)
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>

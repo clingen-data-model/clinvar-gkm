@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -532,7 +532,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -6160,8 +6160,9 @@
 
 <h1 id="monthly-full-bundles">Monthly Full Bundles<a class="headerlink" href="#monthly-full-bundles" title="Permanent link">&para;</a></h1>
 <p>Links: <a href="../weekly-full/">Weekly Full Bundles</a> · <a href="../weekly-deltas/">Weekly Deltas</a> · <a href="../parquet/">Parquet Files</a> · <a href="../release-model/">How Releases Work</a></p>
-<p>The official monthly full bundle is a gzip-compressed JSON file containing every variation, statement, proposition, condition, and supporting reference record for a release. It lines up with ClinVar's monthly <code>ClinVarVCVRelease_YYYY-MM</code>: <code>clinvar-gkm_YYYY-MM</code> is built from the newest weekly release <strong>before</strong> ClinVar's monthly cut, and the line's <code>index.json</code> names that release as the monthly's <code>source_release</code>. For example, the <code>2026-10</code> monthly has <code>source_release</code> <code>2026-09-28</code>.</p>
-<p>The monthlies of the current year sit at the top of the line folder, <code>v1/1.1/</code>; <code>clinvar-gkm_00-latest.json.gz</code> is a stable URL for the newest one. When the first release of a new year is published, the finished year's monthlies move to <code>v1/1.1/archive/YYYY/</code>, where they are kept. Monthlies and deltas are the durable record: every past week can be rebuilt from them (<a href="../weekly-deltas/#rebuild-a-past-week">Rebuild a past week</a>).</p>
+<p>The official monthly full bundle is a gzip-compressed JSON file containing every variation, statement, proposition, condition, and supporting reference record for a release. It lines up with ClinVar's monthly <code>ClinVarVCVRelease_YYYY-MM</code>: <code>clinvar-gkm_YYYY-MM</code> is built from the newest weekly release <strong>before</strong> ClinVar's monthly cut, and the line's <code>index.json</code> names that release as the monthly's <code>source_release</code>. For example, the <code>2026-11</code> monthly has <code>source_release</code> <code>2026-10-31</code>.</p>
+<p>The monthlies of the current year sit at the top of the line folder, <code>v1/1.2/</code>; <code>clinvar-gkm_00-latest.json.gz</code> is a stable URL for the newest one. When the first release of a new year is published, the finished year's monthlies move to <code>v1/1.2/archive/YYYY/</code>, where they are kept. Monthlies and deltas are the durable record: every past week can be rebuilt from them (<a href="../weekly-deltas/#rebuild-a-past-week">Rebuild a past week</a>).</p>
+<p>The 1.2 line starts with one <strong>checkpoint monthly</strong>, the first 1.2.0 full (<code>2026-11</code>), and adds a monthly for every ClinVar monthly after it. The monthlies before it (<code>2026-07</code> to <code>2026-10</code>, schema 1.1.0) stay in the frozen line <code>v1/1.1/</code>, unchanged; see <a href="../release-model/#version-lines">Version Lines</a>.</p>
 <div class="r2-browser" data-r2-type="monthly"></div>
 
 <div class="admonition note">
@@ -6171,12 +6172,12 @@
 <details class="example">
 <summary>Download a monthly full with curl</summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Newest official monthly full (stable URL)</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Or a specific month of the current year, with its checksum</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_2026-10.json.gz
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_2026-10.json.gz.sha256
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>sha256sum<span class="w"> </span>-c<span class="w"> </span>clinvar-gkm_2026-10.json.gz.sha256<span class="w">      </span><span class="c1"># macOS: shasum -a 256 -c</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_2026-11.json.gz
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_2026-11.json.gz.sha256
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>sha256sum<span class="w"> </span>-c<span class="w"> </span>clinvar-gkm_2026-11.json.gz.sha256<span class="w">      </span><span class="c1"># macOS: shasum -a 256 -c</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="c1"># Decompress</span>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>gunzip<span class="w"> </span>clinvar-gkm_00-latest.json.gz
@@ -6186,7 +6187,7 @@
 <summary>Download a monthly full with Python</summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">BASE</span> <span class="o">=</span> <span class="s2">"https://data.clinvar-gkm.org/v1/1.1"</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">BASE</span> <span class="o">=</span> <span class="s2">"https://data.clinvar-gkm.org/v1/1.2"</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># Download the newest official monthly full bundle</span>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span>
@@ -6196,8 +6197,8 @@
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1"># Download a specific monthly of the current year</span>
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">BASE</span><span class="si">}</span><span class="s2">/clinvar-gkm_2026-10.json.gz"</span><span class="p">,</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="s2">"clinvar-gkm_2026-10.json.gz"</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">BASE</span><span class="si">}</span><span class="s2">/clinvar-gkm_2026-11.json.gz"</span><span class="p">,</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="s2">"clinvar-gkm_2026-11.json.gz"</span>
 <a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="p">)</span>
 <a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
 <a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="c1"># A prior year's monthly is under archive/YYYY/ (2026's monthlies move there when the first</span>

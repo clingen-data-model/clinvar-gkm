@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -532,7 +532,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -6653,7 +6653,7 @@ assembler, so an unchanged record has the same bytes in every release:</p>
 <p><code>release-gkm.sh</code> then validates every record of the assembled full bundle with <code>validate-bundle.sh --engine rs</code> and stops before upload if any fails (see <a href="#step-5-publish-the-weekly-delta">Strict validation stops the release</a>).</p>
 <h3 id="step-3-rebuild-the-latest-parquet">Step 3: Rebuild the Latest Parquet<a class="headerlink" href="#step-3-rebuild-the-latest-parquet" title="Permanent link">&para;</a></h3>
 <p>Parquet is derived from the bundle and regenerated each release; one dataset is published, at
-<code>v1/1.1/parquet/</code>, and overwritten every release (ADR 0009).
+<code>v1/1.2/parquet/</code>, and overwritten every release (ADR 0009).
 <code>release-gkm-parquet.sh</code> builds it from a dataset (<code>run-release.sh</code> runs it on every release, after the weekly
 delta):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>./src/scripts/release-gkm-parquet.sh<span class="w"> </span>&lt;export_date&gt;<span class="w"> </span>&lt;dataset_version&gt;<span class="w"> </span><span class="o">[</span>--start-step<span class="o">=</span>N<span class="o">]</span><span class="w"> </span><span class="o">[</span>--dry-run<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-upload<span class="o">]</span><span class="w"> </span><span class="o">[</span>--purge<span class="o">]</span>
@@ -6686,7 +6686,7 @@ delta):</p>
 <a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># Preview without uploading</span>
 <a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>./src/scripts/upload-gkm-to-r2.sh<span class="w"> </span><span class="m">2026</span>-10-18<span class="w"> </span>v2_6_0<span class="w"> </span>/tmp/clinvar-gkm-2026-10-18.json.gz<span class="w"> </span>--weekly<span class="w"> </span>--dry-run
 </code></pre></div>
-<p>The R2 layout mirrors NCBI's ClinVar XML folder (ADR 0009). Under the line folder <code>v1/1.1/</code>:</p>
+<p>The R2 layout mirrors NCBI's ClinVar XML folder (ADR 0009). Under the line folder <code>v1/1.2/</code>:</p>
 <ul>
 <li><strong>top level</strong> — official monthly fulls for the current year (<code>clinvar-gkm_yyyy-mm.json.gz</code>) plus a stable <code>clinvar-gkm_00-latest.json.gz</code>, each with a <code>.sha256</code> sidecar</li>
 <li><strong><code>weekly/</code></strong> — a weekly full bundle for every release of the current month (<code>clinvar-gkm_yyyy-mmdd.json.gz</code>) plus a stable <code>clinvar-gkm_00-latest_weekly.json.gz</code></li>

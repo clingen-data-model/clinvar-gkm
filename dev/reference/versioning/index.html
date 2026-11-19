@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -532,7 +532,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -5882,6 +5882,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#120-a-new-minor-line" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.2.0: a new MINOR line
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#how-breaking-changes-roll-out" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6310,6 +6321,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#120-a-new-minor-line" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.2.0: a new MINOR line
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#how-breaking-changes-roll-out" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6449,6 +6471,19 @@ with 1.1.0:</p>
 <li><strong>Every later breaking change opens a new MAJOR line</strong> (<code>v2/2.0/</code>), with the RFC process below.</li>
 </ul>
 <p>See the <a href="../changelog/#110">1.1.0 changelog</a> for the migration notes.</p>
+<h2 id="120-a-new-minor-line">1.2.0: a new MINOR line<a class="headerlink" href="#120-a-new-minor-line" title="Permanent link">&para;</a></h2>
+<p>1.2.0 narrows the ClinVar profiles to exactly what the pipeline writes, a MINOR change. It is published into a
+new line folder, <code>v1/1.2/</code>, and <code>v1/1.1/</code> is frozen with <code>"superseded_by": "v1/1.2"</code>:</p>
+<ul>
+<li><strong>The new line starts with a checkpoint.</strong> <code>v1/1.2/</code> begins with one monthly full built with the 1.2.0
+  pipeline, the official monthly of the ClinVar month it is the source of (ADR 0002). Weekly fulls and deltas
+  run forward from it, so the first delta's <code>baseline_release</code> is the checkpoint's <code>source_release</code>. Earlier
+  releases are not republished into the new line; they stay in <code>v1/1.1/</code> as 1.1.0.</li>
+<li><strong>The frozen line keeps its records.</strong> <code>v1/1.1/</code> keeps its monthlies, <code>00-latest</code> copy and deltas, unchanged,
+  and gains a <code>MANIFEST.json</code> and a <code>README.txt</code>. Its weekly fulls and its Parquet set are deleted at the
+  freeze: neither is a record (<a href="../../decisions/0008-bundles-are-the-public-record/">ADR 0008</a> (e),
+  <a href="../../decisions/0009-r2-layout-mirrors-ncbi-clinvar/">ADR 0009</a> §4).</li>
+</ul>
 <h2 id="how-breaking-changes-roll-out">How breaking changes roll out<a class="headerlink" href="#how-breaking-changes-roll-out" title="Permanent link">&para;</a></h2>
 <p>A breaking (<strong>MAJOR</strong>) change opens a new line folder, <code>v2/2.0/</code>, built in full — every monthly full and delta
 in the published window — alongside <code>v1/</code>. At the switch-over:</p>
@@ -6461,7 +6496,8 @@ in the published window — alongside <code>v1/</code>. At the switch-over:</p>
   <code>README.txt</code> saying what replaced it and why.</li>
 </ul>
 <p>Only one line is <code>current</code> at a time; frozen lines accumulate. A new MINOR line (for example <code>v1/1.2/</code>)
-freezes the line it replaces in the same way.</p>
+freezes the line it replaces in the same way, but starts from a checkpoint monthly instead of a full
+republish (see <a href="#120-a-new-minor-line">1.2.0</a>), and the frozen line drops its weekly fulls and Parquet.</p>
 <div class="admonition info">
 <p class="admonition-title">The published schema always matches the data</p>
 <p>The schema in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/main/schema/clinvar-gkm"><code>schema/clinvar-gkm/</code></a>
@@ -6470,25 +6506,27 @@ given release's data always validates against its stated schema version, and the
 validated against it.</p>
 </div>
 <h2 id="finding-and-pinning-a-version">Finding and pinning a version<a class="headerlink" href="#finding-and-pinning-a-version" title="Permanent link">&para;</a></h2>
-<p>Each version line lives in its own folder, <code>v{major}/{major}.{minor}/</code> (<code>v1/1.1/</code>, later <code>v2/2.0/</code>), with its
+<p>Each version line lives in its own folder, <code>v{major}/{major}.{minor}/</code> (<code>v1/1.2/</code>, later <code>v2/2.0/</code>), with its
 own <code>index.json</code>. PATCH releases add new dated files to their line's folder; a new MINOR or MAJOR starts a new
-folder, and the line it replaces is frozen and kept indefinitely, its files unchanged (the 1.0.1 generation is
-the frozen line <code>v1/1.0/</code>). Inside
+folder, and the line it replaces is frozen and kept indefinitely, its records unchanged (the 1.1.x releases are
+the frozen line <code>v1/1.1/</code>, the 1.0.1 generation <code>v1/1.0/</code>). Inside
 a line the layout mirrors NCBI's ClinVar FTP site; see <a href="../../data-access/download/#directory-structure">Downloads</a>.
 A small <strong>root manifest</strong> at the bucket root, <code>index.json</code>, lists every line, its status and schema version,
-and where its own <code>index.json</code> and feed are. Its shape, as published for 1.1.0:</p>
+and where its own <code>index.json</code> and feed are. Its shape, as published for 1.2.0:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">"manifest_version"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-21T00:00:00Z"</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-11-30T00:00:00Z"</span><span class="p">,</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">"base_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org"</span><span class="p">,</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">"current"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.1"</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">"current"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.2"</span><span class="p">,</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">"versions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">"1.1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"line"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.1"</span><span class="p">,</span><span class="w"> </span><span class="nt">"major"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"minor"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"current"</span><span class="p">,</span><span class="w"> </span><span class="nt">"schema"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.1.0"</span><span class="p">,</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">            </span><span class="nt">"superseded_by"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.1/index.json"</span><span class="p">,</span><span class="w"> </span><span class="nt">"feed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.1/feed.xml"</span><span class="p">},</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">"1.0"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"line"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.0"</span><span class="p">,</span><span class="w"> </span><span class="nt">"major"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"minor"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"frozen"</span><span class="p">,</span><span class="w"> </span><span class="nt">"schema"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.0.1"</span><span class="p">,</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">            </span><span class="nt">"superseded_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.1"</span><span class="p">,</span><span class="w"> </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.0/index.json"</span><span class="p">,</span><span class="w"> </span><span class="nt">"feed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.0/feed.xml"</span><span class="p">}</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">}</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">"1.2"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"line"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.2"</span><span class="p">,</span><span class="w"> </span><span class="nt">"major"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"minor"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"current"</span><span class="p">,</span><span class="w"> </span><span class="nt">"schema"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.2.0"</span><span class="p">,</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">            </span><span class="nt">"superseded_by"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.2/index.json"</span><span class="p">,</span><span class="w"> </span><span class="nt">"feed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.2/feed.xml"</span><span class="p">},</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">"1.1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"line"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.1"</span><span class="p">,</span><span class="w"> </span><span class="nt">"major"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"minor"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"frozen"</span><span class="p">,</span><span class="w"> </span><span class="nt">"schema"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.1.0"</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">            </span><span class="nt">"superseded_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.2"</span><span class="p">,</span><span class="w"> </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.1/index.json"</span><span class="p">,</span><span class="w"> </span><span class="nt">"feed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.1/feed.xml"</span><span class="p">},</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="nt">"1.0"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"line"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.0"</span><span class="p">,</span><span class="w"> </span><span class="nt">"major"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"minor"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"frozen"</span><span class="p">,</span><span class="w"> </span><span class="nt">"schema"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.0.1"</span><span class="p">,</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">            </span><span class="nt">"superseded_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.1"</span><span class="p">,</span><span class="w"> </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.0/index.json"</span><span class="p">,</span><span class="w"> </span><span class="nt">"feed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/1.0/feed.xml"</span><span class="p">}</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="p">}</span>
 </code></pre></div>
 <p><code>versions</code> is keyed by <code>{major}.{minor}</code>; paths are relative to <code>base_url</code>. A line is <code>current</code> or <code>frozen</code>;
 there is no <code>eol</code> field.</p>
@@ -6531,7 +6569,7 @@ include it: <code>…/clinvar-gkm/1.1/reference/changelog/</code>. The decision 
 <ul>
 <li><strong>Watch the GitHub repository</strong> (Custom → Releases &amp; Discussions) for release announcements and change
   proposals.</li>
-<li><strong>Subscribe to the release feed</strong> (Atom, each line's <code>feed.xml</code>, e.g. <code>https://data.clinvar-gkm.org/v1/1.1/feed.xml</code>) in any feed reader.</li>
+<li><strong>Subscribe to the release feed</strong> (Atom, each line's <code>feed.xml</code>, e.g. <code>https://data.clinvar-gkm.org/v1/1.2/feed.xml</code>) in any feed reader.</li>
 <li><strong>Join the email list</strong> <a href="https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm">clinvar-gkm@broadinstitute.org</a>, a Google Group for release announcements, change notices and RFCs about
   the repository, the data releases, tools and documentation. No GitHub account needed; see
   <a href="../../stay-informed/">Stay Informed</a> for how to join.</li>

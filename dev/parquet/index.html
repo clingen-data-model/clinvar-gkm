@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -534,7 +534,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -6237,7 +6237,7 @@
 </div>
 <p>ClinVar-GKM publishes all of ClinVar as <strong>Parquet</strong> — 22 typed tables you query with SQL, with no database server and no data-loading step. This page gets a real answer from real ClinVar data in about five minutes: no joins, no genomics background, and — to begin — nothing to install.</p>
 <h2 id="run-a-query-now">Run a query now<a class="headerlink" href="#run-a-query-now" title="Permanent link">&para;</a></h2>
-<p>The console below runs SQL <strong>in your browser</strong>, directly against the published data at <code>data.clinvar-gkm.org</code>. It reads the one published Parquet dataset, <code>v1/1.1/parquet/</code>, overwritten every release; the <strong>Release</strong> label shows the release it was built from. Pick an example from the dropdown and press <strong>Run</strong>. The first query loads the engine (a few seconds, once); everything after is immediate. A query still running after 10 seconds is stopped, and the console shows the commands to download the tables it reads and run the same query on your machine.</p>
+<p>The console below runs SQL <strong>in your browser</strong>, directly against the published data at <code>data.clinvar-gkm.org</code>. It reads the one published Parquet dataset, <code>v1/1.2/parquet/</code>, overwritten every release; the <strong>Release</strong> label shows the release it was built from. Pick an example from the dropdown and press <strong>Run</strong>. The first query loads the engine (a few seconds, once); everything after is immediate. A query still running after 10 seconds is stopped, and the console shows the commands to download the tables it reads and run the same query on your machine.</p>
 <iframe src="../assets/duckdb-console.html" style="width:100%; height:640px; border:1px solid rgba(128,128,128,.25); border-radius:8px;" title="ClinVar-GKM live query console" loading="lazy"></iframe>
 
 <p>The first example counts every <strong>condition</strong> in ClinVar: <strong>23,414</strong>. <code>condition.parquet</code> is the right table to start with — about 5 MB, one row per condition, and a plain-English <code>name</code> column, with none of the variant identifiers or nested structures the larger tables carry.</p>
@@ -6258,7 +6258,7 @@
 <hr />
 <h2 id="put-the-file-on-your-machine">Put the file on your machine<a class="headerlink" href="#put-the-file-on-your-machine" title="Permanent link">&para;</a></h2>
 <p>To go past the browser console — larger queries, your own scripts, repeated work — download the file and query it with <a href="https://duckdb.org/docs/installation/">DuckDB</a>, a single self-contained binary.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">BASE</span><span class="o">=</span><span class="s2">"https://data.clinvar-gkm.org/v1/1.1/parquet"</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">BASE</span><span class="o">=</span><span class="s2">"https://data.clinvar-gkm.org/v1/1.2/parquet"</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-O<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/condition.parquet"</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>duckdb<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT id, name FROM 'condition.parquet' WHERE name ILIKE '%marfan%'"</span>

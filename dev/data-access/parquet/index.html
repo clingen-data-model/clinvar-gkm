@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -532,7 +532,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -6381,10 +6381,10 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">The current set is not being rebuilt</p>
-<p>The published set is still the one exported from BigQuery for the <strong>2026-10-24</strong> release (its <code>manifest.json</code> gives <code>builder: "BigQuery export"</code> and <code>source_release: "2026-10-24"</code>). Releases since then don't rebuild it, so it lags the bundles. It will be replaced by the default set that the <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>gkm-bundle-parquet</code></a> tool (2.0.0, not yet released) builds from the bundle, starting with ClinVar-GKM schema 1.2.0. From then on Parquet is built only from the bundle, never from BigQuery. For data newer than 2026-10-24, use the <a href="../weekly-full/">weekly full bundles</a>.</p>
+<p>The last published set is the one exported from BigQuery for the <strong>2026-10-24</strong> release, in the 1.1 line at <code>v1/1.1/parquet/</code> (its <code>manifest.json</code> gives <code>builder: "BigQuery export"</code> and <code>source_release: "2026-10-24"</code>). It lags the bundles, and it is deleted when <code>v1/1.1/</code> is frozen: a frozen line keeps no Parquet. The 1.2 line's set, at <code>v1/1.2/parquet/</code>, is the default set that the <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>gkm-bundle-parquet</code></a> tool (2.0.0, not yet released) builds from the 1.2.0 bundles; until it is published, <code>v1/1.2/parquet/</code> is empty. From then on Parquet is built only from the bundle, never from BigQuery. For data newer than 2026-10-24, use the <a href="../weekly-full/">weekly full bundles</a>.</p>
 </div>
-<p>The dataset lives at one stable path, <code>v1/1.1/parquet/</code>, one file per section, with a <code>manifest.json</code> beside it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>v1/1.1/parquet/
+<p>The dataset lives at one stable path, <code>v1/1.2/parquet/</code>, one file per section, with a <code>manifest.json</code> beside it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>v1/1.2/parquet/
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  {section}.parquet      22 files, one per bundle section
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  manifest.json          build date, source release and dataset, builder, schema version, each file's size and sha256,
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                         and the ClinVar source, attribution, disclaimer and license scope
@@ -6505,7 +6505,7 @@
 <details class="example">
 <summary>Download sections with curl</summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># The one published Parquet dataset, overwritten every release; manifest.json names its release.</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">BASE</span><span class="o">=</span><span class="s2">"https://data.clinvar-gkm.org/v1/1.1/parquet"</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">BASE</span><span class="o">=</span><span class="s2">"https://data.clinvar-gkm.org/v1/1.2/parquet"</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>clinvar-gkm-parquet<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>clinvar-gkm-parquet
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>curl<span class="w"> </span>-O<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/manifest.json"</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>

@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -534,7 +534,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -7469,7 +7469,7 @@
 <li><strong><a href="#therapy"><code>therapy</code></a></strong> and <strong><a href="#therapyGroup"><code>therapyGroup</code></a></strong> name the id column <code>key</code> and hold the JSON object in <code>value</code>, not <code>id</code> and <code>data</code>. From 1.1.0 they also have typed columns (<code>name</code>, <code>members</code>, …). On earlier releases, read a therapy's name with <code>value-&gt;&gt;'name'</code>.</li>
 </ul>
 <h2 id="reading-a-table-remotely">Reading a table remotely<a class="headerlink" href="#reading-a-table-remotely" title="Permanent link">&para;</a></h2>
-<p>Every table can be queried straight from <code>https://data.clinvar-gkm.org/v1/1.1/parquet/&lt;table&gt;.parquet</code>, without downloading it. How well that works depends on what you ask:</p>
+<p>Every table can be queried straight from <code>https://data.clinvar-gkm.org/v1/1.2/parquet/&lt;table&gt;.parquet</code>, without downloading it. How well that works depends on what you ask:</p>
 <ul>
 <li><strong>Cheap on any table:</strong> <code>DESCRIBE</code>, <code>count(*)</code>, and <code>LIMIT</code> reads. These touch only the file's footer or its first chunk, so they return in under a second even on the 3.2 GB <code>scv.parquet</code>.</li>
 <li><strong>Fine on small tables:</strong> full scans of anything up to tens of megabytes (<code>condition</code>, <code>gene</code>, <code>submitter</code>, <code>therapy</code>, the somatic propositions).</li>

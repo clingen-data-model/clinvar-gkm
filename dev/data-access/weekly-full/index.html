@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -532,7 +532,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -6160,8 +6160,8 @@
 
 <h1 id="weekly-full-bundles">Weekly Full Bundles<a class="headerlink" href="#weekly-full-bundles" title="Permanent link">&para;</a></h1>
 <p>Links: <a href="../monthly-full/">Monthly Full Bundles</a> · <a href="../weekly-deltas/">Weekly Deltas</a> · <a href="../parquet/">Parquet Files</a> · <a href="../release-model/">How Releases Work</a></p>
-<p>A weekly full bundle is published for every ClinVar weekly release. It has the same content and structure as a monthly full, built from that week's release, so the newest one is the current state with no replay. The weekly fulls live in <code>v1/1.1/weekly/</code>, the counterpart of NCBI's <a href="https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/weekly_release/"><code>xml/weekly_release/</code></a>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>v1/1.1/weekly/
+<p>A weekly full bundle is published for every ClinVar weekly release. It has the same content and structure as a monthly full, built from that week's release, so the newest one is the current state with no replay. The weekly fulls live in <code>v1/1.2/weekly/</code>, the counterpart of NCBI's <a href="https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/weekly_release/"><code>xml/weekly_release/</code></a>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>v1/1.2/weekly/
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  clinvar-gkm_00-latest_weekly.json.gz        newest weekly full (stable URL)
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  clinvar-gkm_YYYY-MMDD.json.gz               one per weekly release of the CURRENT month
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  clinvar-gkm_YYYY-MMDD.json.gz.sha256
@@ -6175,12 +6175,14 @@
 <details class="example">
 <summary>Download a weekly full with curl</summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Newest weekly full (stable URL)</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Or a specific week of the current month, with its checksum</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_2026-1018.json.gz
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_2026-1018.json.gz.sha256
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>sha256sum<span class="w"> </span>-c<span class="w"> </span>clinvar-gkm_2026-1018.json.gz.sha256<span class="w">      </span><span class="c1"># macOS: shasum -a 256 -c</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># (the dates of the current month's weekly fulls are in index.json)</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="nv">D</span><span class="o">=</span><span class="s2">"2026-1206"</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>curl<span class="w"> </span>-O<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_</span><span class="si">${</span><span class="nv">D</span><span class="si">}</span><span class="s2">.json.gz"</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>curl<span class="w"> </span>-O<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_</span><span class="si">${</span><span class="nv">D</span><span class="si">}</span><span class="s2">.json.gz.sha256"</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>sha256sum<span class="w"> </span>-c<span class="w"> </span><span class="s2">"clinvar-gkm_</span><span class="si">${</span><span class="nv">D</span><span class="si">}</span><span class="s2">.json.gz.sha256"</span><span class="w">      </span><span class="c1"># macOS: shasum -a 256 -c</span>
 </code></pre></div>
 </details>
 <div class="admonition tip">

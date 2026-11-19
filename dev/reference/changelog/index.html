@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -532,7 +532,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -6518,9 +6518,22 @@ explains the profiles and their rules, and each class page lists what its profil
   (<code>https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json</code>); a 1.1.0 bundle keeps
   validating against 1.1.0. If you write your own records to these schemas, a property, value, pointer or key
   form that 1.1.0 accepted but the pipeline never writes now fails.</li>
-<li><strong>A new line folder.</strong> As a MINOR, 1.2.0 is published into <code>v1/1.2/</code>; <code>v1/1.1/</code> is then frozen and kept,
-  its files unchanged (<a href="../../decisions/0009-r2-layout-mirrors-ncbi-clinvar/">ADR 0009</a>). The Parquet set is
-  built by <code>gkm-bundle-parquet</code> 2.0.0.</li>
+<li><strong>A new line folder, <code>v1/1.2/</code>.</strong> As a MINOR, 1.2.0 is published into <code>v1/1.2/</code>
+  (<a href="../../decisions/0009-r2-layout-mirrors-ncbi-clinvar/">ADR 0009</a>). Change <code>v1/1.1/</code> to <code>v1/1.2/</code> in your
+  download URLs, or follow the root <code>index.json</code>, whose <code>current</code> names the line. The new line starts with
+  one <strong>checkpoint monthly</strong>, the first 1.2.0 full, published as the official monthly of the ClinVar month it
+  is the source of; its weekly fulls and deltas run forward from it, and the first delta's <code>baseline_release</code>
+  is that monthly's <code>source_release</code>. Earlier releases are not republished as 1.2.0.</li>
+<li><strong><code>v1/1.1/</code> is frozen.</strong> Its monthlies, <code>00-latest</code> copy and deltas stay at their paths with their bytes,
+  and it gains a <code>MANIFEST.json</code> (size and sha256 of every bundle and delta manifest) and a <code>README.txt</code>. Its
+  weekly fulls and its Parquet set are deleted at the freeze: rebuild a 1.1 week from a monthly plus the deltas
+  (<a href="../../data-access/weekly-deltas/#rebuild-a-past-week">Rebuild a past week</a>). The root <code>index.json</code> and
+  <code>v1/1.1/index.json</code> give it <code>"status": "frozen"</code> and <code>"superseded_by": "v1/1.2"</code>. The 1.2 Parquet set, at
+  <code>v1/1.2/parquet/</code>, is built from the bundle by <code>gkm-bundle-parquet</code> 2.0.0.</li>
+<li><strong>Release tooling.</strong> <code>run-release.sh --bootstrap-monthly=YYYY-MM</code> starts an empty line with its checkpoint
+  monthly, after checking that the release is ClinVar's YYYY-MM monthly source (ADR 0002); a normal release
+  into a line without a monthly is refused, and so is a first delta that does not start at the line's
+  checkpoint. <code>r2-freeze-line.sh</code> freezes a superseded line (dry run by default).</li>
 </ul>
 <h3 id="120-vcv-and-rcv-classifications-carry-a-coding">1.2.0: VCV and RCV classifications carry a coding<a class="headerlink" href="#120-vcv-and-rcv-classifications-carry-a-coding" title="Permanent link">&para;</a></h3>
 <p>Every VCV and RCV statement's <code>classification</code> gains a <code>primaryCoding</code> (<code>code</code> and <code>system</code>), as SCV

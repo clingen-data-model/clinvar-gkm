@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -532,7 +532,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (2a34b7e)</li>
+        <li class="md-source__fact md-source__fact--version">main (e072d0a)</li>
       </ul>
     </div>
   </a>
@@ -6350,8 +6350,8 @@
 <h1 id="downloads">Downloads<a class="headerlink" href="#downloads" title="Permanent link">&para;</a></h1>
 <p>ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas (JSON), with one typed Parquet dataset of the latest release, free from Cloudflare R2 — no authentication, no egress fees. The layout follows NCBI's ClinVar FTP site. New here? See <a href="../release-model/">How Releases Work</a>.</p>
 <div class="admonition warning">
-<p class="admonition-title">1.1.0 moved every download URL</p>
-<p>1.1.0 (released 2026-10-22) moved every download URL to <code>v1/1.1/</code> and renamed the proposition sections — see the <a href="../../reference/changelog/#110">changelog migration notes</a>.</p>
+<p class="admonition-title">1.2.0 starts a new version line, <code>v1/1.2/</code></p>
+<p>1.2.0 publishes into a new line folder, <code>v1/1.2/</code>, which starts with one checkpoint monthly and adds deltas from there. The 1.1.x releases stay, unchanged, in the frozen line <code>v1/1.1/</code> (monthlies, deltas and archive; its weekly fulls and Parquet set are removed at the freeze). Change <code>v1/1.1/</code> to <code>v1/1.2/</code> in your scripts, or read the current line from the root <code>index.json</code>. See <a href="../release-model/#version-lines">Version Lines</a> and the <a href="../../reference/changelog/">changelog</a>.</p>
 </div>
 <div class="admonition info">
 <p class="admonition-title">Before you use or share the data</p>
@@ -6361,16 +6361,16 @@
 <h2 id="latest-release">Latest Release<a class="headerlink" href="#latest-release" title="Permanent link">&para;</a></h2>
 <div class="admonition tip">
 <p class="admonition-title">Monthly full or weekly full?</p>
-<p><code>clinvar-gkm_00-latest.json.gz</code> is the newest <strong>official monthly</strong>: it reflects the <strong>last release of the <em>previous</em> month</strong> — e.g. the <code>2026-10</code> monthly is built from the <code>2026-09-28</code> release, the last one before ClinVar's October monthly cut. For the <strong>current week</strong>, download <code>weekly/clinvar-gkm_00-latest_weekly.json.gz</code>, a full bundle of the newest release. See <a href="../weekly-full/">Weekly Full Bundles</a>.</p>
+<p><code>clinvar-gkm_00-latest.json.gz</code> is the newest <strong>official monthly</strong>: it reflects the <strong>last release of the <em>previous</em> month</strong> — e.g. the <code>2026-11</code> monthly is built from the <code>2026-10-31</code> release, the last one before ClinVar's November monthly cut. For the <strong>current week</strong>, download <code>weekly/clinvar-gkm_00-latest_weekly.json.gz</code>, a full bundle of the newest release. See <a href="../weekly-full/">Weekly Full Bundles</a>.</p>
 </div>
 <div class="r2-browser" data-r2-type="latest"></div>
 
 <noscript>
 The interactive release table needs JavaScript. Without it, fetch the release index directly:
-<code>curl -s https://data.clinvar-gkm.org/v1/1.1/index.json | python3 -m json.tool</code>
+<code>curl -s https://data.clinvar-gkm.org/v1/1.2/index.json | python3 -m json.tool</code>
 — or grab the newest monthly and weekly fulls:
-<code>curl -O https://data.clinvar-gkm.org/v1/1.1/clinvar-gkm_00-latest.json.gz</code>
-<code>curl -O https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz</code>
+<code>curl -O https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz</code>
+<code>curl -O https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz</code>
 </noscript>
 
 <p>Browse history and archives: <a href="../monthly-full/">Monthly Full Bundles</a> · <a href="../weekly-full/">Weekly Full Bundles</a> · <a href="../weekly-deltas/">Weekly Deltas</a> · <a href="../parquet/">Parquet Files</a>.</p>
@@ -6378,11 +6378,11 @@ The interactive release table needs JavaScript. Without it, fetch the release in
 <h2 id="directory-structure">Directory Structure<a class="headerlink" href="#directory-structure" title="Permanent link">&para;</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Versioned layout</p>
-<p>The root <code>index.json</code> is a thin <strong>version manifest</strong> that lists the release lines and points to each line's index. Each line has its own folder, <code>v{major}/{major}.{minor}/</code>. The current line is <strong><code>1.1</code></strong>, served under <strong><code>v1/1.1/</code></strong>, with its release index at <code>v1/1.1/index.json</code>. PATCH releases (1.1.x) add to the same folder; a new MINOR starts <code>v1/1.2/</code> and a new MAJOR starts <code>v2/2.0/</code>. A replaced line is frozen and kept indefinitely: its files stay, unchanged. The 1.0.1 generation is the frozen line <code>v1/1.0/</code>.</p>
+<p>The root <code>index.json</code> is a thin <strong>version manifest</strong> that lists the release lines and points to each line's index. Each line has its own folder, <code>v{major}/{major}.{minor}/</code>. The current line is <strong><code>1.2</code></strong>, served under <strong><code>v1/1.2/</code></strong>, with its release index at <code>v1/1.2/index.json</code>. PATCH releases (1.2.x) add to the same folder; a new MINOR starts <code>v1/1.3/</code> and a new MAJOR starts <code>v2/2.0/</code>. A replaced line is frozen and kept indefinitely: its monthlies and deltas stay, unchanged. The 1.1.x releases are the frozen line <code>v1/1.1/</code>, and the 1.0.1 generation is the frozen line <code>v1/1.0/</code>.</p>
 </div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>index.json                                    version manifest (each line -&gt; its index)
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>v1/
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  1.1/                                        current line
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  1.2/                                        current line
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    index.json                                release index for the line
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    feed.xml                                  Atom feed of the line's releases
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    README.txt                                plain-text guide to the line
@@ -6402,7 +6402,8 @@ The interactive release table needs JavaScript. Without it, fetch the release in
 <a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    parquet/
 <a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>      {section}.parquet                       ONE Parquet dataset, the latest (derived; overwritten every release)
 <a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>      manifest.json                           build date, source release, builder, per-file sha256
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>  1.0/                                        frozen line: the 1.0.1 generation (bundles, delta manifests, MANIFEST.json; no Parquet)
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>  1.1/                                        frozen line: the 1.1.x releases (monthlies, deltas, MANIFEST.json; no weekly fulls, no Parquet)
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>  1.0/                                        frozen line: the 1.0.1 generation (bundles, delta manifests, MANIFEST.json; no Parquet)
 </code></pre></div>
 <p>Every bundle has a <code>&lt;file&gt;.sha256</code> sidecar (<code>sha256sum -c</code> format), like NCBI's <code>.md5</code> files.</p>
 <h3 id="when-files-move">When files move<a class="headerlink" href="#when-files-move" title="Permanent link">&para;</a></h3>
@@ -6417,7 +6418,7 @@ The interactive release table needs JavaScript. Without it, fetch the release in
 <thead>
 <tr>
 <th>NCBI ClinVar XML</th>
-<th>ClinVar-GKM <code>v1/1.1/</code></th>
+<th>ClinVar-GKM <code>v1/1.2/</code></th>
 </tr>
 </thead>
 <tbody>
