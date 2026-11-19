@@ -344,7 +344,7 @@
           </div>
         </div>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/" target="_blank" rel="noopener">Home</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/download/" target="_blank" rel="noopener">Downloads</a></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/" target="_blank" rel="noopener">Home</a></span> &middot; <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/download/" target="_blank" rel="noopener">Downloads</a></div>
       <aside class="snotes" hidden><ul>
         <li>Core theme of the deck: the same standardized data serves six very different audiences.</li>
         <li>CC0 + no auth + no egress = genuinely "free" to use.</li>
@@ -366,7 +366,7 @@
         <p class="cap">Most people would never download ClinVar and build a report. With typed Parquet (today) — and
           friendly no-code tools the standard makes possible — <b>they won't have to.</b></p>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/parquet/#working-with-parquet-files" target="_blank" rel="noopener">Working with Parquet</a></span></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/parquet/#working-with-parquet-files" target="_blank" rel="noopener">Working with Parquet</a></span></div>
       <aside class="snotes" hidden><ul>
         <li>Honest tag: Parquet + DuckDB is real today; a GUI for non-programmers is an opportunity, not shipped.</li>
         <li>The "match on VRS identity" step is the thing that's painful today and trivial here.</li>
@@ -398,7 +398,7 @@
         <p class="cap">Filter by <b>gene, significance, and review quality</b>, then follow the submitter-provided
           citations to the <b>PubMed</b> evidence — the kind of discovery that's impractical against raw XML.</p>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/parquet/#query" target="_blank" rel="noopener">Example Queries</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/profiles/review-status/" target="_blank" rel="noopener">Review Status</a></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/parquet/#query" target="_blank" rel="noopener">Example Queries</a></span> &middot; <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/profiles/review-status/" target="_blank" rel="noopener">Review Status</a></div>
       <aside class="snotes" hidden><ul>
         <li>Concrete, relatable scenario. Star-level filtering + citations is genuinely available via Parquet/JSON.</li>
         <li>Point: the quality filter (≥1★) matters — you can trust-rank results, then chase the literature.</li>
@@ -433,7 +433,7 @@
           </div>
         </div>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/overview/" target="_blank" rel="noopener">Output Format</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/reference/gks-standards/" target="_blank" rel="noopener">GA4GH Standards</a></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/overview/" target="_blank" rel="noopener">Output Format</a></span> &middot; <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/gks-standards/" target="_blank" rel="noopener">GA4GH Standards</a></div>
       <aside class="snotes" hidden><ul>
         <li>Lead with the pain they feel: maintaining a ClinVar XML parser is real technical debt.</li>
         <li>Shared, standard tooling means the whole community stops re-solving the same parsing problem.</li>
@@ -465,7 +465,7 @@
           </div>
         </div>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/reference/gks-standards/" target="_blank" rel="noopener">GA4GH Standards</a></span></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/gks-standards/" target="_blank" rel="noopener">GA4GH Standards</a></span></div>
       <aside class="snotes" hidden><ul>
         <li>Be precise: GKM isn't "frozen" — it's maturing. The point is GOVERNED, versioned change vs. ad-hoc XML change.</li>
         <li>Tie to the Primer's "consumers normalize the model" theme — adopters are hardening it now.</li>
@@ -491,7 +491,7 @@
         <p class="cap">A <b>weekly delta</b> ships for every ClinVar release — added, updated &amp; deleted records with a
           manifest — typically within a day or two. Stay synced by applying deltas, <b>not re-downloading and re-parsing</b> the world.</p>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/weekly-deltas/#weekly-deltas" target="_blank" rel="noopener">Weekly Deltas</a></span></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/weekly-deltas/#weekly-deltas" target="_blank" rel="noopener">Weekly Deltas</a></span></div>
       <aside class="snotes" hidden><ul>
         <li>The delta model is a real differentiator — incremental sync instead of full re-ingest.</li>
         <li>Manifest carries adds/updates/deletes so consumers can maintain state cheaply.</li>
@@ -517,7 +517,7 @@
         <p class="cap">ClinVar's own VCF sometimes carries <b>too much</b> or <b>too little</b> for a given use.
           Regenerate <b>full or partial VCFs</b> from the standardized data — scoped to your gene panel, quality bar, or significance.</p>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/overview/" target="_blank" rel="noopener">Output Format</a></span></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/overview/" target="_blank" rel="noopener">Output Format</a></span></div>
       <aside class="snotes" hidden><ul>
         <li>"Within reach": the data supports building these VCFs; a packaged tool is the opportunity.</li>
         <li>Key framing: tailored outputs vs. ClinVar's one-size-fits-all VCF.</li>
@@ -562,7 +562,7 @@
         <p class="cap">Because each release is captured consistently, you can study <b>how classifications evolve</b> —
           reclassification rates, emerging consensus, submitter trends — with friendly tools built on one stable shape.</p>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap</a></span> &middot; chart is illustrative, not live data</div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap</a></span> &middot; chart is illustrative, not live data</div>
       <aside class="snotes" hidden><ul>
         <li>Clearly flagged illustrative + roadmap (discussion #109). Don't present the numbers as real.</li>
         <li>The enabler is consistency release-over-release — temporal analysis is impractical against shifting XML.</li>
@@ -598,7 +598,7 @@
         <p class="cap">A <b>semantically sound, uniform</b> representation — the same meaning, every record — is far better
           AI input than inconsistent XML. Stable identifiers and explicit propositions mean models and agents can <b>trust what they read.</b></p>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/output-reference/classes/propositions/" target="_blank" rel="noopener">Propositions</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/reference/glossary/" target="_blank" rel="noopener">Glossary</a></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/classes/propositions/" target="_blank" rel="noopener">Propositions</a></span> &middot; <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/glossary/" target="_blank" rel="noopener">Glossary</a></div>
       <aside class="snotes" hidden><ul>
         <li>The win for AI isn't volume — it's consistency + explicit semantics (subject/predicate/object, typed classifications, stable ids).</li>
         <li>"Within reach": the data is AI-ready; building the RAG/agent/KG apps is the opportunity.</li>
@@ -627,7 +627,7 @@
         <p class="cap">Some of ClinVar's most valuable content is effectively <b>locked</b> by the effort it takes to extract.
           Standardizing it in GKM puts it <b>within reach of everyone</b> — not just teams who can invest in bespoke parsing.</p>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap</a></span> &middot; <a href="https://clingen-data-model.github.io/clinvar-gkm/" target="_blank" rel="noopener">v1 coverage</a></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap</a></span> &middot; <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/" target="_blank" rel="noopener">v1 coverage</a></div>
       <aside class="snotes" hidden><ul>
         <li>Accurate: case-level &amp; functional data are "Planned" in v1 (roadmap #104/#105). Frame as opportunity, not shipped.</li>
         <li>"Free the data" = lowering the cost of access so the long tail of valuable evidence gets used.</li>
@@ -649,7 +649,7 @@
         <p class="cap">A shared, standard representation makes it realistic to build an <b>enhanced submission reviewer</b> and
           <b>submit/track tooling</b> that fits existing systems — lowering the barrier to contributing high-quality data back.</p>
       </div>
-      <div class="foot"><span class="dl"><a href="https://clingen-data-model.github.io/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap</a></span></div>
+      <div class="foot"><span class="dl"><a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap</a></span></div>
       <aside class="snotes" hidden><ul>
         <li>Opportunity framing: standardization makes submission tooling tractable; it's not a shipped product.</li>
         <li>Closing the loop: better inputs → better ClinVar → better GKM for everyone.</li>
@@ -670,10 +670,10 @@
           <div class="ben"><h3>The community</h3><p>Shared tooling, temporal insight, and data that was out of reach.</p></div>
         </div>
         <p class="cap" style="margin-top:18px"><b>Start here:</b>
-          <a href="https://clingen-data-model.github.io/clinvar-gkm/" target="_blank" rel="noopener">clingen-data-model.github.io/clinvar-gkm</a>
-          · <a href="https://clingen-data-model.github.io/clinvar-gkm/data-access/download/" target="_blank" rel="noopener">Downloads</a>
+          <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/" target="_blank" rel="noopener">dataexchange.clinicalgenome.org/clinvar-gkm</a>
+          · <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/download/" target="_blank" rel="noopener">Downloads</a>
           · <a href="https://ga4gh.github.io/gkm-starter-kit/" target="_blank" rel="noopener">GKM Starter Kit</a>
-          · <a href="https://clingen-data-model.github.io/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap — upvote what you need</a></p>
+          · <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/roadmap/" target="_blank" rel="noopener">Roadmap — upvote what you need</a></p>
       </div>
       <div class="foot">Thank you — what would <b>you</b> build on this? Press <b>?</b> for shortcuts.</div>
       <aside class="snotes" hidden><ul>
