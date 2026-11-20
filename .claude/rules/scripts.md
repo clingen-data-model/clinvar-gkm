@@ -88,16 +88,17 @@ here changes them with no Parquet-specific work. If Parquet needs a fact the bun
 bundle (and its schema) first; never add Parquet-only logic to this repo. The tool checks every build against its
 bundle (`verify --bundle-recompute`, `verify --roundtrip`).
 
-**Conformance validation (do this, not a shortcut):** validate the REAL published full + delta bundles with the
-official GA4GH **gkm-toolkit** `validate_bundle_schema` plus a registry built by `load_registry` over the whole
-`schema/` tree (dual-keyed: full `$id` AND root-relative path). Do NOT trust `sub-bundle.py` output as proof —
-it runs its own recursive collapse and so **masks** export/assembler cleanup bugs that the real bundles carry.
-`validate-bundle.sh` does this. `release-gkm-delta.sh` runs it on every delta before upload, and `run-release.sh`
-builds the delta first so a failure leaves R2 untouched. The toolkit takes hours on a full, so `release-gkm.sh`
-validates every full it assembles with `validate-bundle.sh --engine rs` (jsonschema-rs: same bundle schema, registry
-and per-record document; minutes on a full), and `run-release.sh` builds the weekly full with `--no-upload` before R2
-changes. jsonschema-rs is not the official validator: keep `test_validate_bundle_rs.py`'s equivalence test (both
-engines name the same failing records) passing, and run the toolkit by hand on a full for a version release. The rs
+**Conformance validation (do this, not a shortcut):** validate every record of the REAL full + delta bundles with
+`validate-bundle.sh` (default engine rs = jsonschema-rs, the validator of record), against the bundle schema with a
+registry over the whole `schema/` tree (dual-keyed: full `$id` AND root-relative path). Do NOT trust `sub-bundle.py`
+output as proof — it runs its own recursive collapse and so **masks** export/assembler cleanup bugs that the real
+bundles carry. `release-gkm-delta.sh` and `release-gkm.sh` run it (`--engine rs`) on every delta and full before
+upload, and `run-release.sh` builds both with `--no-upload` first so a failure leaves R2 untouched. The official
+GA4GH gkm-toolkit (`--engine toolkit`, python-jsonschema) gives the same verdicts but is too slow for a 1.2.0 full
+(~17 h on 64 vCPUs: it re-evaluates every allOf/$ref layer for each `unevaluatedProperties`), so: keep
+`test_validate_bundle_rs.py`'s equivalence tests passing (both engines name the same failing records, including
+violations planted inside the layered variation/vcv/scv profiles), and at each version release run the toolkit on a
+stratified sample of the line's first full (`sample-bundle.py`, then `validate-bundle.sh --engine toolkit`). The rs
 engine compiles the bundle schema per section (the whole schema takes jsonschema-rs minutes to compile) and reads
 only the assembler's one-record-per-line layout, stopping on any other line.
 `$id`/`schema_version` version bump on a schema-affecting change: bump the 4 `schema/clinvar-gkm/*-source.yaml`
