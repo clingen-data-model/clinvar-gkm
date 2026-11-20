@@ -5,7 +5,7 @@ A running record of every schema change and data re-release on the 1.x line. See
 [GitHub Releases](https://github.com/clingen-data-model/clinvar-gkm/releases) page for the
 tagged source of each.
 
-## 1.2.0 — 2026-11-23 { #120 }
+## 1.2.0 — 2026-11-20 { #120 }
 
 ### 1.2.0: the ClinVar profiles describe exactly what the pipeline writes
 
