@@ -3,13 +3,15 @@
 # For each tracked dict: recon = (baseline WHERE pk NOT IN deletes AND pk NOT IN delta-keys)
 #                                UNION ALL delta_<T>;  compare recon vs compare-release full.
 # Requires gkm_change_log + gkm_delta_build to have run for COMPARE.
-# Usage: ./oracle-delta-reconstruction.sh <baseline_date> <compare_date> <version>
+# Usage: ./oracle-delta-reconstruction.sh <baseline_date> <compare_date> <version> [<compare_version>]
+#   <compare_version> defaults to <version>; pass it when the two datasets carry different suffixes
+#   (e.g. 2026-10-31 v2_6_1 -> 2026-11-08 v2_7_0).
 set -euo pipefail
-BASE="${1:?baseline date}"; COMP="${2:?compare date}"; VER="${3:?version}"
+BASE="${1:?baseline date}"; COMP="${2:?compare date}"; VER="${3:?version}"; CVER="${4:-${VER}}"
 PROJECT="${CLOUDSDK_CORE_PROJECT:-clingen-dev}"
 BDS="clinvar_${BASE//-/_}_${VER}"
-CDS="clinvar_${COMP//-/_}_${VER}"
-RECON="clinvar_${COMP//-/_}_${VER}_recon"
+CDS="clinvar_${COMP//-/_}_${CVER}"
+RECON="clinvar_${COMP//-/_}_${CVER}_recon"
 
 # Drop the scratch recon dataset on ANY exit (including a mid-loop bq failure), not just the
 # happy path — otherwise set -e would abort before cleanup and leak the dataset.
