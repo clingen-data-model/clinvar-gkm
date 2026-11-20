@@ -137,7 +137,7 @@ The `gkm_dict_*` tables are the published product. Full bundles, deltas and the 
 ./src/scripts/release-gkm-parquet.sh 2026-10-18 v2_6_0
 ```
 
-The full and delta scripts validate every record of their bundle strictly before upload and stop if any fails: the delta with the GA4GH GKM Toolkit, the full with jsonschema-rs, which takes minutes where the toolkit takes hours. See [Export & Distribute](export.md#step-4-publish-the-weekly-delta), and [Step 5](export.md#step-5-build-and-publish-the-latest-parquet) there for the Parquet build and its checks.
+The full and delta scripts validate every record of their bundle strictly before upload, with jsonschema-rs, and stop if any fails. The GA4GH GKM Toolkit gives the same verdicts but takes hours where jsonschema-rs takes minutes; it cross-checks a sample at each version release ([Release Validation](../reference/release-validation.md)). See [Export & Distribute](export.md#step-4-publish-the-weekly-delta), and [Step 5](export.md#step-5-build-and-publish-the-latest-parquet) there for the Parquet build and its checks.
 
 `release-gkm.sh` exports bundle NDJSON (`export-gkm-dicts.sh`), assembles and validates it, and uploads the bundle; it writes no Parquet. Its steps can be run individually, and `--start-step` resumes it from a step:
 

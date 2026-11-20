@@ -12,9 +12,9 @@
 #   4. vrs-to-bq             src/scripts/vrs-to-bq-table.sh
 #                            (Cloud Run transform -> load gkm_vrs -> gkm_* procs)
 #   5. release               publish to the version line R2_LINE (default v1/1.2/; layout in r2_layout.py):
-#                            release-gkm-delta.sh --no-upload (build and strictly validate the DELTA with the
-#                            GA4GH gkm-toolkit) and release-gkm.sh --weekly --no-upload (build and strictly
-#                            validate this release's weekly FULL with jsonschema-rs); a failure of either stops
+#                            release-gkm-delta.sh --no-upload (build and strictly validate the DELTA) and
+#                            release-gkm.sh --weekly --no-upload (build and strictly validate this release's
+#                            weekly FULL), both with jsonschema-rs; a failure of either stops
 #                            here, with R2 untouched,
 #                            r2-rollover.sh (month/year rollover now that this release is posted),
 #                            release-gkm.sh --weekly --start-step=3 (the weekly FULL -> weekly/),
@@ -131,8 +131,8 @@ if (( START_STEP <= 5 )); then
     echo "ERROR: ${ASSEMBLE_PYTHON} ($(command -v "${ASSEMBLE_PYTHON}")) has no orjson, which sets the bundle layout. pip install orjson there, or run stage 5 from another environment." >&2
     exit 1
   }
-  # Stage 5 validates the delta (toolkit engine) and every full (rs engine) strictly before upload; same reasoning.
-  $DRY_RUN || "${SCRIPT_DIR}/validate-bundle.sh" --check-setup
+  # Stage 5 validates the delta and every full strictly (rs engine) before upload; same reasoning.
+  $DRY_RUN || "${SCRIPT_DIR}/validate-bundle.sh" --check-setup --engine rs
 fi
 echo "=== run-release ${DATE} (full=${FULL}, full-procs=${FULL_PROCS}, dry-run=${DRY_RUN}, skip-parquet=${SKIP_PARQUET}, start-step=${START_STEP}${BOOTSTRAP_MONTH:+, bootstrap-monthly=${BOOTSTRAP_MONTH}}, project=${PROJECT_ID}) ==="
 

@@ -146,7 +146,7 @@ Rollovers are done by `r2-rollover.sh <release_date>`, which `run-release.sh` ru
 The internal steps are: export delta tables to GCS, assemble and strictly validate the delta bundle, then build the manifest (`build-delta-manifest.py`) and upload (`upload-gkm-delta-to-r2.sh`).
 
 !!! warning "Strict validation stops the release"
-    Every delta record is validated with the GA4GH [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) by `validate-bundle.sh` before upload. `run-release.sh` does this at the start of stage 5, so a failing delta stops the release with R2 untouched; the bundle stays in `STAGE_DIR` for inspection. The check needs [`uv`](https://docs.astral.sh/uv/) and the `va-spec` submodule (`git submodule update --init --recursive`), and `run-release.sh` confirms both at startup.
+    Every delta record is validated with [jsonschema-rs](https://pypi.org/project/jsonschema-rs/) by `validate-bundle.sh --engine rs` before upload, as every full is (see [Release Validation](../reference/release-validation.md)). `run-release.sh` does this at the start of stage 5, so a failing delta stops the release with R2 untouched; the bundle stays in `STAGE_DIR` for inspection. The check needs [`uv`](https://docs.astral.sh/uv/) and the `va-spec` submodule (`git submodule update --init --recursive`), and `run-release.sh` confirms both at startup.
 
     `--start-step=3` publishes the staged bundle without validating it again, so only use it on a bundle that passed.
 

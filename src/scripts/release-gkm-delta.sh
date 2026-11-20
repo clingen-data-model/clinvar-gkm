@@ -66,7 +66,7 @@ if (( START_STEP <= 2 )); then
   else
     "${PYTHON}" "${SCRIPT_DIR}/assemble-gkm-dicts.py" "${GCS_DELTAS_PATH}/" "${EXPORT_DATE}" --output "${DELTA_BUNDLE}"
     echo "=== [2/3] validate delta bundle ==="
-    "${SCRIPT_DIR}/validate-bundle.sh" "${DELTA_BUNDLE}" || {
+    "${SCRIPT_DIR}/validate-bundle.sh" "${DELTA_BUNDLE}" --engine rs || {
       echo "ERROR: ${DELTA_BUNDLE} failed strict validation; nothing was uploaded. The bundle is kept for inspection." >&2
       exit 1
     }
