@@ -35,7 +35,8 @@ redirect to the latest release (the highest release line). There is no `dev` ver
   (the tag, or the line's label), and `pin-repo-links.py` rewrites `…/clinvar-gkm/blob/main/…` (and `tree`, `raw`) links to the ref the pages come
   from. Keep writing repo-file links as `/blob/main/…` in the source; the build pins them.
 - `src/scripts/docs-line-sources.txt` builds a release line from another ref, on every trigger, when its tag lacks
-  its docs: `1.1` → `036bec2`, shown as `1.1.0` (the `1.1.0` tag was cut without `main`'s 1.1.0 docs). After
+  its docs: `1.1` → the tip of the long-lived branch `docs/line-1.1` (never delete it), shown as `1.1.0`, and `1.2`
+  → a `1.0` commit after the `1.2.0` tag, shown as `1.2.0`. After
   editing it, dispatch that line (`-f ref=1.1.0 -f version=1.1`). Keep those files buildable against
   the oldest published version: after changing them, check `build-versioned-docs.sh 1.1.0 1.1 <out>`.
 - **Before publishing a release from a branch that predates ADR 0011 (`1.0`)**, bring this workflow and its
