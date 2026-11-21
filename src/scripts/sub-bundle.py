@@ -27,7 +27,7 @@ Usage:
   python3 src/scripts/sub-bundle.py --dataset clinvar_2026_08_16_v2_5_0 --ids-file ids.txt -o bundle.json
   cat ids.txt | python3 src/scripts/sub-bundle.py --dataset clinvar_2026_08_16_v2_5_0 -
 
-Requires the dataset to have the gkm_dict_* tables built (a completed release / Stage 4).
+Requires the dataset to have the gkm_dict_* tables built (a completed release: run-release.sh step 2).
 """
 import argparse
 import json

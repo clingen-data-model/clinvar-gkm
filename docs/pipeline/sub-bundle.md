@@ -39,7 +39,7 @@ as a full release, containing only the objects the requested statements need.
 ## Requirements
 
 - Access to a **built** release dataset — one that has the `gkm_dict_*` tables from a completed
-  release (pipeline Stage 4). The script reads BigQuery directly; it does not operate on a published
+  release (`run-release.sh` step 2). The script reads BigQuery directly; it does not operate on a published
   `.json.gz` bundle.
 - The `bq` CLI authenticated to the dataset's project.
 

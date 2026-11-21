@@ -72,7 +72,6 @@ The site is versioned ([ADR 0011](docs/decisions/0011-versioned-documentation.md
 src/
   procedures/                BigQuery SQL stored procedures (the pipeline core)
   scripts/                   Release orchestration and R2 publishing scripts
-  vrsify/                    VRS processing driver (GA4GH vrs-python)
   vrs-location-transformer/  Cloud Run service for VRS sequence-location transforms
   gks-registry/              Python tool for GA4GH schema metadata
 schema/                      GKM schema set (clinvar-gkm + VRS/Cat-VRS/VA-Spec/gkm-core submodules)
