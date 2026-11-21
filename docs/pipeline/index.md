@@ -16,9 +16,9 @@ The pipeline executes in the following order. Each step is a BigQuery stored pro
 └──────────────┬───────────────┘
                │
 ┌──────────────▼───────────────┐
-│ 2. VRS Processing            │  External: vrs-python
-│    Export → VRS Python →     │  → gkm_vrs table
-│    Import back to BigQuery   │
+│ 2. VRS Processing            │  Upstream: vrs-python
+│    Export → cloud vrsify →   │  (clinvar-ingest)
+│    Import back to BigQuery   │  → gkm_vrs table
 └──────────────┬───────────────┘
                │
 ┌──────────────▼───────────────┐
@@ -71,7 +71,7 @@ The pipeline executes in the following order. Each step is a BigQuery stored pro
 
 ### Single-command run
 
-The whole release can be run end-to-end with the `run-release.sh` orchestrator, which chains six stages: variation identity, the GCS export, vrsification, the transform/load/procedures step (`vrs-to-bq-table.sh`), the export/publish step (`release-gkm.sh`, `release-gkm-delta.sh`), and the Parquet step (`release-gkm-parquet.sh`), which builds the latest Parquet set from the published weekly full with [gkm-bundle-parquet](https://github.com/clingen-data-model/gkm-bundle-parquet) ([PyPI](https://pypi.org/project/gkm-bundle-parquet/2.0.0/), pinned to 2.0.0):
+The whole release can be run end-to-end with the `run-release.sh` orchestrator, which chains six stages: variation identity, the GCS export, a check of the upstream cloud vrsification, the transform/load/procedures step (`vrs-to-bq-table.sh`), the export/publish step (`release-gkm.sh`, `release-gkm-delta.sh`), and the Parquet step (`release-gkm-parquet.sh`), which builds the latest Parquet set from the published weekly full with [gkm-bundle-parquet](https://github.com/clingen-data-model/gkm-bundle-parquet) ([PyPI](https://pypi.org/project/gkm-bundle-parquet/2.0.0/), pinned to 2.0.0):
 
 ```bash
 ./src/scripts/run-release.sh YYYY-MM-DD              # incremental (default)
@@ -82,7 +82,7 @@ The whole release can be run end-to-end with the `run-release.sh` orchestrator, 
 ./src/scripts/run-release.sh YYYY-MM-DD --start-step 5   # resume from a stage (1-6); 6 runs only the Parquet step
 ```
 
-`--full` propagates version-invalidation across stages 1–2; use it for the first release or after a `variation_identity` transform change or a vrsify-pin bump. `--full-procs` builds only the stage-4 gkm procedures full (catvar, SCV, RCV, VCV): variation identity, the export, vrsification and the `gkm_vrs` load stay incremental, so only the changed variations are re-normalized. Weekly runs after 1.1.0 use `--full-procs` until [ADR 0007](../decisions/0007-pipeline-principles-and-simplification.md) workstream 3 decides on the incremental procedures, which were seen to fall back to full builds without saying so. `--full` implies `--full-procs`. `--dry-run` runs the build stages but has the release stages only print what they would upload — use it for test runs. The vrsify stage (stage 3) requires local SeqRepo and gene-normalizer services and a reachable UTA database — see [VRS Processing](vrs-processing.md#running-vrsify) and [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/src/vrsify) — so on hosts without them, run the BigQuery-side stages with `--start-step` and run vrsify separately.
+`--full` propagates version-invalidation across stages 1–2; use it for the first release or after a `variation_identity` transform change. It does not translate every variation again: the cloud vrsification reads only the incremental export (see the [version-invalidation note](vrs-processing.md#step-4-transform-load-run-procedures)). `--full-procs` builds only the stage-4 gkm procedures full (catvar, SCV, RCV, VCV): variation identity, the export, vrsification and the `gkm_vrs` load stay incremental, so only the changed variations are re-normalized. Weekly runs after 1.1.0 use `--full-procs` until [ADR 0007](../decisions/0007-pipeline-principles-and-simplification.md) workstream 3 decides on the incremental procedures, which were seen to fall back to full builds without saying so. `--full` implies `--full-procs`. `--dry-run` runs the build stages but has the release stages only print what they would upload — use it for test runs. vrs-python runs upstream, in clinvar-ingest's `clinvar-ingest-vrsify` Cloud Run job, so no stage needs local services. Stage 3 only checks that the job's output, `vi-vrs-python.jsonl.gz`, is the translation of the release's current `vi.jsonl.gz`, and stops the release otherwise; resume with `--start-step 3` once it is (see [Checking the cloud output](vrs-processing.md#checking-the-cloud-output)). Upstream clinvar-ingest also runs stages 0–2 (`dataset_diff_on`, `variation_identity_incremental` and the incremental export) for every release, so `--start-step 3` starts from the upstream export.
 
 The individual stages are documented below.
 
@@ -100,7 +100,7 @@ CALL `clinvar_ingest.variation_identity`(CURRENT_DATE(), FALSE);
 
 ### Step 2: VRS Processing
 
-Export, process externally with vrs-python, and load back — incremental by default (only changed variations are vrsified; unchanged `gkm_vrs` results carry forward). See [VRS Processing](vrs-processing.md).
+Export, translate with vrs-python upstream (the `clinvar-ingest-vrsify` Cloud Run job), and load back — incremental by default (only changed variations are vrsified; unchanged `gkm_vrs` results carry forward). See [VRS Processing](vrs-processing.md).
 
 ### Step 3: Cat-VRS through the Change Log
 
