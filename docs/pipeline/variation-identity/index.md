@@ -4,6 +4,9 @@
 
 The `clinvar_ingest.variation_identity` stored procedure extracts and normalizes variant identity information from ClinVar release data. Its goal is to determine, for each ClinVar variation, the single best expression (SPDI, HGVS, or gnomAD format) that can be used to resolve the variant into a GA4GH VRS (Variation Representation Specification) identifier.
 
+!!! note "Run by clinvar-ingest"
+    From clinvar-ingest pipeline v2.7.0, the [clinvar-ingest](https://github.com/clingen-data-model/clinvar-ingest) stored procedures job calls `dataset_diff_on`, `variation_identity_incremental` and `variation_vrs_changed` for every release and exports the changed rows for VRS translation. This project's release (`run-release.sh`) does not run them; it starts at the check of the translation (see [VRS Processing](../vrs-processing.md#checking-the-cloud-output)). The procedures still live in this repository's `src/procedures/`; moving them to clinvar-ingest is a planned follow-up.
+
 The procedure accepts a single parameter — `on_date DATE` — which identifies the ClinVar release schema to process.
 
 Two entry points share the same logic (BigQuery has no default parameters or overloading, so the mode is exposed as separate wrappers over an internal `variation_identity_build(on_date, debug, incremental)`):
@@ -155,7 +158,7 @@ See [Variation Identity](variation-identity.md) for full field documentation.
 Carry-forward assumes the prior release was built by the **same** `variation_identity` transform.
 
 !!! warning "Reseed after a transform change"
-    After any change to the `variation_identity` procedure, run the full `variation_identity` once on the next release to reseed the baseline, then resume `variation_identity_incremental`. The fallback guard checks that prerequisites *exist*, not that the transform is unchanged — that assertion is the operator's.
+    After any change to the `variation_identity` procedure, run the full `variation_identity` once on the next release to reseed the baseline, then resume `variation_identity_incremental`. The fallback guard checks that prerequisites *exist*, not that the transform is unchanged — that assertion is the operator's. clinvar-ingest calls only the incremental build, and this project's release runs neither, so a reseed is a manual BigQuery call, coordinated with clinvar-ingest.
 
 Producing `variation_identity` incrementally also yields the clean changed-variation set that the [VRS Processing](../vrs-processing.md) step consumes to shrink the expensive vrs-python payload.
 
@@ -166,4 +169,5 @@ Producing `variation_identity` incrementally also yields the clean changed-varia
 - **UDFs**: `clinvar_ingest.parseAttributeSet`, `clinvar_ingest.parseSequenceLocations`, `clinvar_ingest.deriveHGVS`, `clinvar_ingest.parseHGVS`, `clinvar_ingest.parseXRefs`, `clinvar_ingest.schema_on`
 - **Source Tables**: `variation`, `clinical_assertion_variation`, `clinical_assertion`
 - **Incremental drivers** (incremental mode only): `diff_variation`, `diff_clinical_assertion`, `diff_clinical_assertion_variation` (from `dataset_diff_on`), plus the prior release's `variation_identity` / `variation_loc` / `variation_hgvs` / `variation_xref` as the carry-forward baseline
-- **Downstream Consumers**: VRS Python processing pipeline, `gkm_catvar_proc`
+- **Called by**: the clinvar-ingest stored procedures job (pipeline v2.7.0+), not by `run-release.sh`
+- **Downstream Consumers**: the clinvar-ingest `variation_identity` export and VRS translation, `gkm_catvar_proc`

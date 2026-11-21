@@ -2,7 +2,7 @@
 
 The ClinVar-GKM pipeline transforms ClinVar XML release data into the GKM (Genomic Knowledge Model) schema set (VRS, Cat-VRS, VA-Spec) through a series of BigQuery stored procedures with an external VRS Python processing step.
 
-The two most expensive stages — [Variation Identity](variation-identity/index.md) and [VRS Processing](vrs-processing.md) — run **incrementally**: they recompute only the variations that changed since the prior release and carry the rest forward, driven by the release-to-release diff (`dataset_diff_on`). The downstream `gkm_*` procedures also have incremental wrappers, but from 1.1.0 the weekly run builds them in full (`run-release.sh <date> --full-procs`). The incremental wrappers proved no cheaper (about 0.22 TiB billed per dataset, against about 0.20 TiB for a full build) and fell back to a full build without saying so; [ADR 0007](../decisions/0007-pipeline-principles-and-simplification.md) workstream 3 decides their future.
+The two most expensive stages — [Variation Identity](variation-identity/index.md) and [VRS Processing](vrs-processing.md) — run **incrementally**: they recompute only the variations that changed since the prior release and carry the rest forward, driven by the release-to-release diff (`dataset_diff_on`). Both run in the [clinvar-ingest](https://github.com/clingen-data-model/clinvar-ingest) pipeline (v2.7.0 and later), which calls this repository's `dataset_diff_on`, `variation_identity` and `variation_vrs_changed` procedures; this project's release starts after them, at the check of the VRS translation (see [Single-command run](#single-command-run)). The downstream `gkm_*` procedures also have incremental wrappers, but from 1.1.0 the weekly run builds them in full (`run-release.sh <date> --full-procs`). The incremental wrappers proved no cheaper (about 0.22 TiB billed per dataset, against about 0.20 TiB for a full build) and fell back to a full build without saying so; [ADR 0007](../decisions/0007-pipeline-principles-and-simplification.md) workstream 3 decides their future.
 
 ## Pipeline Steps
 
@@ -12,13 +12,13 @@ The pipeline executes in the following order. Each step is a BigQuery stored pro
 ┌──────────────────────────────┐
 │ 1. Variation Identity        │  variation_identity[_incremental]
 │    Extract & normalize       │  → variation_identity table
-│    variant data              │
+│    variant data              │  (run by clinvar-ingest)
 └──────────────┬───────────────┘
                │
 ┌──────────────▼───────────────┐
-│ 2. VRS Processing            │  External: vrs-python
-│    Export → VRS Python →     │  → gkm_vrs table
-│    Import back to BigQuery   │
+│ 2. VRS Processing            │  Export + vrs-python run by
+│    Export → cloud vrsify →   │  clinvar-ingest; the release
+│    Import back to BigQuery   │  starts here → gkm_vrs table
 └──────────────┬───────────────┘
                │
 ┌──────────────▼───────────────┐
@@ -71,27 +71,28 @@ The pipeline executes in the following order. Each step is a BigQuery stored pro
 
 ### Single-command run
 
-The whole release can be run end-to-end with the `run-release.sh` orchestrator, which chains six stages: variation identity, the GCS export, vrsification, the transform/load/procedures step (`vrs-to-bq-table.sh`), the export/publish step (`release-gkm.sh`, `release-gkm-delta.sh`), and the Parquet step (`release-gkm-parquet.sh`), which builds the latest Parquet set from the published weekly full with [gkm-bundle-parquet](https://github.com/clingen-data-model/gkm-bundle-parquet) ([PyPI](https://pypi.org/project/gkm-bundle-parquet/2.0.0/), pinned to 2.0.0):
+The clinvar-ingest pipeline (v2.7.0 and later) runs everything up to the VRS translation for every release: it ingests the XML, runs `dataset_diff_on` and `variation_identity_incremental`, exports the changed variations to `vi.jsonl.gz`, and translates them with its `clinvar-ingest-vrsify` Cloud Run job. This project's release starts after that. The `run-release.sh` orchestrator chains four steps: a check that the upstream translation is complete and belongs to the current export (`check-cloud-vrsify.sh`), the transform/load/procedures step (`vrs-to-bq-table.sh`), the export/publish step (`release-gkm.sh`, `release-gkm-delta.sh`), and the Parquet step (`release-gkm-parquet.sh`), which builds the latest Parquet set from the published weekly full with [gkm-bundle-parquet](https://github.com/clingen-data-model/gkm-bundle-parquet) ([PyPI](https://pypi.org/project/gkm-bundle-parquet/2.0.0/), pinned to 2.0.0):
 
 ```bash
-./src/scripts/run-release.sh YYYY-MM-DD              # incremental (default)
-./src/scripts/run-release.sh YYYY-MM-DD --full       # full rebuild / reseed
-./src/scripts/run-release.sh YYYY-MM-DD --full-procs # only the gkm procs full (the weekly mode after 1.1.0)
-./src/scripts/run-release.sh YYYY-MM-DD --dry-run    # run everything but skip the R2 publish (stages 5 and 6)
-./src/scripts/run-release.sh YYYY-MM-DD --skip-parquet   # leave parquet/ as it is (skip stage 6)
-./src/scripts/run-release.sh YYYY-MM-DD --start-step 5   # resume from a stage (1-6); 6 runs only the Parquet step
+./src/scripts/run-release.sh YYYY-MM-DD              # all four steps, starting at the cloud-output check
+./src/scripts/run-release.sh YYYY-MM-DD --full-procs # the gkm procs full (the weekly mode after 1.1.0)
+./src/scripts/run-release.sh YYYY-MM-DD --dry-run    # run everything but skip the R2 publish (steps 3 and 4)
+./src/scripts/run-release.sh YYYY-MM-DD --skip-parquet   # leave parquet/ as it is (skip step 4)
+./src/scripts/run-release.sh YYYY-MM-DD --start-step 3   # resume from a step (1-4); 4 runs only the Parquet step
 ```
 
-`--full` propagates version-invalidation across stages 1–2; use it for the first release or after a `variation_identity` transform change or a vrsify-pin bump. `--full-procs` builds only the stage-4 gkm procedures full (catvar, SCV, RCV, VCV): variation identity, the export, vrsification and the `gkm_vrs` load stay incremental, so only the changed variations are re-normalized. Weekly runs after 1.1.0 use `--full-procs` until [ADR 0007](../decisions/0007-pipeline-principles-and-simplification.md) workstream 3 decides on the incremental procedures, which were seen to fall back to full builds without saying so. `--full` implies `--full-procs`. `--dry-run` runs the build stages but has the release stages only print what they would upload — use it for test runs. The vrsify stage (stage 3) requires local SeqRepo and gene-normalizer services and a reachable UTA database — see [VRS Processing](vrs-processing.md#running-vrsify) and [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/src/vrsify) — so on hosts without them, run the BigQuery-side stages with `--start-step` and run vrsify separately.
+Step 1 only checks that the upstream output, `vi-vrs-python.jsonl.gz`, is the translation of the release's current `vi.jsonl.gz`, and stops the release at once otherwise (it does not wait); run the release again once it is (see [Checking the cloud output](vrs-processing.md#checking-the-cloud-output)). `--start-step 2` runs the same check first, so every `gkm_vrs` load is checked. No step needs local SeqRepo, UTA or gene-normalizer services.
+
+`--full-procs` builds the step-2 gkm procedures full (catvar, SCV, RCV, VCV); the `gkm_vrs` load still follows the data. Weekly runs after 1.1.0 use `--full-procs` until [ADR 0007](../decisions/0007-pipeline-principles-and-simplification.md) workstream 3 decides on the incremental procedures, which were seen to fall back to full builds without saying so. `--dry-run` runs the build steps but has the release steps only print what they would upload — use it for test runs.
 
 The individual stages are documented below.
 
 ### Step 1: Variation Identity
 
-From the BigQuery console — incremental by default, full rebuild when reseeding (see [Incremental Rebuild](variation-identity/index.md#incremental-rebuild)):
+Run by clinvar-ingest, not by this project's release. clinvar-ingest calls the incremental build for every release; the procedures (`dataset_diff_on`, `variation_identity`, `variation_vrs_changed`) still live in `src/procedures/` here (see [Incremental Rebuild](variation-identity/index.md#incremental-rebuild)). By hand, from the BigQuery console:
 
 ```sql
--- default: recompute only changed variations, carry the rest forward
+-- what clinvar-ingest runs: recompute only changed variations, carry the rest forward
 CALL `clinvar_ingest.variation_identity_incremental`(CURRENT_DATE(), FALSE);
 
 -- full rebuild: first release, or after a variation_identity transform change
@@ -100,7 +101,7 @@ CALL `clinvar_ingest.variation_identity`(CURRENT_DATE(), FALSE);
 
 ### Step 2: VRS Processing
 
-Export, process externally with vrs-python, and load back — incremental by default (only changed variations are vrsified; unchanged `gkm_vrs` results carry forward). See [VRS Processing](vrs-processing.md).
+clinvar-ingest exports the changed variations and translates them with vrs-python (the `clinvar-ingest-vrsify` Cloud Run job); this project's release checks the translation and loads it back — incremental by default (only changed variations are vrsified; unchanged `gkm_vrs` results carry forward). See [VRS Processing](vrs-processing.md).
 
 ### Step 3: Cat-VRS through the Change Log
 

@@ -64,6 +64,15 @@ Each call writes `<compare_schema>.diff_<table>` into the compare snapshot's own
 The example steps below show how to build the GKS SCV Statements
 for the `clinvar_2025_03_23_v2_3_1` dataset in the `ClinGen Dev` GCP project
 
+> **STEPS 1–3 now run in clinvar-ingest (pipeline v2.7.0+), not here.** For every release, the
+> clinvar-ingest stored procedures job calls `dataset_diff_on` (`dataset-diff-on-proc.sql`),
+> `variation_identity_incremental` (`variation-identity-proc.sql`) and `variation_vrs_changed`
+> (`variation-vrs-changed-proc.sql`), exports the changed rows to `vi.jsonl.gz`, and its
+> `clinvar-ingest-vrsify` Cloud Run job translates them with vrs-python. `src/scripts/run-release.sh`
+> runs none of them; it starts by checking that translation (`check-cloud-vrsify.sh`). The SQL stays
+> in this repository for now; moving it to clinvar-ingest is a planned cross-repo follow-up. The
+> by-hand notes below are kept for reference.
+
 ## STEP 1
 From BQ Console (NOTE: this example assumes CURRENT_DATE() will resolve to the 2025-03-23 clinvar release)
 
@@ -111,6 +120,9 @@ the prior release are exported (the rest are carried forward in STEP 4):
 ./src/scripts/export-vi-table-to-gcs.sh 2025-03-23 --full   # whole table (first release / version bump)
 ```
 
+(clinvar-ingest now writes this export itself; `export-vi-table-to-gcs.sh` is kept only as the manual
+recovery its error message names when that export fails.)
+
 > **Incremental vrsify (the real win — Tasks 1–3 implemented + verified in clingen-dev):**
 > - **STEP 2** (`export-vi-table-to-gcs.sh`) computes `variation_vrs_changed` (diff of
 >   `variation_identity` vs the prior release) and extracts only that set to `vi.jsonl.gz`.
@@ -128,8 +140,9 @@ the prior release are exported (the rest are carried forward in STEP 4):
 
 ## STEP 3
 
-TODO: doc instructions on how to do this... for now
-  ask TONeill to run vrs-python and put output back in same bucket
+clinvar-ingest's `clinvar-ingest-vrsify` Cloud Run job translates `vi.jsonl.gz` into
+`vi-vrs-python.jsonl.gz` (+ `vi-vrs-python.provenance.json`) beside it; see
+`docs/pipeline/vrs-processing.md`.
 
 ## STEP 4
 
