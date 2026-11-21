@@ -1,6 +1,6 @@
-"""check-cloud-vrsify.sh (run-release.sh stage 3) must pass only when the cloud vrsify output is the translation of
+"""check-cloud-vrsify.sh (run-release.sh step 1) must pass only when the cloud vrsify output is the translation of
 the release's current vi.jsonl.gz, and run-release.sh must start at that check, run it before any gkm_vrs load, and
-stop --full there.
+never run the stages clinvar-ingest now runs (diff, variation_identity, export, translation).
 
 Each test runs the real scripts with fakes on PATH. The fake gcloud serves objects from a temporary directory (<path>
 holds an object's content and <path>.meta its "generation,md5,size"); the fake gcloud and bq log every call, and the
@@ -194,9 +194,10 @@ def test_bad_date_stops(gcs):
     assert "invalid release date" in result.stderr
 
 
-# --- run-release.sh: where the release starts, the check before the gkm_vrs load, --full ------------------------
+# --- run-release.sh: four steps, starting at the check; the upstream stages are gone -----------------------------
 
 RUN_RELEASE = SCRIPT.parent / "run-release.sh"
+UPSTREAM_WORK = ("dataset_diff_on", "variation_identity", "variation_vrs_changed", "extract")
 
 
 def release_run(root, *args, **env):
@@ -204,14 +205,16 @@ def release_run(root, *args, **env):
     code, out = run(root, RUN_RELEASE, "--dry-run", *args, **env)
     log = root.parent / "calls.log"
     calls = log.read_text().splitlines() if log.exists() else []
-    return code, out, [c for c in calls if c.startswith("bq ")], [c for c in calls if c.startswith("gcloud ")]
+    bq = [c for c in calls if c.startswith("bq ")]
+    assert not any(w in c for c in bq for w in UPSTREAM_WORK), bq  # never run here any more
+    return code, out, bq, [c for c in calls if c.startswith("gcloud ")]
 
 
-def test_release_starts_at_the_check_by_default(gcs):
+def test_release_starts_at_the_check(gcs):
     release(gcs)
-    code, out, bq, gcloud = release_run(gcs)
+    code, out, bq, _ = release_run(gcs)
     assert code != 0  # the fake bq fails the version stamp, the first BigQuery call after the check
-    assert "start-step=3" in out and "matches" in out
+    assert "start-step=1" in out and "[1/4] check-cloud-vrsify.sh" in out and "matches" in out
     assert len(bq) == 1 and "gkm_pipeline_version" in bq[0], bq
 
 
@@ -223,83 +226,43 @@ def test_release_stops_fast_without_the_cloud_output(gcs):
     assert bq == []
 
 
-def test_with_upstream_stages_starts_at_stage_0(gcs):
-    code, out, bq, _ = release_run(gcs, "--with-upstream-stages")
-    assert code != 0
-    assert "start-step=1" in out
-    assert len(bq) == 1 and "dataset_diff_on" in bq[0], bq
-
-
-@pytest.mark.parametrize("step", ["1", "2"])
-def test_upstream_stages_need_the_opt_in(gcs, step):
-    code, out, bq, gcloud = release_run(gcs, "--start-step", step)
-    assert code == 1
-    assert "--with-upstream-stages" in out
-    assert bq == [] and gcloud == []
-
-
-def test_with_upstream_stages_rejects_a_later_start(gcs):
-    code, out, bq, gcloud = release_run(gcs, "--with-upstream-stages", "--start-step", "3")
-    assert code == 1
-    assert "starts after them" in out
-    assert bq == [] and gcloud == []
-
-
-def test_full_stops_at_stage_3(gcs):
-    release(gcs)
-    code, out, bq, gcloud = release_run(gcs, "--full")
-    assert code == 1
-    assert "--full stops at stage 3" in out
-    assert bq == [] and gcloud == []
-
-
-def test_full_with_upstream_stages_rebuilds_then_stops_at_stage_3(gcs):
-    release(gcs)
-    code, out, bq, gcloud = release_run(gcs, "--full", "--with-upstream-stages", FAKE_BQ_RC="0")
-    assert code == 1
-    assert "--full stops at stage 3" in out
-    queries = " ".join(bq)
-    assert "dataset_diff_on" in queries and "variation_identity`(DATE" in queries
-    assert "variation_identity_incremental" not in queries
-    assert any("extract" in c and "vi-*.jsonl.gz" in c for c in bq), bq
-    assert "gkm_pipeline_version" not in queries and gcloud == []
-
-
-@pytest.mark.parametrize("step", ["4", "5"])
-def test_full_rejects_a_start_after_stage_3(gcs, step):
-    code, out, bq, gcloud = release_run(gcs, "--full", "--start-step", step)
-    assert code == 1
-    assert "--full stops at stage 3" in out and "--full-procs" in out
-    assert bq == [] and gcloud == []
-
-
-def test_start_step_4_runs_the_check(gcs):
+def test_start_step_2_still_runs_the_check(gcs):
     release(gcs, input_meta="200,changed==,23062")
-    code, out, bq, _ = release_run(gcs, "--start-step", "4")
+    code, out, bq, _ = release_run(gcs, "--start-step", "2")
     assert code == 1
     assert "does not match this release's export" in out
     assert bq == []
 
 
-def test_allow_unchecked_vrs_skips_the_check(gcs):
-    code, out, bq, gcloud = release_run(gcs, "--start-step", "4", "--allow-unchecked-vrs")
-    assert code != 0
-    assert "NOT checking" in out
-    assert gcloud == []
-    assert len(bq) == 1 and "gkm_pipeline_version" in bq[0], bq
-
-
-def test_allow_unchecked_vrs_rejects_a_start_after_stage_4(gcs):
-    code, out, bq, gcloud = release_run(gcs, "--start-step", "5", "--allow-unchecked-vrs")
-    assert code == 1
-    assert "starts after it" in out
-    assert bq == [] and gcloud == []
-
-
 def test_full_procs_checks_then_loads_the_cloud_output_with_full_procs(gcs):
     release(gcs)
     code, out, bq, gcloud = release_run(gcs, "--full-procs", FAKE_BQ_RC="0")
-    assert code != 0  # the fake gcloud refuses the Cloud Run transform that starts stage 4
+    assert code != 0  # the fake gcloud refuses the Cloud Run transform that starts vrs-to-bq-table.sh
+    assert "[2/4] vrs-to-bq-table.sh" in out
     assert "gkm_pipeline_version" in " ".join(bq)
     jobs = [c for c in gcloud if " run jobs execute " in c]
     assert len(jobs) == 1 and "GKS_FULL=true" in jobs[0] and OUTPUT in jobs[0], gcloud
+
+
+@pytest.mark.parametrize("step", ["3", "4"])
+def test_later_start_skips_the_check_and_the_load(gcs, step):
+    code, out, bq, gcloud = release_run(gcs, "--start-step", step)
+    assert code != 0  # the fake bq fails the dataset lookup that steps 3 and 4 start with
+    assert gcloud == []
+    assert bq and bq[0].startswith("bq ls") and "gkm_pipeline_version" not in " ".join(bq), bq
+
+
+@pytest.mark.parametrize("flag", ["--full", "--with-upstream-stages", "--allow-unchecked-vrs"])
+def test_removed_flags_are_unknown(gcs, flag):
+    code, out, bq, gcloud = release_run(gcs, flag)
+    assert code == 1
+    assert f"unknown flag: {flag}" in out
+    assert bq == [] and gcloud == []
+
+
+@pytest.mark.parametrize("step", ["0", "5", "6", "x"])
+def test_start_step_is_1_to_4(gcs, step):
+    code, out, bq, gcloud = release_run(gcs, "--start-step", step)
+    assert code == 1
+    assert "--start-step must be 1-4" in out
+    assert bq == [] and gcloud == []

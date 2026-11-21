@@ -2,7 +2,6 @@
 description: Shell + release-tooling conventions (bash 3.2, R2/Cloudflare, bq and gh CLI gotchas)
 paths:
   - "src/scripts/**"
-  - "src/vrsify/**"
 ---
 
 # Shell script & release-tooling conventions
@@ -48,19 +47,16 @@ XML index (see `docs/superpowers/specs/2026-08-24-clinvar-index-monthly-trigger-
 [ADR 0002](../../docs/decisions/0002-monthly-full-anchored-to-clinvar-index.md)). Never touch live R2 without
 explicit user confirmation.
 
-**VRS translation runs upstream.** clinvar-ingest's Cloud Run job `clinvar-ingest-vrsify` (clingen-dev, us-east1,
-every 15 min) writes `<date>/dev/vi-vrs-python.jsonl.gz` + `.provenance.json` for each release; `run-release.sh`
-stage 3 (`check-cloud-vrsify.sh`) runs nothing and stops unless that provenance names the current `vi.jsonl.gz`
-(same md5 + size; a same-content re-export only changes the generation). The job takes each release once and never
-replaces its output, so a changed `vi.jsonl.gz` needs a manual re-translation. Hence `run-release.sh` **starts at
-stage 3**: stages 0–2 run upstream too and run here only with `--with-upstream-stages`. `--start-step 4` runs the same
-check first; `--allow-unchecked-vrs` skips it (local fallback). `--full` stops at stage 3 (full re-translation is
-upstream; then `--full-procs --start-step 4`). The check never waits. `src/vrsify/` (local SeqRepo/UTA) is a manual
-fallback only.
-
-**Resolver pin (local fallback):** `clinvar_gk_pilot` is always version `0.0.0`, so `pip install -r src/vrsify/requirements.txt` keeps
-the installed commit and exits 0. Move an existing environment with `--force-reinstall --no-deps`. `vrsify.sh` stops
-if the installed commit is not the pin.
+**Everything before the VRS translation runs in clinvar-ingest (pipeline v2.7.0+).** It runs `dataset_diff_on`,
+`variation_identity_incremental` and `variation_vrs_changed`, exports `<date>/dev/vi.jsonl.gz`, and its Cloud Run job
+`clinvar-ingest-vrsify` (clingen-dev, us-east1, every 15 min) writes `vi-vrs-python.jsonl.gz` + `.provenance.json`.
+`run-release.sh` never runs those; it has four steps: 1 `check-cloud-vrsify.sh` (read-only, fails fast, stops unless
+the provenance names the current `vi.jsonl.gz` with the same md5 + size; a same-content re-export only changes the
+generation), 2 version stamp + `vrs-to-bq-table.sh`, 3 publish, 4 Parquet. `--start-step` is 1–4 and 2 still runs
+the check. The job takes each release once and never replaces its output, so a changed `vi.jsonl.gz` needs a manual
+re-translation upstream. The procs' SQL stays in `src/procedures/` until a cross-repo move to clinvar-ingest.
+`export-vi-table-to-gcs.sh` is not part of the release; it stays only because clinvar-ingest's export-failure message
+names it as the manual recovery.
 
 ## Publish-layer cleanup & bundle conformance (learned in 1.0.1)
 
@@ -79,7 +75,7 @@ record cleanup across the BQ export functions.
 - **`orjson` sets the bundle's text** (compact, raw UTF-8, record keys sorted at every depth), so the assembler
   requires it and stops without it. The stdlib's `json.dumps` writes the same data in different text, so an
   unchanged record would no longer have the same bytes in every release. A checkout without `venv/3.12` uses
-  whatever `python3` is active, such as an environment activated for the local vrsify fallback.
+  whatever `python3` is active.
 - **Canonical list order** — `order_unordered_arrays` sorts the arrays in `gkm_json_cleanup.UNORDERED_ARRAYS`
   (today `condition.aliases`) by each element's key-sorted JSON text, so replays are byte-exact. Add an array only
   when the data shows its order changing between releases AND every schema marks it `ordered: false` (the unit test
@@ -92,7 +88,7 @@ record cleanup across the BQ export functions.
   `#/condition/`, never the set). Filtered in the NDJSON export (`extract_ndjson_where`).
 
 **Parquet derives from the bundle.** The published Parquet set is built only by gkm-bundle-parquet, from the
-published bundle (release stage 6, `release-gkm-parquet.sh`). BigQuery exports no Parquet, so there is no Parquet
+published bundle (`run-release.sh` step 4, `release-gkm-parquet.sh`). BigQuery exports no Parquet, so there is no Parquet
 SQL to keep in step with the assembler. The default tables are generated from the bundle schema, so a schema change
 here changes them with no Parquet-specific work. If Parquet needs a fact the bundle doesn't carry, add it to the
 bundle (and its schema) first; never add Parquet-only logic to this repo. The tool checks every build against its

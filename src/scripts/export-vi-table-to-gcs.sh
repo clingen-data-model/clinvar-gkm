@@ -1,7 +1,15 @@
 #!/bin/bash
 #
 # Export a release's variation_identity to gs://clinvar-gkm/<date>/dev/vi.jsonl.gz
-# for vrs-python normalization (clinvar-gk-python `misc/clinvar-vrsification`).
+# for vrs-python translation.
+#
+# NOT PART OF THE RELEASE: the clinvar-ingest pipeline (v2.7.0+) writes this export for
+# every release, and run-release.sh never calls this script. It is kept only as the manual
+# recovery that clinvar-ingest's stored-procedures job names when its own export fails
+# ("re-run the export manually from the clinvar-gkm repo with
+# ./src/scripts/export-vi-table-to-gcs.sh <date>"). Do not run it after the release has been
+# translated: a rewrite with new content no longer matches the translation (see
+# check-cloud-vrsify.sh), and the cloud job translates each release once.
 #
 # Default is INCREMENTAL: only the variations whose variation_identity changed
 # since the prior release are exported, so vrs-python processes the delta (~0.3%

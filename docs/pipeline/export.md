@@ -16,7 +16,7 @@ Distribution follows a **full + delta** model:
 
 ## Workflow
 
-The export and distribution process has five steps. `release-gkm.sh` runs Steps 1–3 for a full bundle, `release-gkm-delta.sh` runs Step 4, and `release-gkm-parquet.sh` runs Step 5. `run-release.sh` calls all three for every release (Steps 1–4 are its stage 5, Step 5 its stage 6). Each step can also be run on its own.
+The export and distribution process has five steps. `release-gkm.sh` runs Steps 1–3 for a full bundle, `release-gkm-delta.sh` runs Step 4, and `release-gkm-parquet.sh` runs Step 5. `run-release.sh` calls all three for every release (Steps 1–4 are its step 3, Step 5 its step 4). Each step can also be run on its own.
 
 ### Step 1: Export Dictionaries to GCS
 
@@ -168,7 +168,7 @@ tool for any GKM bundle, installed from [PyPI](https://pypi.org/project/gkm-bund
 record and the Parquet set is a convenience that can be regenerated from it. To build the same tables yourself, or
 cut a mini-bundle from a full bundle, see [Build Your Own Tables and Mini-Bundles](../parquet/build-your-own.md).
 
-`run-release.sh` runs this step as its stage 6, after stage 5 has uploaded the weekly full; `--skip-parquet` skips it
+`run-release.sh` runs this step as its step 4, after its step 3 has uploaded the weekly full; `--skip-parquet` skips it
 and leaves the previous set in place. It can also be run on its own for a release that is already published:
 
 ```bash
@@ -218,7 +218,7 @@ reference is in [Parquet Tables](../parquet/tables.md).
    file in `parquet/` that is no longer produced, regenerates `index.json`, and with `--purge` (which `run-release.sh`
    passes) purges the folder from the CDN.
 
-A failure in steps 1–4 stops before anything on R2 changes. After stage 5, a failure is non-fatal to the release:
+A failure in steps 1–4 stops before anything on R2 changes. After `run-release.sh` step 3, a failure is non-fatal to the release:
 `parquet/` keeps the previous set, and its manifest and the index keep saying which release it was built from.
 
 #### Options and Resources
