@@ -1,6 +1,6 @@
 /* Shared R2 release browser. Each mount element:
      <div class="r2-browser" data-r2-type="TYPE"></div>
-   TYPE ∈ latest | monthly | weekly | deltas | parquet-latest | previous
+   TYPE ∈ latest | monthly | weekly | deltas | parquet-latest | previous | previous-summary
    (parquet-monthly is an alias of parquet-latest; Parquet is derived and one dataset is published)
    Reads the root version manifest (/index.json) and follows it to the index of the data line this docs
    version describes (ADR 0011): the page's docs version is the path segment after /clinvar-gkm/ ("1.1" in
@@ -8,8 +8,10 @@
    without a version in its path (a local `zensical serve`), or a version with no data line, reads the
    current line. Then it renders each mount by its type.
    On a frozen line, a view whose files were deleted at the freeze (weekly fulls, Parquet) shows a note that
-   links the same page in the latest docs. `previous` lists every frozen line, and renders only on the
-   docs of the current line; older docs point to the latest docs for it.
+   links the same page in the latest docs. `previous` lists the frozen lines OLDER than this page's line
+   (numerically lower: the 1.2 docs list 1.1 and 1.0, the 1.1 docs only 1.0), newest first, with their
+   monthlies and deltas; `previous-summary` is a compact table of the same lines (schema, status,
+   superseded_by, index/README/MANIFEST links) that links each to the Previous Releases page.
    Layout (ADR 0009, mirrors NCBI ClinVar): official monthlies at the line's top level, weekly/ (current
    month's weekly fulls), deltas/ (current month) + deltas/YYYY-MM/, archive/YYYY/ (+ deltas/YYYY-MM/),
    parquet/. Every link uses the `path` the index gives, so files that move at month or year rollover
@@ -311,28 +313,42 @@
     return manifest && manifest.frozen_at ? String(manifest.frozen_at).slice(0, 10) : null;
   }
 
-  function renderPrevious(mount, root, ctx) {
-    if (ctx.key !== ctx.currentKey) {
-      mount.appendChild(note("Listed in the latest docs", [
-        "These docs describe " + lineName(ctx) + ". The release lines frozen before the current one are listed on ",
-        el("a", { href: latestDocsHref(location.pathname), text: "this page in the latest docs" }),
-        "."
-      ]));
-      return;
-    }
+  // The frozen lines older than the page's line (ctx.key), newest first. Never the page's own line or a newer
+  // one: each docs version lists only what came before it.
+  function olderFrozen(root, ctx) {
     var versions = root.versions || {};
-    var frozen = Object.keys(versions).filter(function (k) {
-      return versions[k] && versions[k].status === "frozen" && /^\d+\.\d+$/.test(k);
+    return Object.keys(versions).filter(function (k) {
+      return versions[k] && versions[k].status === "frozen" && /^\d+\.\d+$/.test(k) &&
+        (!ctx.key || lineOrder(k, ctx.key) > 0);
     }).sort(lineOrder);
-    if (!frozen.length) {
-      mount.appendChild(el("div", { className: "r2-file", text: "No release line has been frozen yet." }));
-      return;
-    }
+  }
+  function noneBefore(mount, ctx) {
+    mount.appendChild(el("div", { className: "r2-file", text: ctx.key
+      ? "There are no release lines before " + lineName(ctx) + "."
+      : "No release line has been frozen yet." }));
+  }
+  // index.json, feed.xml, and README.txt + MANIFEST.json once the freeze has written them.
+  function lineLinks(entry, prefix, manifest) {
+    var links = [["index.json", entry.index], ["feed.xml", entry.feed]];
+    if (manifest) links.push(["README.txt", prefix + "README.txt"], ["MANIFEST.json", prefix + "MANIFEST.json"]);
+    var row = el("div", { className: "r2-file" });
+    links.filter(function (l) { return l[1]; }).forEach(function (l, i) {
+      if (i) row.appendChild(el("span", { text: " · " }));
+      row.appendChild(el("a", { href: url(l[1]), text: l[0] }));
+    });
+    return row;
+  }
+  function lineAnchor(k) { return "line-" + k.replace(".", "-"); }
+
+  function renderPrevious(mount, root, ctx) {
+    var versions = root.versions || {};
+    var frozen = olderFrozen(root, ctx);
+    if (!frozen.length) { noneBefore(mount, ctx); return; }
     frozen.forEach(function (k) {
       var entry = versions[k];
       var line = String(entry.line || "").replace(/\/?$/, "/");
       var section = el("div", { className: "r2-line" });
-      section.appendChild(el("h3", { id: "line-" + k.replace(".", "-"),
+      section.appendChild(el("h3", { id: lineAnchor(k),
         text: line + (entry.schema ? " (schema " + entry.schema + ")" : "") }));
       mount.appendChild(section);
       if (!entry.index) { section.appendChild(el("div", { className: "r2-error", text: "No index for this line." })); return; }
@@ -357,14 +373,7 @@
     if (data.latest_release) facts.push("Last release: " + data.latest_release + ".");
     section.appendChild(el("p", { text: facts.join(" ") }));
 
-    var links = [["index.json", entry.index], ["feed.xml", entry.feed]];
-    if (manifest) links.push(["README.txt", prefix + "README.txt"], ["MANIFEST.json", prefix + "MANIFEST.json"]);
-    var row = el("div", { className: "r2-file" });
-    links.filter(function (l) { return l[1]; }).forEach(function (l, i) {
-      if (i) row.appendChild(el("span", { text: " · " }));
-      row.appendChild(el("a", { href: url(l[1]), text: l[0] }));
-    });
-    section.appendChild(row);
+    section.appendChild(lineLinks(entry, prefix, manifest));
 
     var m = monthlies(data);
     var mf = folder("Monthly full bundles", false, meta(m.filter(function (x) { return !isPointer(x); }).length + " monthlies"));
@@ -383,9 +392,44 @@
     section.appendChild(df);
   }
 
+  // Compact table of the same lines for the Get the Data landing page; "../previous-releases/" is
+  // page-relative from the hub (/data-access/download/ -> /data-access/previous-releases/).
+  function renderPreviousSummary(mount, root, ctx) {
+    var versions = root.versions || {};
+    var frozen = olderFrozen(root, ctx);
+    if (!frozen.length) { noneBefore(mount, ctx); return; }
+    var table = el("table", { className: "r2-latest" });
+    table.appendChild(el("thead", {}, [el("tr", {}, ["Line", "Schema", "Status", "Files", "Monthlies and deltas"].map(
+      function (h) { return el("th", { text: h }); }))]));
+    var tbody = el("tbody");
+    frozen.forEach(function (k) {
+      var entry = versions[k];
+      var status = el("td", { text: "frozen" + (entry.superseded_by
+        ? ", superseded by " + String(entry.superseded_by).replace(/\/?$/, "/") : "") });
+      var files = el("td", {});
+      tbody.appendChild(el("tr", {}, [
+        el("td", { text: String(entry.line || k).replace(/\/?$/, "/") }),
+        el("td", { text: entry.schema || "" }),
+        status,
+        files,
+        el("td", {}, [el("a", { href: "../previous-releases/#" + lineAnchor(k), text: "Previous Releases →" })])
+      ]));
+      if (!entry.index) return;
+      var prefix = dirOf(entry.index.replace(/^\//, ""));
+      fetchJSON(url(prefix + "MANIFEST.json")).catch(function () { return null; }).then(function (mf) {
+        var when = frozenDate(mf);
+        if (when) status.textContent = status.textContent.replace(/^frozen/, "frozen " + when);
+        files.appendChild(lineLinks(entry, prefix, mf));
+      });
+    });
+    table.appendChild(tbody);
+    mount.appendChild(table);
+  }
+
   function render(mount, data, root, ctx) {
     var t = mount.getAttribute("data-r2-type");
     if (t === "previous") renderPrevious(mount, root, ctx);
+    else if (t === "previous-summary") renderPreviousSummary(mount, root, ctx);
     else if (t === "latest") renderLatest(mount, data, ctx);
     else if (t === "monthly") renderFiles(mount, monthlies(data), "No monthly full bundles listed.");
     else if (t === "weekly") renderWeekly(mount, data, ctx);
@@ -431,7 +475,9 @@
   // Load the root manifest, the line index of this page's data line, and, for a frozen line, the date in its
   // MANIFEST.json. If the root doc is itself a full index (pre-/v1 flat layout), use it directly.
   function loadContext() {
-    var needLine = Array.prototype.some.call(mounts, function (m) { return m.getAttribute("data-r2-type") !== "previous"; });
+    var needLine = Array.prototype.some.call(mounts, function (m) {
+      return !/^previous(-summary)?$/.test(m.getAttribute("data-r2-type"));
+    });
     return fetchJSON(ROOT_INDEX_URL).then(function (root) {
       if (root.datasets || root.deltas) return { root: root, data: root, ctx: { frozen: false } };
       var ctx = pickLine(root, docsVersion(location.pathname));

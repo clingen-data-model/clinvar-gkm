@@ -2,6 +2,8 @@
 
 Links: [Weekly Full Bundles](weekly-full.md) · [Weekly Deltas](weekly-deltas.md) · [Parquet Files](parquet.md) · [How Releases Work](release-model.md)
 
+Older release lines (1.1.x, 1.0.1) are on [Previous Releases](previous-releases.md).
+
 The official monthly full bundle is a gzip-compressed JSON file containing every variation, statement, proposition, condition, and supporting reference record for a release. It lines up with ClinVar's monthly `ClinVarVCVRelease_YYYY-MM`: `clinvar-gkm_YYYY-MM` is built from the newest weekly release **before** ClinVar's monthly cut, and the line's `index.json` names that release as the monthly's `source_release`. For example, the `2026-11` monthly has `source_release` `2026-10-31`.
 
 The monthlies of the current year sit at the top of the line folder, `v1/1.2/`; `clinvar-gkm_00-latest.json.gz` is a stable URL for the newest one. When the first release of a new year is published, the finished year's monthlies move to `v1/1.2/archive/YYYY/`, where they are kept. Monthlies and deltas are the durable record: every past week can be rebuilt from them ([Rebuild a past week](weekly-deltas.md#rebuild-a-past-week)).

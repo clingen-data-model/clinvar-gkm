@@ -5,11 +5,15 @@
 # remove the entry when a newer tag of that line has correct docs.
 #
 # 1.1: the 1.1.0 tag was cut on 1.0 without main's 1.1.0 docs (old v1/datasets/ URLs, no
-# 1.1.0 changelog section). 036bec2 is main right after the 1.1.0 forward-merge (#188).
+# 1.1.0 changelog section). The source tracks the tip of the long-lived branch docs/line-1.1:
+# 036bec2 (main right after the 1.1.0 forward-merge, #188) plus the 1.1 docs' own Previous
+# Releases page (ADR 0011, 2026-11-21 amendment). After a commit on docs/line-1.1, set the SHA
+# below to its new tip and dispatch 1.1. Keep the branch: CI's checkout (fetch-depth: 0)
+# fetches all branches, and git archive needs the commit to be reachable.
 #
 # 1.2: the 1.2.0 tag predates the per-line download pages and the Previous Releases page
-# (#241). 4cb647d is 1.0 with #241 merged.
+# (#241) and the per-version Previous Releases rule (#247). ddfbfa9 is 1.0 with #247 merged.
 #
 # line  source                                    label
-1.1     036bec25e342d6c572a94a8afde2a13964fbc049  1.1.0
-1.2     4cb647d9ca0a473aa4529f2206f936b7e5a41243  1.2.0
+1.1     92f0c53a925e16620a282d08854322b823b12ee8  1.1.0
+1.2     ddfbfa9ae2b321c80c3791b68581fe97b7302de8  1.2.0

@@ -1,6 +1,6 @@
 # Downloads
 
-ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas (JSON), with one typed Parquet dataset of the latest release built from the bundle, free from Cloudflare R2 — no authentication, no egress fees. The layout follows NCBI's ClinVar FTP site. New here? See [How Releases Work](release-model.md).
+ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas (JSON), with one typed Parquet dataset of the latest release built from the bundle, free from Cloudflare R2 — no authentication, no egress fees. The layout follows NCBI's ClinVar FTP site. New here? See [How Releases Work](release-model.md). Releases of older lines (1.1.x, 1.0.1) are under [Previous Releases](#previous-releases) below.
 
 !!! warning "1.2.0 starts a new version line, `v1/1.2/`"
     1.2.0 publishes into a new line folder, `v1/1.2/`, which starts with one checkpoint monthly and adds deltas from there. The 1.1.x releases stay, unchanged, in the frozen line `v1/1.1/` (monthlies, deltas and archive; its weekly fulls and Parquet set are removed at the freeze). Change `v1/1.1/` to `v1/1.2/` in your scripts, or read the current line from the root `index.json`. See [Version Lines](release-model.md#version-lines) and the [changelog](../reference/changelog.md).
@@ -26,6 +26,19 @@ The interactive release table needs JavaScript. Without it, fetch the release in
 </noscript>
 
 Browse history and archives: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-full.md) · [Weekly Deltas](weekly-deltas.md) · [Parquet Files](parquet.md). Earlier release lines: [Previous Releases](previous-releases.md).
+
+---
+
+## Previous Releases
+
+These docs describe the current line, `v1/1.2/`. The release lines frozen **before** it are listed here; each keeps its official monthlies and weekly deltas, unchanged, at the paths they had. Their files are listed on [Previous Releases](previous-releases.md).
+
+<div class="r2-browser" data-r2-type="previous-summary"></div>
+
+<noscript>
+The list of earlier lines needs JavaScript. Without it, read the root version manifest, which lists every line, its status and the path of its own index:
+<code>curl -s https://data.clinvar-gkm.org/index.json | python3 -m json.tool</code>
+</noscript>
 
 ---
 

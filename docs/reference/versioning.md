@@ -133,13 +133,16 @@ Unreleased changes are not published as a docs version: the docs change with a r
 
 The download tables and the live query console in each version read that version's data line: the `1.1` docs
 list the files in `v1/1.1/`, the `1.2` docs those in `v1/1.2/`. On a frozen line the weekly full bundles and the
-Parquet set are deleted, so those tables and the console say so and link to the latest docs. Only the latest
-release lists the frozen lines, on [Previous Releases](../data-access/previous-releases.md).
+Parquet set are deleted, so those tables and the console say so and link to the latest docs (the console says so
+on any frozen line, even before the deletion). Each version lists the frozen lines older than its own on
+[Previous Releases](../data-access/previous-releases.md) and on the Get the Data landing page: the latest release
+lists every frozen line, the `1.1` docs only `1.0`.
 
 The repository link at the right of the header names the source each version was built from, and its links to
 repository files point there too: the release tag (such as `1.1.0`). The
-`1.1` docs are built from the `main` commit that documented 1.1.0 (`036bec2`), because the `1.1.0` tag was cut
-without them, so their repository-file links point at that commit.
+`1.1` docs are built from the `main` commit that documented 1.1.0 (`036bec2`), plus their Previous Releases page
+(the branch `docs/line-1.1`), because the `1.1.0` tag was cut without them, so their repository-file links point
+at that branch's commit.
 
 To link to a page in whatever release is latest, use a link without a version, such as
 `https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/changelog/`. To pin a link to one version,
