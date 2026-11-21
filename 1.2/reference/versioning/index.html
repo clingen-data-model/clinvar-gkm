@@ -6593,7 +6593,7 @@ freezes the line it replaces in the same way, but starts from a checkpoint month
 republish (see <a href="#120-a-new-minor-line">1.2.0</a>), and the frozen line drops its weekly fulls and Parquet.</p>
 <div class="admonition info">
 <p class="admonition-title">The published schema always matches the data</p>
-<p>The schema in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/4cb647d9ca0a473aa4529f2206f936b7e5a41243/schema/clinvar-gkm"><code>schema/clinvar-gkm/</code></a>
+<p>The schema in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/ddfbfa9ae2b321c80c3791b68581fe97b7302de8/schema/clinvar-gkm"><code>schema/clinvar-gkm/</code></a>
 is the source of truth and is updated in the same change as any adjustment to the emitted bundle — so a
 given release's data always validates against its stated schema version, and the published examples are
 validated against it.</p>
@@ -6641,12 +6641,15 @@ version.</p>
 <code>dev</code> version (<code>…/clinvar-gkm/dev/&lt;page&gt;/</code>) opens the same page in the latest release.</p>
 <p>The download tables and the live query console in each version read that version's data line: the <code>1.1</code> docs
 list the files in <code>v1/1.1/</code>, the <code>1.2</code> docs those in <code>v1/1.2/</code>. On a frozen line the weekly full bundles and the
-Parquet set are deleted, so those tables and the console say so and link to the latest docs. Only the latest
-release lists the frozen lines, on <a href="../../data-access/previous-releases/">Previous Releases</a>.</p>
+Parquet set are deleted, so those tables and the console say so and link to the latest docs (the console says so
+on any frozen line, even before the deletion). Each version lists the frozen lines older than its own on
+<a href="../../data-access/previous-releases/">Previous Releases</a> and on the Get the Data landing page: the latest release
+lists every frozen line, the <code>1.1</code> docs only <code>1.0</code>.</p>
 <p>The repository link at the right of the header names the source each version was built from, and its links to
 repository files point there too: the release tag (such as <code>1.1.0</code>). The
-<code>1.1</code> docs are built from the <code>main</code> commit that documented 1.1.0 (<code>036bec2</code>), because the <code>1.1.0</code> tag was cut
-without them, so their repository-file links point at that commit.</p>
+<code>1.1</code> docs are built from the <code>main</code> commit that documented 1.1.0 (<code>036bec2</code>), plus their Previous Releases page
+(the branch <code>docs/line-1.1</code>), because the <code>1.1.0</code> tag was cut without them, so their repository-file links point
+at that branch's commit.</p>
 <p>To link to a page in whatever release is latest, use a link without a version, such as
 <code>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/changelog/</code>. To pin a link to one version,
 include it: <code>…/clinvar-gkm/1.1/reference/changelog/</code>. The decision record is

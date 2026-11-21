@@ -5012,10 +5012,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#step-1-export-variation_identity-from-bigquery" class="md-nav__link">
+  <a href="#step-1-export-variation_identity-clinvar-ingest" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Step 1: Export <code>variation_identity</code> from BigQuery
+        Step 1: Export <code>variation_identity</code> (clinvar-ingest)
       </span>
     </span>
   </a>
@@ -5023,22 +5023,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-2-run-clinvar-gk-python" class="md-nav__link">
+  <a href="#step-2-translate-with-vrs-python-cloud-vrsify" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Step 2: Run clinvar-gk-python
+        Step 2: Translate with vrs-python (cloud vrsify)
       </span>
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Step 2: Run clinvar-gk-python">
+    <nav class="md-nav" aria-label="Step 2: Translate with vrs-python (cloud vrsify)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#running-vrsify" class="md-nav__link">
+  <a href="#checking-the-cloud-output" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Running vrsify
+        Checking the cloud output
       </span>
     </span>
   </a>
@@ -6442,10 +6442,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#step-1-export-variation_identity-from-bigquery" class="md-nav__link">
+  <a href="#step-1-export-variation_identity-clinvar-ingest" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Step 1: Export <code>variation_identity</code> from BigQuery
+        Step 1: Export <code>variation_identity</code> (clinvar-ingest)
       </span>
     </span>
   </a>
@@ -6453,22 +6453,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-2-run-clinvar-gk-python" class="md-nav__link">
+  <a href="#step-2-translate-with-vrs-python-cloud-vrsify" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Step 2: Run clinvar-gk-python
+        Step 2: Translate with vrs-python (cloud vrsify)
       </span>
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Step 2: Run clinvar-gk-python">
+    <nav class="md-nav" aria-label="Step 2: Translate with vrs-python (cloud vrsify)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#running-vrsify" class="md-nav__link">
+  <a href="#checking-the-cloud-output" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Running vrsify
+        Checking the cloud output
       </span>
     </span>
   </a>
@@ -6560,55 +6560,63 @@
 
 <h1 id="vrs-processing">VRS Processing<a class="headerlink" href="#vrs-processing" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>VRS processing is the manual step between <a href="../variation-identity/">Variation Identity</a> extraction and <a href="../cat-vrs/">Cat-VRS</a> generation. It translates the selected SPDI or HGVS expression for each variation's defining allele into a GA4GH VRS (Variation Representation Specification) object — producing a computable, digest-identified representation of the variant.</p>
-<p>The step is driven by two scripts in this project with an external vrs-python step between them: <code>src/scripts/export-vi-table-to-gcs.sh</code> exports the input, <a href="https://github.com/clingen-data-model/clinvar-gk-python">clinvar-gk-python</a> resolves VRS, and <code>src/scripts/vrs-to-bq-table.sh</code> transforms the output, loads <code>gkm_vrs</code>, and runs the downstream procedures. Export and publish are a separate final stage: <code>release-gkm.sh</code> (full bundles), <code>release-gkm-delta.sh</code> (deltas) and <code>release-gkm-parquet.sh</code> (the latest Parquet). The whole release, including this step, can be run end-to-end via <code>run-release.sh</code> (see <a href="../#single-command-run">Single-command run</a>); only the vrs-python resolution requires local services.</p>
-<p><strong>This step is incremental.</strong> vrs-python resolution is per-variation (no cross-variation dependency), so diffing <code>variation_identity</code> between releases is a clean driver: the export sends only the variations whose <code>variation_identity</code> changed since the prior release (~0.3% of a weekly release, versus the whole ~4.5M snapshot), and the <code>gkm_vrs</code> load carries the prior release's results forward for the unchanged variations. This is where the largest cost reduction in the whole pipeline lands, because vrs-python is the most expensive stage.</p>
-<p>VRS resolution is performed by the <a href="https://github.com/clingen-data-model/clinvar-gk-python">clinvar-gk-python</a> project, which wraps <a href="https://github.com/ga4gh/vrs-python">vrs-python</a> and the <a href="https://github.com/GenomicMedLab/variation-normalizer">variation-normalizer</a> to resolve expressions against a local SeqRepo sequence repository. The location transformation step uses a lightweight Cloud Run job defined in this project under <code>src/vrs-location-transformer/</code>.</p>
+<p>VRS processing is the step between <a href="../variation-identity/">Variation Identity</a> extraction and <a href="../cat-vrs/">Cat-VRS</a> generation. It translates the selected SPDI or HGVS expression for each variation's defining allele into a GA4GH VRS (Variation Representation Specification) object — producing a computable, digest-identified representation of the variant.</p>
+<p>The work is split between two repositories:</p>
+<ul>
+<li><strong><a href="https://github.com/clingen-data-model/clinvar-ingest">clinvar-ingest</a> (pipeline v2.7.0 and later)</strong> exports each release's changed <code>variation_identity</code> rows to <code>gs://clinvar-gkm/YYYY-MM-DD/dev/vi.jsonl.gz</code>, and its Cloud Run job <code>clinvar-ingest-vrsify</code> translates them with <a href="https://github.com/ga4gh/vrs-python">vrs-python</a> against a <a href="https://refgenie.org/refget/refgetstore-explained/">RefgetStore</a> of genomic sequences, with no local services.</li>
+<li><strong>This project's release</strong> (<code>run-release.sh</code>) starts after that: step 1 runs <code>src/scripts/check-cloud-vrsify.sh</code>, which checks that the translation belongs to the current export, and step 2 runs <code>src/scripts/vrs-to-bq-table.sh</code>, which transforms the translation, loads <code>gkm_vrs</code>, and runs the downstream procedures. Export and publish follow: <code>release-gkm.sh</code> (full bundles), <code>release-gkm-delta.sh</code> (deltas) and <code>release-gkm-parquet.sh</code> (the latest Parquet). See <a href="../#single-command-run">Single-command run</a>.</li>
+</ul>
+<p><strong>This step is incremental.</strong> VRS translation is per-variation (no cross-variation dependency), so diffing <code>variation_identity</code> between releases is a clean driver: the export holds only the variations whose <code>variation_identity</code> changed since the prior release (~0.3% of a weekly release, versus the whole ~4.5M snapshot), and the <code>gkm_vrs</code> load carries the prior release's results forward for the unchanged variations. This is where the largest cost reduction in the whole pipeline lands, because VRS translation is the most expensive stage.</p>
+<p>The location transformation step uses a lightweight Cloud Run job defined in this project under <code>src/vrs-location-transformer/</code>.</p>
 <hr />
 <h2 id="workflow">Workflow<a class="headerlink" href="#workflow" title="Permanent link">&para;</a></h2>
-<h3 id="step-1-export-variation_identity-from-bigquery">Step 1: Export <code>variation_identity</code> from BigQuery<a class="headerlink" href="#step-1-export-variation_identity-from-bigquery" title="Permanent link">&para;</a></h3>
-<p>The <code>variation_identity</code> table is exported to Google Cloud Storage as gzipped NDJSON at <code>gs://clinvar-gkm/YYYY-MM-DD/dev/vi.jsonl.gz</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>./src/scripts/export-vi-table-to-gcs.sh<span class="w"> </span>YYYY-MM-DD<span class="w">          </span><span class="c1"># incremental (default)</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>./src/scripts/export-vi-table-to-gcs.sh<span class="w"> </span>YYYY-MM-DD<span class="w"> </span>--full<span class="w">   </span><span class="c1"># whole table</span>
-</code></pre></div>
-<p>By default the export is <strong>incremental</strong> — it diffs <code>variation_identity</code> against the prior release and writes only the changed variations, so vrs-python processes the delta. Pass <code>--full</code> for the first release or after a vrs-python / <code>variation_identity</code> transform change (see the version-invalidation note below).</p>
+<h3 id="step-1-export-variation_identity-clinvar-ingest">Step 1: Export <code>variation_identity</code> (clinvar-ingest)<a class="headerlink" href="#step-1-export-variation_identity-clinvar-ingest" title="Permanent link">&para;</a></h3>
+<p>clinvar-ingest's stored procedures job runs, for every release, <code>dataset_diff_on</code>, <code>variation_identity_incremental</code> and <code>variation_vrs_changed</code>, then exports only the changed variations' <code>variation_identity</code> rows to <code>gs://clinvar-gkm/YYYY-MM-DD/dev/vi.jsonl.gz</code>. When no usable baseline exists, every variation counts as changed and the export holds the whole table. The procedures it calls live in this repository's <code>src/procedures/</code>, but this project's release never runs them.</p>
 <p>Each record contains the single best expression source for a ClinVar variation — including the <code>source</code> expression string, <code>fmt</code> (spdi, hgvs, or gnomad), <code>vrs_class</code>, and copy number fields when applicable.</p>
-<h3 id="step-2-run-clinvar-gk-python">Step 2: Run clinvar-gk-python<a class="headerlink" href="#step-2-run-clinvar-gk-python" title="Permanent link">&para;</a></h3>
-<p>The <code>misc/clinvar-vrsification</code> script in the clinvar-gk-python repository orchestrates VRS resolution. It accepts a release date and invokes the Python entry point with parallelism, reading whatever <code>vi.jsonl.gz</code> Step 1 produced — the changed delta by default, or the full snapshot when Step 1 was run with <code>--full</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>misc/clinvar-vrsification<span class="w"> </span>YYYY-MM-DD
-</code></pre></div>
-<p>For each input record, the tool attempts to resolve the <code>source</code> expression into a VRS object according to its <code>vrs_class</code>. Not every variation can be resolved — vrs-python handles a subset of expression types, and records that fail resolution carry an <code>errors</code> field in the output. The supported VRS classes are:</p>
+<p><code>src/scripts/export-vi-table-to-gcs.sh</code> is not part of the release. It is kept because clinvar-ingest's error message, when its own export fails, tells the operator to rerun the export with it. Don't run it after the release has been translated: a rewrite with different content no longer matches the translation.</p>
+<h3 id="step-2-translate-with-vrs-python-cloud-vrsify">Step 2: Translate with vrs-python (cloud vrsify)<a class="headerlink" href="#step-2-translate-with-vrs-python-cloud-vrsify" title="Permanent link">&para;</a></h3>
+<p>The <code>clinvar-ingest-vrsify</code> Cloud Run job (project <code>clingen-dev</code>, region <code>us-east1</code>) runs every 15 minutes. It takes the next release whose upstream stored procedures have finished, waits for that release's <code>vi.jsonl.gz</code> to be written, and runs the translation on Cloud Batch. It takes each release once, and never replaces an existing output. It writes, beside the input:</p>
+<ul>
+<li><code>vi-vrs-python.jsonl.gz</code> — one line per input record</li>
+<li><code>vi-vrs-python.provenance.json</code> — the input it read (<code>inputs</code>: URI, generation, MD5 and size), the output, the RefgetStore, the library versions and record counts</li>
+</ul>
+<p>For each input record, the translation attempts to resolve the <code>source</code> expression into a VRS object according to its <code>vrs_class</code>. Not every variation can be resolved: records that fail resolution carry an <code>errors</code> field in the output. Transcript and protein expressions are not translated (the translation uses only the RefgetStore, with no UTA), and records of classes it does not translate (<code>Unknown</code>, <code>Not Available</code>, <code>Haplotype</code>) get a null <code>out</code>. The supported VRS classes are:</p>
 <ul>
 <li><strong>Allele</strong> — translates SPDI or HGVS into a VRS <code>Allele</code> with a <code>SequenceLocation</code> and <code>state</code></li>
 <li><strong>CopyNumberChange</strong> — resolves the location and applies the <code>copyChange</code> designation (gain/loss)</li>
 <li><strong>CopyNumberCount</strong> — resolves the location and attaches the <code>copies</code> value</li>
 </ul>
 <p>Each output record pairs the original <code>variation_identity</code> input (<code>in</code>) with the VRS resolution result (<code>out</code>).</p>
-<h4 id="running-vrsify">Running vrsify<a class="headerlink" href="#running-vrsify" title="Permanent link">&para;</a></h4>
-<p>In the pipeline, <code>run-release.sh</code> runs this step as <code>src/vrsify/vrsify.sh YYYY-MM-DD</code>, which calls the resolver installed as a pinned dependency (<code>src/vrsify/requirements.txt</code>) instead of the <code>misc/clinvar-vrsification</code> script. <code>vrsify.sh</code> exits before starting unless four variables are set: <code>SEQREPO_ROOT_DIR</code>, <code>SEQREPO_DATAPROXY_URL</code>, <code>HGVS_SEQREPO_DIR</code> and <code>GENE_NORM_DB_URL</code>. It does not check <code>UTA_DB_URL</code>, and its comments describe UTA as needed only for liftover. The resolver still reaches UTA for some records; when <code>UTA_DB_URL</code> is unset, the UTA client falls back to the public UTA endpoint, which timed out on 33 records in the 2026-10-18 run. Export <code>UTA_DB_URL</code> pointing at a reachable UTA, in practice a local container from the variation-normalizer compose setup in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/4cb647d9ca0a473aa4529f2206f936b7e5a41243/src/vrsify"><code>src/vrsify/README.md</code></a>.</p>
-<p><strong>Output:</strong> <code>vi-normalized-no-liftover.jsonl.gz</code> on GCS.</p>
+<p><strong>Output:</strong> <code>vi-vrs-python.jsonl.gz</code> on GCS.</p>
+<h4 id="checking-the-cloud-output">Checking the cloud output<a class="headerlink" href="#checking-the-cloud-output" title="Permanent link">&para;</a></h4>
+<p>The release starts here. <code>run-release.sh</code> step 1 runs <code>src/scripts/check-cloud-vrsify.sh YYYY-MM-DD</code>; a release started with <code>--start-step 2</code> runs it too, so every <code>gkm_vrs</code> load is checked. The check reads the objects, runs nothing, and stops the release at once (it does not wait) unless:</p>
+<ul>
+<li>both <code>vi-vrs-python.jsonl.gz</code> and its provenance exist;</li>
+<li>the provenance names this release's <code>vi.jsonl.gz</code> as its only input, with the MD5 and size that object has now;</li>
+<li>the provenance names <code>vi-vrs-python.jsonl.gz</code> as its output, with its current size when the provenance records one.</li>
+</ul>
+<p>A new generation of <code>vi.jsonl.gz</code> with the same MD5 passes: a re-export of unchanged <code>variation_identity</code> writes the same bytes. A <code>vi.jsonl.gz</code> with different content fails, and the cloud job does not redo the release by itself; translate the current export again upstream (<code>clinvar-ingest vrsify-submit</code> with <code>--overwrite</code>), then run the release again. If the output is not there yet, run the release again after the cloud job's next run.</p>
 <h3 id="step-3-transform-vrs-locations">Step 3: Transform VRS locations<a class="headerlink" href="#step-3-transform-vrs-locations" title="Permanent link">&para;</a></h3>
 <p>VRS <code>SequenceLocation</code> objects use array-valued <code>start</code> and <code>end</code> fields to represent imprecise ranges (inner/outer bounds). BigQuery does not natively support loading these mixed scalar/array values, so a minor transformation is needed before the data can be imported.</p>
 <p>The <code>vrs-to-vi-location-transformer</code> Cloud Run job — defined in this project at <code>src/vrs-location-transformer/</code> — streams the VRS output through a <code>jq</code> filter that flattens each location's <code>start</code> and <code>end</code> arrays into separate scalar fields: <code>start</code>, <code>start_inner</code>, <code>start_outer</code>, <code>end</code>, <code>end_inner</code>, <code>end_outer</code>. When <code>start</code> or <code>end</code> is already a scalar (precise variants), the value is left unchanged.</p>
-<p>This job is normally invoked by the <code>src/scripts/vrs-to-bq-table.sh</code> orchestrator (Step 4), not run by hand; the direct invocation is shown for reference:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>gcloud<span class="w"> </span>run<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>execute<span class="w"> </span>vrs-to-vi-location-transformer<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--args<span class="w"> </span><span class="s2">"gs://clinvar-gkm/YYYY-MM-DD/dev/vi-normalized-no-liftover.jsonl.gz"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>--args<span class="w"> </span><span class="s2">"gs://clinvar-gkm/YYYY-MM-DD/dev/vi-final.jsonl.gz"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span>--wait<span class="w"> </span>--region<span class="w"> </span>us-east1
+<p>This job is normally invoked by the <code>src/scripts/vrs-to-bq-table.sh</code> orchestrator (Step 4 below), not run by hand; the direct invocation is shown for reference:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gcloud<span class="w"> </span>run<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>execute<span class="w"> </span>vrs-to-vi-location-transformer<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>--args<span class="w"> </span><span class="s2">"gs://clinvar-gkm/YYYY-MM-DD/dev/vi-vrs-python.jsonl.gz"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>--args<span class="w"> </span><span class="s2">"gs://clinvar-gkm/YYYY-MM-DD/dev/vi-final.jsonl.gz"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>--wait<span class="w"> </span>--region<span class="w"> </span>us-east1
 </code></pre></div>
 <p><strong>Output:</strong> <code>vi-final.jsonl.gz</code> on GCS.</p>
 <h3 id="step-4-transform-load-run-procedures">Step 4: Transform, load, run procedures<a class="headerlink" href="#step-4-transform-load-run-procedures" title="Permanent link">&para;</a></h3>
-<p>The transform + load + downstream procedures are run by <code>src/scripts/vrs-to-bq-table.sh</code> (a 3-step script): the Cloud Run transform (Step 3 above), the <code>gkm_vrs</code> load, and the gkm_* stored procedures. Export and publish are <strong>not</strong> done here — they are handled separately by <code>release-gkm.sh</code> (see <a href="../export/">Export &amp; Distribute</a>); <code>run-release.sh</code> chains this script and then <code>release-gkm.sh</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>./src/scripts/vrs-to-bq-table.sh<span class="w"> </span>YYYY-MM-DD<span class="w">          </span><span class="c1"># from the start (Cloud Run transform)</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>./src/scripts/vrs-to-bq-table.sh<span class="w"> </span>YYYY-MM-DD<span class="w"> </span><span class="m">2</span><span class="w">        </span><span class="c1"># resume from a later step (2=load, 3=procs)</span>
+<p>The transform + load + downstream procedures are run by <code>src/scripts/vrs-to-bq-table.sh</code> (a 3-step script): the Cloud Run transform (Step 3 above), the <code>gkm_vrs</code> load, and the gkm_* stored procedures. Export and publish are <strong>not</strong> done here — they are handled separately by <code>release-gkm.sh</code> (see <a href="../export/">Export &amp; Distribute</a>); <code>run-release.sh</code> runs this script as its step 2 and then <code>release-gkm.sh</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>./src/scripts/vrs-to-bq-table.sh<span class="w"> </span>YYYY-MM-DD<span class="w">          </span><span class="c1"># from the start (Cloud Run transform)</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>./src/scripts/vrs-to-bq-table.sh<span class="w"> </span>YYYY-MM-DD<span class="w"> </span><span class="m">2</span><span class="w">        </span><span class="c1"># resume from a later step (2=load, 3=procs)</span>
 </code></pre></div>
-<p>The <code>gkm_vrs</code> load is <strong>incremental</strong>: it clones the prior release's <code>gkm_vrs</code> forward and merges in only the changed variations' new results (keyed on <code>in.variation_id</code>), rather than a <code>--replace</code> full load. It <strong>self-corrects to a full <code>--replace</code></strong> when no baseline <code>gkm_vrs</code> exists or when the staged rows are not the changed subset — so a full export (Step 1 <code>--full</code>) is loaded correctly without any flag change.</p>
+<p>The <code>gkm_vrs</code> load is <strong>incremental</strong>: it clones the prior release's <code>gkm_vrs</code> forward and merges in only the changed variations' new results (keyed on <code>in.variation_id</code>), rather than a <code>--replace</code> full load. It <strong>self-corrects to a full <code>--replace</code></strong> when no baseline <code>gkm_vrs</code> exists or when the staged rows are not the changed subset — so a translation of the whole table is loaded correctly without any flag change.</p>
 <p>Because each release clones the immediately prior one, the clone lineage grows one level per release and reaches BigQuery's cap of <strong>3 chained clones/snapshots</strong> roughly every 3 releases. When the seed clone fails with that error, the load automatically falls back to a <strong>deep copy</strong> (<code>CREATE OR REPLACE TABLE … AS SELECT *</code>) of the baseline, which materializes a fresh depth-0 table and resets the chain — self-healing, with no manual intervention. You'll see <code>clone chain full; reseeding via deep copy</code> in the log on those releases; it is expected and does not change the result.</p>
 <div class="admonition warning">
 <p class="admonition-title">Version-invalidation</p>
-<p>The incremental carry-forward assumes the prior release's <code>gkm_vrs</code> was produced by the <strong>same</strong> vrs-python normalizer and the <strong>same</strong> <code>variation_identity</code> transform. After a change to either, run Step 1 with <code>--full</code> on the next release to reprocess and reseed every variation; the load's self-correction then does a full <code>--replace</code>. Resume incremental afterward.</p>
-<p>A resolver pin bump that changes only how the run behaves, not the normalized output (for example, the per-variant timeout), does not need <code>--full</code>. The comment above the pin in <code>src/vrsify/requirements.txt</code> says which bumps are output-neutral.</p>
-<p><code>vrsify.sh</code> stops if the installed resolver is not the pinned commit. To move an existing environment to a new pin, run <code>pip install --force-reinstall --no-deps -r src/vrsify/requirements.txt</code>; a plain <code>pip install -r</code> keeps the installed commit, because the resolver's version never changes.</p>
+<p>The incremental carry-forward assumes the prior release's <code>gkm_vrs</code> was produced by the <strong>same</strong> VRS translation and the <strong>same</strong> <code>variation_identity</code> transform. A <code>variation_identity</code> transform change is caught by the diff, once clinvar-ingest runs the changed procedure: every variation whose row changes is exported and translated again.</p>
+<p>A change to the translation (vrs-python, the RefgetStore, or the cloud job's code) is not. Each release's provenance file records its <code>libraries</code> and <code>refget_store</code>, but the release does not compare them between releases. Re-translating every variation is an upstream run; this project's release has no full mode for it. When such a translation is in place, step 2's load self-corrects to a full <code>--replace</code>, and step 1's check still requires the translation's provenance to name <code>vi.jsonl.gz</code> as its only input.</p>
 </div>
 <hr />
 <h2 id="output-table-gkm_vrs">Output Table (<code>gkm_vrs</code>)<a class="headerlink" href="#output-table-gkm_vrs" title="Permanent link">&para;</a></h2>
@@ -6643,7 +6651,7 @@
 <p class="admonition-title">Limited Scope</p>
 <p>VRS processing currently resolves only the <strong>single best expression</strong> per variation — the defining allele for each Canonical Allele as selected by the <a href="../variation-identity/#precedence-hierarchy">precedence hierarchy</a>. Only variations that vrs-python can handle are successfully resolved; the remainder carry errors in the output.</p>
 </div>
-<p>The full release now runs from a single command — <code>src/scripts/run-release.sh</code> chains variation identity, the export, this vrsify stage (via <code>src/vrsify/vrsify.sh</code>), and the transform/load/procedures/publish stages. See <a href="../#single-command-run">Single-command run</a>. The vrsify resolver is installed as a pinned dependency rather than forked (see <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/4cb647d9ca0a473aa4529f2206f936b7e5a41243/src/vrsify"><code>src/vrsify/README.md</code></a>); it still requires local SeqRepo and gene-normalizer services and a reachable UTA (see <a href="#running-vrsify">Running vrsify</a>).</p>
+<p>The release runs from a single command — <code>src/scripts/run-release.sh</code> starts at the check of the cloud translation (see <a href="#checking-the-cloud-output">Checking the cloud output</a>) and chains the transform/load/procedures and publish steps; variation identity, the export and the translation run in clinvar-ingest. See <a href="../#single-command-run">Single-command run</a>. No step needs local SeqRepo, UTA or gene-normalizer services.</p>
 <p>One area of improvement remains planned:</p>
 <ul>
 <li><strong>Broader expression coverage</strong> — expand VRS processing to resolve <strong>all variant expressions</strong> in ClinVar — the full <code>hgvs_list</code> preserved in the <code>variation_hgvs</code> table — rather than only the single selected source. This will provide richer downstream representation with multiple VRS identities per variation.</li>
@@ -6651,7 +6659,7 @@
 <hr />
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>External tools</strong>: <a href="https://github.com/clingen-data-model/clinvar-gk-python">clinvar-gk-python</a> (specifically <code>misc/clinvar-vrsification</code>), <a href="https://github.com/ga4gh/vrs-python">vrs-python</a>, <a href="https://github.com/GenomicMedLab/variation-normalizer">variation-normalizer</a>, SeqRepo</li>
+<li><strong>Upstream</strong>: <a href="https://github.com/clingen-data-model/clinvar-ingest">clinvar-ingest</a> pipeline v2.7.0+ — <code>dataset_diff_on</code>, <code>variation_identity_incremental</code>, the <code>variation_identity</code> export and the <code>clinvar-ingest-vrsify</code> Cloud Run job (<a href="https://github.com/ga4gh/vrs-python">vrs-python</a> against a RefgetStore)</li>
 <li><strong>Cloud Run job</strong>: <code>vrs-to-vi-location-transformer</code> (<code>src/vrs-location-transformer/</code>) — location field flattening</li>
 <li><strong>BigQuery schema</strong>: <code>schemas/vrs_output_2_0_1.schema.json</code></li>
 <li><strong>Source table</strong>: <a href="../variation-identity/variation-identity/"><code>variation_identity</code></a></li>

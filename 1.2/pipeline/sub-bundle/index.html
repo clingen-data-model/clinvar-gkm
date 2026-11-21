@@ -6486,7 +6486,7 @@ dataset into a single, self-contained <strong>sub-bundle</strong>: a JSON object
 <code>#/section/key</code> <a href="../../output-reference/id-references/">reference</a> resolves within the file. It is the practical companion
 to the <a href="../../output-reference/id-references/">ID References</a> model — useful for building worked examples, inspecting the
 complete object graph behind a statement, and producing small fixtures for downstream testing.</p>
-<p>The script lives at <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/4cb647d9ca0a473aa4529f2206f936b7e5a41243/src/scripts/sub-bundle.py"><code>src/scripts/sub-bundle.py</code></a>.</p>
+<p>The script lives at <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ddfbfa9ae2b321c80c3791b68581fe97b7302de8/src/scripts/sub-bundle.py"><code>src/scripts/sub-bundle.py</code></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Maintainer tool</p>
 <p>This is a pipeline-maintainer utility, not a general-audience download. It reads the BigQuery
@@ -6516,7 +6516,7 @@ as a full release, containing only the objects the requested statements need.</p
 <h2 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Access to a <strong>built</strong> release dataset — one that has the <code>gkm_dict_*</code> tables from a completed
-  release (pipeline Stage 4). The script reads BigQuery directly; it does not operate on a published
+  release (<code>run-release.sh</code> step 2). The script reads BigQuery directly; it does not operate on a published
   <code>.json.gz</code> bundle.</li>
 <li>The <code>bq</code> CLI authenticated to the dataset's project.</li>
 </ul>
@@ -6634,7 +6634,7 @@ instead of hundreds of thousands — much easier to <code>grep</code>, diff, or 
 </ul>
 <hr />
 <h2 id="example-fragments">Example fragments<a class="headerlink" href="#example-fragments" title="Permanent link">&para;</a></h2>
-<p>The files in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/4cb647d9ca0a473aa4529f2206f936b7e5a41243/examples"><code>examples/</code></a> are made by a
+<p>The files in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/ddfbfa9ae2b321c80c3791b68581fe97b7302de8/examples"><code>examples/</code></a> are made by a
 different script, <code>src/scripts/extract-example.py</code>. It reads a published full bundle (<code>.json.gz</code>), not BigQuery, and
 writes bounded <strong>fragments</strong>: each holds one statement or variation and the records it references, but keeps pointers
 into <code>scv</code> and <code>variation</code> unresolved. A VCV or RCV fragment holds its nested layer statements, down to the <code>#/scv/</code>

@@ -6475,6 +6475,10 @@
 <h1 id="variation-identity">Variation Identity<a class="headerlink" href="#variation-identity" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>The <code>clinvar_ingest.variation_identity</code> stored procedure extracts and normalizes variant identity information from ClinVar release data. Its goal is to determine, for each ClinVar variation, the single best expression (SPDI, HGVS, or gnomAD format) that can be used to resolve the variant into a GA4GH VRS (Variation Representation Specification) identifier.</p>
+<div class="admonition note">
+<p class="admonition-title">Run by clinvar-ingest</p>
+<p>From clinvar-ingest pipeline v2.7.0, the <a href="https://github.com/clingen-data-model/clinvar-ingest">clinvar-ingest</a> stored procedures job calls <code>dataset_diff_on</code>, <code>variation_identity_incremental</code> and <code>variation_vrs_changed</code> for every release and exports the changed rows for VRS translation. This project's release (<code>run-release.sh</code>) does not run them; it starts at the check of the translation (see <a href="../vrs-processing/#checking-the-cloud-output">VRS Processing</a>). The procedures still live in this repository's <code>src/procedures/</code>; moving them to clinvar-ingest is a planned follow-up.</p>
+</div>
 <p>The procedure accepts a single parameter — <code>on_date DATE</code> — which identifies the ClinVar release schema to process.</p>
 <p>Two entry points share the same logic (BigQuery has no default parameters or overloading, so the mode is exposed as separate wrappers over an internal <code>variation_identity_build(on_date, debug, incremental)</code>):</p>
 <ul>
@@ -6654,7 +6658,7 @@
 <p>Carry-forward assumes the prior release was built by the <strong>same</strong> <code>variation_identity</code> transform.</p>
 <div class="admonition warning">
 <p class="admonition-title">Reseed after a transform change</p>
-<p>After any change to the <code>variation_identity</code> procedure, run the full <code>variation_identity</code> once on the next release to reseed the baseline, then resume <code>variation_identity_incremental</code>. The fallback guard checks that prerequisites <em>exist</em>, not that the transform is unchanged — that assertion is the operator's.</p>
+<p>After any change to the <code>variation_identity</code> procedure, run the full <code>variation_identity</code> once on the next release to reseed the baseline, then resume <code>variation_identity_incremental</code>. The fallback guard checks that prerequisites <em>exist</em>, not that the transform is unchanged — that assertion is the operator's. clinvar-ingest calls only the incremental build, and this project's release runs neither, so a reseed is a manual BigQuery call, coordinated with clinvar-ingest.</p>
 </div>
 <p>Producing <code>variation_identity</code> incrementally also yields the clean changed-variation set that the <a href="../vrs-processing/">VRS Processing</a> step consumes to shrink the expensive vrs-python payload.</p>
 <hr />
@@ -6663,7 +6667,8 @@
 <li><strong>UDFs</strong>: <code>clinvar_ingest.parseAttributeSet</code>, <code>clinvar_ingest.parseSequenceLocations</code>, <code>clinvar_ingest.deriveHGVS</code>, <code>clinvar_ingest.parseHGVS</code>, <code>clinvar_ingest.parseXRefs</code>, <code>clinvar_ingest.schema_on</code></li>
 <li><strong>Source Tables</strong>: <code>variation</code>, <code>clinical_assertion_variation</code>, <code>clinical_assertion</code></li>
 <li><strong>Incremental drivers</strong> (incremental mode only): <code>diff_variation</code>, <code>diff_clinical_assertion</code>, <code>diff_clinical_assertion_variation</code> (from <code>dataset_diff_on</code>), plus the prior release's <code>variation_identity</code> / <code>variation_loc</code> / <code>variation_hgvs</code> / <code>variation_xref</code> as the carry-forward baseline</li>
-<li><strong>Downstream Consumers</strong>: VRS Python processing pipeline, <code>gkm_catvar_proc</code></li>
+<li><strong>Called by</strong>: the clinvar-ingest stored procedures job (pipeline v2.7.0+), not by <code>run-release.sh</code></li>
+<li><strong>Downstream Consumers</strong>: the clinvar-ingest <code>variation_identity</code> export and VRS translation, <code>gkm_catvar_proc</code></li>
 </ul>
 
 

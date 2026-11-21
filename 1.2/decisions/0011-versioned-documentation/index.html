@@ -6262,6 +6262,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#amended-2026-11-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Amended 2026-11-21
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -6440,6 +6451,33 @@ latest release is the version most readers see. Older releases keep the Roadmap 
 </ol>
 <p>The <code>1.2</code> docs gain the page by mapping <code>1.2</code> in <code>docs-line-sources.txt</code> to the <code>1.0</code> commit that adds it, shown
 as <code>1.2.0</code> (§6), and dispatching <code>1.2</code>; dispatching <code>1.1</code> rebuilds it with the new data views.</p>
+<h2 id="amended-2026-11-21">Amended 2026-11-21<a class="headerlink" href="#amended-2026-11-21" title="Permanent link">&para;</a></h2>
+<p>The 2026-11-20 amendment is kept as written. The maintainer changed its item 3 on 2026-11-21, after reviewing
+the published <code>1.2</code> and <code>1.1</code> docs: the earlier lines were hard to find, and the <code>1.1</code> docs sent readers to the
+<code>1.2</code> docs for them.</p>
+<ol>
+<li><strong>Each docs version lists the lines before its own</strong> (replaces "renders only on the docs of the current
+   line"). On docs version <code>X.Y</code>, the Previous Releases list shows the lines the root <code>index.json</code> marks
+   <code>frozen</code> whose number is lower than <code>X.Y</code>, newest first; never <code>X.Y</code> itself or a newer line. The latest
+   (<code>1.2</code>) docs list <code>1.1</code> and <code>1.0</code>; the <code>1.1</code> docs list only <code>1.0</code>; a version with no earlier line says so. A
+   page whose URL has no version (a local build) uses the current line. The download tables and the console still
+   read <code>X.Y</code>'s own line (item 2).</li>
+<li><strong>The Get the Data landing page shows them inline.</strong> <code>download.md</code> has a Previous Releases section with a
+   compact table of the same lines (<code>data-r2-type="previous-summary"</code>: line, schema, status with
+   <code>superseded_by</code> and freeze date, links to <code>index.json</code>, <code>feed.xml</code>, <code>README.txt</code> and <code>MANIFEST.json</code>), each
+   linking to its monthlies and deltas on the Previous Releases page. The monthly, weekly full, delta and Parquet
+   pages carry a one-line pointer to it.</li>
+<li><strong>The <code>1.1</code> docs get the page too.</strong> Their content comes from <code>036bec2</code> (§6), which predates it, so
+   <code>docs-line-sources.txt</code> maps <code>1.1</code> to the tip of the long-lived branch <code>docs/line-1.1</code>: <code>036bec2</code> plus the
+   Previous Releases page, its nav entry, the landing-page section and the pointers, worded for the 1.1 line.
+   Every other <code>1.1</code> page is unchanged. A later fix to the <code>1.1</code> docs is a commit on that branch, then a remap to
+   its new tip and a dispatch of <code>1.1</code>. Keep the branch: <code>deploy-docs.yml</code> checks out with <code>fetch-depth: 0</code>,
+   which fetches every branch, and <code>git archive</code> needs the commit to be reachable.</li>
+<li><strong>A frozen line's console shows no tables.</strong> A frozen line keeps no Parquet (ADR 0008), and the console's
+   examples are written for the current tables, so on a frozen line's docs the console says at once that the line
+   keeps no Parquet set and links the latest docs' console and Parquet Files page, even while the line's old set
+   is still on R2 before its deletion.</li>
+</ol>
 
 
 
