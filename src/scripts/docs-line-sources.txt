@@ -7,5 +7,9 @@
 # 1.1: the 1.1.0 tag was cut on 1.0 without main's 1.1.0 docs (old v1/datasets/ URLs, no
 # 1.1.0 changelog section). 036bec2 is main right after the 1.1.0 forward-merge (#188).
 #
+# 1.2: the 1.2.0 tag predates the per-line download pages and the Previous Releases page
+# (#241). 4cb647d is 1.0 with #241 merged.
+#
 # line  source                                    label
 1.1     036bec25e342d6c572a94a8afde2a13964fbc049  1.1.0
+1.2     4cb647d9ca0a473aa4529f2206f936b7e5a41243  1.2.0
