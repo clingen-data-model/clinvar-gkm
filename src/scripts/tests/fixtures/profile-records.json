@@ -1,0 +1,212 @@
+{
+  "scv": {
+    "classification": {
+      "conceptType": "Classification",
+      "extensions": [
+        {
+          "name": "description",
+          "value": "for not provided\nClassification is based on the no classification submission\n(-) by UniProtKB/Swiss-Prot"
+        }
+      ],
+      "name": "not provided",
+      "primaryCoding": {
+        "code": "not provided",
+        "system": "ClinVar"
+      },
+      "type": "MappableConcept"
+    },
+    "contributions": [
+      {
+        "activityType": "submitted",
+        "contributor": "#/submitter/clinvar.submitter:500133",
+        "date": "2013-10-22",
+        "type": "Contribution"
+      },
+      {
+        "activityType": "created",
+        "contributor": "#/submitter/clinvar.submitter:500133",
+        "date": "2013-10-22",
+        "type": "Contribution"
+      },
+      {
+        "activityType": "evaluated",
+        "contributor": "#/submitter/clinvar.submitter:500133",
+        "type": "Contribution"
+      }
+    ],
+    "direction": "supports",
+    "extensions": [
+      {
+        "name": "clinvarScvId",
+        "value": "SCV000090483"
+      },
+      {
+        "name": "clinvarScvVersion",
+        "value": "1"
+      },
+      {
+        "name": "submittedCondition",
+        "value": {
+          "condition": "clinvar.trait:17556",
+          "id": "SCV000090483.0",
+          "mapping": {
+            "ref": "preferred",
+            "type": "Name",
+            "value": "not provided"
+          },
+          "medgen_id": "C3661900",
+          "name": "not provided",
+          "normalized_match": "clinvar.trait:17556",
+          "normalized_resolution": "tm reftype preferred name",
+          "type": "Disease"
+        }
+      },
+      {
+        "name": "clinvarScvReviewStatus",
+        "value": "no classification provided"
+      },
+      {
+        "name": "submittedScvLocalKey",
+        "value": "VAR_054172"
+      },
+      {
+        "name": "submissionLevel",
+        "value": "NOCL"
+      }
+    ],
+    "id": "clinvar.submission:SCV000090483.1",
+    "proposition": "#/propositionClinvarCustom/SCV000090483-NP",
+    "quality": {
+      "conceptType": "Quality",
+      "name": "no classification",
+      "type": "MappableConcept"
+    },
+    "type": "Statement"
+  },
+  "variation": {
+    "constraints": [
+      {
+        "location": "#/location/ga4gh:SL.f8qmYS-FI6t5rYqSgLnu9cQMBxAWtyrb",
+        "matchCharacteristic": {
+          "primaryCoding": {
+            "code": "is_within",
+            "system": "ga4gh-gks-term:location-match"
+          },
+          "type": "MappableConcept"
+        },
+        "relations": [
+          {
+            "primaryCoding": {
+              "code": "liftover_to",
+              "system": "ga4gh-gks-term:allele-relation"
+            },
+            "type": "MappableConcept"
+          }
+        ],
+        "type": "DefiningLocationConstraint"
+      },
+      {
+        "copyChange": "loss",
+        "type": "CopyChangeConstraint"
+      }
+    ],
+    "extensions": [
+      {
+        "name": "categoricalVariationType",
+        "value": "CategoricalCnvChange"
+      },
+      {
+        "name": "definingVrsVariationType",
+        "value": "CopyNumberChange"
+      },
+      {
+        "name": "clinvarVariationType",
+        "value": "Deletion"
+      },
+      {
+        "name": "clinvarSubclassType",
+        "value": "SimpleAllele"
+      },
+      {
+        "name": "clinvarCytogeneticLocation",
+        "value": "19p13.2"
+      },
+      {
+        "name": "clinvarHgvsList",
+        "value": [
+          {
+            "nucleotideExpression": {
+              "syntax": "hgvs.g",
+              "value": "NC_000019.10:g.(?_11100213)_(11102796_?)del"
+            },
+            "nucleotideType": "genomic, top-level"
+          },
+          {
+            "nucleotideExpression": {
+              "syntax": "hgvs.g",
+              "value": "NC_000019.9:g.(?_11210889)_(11213472_?)del"
+            },
+            "nucleotideType": "genomic, top-level"
+          }
+        ]
+      },
+      {
+        "name": "clinvarGeneList",
+        "value": [
+          {
+            "gene": "#/gene/ncbigene:3949",
+            "relationship_type": "within single gene",
+            "source": "submitted"
+          }
+        ]
+      }
+    ],
+    "id": "clinvar:663429",
+    "mappings": [
+      {
+        "coding": {
+          "code": "663429",
+          "iris": [
+            "https://identifiers.org/clinvar:663429"
+          ],
+          "system": "https://www.ncbi.nlm.nih.gov/clinvar/"
+        },
+        "relation": "exactMatch"
+      }
+    ],
+    "members": [
+      "#/copyNumberChange/ga4gh:CX.CUDcbcfA9p0zhRTF7p8Ct117KCRWhbHl"
+    ],
+    "name": "NC_000019.10:g.(?_11100213)_(11102796_?)del",
+    "type": "CategoricalVariant"
+  },
+  "vcv": {
+    "classification": {
+      "conceptType": "Classification",
+      "name": "not provided",
+      "primaryCoding": {
+        "code": "not provided",
+        "system": "ClinVar"
+      },
+      "type": "MappableConcept"
+    },
+    "direction": "supports",
+    "extensions": [
+      {
+        "name": "clinvarReviewStatus",
+        "value": "no classification provided"
+      }
+    ],
+    "hasEvidenceLines": [
+      "#/evidenceLine/VCV003256118.1-G-NP-NOCL.contributing"
+    ],
+    "id": "VCV003256118.1-G-NP-NOCL",
+    "proposition": "#/propositionClinvarCustom/VCV003256118-G-NP-NOCL",
+    "quality": {
+      "conceptType": "Quality",
+      "name": "no classification",
+      "type": "MappableConcept"
+    },
+    "type": "Statement"
+  }
+}

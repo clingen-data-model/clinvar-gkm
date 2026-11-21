@@ -200,7 +200,7 @@ shows the code. The toolkit's loader (`load_bundle`, `resolve`, `export`) needs
 
 In addition to the JSON bundle, the latest release is published as **typed Parquet files**, one per bundle section (20 tables). They are built from the published bundle by [`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) 2.0.0, not by the assembler. Every property of a record is a typed column, named after the bundle property, with references as bare ids, which makes them suitable for analytical workloads, DuckDB, pandas, or Apache Spark. The tables hold the records without loss: the tool rebuilds the bundle's records from them.
 
-See [Export & Distribute](../pipeline/export.md#step-3-rebuild-the-latest-parquet) for how the Parquet files are produced (derived from the bundle, latest release only). To query them — every table's columns, how the tables join, and runnable recipes — see [Query the Data](../parquet/index.md).
+See [Export & Distribute](../pipeline/export.md#step-5-build-and-publish-the-latest-parquet) for how the Parquet files are produced (derived from the bundle, latest release only). To query them — every table's columns, how the tables join, and runnable recipes — see [Query the Data](../parquet/index.md).
 
 ---
 

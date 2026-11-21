@@ -3,6 +3,8 @@
 - **Status:** Proposed
 - **Date:** 2026-11-19
 - **Amends:** [ADR 0003](0003-roadmap-from-labeled-discussions.md) (which docs builds regenerate the Roadmap)
+- **Amended:** 2026-11-20 — `dev` removed; each version's data views read its own data line; a Previous
+  Releases page ([below](#amended-2026-11-20))
 
 ## Context
 
@@ -104,3 +106,34 @@ grey and say they aren't current.
 - One-time bootstrap after merge: the merge's own deploy publishes `dev` and removes the unversioned site (the
   root redirects to `dev` until a release exists); then dispatch the workflow with `ref = 1.1.0`,
   `version = 1.1` to publish `1.1` as `latest`.
+
+## Amended 2026-11-20 { #amended-2026-11-20 }
+
+The sections above are kept as decided on 2026-11-19. The maintainer changed three things on 2026-11-20.
+
+1. **No `dev` version** (replaces §2 and the `dev` rows of §3, §5, §7 and §8). The `dev` docs weren't useful to
+   readers, so `main` is no longer published. `deploy-docs.yml` has no `push` trigger; the daily `schedule`, the
+   `discussion` events and a `workflow_dispatch` with no inputs rebuild only the latest release, from its newest
+   tag; a `release` event and a dispatch with `ref` + `version` are unchanged. `build-versioned-docs.sh` and
+   `docs-versions.py` accept only release lines `X.Y`. `docs-versions.py` drops any other entry from
+   `versions.json`, so the next deploy removes the `dev/` folder from `gh-pages`. Links to it already sent to
+   readers (an announcement email links `…/clinvar-gkm/dev/parquet/migrating-from-1.1/`) keep working: the root
+   `404.html` sends `…/dev/<page>` to the same page in the latest release, or its home. `versions.js` and
+   `versions.css` have only the latest and older states. A docs change reaches the site with a release, or by
+   mapping the line to the fixed commit in `docs-line-sources.txt` (§6) and dispatching it.
+2. **Each docs version shows its own data line.** The download tables (`r2-browser.js`) and the live query
+   console (`duckdb-console.html`) read the release line of the docs version in the page URL: the path segment
+   after `/clinvar-gkm/` (`1.1`) is looked up in the root `index.json`'s `versions`. A URL without a version
+   (a local build) or a version with no data line reads the current line. Before, every version showed the
+   current line's files under prose about its own line. On a frozen line, the views whose files the freeze
+   deleted (weekly fulls, Parquet) say so, with the freeze date from the line's `MANIFEST.json`, and link to the
+   same page in the latest docs; the console no longer falls back to a hard-coded line. Both files join the
+   overlay (§6), so rebuilding an older version ships them; they must keep the mount types older pages use.
+3. **A Previous Releases page** in Get the Data (`docs/data-access/previous-releases.md`) lists every line the
+   root `index.json` marks `frozen`, newest first: its schema version, `superseded_by`, freeze date, links to its
+   `index.json`, `feed.xml`, `README.txt` and `MANIFEST.json`, its monthlies and its deltas. The list is read at
+   page load, so a line frozen later appears with no docs edit. It renders only on the docs of the current line;
+   an older version's copy points to the latest docs.
+
+The `1.2` docs gain the page by mapping `1.2` in `docs-line-sources.txt` to the `1.0` commit that adds it, shown
+as `1.2.0` (§6), and dispatching `1.2`; dispatching `1.1` rebuilds it with the new data views.

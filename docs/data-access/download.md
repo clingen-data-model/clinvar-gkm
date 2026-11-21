@@ -25,14 +25,14 @@ The interactive release table needs JavaScript. Without it, fetch the release in
 <code>curl -O https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz</code>
 </noscript>
 
-Browse history and archives: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-full.md) · [Weekly Deltas](weekly-deltas.md) · [Parquet Files](parquet.md).
+Browse history and archives: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-full.md) · [Weekly Deltas](weekly-deltas.md) · [Parquet Files](parquet.md). Earlier release lines: [Previous Releases](previous-releases.md).
 
 ---
 
 ## Directory Structure
 
 !!! note "Versioned layout"
-    The root `index.json` is a thin **version manifest** that lists the release lines and points to each line's index. Each line has its own folder, `v{major}/{major}.{minor}/`. The current line is **`1.2`**, served under **`v1/1.2/`**, with its release index at `v1/1.2/index.json`. PATCH releases (1.2.x) add to the same folder; a new MINOR starts `v1/1.3/` and a new MAJOR starts `v2/2.0/`. A replaced line is frozen and kept indefinitely: its monthlies and deltas stay, unchanged. The 1.1.x releases are the frozen line `v1/1.1/`, and the 1.0.1 generation is the frozen line `v1/1.0/`.
+    The root `index.json` is a thin **version manifest** that lists the release lines and points to each line's index. Each line has its own folder, `v{major}/{major}.{minor}/`. The current line is **`1.2`**, served under **`v1/1.2/`**, with its release index at `v1/1.2/index.json`. PATCH releases (1.2.x) add to the same folder; a new MINOR starts `v1/1.3/` and a new MAJOR starts `v2/2.0/`. A replaced line is frozen and kept indefinitely: its monthlies and deltas stay, unchanged. The 1.1.x releases are the frozen line `v1/1.1/`, and the 1.0.1 generation is the frozen line `v1/1.0/`; [Previous Releases](previous-releases.md) lists every frozen line and its files.
 
 ```text
 index.json                                    version manifest (each line -> its index)

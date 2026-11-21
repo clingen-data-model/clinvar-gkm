@@ -58,13 +58,13 @@ The pipeline runs on **Google BigQuery** using SQL stored procedures, with an ex
 4. **Condition & Trait Mapping** — map ClinVar conditions to standardized terms
 5. **SCV Statement Generation** — produce clinical classification statements
 6. **VCV Statement Generation** — produce aggregate classification statements
-7. **Export & Publish** — assemble the JSON bundle and typed Parquet, then publish the full/delta products to Cloudflare R2
+7. **Export & Publish** — assemble the JSON bundle, publish the full/delta products to Cloudflare R2, then build the latest Parquet from the published bundle with [gkm-bundle-parquet](https://github.com/clingen-data-model/gkm-bundle-parquet)
 
 ## Documentation
 
 Full documentation is available at **[dataexchange.clinicalgenome.org/clinvar-gkm](https://dataexchange.clinicalgenome.org/clinvar-gkm/)**, including pipeline details, GA4GH profile definitions, data access guides, and a schema registry.
 
-The site is versioned ([ADR 0011](docs/decisions/0011-versioned-documentation.md)): one version per release line (`1.1`, `1.2`, …), the latest release at the site root, and `dev` built from `main`. It is built from `docs/` by [`deploy-docs.yml`](.github/workflows/deploy-docs.yml). Any merge to `main` that changes `docs/`, `zensical.toml`, that workflow or the docs build scripts redeploys `dev`; publishing a GitHub release `X.Y.Z` deploys the `X.Y` docs; a daily schedule refreshes `dev` and the latest release. To deploy `dev` by hand: `gh workflow run deploy-docs.yml --ref main`; to (re)build a release: `gh workflow run deploy-docs.yml --ref main -f ref=1.1.0 -f version=1.1`. Each version is built by [`build-versioned-docs.sh`](src/scripts/build-versioned-docs.sh), which runs `zensical build --clean --strict` and then [`check-site-links.py`](src/scripts/check-site-links.py), failing the deploy on a broken internal link or `#anchor`; run both locally before pushing docs changes.
+The site is versioned ([ADR 0011](docs/decisions/0011-versioned-documentation.md)): one version per release line (`1.1`, `1.2`, …), with the latest release at the site root. It is built from `docs/` by [`deploy-docs.yml`](.github/workflows/deploy-docs.yml). A docs merge deploys nothing: publishing a GitHub release `X.Y.Z` deploys the `X.Y` docs, and a daily schedule refreshes the latest release. To rebuild the latest release by hand: `gh workflow run deploy-docs.yml --ref main`; to (re)build a release line: `gh workflow run deploy-docs.yml --ref main -f ref=1.1.0 -f version=1.1`. Each version is built by [`build-versioned-docs.sh`](src/scripts/build-versioned-docs.sh), which runs `zensical build --clean --strict` and then [`check-site-links.py`](src/scripts/check-site-links.py), failing the deploy on a broken internal link or `#anchor`; run both locally before pushing docs changes.
 
 ## Repository Structure
 

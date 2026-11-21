@@ -65,14 +65,11 @@ record cleanup across the BQ export functions.
 - **`collapse_ext_values`** renames a typed extension `value_<type>` → polymorphic `value` in every object
   with a `name` sibling, **recursively, in every section** (incl. nested `classification.extensions`). Apply it
   wherever extensions can appear — the old bug was collapsing only the top-level `extensions` column of a few
-  sections in the BQ NDJSON export. Mirror the same collapse in the typed-Parquet `data` columns
-  (`parquet-schemas/*.sql`, pattern:
-  `collapse_ext_values(TO_JSON_STRING(JSON_STRIP_NULLS(TO_JSON((SELECT AS STRUCT t.*)), remove_empty => TRUE)))`)
-  for EVERY extension-bearing section (scv, vcv, rcv, variation, evidence lines, propositions).
+  sections in the BQ NDJSON export.
 - **`orjson` sets the bundle's text** (compact, raw UTF-8, record keys sorted at every depth), so the assembler
-  requires it and stops without it. The stdlib's `json.dumps` writes the same data in different text, which
-  clinvar-gkm-parquet's round trip refuses. A checkout without `venv/3.12` uses whatever `python3` is active, such
-  as an environment activated for vrsify.
+  requires it and stops without it. The stdlib's `json.dumps` writes the same data in different text, so an
+  unchanged record would no longer have the same bytes in every release. A checkout without `venv/3.12` uses
+  whatever `python3` is active, such as an environment activated for vrsify.
 - **Canonical list order** — `order_unordered_arrays` sorts the arrays in `gkm_json_cleanup.UNORDERED_ARRAYS`
   (today `condition.aliases`) by each element's key-sorted JSON text, so replays are byte-exact. Add an array only
   when the data shows its order changing between releases AND every schema marks it `ordered: false` (the unit test
@@ -82,31 +79,26 @@ record cleanup across the BQ export functions.
   is dropped.
 - **conditionSet single-member filter** — drop `ConceptSet`s with `ARRAY_LENGTH(concepts) <= 1` (va-spec
   `minItems: 2`). They are unreferenced orphans (every producer references the lone member directly as
-  `#/condition/`, never the set). Filter in BOTH the NDJSON (`extract_ndjson_where`) and typed-Parquet
-  (`conditionSet.sql WHERE`) exports.
+  `#/condition/`, never the set). Filtered in the NDJSON export (`extract_ndjson_where`).
 
-**Parquet derives from the bundle.** Every Parquet row and value must be recomputable from the published
-bundle alone (one or more sections). Derived forms are fine: bare ids, casts, Range bounds, flattened/split
-extensions, join and lookup tables. Mirror in `parquet-schemas/*.sql` every row filter and record cleanup the
-assembler applies (the `>1` conditionSet filter, strip/collapse). Typed nested columns must not carry all-null
-structs or array elements the bundle lacks (use the `is_blank` prelude helper). If Parquet needs a fact the
-bundle doesn't carry, add it to the bundle first. Verify with an id-set diff plus a recompute of the typed
-columns and `data` against the REAL published delta bundle.
+**Parquet derives from the bundle.** The published Parquet set is built only by gkm-bundle-parquet, from the
+published bundle (release stage 6, `release-gkm-parquet.sh`). BigQuery exports no Parquet, so there is no Parquet
+SQL to keep in step with the assembler. The default tables are generated from the bundle schema, so a schema change
+here changes them with no Parquet-specific work. If Parquet needs a fact the bundle doesn't carry, add it to the
+bundle (and its schema) first; never add Parquet-only logic to this repo. The tool checks every build against its
+bundle (`verify --bundle-recompute`, `verify --roundtrip`).
 
-- `JSON_STRIP_NULLS` is not the assembler's `strip_empty`: it removes nulls *inside* arrays, so a VRS Range
-  `[null, n]` becomes `[n]`. For a KV `value` that the bundle cleans only in the assembler, use the
-  `bundle_cleanup` prelude UDF (an exact port of `gkm_json_cleanup.py`).
-
-**Conformance validation (do this, not a shortcut):** validate the REAL published full + delta bundles with the
-official GA4GH **gkm-toolkit** `validate_bundle_schema` plus a registry built by `load_registry` over the whole
-`schema/` tree (dual-keyed: full `$id` AND root-relative path). Do NOT trust `sub-bundle.py` output as proof —
-it runs its own recursive collapse and so **masks** export/assembler cleanup bugs that the real bundles carry.
-`validate-bundle.sh` does this. `release-gkm-delta.sh` runs it on every delta before upload, and `run-release.sh`
-builds the delta first so a failure leaves R2 untouched. The toolkit takes hours on a full, so `release-gkm.sh`
-validates every full it assembles with `validate-bundle.sh --engine rs` (jsonschema-rs: same bundle schema, registry
-and per-record document; minutes on a full), and `run-release.sh` builds the weekly full with `--no-upload` before R2
-changes. jsonschema-rs is not the official validator: keep `test_validate_bundle_rs.py`'s equivalence test (both
-engines name the same failing records) passing, and run the toolkit by hand on a full for a version release. The rs
+**Conformance validation (do this, not a shortcut):** validate every record of the REAL full + delta bundles with
+`validate-bundle.sh` (default engine rs = jsonschema-rs, the validator of record), against the bundle schema with a
+registry over the whole `schema/` tree (dual-keyed: full `$id` AND root-relative path). Do NOT trust `sub-bundle.py`
+output as proof — it runs its own recursive collapse and so **masks** export/assembler cleanup bugs that the real
+bundles carry. `release-gkm-delta.sh` and `release-gkm.sh` run it (`--engine rs`) on every delta and full before
+upload, and `run-release.sh` builds both with `--no-upload` first so a failure leaves R2 untouched. The official
+GA4GH gkm-toolkit (`--engine toolkit`, python-jsonschema) gives the same verdicts but is too slow for a 1.2.0 full
+(~17 h on 64 vCPUs: it re-evaluates every allOf/$ref layer for each `unevaluatedProperties`), so: keep
+`test_validate_bundle_rs.py`'s equivalence tests passing (both engines name the same failing records, including
+violations planted inside the layered variation/vcv/scv profiles), and at each version release run the toolkit on a
+stratified sample of the line's first full (`sample-bundle.py`, then `validate-bundle.sh --engine toolkit`). The rs
 engine compiles the bundle schema per section (the whole schema takes jsonschema-rs minutes to compile) and reads
 only the assembler's one-record-per-line layout, stopping on any other line.
 `$id`/`schema_version` version bump on a schema-affecting change: bump the 4 `schema/clinvar-gkm/*-source.yaml`

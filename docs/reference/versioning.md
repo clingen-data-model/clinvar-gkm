@@ -126,12 +126,18 @@ version.
 - **The latest release** is the default. The site root, and any link without a version in it, opens the same
   page in the latest release. Its header is indigo.
 - **An older release** has a grey header and a notice that it is not the current version, with a link to the
-  same page in the latest release.
-- **`dev (unreleased)`** is built from the `main` branch. It describes changes that are not released yet and may
-  still change, so don't rely on it for production use. Its header is orange, with a notice to the same effect.
+  same page in the latest release. It shows the site as it was last built for that line.
+
+Unreleased changes are not published as a docs version: the docs change with a release. A link to the former
+`dev` version (`…/clinvar-gkm/dev/<page>/`) opens the same page in the latest release.
+
+The download tables and the live query console in each version read that version's data line: the `1.1` docs
+list the files in `v1/1.1/`, the `1.2` docs those in `v1/1.2/`. On a frozen line the weekly full bundles and the
+Parquet set are deleted, so those tables and the console say so and link to the latest docs. Only the latest
+release lists the frozen lines, on [Previous Releases](../data-access/previous-releases.md).
 
 The repository link at the right of the header names the source each version was built from, and its links to
-repository files point there too: the release tag (such as `1.1.0`) for a release, `main` for `dev`. The
+repository files point there too: the release tag (such as `1.1.0`). The
 `1.1` docs are built from the `main` commit that documented 1.1.0 (`036bec2`), because the `1.1.0` tag was cut
 without them, so their repository-file links point at that commit.
 

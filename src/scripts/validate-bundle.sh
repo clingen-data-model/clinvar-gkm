@@ -2,10 +2,13 @@
 # Validate a bundle strictly, every record, in an environment uv builds and caches. Two engines run the same check
 # (same bundle schema, same schema/ registry, same per-record document, Draft 2020-12, formats not asserted):
 #
-#   toolkit (default)  validate-bundle.py: the official GA4GH gkm-toolkit (ga4gh.gkm validate_bundle_schema on
-#                      python-jsonschema). About 70 records/s per core: minutes for a delta, hours for a full.
-#   rs                 validate-bundle-rs.py: jsonschema-rs, about 30 times faster, so a full takes minutes. It reads
-#                      only the assembler's one-record-per-line layout and stops on any other.
+#   rs (default)       validate-bundle-rs.py: jsonschema-rs. The validator of record: it gates every published bundle,
+#                      full and delta (a full takes minutes). It reads only the assembler's one-record-per-line layout
+#                      and stops on any other.
+#   toolkit            validate-bundle.py: the official GA4GH gkm-toolkit (ga4gh.gkm validate_bundle_schema on
+#                      python-jsonschema). By hand only: on the 1.2.0 profiles it checks about 24 records/s per vCPU
+#                      (about 17 h on 64 vCPUs for a full), because python-jsonschema re-evaluates every allOf/$ref
+#                      layer for each unevaluatedProperties; jsonschema-rs does not.
 #
 # Usage: ./validate-bundle.sh <bundle.json.gz> [--engine toolkit|rs] [--workers N] [--chunk N] [--max-print N]
 #        ./validate-bundle.sh --check-setup [--engine toolkit|rs]
@@ -70,10 +73,10 @@ if $CHECK_SETUP; then
   exit 0
 fi
 
-if [[ "${ENGINE}" == "rs" ]]; then
-  echo "engine: rs (jsonschema-rs ${RS_VERSION})"
-  "${RS[@]}" python "${SCRIPT_DIR}/validate-bundle-rs.py" "${BUNDLE}" "${REPO_ROOT}" ${PASS[@]+"${PASS[@]}"}
-else
+if [[ "${ENGINE}" == "toolkit" ]]; then
   echo "engine: toolkit (ga4gh.gkm ${TOOLKIT_VERSION}, the GA4GH gkm-toolkit)"
   "${TOOLKIT[@]}" python "${SCRIPT_DIR}/validate-bundle.py" "${BUNDLE}" "${REPO_ROOT}" ${PASS[@]+"${PASS[@]}"}
+else
+  echo "engine: rs (jsonschema-rs ${RS_VERSION})"
+  "${RS[@]}" python "${SCRIPT_DIR}/validate-bundle-rs.py" "${BUNDLE}" "${REPO_ROOT}" ${PASS[@]+"${PASS[@]}"}
 fi

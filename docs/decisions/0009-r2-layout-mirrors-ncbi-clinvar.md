@@ -13,6 +13,10 @@
   `cf-rules.sh`, `run-release.sh`): the finished month's newest weekly full is kept until the new month's
   monthly is published (§2, §3, §4); `weekly/` is not cached as immutable (Consequences); file names, the root
   and line `index.json`, `checkpoint_full` and the Parquet manifest fields (§1, §2).
+- **Amended:** 2026-11-18 for 1.2.0 (maintainer decisions D1, D2, D6 of the
+  [1.2.0 runbook](../superpowers/plans/2026-11-18-1.2.0-release-runbook.md)): a new line may start from one
+  checkpoint monthly plus deltas; a frozen line's weekly fulls and, once the next line has Parquet, its
+  `parquet/` are deleted at the freeze (§1; [ADR 0008](0008-bundles-are-the-public-record.md) (b)).
 
 ## Context
 
@@ -50,6 +54,14 @@ Each version line has its own folder, `v{major}/{major}.{minor}/`, starting with
 - A new MINOR starts a new folder (`v1/1.2/`); a new MAJOR starts `v2/2.0/`.
 - A folder that a newer line replaces is **frozen** and kept indefinitely
   ([ADR 0008](0008-bundles-are-the-public-record.md) (b)): nothing is added to it, moved in it or deleted from it.
+  *Amended 2026-11-18 (1.2.0):* except at the freeze itself, which adds `MANIFEST.json` and `README.txt` and
+  deletes the line's weekly fulls (`weekly/`, including `00-latest_weekly`) and, once the next line has
+  published its own Parquet, its `parquet/`. Its official monthlies, `00-latest` copy, `archive/` and deltas
+  stay forever, unchanged. Neither deleted kind is a record (§4; ADR 0008 (a), (e)).
+- *Amended 2026-11-18 (1.2.0):* a new line may **start from one checkpoint monthly plus deltas** instead of
+  republishing history: the first full built with its pipeline, published as the official monthly (ADR 0002)
+  of the ClinVar month whose source release it is. `v1/1.2/` starts from `clinvar-gkm_2026-11` ← 2026-10-31;
+  `v1/1.1/` gets the same month's monthly (a copy of its 2026-10-31 weekly full) before it is frozen.
 - The 1.0.1 generation, archived on 2026-10-18 to `archive/1.0.1/`, moves to the frozen line **`v1/1.0/`**.
 
 The bucket-root `index.json` lists the lines: `manifest_version: 2`, `current` (the current line, `"v1/1.1"`)

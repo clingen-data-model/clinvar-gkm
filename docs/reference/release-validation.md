@@ -17,23 +17,26 @@ The changes these gates verified are listed in the [1.1.0 changelog](changelog.m
 | **Proposition structure and reference integrity** | `validate-proposition-conformance.sh`: every proposition has the structure its type requires, and every statement and evidence-line pointer names the section its proposition is in — no old-section, unparsed, dangling, misrouted or bare reference | Every dataset |
 | **Expected difference** | Every row that differs from a snapshot taken before the rebuild is joined on its primary key and classified; each class of change must be attributed to a fix shipped in the release | Every dataset that existed before the rebuild |
 | **Delta reconstruction** | `oracle-delta-reconstruction.sh`: the baseline release minus the delta's deletes plus the delta's records equals the next release, compared on all 21 bundle tables | Every consecutive pair of releases |
-| **Strict GA4GH validation** | The official GA4GH gkm-toolkit's `validate_bundle_schema` (`ga4gh.gkm` 0.4.0), in strict mode, with a validator whose registry holds the repo's `schema/` tree (the ClinVar-GKM schemas and the GA4GH schemas they reference), validates every record of the real staged bundle, verbatim ([how](../working-in-python.md#validate-a-bundle)) | The first full bundle and every delta (see below) |
+| **Strict schema validation** | `validate-bundle.sh`, with [jsonschema-rs](https://pypi.org/project/jsonschema-rs/) and a registry holding the repo's `schema/` tree (the ClinVar-GKM schemas and the GA4GH schemas they reference), validates every record of the real staged bundle, verbatim, against the bundle schema (Draft 2020-12). A failure stops the release before upload | Every full bundle and every delta (from 1.2.0; see below) |
+| **Official toolkit cross-check** | The official GA4GH gkm-toolkit's `validate_bundle_schema` (`ga4gh.gkm` 0.4.0, python-jsonschema) validates a stratified 1% sample of the line's first full bundle (`sample-bundle.py`: at least 3,000 records of every section, spread over the section, copied verbatim). The tests also require both engines to name the same failing records in bundles with planted violations, including inside the layered `variation`, `vcv` and `scv` profiles | Each version release |
 | **Structural check** | `schema_version`, section order, one well-formed record per line, and per-section record counts equal to the BigQuery tables | Every other full bundle |
 | **No null or empty values** | No field anywhere carries `null`, `""`, `[]` or `{}`, except the null bound of a VRS `Range`, which VRS uses for an open-ended coordinate | Every staged bundle |
 | **Bundle ↔ Parquet** | Per-section record counts, ids in both directions, and a sampled comparison of each row's `data` with the bundle record | The Parquet dataset against the full bundle of the release it was built from |
 
-**Why the strict scope covers every record.** Each later full bundle equals the first full plus the deltas
-after it, which the delta-reconstruction gate proves. The 2026-06-27 full and the 16 deltas therefore
-together contain every distinct record of every 1.1.0 bundle, so strict validation of those 17 files
-validates every record that 1.1.0 publishes. The other fulls get the structural check.
+**1.1.0: the official toolkit on every record.** In 1.1.0 the gkm-toolkit validated the 2026-06-27 full and
+the 16 deltas. Each later full bundle equals the first full plus the deltas after it, which the
+delta-reconstruction gate proves, so those 17 files contain every distinct record that 1.1.0 publishes. The other
+fulls got the structural check.
 
-**From 2026-11, every full is strictly validated too.** `run-release.sh` builds each release's weekly full and
-validates every record of it before anything is uploaded, and a failure stops the release, as a failing delta
-does. Fulls use `validate-bundle.sh --engine rs`, which runs the same bundle schema, registry and per-record
-documents with [jsonschema-rs](https://pypi.org/project/jsonschema-rs/) instead of the toolkit: minutes instead of
-hours. Deltas stay on the toolkit. The tests run both engines on a bundle with planted violations and require the
-same failing records; on the published 2026-10-31 bundles both engines pass the delta (495,547 records), and the
-rs engine passes the full (91,854,927 records).
+**From 1.2.0: jsonschema-rs on every record of every bundle.** `run-release.sh` builds each release's delta and
+weekly full and validates every record of both with `validate-bundle.sh` before anything is uploaded; a failure
+stops the release. The engine is jsonschema-rs: the same bundle schema, registry and per-record documents as the
+toolkit, and the same Draft 2020-12 check (the toolkit's `validate_bundle_schema` adds no checks of its own). It
+takes about 15 minutes on a full bundle. The toolkit takes about 17 hours on 64 cores for a 1.2.0 full, about
+3.6 times as long as for 1.1.0: the 1.2.0 profiles close each ClinVar record type with `unevaluatedProperties`
+over layered `allOf`/`$ref` schemas (71 uses, against 27 in 1.1.0), and python-jsonschema re-evaluates every
+layer to apply it, where jsonschema-rs does not. So the toolkit now cross-checks a sample at each version release
+(see the table), and the engine tests require both engines to fail the same records.
 
 ---
 

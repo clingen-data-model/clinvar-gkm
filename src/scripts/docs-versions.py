@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
 """Maintain the root of the versioned docs site (ADR 0011).
 
-The gh-pages branch holds one folder per docs version (`1.1/`, `1.2/`, ...,
-`dev/`) and a few root files this script writes:
+The gh-pages branch holds one folder per release line (`1.1/`, `1.2/`, ...)
+and a few root files this script writes:
 
   versions.json  the version list the theme's version selector reads (mike
-                 format). The highest release line gets the alias `latest`;
-                 `dev` is never latest, and a patch to an older line can't
-                 take `latest` from a newer one.
+                 format). The highest release line gets the alias `latest`,
+                 so a patch to an older line can't take `latest` from a newer
+                 one. A version that isn't a release line (`dev`, retired
+                 2026-11-20) is dropped, and its folder removed.
   index.html     redirects the site root to the latest release, keeping the
                  query and #fragment.
   404.html       GitHub Pages serves it for every missing path. An unversioned
                  link (`/clinvar-gkm/reference/changelog/`, every URL from
                  before versioned docs) goes to the same page in the latest
                  release, or to its home when the page isn't there;
-                 `/clinvar-gkm/latest/...` goes to the latest release; a
-                 missing page inside a version goes to that version's home.
+                 `/clinvar-gkm/latest/...` and `/clinvar-gkm/dev/...` (links to
+                 the retired dev docs) go to the same page in the latest
+                 release, or its home; a missing page inside a version goes to
+                 that version's home.
 
 Anything else at the root is removed (the unversioned site that predates
 versioned docs), except `CNAME`, `.nojekyll` and `.git`.
@@ -49,16 +52,18 @@ def read_base_path(config_path):
     return path if path.endswith("/") else path + "/"
 
 
-def title_for(version):
-    return "dev (unreleased)" if version == "dev" else version
-
-
 def update_versions(versions, add, pages):
-    known = {v["version"]: v for v in versions}
     for version in add:
-        if version != "dev" and not RELEASE.match(version):
-            sys.exit(f"error: version must be 'dev' or X.Y, got {version!r}")
-        known.setdefault(version, {"version": version, "title": title_for(version), "aliases": []})
+        if not RELEASE.match(version):
+            sys.exit(f"error: version must be a release line X.Y, got {version!r}")
+    known = {}
+    for v in versions:
+        if RELEASE.match(v["version"]):
+            known[v["version"]] = v
+        else:
+            print(f"dropping {v['version']!r} from versions.json: not a release line", file=sys.stderr)
+    for version in add:
+        known.setdefault(version, {"version": version, "title": version, "aliases": []})
     for version in list(known):
         if not (pages / version).is_dir():
             print(f"warning: dropping {version!r} from versions.json: no {version}/ folder", file=sys.stderr)
@@ -73,9 +78,8 @@ def update_versions(versions, add, pages):
         entry["aliases"] = []
     if releases:
         known[releases[0]]["aliases"] = ["latest"]
-    # Newest release first, dev last.
-    order = releases + [v for v in known if v not in releases]
-    return [known[v] for v in order]
+    # Newest release first.
+    return [known[v] for v in releases]
 
 
 INDEX = """<!doctype html>
@@ -107,6 +111,8 @@ NOT_FOUND = """<!doctype html>
   var rest = path.slice(BASE.length), first = rest.split("/")[0];
   if (first === "latest") {{ location.replace(home + rest.slice(first.length + 1) + tail); return; }}
   if (VERSIONS.indexOf(first) >= 0) {{ location.replace(BASE + first + "/"); return; }}
+  // The retired dev docs: the same page in the latest release, or its home.
+  if (first === "dev") rest = rest.slice(first.length + 1);
   var target = home + rest;
   fetch(target, {{ method: "HEAD" }})
     .then(function (r) {{ location.replace(r.ok ? target + tail : home); }})
