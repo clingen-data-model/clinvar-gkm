@@ -137,3 +137,31 @@ The sections above are kept as decided on 2026-11-19. The maintainer changed thr
 
 The `1.2` docs gain the page by mapping `1.2` in `docs-line-sources.txt` to the `1.0` commit that adds it, shown
 as `1.2.0` (§6), and dispatching `1.2`; dispatching `1.1` rebuilds it with the new data views.
+
+## Amended 2026-11-21 { #amended-2026-11-21 }
+
+The 2026-11-20 amendment is kept as written. The maintainer changed its item 3 on 2026-11-21, after reviewing
+the published `1.2` and `1.1` docs: the earlier lines were hard to find, and the `1.1` docs sent readers to the
+`1.2` docs for them.
+
+1. **Each docs version lists the lines before its own** (replaces "renders only on the docs of the current
+   line"). On docs version `X.Y`, the Previous Releases list shows the lines the root `index.json` marks
+   `frozen` whose number is lower than `X.Y`, newest first; never `X.Y` itself or a newer line. The latest
+   (`1.2`) docs list `1.1` and `1.0`; the `1.1` docs list only `1.0`; a version with no earlier line says so. A
+   page whose URL has no version (a local build) uses the current line. The download tables and the console still
+   read `X.Y`'s own line (item 2).
+2. **The Get the Data landing page shows them inline.** `download.md` has a Previous Releases section with a
+   compact table of the same lines (`data-r2-type="previous-summary"`: line, schema, status with
+   `superseded_by` and freeze date, links to `index.json`, `feed.xml`, `README.txt` and `MANIFEST.json`), each
+   linking to its monthlies and deltas on the Previous Releases page. The monthly, weekly full, delta and Parquet
+   pages carry a one-line pointer to it.
+3. **The `1.1` docs get the page too.** Their content comes from `036bec2` (§6), which predates it, so
+   `docs-line-sources.txt` maps `1.1` to the tip of the long-lived branch `docs/line-1.1`: `036bec2` plus the
+   Previous Releases page, its nav entry, the landing-page section and the pointers, worded for the 1.1 line.
+   Every other `1.1` page is unchanged. A later fix to the `1.1` docs is a commit on that branch, then a remap to
+   its new tip and a dispatch of `1.1`. Keep the branch: `deploy-docs.yml` checks out with `fetch-depth: 0`,
+   which fetches every branch, and `git archive` needs the commit to be reachable.
+4. **A frozen line's console shows no tables.** A frozen line keeps no Parquet (ADR 0008), and the console's
+   examples are written for the current tables, so on a frozen line's docs the console says at once that the line
+   keeps no Parquet set and links the latest docs' console and Parquet Files page, even while the line's old set
+   is still on R2 before its deletion.

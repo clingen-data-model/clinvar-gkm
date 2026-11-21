@@ -238,26 +238,32 @@
       if (!line?.index) throw new Error('no line in the root manifest');
       const indexUrl = `${HOST}/${line.index.replace(/^\//, '')}`;
       indexLink.href = indexUrl;
+      const name = line.line ? String(line.line).replace(/\/?$/, '/') : '';
+      // A frozen line keeps no Parquet (ADR 0008): say so at once, even while its old set is still on R2 (the
+      // examples are written for the current tables, so they would fail on an older set).
+      const frozen = async () => {
+        let when = '';
+        try {
+          const mf = await fetchJSON(indexUrl.replace(/index\.json$/, 'MANIFEST.json'), ctrl.signal);
+          if (mf?.frozen_at) when = String(mf.frozen_at).slice(0, 10);
+        } catch (e) { /* no date */ }
+        unavailable(`${name || 'This line'} is a frozen line: it keeps no Parquet set.`,
+          'A frozen line keeps its monthlies and deltas, not its Parquet set, which ' +
+          (when ? `was deleted when the line was frozen on ${when}` : 'is deleted at the freeze') + ', ' +
+          'so these docs have no tables to query. Use the console in ' +
+          `<a href="${LATEST_DOCS}parquet/" target="_top">the latest docs</a>, see ` +
+          `<a href="${LATEST_DOCS}data-access/parquet/" target="_top">Parquet Files</a> in the latest docs, or build the tables ` +
+          'from one of this line\'s monthly bundles with <a href="https://github.com/clingen-data-model/gkm-bundle-parquet" ' +
+          'target="_blank" rel="noopener">gkm-bundle-parquet</a>.');
+      };
+      if (line.status === 'frozen') { await frozen(); return; }
       const index = await fetchJSON(indexUrl, ctrl.signal);
+      if (index?.status === 'frozen') { await frozen(); return; }
       const p = index?.datasets?.parquet ?? index?.parquet;
       const entry = Array.isArray(p) ? (p.find(e => e?.latest) || p[0]) : p;
-      const name = String(line.line || index?.line || '').replace(/\/?$/, '/');
       if (!entry?.path) {
-        if (line.status === 'frozen' || index?.status === 'frozen') {
-          let when = '';
-          try {
-            const mf = await fetchJSON(indexUrl.replace(/index\.json$/, 'MANIFEST.json'), ctrl.signal);
-            if (mf?.frozen_at) when = ' on ' + String(mf.frozen_at).slice(0, 10);
-          } catch (e) { /* no date */ }
-          unavailable(`The Parquet set of ${name} was removed when the line was frozen${when}.`,
-            'A frozen line keeps its monthlies and deltas, not its Parquet set, so these docs have no tables to query. ' +
-            `Use the console in <a href="${LATEST_DOCS}parquet/" target="_top">the latest docs</a>, or build the tables ` +
-            'from one of this line\'s monthly bundles with <a href="https://github.com/clingen-data-model/gkm-bundle-parquet" ' +
-            'target="_blank" rel="noopener">gkm-bundle-parquet</a>.');
-        } else {
-          unavailable(`No Parquet set is published for ${name} yet.`,
-            'A new line\'s Parquet set is published shortly after its first release. Until then, use the JSON bundles.');
-        }
+        unavailable(`No Parquet set is published for ${name || 'this line'} yet.`,
+          'A new line\'s Parquet set is published shortly after its first release. Until then, use the JSON bundles.');
         return;
       }
       const generated = sqlEl.value === EXAMPLES[exSel.value] ||
