@@ -18,7 +18,7 @@ The location transformation step uses a lightweight Cloud Run job defined in thi
 
 The `variation_identity` table is exported to Google Cloud Storage as gzipped NDJSON at `gs://clinvar-gkm/YYYY-MM-DD/dev/vi.jsonl.gz`.
 
-Upstream, clinvar-ingest's stored procedures job writes this export for every release, right after it runs `dataset_diff_on` and `variation_identity_incremental` (the same work as stages 0 and 1 of `run-release.sh`). `run-release.sh` stage 2 writes the same object again with:
+Upstream, clinvar-ingest's stored procedures job writes this export for every release, right after it runs `dataset_diff_on` and `variation_identity_incremental` (the same work as stages 0 and 1 of `run-release.sh`). So `run-release.sh` skips its stages 0–2 by default and starts at the check in stage 3. With `--with-upstream-stages` it runs them here too, and its stage 2 writes the same object again with:
 
 ```bash
 ./src/scripts/export-vi-table-to-gcs.sh YYYY-MM-DD          # incremental (default)
@@ -48,19 +48,19 @@ Each output record pairs the original `variation_identity` input (`in`) with the
 
 #### Checking the cloud output { #checking-the-cloud-output }
 
-`run-release.sh` stage 3 runs no translation. It runs `src/scripts/check-cloud-vrsify.sh YYYY-MM-DD`, which reads the two objects and stops the release unless:
+`run-release.sh` stage 3 runs no translation. It runs `src/scripts/check-cloud-vrsify.sh YYYY-MM-DD`, which reads the two objects and stops the release unless the conditions below hold. A release started at stage 4 (`--start-step 4`) runs the same check before it loads `gkm_vrs`; only `--allow-unchecked-vrs` skips it. The check stops the release unless:
 
 - both `vi-vrs-python.jsonl.gz` and its provenance exist;
 - the provenance names this release's `vi.jsonl.gz` as its only input, with the MD5 and size that object has now;
 - the provenance names `vi-vrs-python.jsonl.gz` as its output, with its current size when the provenance records one.
 
-A new generation of `vi.jsonl.gz` with the same MD5 passes: re-running stage 2 rewrites the object, and when `variation_identity` has not changed it writes the same bytes. A `vi.jsonl.gz` with different content fails, and the cloud job does not redo the release by itself. Translate the current export again (upstream, `clinvar-ingest vrsify-submit` with `--overwrite`; or the local fallback below), then resume with `--start-step 3`. If the output is not there yet, wait for the next run of the cloud job and resume with `--start-step 3`.
+A new generation of `vi.jsonl.gz` with the same MD5 passes: re-running stage 2 (`--with-upstream-stages`) rewrites the object, and when `variation_identity` has not changed it writes the same bytes. A `vi.jsonl.gz` with different content fails, and the cloud job does not redo the release by itself. That is why stages 0–2 are skipped by default: running them here could race the upstream export, and a rewrite with new content after the translation leaves the release untranslated. The check does not wait. Translate the current export again (upstream, `clinvar-ingest vrsify-submit` with `--overwrite`; or the local fallback below), then resume with `--start-step 3`. If the output is not there yet, wait for the next run of the cloud job and resume with `--start-step 3`.
 
 #### Local fallback (`src/vrsify/`) { #local-vrsify-fallback }
 
 `src/vrsify/vrsify.sh YYYY-MM-DD` is the translation this project ran locally before the cloud job existed; `run-release.sh` no longer calls it. It calls the clinvar-gk-python resolver installed as a pinned dependency (`src/vrsify/requirements.txt`), which wraps vrs-python and the [variation-normalizer](https://github.com/GenomicMedLab/variation-normalizer), against local SeqRepo, UTA and gene-normalizer services. Its output differs slightly from the cloud translation: for 2026-11-08, both produced the same 4,454 records, and the 7 that differed are untranslatable variants whose `out.errors` text differs.
 
-`vrsify.sh` writes `vi-normalized-no-liftover.jsonl.gz` and writes no provenance, so stage 3's check cannot pass on it. To use it, copy it to `vi-vrs-python.jsonl.gz` and run `run-release.sh` from `--start-step 4` (see [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/src/vrsify)).
+`vrsify.sh` writes `vi-normalized-no-liftover.jsonl.gz` and writes no provenance, so the check cannot pass on it. To use it, copy it to `vi-vrs-python.jsonl.gz` and run `run-release.sh` with `--allow-unchecked-vrs` (from stage 3 or 4), which skips the check (see [`src/vrsify/README.md`](https://github.com/clingen-data-model/clinvar-gkm/tree/main/src/vrsify)).
 
 `vrsify.sh` exits before starting unless four variables are set: `SEQREPO_ROOT_DIR`, `SEQREPO_DATAPROXY_URL`, `HGVS_SEQREPO_DIR` and `GENE_NORM_DB_URL`. It does not check `UTA_DB_URL`, and its comments describe UTA as needed only for liftover. The resolver still reaches UTA for some records; when `UTA_DB_URL` is unset, the UTA client falls back to the public UTA endpoint, which timed out on 33 records in the 2026-10-18 run. Export `UTA_DB_URL` pointing at a reachable UTA, in practice a local container from the variation-normalizer compose setup in the README.
 
@@ -97,7 +97,7 @@ Because each release clones the immediately prior one, the clone lineage grows o
 !!! warning "Version-invalidation"
     The incremental carry-forward assumes the prior release's `gkm_vrs` was produced by the **same** VRS translation and the **same** `variation_identity` transform. A `variation_identity` transform change is caught by the diff: every variation whose row changes is exported and translated again.
 
-    A change to the translation (vrs-python, the RefgetStore, or the cloud job's code) is not. Each release's provenance file records its `libraries` and `refget_store`, but the release does not compare them between releases, and `run-release.sh --full` does not translate every variation again: the cloud job translates only the incremental `vi.jsonl.gz`, not the `--full` shards (stage 3 warns). Re-translating every variation after a translation change is not automated yet.
+    A change to the translation (vrs-python, the RefgetStore, or the cloud job's code) is not. Each release's provenance file records its `libraries` and `refget_store`, but the release does not compare them between releases. Re-translating every variation needs an upstream run: the cloud job translates only the incremental `vi.jsonl.gz`, not the `--full` shards. So `run-release.sh --full` stops at stage 3. With `--with-upstream-stages` it first rebuilds `variation_identity` in full and writes the full export (stages 1–2); without it, it stops before doing anything. Once every variation has been translated upstream into `vi-vrs-python.jsonl.gz`, continue with `--full-procs --start-step 4`; the load's self-correction then does a full `--replace`. The stage-4 check needs that translation's provenance to name `vi.jsonl.gz`; `--allow-unchecked-vrs` skips it.
 
     The local fallback's resolver is pinned in `src/vrsify/requirements.txt`; `vrsify.sh` stops if the installed resolver is not the pinned commit. To move an existing environment to a new pin, run `pip install --force-reinstall --no-deps -r src/vrsify/requirements.txt`; a plain `pip install -r` keeps the installed commit, because the resolver's version never changes.
 
@@ -125,7 +125,7 @@ The `out.location` record includes the flattened position fields: `start`, `end`
 !!! warning "Limited Scope"
     VRS processing currently resolves only the **single best expression** per variation — the defining allele for each Canonical Allele as selected by the [precedence hierarchy](variation-identity/index.md#precedence-hierarchy). Only variations that vrs-python can handle are successfully resolved; the remainder carry errors in the output.
 
-The full release runs from a single command — `src/scripts/run-release.sh` chains variation identity, the export, the check of the cloud translation (see [Checking the cloud output](#checking-the-cloud-output)), and the transform/load/procedures/publish stages. See [Single-command run](index.md#single-command-run). No stage needs local SeqRepo, UTA or gene-normalizer services; only the [local fallback](#local-vrsify-fallback) does.
+The full release runs from a single command — `src/scripts/run-release.sh` starts at the check of the cloud translation (see [Checking the cloud output](#checking-the-cloud-output)) and chains the transform/load/procedures/publish stages; variation identity and the export run upstream, or here with `--with-upstream-stages`. See [Single-command run](index.md#single-command-run). No stage needs local SeqRepo, UTA or gene-normalizer services; only the [local fallback](#local-vrsify-fallback) does.
 
 One area of improvement remains planned:
 

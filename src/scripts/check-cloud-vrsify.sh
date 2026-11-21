@@ -65,7 +65,7 @@ if [[ -z "${out_meta}" || -z "${prov_json}" ]]; then
   fail "the cloud vrsify output for ${DATE} is not there yet (need ${output} and ${provenance})." \
     "The Cloud Run job clinvar-ingest-vrsify (clingen-dev, us-east1) runs every 15 minutes and takes a release once" \
     "its stored procedures have finished and ${input} has been written. Run this stage again" \
-    "(run-release.sh ${DATE} --start-step 3 ...) once both objects exist."
+    "(run-release.sh ${DATE} ...) once both objects exist."
 fi
 IFS=, read -r _ _ out_size <<<"${out_meta}"
 

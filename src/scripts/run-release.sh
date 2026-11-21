@@ -6,12 +6,13 @@
 # Stage 0 (dataset_diff_on) runs ahead of stage 1 to build the {S}.diff_* drivers, and a
 # version stamp (gkm_pipeline_version) is written between stages 3 and 4.
 #
-#   1. variation_identity   BigQuery CALL   (incremental by default; full with --full)
-#   2. export-vi-to-gcs      src/scripts/export-vi-table-to-gcs.sh   -> gs://.../vi.jsonl.gz
+#   1. variation_identity   BigQuery CALL   (incremental; full with --full)       [upstream; skipped unless
+#   2. export-vi-to-gcs      export-vi-table-to-gcs.sh -> gs://.../vi.jsonl.gz      --with-upstream-stages]
 #   3. cloud vrsify check    src/scripts/check-cloud-vrsify.sh: vrs-python runs upstream, in clinvar-ingest's
 #                            Cloud Run job clinvar-ingest-vrsify, which writes vi-vrs-python.jsonl.gz and its
 #                            provenance beside vi.jsonl.gz. This stage stops unless that provenance names the
-#                            current vi.jsonl.gz (same md5 and size); it runs nothing.
+#                            current vi.jsonl.gz (same md5 and size); it runs nothing. A run that starts at
+#                            stage 4 runs the same check first; only --allow-unchecked-vrs skips it.
 #   4. vrs-to-bq             src/scripts/vrs-to-bq-table.sh
 #                            (Cloud Run transform of vi-vrs-python.jsonl.gz -> load gkm_vrs -> gkm_* procs)
 #   5. release               publish to the version line R2_LINE (default v1/1.2/; layout in r2_layout.py):
@@ -30,21 +31,28 @@
 #                            weekly full stage 5 published (on a --bootstrap-monthly release, from the line's
 #                            checkpoint monthly), verifies it, and overwrites parquet/
 #
-# Stages 1 and 2 are incremental by default (recompute only changed variations, carry the
-# rest forward). Stage 4 self-corrects between incremental and full loads. --full forces a
-# full rebuild across stages 1-2 AND forces the incremental gks procs (catvar + scv) full
-# in Stage 4 (propagated as GKS_FULL to vrs-to-bq-table.sh) — REQUIRED after a variation_identity transform change.
-# It does not re-translate every variation: the cloud vrsify translates only the incremental vi.jsonl.gz, not
-# stage 2's --full export (stage 3 warns). The
-# version-stamp gate written between stages 3 and 4 is always the honest plain build-path
-# hash, even on --full, so a --full release still leaves a valid baseline for next week's
-# normal run to resume incremental from.
+# Stages 0-2 run UPSTREAM: clinvar-ingest's stored procedures job runs dataset_diff_on and
+# variation_identity_incremental and exports the incremental vi.jsonl.gz for every release, and the cloud vrsify
+# translates that object. So a release starts at stage 3 by default. Running stages 0-2 here again could race the
+# upstream export, and a rewritten vi.jsonl.gz with new content no longer matches the translation (the cloud job
+# translates each release once). --with-upstream-stages runs them here anyway (default start step 1).
+#
+# Stages 1 and 2 are incremental (recompute only changed variations, carry the rest forward). Stage 4
+# self-corrects between incremental and full loads.
+#
+# --full STOPS AT STAGE 3. A full re-translation needs an upstream run first: the cloud vrsify translates only the
+# incremental vi.jsonl.gz, never stage 2's --full export (vi-*.jsonl.gz shards). With --with-upstream-stages it
+# first rebuilds variation_identity in full and writes that full export (stages 1-2), then stops; without it, it
+# stops before doing anything. After every variation has been translated upstream, continue with
+# --full-procs --start-step 4 (the stage-4 check needs that translation's provenance to name vi.jsonl.gz;
+# --allow-unchecked-vrs skips it). The version-stamp gate written between stages 3 and 4 is always the honest plain
+# build-path hash, so a full rebuild still leaves a valid baseline for next week's normal run.
 #
 # --full-procs forces ONLY the gkm procs of Stage 4 full (GKS_FULL=true into vrs-to-bq-table.sh): every
 # catvar/scv/rcv/vcv proc runs its full wrapper. Stages 1-3 (variation_identity, export, cloud vrsify) and the
 # gkm_vrs load stay incremental, so only the ~changed variations are re-normalized. This is the weekly mode
 # after 1.1.0 until ADR 0007 workstream 3 decides on the incremental gkm machinery (the incremental wrappers
-# were seen to fall back to full silently). --full implies it.
+# were seen to fall back to full silently).
 #
 # A NEW version line (a new MINOR, ADR 0009 §1/§5) starts with ONE checkpoint monthly and deltas forward. Stage 5
 # then refuses a normal release into a line that has no official monthly (its deltas would have no checkpoint_full),
@@ -63,18 +71,23 @@
 #
 # USAGE:
 #   ./src/scripts/run-release.sh YYYY-MM-DD [--full | --full-procs] [--dry-run] [--skip-parquet] [--start-step N]
-#                                [--bootstrap-monthly=YYYY-MM]
+#                                [--with-upstream-stages] [--allow-unchecked-vrs] [--bootstrap-monthly=YYYY-MM]
 #
-#   --full          full rebuild of stages 1-2 and every gkm proc in stage 4 (reseed the baseline);
-#                   the version-stamp gate is unaffected, so next week resumes incremental
+#   --full          stops at stage 3 (see above): with --with-upstream-stages, a full rebuild of stages 1-2
+#                   first; a full re-translation must then run upstream before the release continues
 #   --full-procs    only the stage-4 gkm procs full; variation_identity, export, cloud vrsify and the
-#                   gkm_vrs load stay incremental
+#                   gkm_vrs load stay incremental (the weekly mode)
 #   --dry-run       stages 5-6 (release scripts) run in dry-run: no R2 upload / no GCS writes
 #   --skip-parquet  skip stage 6, leaving parquet/ untouched: it keeps the previous set, and its manifest and
 #                   the index keep saying which release that set was built from
-#   --start-step N  begin at stage N (1-6); default 1. --start-step 6 runs only the Parquet step for a release
-#                   that is already published. --start-step 3 checks the upstream cloud vrsify output and
-#                   goes on from there; --start-step 4 skips that check (src/vrsify/README.md: local fallback).
+#   --start-step N  begin at stage N (1-6); default 3, or 1 with --with-upstream-stages. 1 and 2 need
+#                   --with-upstream-stages. --start-step 6 runs only the Parquet step for a release that is
+#                   already published.
+#   --with-upstream-stages
+#                   run stages 0-2 here although clinvar-ingest already ran them (start step 1 or 2)
+#   --allow-unchecked-vrs
+#                   load vi-vrs-python.jsonl.gz without the cloud vrsify check (start step 3 or 4); for the local
+#                   fallback (src/vrsify/README.md), whose output has no provenance
 #   --bootstrap-monthly=YYYY-MM
 #                   stage 5 starts an EMPTY line (R2_LINE) with this checkpoint monthly (see above)
 
@@ -95,7 +108,9 @@ FULL=false
 FULL_PROCS=false
 DRY_RUN=false
 SKIP_PARQUET=false
-START_STEP=1
+START_STEP=""
+WITH_UPSTREAM=false
+ALLOW_UNCHECKED=false
 BOOTSTRAP_MONTH=""
 
 while [[ $# -gt 0 ]]; do
@@ -106,6 +121,8 @@ while [[ $# -gt 0 ]]; do
     --skip-parquet) SKIP_PARQUET=true; shift ;;
     --start-step) START_STEP="${2:?--start-step needs a number}"; shift 2 ;;
     --start-step=*) START_STEP="${1#*=}"; shift ;;
+    --with-upstream-stages) WITH_UPSTREAM=true; shift ;;
+    --allow-unchecked-vrs) ALLOW_UNCHECKED=true; shift ;;
     --bootstrap-monthly=*) BOOTSTRAP_MONTH="${1#*=}"; shift ;;
     -*) echo "ERROR: unknown flag: $1" >&2; exit 1 ;;
     *) if [[ -z "$DATE" ]]; then DATE="$1"; shift; else echo "ERROR: unexpected arg: $1" >&2; exit 1; fi ;;
@@ -113,7 +130,36 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$DATE" ]]; then
-  echo "Usage: $0 YYYY-MM-DD [--full | --full-procs] [--dry-run] [--skip-parquet] [--start-step N] [--bootstrap-monthly=YYYY-MM]" >&2
+  echo "Usage: $0 YYYY-MM-DD [--full | --full-procs] [--dry-run] [--skip-parquet] [--start-step N]" \
+    "[--with-upstream-stages] [--allow-unchecked-vrs] [--bootstrap-monthly=YYYY-MM]" >&2
+  exit 1
+fi
+
+# Stages 0-2 run upstream (see above), so a release starts at stage 3 unless it asks to run them here.
+if [[ -z "${START_STEP}" ]]; then
+  if $WITH_UPSTREAM; then START_STEP=1; else START_STEP=3; fi
+fi
+if ! [[ "${START_STEP}" =~ ^[1-6]$ ]]; then
+  echo "ERROR: --start-step must be 1-6, got '${START_STEP}'" >&2
+  exit 1
+fi
+if (( START_STEP < 3 )) && ! $WITH_UPSTREAM; then
+  echo "ERROR: stages 0-2 run upstream in clinvar-ingest; pass --with-upstream-stages to run them here" \
+    "(--start-step ${START_STEP})" >&2
+  exit 1
+fi
+if $WITH_UPSTREAM && (( START_STEP >= 3 )); then
+  echo "ERROR: --with-upstream-stages runs stages 0-2, but --start-step ${START_STEP} starts after them" >&2
+  exit 1
+fi
+if $ALLOW_UNCHECKED && (( START_STEP > 4 )); then
+  echo "ERROR: --allow-unchecked-vrs skips the check before the gkm_vrs load (stage 4); --start-step ${START_STEP}" \
+    "starts after it" >&2
+  exit 1
+fi
+if $FULL && (( START_STEP > 3 )); then
+  echo "ERROR: --full stops at stage 3 (a full re-translation runs upstream first). After every variation has been" \
+    "translated upstream, continue with --full-procs --start-step ${START_STEP}." >&2
   exit 1
 fi
 
@@ -134,7 +180,7 @@ if (( START_STEP <= 5 )); then
   # Stage 5 validates the delta and every full strictly (rs engine) before upload; same reasoning.
   $DRY_RUN || "${SCRIPT_DIR}/validate-bundle.sh" --check-setup --engine rs
 fi
-echo "=== run-release ${DATE} (full=${FULL}, full-procs=${FULL_PROCS}, dry-run=${DRY_RUN}, skip-parquet=${SKIP_PARQUET}, start-step=${START_STEP}${BOOTSTRAP_MONTH:+, bootstrap-monthly=${BOOTSTRAP_MONTH}}, project=${PROJECT_ID}) ==="
+echo "=== run-release ${DATE} (full=${FULL}, full-procs=${FULL_PROCS}, dry-run=${DRY_RUN}, skip-parquet=${SKIP_PARQUET}, start-step=${START_STEP}, with-upstream-stages=${WITH_UPSTREAM}, allow-unchecked-vrs=${ALLOW_UNCHECKED}${BOOTSTRAP_MONTH:+, bootstrap-monthly=${BOOTSTRAP_MONTH}}, project=${PROJECT_ID}) ==="
 
 # --- Stage 0: dataset diff (produces {S}.diff_* — drivers for all incremental procs) ----
 # Idempotent (CREATE OR REPLACE). On the first release it emits a warning and writes no
@@ -169,12 +215,22 @@ if (( START_STEP <= 2 )); then
 fi
 
 # --- Stage 3: check the upstream cloud vrsify output (vrs-python runs in clinvar-ingest) ---
-if (( START_STEP <= 3 )); then
-  echo ">>> [3/6] check-cloud-vrsify.sh (vi-vrs-python.jsonl.gz must be the translation of the current vi.jsonl.gz)"
-  "${REPO_ROOT}/src/scripts/check-cloud-vrsify.sh" "${DATE}"
+# Also runs when the release starts at stage 4, so nothing loads gkm_vrs from an unchecked translation unless
+# --allow-unchecked-vrs says so.
+if (( START_STEP <= 4 )); then
   if $FULL; then
-    echo "WARNING: --full: the cloud vrsify translates only vi.jsonl.gz, the incremental export. Stage 2's --full" \
-      "export (vi-*.jsonl.gz shards) is not translated, so gkm_vrs is not reseeded from a full translation." >&2
+    echo "ERROR: --full stops at stage 3. A full re-translation needs an upstream run first: the cloud vrsify" \
+      "translates only the incremental vi.jsonl.gz, not a full export (stage 2 --full writes vi-*.jsonl.gz shards)." \
+      "After every variation has been translated upstream into vi-vrs-python.jsonl.gz, continue with" \
+      "run-release.sh ${DATE} --full-procs --start-step 4 (the check needs that translation's provenance to name" \
+      "vi.jsonl.gz; --allow-unchecked-vrs skips it)." >&2
+    exit 1
+  fi
+  if $ALLOW_UNCHECKED; then
+    echo ">>> [3/6] --allow-unchecked-vrs: NOT checking vi-vrs-python.jsonl.gz against vi.jsonl.gz"
+  else
+    echo ">>> [3/6] check-cloud-vrsify.sh (vi-vrs-python.jsonl.gz must be the translation of the current vi.jsonl.gz)"
+    "${REPO_ROOT}/src/scripts/check-cloud-vrsify.sh" "${DATE}"
   fi
 fi
 

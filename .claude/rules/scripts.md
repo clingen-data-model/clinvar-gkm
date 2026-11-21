@@ -52,8 +52,11 @@ explicit user confirmation.
 every 15 min) writes `<date>/dev/vi-vrs-python.jsonl.gz` + `.provenance.json` for each release; `run-release.sh`
 stage 3 (`check-cloud-vrsify.sh`) runs nothing and stops unless that provenance names the current `vi.jsonl.gz`
 (same md5 + size; a same-content re-export only changes the generation). The job takes each release once and never
-replaces its output, so a changed `vi.jsonl.gz` needs a manual re-translation. `src/vrsify/` (local SeqRepo/UTA) is a
-manual fallback only.
+replaces its output, so a changed `vi.jsonl.gz` needs a manual re-translation. Hence `run-release.sh` **starts at
+stage 3**: stages 0–2 run upstream too and run here only with `--with-upstream-stages`. `--start-step 4` runs the same
+check first; `--allow-unchecked-vrs` skips it (local fallback). `--full` stops at stage 3 (full re-translation is
+upstream; then `--full-procs --start-step 4`). The check never waits. `src/vrsify/` (local SeqRepo/UTA) is a manual
+fallback only.
 
 **Resolver pin (local fallback):** `clinvar_gk_pilot` is always version `0.0.0`, so `pip install -r src/vrsify/requirements.txt` keeps
 the installed commit and exits 0. Move an existing environment with `--force-reinstall --no-deps`. `vrsify.sh` stops

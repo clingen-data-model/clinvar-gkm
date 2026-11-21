@@ -12,7 +12,7 @@
 # each variation's expression into a GA4GH VRS object against local SeqRepo / UTA /
 # gene-normalizer services. It reads the export produced by export-vi-table-to-gcs.sh;
 # to load its output, copy it to vi-vrs-python.jsonl.gz and run run-release.sh from
-# --start-step 4 (see README.md).
+# --start-step 4 with --allow-unchecked-vrs, which skips the cloud vrsify check (see README.md).
 #
 #   in :  gs://clinvar-gkm/<date>/dev/vi.jsonl.gz
 #   out:  gs://clinvar-gkm/<date>/dev/vi-normalized-no-liftover.jsonl.gz

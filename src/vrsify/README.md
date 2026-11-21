@@ -93,14 +93,15 @@ pinned in `requirements.txt`. A custom `VRSIFY_CMD` is not checked.
 
 ## Using the output in a release
 
-`vrsify.sh` writes no provenance file, so `run-release.sh` stage 3 (which requires the cloud job's provenance) cannot
-pass on its output. Stage 4 reads `vi-vrs-python.jsonl.gz`. Move any cloud output for the release
-(`vi-vrs-python.jsonl.gz` and `vi-vrs-python.provenance.json`) aside, copy this output over, and start at stage 4:
+`vrsify.sh` writes no provenance file, so the cloud vrsify check that `run-release.sh` runs before every `gkm_vrs`
+load (stage 3, or first thing from `--start-step 4`) cannot pass on its output; `--allow-unchecked-vrs` skips that
+check. Stage 4 reads `vi-vrs-python.jsonl.gz`. Move any cloud output for the release (`vi-vrs-python.jsonl.gz` and
+`vi-vrs-python.provenance.json`) aside, copy this output over, and run with the override:
 
 ```bash
 gcloud storage cp gs://clinvar-gkm/YYYY-MM-DD/dev/vi-normalized-no-liftover.jsonl.gz \
   gs://clinvar-gkm/YYYY-MM-DD/dev/vi-vrs-python.jsonl.gz
-./src/scripts/run-release.sh YYYY-MM-DD --start-step 4   # with the release's usual flags, e.g. --full-procs
+./src/scripts/run-release.sh YYYY-MM-DD --start-step 4 --allow-unchecked-vrs   # plus the usual flags, e.g. --full-procs
 ```
 
 ## Version-invalidation
