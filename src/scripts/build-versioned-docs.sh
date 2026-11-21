@@ -3,8 +3,8 @@
 #
 # Usage: build-versioned-docs.sh <ref> <version> <out_dir>
 #
-#   <ref>      git ref whose docs to build: a release tag (1.1.0) or HEAD/main for dev
-#   <version>  the docs version to build it as: "dev" or a release line "X.Y"
+#   <ref>      git ref whose docs to build: a release tag (1.1.0), or a commit
+#   <version>  the docs version to build it as: a release line "X.Y"
 #   <out_dir>  where the built site goes (replaced); publish it as <version>/ at the
 #              gh-pages root
 #
@@ -12,15 +12,18 @@
 # the files this feature owns are overlaid from THIS checkout, so an older release
 # tag built before versioned docs existed still gets the version selector, the
 # version notice and the colours:
-#   - OVERLAY (below): template overrides, versions.js and versions.css;
+#   - OVERLAY (below): template overrides, versions.js and versions.css, and the
+#     release browser (r2-browser.js) and live query console (duckdb-console.html),
+#     which pick the data line from the docs version in the page URL, so an older
+#     version's download tables and console show its own line;
 #   - zensical.toml: site_url becomes <site_url of this checkout><version>/, the
 #     [project.extra.version] table is added when the ref's config lacks it, and
-#     [project.extra.source] names the release the version shows (`main` for dev,
-#     else <ref>, or the line's label), which the header's repository widget shows and
-#     links; edit_uri points at the ref the pages come from;
+#     [project.extra.source] names the release the version shows (<ref>, or the line's
+#     label), which the header's repository widget shows and links; edit_uri points at
+#     the ref the pages come from;
 #   - links in the pages to this repository's files on `main` (/blob/main/...,
-#     /tree/main/..., /raw/main/...) are rewritten to the ref the pages come from, for
-#     a release version (pin-repo-links.py; a path the ref doesn't have stays on main);
+#     /tree/main/..., /raw/main/...) are rewritten to the ref the pages come from
+#     (pin-repo-links.py; a path the ref doesn't have stays on main);
 #   - the Roadmap table is regenerated from GitHub Discussions with this checkout's
 #     generate-roadmap.py (non-fatal: without GH_TOKEN or on an API error the ref's
 #     committed table stays).
@@ -43,8 +46,8 @@ OUT=$3
 ZENSICAL=${ZENSICAL:-zensical}
 PYTHON=${PYTHON:-python3}
 
-if ! [[ "$VERSION" =~ ^(dev|[0-9]+\.[0-9]+)$ ]]; then
-  echo "error: version must be 'dev' or a release line like 1.1 (got '$VERSION')" >&2
+if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
+  echo "error: version must be a release line like 1.2 (got '$VERSION')" >&2
   exit 2
 fi
 
@@ -54,30 +57,26 @@ docs/overrides/404.html
 docs/overrides/partials/header.html
 docs/overrides/partials/source.html
 docs/assets/js/versions.js
-docs/stylesheets/versions.css"
+docs/stylesheets/versions.css
+docs/assets/js/r2-browser.js
+docs/assets/duckdb-console.html"
 
 SITE_URL=$("$PYTHON" -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["project"]["site_url"])' \
   "$REPO/zensical.toml")
 case "$SITE_URL" in */) ;; *) SITE_URL="$SITE_URL/" ;; esac
 VERSION_URL="$SITE_URL$VERSION/"
 
-# The release the version's header shows and links: dev is main (labelled with the commit
-# it was built from); a release is the tag it was built from, unless docs-line-sources.txt
-# maps its line to another source ref, shown as the line's label.
-if [ "$VERSION" = "dev" ]; then
-  SOURCE_REF=main
-  SOURCE_LABEL="main ($(git -C "$REPO" rev-parse --short "$REF^{commit}"))"
-else
-  SOURCE_REF=$REF
-  while read -r line src label; do
-    if [ "$line" = "$VERSION" ]; then
-      echo "== $VERSION: building the docs from $src, shown as $label ($REF requested; docs-line-sources.txt)"
-      REF=$src
-      SOURCE_REF=$label
-    fi
-  done < <(grep -v '^#' "$REPO/src/scripts/docs-line-sources.txt")
-  SOURCE_LABEL=$SOURCE_REF
-fi
+# The release the version's header shows and links: the tag it was built from, unless
+# docs-line-sources.txt maps its line to another source ref, shown as the line's label.
+SOURCE_REF=$REF
+while read -r line src label; do
+  if [ "$line" = "$VERSION" ]; then
+    echo "== $VERSION: building the docs from $src, shown as $label ($REF requested; docs-line-sources.txt)"
+    REF=$src
+    SOURCE_REF=$label
+  fi
+done < <(grep -v '^#' "$REPO/src/scripts/docs-line-sources.txt")
+SOURCE_LABEL=$SOURCE_REF
 
 TMP=$(mktemp -d "${TMPDIR:-/tmp}/versioned-docs.XXXXXX")
 trap 'rm -rf "${TMP:?}"' EXIT
@@ -97,8 +96,8 @@ text = open(path, encoding="utf-8").read()
 text, n = re.subn(r'(?m)^site_url\s*=.*$', f'site_url = "{url}"', text, count=1)
 if n != 1:
     sys.exit(f"error: no site_url line in {path}")
-edit = "edit/main/docs/" if ref == "main" else f"blob/{content}/docs/"  # a tag can't be edited
-text = re.sub(r'(?m)^edit_uri\s*=.*$', f'edit_uri = "{edit}"', text, count=1)
+# a tag can't be edited: view the page source at the ref the pages come from
+text = re.sub(r'(?m)^edit_uri\s*=.*$', f'edit_uri = "blob/{content}/docs/"', text, count=1)
 if "[project.extra.version]" not in text:
     text = text.rstrip("\n") + '\n\n[project.extra.version]\nprovider = "mike"\nalias = true\n'
 if "[project.extra.source]" in text:
@@ -107,9 +106,7 @@ text = text.rstrip("\n") + f'\n\n[project.extra.source]\nref = {json.dumps(ref)}
 open(path, "w", encoding="utf-8").write(text)
 EOF
 
-if [ "$SOURCE_REF" != "main" ]; then
-  "$PYTHON" "$REPO/src/scripts/pin-repo-links.py" "$TMP/docs" "$REF" --repo "$REPO"
-fi
+"$PYTHON" "$REPO/src/scripts/pin-repo-links.py" "$TMP/docs" "$REF" --repo "$REPO"
 
 mkdir -p "$TMP/src/scripts"
 cp "$REPO/src/scripts/generate-roadmap.py" "$TMP/src/scripts/generate-roadmap.py"

@@ -1,24 +1,9 @@
 /*
- * Versioned docs (ADR 0011). versions.js sets <html data-gkm-version="..."> on
- * any version that isn't the latest release:
- *   dev  - built from main, unreleased: orange header and tabs
- *   old  - an older release: grey header and tabs
- * The latest release keeps the normal indigo. Header colours keep white text
+ * Versioned docs (ADR 0011). versions.js sets <html data-gkm-version="old"> on
+ * an older release line: grey header and tabs. The latest release keeps the
+ * normal indigo. Header colours keep white text
  * and the white logos at a contrast of at least 4.5:1.
  */
-html[data-gkm-version="dev"] .md-header,
-html[data-gkm-version="dev"] .md-tabs {
-  --md-primary-fg-color: #bf5000;
-  --md-primary-fg-color--light: #e65100;
-  --md-primary-fg-color--dark: #9a4100;
-  background-color: var(--md-primary-fg-color);
-}
-
-html[data-gkm-version="dev"] [data-md-color-scheme="slate"] .md-header,
-html[data-gkm-version="dev"] [data-md-color-scheme="slate"] .md-tabs {
-  --md-primary-fg-color: #9a4100;
-}
-
 html[data-gkm-version="old"] .md-header,
 html[data-gkm-version="old"] .md-tabs {
   --md-primary-fg-color: #616161;
@@ -48,20 +33,12 @@ html[data-gkm-version="old"] [data-md-color-scheme="slate"] .md-tabs {
   text-decoration: underline;
 }
 
-.gkm-version-banner--dev {
-  background-color: #ffcc80;
-}
-
 .gkm-version-banner--old {
   background-color: #e0e0e0;
 }
 
 [data-md-color-scheme="slate"] .gkm-version-banner {
   color: #f5f5f5;
-}
-
-[data-md-color-scheme="slate"] .gkm-version-banner--dev {
-  background-color: #6d3200;
 }
 
 [data-md-color-scheme="slate"] .gkm-version-banner--old {
