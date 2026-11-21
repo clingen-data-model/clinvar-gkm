@@ -40,7 +40,7 @@ constraint shapes are set in `gkm-catvar-proc.sql`. Conformance invariants that 
   - [`sql-procedures.md`](.claude/rules/sql-procedures.md) — dynamic SQL, BigQuery gotchas, naming,
     oracle-gating (`src/procedures/**`)
   - [`scripts.md`](.claude/rules/scripts.md) — bash 3.2, R2/Cloudflare, `bq`/`gh` gotchas
-    (`src/scripts/**`, `src/vrsify/**`)
+    (`src/scripts/**`)
   - [`docs.md`](.claude/rules/docs.md) — Zensical `--strict`, terminology, roadmap generation, when the site
     deploys (`docs/**`)
 - **Architectural decisions** — [`docs/decisions/`](docs/decisions/) (ADRs, one per decision). Fuller design

@@ -1,7 +1,8 @@
 #!/bin/bash
 #
-# check-cloud-vrsify.sh — stage 3 of run-release.sh: confirm that the upstream cloud vrsify has translated THIS
-# release's variation_identity export, so that stage 4 (vrs-to-bq-table.sh) can load its output. Read-only.
+# check-cloud-vrsify.sh — step 1 of run-release.sh: confirm that the clinvar-ingest pipeline has finished THIS
+# release (its variation_identity export is translated), so that step 2 (vrs-to-bq-table.sh) can load the
+# translation. Read-only.
 #
 # The clinvar-ingest Cloud Run job clinvar-ingest-vrsify (project clingen-dev, region us-east1) runs every 15
 # minutes. It takes each release whose upstream stored procedures have finished, translates
@@ -55,8 +56,8 @@ object_meta() {
 }
 
 in_meta="$(object_meta "${input}")"
-[[ -n "${in_meta}" ]] || fail "${input} does not exist. The upstream stored procedures job exports it (or" \
-  "stage 2 of run-release.sh)."
+[[ -n "${in_meta}" ]] || fail "${input} does not exist. The clinvar-ingest stored procedures job exports it once" \
+  "the release's stored procedures have run."
 IFS=, read -r in_gen in_md5 in_size <<<"${in_meta}"
 
 out_meta="$(object_meta "${output}")"
@@ -64,8 +65,8 @@ prov_json="$(gcloud storage cat "${provenance}" 2>/dev/null || true)"
 if [[ -z "${out_meta}" || -z "${prov_json}" ]]; then
   fail "the cloud vrsify output for ${DATE} is not there yet (need ${output} and ${provenance})." \
     "The Cloud Run job clinvar-ingest-vrsify (clingen-dev, us-east1) runs every 15 minutes and takes a release once" \
-    "its stored procedures have finished and ${input} has been written. Run this stage again" \
-    "(run-release.sh ${DATE} --start-step 3 ...) once both objects exist."
+    "its stored procedures have finished and ${input} has been written. Run it again" \
+    "(run-release.sh ${DATE} ...) once both objects exist."
 fi
 IFS=, read -r _ _ out_size <<<"${out_meta}"
 
@@ -105,7 +106,6 @@ if ! verdict="$(printf '%s' "${prov_json}" \
     | python3 -I -c "${check_py}" "${input}" "${in_gen}" "${in_md5}" "${in_size}" "${output}" "${out_size}" 2>&1)"; then
   fail "${provenance} does not match this release's export: ${verdict}." \
     "Do not load this output. The cloud job does not redo a release by itself; translate the current ${input}" \
-    "again (upstream: clinvar-ingest vrsify-submit ${DATE} with --overwrite, or the local fallback in" \
-    "src/vrsify/README.md), then run this stage again."
+    "again upstream (clinvar-ingest vrsify-submit ${DATE} with --overwrite), then run this step again."
 fi
 echo "cloud vrsify output matches ${input}: ${output} (${verdict})"

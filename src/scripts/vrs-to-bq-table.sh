@@ -6,7 +6,7 @@
 # 3. Executes a series of BigQuery stored procedures to process the new data.
 #
 # Export & publish (GCS bundle + Parquet + R2 upload) is handled separately by
-# release-gkm.sh, not here. run-release.sh chains this script (steps 1-3) and then
+# release-gkm.sh, not here. run-release.sh runs this script as its step 2 and then
 # release-gkm.sh.
 #
 # USAGE:
@@ -44,8 +44,8 @@ export CLOUDSDK_CORE_PROJECT="${PROJECT_ID}"
 BUCKET_NAME='clinvar-gkm'
 
 # Incremental gkm_vrs load: carry the prior release's gkm_vrs forward and merge in
-# only the changed variations (produced when export-vi-table-to-gcs.sh runs in its
-# default incremental mode, so vi-final.jsonl.gz holds only the changed set). Falls
+# only the changed variations (clinvar-ingest exports and translates only the changed
+# set, so vi-final.jsonl.gz holds only the changed set). Falls
 # back to a full --replace load automatically when no baseline gkm_vrs exists.
 # Set INCREMENTAL=false for a full --replace load (e.g. after a vrs-python or
 # variation_identity transform version change, which invalidates carry-forward).
@@ -53,7 +53,7 @@ INCREMENTAL="${INCREMENTAL:-true}"
 
 # Set GKS_FULL=true to force the FULL wrappers for the incremental gks procs
 # (gkm_catvar / gkm_scv_condition / gkm_scv_statement) instead of the incremental
-# wrappers, this run only (e.g. propagated from run-release.sh's --full flag). Defaults
+# wrappers, this run only (e.g. propagated from run-release.sh's --full-procs flag). Defaults
 # to false so standalone runs of this script are unaffected and stay incremental
 # (each incremental wrapper self-guards + falls back to full when needed anyway).
 GKS_FULL="${GKS_FULL:-false}"
@@ -199,9 +199,9 @@ execute_bq_procedures() {
   echo "Executing BigQuery stored procedures for date: $release_date"
 
   # catvar + scv are incremental (Plans 1-2); their build procs self-guard + fall back to
-  # full. GKS_FULL forces the full wrappers for this run only (e.g. run-release.sh --full).
+  # full. GKS_FULL forces the full wrappers for this run only (e.g. run-release.sh --full-procs).
   if [[ "$GKS_FULL" == "true" ]]; then
-    echo "  - Calling procedure: clinvar_ingest.gkm_catvar_proc (FULL, --full requested)..."
+    echo "  - Calling procedure: clinvar_ingest.gkm_catvar_proc (FULL, GKS_FULL=true)..."
     if ! bq --project_id="$PROJECT_ID" query --quiet --use_legacy_sql=false \
         "CALL \`clinvar_ingest.gkm_catvar_proc\`('$release_date', FALSE)" > /dev/null; then
       echo "❌ gkm_catvar_proc (full) FAILED"; return 1;
@@ -225,7 +225,7 @@ execute_bq_procedures() {
   echo "    ✅ Success."
   for scv_proc in gkm_scv_condition gkm_scv_statement; do
     if [[ "$GKS_FULL" == "true" ]]; then
-      echo "  - Calling procedure: clinvar_ingest.${scv_proc}_proc (FULL, --full requested)..."
+      echo "  - Calling procedure: clinvar_ingest.${scv_proc}_proc (FULL, GKS_FULL=true)..."
       if ! bq --project_id="$PROJECT_ID" query --quiet --use_legacy_sql=false \
           "CALL \`clinvar_ingest.${scv_proc}_proc\`('$release_date', FALSE)" > /dev/null; then
         echo "❌ ${scv_proc}_proc (full) FAILED"; return 1;
@@ -251,7 +251,7 @@ execute_bq_procedures() {
   echo "    ✅ Success."
   for rv_proc in gkm_rcv gkm_rcv_statement gkm_vcv gkm_vcv_statement; do
     if [[ "$GKS_FULL" == "true" ]]; then
-      echo "  - Calling procedure: clinvar_ingest.${rv_proc}_proc (FULL, --full requested)..."
+      echo "  - Calling procedure: clinvar_ingest.${rv_proc}_proc (FULL, GKS_FULL=true)..."
       if ! bq --project_id="$PROJECT_ID" query --quiet --use_legacy_sql=false \
           "CALL \`clinvar_ingest.${rv_proc}_proc\`('$release_date', FALSE)" > /dev/null; then
         echo "❌ ${rv_proc}_proc (full) FAILED"; return 1;
@@ -303,7 +303,7 @@ echo "=================================================="
 # --- STEP 1: Execute Cloud Run Job ---
 if (( START_STEP <= 1 )); then
   echo "[1/3] Executing Cloud Run job..."
-  # The upstream cloud vrsify's output (clinvar-ingest's clinvar-ingest-vrsify job); run-release.sh stage 3 checks
+  # The upstream cloud vrsify's output (clinvar-ingest's clinvar-ingest-vrsify job); run-release.sh step 1 checks
   # that it is the translation of this release's current vi.jsonl.gz.
   INPUT_FILE="gs://${BUCKET_NAME}/${date}/dev/vi-vrs-python.jsonl.gz"
   OUTPUT_FILE="gs://${BUCKET_NAME}/${date}/dev/vi-final.jsonl.gz"
