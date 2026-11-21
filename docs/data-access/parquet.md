@@ -2,6 +2,8 @@
 
 Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-full.md) · [Weekly Deltas](weekly-deltas.md) · [How Releases Work](release-model.md)
 
+Older release lines (before 1.1) are on [Previous Releases](previous-releases.md).
+
 !!! tip "Want to query the files, not just download them?"
     This page covers where the Parquet files live and how to keep a set current. [**Query the Data**](../parquet/index.md) teaches querying them: a live in-browser console, every table's columns, how the tables join, and runnable recipes.
 

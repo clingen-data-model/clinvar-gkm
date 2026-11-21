@@ -2,6 +2,8 @@
 
 Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-full.md) · [Parquet Files](parquet.md) · [How Releases Work](release-model.md)
 
+Older release lines (before 1.1) are on [Previous Releases](previous-releases.md).
+
 <div class="r2-browser" data-r2-type="deltas"></div>
 
 The list groups deltas by year, newest first: the current year is open, and each earlier year is a collapsible list under **Archived years**.

@@ -1,6 +1,6 @@
 # Downloads
 
-ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas (JSON), with one typed Parquet dataset of the latest release, free from Cloudflare R2 — no authentication, no egress fees. The layout follows NCBI's ClinVar FTP site. New here? See [How Releases Work](release-model.md).
+ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas (JSON), with one typed Parquet dataset of the latest release, free from Cloudflare R2 — no authentication, no egress fees. The layout follows NCBI's ClinVar FTP site. New here? See [How Releases Work](release-model.md). Releases of older lines are under [Previous Releases](#previous-releases) below.
 
 !!! warning "1.1.0 moved every download URL"
     1.1.0 (released 2026-10-22) moved every download URL to `v1/1.1/` and renamed the proposition sections — see the [changelog migration notes](../reference/changelog.md#110).
@@ -25,7 +25,20 @@ The interactive release table needs JavaScript. Without it, fetch the release in
 <code>curl -O https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz</code>
 </noscript>
 
-Browse history and archives: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-full.md) · [Weekly Deltas](weekly-deltas.md) · [Parquet Files](parquet.md).
+Browse history and archives: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-full.md) · [Weekly Deltas](weekly-deltas.md) · [Parquet Files](parquet.md). Earlier release lines: [Previous Releases](previous-releases.md).
+
+---
+
+## Previous Releases
+
+These docs describe the 1.1 line, `v1/1.1/`. The release lines frozen **before** it are listed here; each keeps its official monthlies and weekly deltas, unchanged, at the paths they had. Their files are listed on [Previous Releases](previous-releases.md).
+
+<div class="r2-browser" data-r2-type="previous-summary"></div>
+
+<noscript>
+The list of earlier lines needs JavaScript. Without it, read the root version manifest, which lists every line, its status and the path of its own index:
+<code>curl -s https://data.clinvar-gkm.org/index.json | python3 -m json.tool</code>
+</noscript>
 
 ---
 
