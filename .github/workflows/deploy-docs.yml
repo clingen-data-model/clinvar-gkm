@@ -1,18 +1,19 @@
 name: Deploy Documentation
 
-# Versioned docs (ADR 0011). gh-pages holds one folder per docs version, plus root
+# Versioned docs (ADR 0011). gh-pages holds one folder per release line, plus root
 # files written by src/scripts/docs-versions.py:
 #   1.1/, 1.2/, ...   one per release line (a patch release rebuilds its line in place)
-#   dev/              built from main: unreleased changes
 #   versions.json     the version selector's list; `latest` = the highest release line
 #   index.html        redirects to the latest release
-#   404.html          sends unversioned (pre-versioning) links to the same page in the latest release
-# Each run builds only the versions it is for and leaves the other folders alone.
+#   404.html          sends unversioned (pre-versioning) links, and links to the retired dev/
+#                     docs, to the same page in the latest release
+# Each run builds only the versions it is for and leaves the other folders alone. There is
+# no dev version (retired 2026-11-20, ADR 0011 amendment): a docs merge deploys nothing,
+# and released docs change with a release or a dispatch.
 #
-#   push to main (docs paths) ............ dev
 #   release: published, tag X.Y.Z ........ X.Y from the tag (not a prerelease)
-#   schedule / discussion (roadmap) ...... dev, and the latest release from its newest tag
-#   workflow_dispatch, no inputs ......... dev (run it on main)
+#   schedule / discussion (roadmap) ...... the latest release from its newest tag
+#   workflow_dispatch, no inputs ......... the latest release from its newest tag
 #   workflow_dispatch, ref + version ..... that ref as that version, e.g. 1.1.0 as 1.1
 # A line listed in src/scripts/docs-line-sources.txt is built from the ref given there on every
 # trigger (1.1: main@036bec2, shown as 1.1.0; the 1.1.0 tag lacks the 1.1.0 docs).
@@ -20,18 +21,6 @@ name: Deploy Documentation
 on:
   release:
     types: [published]
-  # Docs-only merges to main deploy immediately instead of waiting for the daily
-  # schedule. Merges that touch none of these paths don't trigger a deploy.
-  push:
-    branches: [main]
-    paths:
-      - 'docs/**'
-      - 'zensical.toml'
-      - '.github/workflows/deploy-docs.yml'
-      - 'src/scripts/build-versioned-docs.sh'
-      - 'src/scripts/docs-versions.py'
-      - 'src/scripts/pin-repo-links.py'
-      - 'src/scripts/check-site-links.py'
   # Roadmap membership/status changes fire discussion events; upvote-based
   # re-ordering is picked up by the daily schedule (upvotes don't fire events).
   discussion:
@@ -41,11 +30,11 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'Tag (or commit) to build, e.g. 1.1.0. Leave blank to build the dispatched branch (main) as dev.'
+        description: 'Tag (or commit) to build, e.g. 1.1.0. Leave blank to rebuild the latest release from its newest tag.'
         required: false
         default: ''
       version:
-        description: 'Docs version to publish it as: a release line such as 1.1, or dev. Required with ref.'
+        description: 'Docs version to publish it as: a release line such as 1.1. Required with ref.'
         required: false
         default: ''
 
@@ -54,11 +43,11 @@ permissions:
   discussions: read
 
 # One run per docs version at a time; a newer run for the same version supersedes one
-# still in progress, so back-to-back merges can't publish out of order. Runs for
-# different versions (a release and a main merge) don't cancel each other; they
+# still in progress, so back-to-back runs can't publish out of order. Runs for different
+# versions (a release and a roadmap refresh of the latest) don't cancel each other; they
 # serialize on the gh-pages push below.
 concurrency:
-  group: deploy-docs-${{ github.event_name == 'release' && github.event.release.tag_name || inputs.version || 'dev' }}
+  group: deploy-docs-${{ github.event_name == 'release' && github.event.release.tag_name || inputs.version || 'latest' }}
   cancel-in-progress: true
 
 jobs:
@@ -86,6 +75,16 @@ jobs:
         run: |
           set -euo pipefail
           git fetch --no-tags origin gh-pages:refs/remotes/origin/gh-pages
+          # The latest release line (versions.json's `latest`) and its newest X.Y.Z tag.
+          latest_target() {
+            local vj="$RUNNER_TEMP/versions.json" latest="" tag=""
+            if git show origin/gh-pages:versions.json > "$vj" 2>/dev/null; then
+              latest=$(python -c 'import json, sys; print(next((v["version"] for v in json.load(open(sys.argv[1])) if "latest" in v["aliases"]), ""))' "$vj")
+            fi
+            [ -n "$latest" ] || return 0
+            tag=$(git tag -l --sort=-v:refname "$latest.*" | grep -E "^${latest//./\\.}\.[0-9]+$" | head -1 || true)
+            [ -z "$tag" ] || echo "$tag $latest"
+          }
           targets=""
           case "$EVENT" in
             release)
@@ -100,26 +99,12 @@ jobs:
                 [ -n "$IN_VERSION" ] || { echo "::error::version is required with ref"; exit 1; }
                 targets="$IN_REF $IN_VERSION"
               else
-                [ "$GITHUB_REF" = "refs/heads/main" ] || { echo "::error::dev is built from main only"; exit 1; }
-                targets="HEAD dev"
+                targets=$(latest_target)
               fi
-              ;;
-            push)
-              targets="HEAD dev"
               ;;
             schedule|discussion)
-              targets="HEAD dev"
-              # Rebuild the latest release too, so its Roadmap page stays current.
-              latest=""
-              vj="$RUNNER_TEMP/versions.json"
-              if git show origin/gh-pages:versions.json > "$vj" 2>/dev/null; then
-                latest=$(python -c 'import json, sys; print(next((v["version"] for v in json.load(open(sys.argv[1])) if "latest" in v["aliases"]), ""))' "$vj")
-              fi
-              if [ -n "$latest" ]; then
-                tag=$(git tag -l --sort=-v:refname "$latest.*" | grep -E "^${latest//./\\.}\.[0-9]+$" | head -1 || true)
-                if [ -n "$tag" ]; then targets="$targets
-          $tag $latest"; fi
-              fi
+              # Rebuild the latest release, so its Roadmap page stays current.
+              targets=$(latest_target)
               ;;
           esac
           echo "Targets:"; echo "${targets:-(none)}"
@@ -150,7 +135,7 @@ jobs:
           set -euo pipefail
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # shellcheck disable=SC2012  # version names are dev or X.Y
+          # shellcheck disable=SC2012  # version names are X.Y
           versions=$(ls built | tr '\n' ' ')
           adds=""
           for v in $versions; do adds="$adds --add $v"; done

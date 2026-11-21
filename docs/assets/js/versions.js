@@ -1,11 +1,11 @@
 /*
  * Versioned docs (ADR 0011). The site root holds versions.json (mike format):
- *   [{"version": "1.1", "title": "1.1", "aliases": ["latest"]}, {"version": "dev", ...}]
+ *   [{"version": "1.2", "title": "1.2", "aliases": ["latest"]}, {"version": "1.1", ...}]
  * The theme renders the version selector from it. This script works out, at
- * runtime, whether the page being read belongs to the latest release, to `dev`
- * (built from main, unreleased) or to an older release, then:
- *   - sets <html data-gkm-version="dev|old"> (versions.css recolours the header
- *     and tabs: orange for dev, grey for older releases), and
+ * runtime, whether the page being read belongs to the latest release or to an
+ * older release line, then, for an older one:
+ *   - sets <html data-gkm-version="old"> (versions.css turns the header and tabs
+ *     grey), and
  *   - shows a notice with a link to the same page in the latest release.
  * Nothing is baked into a build, so an older version turns grey on its own when
  * a newer release ships. The result is cached for the tab (sessionStorage) so the
@@ -29,7 +29,7 @@
   }
 
   function render(info) {
-    if (info.state === "dev" || info.state === "old") {
+    if (info.state === "old") {
       document.documentElement.setAttribute("data-gkm-version", info.state);
     } else {
       document.documentElement.removeAttribute("data-gkm-version");
@@ -37,7 +37,7 @@
 
     var old = document.querySelector(".gkm-version-banner");
     if (old) old.remove();
-    if (info.state !== "dev" && info.state !== "old") return;
+    if (info.state !== "old") return;
 
     var link = null;
     if (info.latest) {
@@ -58,17 +58,9 @@
     var inner = document.createElement("div");
     inner.className = "md-banner__inner md-grid md-typeset";
     var lead = document.createElement("strong");
-    if (info.state === "dev") {
-      lead.textContent = "Development docs: not for production use.";
-      inner.appendChild(lead);
-      inner.appendChild(document.createTextNode(
-        " These pages are built from the main branch and describe unreleased changes, which may still change" +
-        " before release." + (link ? " " : "")));
-    } else {
-      lead.textContent = "You are reading the docs for " + info.title + ", which is not the current version.";
-      inner.appendChild(lead);
-      inner.appendChild(document.createTextNode(" "));
-    }
+    lead.textContent = "You are reading the docs for " + info.title + ", which is not the current version.";
+    inner.appendChild(lead);
+    inner.appendChild(document.createTextNode(" "));
     if (link) {
       inner.appendChild(link);
       inner.appendChild(document.createTextNode("."));
@@ -98,7 +90,6 @@
         info.title = mine.title || mine.version;
         if (latest) { info.latest = latest.version; info.latestTitle = latest.title || latest.version; }
         if (latest && mine.version === latest.version) info.state = "latest";
-        else if (mine.version === "dev") info.state = "dev";
         else if (latest) info.state = "old";
       }
       try { sessionStorage.setItem(cacheKey, JSON.stringify(info)); } catch (e) {}

@@ -1,13 +1,21 @@
 /* Shared R2 release browser. Each mount element:
      <div class="r2-browser" data-r2-type="TYPE"></div>
-   TYPE ∈ latest | monthly | weekly | deltas | parquet-latest
+   TYPE ∈ latest | monthly | weekly | deltas | parquet-latest | previous
    (parquet-monthly is an alias of parquet-latest; Parquet is derived and one dataset is published)
-   Reads the root version manifest (/index.json), follows it to the current line's index
-   (e.g. /v1/1.2/index.json), then renders each mount by its type.
+   Reads the root version manifest (/index.json) and follows it to the index of the data line this docs
+   version describes (ADR 0011): the page's docs version is the path segment after /clinvar-gkm/ ("1.1" in
+   /clinvar-gkm/1.1/data-access/download/), and the line is the root manifest's versions["1.1"]. A page
+   without a version in its path (a local `zensical serve`), or a version with no data line, reads the
+   current line. Then it renders each mount by its type.
+   On a frozen line, a view whose files were deleted at the freeze (weekly fulls, Parquet) shows a note that
+   links the same page in the latest docs. `previous` lists every frozen line, and renders only on the
+   docs of the current line; older docs point to the latest docs for it.
    Layout (ADR 0009, mirrors NCBI ClinVar): official monthlies at the line's top level, weekly/ (current
    month's weekly fulls), deltas/ (current month) + deltas/YYYY-MM/, archive/YYYY/ (+ deltas/YYYY-MM/),
    parquet/. Every link uses the `path` the index gives, so files that move at month or year rollover
    are always linked where they are now; folders are grouped from those paths.
+   Overlaid onto older docs versions by src/scripts/build-versioned-docs.sh, so keep the mount types
+   older pages use working.
    No-ops when no mount is present. CSP-safe (only same-host index fetches). */
 (function () {
   var mounts = document.querySelectorAll(".r2-browser");
@@ -15,6 +23,7 @@
 
   var BASE_URL = "https://data.clinvar-gkm.org";
   var ROOT_INDEX_URL = BASE_URL + "/index.json";   // root version manifest
+  var LATEST_DOCS = "https://dataexchange.clinicalgenome.org/clinvar-gkm/";   // redirects to the latest release
 
   // Section order for composing Parquet URLs when the index entry carries no `sections` list.
   var PARQUET_SECTIONS = [
@@ -24,7 +33,18 @@
     "evidenceLine", "vcv_evidenceLine", "rcv_evidenceLine", "scv", "vcv", "rcv"
   ];
 
-  var linePrefix = "";   // e.g. "v1/1.2/": the folder of the current line's index.json
+  var linePrefix = "";   // e.g. "v1/1.2/": the folder of the line's index.json
+
+  // The docs version a page belongs to: "1.2" for /clinvar-gkm/1.2/..., else null.
+  function docsVersion(path) {
+    var m = /\/clinvar-gkm\/(\d+\.\d+)(?:\/|$)/.exec(path || "");
+    return m ? m[1] : null;
+  }
+  // The same page in the latest docs: an unversioned link opens it in the latest release (or its home).
+  function latestDocsHref(path) {
+    var m = /\/clinvar-gkm\/\d+\.\d+\/(.*)$/.exec(path || "");
+    return LATEST_DOCS + (m ? m[1] : "");
+  }
 
   function el(tag, attrs, children) {
     var e = document.createElement(tag);
@@ -35,7 +55,9 @@
       else if (k === "style") Object.assign(e.style, attrs[k]);
       else e.setAttribute(k, attrs[k]);
     });
-    if (children) children.forEach(function (c) { if (c) e.appendChild(c); });
+    if (children) children.forEach(function (c) {
+      if (c) e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    });
     return e;
   }
 
@@ -51,8 +73,9 @@
   function baseName(path) { return String(path).replace(/\/$/, "").split("/").pop(); }
   function dirOf(path) { var p = String(path).replace(/^\//, ""); return p.slice(0, p.lastIndexOf("/") + 1); }
   // Folder label relative to the line folder ("weekly/", "deltas/2026-09/"); the line folder itself shows as-is.
-  function relDir(dir) {
-    if (linePrefix && dir.indexOf(linePrefix) === 0) return dir.slice(linePrefix.length) || linePrefix;
+  function relDir(dir, prefix) {
+    prefix = prefix === undefined ? linePrefix : prefix;
+    if (prefix && dir.indexOf(prefix) === 0) return dir.slice(prefix.length) || prefix;
     return dir;
   }
 
@@ -74,6 +97,12 @@
     if (badge) s.appendChild(badge);
     f.appendChild(s);
     return f;
+  }
+  function note(title, children) {
+    return el("div", { className: "admonition note" }, [
+      el("p", { className: "admonition-title", text: title }),
+      el("p", {}, children)
+    ]);
   }
 
   // --- index accessors (tolerant of the pre-ADR-0009 index shape) -----------
@@ -112,11 +141,11 @@
   function label(name) { return String(name).replace(/^clinvar-gkm(-delta)?_|\.json\.gz$/g, ""); }
 
   // Group entries into folders by the directory of pathOf(entry); the line folder first, then newest first.
-  function byFolder(list, pathOf) {
+  function byFolder(list, pathOf, prefix) {
     var groups = {};
     list.forEach(function (f) { var d = dirOf(pathOf(f)); (groups[d] = groups[d] || []).push(f); });
     var dirs = Object.keys(groups).sort(function (a, b) {
-      var ra = relDir(a), rb = relDir(b);
+      var ra = relDir(a, prefix), rb = relDir(b, prefix);
       var ta = ra.indexOf("archive/") === 0, tb = rb.indexOf("archive/") === 0;
       if (ta !== tb) return ta ? 1 : -1;          // archive/ last
       if (a.length !== b.length) return a.length - b.length;   // shallower first (current month, line top)
@@ -125,12 +154,28 @@
     return dirs.map(function (d) { return { dir: d, items: groups[d] }; });
   }
 
+  // --- frozen lines -----------------------------------------------------------
+  // ctx (see loadContext): the line this page reads, whether it is frozen, and when it was frozen.
+  function lineName(ctx) { return (ctx.entry && ctx.entry.line ? ctx.entry.line : linePrefix.replace(/\/$/, "")) + "/"; }
+  // what: what was deleted, e.g. "weekly full bundles"; plural picks "were" or "was".
+  function removedNote(ctx, what, plural) {
+    return note("Removed when the line was frozen", [
+      "The " + what + " of " + lineName(ctx) + (plural ? " were" : " was") +
+        " removed when the line was frozen" + (ctx.frozenAt ? " on " + ctx.frozenAt : "") +
+        ". A frozen line keeps its monthlies and deltas, unchanged; its weekly fulls and Parquet set are deleted. " +
+        "For current data, see ",
+      el("a", { href: latestDocsHref(location.pathname), text: "the latest docs" }),
+      "."
+    ]);
+  }
+
   // --- view renderers -------------------------------------------------------
-  function renderLatest(mount, data) {
+  function renderLatest(mount, data, ctx) {
     var m = monthlies(data), w = weeklies(data), ds = deltas(data), p = parquetEntry(data);
     var mPtr = pointer(m), mDated = newestDated(m);
     var wPtr = pointer(w), wDated = newestDated(w);
     var dNew = newestDated(ds);
+    var dropParquet = ctx.frozen && !p;
 
     // "Get" cells link stable 00-latest pointers where they exist. The Parquet dataset is a folder (no
     // single file), so link to the Parquet page; "../parquet/" is page-relative from the hub
@@ -152,7 +197,9 @@
       ["Weekly delta", dNew ? dNew.release : "", dNew && dNew.modified, deltaGet],
       ["Parquet (derived)", p ? (p.source_release ? "built from " + p.source_release : "latest") : "",
        parquetDate(p), parquetGet]
-    ].filter(function (r) { return r[0] !== "Weekly full" || w.length; });
+    ].filter(function (r) {
+      return (r[0] !== "Weekly full" || w.length) && (r[0] !== "Parquet (derived)" || !dropParquet);
+    });
 
     var table = el("table", { className: "r2-latest" });
     table.appendChild(el("thead", {}, [el("tr", {}, ["Type", "Release", "R2 available", "Get"].map(
@@ -165,12 +212,17 @@
     });
     table.appendChild(tbody);
     mount.appendChild(table);
+
+    if (ctx.frozen && (!w.length || !p)) {
+      mount.appendChild(!w.length && !p ? removedNote(ctx, "weekly full bundles and the Parquet set", true)
+        : !w.length ? removedNote(ctx, "weekly full bundles", true) : removedNote(ctx, "Parquet set", false));
+    }
   }
 
-  function renderFiles(mount, files, emptyText) {
+  function renderFiles(mount, files, emptyText, prefix) {
     if (!files.length) { mount.appendChild(el("div", { className: "r2-file", text: emptyText })); return; }
-    byFolder(files, function (f) { return f.path; }).forEach(function (g, i) {
-      var f = folder(relDir(g.dir), i === 0);
+    byFolder(files, function (f) { return f.path; }, prefix).forEach(function (g, i) {
+      var f = folder(relDir(g.dir, prefix), i === 0);
       g.items.slice().sort(function (a, b) {
         if (isPointer(a) !== isPointer(b)) return isPointer(a) ? -1 : 1;
         return key(b).localeCompare(key(a));
@@ -194,16 +246,16 @@
     ]);
   }
   function count(n) { return meta(n + (n === 1 ? " delta" : " deltas")); }
+  function newestRelease(a, b) { return b.release.localeCompare(a.release); }
 
   function renderDeltas(mount, list) {
     if (!list.length) { mount.appendChild(el("div", { className: "r2-file", text: "No weekly deltas listed yet." })); return; }
     var years = {};
     list.forEach(function (d) { var y = String(d.release).slice(0, 4); (years[y] = years[y] || []).push(d); });
     var order = Object.keys(years).sort().reverse(), current = order[0];
-    var newest = function (a, b) { return b.release.localeCompare(a.release); };
 
     var cur = folder(current + " (current year)", true, count(years[current].length));
-    years[current].slice().sort(newest).forEach(function (d) { cur.appendChild(deltaRow(d)); });
+    years[current].slice().sort(newestRelease).forEach(function (d) { cur.appendChild(deltaRow(d)); });
     mount.appendChild(cur);
 
     var past = order.slice(1);
@@ -216,15 +268,18 @@
     past.forEach(function (y) {
       var f = folder(y, false, count(years[y].length));
       f.className += " r2-year";
-      years[y].slice().sort(newest).forEach(function (d) { f.appendChild(deltaRow(d)); });
+      years[y].slice().sort(newestRelease).forEach(function (d) { f.appendChild(deltaRow(d)); });
       arch.appendChild(f);
     });
     mount.appendChild(arch);
   }
 
   // The one published Parquet dataset: derived from the bundle and overwritten every release.
-  function renderParquetLatest(mount, p) {
-    if (!p) return;
+  function renderParquetLatest(mount, p, ctx) {
+    if (!p) {
+      if (ctx.frozen) mount.appendChild(removedNote(ctx, "Parquet set", false));
+      return;
+    }
     var dir = String(p.path).replace(/^\//, "").replace(/\/?$/, "/");
     var title = relDir(dir) + (p.source_release ? " (built from " + p.source_release + ")" : "");
     var f = folder(title, true, dateBadge(parquetDate(p)));
@@ -241,13 +296,101 @@
     mount.appendChild(f);
   }
 
-  function render(mount, data) {
+  function renderWeekly(mount, data, ctx) {
+    var w = weeklies(data);
+    if (!w.length && ctx.frozen) mount.appendChild(removedNote(ctx, "weekly full bundles", true));
+    else renderFiles(mount, w, "No weekly full bundles listed yet.");
+  }
+
+  // --- previous releases: every frozen line ----------------------------------
+  function lineOrder(a, b) {          // newest line first: by major, then minor
+    var pa = a.split(".").map(Number), pb = b.split(".").map(Number);
+    return (pb[0] - pa[0]) || (pb[1] - pa[1]);
+  }
+  function frozenDate(manifest) {
+    return manifest && manifest.frozen_at ? String(manifest.frozen_at).slice(0, 10) : null;
+  }
+
+  function renderPrevious(mount, root, ctx) {
+    if (ctx.key !== ctx.currentKey) {
+      mount.appendChild(note("Listed in the latest docs", [
+        "These docs describe " + lineName(ctx) + ". The release lines frozen before the current one are listed on ",
+        el("a", { href: latestDocsHref(location.pathname), text: "this page in the latest docs" }),
+        "."
+      ]));
+      return;
+    }
+    var versions = root.versions || {};
+    var frozen = Object.keys(versions).filter(function (k) {
+      return versions[k] && versions[k].status === "frozen" && /^\d+\.\d+$/.test(k);
+    }).sort(lineOrder);
+    if (!frozen.length) {
+      mount.appendChild(el("div", { className: "r2-file", text: "No release line has been frozen yet." }));
+      return;
+    }
+    frozen.forEach(function (k) {
+      var entry = versions[k];
+      var line = String(entry.line || "").replace(/\/?$/, "/");
+      var section = el("div", { className: "r2-line" });
+      section.appendChild(el("h3", { id: "line-" + k.replace(".", "-"),
+        text: line + (entry.schema ? " (schema " + entry.schema + ")" : "") }));
+      mount.appendChild(section);
+      if (!entry.index) { section.appendChild(el("div", { className: "r2-error", text: "No index for this line." })); return; }
+      var prefix = dirOf(entry.index.replace(/^\//, ""));
+      Promise.all([
+        fetchJSON(url(entry.index)),
+        fetchJSON(url(prefix + "MANIFEST.json")).catch(function () { return null; })
+      ]).then(function (got) {
+        renderFrozenLine(section, entry, prefix, got[0], got[1]);
+      }).catch(function (err) {
+        section.appendChild(el("div", { className: "r2-error",
+          text: "Unable to load " + url(entry.index) + " (" + err.message + ")." }));
+      });
+    });
+  }
+
+  function renderFrozenLine(section, entry, prefix, data, manifest) {
+    var facts = [];
+    if (entry.superseded_by) facts.push("Superseded by " + String(entry.superseded_by).replace(/\/?$/, "/") + ".");
+    var when = frozenDate(manifest);
+    facts.push(when ? "Frozen on " + when + "." : "Frozen.");
+    if (data.latest_release) facts.push("Last release: " + data.latest_release + ".");
+    section.appendChild(el("p", { text: facts.join(" ") }));
+
+    var links = [["index.json", entry.index], ["feed.xml", entry.feed]];
+    if (manifest) links.push(["README.txt", prefix + "README.txt"], ["MANIFEST.json", prefix + "MANIFEST.json"]);
+    var row = el("div", { className: "r2-file" });
+    links.filter(function (l) { return l[1]; }).forEach(function (l, i) {
+      if (i) row.appendChild(el("span", { text: " · " }));
+      row.appendChild(el("a", { href: url(l[1]), text: l[0] }));
+    });
+    section.appendChild(row);
+
+    var m = monthlies(data);
+    var mf = folder("Monthly full bundles", false, meta(m.filter(function (x) { return !isPointer(x); }).length + " monthlies"));
+    renderFiles(mf, m, "No monthly full bundles listed.", prefix);
+    section.appendChild(mf);
+
+    var ds = deltas(data);
+    var df = folder("Weekly deltas", false, count(ds.length));
+    if (!ds.length) df.appendChild(el("div", { className: "r2-file", text: "No weekly deltas listed." }));
+    byFolder(ds, deltaBundlePath, prefix).forEach(function (g) {
+      var f = folder(relDir(g.dir, prefix), false, count(g.items.length));
+      f.className += " r2-year";
+      g.items.slice().sort(newestRelease).forEach(function (d) { f.appendChild(deltaRow(d)); });
+      df.appendChild(f);
+    });
+    section.appendChild(df);
+  }
+
+  function render(mount, data, root, ctx) {
     var t = mount.getAttribute("data-r2-type");
-    if (t === "latest") renderLatest(mount, data);
+    if (t === "previous") renderPrevious(mount, root, ctx);
+    else if (t === "latest") renderLatest(mount, data, ctx);
     else if (t === "monthly") renderFiles(mount, monthlies(data), "No monthly full bundles listed.");
-    else if (t === "weekly") renderFiles(mount, weeklies(data), "No weekly full bundles listed yet.");
+    else if (t === "weekly") renderWeekly(mount, data, ctx);
     else if (t === "deltas") renderDeltas(mount, deltas(data));
-    else if (t === "parquet-latest" || t === "parquet-monthly") renderParquetLatest(mount, parquetEntry(data));
+    else if (t === "parquet-latest" || t === "parquet-monthly") renderParquetLatest(mount, parquetEntry(data), ctx);
   }
 
   function fail(msg) {
@@ -263,9 +406,9 @@
     });
   }
 
-  // Resolve the current line from the root manifest: prefer the line marked status "current", else the
-  // highest active (then any) key. Returns its index path (e.g. "v1/1.2/index.json"), or null.
-  function versionIndexPath(root) {
+  // The current line's key in the root manifest: the line marked status "current", else the highest
+  // active (then any) key. Returns null when the manifest lists no lines.
+  function currentKey(root) {
     var versions = root.versions || {};
     var keys = Object.keys(versions);
     if (!keys.length) return null;
@@ -273,25 +416,42 @@
     var pool = current.length ? current
              : (root.active && root.active.length ? root.active.slice() : keys);
     pool.sort(function (a, b) { return parseFloat(a) - parseFloat(b); });
-    var chosen = versions[pool[pool.length - 1]];
-    return (chosen && chosen.index) ? chosen.index : null;
+    return pool[pool.length - 1];
   }
 
-  // Load the release index. The root /index.json is a thin version manifest; follow it to the current
-  // line's index. If the root doc is itself a full index (pre-/v1 flat layout), use it directly.
-  function loadIndex() {
+  // The data line this page reads: the line of its docs version when the root manifest has one, else the
+  // current line.
+  function pickLine(root, version) {
+    var versions = root.versions || {};
+    var cur = currentKey(root);
+    var k = version && versions[version] ? version : cur;
+    return { key: k, currentKey: cur, entry: k ? versions[k] : null };
+  }
+
+  // Load the root manifest, the line index of this page's data line, and, for a frozen line, the date in its
+  // MANIFEST.json. If the root doc is itself a full index (pre-/v1 flat layout), use it directly.
+  function loadContext() {
+    var needLine = Array.prototype.some.call(mounts, function (m) { return m.getAttribute("data-r2-type") !== "previous"; });
     return fetchJSON(ROOT_INDEX_URL).then(function (root) {
-      if (root.datasets || root.deltas) return root;      // full index served at root
-      var rel = versionIndexPath(root);
+      if (root.datasets || root.deltas) return { root: root, data: root, ctx: { frozen: false } };
+      var ctx = pickLine(root, docsVersion(location.pathname));
+      var rel = ctx.entry && ctx.entry.index;
       if (!rel) throw new Error("no active version in root manifest");
       rel = rel.replace(/^\//, "");
       linePrefix = dirOf(rel);
-      return fetchJSON(url(rel));
+      if (!needLine) return { root: root, data: {}, ctx: ctx };
+      return fetchJSON(url(rel)).then(function (data) {
+        ctx.frozen = ctx.entry.status === "frozen" || data.status === "frozen";
+        if (!ctx.frozen) return { root: root, data: data, ctx: ctx };
+        return fetchJSON(url(linePrefix + "MANIFEST.json"))
+          .then(function (mf) { ctx.frozenAt = frozenDate(mf); }, function () {})
+          .then(function () { return { root: root, data: data, ctx: ctx }; });
+      });
     });
   }
 
-  loadIndex()
-    .then(function (data) { mounts.forEach(function (m) { render(m, data); }); })
+  loadContext()
+    .then(function (got) { mounts.forEach(function (m) { render(m, got.data, got.root, got.ctx); }); })
     .catch(function (err) {
       var isNetwork = (err instanceof TypeError) ||
         /failed to fetch|networkerror|load failed/i.test(err.message || "");

@@ -1,6 +1,6 @@
 # How Releases Work
 
-Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-full.md) · [Weekly Deltas](weekly-deltas.md) · [Parquet Files](parquet.md)
+Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-full.md) · [Weekly Deltas](weekly-deltas.md) · [Parquet Files](parquet.md) · [Previous Releases](previous-releases.md)
 
 ClinVar-GKM releases are hosted on Cloudflare R2 object storage. All downloads are free with no authentication required and no egress fees. The layout follows NCBI's ClinVar XML folder, with monthlies at the top, `weekly/` and `archive/YYYY/`; see [How the layout mirrors NCBI](download.md#how-the-layout-mirrors-ncbi).
 
@@ -44,4 +44,4 @@ Each version line has its own folder: `v1/1.2/` for 1.2.x. A PATCH release (1.2.
 
 A new line starts with one **checkpoint monthly**: the first full built with the new schema, published as the official monthly of the ClinVar monthly it is the source of (ADR 0002). Its deltas run forward from it; the first delta's `baseline_release` is the checkpoint's `source_release`. Earlier releases are not republished into the new line. 1.2.0 started `v1/1.2/` this way.
 
-The line it replaces is **frozen** and kept indefinitely: its monthlies, `00-latest` copy, deltas and archive stay unchanged at their paths, and it gains a `MANIFEST.json` (every file's size and sha256) and a `README.txt`. Its weekly fulls and its Parquet set are deleted at the freeze, because neither is a record: any week is rebuilt from a monthly plus deltas, and Parquet is rebuilt from a bundle. `v1/1.1/` (schema 1.1.0, the 1.1.x releases) is frozen with `superseded_by: "v1/1.2"`; the 1.0.1 generation is the frozen line `v1/1.0/`, with bundles and delta manifests only. The root `index.json` lists every line and its status; see [Versioning & Releases](../reference/versioning.md).
+The line it replaces is **frozen** and kept indefinitely: its monthlies, `00-latest` copy, deltas and archive stay unchanged at their paths, and it gains a `MANIFEST.json` (every file's size and sha256) and a `README.txt`. Its weekly fulls and its Parquet set are deleted at the freeze, because neither is a record: any week is rebuilt from a monthly plus deltas, and Parquet is rebuilt from a bundle. `v1/1.1/` (schema 1.1.0, the 1.1.x releases) is frozen with `superseded_by: "v1/1.2"`; the 1.0.1 generation is the frozen line `v1/1.0/`, with bundles and delta manifests only. The root `index.json` lists every line and its status; [Previous Releases](previous-releases.md) lists the frozen lines and their files, and [Versioning & Releases](../reference/versioning.md) explains the version numbers.
