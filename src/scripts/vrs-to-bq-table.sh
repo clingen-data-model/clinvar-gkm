@@ -303,7 +303,9 @@ echo "=================================================="
 # --- STEP 1: Execute Cloud Run Job ---
 if (( START_STEP <= 1 )); then
   echo "[1/3] Executing Cloud Run job..."
-  INPUT_FILE="gs://${BUCKET_NAME}/${date}/dev/vi-normalized-no-liftover.jsonl.gz"
+  # The upstream cloud vrsify's output (clinvar-ingest's clinvar-ingest-vrsify job); run-release.sh stage 3 checks
+  # that it is the translation of this release's current vi.jsonl.gz.
+  INPUT_FILE="gs://${BUCKET_NAME}/${date}/dev/vi-vrs-python.jsonl.gz"
   OUTPUT_FILE="gs://${BUCKET_NAME}/${date}/dev/vi-final.jsonl.gz"
   if ! gcloud run jobs execute "$GCLOUD_JOB_NAME" --project "$PROJECT_ID" --args "$INPUT_FILE" --args "$OUTPUT_FILE" --wait --region "$GCLOUD_JOB_REGION"; then
     echo "❌ [FAIL] Cloud Run job failed for ${date}."; exit 1

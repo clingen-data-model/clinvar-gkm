@@ -8,9 +8,12 @@
 #
 #   1. variation_identity   BigQuery CALL   (incremental by default; full with --full)
 #   2. export-vi-to-gcs      src/scripts/export-vi-table-to-gcs.sh   -> gs://.../vi.jsonl.gz
-#   3. vrsify                src/vrsify/vrsify.sh   (external vrs-python; needs local services)
+#   3. cloud vrsify check    src/scripts/check-cloud-vrsify.sh: vrs-python runs upstream, in clinvar-ingest's
+#                            Cloud Run job clinvar-ingest-vrsify, which writes vi-vrs-python.jsonl.gz and its
+#                            provenance beside vi.jsonl.gz. This stage stops unless that provenance names the
+#                            current vi.jsonl.gz (same md5 and size); it runs nothing.
 #   4. vrs-to-bq             src/scripts/vrs-to-bq-table.sh
-#                            (Cloud Run transform -> load gkm_vrs -> gkm_* procs)
+#                            (Cloud Run transform of vi-vrs-python.jsonl.gz -> load gkm_vrs -> gkm_* procs)
 #   5. release               publish to the version line R2_LINE (default v1/1.2/; layout in r2_layout.py):
 #                            release-gkm-delta.sh --no-upload (build and strictly validate the DELTA) and
 #                            release-gkm.sh --weekly --no-upload (build and strictly validate this release's
@@ -30,14 +33,15 @@
 # Stages 1 and 2 are incremental by default (recompute only changed variations, carry the
 # rest forward). Stage 4 self-corrects between incremental and full loads. --full forces a
 # full rebuild across stages 1-2 AND forces the incremental gks procs (catvar + scv) full
-# in Stage 4 (propagated as GKS_FULL to vrs-to-bq-table.sh) — REQUIRED after any version-invalidating change (the
-# variation_identity transform, or the vrsify pin in src/vrsify/requirements.txt). The
+# in Stage 4 (propagated as GKS_FULL to vrs-to-bq-table.sh) — REQUIRED after a variation_identity transform change.
+# It does not re-translate every variation: the cloud vrsify translates only the incremental vi.jsonl.gz, not
+# stage 2's --full export (stage 3 warns). The
 # version-stamp gate written between stages 3 and 4 is always the honest plain build-path
 # hash, even on --full, so a --full release still leaves a valid baseline for next week's
 # normal run to resume incremental from.
 #
 # --full-procs forces ONLY the gkm procs of Stage 4 full (GKS_FULL=true into vrs-to-bq-table.sh): every
-# catvar/scv/rcv/vcv proc runs its full wrapper. Stages 1-3 (variation_identity, export, vrsify) and the
+# catvar/scv/rcv/vcv proc runs its full wrapper. Stages 1-3 (variation_identity, export, cloud vrsify) and the
 # gkm_vrs load stay incremental, so only the ~changed variations are re-normalized. This is the weekly mode
 # after 1.1.0 until ADR 0007 workstream 3 decides on the incremental gkm machinery (the incremental wrappers
 # were seen to fall back to full silently). --full implies it.
@@ -63,20 +67,16 @@
 #
 #   --full          full rebuild of stages 1-2 and every gkm proc in stage 4 (reseed the baseline);
 #                   the version-stamp gate is unaffected, so next week resumes incremental
-#   --full-procs    only the stage-4 gkm procs full; variation_identity, export, vrsify and the
+#   --full-procs    only the stage-4 gkm procs full; variation_identity, export, cloud vrsify and the
 #                   gkm_vrs load stay incremental
 #   --dry-run       stages 5-6 (release scripts) run in dry-run: no R2 upload / no GCS writes
 #   --skip-parquet  skip stage 6, leaving parquet/ untouched: it keeps the previous set, and its manifest and
 #                   the index keep saying which release that set was built from
 #   --start-step N  begin at stage N (1-6); default 1. --start-step 6 runs only the Parquet step for a release
-#                   that is already published. Stage 3 (vrsify) needs the local
-#                   SeqRepo/UTA/gene-norm services — see src/vrsify/README.md.
+#                   that is already published. --start-step 3 checks the upstream cloud vrsify output and
+#                   goes on from there; --start-step 4 skips that check (src/vrsify/README.md: local fallback).
 #   --bootstrap-monthly=YYYY-MM
 #                   stage 5 starts an EMPTY line (R2_LINE) with this checkpoint monthly (see above)
-#
-# NOTE: stage 3 cannot run in CI/headless environments; run it on a host with the
-# variation-normalizer service topology, or use --start-step to run the BigQuery-side
-# stages separately from vrsify.
 
 set -o errexit
 set -o nounset
@@ -124,7 +124,7 @@ if [[ -n "${BOOTSTRAP_MONTH}" ]] && ! [[ "${BOOTSTRAP_MONTH}" =~ ^[0-9]{4}-[0-9]
 fi
 
 # Stage 5 assembles the bundles, and orjson sets their layout. Check now, not hours in: an environment activated for
-# vrsify (stage 3) may be the one the release scripts fall back to.
+# the local vrsify fallback may be the one the release scripts fall back to.
 if (( START_STEP <= 5 )); then
   ASSEMBLE_PYTHON="python3"; [[ -x "${REPO_ROOT}/venv/3.12/bin/python3" ]] && ASSEMBLE_PYTHON="${REPO_ROOT}/venv/3.12/bin/python3"
   "${ASSEMBLE_PYTHON}" -c 'import orjson' 2>/dev/null || {
@@ -168,10 +168,14 @@ if (( START_STEP <= 2 )); then
   fi
 fi
 
-# --- Stage 3: vrsify (external vrs-python) ---------------------------------------------
+# --- Stage 3: check the upstream cloud vrsify output (vrs-python runs in clinvar-ingest) ---
 if (( START_STEP <= 3 )); then
-  echo ">>> [3/6] vrsify.sh (vrs-python; requires local SeqRepo/UTA/gene-norm services)"
-  "${REPO_ROOT}/src/vrsify/vrsify.sh" "${DATE}"
+  echo ">>> [3/6] check-cloud-vrsify.sh (vi-vrs-python.jsonl.gz must be the translation of the current vi.jsonl.gz)"
+  "${REPO_ROOT}/src/scripts/check-cloud-vrsify.sh" "${DATE}"
+  if $FULL; then
+    echo "WARNING: --full: the cloud vrsify translates only vi.jsonl.gz, the incremental export. Stage 2's --full" \
+      "export (vi-*.jsonl.gz shards) is not translated, so gkm_vrs is not reseeded from a full translation." >&2
+  fi
 fi
 
 # --- Version stamp: record provenance + the carry-forward gate key -----------------------

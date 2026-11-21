@@ -1,14 +1,15 @@
-# VRS-ification (`src/vrsify/`)
+# VRS-ification (`src/vrsify/`) — local fallback
 
-The one ClinVar-GKM pipeline stage that does not run in BigQuery. It resolves each
-variation's selected expression (SPDI / HGVS / gnomAD) into a GA4GH VRS object using
+A local VRS translation, kept as a manual fallback. **`src/scripts/run-release.sh` no longer runs it:** the release
+uses the translation clinvar-ingest's Cloud Run job `clinvar-ingest-vrsify` writes for every release
+(`vi-vrs-python.jsonl.gz`, vrs-python against a RefgetStore, no local services), and its stage 3 only checks that
+output (`src/scripts/check-cloud-vrsify.sh`). See
+[docs/pipeline/vrs-processing.md](../../docs/pipeline/vrs-processing.md).
+
+This fallback resolves each variation's selected expression (SPDI / HGVS / gnomAD) into a GA4GH VRS object using
 [vrs-python](https://github.com/ga4gh/vrs-python) + the
 [variation-normalizer](https://github.com/cancervariants/variation-normalization),
 against local SeqRepo / UTA / gene-normalizer services.
-
-It sits between `export-vi-table-to-gcs.sh` (which produces the input) and
-`vrs-to-bq-table.sh` (which loads the output), and is invoked as step 3 of
-`src/scripts/run-release.sh`.
 
 ```
 gs://clinvar-gkm/<date>/dev/vi.jsonl.gz
@@ -90,10 +91,23 @@ installed console script).
 `vrsify.sh` stops before resolving anything if the installed `clinvar-gk-pilot` is not the commit
 pinned in `requirements.txt`. A custom `VRSIFY_CMD` is not checked.
 
+## Using the output in a release
+
+`vrsify.sh` writes no provenance file, so `run-release.sh` stage 3 (which requires the cloud job's provenance) cannot
+pass on its output. Stage 4 reads `vi-vrs-python.jsonl.gz`. Move any cloud output for the release
+(`vi-vrs-python.jsonl.gz` and `vi-vrs-python.provenance.json`) aside, copy this output over, and start at stage 4:
+
+```bash
+gcloud storage cp gs://clinvar-gkm/YYYY-MM-DD/dev/vi-normalized-no-liftover.jsonl.gz \
+  gs://clinvar-gkm/YYYY-MM-DD/dev/vi-vrs-python.jsonl.gz
+./src/scripts/run-release.sh YYYY-MM-DD --start-step 4   # with the release's usual flags, e.g. --full-procs
+```
+
 ## Version-invalidation
 
 The resolver version is an input to the incremental pipeline: `gkm_vrs` carry-forward assumes
-unchanged variations were vrsified by the **same** resolver. **After bumping the pin in
-`requirements.txt`, run the next release with `run-release.sh … --full`** so every variation is
-re-resolved and `gkm_vrs` is fully reseeded. See
+unchanged variations were translated by the **same** resolver. Output from this fallback carried
+forward next to the cloud translation mixes two translators (for 2026-11-08 they differed only in the
+`out.errors` text of 7 untranslatable variants). `vrsify.sh` reads only `vi.jsonl.gz`, not the
+`vi-*.jsonl.gz` shards of `export-vi-table-to-gcs.sh --full`. See
 [docs/pipeline/vrs-processing.md](../../docs/pipeline/vrs-processing.md).

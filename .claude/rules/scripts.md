@@ -48,7 +48,14 @@ XML index (see `docs/superpowers/specs/2026-08-24-clinvar-index-monthly-trigger-
 [ADR 0002](../../docs/decisions/0002-monthly-full-anchored-to-clinvar-index.md)). Never touch live R2 without
 explicit user confirmation.
 
-**Resolver pin:** `clinvar_gk_pilot` is always version `0.0.0`, so `pip install -r src/vrsify/requirements.txt` keeps
+**VRS translation runs upstream.** clinvar-ingest's Cloud Run job `clinvar-ingest-vrsify` (clingen-dev, us-east1,
+every 15 min) writes `<date>/dev/vi-vrs-python.jsonl.gz` + `.provenance.json` for each release; `run-release.sh`
+stage 3 (`check-cloud-vrsify.sh`) runs nothing and stops unless that provenance names the current `vi.jsonl.gz`
+(same md5 + size; a same-content re-export only changes the generation). The job takes each release once and never
+replaces its output, so a changed `vi.jsonl.gz` needs a manual re-translation. `src/vrsify/` (local SeqRepo/UTA) is a
+manual fallback only.
+
+**Resolver pin (local fallback):** `clinvar_gk_pilot` is always version `0.0.0`, so `pip install -r src/vrsify/requirements.txt` keeps
 the installed commit and exits 0. Move an existing environment with `--force-reinstall --no-deps`. `vrsify.sh` stops
 if the installed commit is not the pin.
 
@@ -69,7 +76,7 @@ record cleanup across the BQ export functions.
 - **`orjson` sets the bundle's text** (compact, raw UTF-8, record keys sorted at every depth), so the assembler
   requires it and stops without it. The stdlib's `json.dumps` writes the same data in different text, so an
   unchanged record would no longer have the same bytes in every release. A checkout without `venv/3.12` uses
-  whatever `python3` is active, such as an environment activated for vrsify.
+  whatever `python3` is active, such as an environment activated for the local vrsify fallback.
 - **Canonical list order** — `order_unordered_arrays` sorts the arrays in `gkm_json_cleanup.UNORDERED_ARRAYS`
   (today `condition.aliases`) by each element's key-sorted JSON text, so replays are byte-exact. Add an array only
   when the data shows its order changing between releases AND every schema marks it `ordered: false` (the unit test
