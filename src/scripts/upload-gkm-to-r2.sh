@@ -56,7 +56,15 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 COMPACT="${EXPORT_DATE:0:4}-${EXPORT_DATE:5:2}${EXPORT_DATE:8:2}"
 WEEKLY_KEY="${R2_LINE}weekly/clinvar-gkm_${COMPACT}.json.gz"
 TMP="$(mktemp -d)"
-trap 'rm -rf "${TMP}"' EXIT
+# bash 3.2 runs the EXIT trap with status 0 after a `set -u` abort, so the script would exit 0 and the caller would
+# carry on as if the upload had finished. FINISHED is set on the last line; an exit before it with status 0 becomes 1.
+FINISHED=false
+on_exit() {
+  local rc=$?
+  rm -rf "${TMP}"
+  if [[ ${rc} -eq 0 ]] && ! ${FINISHED}; then exit 1; fi
+}
+trap on_exit EXIT
 
 echo "=== ClinVar-GKM FULL upload (${R2_LINE}) ==="
 echo "  Release:  ${EXPORT_DATE} (${DATASET_VERSION})"
@@ -139,8 +147,9 @@ if [[ -f "${SCRIPT_DIR}/r2-readme.txt" ]]; then
   r2_put "${SCRIPT_DIR}/r2-readme.txt" "${R2_LINE}README.txt" "text/plain"
 fi
 
-"${SCRIPT_DIR}/generate-r2-index.sh" "${INDEX_ARGS[@]}"
+"${SCRIPT_DIR}/generate-r2-index.sh" ${INDEX_ARGS[@]+"${INDEX_ARGS[@]}"}
 
 ${PURGE} && cf_purge files "${PURGE_KEYS[@]}"
 
 echo "=== FULL upload complete: ${R2_PUBLIC_URL}/${PURGE_KEYS[0]} ==="
+FINISHED=true
