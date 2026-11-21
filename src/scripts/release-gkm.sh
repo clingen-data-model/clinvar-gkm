@@ -7,16 +7,16 @@
 # --from-weekly); this script's monthly path is the re-export fallback and the republish path.
 #
 # Three steps:
-#   1. export-gkm-dicts.sh --ndjson-only — export the dictionary tables to GCS as NDJSON
-#   2. assemble-gkm-dicts.py             — assemble the NDJSON into a single JSON bundle, then validate every
-#      validate-bundle.sh --engine rs      record strictly (jsonschema-rs; the toolkit takes hours on a full)
-#   3. upload-gkm-to-r2.sh               — upload the bundle (+ .sha256 sidecar) to Cloudflare R2 (R2_LINE)
+#   1. export-gkm-dicts.sh   — export the dictionary tables to GCS as NDJSON
+#   2. assemble-gkm-dicts.py — assemble the NDJSON into a single JSON bundle, then validate every
+#      validate-bundle.sh --engine rs   record strictly (jsonschema-rs; the toolkit takes hours on a full)
+#   3. upload-gkm-to-r2.sh   — upload the bundle (+ .sha256 sidecar) to Cloudflare R2 (R2_LINE)
 #
 # A bundle that fails validation stops the script before upload and is kept for inspection. --start-step=3 publishes
 # the staged bundle without validating it again, so only use it on a bundle that passed.
 #
-# No Parquet: Parquet is a derived convenience, published only as the single latest set
-# (release-gkm-parquet.sh), never per release.
+# No Parquet: Parquet is a derived convenience, published only as the single latest set, which
+# release-gkm-parquet.sh builds from the weekly full with gkm-bundle-parquet, never per release.
 #
 # Usage:
 #   ./release-gkm.sh <export_date> <dataset_version> [--start-step=N] [--keep-source] [--dry-run]
@@ -126,12 +126,12 @@ echo ""
 if [[ "$START_STEP" -le 1 ]]; then
   echo "=== Step 1/3: Exporting dictionary tables ==="
   if $DRY_RUN; then
-    echo "  [dry-run] Would clear ${GCS_DICTS_PATH}/, then run: export-gkm-dicts.sh ${BQ_DATASET} ${GCS_BUCKET} ${GCS_DICTS_PREFIX} --ndjson-only"
+    echo "  [dry-run] Would clear ${GCS_DICTS_PATH}/, then run: export-gkm-dicts.sh ${BQ_DATASET} ${GCS_BUCKET} ${GCS_DICTS_PREFIX}"
   else
     # Clear gkm-dicts before export to ensure no stale shards from a prior run
     echo "  Clearing ${GCS_DICTS_PATH}/ ..."
     gsutil -m -q rm -r "${GCS_DICTS_PATH}/" 2>/dev/null || true
-    "${SCRIPT_DIR}/export-gkm-dicts.sh" "${BQ_DATASET}" "${GCS_BUCKET}" "${GCS_DICTS_PREFIX}" --ndjson-only
+    "${SCRIPT_DIR}/export-gkm-dicts.sh" "${BQ_DATASET}" "${GCS_BUCKET}" "${GCS_DICTS_PREFIX}"
   fi
   echo ""
 else

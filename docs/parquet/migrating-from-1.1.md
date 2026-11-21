@@ -20,7 +20,7 @@ need small rewrites.
   query is easy to find.
 - **JSON bundle users: no.** The bundle is the record, and the Parquet change doesn't touch it. The bundle
   changes in 1.2.0 (the narrowed schema profiles, and aggregate `primaryCoding`, `strength` and `direction`) are
-  in the [changelog](../reference/changelog.md#unreleased).
+  in the [changelog](../reference/changelog.md#120).
 - **Copies you already downloaded keep working.** A 1.1 table on your disk is unchanged; it simply stops being
   refreshed.
 

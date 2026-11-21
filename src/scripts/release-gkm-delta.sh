@@ -2,8 +2,8 @@
 # Release the per-release GKS DELTA: export delta_<dict> tables, assemble a delta bundle,
 # build manifest.json, upload the delta (bundle + manifest + .sha256 sidecar) to R2.
 #
-# No Parquet: Parquet is a derived convenience, published only as the single latest set
-# (release-gkm-parquet.sh), never per delta.
+# No Parquet: Parquet is a derived convenience, published only as the single latest set, which
+# release-gkm-parquet.sh builds from the weekly full with gkm-bundle-parquet, never per delta.
 #
 # Usage: ./release-gkm-delta.sh <export_date> <dataset_version> [--start-step=N] [--dry-run] [--no-upload]
 #   steps: 1=export, 2=assemble + strict validation (validate-bundle.sh), 3=manifest + upload
@@ -47,14 +47,14 @@ MANIFEST_FILE="${STAGE_DIR}/clinvar-gkm-delta-${EXPORT_DATE}-manifest.json"
 echo "=== ClinVar-GKM DELTA release ${EXPORT_DATE} (dataset ${BQ_DATASET}) ==="
 $DRY_RUN && echo "  Mode: DRY RUN"
 
-# Step 1: export delta tables -> GCS (NDJSON only)
+# Step 1: export delta tables -> GCS (NDJSON)
 if (( START_STEP <= 1 )); then
   echo "=== [1/3] export delta tables ==="
   if $DRY_RUN; then
-    echo "  [dry-run] export-gkm-dicts.sh ${BQ_DATASET} ${GCS_BUCKET} ${GCS_DELTAS_PREFIX} --delta --ndjson-only"
+    echo "  [dry-run] export-gkm-dicts.sh ${BQ_DATASET} ${GCS_BUCKET} ${GCS_DELTAS_PREFIX} --delta"
   else
     gsutil -m -q rm -r "${GCS_DELTAS_PATH}/" 2>/dev/null || true
-    "${SCRIPT_DIR}/export-gkm-dicts.sh" "${BQ_DATASET}" "${GCS_BUCKET}" "${GCS_DELTAS_PREFIX}" --delta --ndjson-only
+    "${SCRIPT_DIR}/export-gkm-dicts.sh" "${BQ_DATASET}" "${GCS_BUCKET}" "${GCS_DELTAS_PREFIX}" --delta
   fi
 fi
 
@@ -66,7 +66,7 @@ if (( START_STEP <= 2 )); then
   else
     "${PYTHON}" "${SCRIPT_DIR}/assemble-gkm-dicts.py" "${GCS_DELTAS_PATH}/" "${EXPORT_DATE}" --output "${DELTA_BUNDLE}"
     echo "=== [2/3] validate delta bundle ==="
-    "${SCRIPT_DIR}/validate-bundle.sh" "${DELTA_BUNDLE}" || {
+    "${SCRIPT_DIR}/validate-bundle.sh" "${DELTA_BUNDLE}" --engine rs || {
       echo "ERROR: ${DELTA_BUNDLE} failed strict validation; nothing was uploaded. The bundle is kept for inspection." >&2
       exit 1
     }

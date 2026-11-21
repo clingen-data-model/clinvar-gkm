@@ -16,6 +16,10 @@
   newest weekly full is kept until the new month's monthly is published (a); the switch-over notice uses
   `status: "frozen"` and `superseded_by` as the root and line `index.json` publish them (b); the Parquet
   manifest fields (e).
+- **Amended:** 2026-11-18 for 1.2.0 (maintainer decisions D1, D2, D6 of the
+  [1.2.0 runbook](../superpowers/plans/2026-11-18-1.2.0-release-runbook.md)): a new line may start from one
+  checkpoint monthly plus deltas, without republishing history; a frozen line loses its weekly fulls and, once
+  the next line has Parquet, its `parquet/` (b), (c).
 
 ## Context
 
@@ -91,12 +95,28 @@ indefinitely**. Its status is `frozen`; there is no `eol` date, no `deprecated` 
 This amends ADR 0004 §3: the prior line does not stay live for a 6-month window, and the root manifest carries
 no EOL date. Only one line is current at a time; frozen lines accumulate.
 
+*Amended 2026-11-18 (1.2.0).* **A new line may start from a checkpoint.** It need not republish history: it
+may start with one **checkpoint monthly**, a full built with the new pipeline and published as the official
+monthly (ADR 0002) of the ClinVar month whose source release it is, plus deltas forward from it. The first
+delta's `baseline_release` is that monthly's `source_release`. `v1/1.2/` starts this way, from
+`clinvar-gkm_2026-11` ← 2026-10-31; the line it replaces keeps the releases before it. Before the freeze, the
+old line may receive its own final official monthly (a server-side copy of its newest weekly full): `v1/1.1/`
+ends with `clinvar-gkm_2026-11` ← 2026-10-31, the same ClinVar state as the 1.2 checkpoint.
+
+**At the freeze, a line keeps its records and loses its conveniences.** Its official monthlies, `00-latest`
+copy, `archive/` and deltas stay forever, at their paths and with their bytes. Its weekly fulls (`weekly/`,
+including `00-latest_weekly`) are deleted, as at a month rollover (a). Its `parquet/` is deleted too, once the
+next line has published its own Parquet; until then it may be kept (`r2-freeze-line.sh --keep-parquet`) and the
+freeze is run again later without it. Neither is a record: any past week is a monthly plus deltas, and
+Parquet is derived (e).
+
 ### (c) A replaced generation is kept as a frozen line folder
 
 *Amended by [ADR 0009](0009-r2-layout-mirrors-ncbi-clinvar.md).* Each version line has its own folder,
 `v{major}/{major}.{minor}/`. A republish that replaces a line's bundles (a new MINOR or MAJOR) publishes into a
 new folder, and the folder it replaces is **frozen** in place and kept indefinitely (b): nothing is added, moved
-or deleted, and it is listed from the root manifest with its status. A frozen folder carries:
+or deleted, apart from the freeze itself (its `MANIFEST.json` and `README.txt` are added, and its weekly fulls and
+Parquet removed, as amended in (b) on 2026-11-18), and it is listed from the root manifest with its status. A frozen folder carries:
 
 - a `MANIFEST.json` listing every file with its size and sha256;
 - a `README.txt` saying what the generation is, which release replaced it and why.

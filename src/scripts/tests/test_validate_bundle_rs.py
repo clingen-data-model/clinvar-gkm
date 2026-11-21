@@ -1,8 +1,9 @@
-"""validate-bundle.sh --engine rs must give the toolkit's verdict, read only the assembler's layout, and gate every full.
+"""validate-bundle.sh --engine rs must give the toolkit's verdict, read only the assembler's layout, and gate every
+published bundle (full and delta).
 
 The end-to-end tests run the real engines through validate-bundle.sh, and are skipped when --check-setup says an engine
-isn't ready (no uv, or a worktree without the va-spec submodule). The equivalence test runs both engines on a bundle
-with planted violations and needs both.
+isn't ready (no uv, or a worktree without the va-spec submodule). The equivalence tests run both engines on bundles
+with planted violations (in two small sections, and inside the layered ClinVar profiles) and need both.
 """
 
 import copy
@@ -185,6 +186,85 @@ def test_engines_name_the_same_failing_records(tmp_path, rs, toolkit):
     assert failing_keys(rs_out) == failing_keys(tk_out) == PLANTED, rs_out + tk_out
     counts = re.compile(r"records: \S+  failing: \S+")
     assert counts.search(rs_out).group() == counts.search(tk_out).group()
+
+
+# One real record per layered profile (published 2026-11-08), where the ClinVar profile narrows a GKS class through
+# allOf/$ref and closes it with unevaluatedProperties: the keyword the two engines implement most differently.
+PROFILE_RECORDS = json.loads((Path(__file__).parent / "fixtures/profile-records.json").read_text())
+
+
+def at(path, value):
+    def change(record):
+        for step in path[:-1]:
+            record = record[step]
+        record[path[-1]] = value
+    return change
+
+
+PROFILE_CHANGES = {
+    # section: (key template, {tag: change or None (unchanged, must pass)}, tags the profile allows)
+    "variation": ("clinvar:90000{}", {
+        "0": None,
+        "1": at(["constraints", 0, "bogus"], 1),  # unknown property inside a constraint
+        "2": at(["description"], "x"),  # allowed by the GKS class, not by the profile
+        "3": at(["aliases"], ["x"]),  # allowed by the GKS class, not by the profile
+        "4": at(["constraints", 0, "matchCharacteristic", "primaryCoding", "code"], 1),  # wrong type, 4 levels down
+        "5": at(["constraints", 1, "copyChange"], "nope"),  # not in the enum
+        "6": at(["mappings", 0, "coding", "bogus"], 1),  # unknown property inside a mapping's coding
+        "7": at(["bogus"], 1),  # unknown top-level property
+        "8": at(["constraints", 0, "relations", 0, "extensions"], [{"name": "x", "value": 1}]),
+    }, set()),
+    "vcv": ("VCV00325611{}.1-G-NP-NOCL", {
+        "0": None,
+        "1": at(["bogus"], 1),
+        "2": at(["description"], "x"),
+        "3": at(["reportedIn"], ["x"]),
+        "4": at(["strength"], {"type": "MappableConcept", "name": "x"}),
+        "5": at(["classification", "bogus"], 1),
+        "6": at(["classification", "primaryCoding", "code"], 1),
+        "7": at(["specifiedBy"], "x"),
+        "8": at(["contributions"], [{"type": "Contribution", "activityType": "created"}]),
+    }, set()),
+    "scv": ("clinvar.submission:SCV00009048{}.1", {
+        "0": None,
+        "1": at(["contributions", 0, "bogus"], 1),
+        "2": at(["description"], "x"),  # the SCV profile allows a description
+        "3": at(["contributions", 0, "date"], 20131022),
+        "4": at(["hasEvidenceLines"], ["#/evidenceLine/x"]),  # and evidence lines
+        "5": at(["classification", "extensions", 0, "bogus"], 1),
+        "6": at(["quality", "bogus"], 1),
+        "7": at(["aliases"], ["x"]),
+    }, {"2", "4"}),
+}
+
+
+def planted_in_profiles():
+    bundle, failing = {"schema_version": VERSION}, []
+    for section, (key, changes, allowed) in PROFILE_CHANGES.items():
+        bundle[section] = {}
+        for tag, change in changes.items():
+            record = copy.deepcopy(PROFILE_RECORDS[section])
+            if change:
+                change(record)
+                if tag not in allowed:
+                    failing.append(f"{section}/{key.format(tag)}")
+            bundle[section][key.format(tag)] = record
+    return bundle, sorted(failing)
+
+
+def test_rs_catches_violations_inside_the_layered_profiles(tmp_path, rs):
+    bundle, failing = planted_in_profiles()
+    code, out = validate(write(tmp_path, assembled(bundle)))
+    assert code == 1 and failing_keys(out) == failing, out
+
+
+def test_engines_agree_inside_the_layered_profiles(tmp_path, rs, toolkit):
+    bundle, failing = planted_in_profiles()
+    path = write(tmp_path, assembled(bundle))
+    rs_code, rs_out = validate(path, "rs")
+    tk_code, tk_out = validate(path, "toolkit")
+    assert rs_code == tk_code == 1, rs_out + tk_out
+    assert failing_keys(rs_out) == failing_keys(tk_out) == failing, rs_out + tk_out
 
 
 @pytest.fixture

@@ -22,6 +22,7 @@ nav = [
     { "Weekly Full Bundles"  = "data-access/weekly-full.md" },
     { "Weekly Deltas"        = "data-access/weekly-deltas.md" },
     { "Parquet Files"        = "data-access/parquet.md" },
+    { "Previous Releases"    = "data-access/previous-releases.md" },
     { "How Releases Work"    = "data-access/release-model.md" },
   ] },
   { "Understand the Data" = [

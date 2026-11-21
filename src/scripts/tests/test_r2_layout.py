@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import r2_layout as R  # noqa: E402
 
@@ -153,19 +155,63 @@ def test_move_10():
     assert new["status"] == "frozen" and new["superseded_by"] == "v1/1.1" and new["file_count"] == 2
 
 
-def test_parquet_manifest_carries_clinvar_attribution(tmp_path, monkeypatch):
-    d = tmp_path / "pq"; d.mkdir()
-    (d / "gene.parquet").write_bytes(b"PAR1x")
-    out = tmp_path / "manifest.json"
-    monkeypatch.setattr(sys, "argv", ["r2_layout.py", "parquet-manifest", "--dir", str(d), "--release", "2026-10-18",
-                                      "--dataset", "clinvar_2026_10_18_v2_6_0", "--schema-version", "1.1.0",
-                                      "--out", str(out)])
-    R.main()
+def _tool_manifest(**over):
+    return {"builder": "gkm-bundle-parquet 2.0.0", "build_date": "2026-11-03", "source_release": None,
+            "release": None, "schema_version": "1.1.0", "table_spec_version": "1.0", "table_spec": {"name": "sections"},
+            "files": [{"name": "scv.parquet", "size": 1, "sha256": "a"}], **over}
+
+
+def _local_manifest():
+    return {"build_date": "2026-11-03T20:00:00Z", "dataset": "clinvar_2026_10_31_v2_6_1", "source_release": "2026-10-31",
+            "schema_version": "1.1.0", **R.ATTRIBUTION, "files": [{"name": "scv.parquet", "size": 1, "sha256": "a"}]}
+
+
+def test_tool_parquet_manifest_keeps_the_tools_facts_and_adds_ours():
+    man = R.merge_tool_parquet_manifest(_tool_manifest(), _local_manifest())
+    assert man["builder"] == "gkm-bundle-parquet 2.0.0"
+    assert man["table_spec_version"] == "1.0" and man["table_spec"] == {"name": "sections"}
+    assert man["dataset"] == "clinvar_2026_10_31_v2_6_1" and man["build_date"] == "2026-11-03T20:00:00Z"
+    assert man["source_release"] == man["release"] == "2026-10-31"
+    for key in R.ATTRIBUTION:
+        assert man[key] == R.ATTRIBUTION[key]
+
+
+def test_tool_parquet_manifest_from_1x_still_merges():
+    tool = _tool_manifest(builder="clinvar-gkm-parquet 1.0.1", source_release="2026-10-31", release="2026-10-31",
+                          dataset=None)
+    man = R.merge_tool_parquet_manifest(tool, _local_manifest())
+    assert man["builder"] == "clinvar-gkm-parquet 1.0.1" and man["source_release"] == "2026-10-31"
+    assert man["dataset"] == "clinvar_2026_10_31_v2_6_1"
+
+
+def test_tool_parquet_manifest_adds_no_release_key_the_tool_left_out():
+    tool = _tool_manifest(); del tool["release"]
+    man = R.merge_tool_parquet_manifest(tool, _local_manifest())
+    assert "release" not in man and man["source_release"] == "2026-10-31"
+
+
+def _run_parquet_manifest(tmp_path, monkeypatch, tool):
+    import hashlib
     import json
-    m = json.loads(out.read_text())
+    d = tmp_path / "pq"; d.mkdir()
+    (d / "scv.parquet").write_bytes(b"PAR1x")
+    if tool is not None:
+        tool["files"] = [{"name": "scv.parquet", "size": 5, "sha256": hashlib.sha256(b"PAR1x").hexdigest()}]
+        (d / "manifest.json").write_text(json.dumps(tool))
+    out = tmp_path / "manifest.json"
+    monkeypatch.setattr(sys, "argv", ["r2_layout.py", "parquet-manifest", "--dir", str(d), "--release", "2026-10-31",
+                                      "--dataset", "clinvar_2026_10_31_v2_6_1", "--schema-version", "1.1.0",
+                                      "--tool-manifest", str(d / "manifest.json"), "--out", str(out)])
+    R.main()
+    return json.loads(out.read_text())
+
+
+def test_parquet_manifest_command_merges_the_tool_manifest_and_carries_clinvar_attribution(tmp_path, monkeypatch):
+    m = _run_parquet_manifest(tmp_path, monkeypatch, _tool_manifest())
+    assert m["builder"] == "gkm-bundle-parquet 2.0.0" and m["source_release"] == "2026-10-31"
+    assert m["dataset"] == "clinvar_2026_10_31_v2_6_1" and m["files"][0]["name"] == "scv.parquet"
     assert m["source"]["name"] == "ClinVar" and "ncbi.nlm.nih.gov/clinvar" in m["source"]["url"]
     assert "genetics professional" in m["disclaimer"] and m["license"]["id"] == "CC0-1.0"
-    assert m["files"][0]["name"] == "gene.parquet" and m["source_release"] == "2026-10-18"
 
 
 # --- new line: line state, first-delta chain ---------------------------------------------------------------------
@@ -352,3 +398,18 @@ def test_freeze_cli_writes_manifest_and_readme(tmp_path, capsys):
     assert shas[f"{L}clinvar-gkm_2026-10.json.gz"] == "b" * 64
     assert shas[f"{L}deltas/clinvar-gkm-delta_2026-1031.manifest.json"] == R.hashlib.sha256(b"{}").hexdigest()
     assert (out / L / "README.txt").read_text().startswith("ClinVar-GKM v1/1.1")
+
+
+def test_parquet_manifest_command_needs_the_tool_manifest(tmp_path, monkeypatch):
+    with pytest.raises(SystemExit):
+        _run_parquet_manifest(tmp_path, monkeypatch, None)
+
+
+@pytest.mark.parametrize("over", [{"builder": "BigQuery export"}, {"builder": None},
+                                  {"source_release": "2026-10-24"}, {"release": "2026-10-24"},
+                                  {"schema_version": "1.0.1"},
+                                  {"files": [{"name": "scv.parquet", "size": 1, "sha256": "b"}]},
+                                  {"files": []}])
+def test_tool_parquet_manifest_refuses_a_set_it_does_not_describe(over):
+    with pytest.raises(SystemExit):
+        R.merge_tool_parquet_manifest(_tool_manifest(**over), _local_manifest())

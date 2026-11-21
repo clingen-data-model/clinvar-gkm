@@ -12,29 +12,31 @@ Docs are Zensical (Material theme) in `docs/`, deployed to GitHub Pages by `.git
 ## When the site deploys
 
 The site is **versioned** ([ADR 0011](../../docs/decisions/0011-versioned-documentation.md)): `gh-pages` holds
-one folder per release line (`1.1/`, `1.2/`, …) plus `dev/` (built from `main`), and root `versions.json`,
-`index.html` and `404.html` written by `src/scripts/docs-versions.py`. The root and every unversioned link
-redirect to the latest release (the highest release line). `deploy-docs.yml` builds only the versions a run is
-for and keeps the others:
+one folder per release line (`1.1/`, `1.2/`, …), and root `versions.json`, `index.html` and `404.html` written
+by `src/scripts/docs-versions.py`. The root, every unversioned link and every link to the retired `dev/` version
+redirect to the latest release (the highest release line). There is no `dev` version (removed 2026-11-20; ADR
+0011 amendment). `deploy-docs.yml` builds only the versions a run is for and keeps the others:
 
 | Trigger | Builds |
 | --- | --- |
-| `push` to `main` touching `docs/**`, `zensical.toml`, the workflow or the docs build scripts | `dev` |
 | `release: published`, tag `X.Y.Z` (not a prerelease) | `X.Y` from the tag; becomes `latest` if it is the highest line |
-| daily `schedule` (13:17 UTC) and `discussion` events | `dev` and the latest release (keeps its Roadmap current) |
-| `workflow_dispatch` on `main`, no inputs | `dev` |
+| daily `schedule` (13:17 UTC) and `discussion` events | the latest release (keeps its Roadmap current) |
+| `workflow_dispatch`, no inputs | the latest release |
 | `workflow_dispatch` with `ref` + `version` (`gh workflow run deploy-docs.yml --ref main -f ref=1.1.0 -f version=1.1`) | that tag as that version |
 
-- A docs-only merge to `main` updates `dev` only. Released docs change only with a release (or a dispatch).
+- A docs merge deploys nothing. Docs change on the site only with a release, or a dispatch of a line (to publish
+  a docs fix to the latest line, map it to the fixed commit in `docs-line-sources.txt` and dispatch it).
 - Every version is built by `src/scripts/build-versioned-docs.sh <ref> <version> <out>`, which overlays the
   versioning files (`docs/overrides/main.html`, `partials/header.html`, `partials/source.html`, `404.html`,
-  `assets/js/versions.js`, `stylesheets/versions.css`) onto the ref and sets `site_url` per version. The header's
-  repository widget shows the version's ref (`main` for dev, the tag for a release), and for a release
-  `pin-repo-links.py` rewrites `…/clinvar-gkm/blob/main/…` (and `tree`, `raw`) links to the ref the pages come
+  `assets/js/versions.js`, `stylesheets/versions.css`) and the data views (`assets/js/r2-browser.js`,
+  `assets/duckdb-console.html`) onto the ref and sets `site_url` per version. The data views read the data line
+  of the docs version in the page URL (`…/clinvar-gkm/1.1/…` → root `index.json` `versions["1.1"]`), so keep the
+  mount types older pages use (`data-r2-type`) working. The header's repository widget shows the version's ref
+  (the tag, or the line's label), and `pin-repo-links.py` rewrites `…/clinvar-gkm/blob/main/…` (and `tree`, `raw`) links to the ref the pages come
   from. Keep writing repo-file links as `/blob/main/…` in the source; the build pins them.
 - `src/scripts/docs-line-sources.txt` builds a release line from another ref, on every trigger, when its tag lacks
   its docs: `1.1` → `036bec2`, shown as `1.1.0` (the `1.1.0` tag was cut without `main`'s 1.1.0 docs). After
-  editing it, dispatch that line (`-f ref=1.1.0 -f version=1.1`); a push to `main` rebuilds only `dev`. Keep those files buildable against
+  editing it, dispatch that line (`-f ref=1.1.0 -f version=1.1`). Keep those files buildable against
   the oldest published version: after changing them, check `build-versioned-docs.sh 1.1.0 1.1 <out>`.
 - **Before publishing a release from a branch that predates ADR 0011 (`1.0`)**, bring this workflow and its
   scripts onto it or drop its `release` trigger: the `release` event runs the workflow file at the tag, and the

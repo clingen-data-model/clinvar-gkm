@@ -1,7 +1,8 @@
 """validate-bundle must pass a good bundle and fail every kind of bad one, since a pass lets a release upload.
 
-The end-to-end tests run the real toolkit through validate-bundle.sh, and are skipped when --check-setup says it
-isn't ready (no uv, or a worktree without the va-spec submodule).
+The end-to-end tests run the real toolkit engine (--engine toolkit; rs is the default and gates every release) through
+validate-bundle.sh, and are skipped when --check-setup says it isn't ready (no uv, or a worktree without the va-spec
+submodule).
 """
 
 import gzip
@@ -87,7 +88,7 @@ def stubbed_release(tmp_path):
     (scripts / "build-delta-manifest.py").write_text(py)
 
     def run(validate_exit, *args):
-        (scripts / "validate-bundle.sh").write_text(f"{stub}exit {validate_exit}\n")
+        (scripts / "validate-bundle.sh").write_text(f'{stub}echo "$*" > "{tmp_path}/validate-args"\nexit {validate_exit}\n')
         (scripts / "validate-bundle.sh").chmod(0o755)
         log.write_text("")
         result = subprocess.run(
@@ -114,6 +115,12 @@ def test_passed_validation_uploads_after_it(stubbed_release):
     assert calls.index("assemble-gkm-dicts.py") < calls.index("validate-bundle.sh") < calls.index("upload-gkm-delta-to-r2.sh")
 
 
+def test_delta_is_validated_with_rs(stubbed_release, tmp_path):
+    code, _, _ = stubbed_release(0, "--no-upload")
+    assert code == 0
+    assert (tmp_path / "validate-args").read_text().split()[-2:] == ["--engine", "rs"]
+
+
 def test_build_then_publish_validates_once_and_uploads_once(stubbed_release):
     """The two calls run-release.sh makes: --no-upload before R2 changes, then --start-step=3 after the monthly."""
     code, _, calls = stubbed_release(0, "--no-upload")
@@ -129,7 +136,7 @@ def toolkit():
 
 
 def validate(path):
-    result = subprocess.run([WRAPPER, str(path), "--workers", "1"], capture_output=True, text=True)
+    result = subprocess.run([WRAPPER, str(path), "--engine", "toolkit", "--workers", "1"], capture_output=True, text=True)
     return result.returncode, result.stdout + result.stderr
 
 
