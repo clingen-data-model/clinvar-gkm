@@ -16,7 +16,8 @@ name: Deploy Documentation
 #   workflow_dispatch, no inputs ......... the latest release from its newest tag
 #   workflow_dispatch, ref + version ..... that ref as that version, e.g. 1.1.0 as 1.1
 # A line listed in src/scripts/docs-line-sources.txt is built from the ref given there on every
-# trigger (1.1: main@036bec2, shown as 1.1.0; the 1.1.0 tag lacks the 1.1.0 docs).
+# trigger (1.1: the tip of branch docs/line-1.1, shown as 1.1.0; the 1.1.0 tag lacks the 1.1.0
+# docs). The checkout's fetch-depth: 0 fetches every branch and tag, so that commit is present.
 
 on:
   release:
