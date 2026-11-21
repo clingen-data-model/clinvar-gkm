@@ -5,13 +5,15 @@
 <title>ClinVar-GKM docs</title>
 <script>
 (function () {
-  var BASE = "/clinvar-gkm/", LATEST = "1.2", VERSIONS = ["1.2", "1.1", "dev"];
+  var BASE = "/clinvar-gkm/", LATEST = "1.2", VERSIONS = ["1.2", "1.1"];
   var home = BASE + LATEST + "/";
   var path = location.pathname, tail = location.search + location.hash;
   if (path.indexOf(BASE) !== 0) { location.replace(home); return; }
   var rest = path.slice(BASE.length), first = rest.split("/")[0];
   if (first === "latest") { location.replace(home + rest.slice(first.length + 1) + tail); return; }
   if (VERSIONS.indexOf(first) >= 0) { location.replace(BASE + first + "/"); return; }
+  // The retired dev docs: the same page in the latest release, or its home.
+  if (first === "dev") rest = rest.slice(first.length + 1);
   var target = home + rest;
   fetch(target, { method: "HEAD" })
     .then(function (r) { location.replace(r.ok ? target + tail : home); })

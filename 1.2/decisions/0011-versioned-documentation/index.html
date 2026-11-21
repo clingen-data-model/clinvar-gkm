@@ -272,6 +272,8 @@
       
         
       
+        
+      
     
     
     
@@ -719,6 +721,8 @@
       
         
       
+        
+      
     
     
     
@@ -885,6 +889,33 @@
     
   
   Parquet Files
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data-access/previous-releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Previous Releases
 
     
   </span>
@@ -6220,6 +6251,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#amended-2026-11-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Amended 2026-11-20
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -6243,6 +6285,8 @@
 <li><strong>Status:</strong> Proposed</li>
 <li><strong>Date:</strong> 2026-11-19</li>
 <li><strong>Amends:</strong> <a href="../0003-roadmap-from-labeled-discussions/">ADR 0003</a> (which docs builds regenerate the Roadmap)</li>
+<li><strong>Amended:</strong> 2026-11-20 — <code>dev</code> removed; each version's data views read its own data line; a Previous
+  Releases page (<a href="#amended-2026-11-20">below</a>)</li>
 </ul>
 <h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
 <p>The docs site was one build. Every docs merge to <code>main</code> overwrote the whole <code>gh-pages</code> branch, so the live site
@@ -6367,6 +6411,35 @@ latest release is the version most readers see. Older releases keep the Roadmap 
   root redirects to <code>dev</code> until a release exists); then dispatch the workflow with <code>ref = 1.1.0</code>,
   <code>version = 1.1</code> to publish <code>1.1</code> as <code>latest</code>.</li>
 </ul>
+<h2 id="amended-2026-11-20">Amended 2026-11-20<a class="headerlink" href="#amended-2026-11-20" title="Permanent link">&para;</a></h2>
+<p>The sections above are kept as decided on 2026-11-19. The maintainer changed three things on 2026-11-20.</p>
+<ol>
+<li><strong>No <code>dev</code> version</strong> (replaces §2 and the <code>dev</code> rows of §3, §5, §7 and §8). The <code>dev</code> docs weren't useful to
+   readers, so <code>main</code> is no longer published. <code>deploy-docs.yml</code> has no <code>push</code> trigger; the daily <code>schedule</code>, the
+   <code>discussion</code> events and a <code>workflow_dispatch</code> with no inputs rebuild only the latest release, from its newest
+   tag; a <code>release</code> event and a dispatch with <code>ref</code> + <code>version</code> are unchanged. <code>build-versioned-docs.sh</code> and
+   <code>docs-versions.py</code> accept only release lines <code>X.Y</code>. <code>docs-versions.py</code> drops any other entry from
+   <code>versions.json</code>, so the next deploy removes the <code>dev/</code> folder from <code>gh-pages</code>. Links to it already sent to
+   readers (an announcement email links <code>…/clinvar-gkm/dev/parquet/migrating-from-1.1/</code>) keep working: the root
+   <code>404.html</code> sends <code>…/dev/&lt;page&gt;</code> to the same page in the latest release, or its home. <code>versions.js</code> and
+   <code>versions.css</code> have only the latest and older states. A docs change reaches the site with a release, or by
+   mapping the line to the fixed commit in <code>docs-line-sources.txt</code> (§6) and dispatching it.</li>
+<li><strong>Each docs version shows its own data line.</strong> The download tables (<code>r2-browser.js</code>) and the live query
+   console (<code>duckdb-console.html</code>) read the release line of the docs version in the page URL: the path segment
+   after <code>/clinvar-gkm/</code> (<code>1.1</code>) is looked up in the root <code>index.json</code>'s <code>versions</code>. A URL without a version
+   (a local build) or a version with no data line reads the current line. Before, every version showed the
+   current line's files under prose about its own line. On a frozen line, the views whose files the freeze
+   deleted (weekly fulls, Parquet) say so, with the freeze date from the line's <code>MANIFEST.json</code>, and link to the
+   same page in the latest docs; the console no longer falls back to a hard-coded line. Both files join the
+   overlay (§6), so rebuilding an older version ships them; they must keep the mount types older pages use.</li>
+<li><strong>A Previous Releases page</strong> in Get the Data (<code>docs/data-access/previous-releases.md</code>) lists every line the
+   root <code>index.json</code> marks <code>frozen</code>, newest first: its schema version, <code>superseded_by</code>, freeze date, links to its
+   <code>index.json</code>, <code>feed.xml</code>, <code>README.txt</code> and <code>MANIFEST.json</code>, its monthlies and its deltas. The list is read at
+   page load, so a line frozen later appears with no docs edit. It renders only on the docs of the current line;
+   an older version's copy points to the latest docs.</li>
+</ol>
+<p>The <code>1.2</code> docs gain the page by mapping <code>1.2</code> in <code>docs-line-sources.txt</code> to the <code>1.0</code> commit that adds it, shown
+as <code>1.2.0</code> (§6), and dispatching <code>1.2</code>; dispatching <code>1.1</code> rebuilds it with the new data views.</p>
 
 
 

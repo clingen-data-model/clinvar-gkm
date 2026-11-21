@@ -276,6 +276,8 @@
       
         
       
+        
+      
     
     
     
@@ -725,6 +727,8 @@
       
         
       
+        
+      
     
     
     
@@ -891,6 +895,33 @@
     
   
   Parquet Files
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-access/previous-releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Previous Releases
 
     
   </span>
@@ -6411,7 +6442,7 @@
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>./src/scripts/run-release.sh<span class="w"> </span>YYYY-MM-DD<span class="w"> </span>--skip-parquet<span class="w">   </span><span class="c1"># leave parquet/ as it is (skip stage 6)</span>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>./src/scripts/run-release.sh<span class="w"> </span>YYYY-MM-DD<span class="w"> </span>--start-step<span class="w"> </span><span class="m">5</span><span class="w">   </span><span class="c1"># resume from a stage (1-6); 6 runs only the Parquet step</span>
 </code></pre></div>
-<p><code>--full</code> propagates version-invalidation across stages 1–2; use it for the first release or after a <code>variation_identity</code> transform change or a vrsify-pin bump. <code>--full-procs</code> builds only the stage-4 gkm procedures full (catvar, SCV, RCV, VCV): variation identity, the export, vrsification and the <code>gkm_vrs</code> load stay incremental, so only the changed variations are re-normalized. Weekly runs after 1.1.0 use <code>--full-procs</code> until <a href="../decisions/0007-pipeline-principles-and-simplification/">ADR 0007</a> workstream 3 decides on the incremental procedures, which were seen to fall back to full builds without saying so. <code>--full</code> implies <code>--full-procs</code>. <code>--dry-run</code> runs the build stages but has the release stages only print what they would upload — use it for test runs. The vrsify stage (stage 3) requires local SeqRepo and gene-normalizer services and a reachable UTA database — see <a href="vrs-processing/#running-vrsify">VRS Processing</a> and <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/1.2.0/src/vrsify"><code>src/vrsify/README.md</code></a> — so on hosts without them, run the BigQuery-side stages with <code>--start-step</code> and run vrsify separately.</p>
+<p><code>--full</code> propagates version-invalidation across stages 1–2; use it for the first release or after a <code>variation_identity</code> transform change or a vrsify-pin bump. <code>--full-procs</code> builds only the stage-4 gkm procedures full (catvar, SCV, RCV, VCV): variation identity, the export, vrsification and the <code>gkm_vrs</code> load stay incremental, so only the changed variations are re-normalized. Weekly runs after 1.1.0 use <code>--full-procs</code> until <a href="../decisions/0007-pipeline-principles-and-simplification/">ADR 0007</a> workstream 3 decides on the incremental procedures, which were seen to fall back to full builds without saying so. <code>--full</code> implies <code>--full-procs</code>. <code>--dry-run</code> runs the build stages but has the release stages only print what they would upload — use it for test runs. The vrsify stage (stage 3) requires local SeqRepo and gene-normalizer services and a reachable UTA database — see <a href="vrs-processing/#running-vrsify">VRS Processing</a> and <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/4cb647d9ca0a473aa4529f2206f936b7e5a41243/src/vrsify"><code>src/vrsify/README.md</code></a> — so on hosts without them, run the BigQuery-side stages with <code>--start-step</code> and run vrsify separately.</p>
 <p>The individual stages are documented below.</p>
 <h3 id="step-1-variation-identity">Step 1: Variation Identity<a class="headerlink" href="#step-1-variation-identity" title="Permanent link">&para;</a></h3>
 <p>From the BigQuery console — incremental by default, full rebuild when reseeding (see <a href="variation-identity/#incremental-rebuild">Incremental Rebuild</a>):</p>

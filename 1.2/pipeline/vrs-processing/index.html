@@ -276,6 +276,8 @@
       
         
       
+        
+      
     
     
     
@@ -725,6 +727,8 @@
       
         
       
+        
+      
     
     
     
@@ -891,6 +895,33 @@
     
   
   Parquet Files
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data-access/previous-releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Previous Releases
 
     
   </span>
@@ -6554,7 +6585,7 @@
 </ul>
 <p>Each output record pairs the original <code>variation_identity</code> input (<code>in</code>) with the VRS resolution result (<code>out</code>).</p>
 <h4 id="running-vrsify">Running vrsify<a class="headerlink" href="#running-vrsify" title="Permanent link">&para;</a></h4>
-<p>In the pipeline, <code>run-release.sh</code> runs this step as <code>src/vrsify/vrsify.sh YYYY-MM-DD</code>, which calls the resolver installed as a pinned dependency (<code>src/vrsify/requirements.txt</code>) instead of the <code>misc/clinvar-vrsification</code> script. <code>vrsify.sh</code> exits before starting unless four variables are set: <code>SEQREPO_ROOT_DIR</code>, <code>SEQREPO_DATAPROXY_URL</code>, <code>HGVS_SEQREPO_DIR</code> and <code>GENE_NORM_DB_URL</code>. It does not check <code>UTA_DB_URL</code>, and its comments describe UTA as needed only for liftover. The resolver still reaches UTA for some records; when <code>UTA_DB_URL</code> is unset, the UTA client falls back to the public UTA endpoint, which timed out on 33 records in the 2026-10-18 run. Export <code>UTA_DB_URL</code> pointing at a reachable UTA, in practice a local container from the variation-normalizer compose setup in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/1.2.0/src/vrsify"><code>src/vrsify/README.md</code></a>.</p>
+<p>In the pipeline, <code>run-release.sh</code> runs this step as <code>src/vrsify/vrsify.sh YYYY-MM-DD</code>, which calls the resolver installed as a pinned dependency (<code>src/vrsify/requirements.txt</code>) instead of the <code>misc/clinvar-vrsification</code> script. <code>vrsify.sh</code> exits before starting unless four variables are set: <code>SEQREPO_ROOT_DIR</code>, <code>SEQREPO_DATAPROXY_URL</code>, <code>HGVS_SEQREPO_DIR</code> and <code>GENE_NORM_DB_URL</code>. It does not check <code>UTA_DB_URL</code>, and its comments describe UTA as needed only for liftover. The resolver still reaches UTA for some records; when <code>UTA_DB_URL</code> is unset, the UTA client falls back to the public UTA endpoint, which timed out on 33 records in the 2026-10-18 run. Export <code>UTA_DB_URL</code> pointing at a reachable UTA, in practice a local container from the variation-normalizer compose setup in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/4cb647d9ca0a473aa4529f2206f936b7e5a41243/src/vrsify"><code>src/vrsify/README.md</code></a>.</p>
 <p><strong>Output:</strong> <code>vi-normalized-no-liftover.jsonl.gz</code> on GCS.</p>
 <h3 id="step-3-transform-vrs-locations">Step 3: Transform VRS locations<a class="headerlink" href="#step-3-transform-vrs-locations" title="Permanent link">&para;</a></h3>
 <p>VRS <code>SequenceLocation</code> objects use array-valued <code>start</code> and <code>end</code> fields to represent imprecise ranges (inner/outer bounds). BigQuery does not natively support loading these mixed scalar/array values, so a minor transformation is needed before the data can be imported.</p>
@@ -6612,7 +6643,7 @@
 <p class="admonition-title">Limited Scope</p>
 <p>VRS processing currently resolves only the <strong>single best expression</strong> per variation — the defining allele for each Canonical Allele as selected by the <a href="../variation-identity/#precedence-hierarchy">precedence hierarchy</a>. Only variations that vrs-python can handle are successfully resolved; the remainder carry errors in the output.</p>
 </div>
-<p>The full release now runs from a single command — <code>src/scripts/run-release.sh</code> chains variation identity, the export, this vrsify stage (via <code>src/vrsify/vrsify.sh</code>), and the transform/load/procedures/publish stages. See <a href="../#single-command-run">Single-command run</a>. The vrsify resolver is installed as a pinned dependency rather than forked (see <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/1.2.0/src/vrsify"><code>src/vrsify/README.md</code></a>); it still requires local SeqRepo and gene-normalizer services and a reachable UTA (see <a href="#running-vrsify">Running vrsify</a>).</p>
+<p>The full release now runs from a single command — <code>src/scripts/run-release.sh</code> chains variation identity, the export, this vrsify stage (via <code>src/vrsify/vrsify.sh</code>), and the transform/load/procedures/publish stages. See <a href="../#single-command-run">Single-command run</a>. The vrsify resolver is installed as a pinned dependency rather than forked (see <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/4cb647d9ca0a473aa4529f2206f936b7e5a41243/src/vrsify"><code>src/vrsify/README.md</code></a>); it still requires local SeqRepo and gene-normalizer services and a reachable UTA (see <a href="#running-vrsify">Running vrsify</a>).</p>
 <p>One area of improvement remains planned:</p>
 <ul>
 <li><strong>Broader expression coverage</strong> — expand VRS processing to resolve <strong>all variant expressions</strong> in ClinVar — the full <code>hgvs_list</code> preserved in the <code>variation_hgvs</code> table — rather than only the single selected source. This will provide richer downstream representation with multiple VRS identities per variation.</li>

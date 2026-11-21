@@ -276,6 +276,8 @@
       
         
       
+        
+      
     
     
     
@@ -725,6 +727,8 @@
       
         
       
+        
+      
     
     
     
@@ -891,6 +895,33 @@
     
   
   Parquet Files
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data-access/previous-releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Previous Releases
 
     
   </span>
@@ -6562,7 +6593,7 @@ freezes the line it replaces in the same way, but starts from a checkpoint month
 republish (see <a href="#120-a-new-minor-line">1.2.0</a>), and the frozen line drops its weekly fulls and Parquet.</p>
 <div class="admonition info">
 <p class="admonition-title">The published schema always matches the data</p>
-<p>The schema in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/1.2.0/schema/clinvar-gkm"><code>schema/clinvar-gkm/</code></a>
+<p>The schema in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/4cb647d9ca0a473aa4529f2206f936b7e5a41243/schema/clinvar-gkm"><code>schema/clinvar-gkm/</code></a>
 is the source of truth and is updated in the same change as any adjustment to the emitted bundle — so a
 given release's data always validates against its stated schema version, and the published examples are
 validated against it.</p>
@@ -6604,12 +6635,16 @@ version.</p>
 <li><strong>The latest release</strong> is the default. The site root, and any link without a version in it, opens the same
   page in the latest release. Its header is indigo.</li>
 <li><strong>An older release</strong> has a grey header and a notice that it is not the current version, with a link to the
-  same page in the latest release.</li>
-<li><strong><code>dev (unreleased)</code></strong> is built from the <code>main</code> branch. It describes changes that are not released yet and may
-  still change, so don't rely on it for production use. Its header is orange, with a notice to the same effect.</li>
+  same page in the latest release. It shows the site as it was last built for that line.</li>
 </ul>
+<p>Unreleased changes are not published as a docs version: the docs change with a release. A link to the former
+<code>dev</code> version (<code>…/clinvar-gkm/dev/&lt;page&gt;/</code>) opens the same page in the latest release.</p>
+<p>The download tables and the live query console in each version read that version's data line: the <code>1.1</code> docs
+list the files in <code>v1/1.1/</code>, the <code>1.2</code> docs those in <code>v1/1.2/</code>. On a frozen line the weekly full bundles and the
+Parquet set are deleted, so those tables and the console say so and link to the latest docs. Only the latest
+release lists the frozen lines, on <a href="../../data-access/previous-releases/">Previous Releases</a>.</p>
 <p>The repository link at the right of the header names the source each version was built from, and its links to
-repository files point there too: the release tag (such as <code>1.1.0</code>) for a release, <code>main</code> for <code>dev</code>. The
+repository files point there too: the release tag (such as <code>1.1.0</code>). The
 <code>1.1</code> docs are built from the <code>main</code> commit that documented 1.1.0 (<code>036bec2</code>), because the <code>1.1.0</code> tag was cut
 without them, so their repository-file links point at that commit.</p>
 <p>To link to a page in whatever release is latest, use a link without a version, such as

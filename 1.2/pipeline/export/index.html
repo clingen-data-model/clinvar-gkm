@@ -276,6 +276,8 @@
       
         
       
+        
+      
     
     
     
@@ -725,6 +727,8 @@
       
         
       
+        
+      
     
     
     
@@ -891,6 +895,33 @@
     
   
   Parquet Files
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data-access/previous-releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Previous Releases
 
     
   </span>
@@ -6879,7 +6910,7 @@ the bundle in its <code>manifest.json</code>.
 <hr />
 <h2 id="r2-bucket-cors-policy">R2 bucket CORS policy<a class="headerlink" href="#r2-bucket-cors-policy" title="Permanent link">&para;</a></h2>
 <p>The release browsers on the Downloads pages — the <a href="../../data-access/monthly-full/">Monthly Full Bundles</a>, <a href="../../data-access/weekly-full/">Weekly Full Bundles</a>, <a href="../../data-access/weekly-deltas/">Weekly Deltas</a>, and <a href="../../data-access/parquet/">Parquet Files</a> child pages, plus the Downloads hub's Latest Release view — each do a cross-origin <code>fetch()</code> of <code>index.json</code> from the docs site. That only works if the public R2 bucket serves a CORS policy allowing <code>GET</code> from other origins — otherwise the browsers block the read and can't populate (they then show a network/CORS message with a <code>curl</code> fallback).</p>
-<p>The policy is checked in at <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/1.2.0/src/scripts/r2-cors.json"><code>src/scripts/r2-cors.json</code></a> (<code>GET</code>/<code>HEAD</code> from <code>*</code> — appropriate for public, read-only data). It is <strong>not</strong> applied by the release scripts, because their object-scoped <code>r2</code> upload token cannot read or write bucket configuration (<code>PutBucketCors</code> → <code>AccessDenied</code>). Apply it once with an <strong>Admin Read &amp; Write</strong> R2 token:</p>
+<p>The policy is checked in at <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/4cb647d9ca0a473aa4529f2206f936b7e5a41243/src/scripts/r2-cors.json"><code>src/scripts/r2-cors.json</code></a> (<code>GET</code>/<code>HEAD</code> from <code>*</code> — appropriate for public, read-only data). It is <strong>not</strong> applied by the release scripts, because their object-scoped <code>r2</code> upload token cannot read or write bucket configuration (<code>PutBucketCors</code> → <code>AccessDenied</code>). Apply it once with an <strong>Admin Read &amp; Write</strong> R2 token:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># after configuring an admin token as an aws profile (default name: r2admin)</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>./src/scripts/apply-r2-cors.sh<span class="w">            </span><span class="c1"># or: ./src/scripts/apply-r2-cors.sh &lt;profile&gt;</span>
 </code></pre></div>

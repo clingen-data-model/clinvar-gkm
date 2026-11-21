@@ -10,36 +10,36 @@
       
       
       
-        <link rel="canonical" href="https://dataexchange.clinicalgenome.org/clinvar-gkm/dev/output-reference/classes/ClinvarAssociationProposition/">
+        <link rel="canonical" href="https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/data-access/previous-releases/">
       
       
-        <link rel="prev" href="../ClinvarAffectsProposition/">
+        <link rel="prev" href="../parquet/">
       
       
-        <link rel="next" href="../ClinvarConfersSensitivityProposition/">
+        <link rel="next" href="../release-model/">
       
       
         
       
       
-      <link rel="icon" href="../../../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="zensical-0.0.59">
     
     
       
-        <title>ClinvarAssociationProposition - ClinVar-GKM</title>
+        <title>Previous Releases - ClinVar-GKM</title>
       
     
     
       
         
       
-      <link rel="stylesheet" href="../../../assets/stylesheets/classic/main.38807bfb.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/classic/main.38807bfb.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/classic/palette.c7ab7c71.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/classic/palette.c7ab7c71.min.css">
       
       
 
@@ -58,18 +58,18 @@
       
     
     
-      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
     
       
 
     
     
-  <link rel="stylesheet" href="../../../stylesheets/versions.css">
+  <link rel="stylesheet" href="../../stylesheets/versions.css">
   <script>
     try {
-      var s = sessionStorage.getItem("gkm-docs-state:" + new URL("../../../", location.href).pathname);
+      var s = sessionStorage.getItem("gkm-docs-state:" + new URL("../../", location.href).pathname);
       if (s) document.documentElement.setAttribute("data-gkm-version", JSON.parse(s).state);
     } catch (e) {}
   </script>
@@ -93,7 +93,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#clinvarassociationproposition" class="md-skip">
+        <a href="#previous-releases" class="md-skip">
           Skip to content
         </a>
       
@@ -113,8 +113,8 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="ClinVar-GKM" class="md-header__button md-logo" aria-label="ClinVar-GKM" data-md-component="logo">
-      <img src="../../../assets/images/clingen-logo-white.svg" alt="ClinVar-GKM" height="40">
+    <a href="../.." title="ClinVar-GKM" class="md-header__button md-logo" aria-label="ClinVar-GKM" data-md-component="logo">
+      <img src="../../assets/images/clingen-logo-white.svg" alt="ClinVar-GKM" height="40">
     </a>
     <label class="md-header__button md-icon" for="__drawer">
       
@@ -122,7 +122,7 @@
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis"><div class="md-header__topic">
-          <a href="../../.." style="text-decoration: none; color: inherit;">
+          <a href="../.." style="text-decoration: none; color: inherit;">
             <span class="md-ellipsis">
               ClinVar-GKM
             </span>
@@ -131,14 +131,14 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ClinvarAssociationProposition
+              Previous Releases
             
           </span>
         </div>
       </div>
     </div>
     <a href="https://www.ga4gh.org" title="GA4GH" target="_blank" rel="noopener" class="md-header__ga4gh">
-      <img src="../../../assets/images/ga4gh-logo.svg" alt="GA4GH" height="40">
+      <img src="../../assets/images/ga4gh-logo.svg" alt="GA4GH" height="40">
     </a>
     
       
@@ -199,7 +199,7 @@
       <div class="md-header__source">
         
 
-  <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/main" title="Go to repository" class="md-source">
+  <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/1.2.0" title="Go to repository" class="md-source">
     <div class="md-source__icon md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -207,7 +207,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
+        <li class="md-source__fact md-source__fact--version">1.2.0</li>
       </ul>
     </div>
   </a>
@@ -245,7 +245,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../.." class="md-tabs__link">
+        <a href="../.." class="md-tabs__link">
           
   
   Home
@@ -260,51 +260,11 @@
   
   
   
-  
-    
-      
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-    
-      <li class="md-tabs__item">
-        <a href="../../../data-access/download/" class="md-tabs__link">
-          
-  
-  Get the Data
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
     
   
   
     
       
-      
-        
-      
-        
       
         
       
@@ -325,7 +285,49 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../overview/" class="md-tabs__link">
+        <a href="../download/" class="md-tabs__link">
+          
+  
+  Get the Data
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../output-reference/overview/" class="md-tabs__link">
           
   
   Understand the Data
@@ -387,7 +389,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../parquet/" class="md-tabs__link">
+        <a href="../../parquet/" class="md-tabs__link">
           
   
   Use the Data
@@ -436,7 +438,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../pipeline/" class="md-tabs__link">
+        <a href="../../pipeline/" class="md-tabs__link">
           
   
   How It's Built
@@ -478,7 +480,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../reference/roadmap/" class="md-tabs__link">
+        <a href="../../reference/roadmap/" class="md-tabs__link">
           
   
   Reference
@@ -517,9 +519,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="ClinVar-GKM" class="md-nav__button md-logo" aria-label="ClinVar-GKM" data-md-component="logo">
+    <a href="../.." title="ClinVar-GKM" class="md-nav__button md-logo" aria-label="ClinVar-GKM" data-md-component="logo">
       
-  <img src="../../../assets/images/clingen-logo-white.svg" alt="ClinVar-GKM">
+  <img src="../../assets/images/clingen-logo-white.svg" alt="ClinVar-GKM">
 
     </a>
     ClinVar-GKM
@@ -528,7 +530,7 @@
     <div class="md-nav__source">
       
 
-  <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/main" title="Go to repository" class="md-source">
+  <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/1.2.0" title="Go to repository" class="md-source">
     <div class="md-source__icon md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -536,7 +538,7 @@
     <div class="md-source__repository">
       clingen-data-model/clinvar-gkm
       <ul class="md-source__facts">
-        <li class="md-source__fact md-source__fact--version">main (4e20059)</li>
+        <li class="md-source__fact md-source__fact--version">1.2.0</li>
       </ul>
     </div>
   </a>
@@ -581,7 +583,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../.." class="md-nav__link ">
+            <a href="../.." class="md-nav__link ">
               
   
   
@@ -623,7 +625,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reading-guide/" class="md-nav__link">
+      <a href="../../reading-guide/" class="md-nav__link">
         
   
   
@@ -650,7 +652,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../data-use/" class="md-nav__link">
+      <a href="../../data-use/" class="md-nav__link">
         
   
   
@@ -677,7 +679,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../stay-informed/" class="md-nav__link">
+      <a href="../../stay-informed/" class="md-nav__link">
         
   
   
@@ -708,8 +710,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -725,23 +729,28 @@
       
         
       
+        
+      
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   
@@ -758,7 +767,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -775,7 +784,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../data-access/download/" class="md-nav__link">
+      <a href="../download/" class="md-nav__link">
         
   
   
@@ -802,7 +811,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../data-access/monthly-full/" class="md-nav__link">
+      <a href="../monthly-full/" class="md-nav__link">
         
   
   
@@ -829,7 +838,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../data-access/weekly-full/" class="md-nav__link">
+      <a href="../weekly-full/" class="md-nav__link">
         
   
   
@@ -856,7 +865,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../data-access/weekly-deltas/" class="md-nav__link">
+      <a href="../weekly-deltas/" class="md-nav__link">
         
   
   
@@ -883,7 +892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../data-access/parquet/" class="md-nav__link">
+      <a href="../parquet/" class="md-nav__link">
         
   
   
@@ -907,10 +916,97 @@
                 
   
   
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+        <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Previous Releases
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Previous Releases
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#frozen-lines" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Frozen Lines
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
   
   
     <li class="md-nav__item">
-      <a href="../../../data-access/release-model/" class="md-nav__link">
+      <a href="../release-model/" class="md-nav__link">
         
   
   
@@ -941,10 +1037,8 @@
       
   
   
-    
   
   
-  
     
     
       
@@ -970,22 +1064,19 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
             
   
   
@@ -1002,7 +1093,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1019,7 +1110,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../overview/" class="md-nav__link">
+      <a href="../../output-reference/overview/" class="md-nav__link">
         
   
   
@@ -1046,7 +1137,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cat-vrs/" class="md-nav__link">
+      <a href="../../output-reference/cat-vrs/" class="md-nav__link">
         
   
   
@@ -1073,7 +1164,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../scv-statements/" class="md-nav__link">
+      <a href="../../output-reference/scv-statements/" class="md-nav__link">
         
   
   
@@ -1100,7 +1191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../vcv-statements/" class="md-nav__link">
+      <a href="../../output-reference/vcv-statements/" class="md-nav__link">
         
   
   
@@ -1127,7 +1218,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rcv-statements/" class="md-nav__link">
+      <a href="../../output-reference/rcv-statements/" class="md-nav__link">
         
   
   
@@ -1154,7 +1245,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../id-references/" class="md-nav__link">
+      <a href="../../output-reference/id-references/" class="md-nav__link">
         
   
   
@@ -1181,7 +1272,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../data-access/examples/" class="md-nav__link">
+      <a href="../examples/" class="md-nav__link">
         
   
   
@@ -1205,8 +1296,6 @@
                 
   
   
-    
-  
   
   
     
@@ -1232,21 +1321,18 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_8" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_8" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../output-reference/classes/" class="md-nav__link ">
               
   
   
@@ -1263,13 +1349,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_8" id="__nav_3_8_label" tabindex="">
+              <label class="md-nav__link " for="__nav_3_8" id="__nav_3_8_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_8_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_8_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_8">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1390,7 +1476,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../variations/" class="md-nav__link">
+      <a href="../../output-reference/classes/variations/" class="md-nav__link">
         
   
   
@@ -1417,7 +1503,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarCategoricalVariant/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarCategoricalVariant/" class="md-nav__link">
         
   
   
@@ -1444,7 +1530,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarCanonicalAllele/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarCanonicalAllele/" class="md-nav__link">
         
   
   
@@ -1471,7 +1557,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarCategoricalCnvChange/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarCategoricalCnvChange/" class="md-nav__link">
         
   
   
@@ -1498,7 +1584,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarCategoricalCnvCount/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarCategoricalCnvCount/" class="md-nav__link">
         
   
   
@@ -1525,7 +1611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarNonConstrainedVariant/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarNonConstrainedVariant/" class="md-nav__link">
         
   
   
@@ -1552,7 +1638,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarDefiningAlleleConstraint/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarDefiningAlleleConstraint/" class="md-nav__link">
         
   
   
@@ -1579,7 +1665,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarDefiningLocationConstraint/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarDefiningLocationConstraint/" class="md-nav__link">
         
   
   
@@ -1606,7 +1692,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarCopyChangeConstraint/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarCopyChangeConstraint/" class="md-nav__link">
         
   
   
@@ -1633,7 +1719,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarCopyCountConstraint/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarCopyCountConstraint/" class="md-nav__link">
         
   
   
@@ -1660,7 +1746,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarLiftoverToRelation/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarLiftoverToRelation/" class="md-nav__link">
         
   
   
@@ -1687,7 +1773,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarTranscribedToRelation/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarTranscribedToRelation/" class="md-nav__link">
         
   
   
@@ -1714,7 +1800,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarIsWithinMatch/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarIsWithinMatch/" class="md-nav__link">
         
   
   
@@ -1741,7 +1827,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarVariationMapping/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarVariationMapping/" class="md-nav__link">
         
   
   
@@ -1768,7 +1854,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarAllele/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarAllele/" class="md-nav__link">
         
   
   
@@ -1795,7 +1881,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarAlleleExpression/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarAlleleExpression/" class="md-nav__link">
         
   
   
@@ -1822,7 +1908,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarCopyNumberChange/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarCopyNumberChange/" class="md-nav__link">
         
   
   
@@ -1849,7 +1935,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarCopyNumberCount/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarCopyNumberCount/" class="md-nav__link">
         
   
   
@@ -1876,7 +1962,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarSequenceLocation/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarSequenceLocation/" class="md-nav__link">
         
   
   
@@ -1903,7 +1989,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarSequenceReference/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarSequenceReference/" class="md-nav__link">
         
   
   
@@ -1930,7 +2016,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../HgvsListItem/" class="md-nav__link">
+      <a href="../../output-reference/classes/HgvsListItem/" class="md-nav__link">
         
   
   
@@ -1957,7 +2043,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarNucleotideExpression/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarNucleotideExpression/" class="md-nav__link">
         
   
   
@@ -1984,7 +2070,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarProteinExpression/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarProteinExpression/" class="md-nav__link">
         
   
   
@@ -2011,7 +2097,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarMolecularConsequenceCoding/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarMolecularConsequenceCoding/" class="md-nav__link">
         
   
   
@@ -2038,7 +2124,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../GeneListItem/" class="md-nav__link">
+      <a href="../../output-reference/classes/GeneListItem/" class="md-nav__link">
         
   
   
@@ -2149,7 +2235,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../concepts/" class="md-nav__link">
+      <a href="../../output-reference/classes/concepts/" class="md-nav__link">
         
   
   
@@ -2176,7 +2262,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarGene/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarGene/" class="md-nav__link">
         
   
   
@@ -2203,7 +2289,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarCondition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarCondition/" class="md-nav__link">
         
   
   
@@ -2230,7 +2316,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarConditionSet/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarConditionSet/" class="md-nav__link">
         
   
   
@@ -2257,7 +2343,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarTherapy/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarTherapy/" class="md-nav__link">
         
   
   
@@ -2284,7 +2370,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarTherapyGroup/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarTherapyGroup/" class="md-nav__link">
         
   
   
@@ -2311,7 +2397,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarCoding/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarCoding/" class="md-nav__link">
         
   
   
@@ -2338,7 +2424,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarMappingCoding/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarMappingCoding/" class="md-nav__link">
         
   
   
@@ -2365,7 +2451,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarConceptMapping/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarConceptMapping/" class="md-nav__link">
         
   
   
@@ -2392,7 +2478,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarTermCoding/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarTermCoding/" class="md-nav__link">
         
   
   
@@ -2419,7 +2505,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarCodedTerm/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarCodedTerm/" class="md-nav__link">
         
   
   
@@ -2446,7 +2532,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarTerm/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarTerm/" class="md-nav__link">
         
   
   
@@ -2478,10 +2564,8 @@
                 
   
   
-    
   
   
-  
     
     
       
@@ -2536,11 +2620,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_8_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_8_4" >
         
           
           <label class="md-nav__link" for="__nav_3_8_4" id="__nav_3_8_4_label" tabindex="0">
@@ -2560,7 +2644,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_8_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_8_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_8_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2577,7 +2661,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../propositions/" class="md-nav__link">
+      <a href="../../output-reference/classes/propositions/" class="md-nav__link">
         
   
   
@@ -2604,7 +2688,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarVariantPathogenicityProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarVariantPathogenicityProposition/" class="md-nav__link">
         
   
   
@@ -2631,7 +2715,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarVariantOncogenicityProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarVariantOncogenicityProposition/" class="md-nav__link">
         
   
   
@@ -2658,7 +2742,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarVariantClinicalSignificanceProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarVariantClinicalSignificanceProposition/" class="md-nav__link">
         
   
   
@@ -2685,7 +2769,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarVariantDiagnosticProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarVariantDiagnosticProposition/" class="md-nav__link">
         
   
   
@@ -2712,7 +2796,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarVariantPrognosticProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarVariantPrognosticProposition/" class="md-nav__link">
         
   
   
@@ -2739,7 +2823,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarVariantTherapeuticResponseProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarVariantTherapeuticResponseProposition/" class="md-nav__link">
         
   
   
@@ -2766,7 +2850,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarGermlineCustomProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarGermlineCustomProposition/" class="md-nav__link">
         
   
   
@@ -2793,7 +2877,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarRiskFactorProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarRiskFactorProposition/" class="md-nav__link">
         
   
   
@@ -2820,7 +2904,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarProtectiveProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarProtectiveProposition/" class="md-nav__link">
         
   
   
@@ -2847,7 +2931,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarDrugResponseProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarDrugResponseProposition/" class="md-nav__link">
         
   
   
@@ -2874,7 +2958,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarAffectsProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarAffectsProposition/" class="md-nav__link">
         
   
   
@@ -2898,38 +2982,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      
-        <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  ClinvarAssociationProposition
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="././" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../output-reference/classes/ClinvarAssociationProposition/" class="md-nav__link">
         
   
   
@@ -2944,38 +3000,6 @@
   
 
       </a>
-      
-        
-
-
-<nav class="md-nav md-nav--secondary" aria-label="On this page">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#information-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Information Model
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2988,7 +3012,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarConfersSensitivityProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarConfersSensitivityProposition/" class="md-nav__link">
         
   
   
@@ -3015,7 +3039,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarOtherProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarOtherProposition/" class="md-nav__link">
         
   
   
@@ -3042,7 +3066,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarNotProvidedProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarNotProvidedProposition/" class="md-nav__link">
         
   
   
@@ -3069,7 +3093,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarConflictingDataFromSubmitterProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarConflictingDataFromSubmitterProposition/" class="md-nav__link">
         
   
   
@@ -3096,7 +3120,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarUndefinedProposition/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarUndefinedProposition/" class="md-nav__link">
         
   
   
@@ -3123,7 +3147,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarGeneContextQualifier/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarGeneContextQualifier/" class="md-nav__link">
         
   
   
@@ -3150,7 +3174,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarModeOfInheritanceQualifier/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarModeOfInheritanceQualifier/" class="md-nav__link">
         
   
   
@@ -3177,7 +3201,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarPenetranceQualifier/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarPenetranceQualifier/" class="md-nav__link">
         
   
   
@@ -3302,7 +3326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../statements/" class="md-nav__link">
+      <a href="../../output-reference/classes/statements/" class="md-nav__link">
         
   
   
@@ -3329,7 +3353,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarStatement/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarStatement/" class="md-nav__link">
         
   
   
@@ -3356,7 +3380,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarScvStatement/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarScvStatement/" class="md-nav__link">
         
   
   
@@ -3383,7 +3407,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarAggregateStatement/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarAggregateStatement/" class="md-nav__link">
         
   
   
@@ -3410,7 +3434,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarVcvStatement/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarVcvStatement/" class="md-nav__link">
         
   
   
@@ -3437,7 +3461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarRcvStatement/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarRcvStatement/" class="md-nav__link">
         
   
   
@@ -3464,7 +3488,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarScvClassification/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarScvClassification/" class="md-nav__link">
         
   
   
@@ -3491,7 +3515,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarAggregateClassification/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarAggregateClassification/" class="md-nav__link">
         
   
   
@@ -3518,7 +3542,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarStrength/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarStrength/" class="md-nav__link">
         
   
   
@@ -3545,7 +3569,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarAggregateStrength/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarAggregateStrength/" class="md-nav__link">
         
   
   
@@ -3572,7 +3596,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarQuality/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarQuality/" class="md-nav__link">
         
   
   
@@ -3599,7 +3623,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarMethod/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarMethod/" class="md-nav__link">
         
   
   
@@ -3626,7 +3650,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarDocument/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarDocument/" class="md-nav__link">
         
   
   
@@ -3653,7 +3677,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarContribution/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarContribution/" class="md-nav__link">
         
   
   
@@ -3680,7 +3704,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarSubmitter/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarSubmitter/" class="md-nav__link">
         
   
   
@@ -3707,7 +3731,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../SubmittedCondition/" class="md-nav__link">
+      <a href="../../output-reference/classes/SubmittedCondition/" class="md-nav__link">
         
   
   
@@ -3734,7 +3758,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../SubmittedConditionSet/" class="md-nav__link">
+      <a href="../../output-reference/classes/SubmittedConditionSet/" class="md-nav__link">
         
   
   
@@ -3761,7 +3785,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../SubmittedConditionMapping/" class="md-nav__link">
+      <a href="../../output-reference/classes/SubmittedConditionMapping/" class="md-nav__link">
         
   
   
@@ -3788,7 +3812,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../SubmittedConditionMappingProperties/" class="md-nav__link">
+      <a href="../../output-reference/classes/SubmittedConditionMappingProperties/" class="md-nav__link">
         
   
   
@@ -3881,7 +3905,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../evidence/" class="md-nav__link">
+      <a href="../../output-reference/classes/evidence/" class="md-nav__link">
         
   
   
@@ -3908,7 +3932,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarSomaticEvidenceLine/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarSomaticEvidenceLine/" class="md-nav__link">
         
   
   
@@ -3935,7 +3959,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ClinvarAggregateEvidenceLine/" class="md-nav__link">
+      <a href="../../output-reference/classes/ClinvarAggregateEvidenceLine/" class="md-nav__link">
         
   
   
@@ -3998,13 +4022,10 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
@@ -4012,7 +4033,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../profiles/" class="md-nav__link ">
+            <a href="../../profiles/" class="md-nav__link ">
               
   
   
@@ -4029,7 +4050,7 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_9" id="__nav_3_9_label" tabindex="">
+              <label class="md-nav__link " for="__nav_3_9" id="__nav_3_9_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
@@ -4054,7 +4075,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../profiles/statement-types/" class="md-nav__link">
+      <a href="../../profiles/statement-types/" class="md-nav__link">
         
   
   
@@ -4081,7 +4102,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../profiles/classifications/" class="md-nav__link">
+      <a href="../../profiles/classifications/" class="md-nav__link">
         
   
   
@@ -4108,7 +4129,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../profiles/propositions/" class="md-nav__link">
+      <a href="../../profiles/propositions/" class="md-nav__link">
         
   
   
@@ -4135,7 +4156,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../profiles/review-status/" class="md-nav__link">
+      <a href="../../profiles/review-status/" class="md-nav__link">
         
   
   
@@ -4274,7 +4295,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../parquet/" class="md-nav__link ">
+            <a href="../../parquet/" class="md-nav__link ">
               
   
   
@@ -4316,7 +4337,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../parquet/table-anatomy/" class="md-nav__link">
+      <a href="../../parquet/table-anatomy/" class="md-nav__link">
         
   
   
@@ -4343,7 +4364,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../parquet/tables/" class="md-nav__link">
+      <a href="../../parquet/tables/" class="md-nav__link">
         
   
   
@@ -4370,7 +4391,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../parquet/joining/" class="md-nav__link">
+      <a href="../../parquet/joining/" class="md-nav__link">
         
   
   
@@ -4397,7 +4418,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../parquet/recipes/" class="md-nav__link">
+      <a href="../../parquet/recipes/" class="md-nav__link">
         
   
   
@@ -4424,7 +4445,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../parquet/performance/" class="md-nav__link">
+      <a href="../../parquet/performance/" class="md-nav__link">
         
   
   
@@ -4451,7 +4472,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../parquet/other-tools/" class="md-nav__link">
+      <a href="../../parquet/other-tools/" class="md-nav__link">
         
   
   
@@ -4478,7 +4499,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../parquet/build-your-own/" class="md-nav__link">
+      <a href="../../parquet/build-your-own/" class="md-nav__link">
         
   
   
@@ -4505,7 +4526,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../parquet/migrating-from-1.1/" class="md-nav__link">
+      <a href="../../parquet/migrating-from-1.1/" class="md-nav__link">
         
   
   
@@ -4540,7 +4561,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../working-in-python/" class="md-nav__link">
+      <a href="../../working-in-python/" class="md-nav__link">
         
   
   
@@ -4623,7 +4644,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../user-story/" class="md-nav__link">
+      <a href="../../user-story/" class="md-nav__link">
         
   
   
@@ -4650,7 +4671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../user-story-audit/" class="md-nav__link">
+      <a href="../../user-story-audit/" class="md-nav__link">
         
   
   
@@ -4733,7 +4754,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../pipeline/" class="md-nav__link ">
+            <a href="../../pipeline/" class="md-nav__link ">
               
   
   
@@ -4806,7 +4827,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../pipeline/variation-identity/" class="md-nav__link ">
+            <a href="../../pipeline/variation-identity/" class="md-nav__link ">
               
   
   
@@ -4848,7 +4869,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/variation-identity/variation-loc/" class="md-nav__link">
+      <a href="../../pipeline/variation-identity/variation-loc/" class="md-nav__link">
         
   
   
@@ -4875,7 +4896,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/variation-identity/variation-hgvs/" class="md-nav__link">
+      <a href="../../pipeline/variation-identity/variation-hgvs/" class="md-nav__link">
         
   
   
@@ -4902,7 +4923,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/variation-identity/variation-xref/" class="md-nav__link">
+      <a href="../../pipeline/variation-identity/variation-xref/" class="md-nav__link">
         
   
   
@@ -4929,7 +4950,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/variation-identity/variation-identity/" class="md-nav__link">
+      <a href="../../pipeline/variation-identity/variation-identity/" class="md-nav__link">
         
   
   
@@ -4964,7 +4985,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/vrs-processing/" class="md-nav__link">
+      <a href="../../pipeline/vrs-processing/" class="md-nav__link">
         
   
   
@@ -5016,7 +5037,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../pipeline/cat-vrs/" class="md-nav__link ">
+            <a href="../../pipeline/cat-vrs/" class="md-nav__link ">
               
   
   
@@ -5058,7 +5079,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/cat-vrs/catvar-extensions/" class="md-nav__link">
+      <a href="../../pipeline/cat-vrs/catvar-extensions/" class="md-nav__link">
         
   
   
@@ -5124,7 +5145,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../pipeline/conditions-and-traits/" class="md-nav__link ">
+            <a href="../../pipeline/conditions-and-traits/" class="md-nav__link ">
               
   
   
@@ -5166,7 +5187,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/conditions-and-traits/condition-mapping/" class="md-nav__link">
+      <a href="../../pipeline/conditions-and-traits/condition-mapping/" class="md-nav__link">
         
   
   
@@ -5193,7 +5214,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/conditions-and-traits/traits/" class="md-nav__link">
+      <a href="../../pipeline/conditions-and-traits/traits/" class="md-nav__link">
         
   
   
@@ -5220,7 +5241,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/conditions-and-traits/condition-sets/" class="md-nav__link">
+      <a href="../../pipeline/conditions-and-traits/condition-sets/" class="md-nav__link">
         
   
   
@@ -5247,7 +5268,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/conditions-and-traits/condition-extensions/" class="md-nav__link">
+      <a href="../../pipeline/conditions-and-traits/condition-extensions/" class="md-nav__link">
         
   
   
@@ -5313,7 +5334,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../pipeline/scv-statements/" class="md-nav__link ">
+            <a href="../../pipeline/scv-statements/" class="md-nav__link ">
               
   
   
@@ -5355,7 +5376,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/scv-statements/scv-records/" class="md-nav__link">
+      <a href="../../pipeline/scv-statements/scv-records/" class="md-nav__link">
         
   
   
@@ -5382,7 +5403,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/scv-statements/propositions/" class="md-nav__link">
+      <a href="../../pipeline/scv-statements/propositions/" class="md-nav__link">
         
   
   
@@ -5409,7 +5430,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/scv-statements/final-statements/" class="md-nav__link">
+      <a href="../../pipeline/scv-statements/final-statements/" class="md-nav__link">
         
   
   
@@ -5436,7 +5457,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/scv-statements/scv-extensions/" class="md-nav__link">
+      <a href="../../pipeline/scv-statements/scv-extensions/" class="md-nav__link">
         
   
   
@@ -5500,7 +5521,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../pipeline/vcv-statements/" class="md-nav__link ">
+            <a href="../../pipeline/vcv-statements/" class="md-nav__link ">
               
   
   
@@ -5542,7 +5563,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/vcv-statements/vcv-aggregation-rules/" class="md-nav__link">
+      <a href="../../pipeline/vcv-statements/vcv-aggregation-rules/" class="md-nav__link">
         
   
   
@@ -5569,7 +5590,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/vcv-statements/vcv-proc/" class="md-nav__link">
+      <a href="../../pipeline/vcv-statements/vcv-proc/" class="md-nav__link">
         
   
   
@@ -5596,7 +5617,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/vcv-statements/vcv-extensions/" class="md-nav__link">
+      <a href="../../pipeline/vcv-statements/vcv-extensions/" class="md-nav__link">
         
   
   
@@ -5658,7 +5679,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../pipeline/rcv-statements/" class="md-nav__link ">
+            <a href="../../pipeline/rcv-statements/" class="md-nav__link ">
               
   
   
@@ -5700,7 +5721,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/rcv-statements/rcv-proc/" class="md-nav__link">
+      <a href="../../pipeline/rcv-statements/rcv-proc/" class="md-nav__link">
         
   
   
@@ -5727,7 +5748,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/rcv-statements/rcv-extensions/" class="md-nav__link">
+      <a href="../../pipeline/rcv-statements/rcv-extensions/" class="md-nav__link">
         
   
   
@@ -5762,7 +5783,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/export/" class="md-nav__link">
+      <a href="../../pipeline/export/" class="md-nav__link">
         
   
   
@@ -5789,7 +5810,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline/sub-bundle/" class="md-nav__link">
+      <a href="../../pipeline/sub-bundle/" class="md-nav__link">
         
   
   
@@ -5893,7 +5914,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/roadmap/" class="md-nav__link">
+      <a href="../../reference/roadmap/" class="md-nav__link">
         
   
   
@@ -5920,7 +5941,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/versioning/" class="md-nav__link">
+      <a href="../../reference/versioning/" class="md-nav__link">
         
   
   
@@ -5947,7 +5968,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/changelog/" class="md-nav__link">
+      <a href="../../reference/changelog/" class="md-nav__link">
         
   
   
@@ -5974,7 +5995,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/release-validation/" class="md-nav__link">
+      <a href="../../reference/release-validation/" class="md-nav__link">
         
   
   
@@ -6001,7 +6022,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/gks-standards/" class="md-nav__link">
+      <a href="../../reference/gks-standards/" class="md-nav__link">
         
   
   
@@ -6028,7 +6049,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/known-issues/" class="md-nav__link">
+      <a href="../../reference/known-issues/" class="md-nav__link">
         
   
   
@@ -6055,7 +6076,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/faq/" class="md-nav__link">
+      <a href="../../reference/faq/" class="md-nav__link">
         
   
   
@@ -6082,7 +6103,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/glossary/" class="md-nav__link">
+      <a href="../../reference/glossary/" class="md-nav__link">
         
   
   
@@ -6136,7 +6157,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../reference/presentations/" class="md-nav__link ">
+            <a href="../../reference/presentations/" class="md-nav__link ">
               
   
   
@@ -6178,7 +6199,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/presentations/clinvar-gkm-primer/" class="md-nav__link">
+      <a href="../../reference/presentations/clinvar-gkm-primer/" class="md-nav__link">
         
   
   
@@ -6205,7 +6226,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/presentations/clinvar-gkm-unlocks/" class="md-nav__link">
+      <a href="../../reference/presentations/clinvar-gkm-unlocks/" class="md-nav__link">
         
   
   
@@ -6269,10 +6290,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#information-model" class="md-nav__link">
+  <a href="#frozen-lines" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Information Model
+        Frozen Lines
       </span>
     </span>
   </a>
@@ -6297,76 +6318,32 @@
   
 
 
-<h1 id="clinvarassociationproposition">ClinvarAssociationProposition<a class="headerlink" href="#clinvarassociationproposition" title="Permanent link">&para;</a></h1>
-<div class="admonition note">
-<p class="admonition-title">Trial Use</p>
-<p>May change in future releases. See the <a href="https://vrs.ga4gh.org/en/2.1/appendices/maturity_model.html" rel="noopener" target="_blank">GKM Maturity Model</a>.</p>
+<h1 id="previous-releases">Previous Releases<a class="headerlink" href="#previous-releases" title="Permanent link">&para;</a></h1>
+<p>Links: <a href="../download/">Downloads</a> · <a href="../monthly-full/">Monthly Full Bundles</a> · <a href="../weekly-deltas/">Weekly Deltas</a> · <a href="../release-model/">How Releases Work</a></p>
+<p>Each release line has its own folder, <code>v{major}/{major}.{minor}/</code>. When a new MINOR or MAJOR release starts a new line, the line it replaces is <strong>frozen</strong>: nothing in it changes again, and it is kept indefinitely. This page lists every frozen line, newest first, with its official monthly full bundles and its weekly deltas. The other Get the Data pages describe the current line.</p>
+<ul>
+<li><strong>What a frozen line keeps:</strong> its official monthlies, the <code>00-latest</code> copy of the newest one, its <code>archive/YYYY/</code> folders and every weekly delta with its manifest, all at the paths they had when the line was current, with the same bytes and <code>.sha256</code> sidecars. It gains a <code>MANIFEST.json</code> (every file's size and sha256) and a <code>README.txt</code>.</li>
+<li><strong>What a frozen line drops:</strong> its weekly full bundles and its Parquet set, deleted at the freeze. Any past week is rebuilt from a monthly plus deltas (<a href="../weekly-deltas/#rebuild-a-past-week">Rebuild a past week</a>), and Parquet is rebuilt from a monthly bundle with <a href="../../parquet/build-your-own/"><code>gkm-bundle-parquet</code></a>.</li>
+<li><strong>Which schema it uses:</strong> each line's bundles validate against that line's schema version, shown below. The <a href="../../reference/changelog/">changelog</a> lists the changes between versions.</li>
+</ul>
+<p>To keep reading one line, read releases only from its own <code>index.json</code>; see <a href="../../reference/versioning/#finding-and-pinning-a-version">Finding and pinning a version</a>. The docs that describe a line are in the version selector in the header: the <code>1.1</code> docs describe <code>v1/1.1/</code>.</p>
+<div class="admonition info">
+<p class="admonition-title">Before you use or share the data</p>
+<p>The data use terms and the ClinVar disclaimer apply to every line; see <a href="../../data-use/">Data Use and Citation</a>.</p>
 </div>
-<p>A proposition describing a statistical or observational association between a variant and a condition. Used for ClinVar submissions classified as "association". Does not imply a causal relationship.</p>
-<p><strong>JSON Schema:</strong> <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarAssociationProposition" target="_blank">ClinvarAssociationProposition</a></p>
-<p>Some ClinvarAssociationProposition attributes are inherited from <a href="../ClinvarGermlineCustomProposition/">ClinvarGermlineCustomProposition</a>.</p>
-<h2 id="information-model">Information Model<a class="headerlink" href="#information-model" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Limits</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>id</code></td>
-<td><code>string</code></td>
-<td>1..1</td>
-<td>The 'logical' identifier of the Entity in the system of record, e.g. a UUID.  This 'id' is unique within a given system, but may or may not be globally unique outside the system. It is used within a system to reference an object from another.</td>
-</tr>
-<tr>
-<td><code>type</code></td>
-<td><code>string</code><br><code>ClinvarAssociationProposition</code></td>
-<td>1..1</td>
-<td>MUST be "ClinvarAssociationProposition".</td>
-</tr>
-<tr>
-<td><code>subject</code></td>
-<td><a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference" rel="noopener" target="_blank">iriReference</a><br>pointer to <code>#/variation/&lt;id&gt;</code></td>
-<td>1..1</td>
-<td>The variant, a '#/variation/<id>' pointer into this bundle.</td>
-</tr>
-<tr>
-<td><code>predicate</code></td>
-<td><code>string</code><br><code>isAssociatedWith</code></td>
-<td>1..1</td>
-<td>The relationship the Proposition describes between the subject variant and object condition. MUST be "isAssociatedWith".</td>
-</tr>
-<tr>
-<td><code>object</code></td>
-<td><a href="https://va-spec.ga4gh.org/en/1.1.0/core-information-model/data-types.html#irireference" rel="noopener" target="_blank">iriReference</a><br>pointer to <code>#/condition/&lt;id&gt;</code> or <code>#/conditionSet/&lt;id&gt;</code></td>
-<td>1..1</td>
-<td>The condition the variant is associated with, a '#/condition/<id>' or '#/conditionSet/<id>' pointer into this bundle.</td>
-</tr>
-<tr>
-<td><code>geneContextQualifier</code></td>
-<td><a href="../ClinvarGeneContextQualifier/">ClinvarGeneContextQualifier</a></td>
-<td>0..1</td>
-<td>Reports a gene impacted by the variant, which may contribute to the association described in the Proposition (SCV propositions only).</td>
-</tr>
-<tr>
-<td><code>modeOfInheritanceQualifier</code></td>
-<td><a href="../ClinvarModeOfInheritanceQualifier/">ClinvarModeOfInheritanceQualifier</a></td>
-<td>0..1</td>
-<td>Reports a pattern of inheritance expected for the effect of the variant (SCV propositions only).</td>
-</tr>
-<tr>
-<td><code>penetranceQualifier</code></td>
-<td><a href="../ClinvarPenetranceQualifier/">ClinvarPenetranceQualifier</a></td>
-<td>0..1</td>
-<td>Reports the penetrance of the effect - the extent to which the variant impact is expressed by carriers (SCV propositions only).</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Not used by ClinVar-GKM:</strong> <code>name</code>, <code>description</code>, <code>aliases</code>, <code>extensions</code>. The GA4GH base class defines these properties, but this profile forbids them (<code>false</code>), so they never appear in ClinVar-GKM bundles.</p>
+<hr />
+<h2 id="frozen-lines">Frozen Lines<a class="headerlink" href="#frozen-lines" title="Permanent link">&para;</a></h2>
+<p>The list is read from the root <code>index.json</code>, so a line appears here as soon as it is frozen.</p>
+<div class="r2-browser" data-r2-type="previous"></div>
+
+<noscript>
+The list of frozen lines needs JavaScript. Without it, read the root version manifest, which lists every line, its
+status and the path of its own index:
+<code>curl -s https://data.clinvar-gkm.org/index.json | python3 -m json.tool</code>
+— then a frozen line's index and plain-text guide, for example:
+<code>curl -s https://data.clinvar-gkm.org/v1/1.1/index.json | python3 -m json.tool</code>
+<code>curl -s https://data.clinvar-gkm.org/v1/1.0/README.txt</code>
+</noscript>
 
 
 
@@ -6424,16 +6401,16 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate":null,"base":"../../..","features":["navigation.tabs","navigation.tabs.sticky","navigation.sections","navigation.indexes","navigation.top","search.suggest","search.highlight","content.code.copy","toc.follow"],"search":"../../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.tabs.sticky","navigation.sections","navigation.indexes","navigation.top","search.suggest","search.highlight","content.code.copy","toc.follow"],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"provider":"mike"}}</script>
     
     
   
-      <script src="../../../assets/javascripts/bundle.6970bfe9.min.js"></script>
+      <script src="../../assets/javascripts/bundle.6970bfe9.min.js"></script>
       
-        <script src="../../../assets/js/r2-browser.js"></script>
+        <script src="../../assets/js/r2-browser.js"></script>
       
     
-  <script src="../../../assets/js/versions.js"></script>
+  <script src="../../assets/js/versions.js"></script>
 
   </body>
 </html>
