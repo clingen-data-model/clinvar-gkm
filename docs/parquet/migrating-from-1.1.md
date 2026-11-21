@@ -98,7 +98,8 @@ WHERE decode(key) LIKE 'gkm_bundle_parquet.%';
 - **To get tables for an earlier release**, build them from that release's bundle with `gkm-bundle-parquet`
   (see [Build Your Own](build-your-own.md) and [Earlier releases](../data-access/parquet.md#earlier-releases)). The columns come from the bundle's
   schema, so a bundle of schema 1.1.0 gives a wider set than the one this documentation describes, with more
-  positions kept as JSON text; a bundle of schema 1.2.0 gives exactly these tables.
+  positions kept as JSON text; a bundle of schema 1.2.0 gives exactly these tables. For the 1.1 line, build with
+  ClinVar-GKM's 1.1.0 column set instead: [Parquet for Previous Releases](previous-releases.md).
 
 ---
 

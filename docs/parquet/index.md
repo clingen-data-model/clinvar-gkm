@@ -86,3 +86,4 @@ duckdb -c "COPY (SELECT id, name FROM 'condition.parquet') TO 'conditions.csv' (
 - **I work in Python, R, or Spark** — [Beyond DuckDB](other-tools.md)
 - **I want the tables for another release, or a small slice as JSON** — [Build Your Own Tables and Mini-Bundles](build-your-own.md)
 - **I have queries for the 1.1 tables** — [Moving from the 1.1 Tables](migrating-from-1.1.md)
+- **I want tables for a frozen line (`v1/1.1/`, `v1/1.0/`)** — [Parquet for Previous Releases](previous-releases.md)

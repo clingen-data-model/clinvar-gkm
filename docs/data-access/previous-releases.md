@@ -6,6 +6,7 @@ Each release line has its own folder, `v{major}/{major}.{minor}/`. When a new MI
 
 - **What a frozen line keeps:** its official monthlies, the `00-latest` copy of the newest one, its `archive/YYYY/` folders and every weekly delta with its manifest, all at the paths they had when the line was current, with the same bytes and `.sha256` sidecars. It gains a `MANIFEST.json` (every file's size and sha256) and a `README.txt`.
 - **What a frozen line drops:** its weekly full bundles and its Parquet set, deleted at the freeze. Any past week is rebuilt from a monthly plus deltas ([Rebuild a past week](weekly-deltas.md#rebuild-a-past-week)), and Parquet is rebuilt from a monthly bundle with [`gkm-bundle-parquet`](../parquet/build-your-own.md).
+- **Parquet for a frozen line:** [Parquet for Previous Releases](../parquet/previous-releases.md) gives the commands and the column set.
 - **Which schema it uses:** each line's bundles validate against that line's schema version, shown below. The [changelog](../reference/changelog.md) lists the changes between versions.
 
 To keep reading one line, read releases only from its own `index.json`; see [Finding and pinning a version](../reference/versioning.md#finding-and-pinning-a-version). The docs that describe a line are in the version selector in the header: the `1.1` docs describe `v1/1.1/`, and their copy of this page lists the lines before 1.1.
