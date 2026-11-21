@@ -278,6 +278,8 @@
       
         
       
+        
+      
     
     
     
@@ -721,6 +723,8 @@
       
         
       
+        
+      
     
     
     
@@ -839,6 +843,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Latest Release
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#previous-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Previous Releases
       </span>
     </span>
   </a>
@@ -1011,6 +1026,33 @@
     
   
   Parquet Files
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../previous-releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Previous Releases
 
     
   </span>
@@ -4726,6 +4768,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#previous-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Previous Releases
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#directory-structure" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -4805,7 +4858,7 @@
 
 
 <h1 id="downloads">Downloads<a class="headerlink" href="#downloads" title="Permanent link">&para;</a></h1>
-<p>ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas (JSON), with one typed Parquet dataset of the latest release, free from Cloudflare R2 — no authentication, no egress fees. The layout follows NCBI's ClinVar FTP site. New here? See <a href="../release-model/">How Releases Work</a>.</p>
+<p>ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas (JSON), with one typed Parquet dataset of the latest release, free from Cloudflare R2 — no authentication, no egress fees. The layout follows NCBI's ClinVar FTP site. New here? See <a href="../release-model/">How Releases Work</a>. Releases of older lines are under <a href="#previous-releases">Previous Releases</a> below.</p>
 <div class="admonition warning">
 <p class="admonition-title">1.1.0 moved every download URL</p>
 <p>1.1.0 (released 2026-10-22) moved every download URL to <code>v1/1.1/</code> and renamed the proposition sections — see the <a href="../../reference/changelog/#110">changelog migration notes</a>.</p>
@@ -4830,7 +4883,17 @@ The interactive release table needs JavaScript. Without it, fetch the release in
 <code>curl -O https://data.clinvar-gkm.org/v1/1.1/weekly/clinvar-gkm_00-latest_weekly.json.gz</code>
 </noscript>
 
-<p>Browse history and archives: <a href="../monthly-full/">Monthly Full Bundles</a> · <a href="../weekly-full/">Weekly Full Bundles</a> · <a href="../weekly-deltas/">Weekly Deltas</a> · <a href="../parquet/">Parquet Files</a>.</p>
+<p>Browse history and archives: <a href="../monthly-full/">Monthly Full Bundles</a> · <a href="../weekly-full/">Weekly Full Bundles</a> · <a href="../weekly-deltas/">Weekly Deltas</a> · <a href="../parquet/">Parquet Files</a>. Earlier release lines: <a href="../previous-releases/">Previous Releases</a>.</p>
+<hr />
+<h2 id="previous-releases">Previous Releases<a class="headerlink" href="#previous-releases" title="Permanent link">&para;</a></h2>
+<p>These docs describe the 1.1 line, <code>v1/1.1/</code>. The release lines frozen <strong>before</strong> it are listed here; each keeps its official monthlies and weekly deltas, unchanged, at the paths they had. Their files are listed on <a href="../previous-releases/">Previous Releases</a>.</p>
+<div class="r2-browser" data-r2-type="previous-summary"></div>
+
+<noscript>
+The list of earlier lines needs JavaScript. Without it, read the root version manifest, which lists every line, its status and the path of its own index:
+<code>curl -s https://data.clinvar-gkm.org/index.json | python3 -m json.tool</code>
+</noscript>
+
 <hr />
 <h2 id="directory-structure">Directory Structure<a class="headerlink" href="#directory-structure" title="Permanent link">&para;</a></h2>
 <div class="admonition note">

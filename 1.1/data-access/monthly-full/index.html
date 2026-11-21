@@ -278,6 +278,8 @@
       
         
       
+        
+      
     
     
     
@@ -721,6 +723,8 @@
       
         
       
+        
+      
     
     
     
@@ -902,6 +906,33 @@
     
   
   Parquet Files
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../previous-releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Previous Releases
 
     
   </span>
@@ -4617,6 +4648,7 @@
 
 <h1 id="monthly-full-bundles">Monthly Full Bundles<a class="headerlink" href="#monthly-full-bundles" title="Permanent link">&para;</a></h1>
 <p>Links: <a href="../weekly-full/">Weekly Full Bundles</a> · <a href="../weekly-deltas/">Weekly Deltas</a> · <a href="../parquet/">Parquet Files</a> · <a href="../release-model/">How Releases Work</a></p>
+<p>Older release lines (before 1.1) are on <a href="../previous-releases/">Previous Releases</a>.</p>
 <p>The official monthly full bundle is a gzip-compressed JSON file containing every variation, statement, proposition, condition, and supporting reference record for a release. It lines up with ClinVar's monthly <code>ClinVarVCVRelease_YYYY-MM</code>: <code>clinvar-gkm_YYYY-MM</code> is built from the newest weekly release <strong>before</strong> ClinVar's monthly cut, and the line's <code>index.json</code> names that release as the monthly's <code>source_release</code>. For example, the <code>2026-10</code> monthly has <code>source_release</code> <code>2026-09-28</code>.</p>
 <p>The monthlies of the current year sit at the top of the line folder, <code>v1/1.1/</code>; <code>clinvar-gkm_00-latest.json.gz</code> is a stable URL for the newest one. When the first release of a new year is published, the finished year's monthlies move to <code>v1/1.1/archive/YYYY/</code>, where they are kept. Monthlies and deltas are the durable record: every past week can be rebuilt from them (<a href="../weekly-deltas/#rebuild-a-past-week">Rebuild a past week</a>).</p>
 <div class="r2-browser" data-r2-type="monthly"></div>

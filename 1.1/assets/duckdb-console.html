@@ -84,6 +84,9 @@
   .errbox details { margin-top: 7px; }
   .errbox summary { cursor: pointer; color: var(--ink-soft); font-size: 10.5px; font-family: ui-monospace, monospace; }
   .errbox pre { margin: 6px 0 0; white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 10.5px; color: var(--ink-soft); }
+  .errbox pre.cmd { margin: 5px 0 8px; padding: 7px 9px; font-size: 11px; color: var(--ink); background: var(--box);
+    border: 1px solid var(--line); border-radius: 5px; user-select: all; }
+  .errbox .ehint + .ehint { margin-top: 6px; }
   .meta { font-size: 10.5px; color: var(--ink-soft); font-family: ui-monospace, monospace; margin-top: 5px; }
 
   .note { font-size: 11px; color: var(--ink-soft); line-height: 1.55; margin-top: 16px;
@@ -99,8 +102,8 @@
   </div>
   <p class="caption">Runs SQL <b>in your browser</b> against the published ClinVar-GKM Parquet tables over
     <code>data.clinvar-gkm.org</code> &mdash; nothing is downloaded to disk and no server runs the query. Best for
-    exploration: counts, schema, single-table and targeted lookups return in about a second. Full scans over the
-    big tables are slow over the network and may rate-limit; for those, download and query locally.</p>
+    exploration: counts, schema, single-table and targeted lookups return in about a second. A query that runs
+    longer than 10&nbsp;seconds is stopped, with the steps to download its tables and run it on your machine.</p>
 
   <div class="bar">
     <label>Release
@@ -115,6 +118,9 @@
         <option value="marfan">Find a disease by name (Marfan)</option>
         <option value="describe">Schema of the scv table (DESCRIBE)</option>
         <option value="scvcount">Count SCV statements (3&nbsp;GB, footer only)</option>
+        <option value="scv">SCV statements: classification and quality</option>
+        <option value="vcv">VCV statements: classification and quality</option>
+        <option value="rcv">RCV statements: classification and quality</option>
         <option value="therapy">List drug therapies (name is inside JSON)</option>
         <option value="bytype">Count conditions by type (GROUP BY)</option>
       </select>
@@ -139,11 +145,13 @@
     <code>DESCRIBE</code> fetch only the file footer.
     <code>{BASE}</code> in a query is replaced with the Parquet path. Parquet is derived from the JSON bundle and
     overwritten every release, so there is one dataset, the latest; the <b>Release</b> label shows the release it was
-    built from, read from the live <a href="https://data.clinvar-gkm.org/v1/1.1/index.json" target="_blank" rel="noopener">index.json</a>.
+    built from, read from the live <a id="index-link" href="https://data.clinvar-gkm.org/index.json" target="_blank" rel="noopener">index.json</a>
+    of the release line these docs describe.
     The connection runs with <code>SET threads=1</code> to stay gentle on the CDN; a parallel full scan of a big
     table can trip rate limiting (<code>HTTP 429</code>); joins across the big tables belong on your machine, <a href="../parquet/performance/#materialize-join-tables" target="_top">materialized once</a>. To keep load on the shared service light, the console
     runs <b>at most one query every 10&nbsp;seconds</b> &mdash; the Run button greys out and a countdown beside it
-    shows when the next query is available. Multiple statements separated by <code>;</code> run in order and the
+    shows when the next query is available &mdash; and <b>stops any query still running after 10&nbsp;seconds</b>
+    (the engine reloads from your browser cache on the next Run). Multiple statements separated by <code>;</code> run in order and the
     last result is shown. Output is capped at 500 rows.
   </p>
 </div>
@@ -151,10 +159,13 @@
 <script type="module">
   import * as duckdb from './vendor/duckdb/duckdb-browser.bundled.js';
 
-  // The one Parquet dataset, overwritten every release. loadReleases() replaces it with the path the live
-  // index gives, so a new version line (e.g. v1/1.2/) needs no edit here.
+  // The one Parquet dataset of a line, overwritten every release. loadReleases() sets it from the live index of
+  // the line these docs describe, so no line is named here; until then (or when the line has no Parquet set)
+  // it is null and Run is refused.
   const HOST = 'https://data.clinvar-gkm.org';
-  let parquetBase = `${HOST}/v1/1.1/parquet`;
+  const LATEST_DOCS = 'https://dataexchange.clinicalgenome.org/clinvar-gkm/';   // redirects to the latest release
+  let parquetBase = null;
+  let indexError = null;       // why the release index couldn't be read, once loadReleases() gives up
   const relSel = document.getElementById('release');
   const exSel  = document.getElementById('examples');
   const baseEl = document.getElementById('base');
@@ -169,47 +180,102 @@
     marfan:   `SELECT id, name\nFROM '{BASE}/condition.parquet'\nWHERE name ILIKE '%marfan%';`,
     describe: `DESCRIBE SELECT * FROM '{BASE}/scv.parquet';`,
     scvcount: `SELECT count(*) AS n_scv FROM '{BASE}/scv.parquet';`,
-    therapy:  `-- therapy is content-addressed: the id column is key. value->>'name' works on every release (1.1.0+ also has a name column)\nSELECT key, value->>'name' AS name\nFROM '{BASE}/therapy.parquet'\nLIMIT 25;`,
+    scv:      `-- classification and quality are STRUCTs: name the field. LIMIT without WHERE reads only the first row group\nSELECT id, classification.name AS classification, quality.name AS quality\nFROM '{BASE}/scv.parquet'\nLIMIT 25;`,
+    vcv:      `SELECT id, classification.name AS classification, quality.name AS quality\nFROM '{BASE}/vcv.parquet'\nLIMIT 25;`,
+    rcv:      `SELECT id, classification.name AS classification, quality.name AS quality\nFROM '{BASE}/rcv.parquet'\nLIMIT 25;`,
+    therapy:  `-- therapy is a small table: one row per drug named by a therapeutic-response proposition\nSELECT name\nFROM '{BASE}/therapy.parquet'\nORDER BY name;`,
     bytype:   `SELECT conceptType, count(*) AS n\nFROM '{BASE}/condition.parquet'\nGROUP BY 1 ORDER BY n DESC;`,
   };
 
-  function syncBase() { baseEl.textContent = base() + '/'; }
-  function loadExample() { sqlEl.value = EXAMPLES[exSel.value].replaceAll('{BASE}', base()); }
+  function syncBase() { baseEl.textContent = parquetBase ? base() + '/' : 'reading index.json…'; }
+  function loadExample() { sqlEl.value = parquetBase ? EXAMPLES[exSel.value].replaceAll('{BASE}', base()) : EXAMPLES[exSel.value]; }
   let userPickedRelease = false;
   relSel.addEventListener('change', () => { userPickedRelease = true; syncBase(); loadExample(); });
   exSel.addEventListener('change', loadExample);
   syncBase(); loadExample();
 
-  // Find the Parquet dataset and the release it was built from: the root manifest (/index.json) names the
-  // current line's index, whose Parquet entry gives its path and source_release. Runs in the background so
-  // a slow or failed fetch never blocks the console; on any failure the default path and plain label stay.
+  // Find the Parquet dataset and the release it was built from. The docs version is the path segment after
+  // /clinvar-gkm/ in this page's own URL ("1.1" in /clinvar-gkm/1.1/assets/duckdb-console.html); the root
+  // manifest (/index.json) names that line's index, whose Parquet entry gives its path and source_release. A URL
+  // without a version (a local build), or a version with no data line, reads the current line. Runs in the
+  // background so a slow fetch never blocks the page.
   const ROOT_INDEX_URL = `${HOST}/index.json`;
+  const indexLink = document.getElementById('index-link');
+  function docsVersion(path) {
+    const m = /\/clinvar-gkm\/(\d+\.\d+)(?:\/|$)/.exec(path || '');
+    return m ? m[1] : null;
+  }
+  function currentKey(versions) {
+    const keys = Object.keys(versions);
+    const cur = keys.filter(k => versions[k]?.status === 'current');
+    const pool = cur.length ? cur : keys;
+    return pool.sort((a, b) => parseFloat(a) - parseFloat(b)).pop();
+  }
   async function fetchJSON(url, signal) {
     const res = await fetch(url, { signal, cache: 'no-cache' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
+  }
+  // No tables to query: say why, and keep Run off.
+  function unavailable(headline, hintHtml) {
+    busy = true;
+    setRunEnabled(false);
+    baseEl.textContent = 'none';
+    sqlEl.value = '';
+    sqlEl.disabled = true;
+    outEl.innerHTML = '<div class="errbox"><div class="eh">' + escapeHtml(headline) + '</div>' +
+      '<div class="ehint">' + hintHtml + '</div></div>';
+    setStatus('no Parquet set', true);
   }
   async function loadReleases() {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 8000);
     try {
       const root = await fetchJSON(ROOT_INDEX_URL, ctrl.signal);
-      const lines = Object.values(root?.versions || {});
-      const line = lines.find(v => v?.status === 'current') || lines[lines.length - 1];
-      if (!line?.index) throw new Error('no current line in the root manifest');
-      const index = await fetchJSON(`${HOST}/${line.index.replace(/^\//, '')}`, ctrl.signal);
+      const versions = root?.versions || {};
+      const wanted = docsVersion(location.pathname);
+      const line = versions[wanted && versions[wanted] ? wanted : currentKey(versions)];
+      if (!line?.index) throw new Error('no line in the root manifest');
+      const indexUrl = `${HOST}/${line.index.replace(/^\//, '')}`;
+      indexLink.href = indexUrl;
+      const name = line.line ? String(line.line).replace(/\/?$/, '/') : '';
+      // A frozen line keeps no Parquet (ADR 0008): say so at once, even while its old set is still on R2 (the
+      // examples are written for the current tables, so they would fail on an older set).
+      const frozen = async () => {
+        let when = '';
+        try {
+          const mf = await fetchJSON(indexUrl.replace(/index\.json$/, 'MANIFEST.json'), ctrl.signal);
+          if (mf?.frozen_at) when = String(mf.frozen_at).slice(0, 10);
+        } catch (e) { /* no date */ }
+        unavailable(`${name || 'This line'} is a frozen line: it keeps no Parquet set.`,
+          'A frozen line keeps its monthlies and deltas, not its Parquet set, which ' +
+          (when ? `was deleted when the line was frozen on ${when}` : 'is deleted at the freeze') + ', ' +
+          'so these docs have no tables to query. Use the console in ' +
+          `<a href="${LATEST_DOCS}parquet/" target="_top">the latest docs</a>, see ` +
+          `<a href="${LATEST_DOCS}data-access/parquet/" target="_top">Parquet Files</a> in the latest docs, or build the tables ` +
+          'from one of this line\'s monthly bundles with <a href="https://github.com/clingen-data-model/gkm-bundle-parquet" ' +
+          'target="_blank" rel="noopener">gkm-bundle-parquet</a>.');
+      };
+      if (line.status === 'frozen') { await frozen(); return; }
+      const index = await fetchJSON(indexUrl, ctrl.signal);
+      if (index?.status === 'frozen') { await frozen(); return; }
       const p = index?.datasets?.parquet ?? index?.parquet;
       const entry = Array.isArray(p) ? (p.find(e => e?.latest) || p[0]) : p;
-      if (!entry) throw new Error('no Parquet entry in the line index');
-      if (entry.path) {
-        const generated = sqlEl.value === EXAMPLES[exSel.value].replaceAll('{BASE}', base());
-        parquetBase = `${HOST}/${entry.path.replace(/^\//, '').replace(/\/$/, '')}`;
-        syncBase();
-        if (generated) loadExample();    // refresh the example only if the user hasn't edited it
+      if (!entry?.path) {
+        unavailable(`No Parquet set is published for ${name || 'this line'} yet.`,
+          'A new line\'s Parquet set is published shortly after its first release. Until then, use the JSON bundles.');
+        return;
       }
+      const generated = sqlEl.value === EXAMPLES[exSel.value] ||
+        (parquetBase && sqlEl.value === EXAMPLES[exSel.value].replaceAll('{BASE}', base()));
+      parquetBase = `${HOST}/${entry.path.replace(/^\//, '').replace(/\/$/, '')}`;
+      syncBase();
+      if (generated) loadExample();    // refresh the example only if the user hasn't edited it
       if (entry.source_release) relSel.options[0].text = `latest (built from ${entry.source_release})`;
     } catch (e) {
-      console.warn('Release label: using the plain label (' + (e && e.message || e) + ')');
+      console.warn('Release index: ' + (e && e.message || e));
+      indexError = "couldn't read the release index; reload to try again";
+      setStatus(indexError, true);
     } finally {
       clearTimeout(timer);
     }
@@ -217,6 +283,15 @@
   loadReleases();
 
   let dbPromise = null;
+  let dbWorker = null;
+  // Kill the engine's worker, which aborts its in-flight HTTP range requests; the next Run starts a fresh one.
+  // A running query can't be cancelled from here (the worker is busy executing it), so this is the only way to
+  // stop the network traffic.
+  function resetEngine() {
+    if (dbWorker) dbWorker.terminate();
+    dbWorker = null;
+    dbPromise = null;
+  }
   async function getConn() {
     if (!dbPromise) {
       dbPromise = (async () => {
@@ -228,7 +303,7 @@
             mainWorker: new URL('duckdb-browser-eh.worker.js', vendor).href,
           },
         });
-        const worker = new Worker(bundle.mainWorker);
+        const worker = dbWorker = new Worker(bundle.mainWorker);
         const db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(), worker);
         await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
         const conn = await db.connect();
@@ -345,8 +420,52 @@
     }, 1000);
   }
 
+  // A query still running after this long is stopped: over the network it is reading row group after row group of
+  // a big table, which is slow for the user and heavy for the shared CDN. The clock starts after the engine loads.
+  const QUERY_LIMIT_MS = 10000;
+  const TIMED_OUT = Symbol('timed out');
+  function withTimeout(promise, ms) {
+    promise.catch(() => {});   // after a timeout the worker is killed; ignore whatever this promise does then
+    let timer;
+    const expire = new Promise((_, reject) => { timer = setTimeout(() => reject(TIMED_OUT), Math.max(0, ms)); });
+    return Promise.race([promise, expire]).finally(() => clearTimeout(timer));
+  }
+
+  // Explain the stop and give the commands to run the same query locally: download each Parquet file the query
+  // names, then run it with the URLs replaced by the file names.
+  function renderTooLarge(sql) {
+    const urls = [...new Set(sql.match(/https?:\/\/[^\s'"]+\.parquet/g) || [])];
+    const files = urls.map(u => u.slice(u.lastIndexOf('/') + 1));
+    let localSql = sql;
+    urls.forEach((u, i) => { localSql = localSql.replaceAll(u, files[i]); });
+    const limit = QUERY_LIMIT_MS / 1000;
+    let steps;
+    // A glob (proposition*.parquet) can't be fetched with curl -O; fall back to the general instructions.
+    if (urls.length && !urls.some(u => /[*?[]/.test(u))) {
+      steps = '<div class="ehint">Download ' + (urls.length === 1 ? 'the table it reads' : `the ${urls.length} tables it reads`) +
+          ' (about the size listed on <a href="../data-access/parquet/" target="_top">Downloads &rarr; Parquet Files</a>):</div>' +
+        '<pre class="cmd">' + escapeHtml(urls.map(u => `curl -O "${u}"`).join('\n')) + '</pre>' +
+        '<div class="ehint">then start <a href="https://duckdb.org/docs/installation/" target="_blank" rel="noopener">DuckDB</a>' +
+          ' (<code>duckdb</code>) in the same directory and run:</div>' +
+        '<pre class="cmd">' + escapeHtml(localSql.trim()) + '</pre>';
+    } else {
+      steps = '<div class="ehint">Download the tables it reads from <a href="../data-access/parquet/" target="_top">Downloads &rarr; Parquet Files</a>' +
+        ' and run it with <a href="https://duckdb.org/docs/installation/" target="_blank" rel="noopener">DuckDB</a>, naming each file in place of its URL.</div>';
+    }
+    outEl.innerHTML = '<div class="errbox">' +
+        '<div class="eh">&#9888; This query is too large to run live in your browser.</div>' +
+        `<div class="ehint">It was still running after ${limit}&nbsp;seconds, so the console stopped it. Over the network` +
+          ' each part of a big table is a separate request, and the browser tab has little memory. On your own' +
+          ' machine the same query usually takes seconds.</div>' +
+        steps +
+        '<div class="ehint">More: <a href="../parquet/#put-the-file-on-your-machine" target="_top">Put the file on your machine</a>' +
+          ' &middot; <a href="../parquet/performance/#local-or-remote" target="_top">Local or remote</a>.' + MATERIALIZE_LINK + '</div>' +
+      '</div>';
+  }
+
   async function run() {
     if (busy) return;
+    if (!parquetBase) { setStatus(indexError || 'still reading the release index', true); return; }
     const statements = splitStatements(sqlEl.value);
     if (!statements.length) { setStatus('nothing to run', true); return; }
     busy = true;
@@ -359,11 +478,20 @@
       const t0 = performance.now();
       setStatus('running…', false, true);
       let last = null;
-      for (const stmt of statements) { last = await conn.query(stmt); }
+      for (const stmt of statements) {
+        const remaining = QUERY_LIMIT_MS - (performance.now() - t0);
+        last = await withTimeout(conn.query(stmt), remaining);
+      }
       const ms = Math.round(performance.now() - t0);
       renderTable(last);
       setStatus(`done in ${ms.toLocaleString()} ms`);
     } catch (e) {
+      if (e === TIMED_OUT) {
+        resetEngine();
+        renderTooLarge(sqlEl.value);
+        setStatus(`stopped after ${QUERY_LIMIT_MS / 1000}s`, true);
+        return;
+      }
       const raw = (e && (e.message || e.name)) ? (e.message || e.name) : String(e);
       const technical = (e && e.stack) ? String(e.stack) : raw;
       const info = humanizeError(raw);

@@ -28,6 +28,9 @@
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.1/data-access/parquet/</loc>
       </url>
       <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.1/data-access/previous-releases/</loc>
+      </url>
+      <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.1/data-access/release-model/</loc>
       </url>
       <url>
