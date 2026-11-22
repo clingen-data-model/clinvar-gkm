@@ -2,12 +2,20 @@
 
 !!! info "Release"
     File and row-group sizes on this page are from a `gkm-bundle-parquet` 2.0.0 build of the **2026-10-31
-    release**. Timings and peak memory for queries over the full 2.0 tables have not been measured yet; the habits
-    below don't depend on them. Your numbers will differ with the release and your machine.
+    release**. The timings and peak memory in [Materialize the joins you repeat](#materialize-join-tables) were
+    measured on 2026-11-21 against the published 2026-11-15 tables, with the DuckDB 1.5.4 CLI on an Apple M2 Pro
+    laptop (16 GB of memory, 10 cores). Your numbers will differ with the release and your machine.
 
 The 2026-10-31 tables total **4.6 GB**. Eight are over 100 MB: `variation` (1.66 GB), `scv` (784 MB), `allele` (701 MB), `location` (427 MB), `propositionPathogenicity` (401 MB), `evidenceLine` (265 MB), `rcv` (182 MB) and `vcv` (145 MB). The other twelve are each 5 MB or less. A handful of habits keeps queries over the big ones fast on a laptop.
 
 ## What you need { #requirements }
+
+!!! note "Prerequisites"
+    The [DuckDB CLI](https://duckdb.org/docs/installation/), tested with **1.5.4**, run from a directory holding
+    the tables each example names, downloaded from [Downloads → Parquet Files](../data-access/parquet.md#download).
+    The [materialized tables](#materialize-join-tables) need `scv.parquet` and the four `proposition*.parquet`
+    tables (about 1.2 GB), about 3 GB of memory, 0.7 GB of disk for the database file and a little over a minute
+    to build. The table below has the details.
 
 | | |
 | --- | --- |
@@ -98,11 +106,14 @@ The fix is to run the join **once**, store the result as a table sorted by the c
 
 ### Build it
 
-Download the four proposition tables and `scv.parquet` (see [Start Here](index.md#put-the-file-on-your-machine)), then run this in the same directory. It writes a database file, `clinvar-gkm.duckdb`, that persists between sessions:
+Download the four proposition tables and `scv.parquet` (see [Start Here](index.md#put-the-file-on-your-machine)) into one directory. Save the SQL below there as `materialize.sql`, then run it from that directory. It writes a database file, `clinvar-gkm.duckdb`, that persists between sessions:
 
 ```bash
 duckdb clinvar-gkm.duckdb < materialize.sql
 ```
+
+On the test laptop (see the release note at the top) the build took 71 seconds with DuckDB's default settings,
+peaked at about 3 GB of memory, and wrote a 0.65 GB database file.
 
 ```sql
 -- materialize.sql
@@ -139,7 +150,7 @@ Only the columns the questions below need are carried over. Add others, such as 
 
 ### Query it
 
-Each of these reads one small, sorted table, where the same question against the raw Parquet files means a join of two big ones.
+Each of these reads one small, sorted table, where the same question against the raw Parquet files means a join of two big ones. Run them in the database the build wrote (`duckdb clinvar-gkm.duckdb`); each took under half a second.
 
 **By subject (a variant)**
 
@@ -178,7 +189,7 @@ GROUP BY ALL ORDER BY n DESC;
 
 ### The same pattern for the aggregates
 
-VCV and RCV statements join to the same `prop` table. Add this to `materialize.sql` to get every aggregate statement for a variant in one lookup:
+VCV and RCV statements join to the same `prop` table. Add this to `materialize.sql` (it needs `prop` and `vcv.parquet`; 14 seconds on the test laptop) to get every aggregate statement for a variant in one lookup:
 
 ```sql
 CREATE OR REPLACE TABLE vcv_by_variant AS
@@ -194,7 +205,7 @@ For `rcv`, swap in `rcv.parquet`.
 
 ### Share it as a sorted Parquet file
 
-A materialized table can go back out as Parquet. Because the rows are sorted by `variant_id`, DuckDB's per-row-group min/max statistics let a reader skip almost all of the file, the same way the published tables skip by `id`:
+A materialized table can go back out as Parquet. Run this in `clinvar-gkm.duckdb`, which holds `scv_by_variant` (about 3 seconds; a 122 MB file). Because the rows are sorted by `variant_id`, DuckDB's per-row-group min/max statistics let a reader skip almost all of the file, the same way the published tables skip by `id`:
 
 ```sql
 COPY scv_by_variant TO 'scv_by_variant.parquet' (FORMAT parquet);

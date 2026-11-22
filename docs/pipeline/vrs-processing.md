@@ -58,12 +58,12 @@ VRS `SequenceLocation` objects use array-valued `start` and `end` fields to repr
 
 The `vrs-to-vi-location-transformer` Cloud Run job — defined in this project at `src/vrs-location-transformer/` — streams the VRS output through a `jq` filter that flattens each location's `start` and `end` arrays into separate scalar fields: `start`, `start_inner`, `start_outer`, `end`, `end_inner`, `end_outer`. When `start` or `end` is already a scalar (precise variants), the value is left unchanged.
 
-This job is normally invoked by the `src/scripts/vrs-to-bq-table.sh` orchestrator (Step 4 below), not run by hand; the direct invocation is shown for reference:
+This job is normally invoked by the `src/scripts/vrs-to-bq-table.sh` orchestrator (Step 4 below), not run by hand; the direct invocation is shown for reference. It executes a billed Cloud Run job in `clingen-dev` and overwrites `vi-final.jsonl.gz`, so it needs the right to execute Cloud Run jobs there and to write `gs://clinvar-gkm` (see [Export & Distribute: Prerequisites](export.md#prerequisites)):
 
-```bash
-gcloud run jobs execute vrs-to-vi-location-transformer \
-  --args "gs://clinvar-gkm/YYYY-MM-DD/dev/vi-vrs-python.jsonl.gz" \
-  --args "gs://clinvar-gkm/YYYY-MM-DD/dev/vi-final.jsonl.gz" \
+```text
+gcloud run jobs execute vrs-to-vi-location-transformer --project clingen-dev \
+  --args "gs://clinvar-gkm/<yyyy-mm-dd>/dev/vi-vrs-python.jsonl.gz" \
+  --args "gs://clinvar-gkm/<yyyy-mm-dd>/dev/vi-final.jsonl.gz" \
   --wait --region us-east1
 ```
 
@@ -73,10 +73,18 @@ gcloud run jobs execute vrs-to-vi-location-transformer \
 
 The transform + load + downstream procedures are run by `src/scripts/vrs-to-bq-table.sh` (a 3-step script): the Cloud Run transform (Step 3 above), the `gkm_vrs` load, and the gkm_* stored procedures. Export and publish are **not** done here — they are handled separately by `release-gkm.sh` (see [Export & Distribute](export.md)); `run-release.sh` runs this script as its step 2 and then `release-gkm.sh`.
 
-```bash
-./src/scripts/vrs-to-bq-table.sh YYYY-MM-DD          # from the start (Cloud Run transform)
-./src/scripts/vrs-to-bq-table.sh YYYY-MM-DD 2        # resume from a later step (2=load, 3=procs)
+```text
+GKS_FULL=true ./src/scripts/vrs-to-bq-table.sh <yyyy-mm-dd>     # from the start (Cloud Run transform), gkm procs full
+GKS_FULL=true ./src/scripts/vrs-to-bq-table.sh <yyyy-mm-dd> 2   # resume from a later step (2=load, 3=procs)
 ```
+
+!!! warning "Billed, and written to the live dataset"
+    The script runs in `clingen-dev` (set in the script, not read from `PROJECT_ID`) and needs the setup in
+    [Export & Distribute: Prerequisites](export.md#prerequisites). It executes the Cloud Run transform, replaces
+    the release dataset's `gkm_vrs`, and runs the gkm procedures, which bill about 0.2 TiB per full build and replace
+    that dataset's `gkm_*` tables. Run on its own, the script calls the **incremental** procedure wrappers unless
+    `GKS_FULL=true` is set; `run-release.sh --full-procs` sets it. `INCREMENTAL=false` forces a full `--replace`
+    load of `gkm_vrs`.
 
 The `gkm_vrs` load is **incremental**: it clones the prior release's `gkm_vrs` forward and merges in only the changed variations' new results (keyed on `in.variation_id`), rather than a `--replace` full load. It **self-corrects to a full `--replace`** when no baseline `gkm_vrs` exists or when the staged rows are not the changed subset — so a translation of the whole table is loaded correctly without any flag change.
 

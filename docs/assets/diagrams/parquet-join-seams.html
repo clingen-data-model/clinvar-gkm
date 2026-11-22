@@ -214,11 +214,11 @@ LEFT JOIN set_names           sn ON sn.id = CASE WHEN p.object_section = 'condit
 WHERE p.object IN (
     'clinvar.trait:16789', 'clinvar.traitset:10013',
     'clinvar.conditionset:vcv-c620785e2025efde81bdd15c814fa83d')
-ORDER BY p.object_section;</pre>
+ORDER BY p.object_section, p.object;</pre>
 <div class="out">object                       object_section  condition_name
 clinvar.trait:16789          condition       not specified
-clinvar.traitset:10013       conditionSet    GM1 gangliosidosis; Mucopolysaccharidosis, MPS-IV-B
-clinvar.conditionset:vcv-…   conditionSet    Epidermodysplasia verruciformis; Inborn genetic diseases</div>
+clinvar.conditionset:vcv-…   conditionSet    Epidermodysplasia verruciformis; Inborn genetic diseases
+clinvar.traitset:10013       conditionSet    GM1 gangliosidosis; Mucopolysaccharidosis, MPS-IV-B</div>
 </details>
 
 <!-- ============ SEAM C ============ -->

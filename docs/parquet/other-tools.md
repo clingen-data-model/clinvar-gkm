@@ -1,8 +1,9 @@
 # Beyond DuckDB
 
 !!! info "Release"
-    The expected answer is from the **2026-10-31 release**. The Python snippets were run against tables built with
-    `gkm-bundle-parquet` 2.0.0, with Python 3.12, DuckDB 1.5.4, pyarrow 26.0.1, pandas 3.1.1 and polars 2.1.0.
+    The expected answer is from the **2026-10-31 release**. The snippets were run against tables built with
+    `gkm-bundle-parquet` 2.0.0, with Python 3.12, DuckDB 1.5.4, pyarrow 26.0.1, pandas 3.1.1 and polars 2.1.0, and
+    with R 4.6.1, arrow 26.0.1.1 and dplyr 1.2.1.
 
 Parquet is an open format, so any tool that reads it can read these files. This page does the **same small task** in each, so you can compare them: count the expert-panel SCVs by normalized classification, reading only the two fields that needs.
 
@@ -19,6 +20,24 @@ likely benign            2,867
 ```
 
 Whatever the tool, the rule from [Anatomy of a Table](table-anatomy.md#never-select-on-a-big-table) holds: **read only the columns you need.** `scv.parquet` is 784 MB on disk in 2026-10-31, and several times that once loaded whole.
+
+!!! note "Prerequisites"
+    - **Data:** `scv.parquet` (784 MB) in the directory you run from, from
+      [Downloads → Parquet Files](../data-access/parquet.md#download); the spreadsheet example reads
+      `condition.parquet` (2 MB). Each snippet stands alone and reads only two fields; the pyarrow and pandas ones
+      peaked at about 1.4 GB of memory.
+    - **Python** (tested with 3.12): install only the libraries for the snippets you run.
+
+        ```bash
+        python3 -m venv .venv && . .venv/bin/activate
+        pip install "duckdb==1.5.4" "pyarrow==26.0.1" "pandas==3.1.1" "polars==2.1.0"
+        ```
+
+    - **R** (tested with 4.6.1): `install.packages(c("arrow", "dplyr"))`. Where CRAN has no binary for your R,
+      as with Homebrew's R on macOS, arrow compiles from source: set `Sys.setenv(NOT_CRAN = "true",
+      LIBARROW_BINARY = "true")` first so it downloads a prebuilt Arrow C++ library, and expect the install to
+      take 15 minutes or more.
+    - **Command line:** the [DuckDB CLI](https://duckdb.org/docs/installation/), tested with 1.5.4.
 
 ## Python
 
@@ -118,7 +137,7 @@ open_dataset("scv.parquet") |>
   collect()
 ```
 
-The `duckdb` R package is the other route: it runs the SQL from this track unchanged. (The R snippet has not been re-run against the 2.0 tables.)
+The `duckdb` R package is the other route: it runs the SQL from this track unchanged.
 
 ## Spark and cloud warehouses
 

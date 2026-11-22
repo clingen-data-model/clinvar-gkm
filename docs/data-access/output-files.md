@@ -10,13 +10,31 @@ The release file is a `.json.gz` file. The decompressed content is a single JSON
 
 `schema_version` is the first top-level key, and the sections follow in a fixed order. Each record is written on its own line as compact JSON (raw UTF-8) with its object keys **sorted at every depth**, and the lists whose order carries no meaning and is not stable in ClinVar's source — a condition's `aliases` — are written in sorted order, so a record that has not changed has the same bytes in every release. The order of records within a section is not fixed and differs between releases.
 
+!!! note "Prerequisites"
+    - **Python 3** (standard library only; tested with 3.14) and `gunzip`, which macOS and Linux include.
+    - **A bundle.** The examples on this page that load a whole bundle read the **2026-11-15 weekly delta**,
+      `clinvar-gkm-delta_2026-1115.json.gz` (5 MB). Download it into your working directory. Its path changes
+      when its month ends (it moves to `deltas/2026-11/`), so the commands look it up in the line's `index.json`:
+
+        ```bash
+        DELTA=$(curl -fsS https://data.clinvar-gkm.org/v1/1.2/index.json | python3 -c '
+        import json, sys
+        print(next(d["bundle"]["path"] for d in json.load(sys.stdin)["deltas"] if d["release"] == "2026-11-15"))')
+        curl -fO "https://data.clinvar-gkm.org/${DELTA}"
+        ```
+    - **A full bundle is too large to load whole.** It is about 4.9 GB compressed and 68.5 GB decompressed, so
+      `json.load` on it needs far more memory than a laptop has, and decompressing it to disk needs 68.5 GB free.
+      Stream it instead, as in [Count records in a full bundle](#count-records-in-a-full-bundle), or query the
+      [Parquet files](parquet.md).
+
 ```bash
 # Decompress and inspect the top-level keys
-gunzip -c clinvar-gkm_00-latest.json.gz | python3 -c "
+gunzip -c clinvar-gkm-delta_2026-1115.json.gz | python3 -c "
 import json, sys
 data = json.load(sys.stdin)
-for key in data:
-    print(f'{key}: {len(data[key]):,} entries')
+for key, value in data.items():
+    if isinstance(value, dict):  # skip schema_version, a string
+        print(f'{key}: {len(value):,} entries')
 "
 ```
 
@@ -86,11 +104,11 @@ Every bundle has a `<file>.sha256` sidecar. All paths are relative to the line f
 import gzip
 import json
 
-with gzip.open('clinvar-gkm_00-latest.json.gz', 'rt') as f:
+with gzip.open('clinvar-gkm-delta_2026-1115.json.gz', 'rt') as f:
     bundle = json.load(f)
 
-# Look up a specific variation
-variant = bundle['variation']['clinvar:10']
+# Look up a specific variation (one present in this delta)
+variant = bundle['variation']['clinvar:5042639']
 print(variant['name'])
 
 # Resolve a reference
@@ -103,18 +121,40 @@ allele = bundle[section][key]
 
 ```bash
 # Count entries per section
-gunzip -c clinvar-gkm_00-latest.json.gz | python3 -c "
+gunzip -c clinvar-gkm-delta_2026-1115.json.gz | python3 -c "
 import json, sys
 data = json.load(sys.stdin)
-for key in data:
-    print(f'{key}: {len(data[key]):,}')
+for key, value in data.items():
+    if isinstance(value, dict):  # skip schema_version, a string
+        print(f'{key}: {len(value):,}')
 "
 
 # Extract a single variation as pretty-printed JSON
-gunzip -c clinvar-gkm_00-latest.json.gz | python3 -c "
+gunzip -c clinvar-gkm-delta_2026-1115.json.gz | python3 -c "
 import json, sys
 data = json.load(sys.stdin)
-print(json.dumps(data['variation']['clinvar:10'], indent=2))
+print(json.dumps(data['variation']['clinvar:5042639'], indent=2))
+"
+```
+
+### Count records in a full bundle
+
+A full bundle is too large to load whole, but each record is on its own line, so a script can stream it. This
+counts the records of each section of the newest monthly, `clinvar-gkm_00-latest.json.gz` (4.9 GB, from
+[Monthly Full Bundles](monthly-full.md)), in about a minute and 20 MB of memory on a laptop:
+
+```bash
+gunzip -c clinvar-gkm_00-latest.json.gz | python3 -c "
+import sys
+counts = {}
+for line in sys.stdin:
+    if line.startswith('  \"') and line.rstrip().endswith('{'):  # a section opens
+        section = line.split('\"')[1]
+        counts[section] = 0
+    elif line.startswith('    \"'):                            # one record
+        counts[section] += 1
+for section, n in counts.items():
+    print(f'{section}: {n:,}')
 "
 ```
 

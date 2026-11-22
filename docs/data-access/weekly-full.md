@@ -18,17 +18,25 @@ v1/1.2/weekly/
 
 <div class="r2-browser" data-r2-type="weekly"></div>
 
+!!! note "Prerequisites"
+    - **curl**, and **`sha256sum`** (Linux, recent macOS) or **`shasum -a 256`** (any macOS) to check the download.
+    - **Disk.** A weekly full is about 4.9 GB compressed and 68.5 GB decompressed. Read it streamed
+      (`gunzip -c`) rather than decompressing it to disk; see [Output File](output-files.md#count-records-in-a-full-bundle).
+
 ??? example "Download a weekly full with curl"
     ```bash
     # Newest weekly full (stable URL)
-    curl -O https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
+    curl -fO https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
 
-    # Or a specific week of the current month, with its checksum
-    # (the dates of the current month's weekly fulls are in index.json)
-    D="2026-1206"
-    curl -O "https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_${D}.json.gz"
-    curl -O "https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_${D}.json.gz.sha256"
-    sha256sum -c "clinvar-gkm_${D}.json.gz.sha256"      # macOS: shasum -a 256 -c
+    # Or a dated weekly full, with its checksum. index.json lists the current month's weekly fulls
+    # (they are deleted when the month ends); this takes the newest, or pick one by its "release" date.
+    W=$(curl -fsS https://data.clinvar-gkm.org/v1/1.2/index.json | python3 -c '
+    import json, sys
+    weekly = [w for w in json.load(sys.stdin)["datasets"]["weekly"] if not w["latest"]]
+    print(max(weekly, key=lambda w: w["release"])["path"])')
+    curl -fO "https://data.clinvar-gkm.org/${W}"
+    curl -fO "https://data.clinvar-gkm.org/${W}.sha256"
+    sha256sum -c "$(basename "${W}").sha256"      # macOS: shasum -a 256 -c
     ```
 
 !!! tip "Monthly, weekly full, or monthly plus deltas?"
