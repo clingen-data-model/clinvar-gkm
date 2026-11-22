@@ -11,6 +11,12 @@ All 20 tables are generated from the bundle's schema by the same rules, so what 
 
 Every query here except the last two runs in the [live console](index.md#run-a-query-now). Paste it in and replace `'<table>.parquet'` with `'{BASE}/<table>.parquet'`. The last two scan all of `scv.parquet`, so they belong on your machine.
 
+!!! note "Prerequisites"
+    The [DuckDB CLI](https://duckdb.org/docs/installation/), tested with **1.5.4**, run from the directory that
+    holds the tables a query names: `condition.parquet` (2 MB), `scv.parquet` (784 MB), `vcv.parquet` (145 MB)
+    and `allele.parquet` (701 MB), from [Downloads → Parquet Files](../data-access/parquet.md#download). Each
+    query stands alone. The console needs nothing; see [Start Here](index.md#three-queries).
+
 ## Read the schema first
 
 `DESCRIBE` lists a table's columns and types. It reads only the file's footer, so it is instant even on the largest table, locally or over the network.
@@ -75,15 +81,18 @@ LIMIT 5;
 The same goes for `strength`, `quality`, and `condition.primaryCoding`:
 
 ```sql
-SELECT id, name, primaryCoding.code AS medgen_cui, aliases[1] AS first_alias, len(aliases) AS n_aliases
+SELECT id, name, primaryCoding.code AS medgen_cui, list_sort(aliases)[1] AS first_alias, len(aliases) AS n_aliases
 FROM 'condition.parquet'
 WHERE name = 'Marfan syndrome';
 ```
 
 ```text
-id                  name             medgen_cui  first_alias              n_aliases
-clinvar.trait:2645  Marfan syndrome  C0024796    MARFAN SYNDROME, TYPE I          5
+id                  name             medgen_cui  first_alias                   n_aliases
+clinvar.trait:2645  Marfan syndrome  C0024796    FBN1-Related Marfan Syndrome          5
 ```
+
+The order of a list such as `aliases` isn't guaranteed from one release to the next, so the query sorts it
+(`list_sort`) before taking the first element.
 
 ## Extensions { #extensions }
 
@@ -121,9 +130,9 @@ A few deeply nested positions are kept as **JSON text** instead, because the sch
 SELECT s.id,
        json_extract_string(c, '$.medgen_id')        AS medgen_id,
        json_extract_string(c, '$.normalized_match') AS condition_id
-FROM 'scv.parquet' s,
-     unnest([e.value_object.concepts FOR e IN s.extensions IF e.name = 'submittedConditionSet'][1]) AS t(c)
-WHERE s.id = 'clinvar.submission:SCV000893709.1';
+FROM (SELECT id, extensions FROM 'scv.parquet'
+      WHERE id = 'clinvar.submission:SCV000893709.1') s,   -- filter first, then unnest
+     unnest([e.value_object.concepts FOR e IN s.extensions IF e.name = 'submittedConditionSet'][1]) AS t(c);
 ```
 
 ```text
@@ -133,8 +142,12 @@ clinvar.submission:SCV000893709.1  C2673520   clinvar.trait:5535
 clinvar.submission:SCV000893709.1  C3469186   clinvar.trait:9582
 clinvar.submission:SCV000893709.1  C0162532   clinvar.trait:3370
 clinvar.submission:SCV000893709.1  C0268323   clinvar.trait:9601
-clinvar.submission:SCV000893709.1             clinvar.trait:222
+clinvar.submission:SCV000893709.1  NULL       clinvar.trait:222
 ```
+
+The `id` filter sits in a subquery so DuckDB applies it before the `unnest`, reading one row group of
+`scv.parquet`. With `WHERE s.id = …` after the `unnest` instead, it unnests every row first: the same answer,
+but a scan of all of `scv.parquet` (about 30 seconds locally, over a minute from the URL).
 
 ## The whole record { #whole-records }
 

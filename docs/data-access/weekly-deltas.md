@@ -22,15 +22,24 @@ v1/1.2/deltas/
 
 A delta's folder changes when its month or year rolls over; its file name and bytes do not. The line's `index.json` lists every delta with its current `bundle.path` and `manifest` path, so look paths up there rather than composing them. Deltas carry no Parquet: Parquet is derived and published only for the latest release ([Parquet Files](parquet.md)).
 
+!!! note "Prerequisites"
+    - **curl** and **`sha256sum`** (Linux, recent macOS) or **`shasum -a 256`** (any macOS), for the shell example.
+    - **Python 3**, standard library only (tested with 3.14), for the Python examples.
+    - A delta is a few MB to about 60 MB. The [replay recipe](#rebuild-a-past-week) also downloads a monthly full (4.9 GB compressed, 68.5 GB decompressed) and holds it in memory as Python objects, which needs several hundred GB of memory: it shows the logic, and real use streams the sections to disk or a database.
+
 ??? example "Download a weekly delta with curl / Python"
     ```bash
-    # A delta of the current month (its date is in index.json), its checksum and its manifest
-    BASE="https://data.clinvar-gkm.org/v1/1.2/deltas"
-    D="2026-1206"
-    curl -O "${BASE}/clinvar-gkm-delta_${D}.json.gz"
-    curl -O "${BASE}/clinvar-gkm-delta_${D}.json.gz.sha256"
-    curl -O "${BASE}/clinvar-gkm-delta_${D}.manifest.json"
-    sha256sum -c "clinvar-gkm-delta_${D}.json.gz.sha256"   # macOS: shasum -a 256 -c
+    # The newest delta, its checksum and its manifest. index.json lists every delta with its current path
+    # (a delta moves to its month's folder when the month ends); pick another by its "release" date.
+    HOST="https://data.clinvar-gkm.org"
+    read -r BUNDLE MANIFEST <<< "$(curl -fsS "${HOST}/v1/1.2/index.json" | python3 -c '
+    import json, sys
+    d = max(json.load(sys.stdin)["deltas"], key=lambda d: d["release"])
+    print(d["bundle"]["path"], d["manifest"])')"
+    curl -fO "${HOST}/${BUNDLE}"
+    curl -fO "${HOST}/${BUNDLE}.sha256"
+    curl -fO "${HOST}/${MANIFEST}"
+    sha256sum -c "$(basename "${BUNDLE}").sha256"   # macOS: shasum -a 256 -c
     ```
 
     ```python

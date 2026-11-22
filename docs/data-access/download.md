@@ -19,10 +19,10 @@ ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas
 
 <noscript>
 The interactive release table needs JavaScript. Without it, fetch the release index directly:
-<code>curl -s https://data.clinvar-gkm.org/v1/1.2/index.json | python3 -m json.tool</code>
+<code>curl -fsS https://data.clinvar-gkm.org/v1/1.2/index.json | python3 -m json.tool</code>
 — or grab the newest monthly and weekly fulls:
-<code>curl -O https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz</code>
-<code>curl -O https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz</code>
+<code>curl -fO https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz</code>
+<code>curl -fO https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz</code>
 </noscript>
 
 Browse history and archives: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-full.md) · [Weekly Deltas](weekly-deltas.md) · [Parquet Files](parquet.md). Earlier release lines: [Previous Releases](previous-releases.md).
@@ -37,7 +37,7 @@ These docs describe the current line, `v1/1.2/`. The release lines frozen **befo
 
 <noscript>
 The list of earlier lines needs JavaScript. Without it, read the root version manifest, which lists every line, its status and the path of its own index:
-<code>curl -s https://data.clinvar-gkm.org/index.json | python3 -m json.tool</code>
+<code>curl -fsS https://data.clinvar-gkm.org/index.json | python3 -m json.tool</code>
 </noscript>
 
 ---

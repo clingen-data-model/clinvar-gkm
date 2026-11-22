@@ -10,6 +10,15 @@ Each recipe answers one question: the question in plain language, a query you ca
 
 Change the line marked `-- <-` to ask about your own variant, condition, gene or submitter. [Joining Tables](joining.md) explains each join used here.
 
+!!! note "Prerequisites"
+    - **[DuckDB CLI](https://duckdb.org/docs/installation/)**, tested with **1.5.4**. No extension is needed.
+    - **All 20 tables in one folder**, about 4.6 GB: download them with the loop on
+      [Parquet Files → Download](../data-access/parquet.md#download), then start `duckdb` in that folder. The
+      queries name each table by its file name (`'scv.parquet'`) and read the four proposition tables with the
+      glob `proposition*.parquet`.
+    - Each recipe stands alone. Most finish in a few seconds; the three that read every variant's gene or HGVS
+      list take about a minute.
+
 | Recipe | Tables it reads |
 | --- | --- |
 | [Everything ClinVar says about one variant](#one-variant) | `variation` or `allele`, the propositions, `vcv`, `rcv`, `scv`, `submitter`, `condition`, `conditionSet` |
@@ -42,7 +51,7 @@ id             name
 clinvar:51592  NM_000059.4(BRCA2):c.4090A>C (p.Ile1364Leu)
 ```
 
-This scans every variant's HGVS list, the largest part of the 1.66 GB `variation.parquet`. For a GRCh38 genomic expression the allele table is much faster, because it is a short string column:
+This scans every variant's HGVS list, the largest part of the 1.66 GB `variation.parquet`, and takes about a minute. For a GRCh38 genomic expression the allele table is much faster, because it is a short string column:
 
 ```sql
 SELECT v.id, v.name
@@ -385,7 +394,7 @@ Pathogenic/Likely pathogenic                        95
 …
 ```
 
-Nearly all the work is reading the gene lists in `variation.parquet`. The `relationship_type` filter drops large copy-number variants that merely overlap the gene and variants near it; remove it to include them.
+Nearly all the work, about a minute, is reading the gene lists in `variation.parquet`. The `relationship_type` filter drops large copy-number variants that merely overlap the gene and variants near it; remove it to include them.
 
 !!! tip "Reach into nested lists with `[… FOR … IN …]`, not `unnest`"
     The gene filter above uses a list comprehension. Written instead with `unnest(extensions)` and
@@ -426,7 +435,7 @@ GROUP BY ALL
 ORDER BY v.id, c.pmid;
 ```
 
-One row per (variant, PubMed id). For MYH7 that is 6,980 rows in 2026-10-31, covering 1,695 variants and 1,095 distinct PubMed ids. For a list of distinct PubMed ids instead, wrap the final `SELECT` and group by `pmid`.
+One row per (variant, PubMed id). For MYH7 that is 6,980 rows in 2026-10-31, covering 1,695 variants and 1,095 distinct PubMed ids. For a list of distinct PubMed ids instead, wrap the final `SELECT` and group by `pmid`. Like the rollup, it takes about a minute, nearly all of it reading the gene lists.
 
 ## Export a slice to CSV or Parquet { #export }
 
