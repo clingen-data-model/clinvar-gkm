@@ -12,6 +12,14 @@ The 20 tables connect in five places, the **seams**. Two are plain foreign keys.
 
 Every query on this page runs against **downloaded** files; the joins read the larger tables, which is too much for the [live console](index.md#run-a-query-now). Each table name links to its entry in the [column reference](tables.md#column-reference).
 
+!!! note "Prerequisites"
+    The [DuckDB CLI](https://duckdb.org/docs/installation/), tested with **1.5.4**, run from a directory holding
+    the tables from [Downloads → Parquet Files](../data-access/parquet.md#download). Between them the queries read
+    `variation`, the four `proposition*` tables, `condition`, `conditionSet`, `scv`, `rcv`, `vcv` and
+    `evidenceLine`: about 3.5 GB of the 4.6 GB set. Each query stands alone, and each finishes in seconds on a
+    laptop; the heaviest, the whole-release count in [Seam C](#seam-c-proposition-statements-1-1), took 5 seconds
+    and under 2 GB of memory with 4 threads on a 16 GB Apple M2 Pro.
+
 ## Seam A · Variant → Proposition
 
 Every proposition has a subject, and every subject is a [`variation`](tables.md#variation) id: 28,192,371 references in 2026-10-31. One glob reads the four proposition tables as a single table; `union_by_name = true` lines up their [different columns](tables.md#proposition-columns), and `filename = true` adds the file each row came from:
@@ -25,7 +33,7 @@ FROM 'variation.parquet' v
 JOIN read_parquet('proposition*.parquet', union_by_name = true, filename = true) p ON p.subject = v.id
 WHERE v.id = 'clinvar:10'
 GROUP BY ALL
-ORDER BY propositions DESC;
+ORDER BY propositions DESC, p.type;
 ```
 
 ```text

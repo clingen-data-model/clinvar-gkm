@@ -41,7 +41,17 @@ as a full release, containing only the objects the requested statements need.
 - Access to a **built** release dataset — one that has the `gkm_dict_*` tables from a completed
   release (`run-release.sh` step 2). The script reads BigQuery directly; it does not operate on a published
   `.json.gz` bundle.
-- The `bq` CLI authenticated to the dataset's project.
+- The `bq` CLI authenticated to the dataset's project (`gcloud auth login`), with the right to run query jobs
+  there (BigQuery Job User) and read the dataset. See
+  [Export & Distribute: Prerequisites](export.md#prerequisites) for the shared setup.
+- Python 3 (standard library only), run from the root of a clone of this repository: the script reads the
+  bundle schema in `schema/clinvar-gkm/`.
+
+!!! warning "Billed queries"
+    Every run issues BigQuery queries, which are billed by the bytes they read. Each fetch reads whole rows of its
+    table, so a run reads every table it touches in full, whatever the number of ids: about 25 GB for SCVs (mostly
+    `gkm_dict_scv` and `gkm_dict_variation`, about 10 GB each), and up to about 40 GB when VCVs or RCVs are
+    included (sizes of the 2026-08-16 dataset). The `bq query` in the last example below reads about 1 GB.
 
 ---
 
@@ -73,31 +83,34 @@ keys once and split them across several `--ids-file` runs (see the last example)
 
 ### Examples
 
-```bash
+```text
+# A built release dataset of the current line, e.g. the newest release's
+DATASET=clinvar_<yyyy>_<mm>_<dd>_<version>
+
 # A few statements, mixed types, to one bundle file
-python3 src/scripts/sub-bundle.py --dataset clinvar_2026_08_16_v2_5_0 \
+python3 src/scripts/sub-bundle.py --dataset "$DATASET" \
     SCV004101425.2 VCV000012582.63-G-PATH-CP RCV000012345.8-G-PATH-CP -o bundle.json
 
 # Identifiers from a file
-python3 src/scripts/sub-bundle.py --dataset clinvar_2026_08_16_v2_5_0 \
+python3 src/scripts/sub-bundle.py --dataset "$DATASET" \
     --ids-file ids.txt -o bundle.json
 
 # Identifiers piped on stdin
-cat ids.txt | python3 src/scripts/sub-bundle.py --dataset clinvar_2026_08_16_v2_5_0 -
+cat ids.txt | python3 src/scripts/sub-bundle.py --dataset "$DATASET" -
 
 # Every SCV from a submitter (e.g. 196472 = IGM Clinical Laboratory, Nationwide Children's Hospital)
-python3 src/scripts/sub-bundle.py --dataset clinvar_2026_08_16_v2_5_0 \
+python3 src/scripts/sub-bundle.py --dataset "$DATASET" \
     --submitter 196472 -o nch-igm.json
 
 # A large submitter split across two bundles: list the SCV keys, split, bundle each half
 bq query --project_id=clingen-dev --use_legacy_sql=false --format=csv --quiet --max_rows=100000 \
-  "SELECT id FROM \`clinvar_2026_08_16_v2_5_0.gkm_dict_scv\`
+  "SELECT id FROM \`${DATASET}.gkm_dict_scv\`
    WHERE EXISTS(SELECT 1 FROM UNNEST(contributions) c
                 WHERE c.contributor='#/submitter/clinvar.submitter:196472')
    ORDER BY id" | tail -n +2 > nch_scvs.txt
-split -n l/2 nch_scvs.txt nch_half_
-python3 src/scripts/sub-bundle.py --dataset clinvar_2026_08_16_v2_5_0 --ids-file nch_half_aa -o nch-1.json
-python3 src/scripts/sub-bundle.py --dataset clinvar_2026_08_16_v2_5_0 --ids-file nch_half_ab -o nch-2.json
+split -l $(( ($(wc -l < nch_scvs.txt) + 1) / 2 )) nch_scvs.txt nch_half_   # two halves; portable (macOS and Linux)
+python3 src/scripts/sub-bundle.py --dataset "$DATASET" --ids-file nch_half_aa -o nch-1.json
+python3 src/scripts/sub-bundle.py --dataset "$DATASET" --ids-file nch_half_ab -o nch-2.json
 ```
 
 ---

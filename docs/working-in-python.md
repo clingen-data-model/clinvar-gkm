@@ -13,24 +13,41 @@ It assumes the bundle layout described in [Output Format](output-reference/overv
 [The 20 Tables](parquet/tables.md).
 
 !!! info "Tested with"
-    Every code block on this page was run on **2026-11-18** with:
+    Every code block on this page was run on **2026-11-21** with:
 
-    - Python 3.12.8, `ga4gh.vrs` 2.4.0a6, `ga4gh.cat_vrs` 0.8.0a6, `ga4gh.va_spec` 0.5.0a7, `ga4gh.gkm` 0.4.1,
-      `pydantic` 2.14.3, `duckdb` 1.5.4, `pyarrow` 26.0.1, `ijson` 3.6.0, `gkm-bundle-parquet` 2.0.0, and the
-      ClinVar-GKM schema tree at tag `1.1.0`.
-    - **Bundle examples:** 1.1.0 data, the sample bundle and the 2026-10-18 weekly delta.
-    - **Parquet examples:** 2.0 tables built by `gkm-bundle-parquet` 2.0.0 from four variants of the 2026-10-31
-      release (built as schema 1.2.0), and a mini-bundle cut from that release. The published set at
-      `v1/1.2/parquet/` has the same columns and more rows.
+    - Python 3.14.5 (an earlier run, on 1.1.0 data, used 3.12.8), `ga4gh.vrs` 2.4.0a6, `ga4gh.cat_vrs`
+      0.8.0a6, `ga4gh.va_spec` 0.5.0a7, `ga4gh.gkm` 0.4.1, `pydantic` 2.14.4, `duckdb` 1.5.4, `pyarrow`
+      26.0.1, `ijson` 3.6.0, `requests` 2.34.2, `gkm-bundle-parquet` 2.0.0 (through uv 0.6.14), and the
+      ClinVar-GKM schema tree at tag `1.2.0`.
+    - **Bundle examples:** 1.2.0 data, the 2026-11-15 weekly delta.
+    - **Parquet examples:** the published 2.0 tables at `v1/1.2/parquet/` (2026-11-15 release), and a mini-bundle
+      cut from the 2026-11 full bundle.
 
     The Parquet files are written with DuckDB 1.5.4: the `duckdb_version` in their `manifest.json`.
+
+!!! note "Prerequisites"
+    - **Python 3.11 or later** (the model libraries need 3.10, `ga4gh.gkm` 3.11), with the packages in
+      [Install](#install).
+    - **git**, to get the schema tree for [Validate a bundle](#validate-a-bundle).
+    - **[uv](https://docs.astral.sh/uv/getting-started/installation/)**, for `uvx gkm-bundle-parquet` in
+      [Statements, propositions and variants](#statements-propositions-and-variants), or
+      `pip install gkm-bundle-parquet==2.0.0` instead.
+    - **Network access** to `data.clinvar-gkm.org` (the delta, and the Parquet tables, which the examples read
+      remotely) and `w3id.org` (schemas fetched on demand).
+    - **Data:** the 5 MB weekly delta from [Get the example files](#get-the-example-files). Only the
+      `gkm-bundle-parquet select` example reads a full bundle: 4.9 GB compressed (68.5 GB decompressed), streamed
+      from disk, about 10 minutes.
+
+    Run the Python blocks in order, in one Python session: each block uses the names (`bundle`, `resolve`, `scv`,
+    `vrs`, `rows`, …) defined by the blocks before it.
 
 ---
 
 ## Install
 
-ClinVar-GKM 1.1.0 is written to **VRS 2.1.1**, **Cat-VRS 1.1.1**, **VA-Spec 1.1.0** and **GKM-Core 1.3.0**.
-The library releases that implement exactly those versions are, as of this writing, **pre-releases**:
+ClinVar-GKM 1.2.0, like 1.1.0, is written to **VRS 2.1.1**, **Cat-VRS 1.1.1**, **VA-Spec 1.1.0** and
+**GKM-Core 1.3.0**, so the same library versions read both. The library releases that implement exactly those
+versions are, as of this writing, **pre-releases**:
 
 | Package | Version | Implements | Provides |
 | --- | --- | --- | --- |
@@ -40,7 +57,7 @@ The library releases that implement exactly those versions are, as of this writi
 | `ga4gh.gkm` | 0.4.1 | — | the GKM Toolkit; `validate_bundle_schema` for [validating a bundle](#validate-a-bundle) |
 
 The latest stable releases (`ga4gh.vrs` 2.3.3, `ga4gh.cat_vrs` 0.7.2, `ga4gh.va_spec` 0.4.4) implement older
-schema versions (VRS 2.0.1, Cat-VRS 1.0.0, VA-Spec 1.0.1) and reject most 1.1.0 records, so pin the
+schema versions (VRS 2.0.1, Cat-VRS 1.0.0, VA-Spec 1.0.1) and reject most ClinVar-GKM records, so pin the
 pre-releases. The libraries require Python 3.10 or later, and `ga4gh.gkm` 3.11 or later. `ga4gh.gkm` 0.4.1 pins
 the same three pre-releases.
 
@@ -48,7 +65,7 @@ the same three pre-releases.
 python3 -m venv .venv
 . .venv/bin/activate
 pip install -q "ga4gh.vrs==2.4.0a6" "ga4gh.cat_vrs==0.8.0a6" "ga4gh.va_spec==0.5.0a7" "ga4gh.gkm==0.4.1"
-pip install -q "duckdb==1.5.4" pyarrow ijson    # for the Parquet and streaming examples
+pip install -q "duckdb==1.5.4" pyarrow ijson requests    # Parquet, streaming and schema-fetching examples
 ```
 
 Check what is installed and which schema versions the libraries implement:
@@ -78,20 +95,26 @@ VRS 2.1.1, Cat-VRS 1.1.1, VA-Spec 1.1.0, GKM-Core 1.3.0
 
 ## Get the example files
 
-The examples use two small files:
+The bundle examples use one small file, **`clinvar-gkm-delta_2026-1115.json.gz`** (5 MB): the published
+2026-11-15 [weekly delta](data-access/weekly-deltas.md), a 1.2.0 bundle of every record that changed that week.
 
-- **`nch-igm-bundle.json.gz`** (1.6 MB): a self-contained 1.1.0 sub-bundle of every SCV from one submitter
-  (IGM Clinical Laboratory, Nationwide Children's Hospital) and everything those SCVs reference, cut from
-  the 2026-10-18 release with [Sub-Bundle Extraction](pipeline/sub-bundle.md). Every pointer in it
-  resolves inside the file.
-- **`clinvar-gkm-delta_2026-1018.json.gz`** (24 MB): the published 2026-10-18 [weekly delta](data-access/weekly-deltas.md).
+Its path changes when its month ends (it moves to `deltas/2026-11/`), so the commands look it up in the line's
+`index.json`:
 
 ```bash
-curl -sLO https://github.com/clingen-data-model/clinvar-gkm/raw/main/nch-igm-bundle.json.gz
-curl -sO https://data.clinvar-gkm.org/v1/1.1/deltas/clinvar-gkm-delta_2026-1018.json.gz
+DELTA=$(curl -fsS https://data.clinvar-gkm.org/v1/1.2/index.json | python3 -c '
+import json, sys
+print(next(d["bundle"]["path"] for d in json.load(sys.stdin)["deltas"] if d["release"] == "2026-11-15"))')
+curl -fsO "https://data.clinvar-gkm.org/${DELTA}"
 ```
 
-The full bundles are about 4.8 GB compressed. Don't `json.load` one; see [Large bundles](#large-bundles).
+The full bundles are about 4.9 GB compressed (68.5 GB decompressed). Don't `json.load` one; see
+[Large bundles](#large-bundles).
+
+The repository also has **`nch-igm-bundle.json.gz`** (1.6 MB), a self-contained 1.1.0 sub-bundle of every SCV
+from one submitter, cut with [Sub-Bundle Extraction](pipeline/sub-bundle.md), in which every pointer resolves
+inside the file (`curl -fsLO https://github.com/clingen-data-model/clinvar-gkm/raw/main/nch-igm-bundle.json.gz`).
+The same libraries read it; validate it against the schema tree at tag `1.1.0`, not `1.2.0`.
 
 ---
 
@@ -103,7 +126,7 @@ A bundle is one JSON object whose sections map an id to a record. `json.load` is
 import gzip
 import json
 
-with gzip.open("nch-igm-bundle.json.gz", "rt") as f:
+with gzip.open("clinvar-gkm-delta_2026-1115.json.gz", "rt") as f:
     bundle = json.load(f)
 
 print(bundle["schema_version"])
@@ -117,41 +140,46 @@ def resolve(pointer):
 ```
 
 ```text
-1.1.0
-{'sequenceReference': 24, 'location': 1913, 'allele': 2027, 'copyNumberChange': 1, 'gene': 460, 'variation': 2032, 'condition': 390, 'conditionSet': 33, 'submitter': 1, 'propositionPathogenicity': 943, 'propositionSomaticClinicalImpact': 2994, 'propositionClinvarCustom': 3, 'evidenceLine': 1497, 'scv': 2443}
+1.2.0
+{'location': 176, 'allele': 230, 'copyNumberChange': 3, 'gene': 5, 'variation': 5471, 'condition': 190, 'conditionSet': 138, 'submitter': 10, 'propositionPathogenicity': 3399, 'propositionClinvarCustom': 325, 'evidenceLine': 6064, 'scv': 17562, 'vcv': 2941, 'rcv': 2548}
 ```
 
-Records point to each other with `#/section/id` strings. Follow one SCV down to its reference sequence:
-statement → proposition → variation → defining allele → location → sequence reference.
+Records point to each other with `#/section/id` strings. Continuing from the block above (`bundle`,
+`resolve`), follow one SCV down toward its reference sequence: statement → proposition → variation → defining
+allele → location → sequence reference.
 
 ```python
-scv = bundle["scv"]["clinvar.submission:SCV000864262.1"]
+scv = bundle["scv"]["clinvar.submission:SCV008145211.1"]
 proposition = resolve(scv["proposition"])
 variation = resolve(proposition["subject"])
 allele = resolve(variation["constraints"][0]["allele"])
 location = resolve(allele["location"])
-sequence = resolve(location["sequenceReference"])
 
 print(scv["classification"]["name"], "|", resolve(scv["contributions"][0]["contributor"])["name"])
 print(proposition["type"], proposition["predicate"], "->", resolve(proposition["object"])["name"])
 print(variation["id"], variation["name"])
 print(allele["id"], allele["name"])
 print(location["id"], location["start"], location["end"])
-print(sequence["refgetAccession"], sequence["name"])
+print(location["sequenceReference"], "| sequenceReference section in the delta:", "sequenceReference" in bundle)
+
+# The delta has no sequenceReference section. A sequenceReference key is the sequence's refget accession,
+# and that, with the type, is all a VRS identifier uses of it (see the next section)
+sequence = {"type": "SequenceReference", "refgetAccession": location["sequenceReference"].rsplit("/", 1)[1]}
 ```
 
 ```text
-Benign | Institute for Genomic Medicine (IGM) Clinical Laboratory, Nationwide Children's Hospital
-VariantPathogenicityProposition isCausalFor -> not specified
-clinvar:599425 NM_018486.3(HDAC8):c.20C>T (p.Pro7Leu)
-ga4gh:VA.yXEFCuYP7t_V3ALpYIMvWTy4PhfvT8ts NC_000023.11:g.72572742G>A
-ga4gh:SL.sk5GccwF1vh_M4zGnjDYkoYNGrRKc6uW 72572741 72572742
-SQ.w0WZEvgJF0zf_P4yyTzjjv9oW1z61HHP NC_000023.11
+Likely pathogenic | Department of Ophthalmology, Seoul National University Bundang Hospital
+VariantPathogenicityProposition isCausalFor -> RP1-related dominant retinopathy
+clinvar:5042631 NM_006269.2(RP1):c.2238_2239del (p.Lys746_Ser747insTer)
+ga4gh:VA.1Oo5_TVyd33l8M9QsAac-ULaZR86hDCx NC_000008.11:g.54626120_54626121del
+ga4gh:SL.sF-Pr6l0-_uRAtk8bv9UzOPYvr6TK9IC 54626117 54626121
+#/sequenceReference/SQ.209Z7zJ-mFypBEWLk4rNC6S_OxY5p7bs | sequenceReference section in the delta: False
 ```
 
 !!! note "A delta is not self-contained"
     A weekly delta carries only the records that changed, so its pointers can name records that are only in
-    the full bundle it applies to. The 2026-10-18 delta, for example, has no `sequenceReference` section.
+    the full bundle it applies to. The 2026-11-15 delta, for example, has no `sequenceReference` section, and
+    57 of its alleles and copy-number changes point to a `location` that is only in the full bundle.
     Resolve a delta's pointers against the full bundle after [applying the delta](data-access/weekly-deltas.md).
 
 ---
@@ -162,6 +190,8 @@ Each section's records, except the ClinVar custom propositions, validate as one 
 field allows a reference: the models type it as `iriReference`, and its `.root` holds the pointer.
 
 ### VRS alleles and their identifiers
+
+Continuing from the pointer walk above (`allele`, `location`, `sequence`):
 
 ```python
 from ga4gh.core import ga4gh_identify
@@ -182,18 +212,19 @@ print(ga4gh_identify(fresh), ga4gh_identify(fresh) == allele["id"])
 ```
 
 ```text
-iriReference #/location/ga4gh:SL.sk5GccwF1vh_M4zGnjDYkoYNGrRKc6uW
-ga4gh:VA.yXEFCuYP7t_V3ALpYIMvWTy4PhfvT8ts True
+iriReference #/location/ga4gh:SL.sF-Pr6l0-_uRAtk8bv9UzOPYvr6TK9IC
+ga4gh:VA.1Oo5_TVyd33l8M9QsAac-ULaZR86hDCx True
 ```
 
 `ga4gh_identify` needs the location inline: the allele's digest is computed over its location's digest, and
-the location's over its sequence reference. Recomputed this way, all 2,027 allele ids and the one
-`copyNumberChange` id in the sample match the published ids.
+the location's over its sequence reference, of which it uses only `type` and `refgetAccession`. Recomputed this
+way, every `allele` and `copyNumberChange` id in the delta whose location is also in the delta (176 of 233)
+matches the published id.
 
 ### Cat-VRS categorical variants
 
 A `variation` record is a Cat-VRS `CategoricalVariant`. Its defining constraint points to an `allele` (or, for
-copy-number variants, a `location`) record:
+copy-number variants, a `location`) record. Continuing with `variation` from the pointer walk:
 
 ```python
 from ga4gh.cat_vrs import models as catvrs
@@ -206,12 +237,14 @@ print({e.name: e.value for e in categorical.extensions if isinstance(e.value, st
 ```
 
 ```text
-DefiningAlleleConstraint #/allele/ga4gh:VA.yXEFCuYP7t_V3ALpYIMvWTy4PhfvT8ts
+DefiningAlleleConstraint #/allele/ga4gh:VA.1Oo5_TVyd33l8M9QsAac-ULaZR86hDCx
 ['liftover_to', 'transcribed_to']
-{'categoricalVariationType': 'CanonicalAllele', 'definingVrsVariationType': 'Allele', 'clinvarVariationType': 'single nucleotide variant', 'clinvarSubclassType': 'SimpleAllele', 'clinvarCytogeneticLocation': 'Xq13.1'}
+{'categoricalVariationType': 'CanonicalAllele', 'definingVrsVariationType': 'Allele', 'clinvarVariationType': 'Deletion', 'clinvarSubclassType': 'SimpleAllele', 'clinvarCytogeneticLocation': '8q12.1'}
 ```
 
 ### VA-Spec propositions and statements
+
+Continuing with `proposition` and `scv` from the pointer walk:
 
 ```python
 from ga4gh.va_spec import base as va
@@ -225,9 +258,9 @@ print([e.name for e in statement.extensions])
 ```
 
 ```text
-isCausalFor #/variation/clinvar:599425 #/condition/clinvar.trait:16789
-disputes Definitive benign
-#/propositionPathogenicity/SCV000864262-PATH
+isCausalFor #/variation/clinvar:5042631 #/condition/clinvar.trait:66395
+supports Likely likely pathogenic
+#/propositionPathogenicity/SCV008145211-PATH
 ['clinvarScvId', 'clinvarScvVersion', 'submittedCondition', 'clinvarScvReviewStatus', 'submittedScvLocalKey', 'submissionLevel']
 ```
 
@@ -253,25 +286,27 @@ Records in the `scv`, `vcv` and `rcv` sections load as `Statement`, and `evidenc
 
 The [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) (`ga4gh.gkm`) validates a
 producer's bundle against that producer's schemas. That is its intended way to validate producer data: you supply
-the schemas, and it checks every record against them. Validation works on ClinVar-GKM 1.1.0 bundles today; the
-toolkit's loader does not yet read them (see [Loading bundles](#loading-bundles)).
+the schemas, and it checks every record against them. Validation works on ClinVar-GKM 1.2.0 and 1.1.0 bundles
+today; the toolkit's loader does not yet read them (see [Loading bundles](#loading-bundles)).
 
 ### Validate a bundle { #validate-a-bundle }
 
-The 1.1.0 release was validated this way: `validate_bundle_schema` with a `validator=` whose `referencing`
-registry holds the ClinVar-GKM 1.1.0 schemas and the GA4GH schemas they reference, taken from the
-`schema/` tree of this repository at tag `1.1.0`. [Release Validation](reference/release-validation.md) lists
-the results, and its [verification reports](reference/release-validation.md#verification-reports) record, per
+Call `validate_bundle_schema` with a `validator=` whose `referencing` registry holds the ClinVar-GKM 1.2.0
+schemas and the GA4GH schemas they reference, taken from the `schema/` tree of this repository at tag `1.2.0`
+(for a 1.1.0 bundle, use tag `1.1.0`). The release checks use the same schemas;
+[Release Validation](reference/release-validation.md) lists the results, and its
+[verification reports](reference/release-validation.md#verification-reports) record, per
 published file, the schemas and tool versions used.
 
 Get the schema tree. The GA4GH schemas come in through the `va-spec` submodule:
 
 ```bash
-git clone -q --depth 1 --branch 1.1.0 --recurse-submodules --shallow-submodules \
-    https://github.com/clingen-data-model/clinvar-gkm.git clinvar-gkm-1.1.0
+git -c advice.detachedHead=false clone -q --depth 1 --branch 1.2.0 --recurse-submodules --shallow-submodules \
+    https://github.com/clingen-data-model/clinvar-gkm.git clinvar-gkm-1.2.0
 ```
 
-Register every schema in the tree by its `$id`, then validate:
+Register every schema in the tree by its `$id`, then validate the delta (`bundle`, and `scv` from the pointer
+walk):
 
 ```python
 import os
@@ -283,9 +318,9 @@ from referencing import Registry, Resource
 from ga4gh.gkm.bundles import BundleValidationError
 from ga4gh.gkm.bundles.schema_validation import validate_bundle_schema
 
-# Every schema in the 1.1.0 tree, keyed by $id: ClinVar-GKM's own and the GA4GH schemas they reference
+# Every schema in the 1.2.0 tree, keyed by $id: ClinVar-GKM's own and the GA4GH schemas they reference
 schemas = {}
-for directory, _, files in os.walk("clinvar-gkm-1.1.0/schema", followlinks=True):
+for directory, _, files in os.walk("clinvar-gkm-1.2.0/schema", followlinks=True):
     for name in files:
         try:
             document = json.loads(Path(directory, name).read_text())
@@ -295,13 +330,17 @@ for directory, _, files in os.walk("clinvar-gkm-1.1.0/schema", followlinks=True)
             schemas[document["$id"]] = Resource.from_contents(document)
 print(sorted(Counter("/".join(uri.split("/")[5:7]) for uri in schemas).items()))
 
-bundle_schema = json.loads(Path("clinvar-gkm-1.1.0/schema/clinvar-gkm/clinvar-gkm-bundle.schema.json").read_text())
+bundle_schema = json.loads(Path("clinvar-gkm-1.2.0/schema/clinvar-gkm/clinvar-gkm-bundle.schema.json").read_text())
 validator = Draft202012Validator(bundle_schema, registry=Registry().with_resources(schemas.items()))
 
-validate_bundle_schema(bundle, bundle_schema, validator=validator)  # raises BundleValidationError on a violation
-print("valid:", sum(len(records) for records in bundle.values() if isinstance(records, dict)), "records")
+# The first 100 records of each section: the whole delta takes about 17 minutes (see below)
+part = {"schema_version": bundle["schema_version"]} | {
+    section: dict(list(records.items())[:100]) for section, records in bundle.items() if isinstance(records, dict)
+}
+validate_bundle_schema(part, bundle_schema, validator=validator)  # raises BundleValidationError on a violation
+print("valid:", sum(len(records) for records in part.values() if isinstance(records, dict)), "records")
 
-broken = json.loads(json.dumps({"schema_version": "1.1.0", "scv": {scv["id"]: scv}}))
+broken = json.loads(json.dumps({"schema_version": "1.2.0", "scv": {scv["id"]: scv}}))
 broken["scv"][scv["id"]]["direction"] = "sideways"  # not a VA-Spec direction
 try:
     validate_bundle_schema(broken, bundle_schema, validator=validator)
@@ -310,18 +349,20 @@ except BundleValidationError as error:
 ```
 
 ```text
-[('cat-vrs/1.1.1', 16), ('clinvar-gkm/1.1.0', 28), ('gkm-core/1.3.0', 11), ('va-spec/1.1.0', 40), ('vrs/2.1.1', 26)]
-valid: 14761 records
-Bundle does not match its JSON Schema at scv/clinvar.submission:SCV000864262.1/direction: 'sideways' is not one of ['supports', 'neutral', 'disputes']
+[('cat-vrs/1.1.1', 16), ('clinvar-gkm/1.2.0', 76), ('gkm-core/1.3.0', 11), ('va-spec/1.1.0', 40), ('vrs/2.1.1', 26)]
+valid: 1118 records
+Bundle does not match its JSON Schema at scv/clinvar.submission:SCV008145211.1/direction: 'sideways' is not one of ['supports', 'neutral', 'disputes']
 ```
 
-Records are validated as published, `#/…` pointers included, against the full ClinVar-GKM profiles. The whole
-sample, 14,761 records, took about 2 minutes on one core; `variation` records are the slowest.
+Records are validated as published, `#/…` pointers included, against the full ClinVar-GKM profiles. The
+1,118-record slice takes about 30 seconds on one core; the whole delta, 39,062 records, validates in about 17
+minutes (pass `bundle` instead of `part`).
 
 The same schemas resolve by `$id` through [w3id.org](https://w3id.org/), so a registry can fetch them on demand
 instead of reading a local tree. The bundle schema itself can be fetched the same way, from
-`https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json`. Fetching makes one request
-per schema, so validate a slice, here the first 25 records of each section:
+`https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json`. Fetching makes one request
+per schema, so validate a slice, here the first 25 records of each section. This continues from the block above
+(`bundle_schema`, `Resource`, `Draft202012Validator`):
 
 ```python
 import functools
@@ -344,7 +385,7 @@ print("valid:", sum(len(records) for records in part.values() if isinstance(reco
 ```
 
 ```text
-valid: 279 records; 74 schemas fetched
+valid: 293 records; 104 schemas fetched
 ```
 
 `validate_bundle_schema` takes a whole bundle in memory. For multi-GB full bundles, the release used a streaming,
@@ -358,12 +399,12 @@ as the toolkit, and each version release also runs the toolkit on a sample of a 
 
 ### Loading bundles { #loading-bundles }
 
-!!! note "The toolkit's loader needs upstream updates for ClinVar-GKM 1.1.0"
+!!! note "The toolkit's loader needs upstream updates for ClinVar-GKM bundles"
     The toolkit's loader tools (`load_bundle`, `Bundle.resolve`, `Bundle.export` and its model conversion) do
-    not yet read ClinVar-GKM 1.1.0 bundles. They need updating upstream in two ways:
+    not yet read ClinVar-GKM 1.1.0 or 1.2.0 bundles. They need updating upstream in two ways:
 
-    1. **The most recent GKM spec versions**, which 1.1.0 data uses: GKM-Core 1.3.0, VRS 2.1.1, Cat-VRS 1.1.1
-       and VA-Spec 1.1.0. `ga4gh.gkm` 0.4.1 matches these only through the pre-release libraries above, and
+    1. **The most recent GKM spec versions**, which 1.1.0 and 1.2.0 data use: GKM-Core 1.3.0, VRS 2.1.1,
+       Cat-VRS 1.1.1 and VA-Spec 1.1.0. `ga4gh.gkm` 0.4.1 matches these only through the pre-release libraries above, and
        it accepts a schema version only when it equals the installed library's.
     2. **A way to handle producer-specific classes outside VA-Spec.** The loader resolves schema references
        only against the GA4GH schemas it ships, cannot be given a producer's schemas, and converts records
@@ -397,7 +438,8 @@ builds the tables and cuts mini-bundles.
 
 ### VRS records from rows
 
-Read rows as dictionaries through pyarrow, drop the NULLs, and build the models. Here, the alleles of three
+Read rows as dictionaries through pyarrow, drop the NULLs, and build the models (`vrs` is imported in
+[VRS alleles and their identifiers](#vrs-alleles-and-their-identifiers)). Here, the alleles of three
 variants: `variation.members` gives each member's id and the table it is in.
 
 ```python
@@ -442,7 +484,7 @@ ga4gh:VA.LDaqvF3c3y1IG8wF4mORiRfB--9Jjfzp NC_000012.12:g.25245350C>T ga4gh:SL.qa
 ```
 
 The allele's `location` is a bare id. Follow it, and the location's `sequenceReference`, and recompute the
-identifiers as [above](#vrs-alleles-and-their-identifiers):
+identifiers as [above](#vrs-alleles-and-their-identifiers), with `content` and `ga4gh_identify` from there:
 
 ```python
 # The record's own properties: start_min, start_max, end_min and end_max are derived columns
@@ -477,7 +519,7 @@ ga4gh:VA.LDaqvF3c3y1IG8wF4mORiRfB--9Jjfzp True
 
 For the other tables, query the columns. The proposition → statement → variant walk from the bundle examples,
 from the tables (`scv.proposition` and `variation.id` are the join keys; [Joining Tables](parquet/joining.md)
-covers every hop):
+covers every hop), with `rows`, `by_id` and `P` from the block above:
 
 ```python
 prop_row = rows(f"""
@@ -506,16 +548,23 @@ weekly full of the manifest's `source_release`, which is `weekly/clinvar-gkm_00-
 tables are current. `gkm-bundle-parquet select` cuts a mini-bundle from it: the SCV and every record it points
 to, directly or through other records, so every pointer in it resolves inside the file.
 
+`select` reads the whole bundle, 4.9 GB compressed, so download it once and pass the local path; `--full` also
+takes a URL, but then streams the whole file on every run. `uvx` comes with
+[uv](https://docs.astral.sh/uv/getting-started/installation/); without it, `pip install gkm-bundle-parquet==2.0.0`
+and run `gkm-bundle-parquet` in its place. `--out` must not exist yet: delete it to run again.
+
 ```bash
+curl -fO https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
 uvx gkm-bundle-parquet@2.0.0 select \
-    --full https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz \
+    --full clinvar-gkm_00-latest_weekly.json.gz \
     --bundle-schema https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json \
     --driver scv --ids clinvar.submission:SCV001142520.1 --out SCV001142520.json.gz
 ```
 
-`select` reads the whole bundle, so one id costs about as much as many: pass every id you need in one run
-(`--ids` takes a comma-separated list, `--ids-file` a file of ids). On a local copy of the 2026-10-31 full
-bundle, this selection took under 3 minutes. The mini-bundle loads like the sample:
+One id costs about as much as many: pass every id you need in one run (`--ids` takes a comma-separated list,
+`--ids-file` a file of ids). On a local copy of the 2026-11 full bundle, this selection took about 9 minutes,
+including the first `uvx` install and hashing the file. The mini-bundle loads like the delta; this block
+continues from the Parquet blocks above (`scv_row`) and the model blocks (`va`, `catvrs`):
 
 ```python
 with gzip.open("SCV001142520.json.gz", "rt") as f:
@@ -557,7 +606,7 @@ NM_000410.4(HFE):c.187C>G (p.His63Asp)
 
 `model_dump(mode="json", exclude_none=True)` serializes a model back to JSON. Records carry no `null` fields
 (except the open bound of a VRS `Range`, which survives), so `exclude_none=True` loses nothing. Compare every
-record of the sample bundle with its round trip:
+record of the delta with its round trip (this uses `vrs`, `catvrs` and `va` from the blocks above):
 
 ```python
 from collections import Counter
@@ -591,25 +640,25 @@ for (section, result), n in tally.items():
 ```
 
 ```text
-sequenceReference                 identical    24
-location                          identical  1913
-allele                            identical  2027
-copyNumberChange                  identical     1
-gene                              identical   460
-variation                         identical  2032
-condition                         identical   390
-conditionSet                      identical    33
-submitter                         identical     1
-propositionPathogenicity          identical   943
-propositionSomaticClinicalImpact  identical  2994
-evidenceLine                      identical  1497
-scv                               differs    2443
+location                          identical   176
+allele                            identical   230
+copyNumberChange                  identical     3
+gene                              identical     5
+variation                         identical  5471
+condition                         identical   190
+conditionSet                      identical   138
+submitter                         identical    10
+propositionPathogenicity          identical  3399
+evidenceLine                      identical  6064
+scv                               differs   17562
+vcv                               identical  2941
+rcv                               identical  2548
 ```
 
 Every record comes back identical except for one field:
 
 - **Contribution dates.** VA-Spec 1.1.0 types `Contribution.date` as a date-time. The records carry a date
-  (`"2019-01-22"`); the model parses it as midnight and writes it back with a time:
+  (`"2026-11-14"`); the model parses it as midnight and writes it back with a time:
 
     ```python
     dumped = statement.model_dump(mode="json", exclude_none=True)
@@ -617,15 +666,15 @@ Every record comes back identical except for one field:
     ```
 
     ```text
-    2019-01-22 -> 2019-01-22T00:00:00
+    2026-11-14 -> 2026-11-14T00:00:00
     ```
 
     Every SCV has contribution dates, so every SCV differs in those fields only. Compare dates by their
     first ten characters, or restore them after dumping.
 
-The same sweep over the 2026-10-18 delta (215,170 records, including `vcv` and `rcv`) gives the same result:
-all 18,138 SCVs differ only in contribution dates, and every other record, apart from the plain-JSON custom
-propositions, is identical.
+The same sweep over the 1.1.0 sample sub-bundle (`nch-igm-bundle.json.gz`) gives the same result: every SCV
+differs only in contribution dates, and every other record, apart from the plain-JSON custom propositions, is
+identical.
 
 Key order is not preserved: the models write fields in class-definition order. Compare parsed objects, not
 strings.
@@ -634,32 +683,33 @@ strings.
 
 ## Large bundles { #large-bundles }
 
-A full bundle is about 4.8 GB compressed, and a `json.load` of one does not fit in 16 GB of memory. Three ways
-to work with it:
+A full bundle is about 4.9 GB compressed and 68.5 GB decompressed, so a `json.load` of one does not fit in a
+laptop's memory. Three ways to work with it:
 
 - **Stream it.** [`ijson`](https://pypi.org/project/ijson/) reads one record at a time; `kvitems(f, "scv")`
   yields each `(id, record)` of a section. Build a model per record, keep what you need, and memory stays
   flat. One pass reads the whole file.
 - **Query the Parquet** for the latest release to find the records you need, and cut just those out of the
   bundle with `gkm-bundle-parquet select`, as [above](#statements-propositions-and-variants).
-- **Cut a sub-bundle.** The [Sub-Bundle Extraction](pipeline/sub-bundle.md) tool, which made the sample
-  above, extracts a self-contained bundle for a list of statements. It reads the project's BigQuery tables,
-  not a published file, so it needs access to those datasets.
+- **Cut a sub-bundle.** The [Sub-Bundle Extraction](pipeline/sub-bundle.md) tool, which made the 1.1.0
+  sample sub-bundle, extracts a self-contained bundle for a list of statements. It reads the project's
+  BigQuery tables, not a published file, so it needs access to those datasets.
 
-Streaming the delta's `scv` section, for example, to count classifications:
+Streaming the delta's `scv` section, for example, to count classifications (`gzip`, `Counter` and `va` are
+imported above):
 
 ```python
 import ijson
 
 classifications = Counter()
-with gzip.open("clinvar-gkm-delta_2026-1018.json.gz", "rb") as f:
+with gzip.open("clinvar-gkm-delta_2026-1115.json.gz", "rb") as f:
     for scv_id, record in ijson.kvitems(f, "scv", use_float=True):
         classifications[va.Statement(**record).classification.name] += 1
 print(sum(classifications.values()), classifications.most_common(4))
 ```
 
 ```text
-18138 [('Uncertain significance', 9724), ('Likely benign', 2766), ('Likely pathogenic', 2482), ('Pathogenic', 2337)]
+17562 [('Uncertain significance', 7388), ('Likely benign', 3389), ('Pathogenic', 2242), ('Likely pathogenic', 1986)]
 ```
 
 `use_float=True` makes ijson return floats instead of `Decimal`.

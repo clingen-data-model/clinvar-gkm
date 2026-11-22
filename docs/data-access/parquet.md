@@ -13,7 +13,7 @@ Older release lines (1.1.x, 1.0.1) are on [Previous Releases](previous-releases.
 !!! warning "Two sets of tables during the move to 1.2"
     The 1.1 line's set, at `v1/1.1/parquet/`, is the one exported from BigQuery for the **2026-10-24** release (its `manifest.json` gives `builder: "BigQuery export"` and `source_release: "2026-10-24"`). It is not rebuilt, so it lags the bundles, and it is deleted once the 1.2 set is published: a frozen line keeps no Parquet. Its 22 tables have different columns; see [Moving from the 1.1 Tables](../parquet/migrating-from-1.1.md).
 
-    This page describes the 1.2 line's set, at `v1/1.2/parquet/`: the 20 tables that [`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) 2.0 builds from each 1.2 release's bundle, published from the first 1.2 release on. Parquet is built only from the bundle, never from BigQuery. Until the first 1.2 set is published, `v1/1.2/parquet/` is empty: for data newer than 2026-10-24, use the [bundles](download.md) or [build the tables yourself](../parquet/build-your-own.md).
+    This page describes the 1.2 line's set, at `v1/1.2/parquet/`: the 20 tables that [`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) 2.0 builds from each 1.2 release's bundle, published from the first 1.2 release on. Parquet is built only from the bundle, never from BigQuery.
 
 The dataset lives at one stable path, `v1/1.2/parquet/`, one file per section, with a `manifest.json` and a `table-spec.json` beside it:
 
@@ -65,7 +65,9 @@ Available Parquet files (20 sections):
 Download the Parquet files you need, then query them locally. The R2 hosting has rate limits and is designed for file downloads, not as a remote query endpoint for tools like DuckDB.
 
 !!! note "Prerequisites"
-    The examples below use the **[DuckDB CLI](https://duckdb.org/docs/installation/)** and/or **Python with `pandas` + `pyarrow`** (`pip install pandas pyarrow`). If you don't already have these tools, install them from the linked pages first — each subsection also shows its own one-line install command.
+    - **[DuckDB CLI](https://duckdb.org/docs/installation/)** for the shell and SQL examples (tested with 1.5.4): `brew install duckdb` on macOS, or see the install page.
+    - **Python 3** with `pandas` and `pyarrow` (`pip install pandas pyarrow`; tested with Python 3.14, pandas 3.1.1, pyarrow 26.0.1), plus the `duckdb` package for the DuckDB-from-Python example (`pip install duckdb`).
+    - **The Parquet files**, from [Download](#download) below: the full set is about 4.6 GB (`scv.parquet` alone is about 0.8 GB). Run every query from the folder that holds them: the queries read the files by name, such as `'scv.parquet'`.
 
 ### Download
 
@@ -76,19 +78,20 @@ Download individual sections or all files at once:
     # The one published Parquet dataset, overwritten every release; manifest.json names its release.
     BASE="https://data.clinvar-gkm.org/v1/1.2/parquet"
     mkdir -p clinvar-gkm-parquet && cd clinvar-gkm-parquet
-    curl -O "${BASE}/manifest.json"
+    curl -fO "${BASE}/manifest.json"
+    curl -fO "${BASE}/table-spec.json"
 
     # Download specific sections
-    curl -O "${BASE}/scv.parquet"
-    curl -O "${BASE}/propositionPathogenicity.parquet"
-    curl -O "${BASE}/condition.parquet"
+    curl -fO "${BASE}/scv.parquet"
+    curl -fO "${BASE}/propositionPathogenicity.parquet"
+    curl -fO "${BASE}/condition.parquet"
 
     # Or download all 20 sections
     for section in sequenceReference location allele copyNumberCount copyNumberChange \
                    gene variation condition conditionSet therapy therapyGroup submitter \
                    propositionPathogenicity propositionOncogenicity propositionSomaticClinicalImpact propositionClinvarCustom \
                    evidenceLine scv vcv rcv; do
-      curl -O "${BASE}/${section}.parquet"
+      curl -fO "${BASE}/${section}.parquet"
     done
     ```
 
@@ -197,6 +200,8 @@ Run `DESCRIBE` in DuckDB to see the full schema for any section.
 For how the sections join — including the columns that point at more than one table, where a single-table join silently drops rows — see [Joining Tables](../parquet/joining.md); for task-oriented queries, see [Recipes](../parquet/recipes.md).
 
 ??? example "Example cross-section queries (SQL)"
+    Run these in the `duckdb` shell (or as `duckdb -c "…"`) from the folder that holds the files; they read `scv.parquet`, `propositionPathogenicity.parquet`, `condition.parquet` and `submitter.parquet`.
+
     **All SCVs for a gene — detailed view:**
 
     ```sql

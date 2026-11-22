@@ -10,6 +10,17 @@ for the 1.1 line, at `v1/1.1/parquet/`. This page calls them the **2.0 tables** 
 records are the same; the table layout is not. Every query written for the 1.1 tables needs a review, and most
 need small rewrites.
 
+!!! note "Prerequisites"
+    - **[DuckDB CLI](https://duckdb.org/docs/installation/)**, tested with **1.5.4**. No extension is needed.
+    - **The 2.0 tables**: download all 20 into one folder ([Parquet Files → Download](../data-access/parquet.md#download))
+      and start `duckdb` in that folder. The queries name each table by its file name (`'scv.parquet'`) and read
+      the four proposition tables with the glob `proposition*.parquet`.
+    - **The 1.1 tables**, for the queries marked `-- 1.1` only: the same file names under
+      `https://data.clinvar-gkm.org/v1/1.1/parquet/` while that set is still served (see [Timeline](#timeline)),
+      in a folder of their own. The set is 13.2 GB; `scv.parquet` and `variation.parquet` are 3 to 4 GB each.
+    - **[uv](https://docs.astral.sh/uv/getting-started/installation/)**, for the `rebuild` example only. It reads
+      the whole 2.0 set and writes a bundle about the size of the published one (about 5 GB compressed).
+
 ---
 
 ## Who is affected
@@ -221,6 +232,9 @@ When you need JSON:
 - **The bundle's own records:** read the bundle, or rebuild it from a full set of tables:
 
     ```bash
+    # run from the folder that holds clinvar-gkm-parquet/, the 20 tables and manifest.json
+    curl -f -o clinvar-gkm-parquet/table-spec.json \
+      "https://data.clinvar-gkm.org/v1/1.2/parquet/table-spec.json"
     uvx gkm-bundle-parquet@2.0.0 rebuild clinvar-gkm-parquet/ -o rebuilt.json.gz
     ```
 
@@ -527,10 +541,16 @@ WHERE e.name = 'clinvarGeneList' AND id = 'clinvar:51592';
 
 ```sql
 -- 2.0
-SELECT id, [g.gene FOR g IN e.value_object_array] AS genes
-FROM 'variation.parquet', unnest(extensions) AS t(e)
-WHERE e.name = 'clinvarGeneList' AND id = 'clinvar:51592';
+SELECT id,
+       [g.gene FOR g IN [e.value_object_array FOR e IN extensions
+                         IF e.name = 'clinvarGeneList'][1]] AS genes
+FROM 'variation.parquet'
+WHERE id = 'clinvar:51592';
 ```
+
+This 2.0 query, and the next, pick the extension with a list comprehension instead of `unnest(extensions)` in
+`FROM`. The `unnest` form still returns the same rows, but it expands every record's extensions before it
+filters: over a minute for this one variant, against a few seconds.
 
 ### Therapies
 
@@ -560,9 +580,10 @@ LIMIT 5;
 
 ```sql
 -- 2.0
-SELECT id, e.value_object.name AS submitted_condition
-FROM 'scv.parquet', unnest(extensions) AS t(e)
-WHERE e.name = 'submittedCondition'
+SELECT id,
+       [e.value_object.name FOR e IN extensions IF e.name = 'submittedCondition'][1] AS submitted_condition
+FROM 'scv.parquet'
+WHERE list_contains([e.name FOR e IN extensions], 'submittedCondition')
 LIMIT 5;
 ```
 

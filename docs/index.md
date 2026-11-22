@@ -9,7 +9,7 @@ ClinVar-GKM provides a standardized, machine-readable representation of [ClinVar
     [**How to Read These Docs**](reading-guide.md) maps each section to what it gives you, with three reading paths: understanding the data from ClinVar's website, following how ClinVar's XML becomes this format, and building a pipeline or application on it.
 
 !!! tip "New to GKM datasets? Start with the GKM Starter Kit"
-    The GA4GH [**GKM Starter Kit**](https://ga4gh.github.io/gkm-starter-kit/) is a practical entry point for working with GKM data. It brings together the [reference libraries](https://ga4gh.github.io/gkm-starter-kit/latest/tools/reference-implementations/) (vrs-python, cat-vrs-python, va-spec-python), the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) for loading and exploring published bundles, and [user stories](https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/) from projects putting GKM to work. clinvar-gkm is a GKM data producer: the reference libraries read its records directly, and [**Working in Python**](working-in-python.md) shows them on ClinVar-GKM bundles and Parquet, with the library versions that read 1.1.0. The GKM Toolkit [validates ClinVar-GKM bundles](working-in-python.md#validate-a-bundle) against the ClinVar-GKM schemas you supply; its [loader](working-in-python.md#loading-bundles) needs upstream updates before it reads them.
+    The GA4GH [**GKM Starter Kit**](https://ga4gh.github.io/gkm-starter-kit/) is a practical entry point for working with GKM data. It brings together the [reference libraries](https://ga4gh.github.io/gkm-starter-kit/latest/tools/reference-implementations/) (vrs-python, cat-vrs-python, va-spec-python), the [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) for loading and exploring published bundles, and [user stories](https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/) from projects putting GKM to work. clinvar-gkm is a GKM data producer: the reference libraries read its records directly, and [**Working in Python**](working-in-python.md) shows them on ClinVar-GKM bundles and Parquet, with the library versions that read 1.2.0 (and 1.1.0). The GKM Toolkit [validates ClinVar-GKM bundles](working-in-python.md#validate-a-bundle) against the ClinVar-GKM schemas you supply; its [loader](working-in-python.md#loading-bundles) needs upstream updates before it reads them.
 
 ## Why ClinVar-GKM
 
@@ -62,11 +62,14 @@ New releases are produced within a day or two after ClinVar's XML releases and a
 
 The latest ClinVar-GKM release is available as a single compressed JSON file:
 
+!!! note "Prerequisites"
+    **curl**. Each full bundle is about 4.9 GB compressed and 68.5 GB decompressed, so decompress one only if you have the disk; tools can read the `.gz` directly, streamed with `gunzip -c` ([Output File](data-access/output-files.md#count-records-in-a-full-bundle)).
+
 ```bash
 # Download the newest official monthly release
-curl -O https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
+curl -fO https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
 
-# Decompress
+# Decompress (68.5 GB; skip this to read the .gz streamed)
 gunzip clinvar-gkm_00-latest.json.gz
 ```
 
@@ -155,8 +158,8 @@ The stable filenames `clinvar-gkm_00-latest.json.gz` (official monthly) and `wee
 Download the newest official monthly and the newest weekly full:
 
 ```bash
-curl -O https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
-curl -O https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
+curl -fO https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
+curl -fO https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
 ```
 
 See [How Releases Work](data-access/release-model.md) for the release model, and [Weekly Deltas](data-access/weekly-deltas.md) for the deltas and the replay recipe.
