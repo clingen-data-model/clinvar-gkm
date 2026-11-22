@@ -89,16 +89,21 @@ for x in d["deltas"]:
 A **monthly** is a full bundle (4.5 to 4.8 GB compressed, about 90 million records); its `source_release` is the
 weekly release it holds. The newest monthly is listed twice: under its own name and as
 `clinvar-gkm_00-latest.json.gz`, a copy of it. A **delta** holds only what changed in one weekly release (2 to
-150 MB). To get a full bundle for a week between monthlies, replay the deltas onto the monthly first; see
-[Rebuild a past week](../data-access/weekly-deltas.md#rebuild-a-past-week).
+150 MB). To get a full bundle for a week between monthlies, replay the deltas onto the monthly first with
+`replay-bundle.py --line v1/1.1`; see [Parquet for one weekly release](build-your-own.md#parquet-for-one-weekly-release)
+and [Rebuild a past week](../data-access/weekly-deltas.md#rebuild-a-past-week).
 
 ### 2. Download it and check its sha256
 
 ```bash
-B=v1/1.1/deltas/2026-09/clinvar-gkm-delta_2026-0928.json.gz     # a path from step 1
+B=v1/1.1/deltas/2026-09/clinvar-gkm-delta_2026-0928.json.gz
 curl -f --retry 5 -O "https://data.clinvar-gkm.org/$B" -O "https://data.clinvar-gkm.org/$B.sha256"
-shasum -a 256 -c "$(basename "$B").sha256"                       # sha256sum -c on Linux
+shasum -a 256 -c "$(basename "$B").sha256"
 ```
+
+`B` is a path from step 1. On Linux, `sha256sum -c` does the same as `shasum -a 256 -c`. The commands on this
+page hold no `#` comments: zsh, unlike bash, reads `#` in a pasted command as text unless
+`setopt interactivecomments` is on.
 
 ### 3. Build { #build }
 
@@ -166,21 +171,35 @@ part of a release, [cut a mini-bundle](build-your-own.md#cut-a-mini-bundle) inst
 
 ## What is verified
 
-Run on 2026-11-20 with `gkm-bundle-parquet` 2.0.0, the published 1.1.0 column set and the 1.1.0 schema URL:
+Run on 2026-11-20 and 2026-11-21 with `gkm-bundle-parquet` 2.0.0, the published 1.1.0 column set and the 1.1.0
+schema URL. No monthly was built whole (that needs a large machine); the two monthlies at the ends of the line
+were scanned instead, and every other `v1/1.1/` bundle is made of their records and the deltas':
 
 - **Every published `v1/1.1/` delta** (18 deltas, 2026-07-06 to 2026-10-31, 10,267,303 records):
   each built, `rebuild` reported it record-identical to the source, `verify --roundtrip --full` passed, and a
   separate record-by-record comparison of the rebuilt bundle with the source, keeping array order, found no
   difference. The 2026-08-16 delta needed `--threads 1` (see the note under [Build](#build)).
 - **The newest monthly**, `clinvar-gkm_2026-11.json.gz` (source release 2026-10-31, 91,854,927 records), was
-  not built: that needs a large machine. Instead it was streamed once, and every property each record holds was
-  listed with the JSON kind of its value and the section each `#/…` pointer names, then compared with what the
-  verified deltas hold. 528 records hold something no delta holds: the 38 `therapy` and 10 `therapyGroup`
-  records, 463 somatic clinical impact propositions that point to a therapy, a therapy group or a condition set
-  or carry a condition qualifier,
-  and 17 statements and evidence lines with a method or condition extension no delta has. Built on their own
-  with the column set, those 528 round-trip identically. Every other record holds only what the verified deltas
-  hold. The scan took 26 minutes on the laptop.
+  streamed once, and every property each record holds was listed with the JSON kind of its value and the
+  section each `#/…` pointer names, then compared with what the verified deltas hold. 528 records hold something
+  no delta holds: the 38 `therapy` and 10 `therapyGroup` records, 463 somatic clinical impact propositions that
+  point to a therapy, a therapy group or a condition set or carry a condition qualifier, and 17 statements and
+  evidence lines with a method or condition extension no delta has. Built on their own with the column set,
+  those 528 round-trip identically. Every other record holds only what the verified deltas hold. The scan took
+  26 minutes on the laptop.
+- **The oldest monthly**, `clinvar-gkm_2026-07.json.gz` (source release 2026-06-27, 86,810,319 records), was
+  streamed the same way on 2026-11-21: no key appears twice, and its sha256 matches its sidecar. Compared with
+  what the verified deltas and the 2026-11 monthly hold, 14 `variation` records hold something new: extensions
+  nested inside a `nucleotideExpression` (for example `invalidClinvarExpression` with a string value, and
+  `expressionMerged` with a boolean). Built on their own with the column set, those 14 round-trip identically
+  (`verify --roundtrip --full` identical; `rebuild` record-identical).
+- **The monthlies between** (2026-08, 2026-09 and 2026-10) were not scanned on their own. Each equals the
+  2026-07 monthly plus the deltas after it, as the delta-reconstruction check proved for each release when it
+  was published, so each of their records is a record of the 2026-07 monthly or of a verified delta.
+
+So every record any published `v1/1.1/` bundle holds is covered by the 2026-07 and 2026-11 monthlies and the 18
+deltas, and no published 1.1 bundle stops the build. A full bundle you
+[rebuild for one week](build-your-own.md#parquet-for-one-weekly-release) is made of the same records.
 
 ---
 
