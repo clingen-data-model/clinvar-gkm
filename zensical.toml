@@ -91,6 +91,7 @@ nav = [
       { Recipes                 = "parquet/recipes.md" },
       { "Working at Scale"      = "parquet/performance.md" },
       { "Beyond DuckDB"         = "parquet/other-tools.md" },
+      { "Build from the Bundles" = "parquet/build-from-bundles.md" },
     ] },
     { "User Stories" = [
       { "Harmonizing by VRS Identity" = "user-story.md" },

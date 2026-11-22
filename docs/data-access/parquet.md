@@ -4,6 +4,11 @@ Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Full Bundles](weekly-f
 
 Older release lines (before 1.1) are on [Previous Releases](previous-releases.md).
 
+!!! warning "Removed on 2026-11-23, when the 1.1 line was frozen"
+    Release 1.2.0 replaced this line, and its Parquet (`v1/1.1/parquet/`) was removed when the line was frozen;
+    the bundles stay published. To get tables for a 1.1 release, build them from its bundle with
+    `gkm-bundle-parquet`: [Build Parquet from the Bundles](../parquet/build-from-bundles.md).
+
 !!! tip "Want to query the files, not just download them?"
     This page covers where the Parquet files live and how to keep a set current. [**Query the Data**](../parquet/index.md) teaches querying them: a live in-browser console, every table's columns, how the tables join, and runnable recipes.
 
@@ -300,7 +305,7 @@ When to use each access path:
 Only the current Parquet dataset is published; it is overwritten every release, and weekly deltas, archives and frozen lines carry no Parquet. To work with an earlier state:
 
 - **Rebuild it from the bundles.** Every official monthly stays published (in `archive/YYYY/` after its year ends) with a `.sha256` sidecar, and so does every delta. Rebuild the bundle for the week you need with the [replay recipe](weekly-deltas.md#rebuild-a-past-week), then read the sections you need.
-- **Convert a bundle to Parquet with `clinvar-gkm-parquet` (planned).** [`clinvar-gkm-parquet`](https://github.com/clingen-data-model/clinvar-gkm-parquet) is a separate, versioned tool that builds this Parquet layout from a published bundle and writes the same `manifest.json`. It is in design and not yet released; until it is, earlier Parquet can't be downloaded or rebuilt in this layout.
+- **Convert a bundle to Parquet with `gkm-bundle-parquet`.** The separate, versioned tool builds tables from any published bundle and proves the round trip; its 2.0 tables differ from the 22 on these pages. See [Build Parquet from the Bundles](../parquet/build-from-bundles.md).
 - **The 1.0.1 generation** is the frozen line `v1/1.0/`: its bundles and delta manifests, with no Parquet.
 
 Parquet downloaded from an earlier release keeps its old tables and columns; see the [changelog](../reference/changelog.md) for what changed.
