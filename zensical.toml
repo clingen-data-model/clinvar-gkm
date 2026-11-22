@@ -145,6 +145,7 @@ nav = [
       { "Beyond DuckDB"         = "parquet/other-tools.md" },
       { "Build Your Own Tables and Mini-Bundles" = "parquet/build-your-own.md" },
       { "Moving from 1.1 to 2.0" = "parquet/migrating-from-1.1.md" },
+      { "Parquet for Previous Releases" = "parquet/previous-releases.md" },
     ] },
     { "Working in Python" = "working-in-python.md" },
     { "User Stories" = [

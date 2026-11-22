@@ -3,7 +3,8 @@
 The published Parquet is built by one open tool, [`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet),
 from the published JSON bundle. You can run the same tool yourself to:
 
-- **build the tables** for any release, including releases whose Parquet is no longer published;
+- **build the tables** for any release, including releases whose Parquet is no longer published (for the frozen
+  lines, see [Parquet for Previous Releases](previous-releases.md));
 - **cut a mini-bundle**: the records of one submitter, one variant or one gene and everything they point to,
   as a small JSON bundle or a small set of tables;
 - **rebuild the bundle** from a set of tables and prove the records are identical;
@@ -60,7 +61,8 @@ The tool fetches the schema and every schema it references once, and caches them
   extensions.
 - **A 1.1.0 bundle gives wider tables.** Its schema leaves many classes open, so the same delta built with the
   1.1.0 schema has 339 top-level columns, and `generate` lists 181 JSON-text positions. The records are the same;
-  only the columns differ.
+  only the columns differ. ClinVar-GKM publishes a column set that narrows them to what 1.1.0 bundles hold; see
+  [Parquet for Previous Releases](previous-releases.md).
 
 !!! note "1.2.0 schema URLs"
     w3id resolves a version's URL once ClinVar-GKM has tagged that version. Until the `1.2.0` tag exists, the 1.2.0
