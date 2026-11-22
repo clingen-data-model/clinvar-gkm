@@ -15,5 +15,5 @@
 # (#241) and the per-version Previous Releases rule (#247). ddfbfa9 is 1.0 with #247 merged.
 #
 # line  source                                    label
-1.1     92f0c53a925e16620a282d08854322b823b12ee8  1.1.0
-1.2     ddfbfa9ae2b321c80c3791b68581fe97b7302de8  1.2.0
+1.1     b0047c9434c767466560de64ccc637c934256f2a  1.1.0
+1.2     2eb5bb280cc67583b262a6b80d8393eef22348af  1.2.0
