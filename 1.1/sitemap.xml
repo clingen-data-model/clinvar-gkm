@@ -184,6 +184,9 @@
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.1/parquet/other-tools/</loc>
       </url>
       <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.1/parquet/build-from-bundles/</loc>
+      </url>
+      <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.1/user-story/</loc>
       </url>
       <url>

@@ -378,6 +378,8 @@
       
         
       
+        
+      
     
     
     
@@ -2826,6 +2828,8 @@
       
         
       
+        
+      
     
     
     
@@ -3028,6 +3032,33 @@
     
   
   Beyond DuckDB
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parquet/build-from-bundles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Build from the Bundles
 
     
   </span>
@@ -4860,6 +4891,12 @@
 <h1 id="parquet-files">Parquet Files<a class="headerlink" href="#parquet-files" title="Permanent link">&para;</a></h1>
 <p>Links: <a href="../monthly-full/">Monthly Full Bundles</a> · <a href="../weekly-full/">Weekly Full Bundles</a> · <a href="../weekly-deltas/">Weekly Deltas</a> · <a href="../release-model/">How Releases Work</a></p>
 <p>Older release lines (before 1.1) are on <a href="../previous-releases/">Previous Releases</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Removed on 2026-11-23, when the 1.1 line was frozen</p>
+<p>Release 1.2.0 replaced this line, and its Parquet (<code>v1/1.1/parquet/</code>) was removed when the line was frozen;
+the bundles stay published. To get tables for a 1.1 release, build them from its bundle with
+<code>gkm-bundle-parquet</code>: <a href="../../parquet/build-from-bundles/">Build Parquet from the Bundles</a>.</p>
+</div>
 <div class="admonition tip">
 <p class="admonition-title">Want to query the files, not just download them?</p>
 <p>This page covers where the Parquet files live and how to keep a set current. <a href="../../parquet/"><strong>Query the Data</strong></a> teaches querying them: a live in-browser console, every table's columns, how the tables join, and runnable recipes.</p>
@@ -5249,7 +5286,7 @@
 <p>Only the current Parquet dataset is published; it is overwritten every release, and weekly deltas, archives and frozen lines carry no Parquet. To work with an earlier state:</p>
 <ul>
 <li><strong>Rebuild it from the bundles.</strong> Every official monthly stays published (in <code>archive/YYYY/</code> after its year ends) with a <code>.sha256</code> sidecar, and so does every delta. Rebuild the bundle for the week you need with the <a href="../weekly-deltas/#rebuild-a-past-week">replay recipe</a>, then read the sections you need.</li>
-<li><strong>Convert a bundle to Parquet with <code>clinvar-gkm-parquet</code> (planned).</strong> <a href="https://github.com/clingen-data-model/clinvar-gkm-parquet"><code>clinvar-gkm-parquet</code></a> is a separate, versioned tool that builds this Parquet layout from a published bundle and writes the same <code>manifest.json</code>. It is in design and not yet released; until it is, earlier Parquet can't be downloaded or rebuilt in this layout.</li>
+<li><strong>Convert a bundle to Parquet with <code>gkm-bundle-parquet</code>.</strong> The separate, versioned tool builds tables from any published bundle and proves the round trip; its 2.0 tables differ from the 22 on these pages. See <a href="../../parquet/build-from-bundles/">Build Parquet from the Bundles</a>.</li>
 <li><strong>The 1.0.1 generation</strong> is the frozen line <code>v1/1.0/</code>: its bundles and delta manifests, with no Parquet.</li>
 </ul>
 <p>Parquet downloaded from an earlier release keeps its old tables and columns; see the <a href="../../reference/changelog/">changelog</a> for what changed.</p>
