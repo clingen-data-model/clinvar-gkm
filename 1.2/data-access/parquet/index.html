@@ -6507,7 +6507,7 @@
 <div class="admonition warning">
 <p class="admonition-title">Two sets of tables during the move to 1.2</p>
 <p>The 1.1 line's set, at <code>v1/1.1/parquet/</code>, is the one exported from BigQuery for the <strong>2026-10-24</strong> release (its <code>manifest.json</code> gives <code>builder: "BigQuery export"</code> and <code>source_release: "2026-10-24"</code>). It is not rebuilt, so it lags the bundles, and it is deleted once the 1.2 set is published: a frozen line keeps no Parquet. Its 22 tables have different columns; see <a href="../../parquet/migrating-from-1.1/">Moving from the 1.1 Tables</a>.</p>
-<p>This page describes the 1.2 line's set, at <code>v1/1.2/parquet/</code>: the 20 tables that <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>gkm-bundle-parquet</code></a> 2.0 builds from each 1.2 release's bundle, published from the first 1.2 release on. Parquet is built only from the bundle, never from BigQuery. Until the first 1.2 set is published, <code>v1/1.2/parquet/</code> is empty: for data newer than 2026-10-24, use the <a href="../download/">bundles</a> or <a href="../../parquet/build-your-own/">build the tables yourself</a>.</p>
+<p>This page describes the 1.2 line's set, at <code>v1/1.2/parquet/</code>: the 20 tables that <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>gkm-bundle-parquet</code></a> 2.0 builds from each 1.2 release's bundle, published from the first 1.2 release on. Parquet is built only from the bundle, never from BigQuery.</p>
 </div>
 <p>The dataset lives at one stable path, <code>v1/1.2/parquet/</code>, one file per section, with a <code>manifest.json</code> and a <code>table-spec.json</code> beside it:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>v1/1.2/parquet/
@@ -6617,7 +6617,11 @@
 <p>Download the Parquet files you need, then query them locally. The R2 hosting has rate limits and is designed for file downloads, not as a remote query endpoint for tools like DuckDB.</p>
 <div class="admonition note">
 <p class="admonition-title">Prerequisites</p>
-<p>The examples below use the <strong><a href="https://duckdb.org/docs/installation/">DuckDB CLI</a></strong> and/or <strong>Python with <code>pandas</code> + <code>pyarrow</code></strong> (<code>pip install pandas pyarrow</code>). If you don't already have these tools, install them from the linked pages first — each subsection also shows its own one-line install command.</p>
+<ul>
+<li><strong><a href="https://duckdb.org/docs/installation/">DuckDB CLI</a></strong> for the shell and SQL examples (tested with 1.5.4): <code>brew install duckdb</code> on macOS, or see the install page.</li>
+<li><strong>Python 3</strong> with <code>pandas</code> and <code>pyarrow</code> (<code>pip install pandas pyarrow</code>; tested with Python 3.14, pandas 3.1.1, pyarrow 26.0.1), plus the <code>duckdb</code> package for the DuckDB-from-Python example (<code>pip install duckdb</code>).</li>
+<li><strong>The Parquet files</strong>, from <a href="#download">Download</a> below: the full set is about 4.6 GB (<code>scv.parquet</code> alone is about 0.8 GB). Run every query from the folder that holds them: the queries read the files by name, such as <code>'scv.parquet'</code>.</li>
+</ul>
 </div>
 <h3 id="download">Download<a class="headerlink" href="#download" title="Permanent link">&para;</a></h3>
 <p>Download individual sections or all files at once:</p>
@@ -6626,20 +6630,21 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># The one published Parquet dataset, overwritten every release; manifest.json names its release.</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">BASE</span><span class="o">=</span><span class="s2">"https://data.clinvar-gkm.org/v1/1.2/parquet"</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>clinvar-gkm-parquet<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>clinvar-gkm-parquet
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>curl<span class="w"> </span>-O<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/manifest.json"</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># Download specific sections</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>curl<span class="w"> </span>-O<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/scv.parquet"</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>curl<span class="w"> </span>-O<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/propositionPathogenicity.parquet"</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>curl<span class="w"> </span>-O<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/condition.parquet"</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1"># Or download all 20 sections</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="k">for</span><span class="w"> </span>section<span class="w"> </span><span class="k">in</span><span class="w"> </span>sequenceReference<span class="w"> </span>location<span class="w"> </span>allele<span class="w"> </span>copyNumberCount<span class="w"> </span>copyNumberChange<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">               </span>gene<span class="w"> </span>variation<span class="w"> </span>condition<span class="w"> </span>conditionSet<span class="w"> </span>therapy<span class="w"> </span>therapyGroup<span class="w"> </span>submitter<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">               </span>propositionPathogenicity<span class="w"> </span>propositionOncogenicity<span class="w"> </span>propositionSomaticClinicalImpact<span class="w"> </span>propositionClinvarCustom<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">               </span>evidenceLine<span class="w"> </span>scv<span class="w"> </span>vcv<span class="w"> </span>rcv<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">  </span>curl<span class="w"> </span>-O<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">section</span><span class="si">}</span><span class="s2">.parquet"</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="k">done</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>curl<span class="w"> </span>-fO<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/manifest.json"</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>curl<span class="w"> </span>-fO<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/table-spec.json"</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Download specific sections</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>curl<span class="w"> </span>-fO<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/scv.parquet"</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>curl<span class="w"> </span>-fO<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/propositionPathogenicity.parquet"</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>curl<span class="w"> </span>-fO<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/condition.parquet"</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="c1"># Or download all 20 sections</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="k">for</span><span class="w"> </span>section<span class="w"> </span><span class="k">in</span><span class="w"> </span>sequenceReference<span class="w"> </span>location<span class="w"> </span>allele<span class="w"> </span>copyNumberCount<span class="w"> </span>copyNumberChange<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">               </span>gene<span class="w"> </span>variation<span class="w"> </span>condition<span class="w"> </span>conditionSet<span class="w"> </span>therapy<span class="w"> </span>therapyGroup<span class="w"> </span>submitter<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">               </span>propositionPathogenicity<span class="w"> </span>propositionOncogenicity<span class="w"> </span>propositionSomaticClinicalImpact<span class="w"> </span>propositionClinvarCustom<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">               </span>evidenceLine<span class="w"> </span>scv<span class="w"> </span>vcv<span class="w"> </span>rcv<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span>curl<span class="w"> </span>-fO<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">section</span><span class="si">}</span><span class="s2">.parquet"</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="k">done</span>
 </code></pre></div>
 </details>
 <h3 id="query">Query<a class="headerlink" href="#query" title="Permanent link">&para;</a></h3>
@@ -6773,6 +6778,7 @@
 <p>For how the sections join — including the columns that point at more than one table, where a single-table join silently drops rows — see <a href="../../parquet/joining/">Joining Tables</a>; for task-oriented queries, see <a href="../../parquet/recipes/">Recipes</a>.</p>
 <details class="example">
 <summary>Example cross-section queries (SQL)</summary>
+<p>Run these in the <code>duckdb</code> shell (or as <code>duckdb -c "…"</code>) from the folder that holds the files; they read <code>scv.parquet</code>, <code>propositionPathogenicity.parquet</code>, <code>condition.parquet</code> and <code>submitter.parquet</code>.</p>
 <p><strong>All SCVs for a gene — detailed view:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">-- SCVs for BRCA1: classification, review status, condition</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">SELECT</span>

@@ -6505,7 +6505,7 @@ many years. Several quality questions are hard to answer from ClinVar's web UI o
 </ul>
 <h2 id="the-data">The data<a class="headerlink" href="#the-data" title="Permanent link">&para;</a></h2>
 <p>To make this concrete, the repository ships
-<strong><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/714f387065f7d42595131c5736911d18af955cc5/nch-igm-bundle.json.gz"><code>nch-igm-bundle.json.gz</code></a></strong> —
+<strong><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/96fd97734e7f3fbb58ce75fdf5f201dbe9e5df0d/nch-igm-bundle.json.gz"><code>nch-igm-bundle.json.gz</code></a></strong> —
 the complete GKM extract of one real submitter, the IGM Clinical Laboratory at Nationwide Children's
 Hospital (submitter <code>196472</code>): <strong>all 2,443 of their SCVs</strong> plus every variation, condition, therapy,
 proposition, and submitter record those statements reference, in a single self-contained 1.6 MB file. It
@@ -6515,9 +6515,17 @@ regenerated from the 2026-10-18 release with the maintainer <a href="../pipeline
 <code>1.1.0</code>, and it passes strict validation against the ClinVar-GKM schemas (6,432 records, 0 failing).</p>
 <p>For the recurring, release-over-release audit, a submitter works from the published Parquet instead. A
 single DuckDB query flags the records that need a second look:</p>
+<div class="admonition note">
+<p class="admonition-title">Prerequisites</p>
+<p>The <a href="https://duckdb.org/docs/installation/">DuckDB CLI</a>, tested with <strong>1.5.4</strong>, run from a directory holding
+six files from <code>v1/1.2/parquet/</code>: <code>scv.parquet</code>, the four <code>proposition*.parquet</code> tables and
+<code>condition.parquet</code>, about 1.2 GB together (<a href="../data-access/parquet/#download">Downloads → Parquet Files</a>).
+They must be local: <code>read_parquet('proposition*.parquet')</code> is a glob, and DuckDB can't expand a glob over
+HTTPS.</p>
+</div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">-- Everything submitter 196472 has in ClinVar, flagged for review.</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1">-- (scv.parquet, the four proposition*.parquet tables and condition.parquet</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1">--  from v1/1.2/parquet/ — rebuilt from the newest release every week.)</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1">-- Reads six downloaded files from v1/1.2/parquet/ (rebuilt from the newest release</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1">-- every week): scv.parquet, the four proposition*.parquet tables and condition.parquet.</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">WITH</span><span class="w"> </span><span class="n">mine</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="k">SELECT</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">s</span><span class="p">.</span><span class="n">id</span><span class="p">,</span>
@@ -6539,8 +6547,8 @@ single DuckDB query flags the records that need a second look:</p>
 <a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">  </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">classification</span><span class="p">,</span><span class="w"> </span><span class="n">review_status</span><span class="p">,</span><span class="w"> </span><span class="n">condition_name</span><span class="p">,</span><span class="w"> </span><span class="n">last_evaluated</span><span class="p">,</span>
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">  </span><span class="n">last_evaluated</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'2022-01-01'</span><span class="w">                        </span><span class="k">AS</span><span class="w"> </span><span class="n">stale</span><span class="p">,</span>
 <a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">  </span><span class="n">review_status</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'no assertion criteria provided'</span><span class="p">,</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">                    </span><span class="s1">'no classification provided'</span><span class="p">,</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">                    </span><span class="s1">'flagged submission'</span><span class="p">)</span><span class="w">               </span><span class="k">AS</span><span class="w"> </span><span class="n">weak_status</span><span class="p">,</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">                    </span><span class="s1">'no classification'</span><span class="p">,</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">                    </span><span class="s1">'flagged'</span><span class="p">)</span><span class="w">                          </span><span class="k">AS</span><span class="w"> </span><span class="n">weak_status</span><span class="p">,</span>
 <a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">  </span><span class="k">coalesce</span><span class="p">(</span><span class="k">lower</span><span class="p">(</span><span class="n">condition_name</span><span class="p">)</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'not provided'</span><span class="p">,</span><span class="w"> </span><span class="s1">'not specified'</span><span class="p">),</span><span class="w"> </span><span class="k">TRUE</span><span class="p">)</span>
 <a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">                                                        </span><span class="k">AS</span><span class="w"> </span><span class="n">odd_condition</span>
 <a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="k">FROM</span><span class="w"> </span><span class="n">mine</span>
@@ -6575,7 +6583,7 @@ and newly odd conditions surface on their own.</p>
 <li><strong>Get the data</strong> — <a href="../data-access/parquet/">Parquet Files</a> (the one Parquet dataset, at
   <code>v1/1.2/parquet/</code>).</li>
 <li><strong>See one submitter's whole footprint</strong> — open
-  <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/714f387065f7d42595131c5736911d18af955cc5/nch-igm-bundle.json.gz"><code>nch-igm-bundle.json.gz</code></a>
+  <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/96fd97734e7f3fbb58ce75fdf5f201dbe9e5df0d/nch-igm-bundle.json.gz"><code>nch-igm-bundle.json.gz</code></a>
   (2,443 SCVs, self-contained).</li>
 <li><strong>Understand review status</strong> — <a href="../profiles/review-status/">Review Status</a> (the star levels the audit
   flags on).</li>

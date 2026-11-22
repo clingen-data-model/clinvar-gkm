@@ -6814,22 +6814,41 @@ serializes the models back to JSON.</p>
 <a href="../parquet/tables/">The 20 Tables</a>.</p>
 <div class="admonition info">
 <p class="admonition-title">Tested with</p>
-<p>Every code block on this page was run on <strong>2026-11-18</strong> with:</p>
+<p>Every code block on this page was run on <strong>2026-11-21</strong> with:</p>
 <ul>
-<li>Python 3.12.8, <code>ga4gh.vrs</code> 2.4.0a6, <code>ga4gh.cat_vrs</code> 0.8.0a6, <code>ga4gh.va_spec</code> 0.5.0a7, <code>ga4gh.gkm</code> 0.4.1,
-  <code>pydantic</code> 2.14.3, <code>duckdb</code> 1.5.4, <code>pyarrow</code> 26.0.1, <code>ijson</code> 3.6.0, <code>gkm-bundle-parquet</code> 2.0.0, and the
-  ClinVar-GKM schema tree at tag <code>1.1.0</code>.</li>
-<li><strong>Bundle examples:</strong> 1.1.0 data, the sample bundle and the 2026-10-18 weekly delta.</li>
-<li><strong>Parquet examples:</strong> 2.0 tables built by <code>gkm-bundle-parquet</code> 2.0.0 from four variants of the 2026-10-31
-  release (built as schema 1.2.0), and a mini-bundle cut from that release. The published set at
-  <code>v1/1.2/parquet/</code> has the same columns and more rows.</li>
+<li>Python 3.14.5 (an earlier run, on 1.1.0 data, used 3.12.8), <code>ga4gh.vrs</code> 2.4.0a6, <code>ga4gh.cat_vrs</code>
+  0.8.0a6, <code>ga4gh.va_spec</code> 0.5.0a7, <code>ga4gh.gkm</code> 0.4.1, <code>pydantic</code> 2.14.4, <code>duckdb</code> 1.5.4, <code>pyarrow</code>
+  26.0.1, <code>ijson</code> 3.6.0, <code>requests</code> 2.34.2, <code>gkm-bundle-parquet</code> 2.0.0 (through uv 0.6.14), and the
+  ClinVar-GKM schema tree at tag <code>1.2.0</code>.</li>
+<li><strong>Bundle examples:</strong> 1.2.0 data, the 2026-11-15 weekly delta.</li>
+<li><strong>Parquet examples:</strong> the published 2.0 tables at <code>v1/1.2/parquet/</code> (2026-11-15 release), and a mini-bundle
+  cut from the 2026-11 full bundle.</li>
 </ul>
 <p>The Parquet files are written with DuckDB 1.5.4: the <code>duckdb_version</code> in their <code>manifest.json</code>.</p>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Prerequisites</p>
+<ul>
+<li><strong>Python 3.11 or later</strong> (the model libraries need 3.10, <code>ga4gh.gkm</code> 3.11), with the packages in
+  <a href="#install">Install</a>.</li>
+<li><strong>git</strong>, to get the schema tree for <a href="#validate-a-bundle">Validate a bundle</a>.</li>
+<li><strong><a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a></strong>, for <code>uvx gkm-bundle-parquet</code> in
+  <a href="#statements-propositions-and-variants">Statements, propositions and variants</a>, or
+  <code>pip install gkm-bundle-parquet==2.0.0</code> instead.</li>
+<li><strong>Network access</strong> to <code>data.clinvar-gkm.org</code> (the delta, and the Parquet tables, which the examples read
+  remotely) and <code>w3id.org</code> (schemas fetched on demand).</li>
+<li><strong>Data:</strong> the 5 MB weekly delta from <a href="#get-the-example-files">Get the example files</a>. Only the
+  <code>gkm-bundle-parquet select</code> example reads a full bundle: 4.9 GB compressed (68.5 GB decompressed), streamed
+  from disk, about 10 minutes.</li>
+</ul>
+<p>Run the Python blocks in order, in one Python session: each block uses the names (<code>bundle</code>, <code>resolve</code>, <code>scv</code>,
+<code>vrs</code>, <code>rows</code>, …) defined by the blocks before it.</p>
+</div>
 <hr />
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
-<p>ClinVar-GKM 1.1.0 is written to <strong>VRS 2.1.1</strong>, <strong>Cat-VRS 1.1.1</strong>, <strong>VA-Spec 1.1.0</strong> and <strong>GKM-Core 1.3.0</strong>.
-The library releases that implement exactly those versions are, as of this writing, <strong>pre-releases</strong>:</p>
+<p>ClinVar-GKM 1.2.0, like 1.1.0, is written to <strong>VRS 2.1.1</strong>, <strong>Cat-VRS 1.1.1</strong>, <strong>VA-Spec 1.1.0</strong> and
+<strong>GKM-Core 1.3.0</strong>, so the same library versions read both. The library releases that implement exactly those
+versions are, as of this writing, <strong>pre-releases</strong>:</p>
 <table>
 <thead>
 <tr>
@@ -6867,13 +6886,13 @@ The library releases that implement exactly those versions are, as of this writi
 </tbody>
 </table>
 <p>The latest stable releases (<code>ga4gh.vrs</code> 2.3.3, <code>ga4gh.cat_vrs</code> 0.7.2, <code>ga4gh.va_spec</code> 0.4.4) implement older
-schema versions (VRS 2.0.1, Cat-VRS 1.0.0, VA-Spec 1.0.1) and reject most 1.1.0 records, so pin the
+schema versions (VRS 2.0.1, Cat-VRS 1.0.0, VA-Spec 1.0.1) and reject most ClinVar-GKM records, so pin the
 pre-releases. The libraries require Python 3.10 or later, and <code>ga4gh.gkm</code> 3.11 or later. <code>ga4gh.gkm</code> 0.4.1 pins
 the same three pre-releases.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>.<span class="w"> </span>.venv/bin/activate
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pip<span class="w"> </span>install<span class="w"> </span>-q<span class="w"> </span><span class="s2">"ga4gh.vrs==2.4.0a6"</span><span class="w"> </span><span class="s2">"ga4gh.cat_vrs==0.8.0a6"</span><span class="w"> </span><span class="s2">"ga4gh.va_spec==0.5.0a7"</span><span class="w"> </span><span class="s2">"ga4gh.gkm==0.4.1"</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>pip<span class="w"> </span>install<span class="w"> </span>-q<span class="w"> </span><span class="s2">"duckdb==1.5.4"</span><span class="w"> </span>pyarrow<span class="w"> </span>ijson<span class="w">    </span><span class="c1"># for the Parquet and streaming examples</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>pip<span class="w"> </span>install<span class="w"> </span>-q<span class="w"> </span><span class="s2">"duckdb==1.5.4"</span><span class="w"> </span>pyarrow<span class="w"> </span>ijson<span class="w"> </span>requests<span class="w">    </span><span class="c1"># Parquet, streaming and schema-fetching examples</span>
 </code></pre></div>
 <p>Check what is installed and which schema versions the libraries implement:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
@@ -6895,25 +6914,28 @@ the same three pre-releases.</p>
 </code></pre></div>
 <hr />
 <h2 id="get-the-example-files">Get the example files<a class="headerlink" href="#get-the-example-files" title="Permanent link">&para;</a></h2>
-<p>The examples use two small files:</p>
-<ul>
-<li><strong><code>nch-igm-bundle.json.gz</code></strong> (1.6 MB): a self-contained 1.1.0 sub-bundle of every SCV from one submitter
-  (IGM Clinical Laboratory, Nationwide Children's Hospital) and everything those SCVs reference, cut from
-  the 2026-10-18 release with <a href="../pipeline/sub-bundle/">Sub-Bundle Extraction</a>. Every pointer in it
-  resolves inside the file.</li>
-<li><strong><code>clinvar-gkm-delta_2026-1018.json.gz</code></strong> (24 MB): the published 2026-10-18 <a href="../data-access/weekly-deltas/">weekly delta</a>.</li>
-</ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>-sLO<span class="w"> </span>https://github.com/clingen-data-model/clinvar-gkm/raw/714f387065f7d42595131c5736911d18af955cc5/nch-igm-bundle.json.gz
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>curl<span class="w"> </span>-sO<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.1/deltas/clinvar-gkm-delta_2026-1018.json.gz
+<p>The bundle examples use one small file, <strong><code>clinvar-gkm-delta_2026-1115.json.gz</code></strong> (5 MB): the published
+2026-11-15 <a href="../data-access/weekly-deltas/">weekly delta</a>, a 1.2.0 bundle of every record that changed that week.</p>
+<p>Its path changes when its month ends (it moves to <code>deltas/2026-11/</code>), so the commands look it up in the line's
+<code>index.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nv">DELTA</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-fsS<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/index.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s1">'</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="s1">import json, sys</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="s1">print(next(d["bundle"]["path"] for d in json.load(sys.stdin)["deltas"] if d["release"] == "2026-11-15"))'</span><span class="k">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>curl<span class="w"> </span>-fsO<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/</span><span class="si">${</span><span class="nv">DELTA</span><span class="si">}</span><span class="s2">"</span>
 </code></pre></div>
-<p>The full bundles are about 4.8 GB compressed. Don't <code>json.load</code> one; see <a href="#large-bundles">Large bundles</a>.</p>
+<p>The full bundles are about 4.9 GB compressed (68.5 GB decompressed). Don't <code>json.load</code> one; see
+<a href="#large-bundles">Large bundles</a>.</p>
+<p>The repository also has <strong><code>nch-igm-bundle.json.gz</code></strong> (1.6 MB), a self-contained 1.1.0 sub-bundle of every SCV
+from one submitter, cut with <a href="../pipeline/sub-bundle/">Sub-Bundle Extraction</a>, in which every pointer resolves
+inside the file (<code>curl -fsLO https://github.com/clingen-data-model/clinvar-gkm/raw/96fd97734e7f3fbb58ce75fdf5f201dbe9e5df0d/nch-igm-bundle.json.gz</code>).
+The same libraries read it; validate it against the schema tree at tag <code>1.1.0</code>, not <code>1.2.0</code>.</p>
 <hr />
 <h2 id="load-a-bundle-and-follow-pointers">Load a bundle and follow pointers<a class="headerlink" href="#load-a-bundle-and-follow-pointers" title="Permanent link">&para;</a></h2>
 <p>A bundle is one JSON object whose sections map an id to a record. <code>json.load</code> is enough to read one:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">gzip</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"nch-igm-bundle.json.gz"</span><span class="p">,</span> <span class="s2">"rt"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"clinvar-gkm-delta_2026-1115.json.gz"</span><span class="p">,</span> <span class="s2">"rt"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">bundle</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="nb">print</span><span class="p">(</span><span class="n">bundle</span><span class="p">[</span><span class="s2">"schema_version"</span><span class="p">])</span>
@@ -6925,36 +6947,41 @@ the same three pre-releases.</p>
 <a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    <span class="n">section</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">pointer</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">"#/"</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    <span class="k">return</span> <span class="n">bundle</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>1.1.0
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>{'sequenceReference': 24, 'location': 1913, 'allele': 2027, 'copyNumberChange': 1, 'gene': 460, 'variation': 2032, 'condition': 390, 'conditionSet': 33, 'submitter': 1, 'propositionPathogenicity': 943, 'propositionSomaticClinicalImpact': 2994, 'propositionClinvarCustom': 3, 'evidenceLine': 1497, 'scv': 2443}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>1.2.0
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>{'location': 176, 'allele': 230, 'copyNumberChange': 3, 'gene': 5, 'variation': 5471, 'condition': 190, 'conditionSet': 138, 'submitter': 10, 'propositionPathogenicity': 3399, 'propositionClinvarCustom': 325, 'evidenceLine': 6064, 'scv': 17562, 'vcv': 2941, 'rcv': 2548}
 </code></pre></div>
-<p>Records point to each other with <code>#/section/id</code> strings. Follow one SCV down to its reference sequence:
-statement → proposition → variation → defining allele → location → sequence reference.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">scv</span> <span class="o">=</span> <span class="n">bundle</span><span class="p">[</span><span class="s2">"scv"</span><span class="p">][</span><span class="s2">"clinvar.submission:SCV000864262.1"</span><span class="p">]</span>
+<p>Records point to each other with <code>#/section/id</code> strings. Continuing from the block above (<code>bundle</code>,
+<code>resolve</code>), follow one SCV down toward its reference sequence: statement → proposition → variation → defining
+allele → location → sequence reference.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">scv</span> <span class="o">=</span> <span class="n">bundle</span><span class="p">[</span><span class="s2">"scv"</span><span class="p">][</span><span class="s2">"clinvar.submission:SCV008145211.1"</span><span class="p">]</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">proposition</span> <span class="o">=</span> <span class="n">resolve</span><span class="p">(</span><span class="n">scv</span><span class="p">[</span><span class="s2">"proposition"</span><span class="p">])</span>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">variation</span> <span class="o">=</span> <span class="n">resolve</span><span class="p">(</span><span class="n">proposition</span><span class="p">[</span><span class="s2">"subject"</span><span class="p">])</span>
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">allele</span> <span class="o">=</span> <span class="n">resolve</span><span class="p">(</span><span class="n">variation</span><span class="p">[</span><span class="s2">"constraints"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"allele"</span><span class="p">])</span>
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">location</span> <span class="o">=</span> <span class="n">resolve</span><span class="p">(</span><span class="n">allele</span><span class="p">[</span><span class="s2">"location"</span><span class="p">])</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">sequence</span> <span class="o">=</span> <span class="n">resolve</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="s2">"sequenceReference"</span><span class="p">])</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="nb">print</span><span class="p">(</span><span class="n">scv</span><span class="p">[</span><span class="s2">"classification"</span><span class="p">][</span><span class="s2">"name"</span><span class="p">],</span> <span class="s2">"|"</span><span class="p">,</span> <span class="n">resolve</span><span class="p">(</span><span class="n">scv</span><span class="p">[</span><span class="s2">"contributions"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"contributor"</span><span class="p">])[</span><span class="s2">"name"</span><span class="p">])</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="nb">print</span><span class="p">(</span><span class="n">proposition</span><span class="p">[</span><span class="s2">"type"</span><span class="p">],</span> <span class="n">proposition</span><span class="p">[</span><span class="s2">"predicate"</span><span class="p">],</span> <span class="s2">"-&gt;"</span><span class="p">,</span> <span class="n">resolve</span><span class="p">(</span><span class="n">proposition</span><span class="p">[</span><span class="s2">"object"</span><span class="p">])[</span><span class="s2">"name"</span><span class="p">])</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="nb">print</span><span class="p">(</span><span class="n">variation</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span> <span class="n">variation</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="nb">print</span><span class="p">(</span><span class="n">allele</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span> <span class="n">allele</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="nb">print</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span> <span class="n">location</span><span class="p">[</span><span class="s2">"start"</span><span class="p">],</span> <span class="n">location</span><span class="p">[</span><span class="s2">"end"</span><span class="p">])</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="nb">print</span><span class="p">(</span><span class="n">sequence</span><span class="p">[</span><span class="s2">"refgetAccession"</span><span class="p">],</span> <span class="n">sequence</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="nb">print</span><span class="p">(</span><span class="n">scv</span><span class="p">[</span><span class="s2">"classification"</span><span class="p">][</span><span class="s2">"name"</span><span class="p">],</span> <span class="s2">"|"</span><span class="p">,</span> <span class="n">resolve</span><span class="p">(</span><span class="n">scv</span><span class="p">[</span><span class="s2">"contributions"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"contributor"</span><span class="p">])[</span><span class="s2">"name"</span><span class="p">])</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="nb">print</span><span class="p">(</span><span class="n">proposition</span><span class="p">[</span><span class="s2">"type"</span><span class="p">],</span> <span class="n">proposition</span><span class="p">[</span><span class="s2">"predicate"</span><span class="p">],</span> <span class="s2">"-&gt;"</span><span class="p">,</span> <span class="n">resolve</span><span class="p">(</span><span class="n">proposition</span><span class="p">[</span><span class="s2">"object"</span><span class="p">])[</span><span class="s2">"name"</span><span class="p">])</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="nb">print</span><span class="p">(</span><span class="n">variation</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span> <span class="n">variation</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="nb">print</span><span class="p">(</span><span class="n">allele</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span> <span class="n">allele</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="nb">print</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span> <span class="n">location</span><span class="p">[</span><span class="s2">"start"</span><span class="p">],</span> <span class="n">location</span><span class="p">[</span><span class="s2">"end"</span><span class="p">])</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="nb">print</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="s2">"sequenceReference"</span><span class="p">],</span> <span class="s2">"| sequenceReference section in the delta:"</span><span class="p">,</span> <span class="s2">"sequenceReference"</span> <span class="ow">in</span> <span class="n">bundle</span><span class="p">)</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="c1"># The delta has no sequenceReference section. A sequenceReference key is the sequence's refget accession,</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="c1"># and that, with the type, is all a VRS identifier uses of it (see the next section)</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="n">sequence</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"SequenceReference"</span><span class="p">,</span> <span class="s2">"refgetAccession"</span><span class="p">:</span> <span class="n">location</span><span class="p">[</span><span class="s2">"sequenceReference"</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]}</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Benign | Institute for Genomic Medicine (IGM) Clinical Laboratory, Nationwide Children's Hospital
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>VariantPathogenicityProposition isCausalFor -&gt; not specified
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>clinvar:599425 NM_018486.3(HDAC8):c.20C&gt;T (p.Pro7Leu)
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>ga4gh:VA.yXEFCuYP7t_V3ALpYIMvWTy4PhfvT8ts NC_000023.11:g.72572742G&gt;A
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>ga4gh:SL.sk5GccwF1vh_M4zGnjDYkoYNGrRKc6uW 72572741 72572742
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>SQ.w0WZEvgJF0zf_P4yyTzjjv9oW1z61HHP NC_000023.11
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Likely pathogenic | Department of Ophthalmology, Seoul National University Bundang Hospital
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>VariantPathogenicityProposition isCausalFor -&gt; RP1-related dominant retinopathy
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>clinvar:5042631 NM_006269.2(RP1):c.2238_2239del (p.Lys746_Ser747insTer)
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>ga4gh:VA.1Oo5_TVyd33l8M9QsAac-ULaZR86hDCx NC_000008.11:g.54626120_54626121del
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>ga4gh:SL.sF-Pr6l0-_uRAtk8bv9UzOPYvr6TK9IC 54626117 54626121
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>#/sequenceReference/SQ.209Z7zJ-mFypBEWLk4rNC6S_OxY5p7bs | sequenceReference section in the delta: False
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">A delta is not self-contained</p>
 <p>A weekly delta carries only the records that changed, so its pointers can name records that are only in
-the full bundle it applies to. The 2026-10-18 delta, for example, has no <code>sequenceReference</code> section.
+the full bundle it applies to. The 2026-11-15 delta, for example, has no <code>sequenceReference</code> section, and
+57 of its alleles and copy-number changes point to a <code>location</code> that is only in the full bundle.
 Resolve a delta's pointers against the full bundle after <a href="../data-access/weekly-deltas/">applying the delta</a>.</p>
 </div>
 <hr />
@@ -6962,6 +6989,7 @@ Resolve a delta's pointers against the full bundle after <a href="../data-access
 <p>Each section's records, except the ClinVar custom propositions, validate as one class from the libraries. A pointer string is accepted wherever a
 field allows a reference: the models type it as <code>iriReference</code>, and its <code>.root</code> holds the pointer.</p>
 <h3 id="vrs-alleles-and-their-identifiers">VRS alleles and their identifiers<a class="headerlink" href="#vrs-alleles-and-their-identifiers" title="Permanent link">&para;</a></h3>
+<p>Continuing from the pointer walk above (<code>allele</code>, <code>location</code>, <code>sequence</code>):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ga4gh.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">ga4gh_identify</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ga4gh.vrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span> <span class="k">as</span> <span class="n">vrs</span>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
@@ -6978,15 +7006,16 @@ field allows a reference: the models type it as <code>iriReference</code>, and i
 <a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="n">fresh</span> <span class="o">=</span> <span class="n">vrs</span><span class="o">.</span><span class="n">Allele</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">(</span><span class="n">allele</span><span class="p">)</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"location"</span><span class="p">:</span> <span class="n">content</span><span class="p">(</span><span class="n">location</span><span class="p">)</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"sequenceReference"</span><span class="p">:</span> <span class="n">sequence</span><span class="p">}})</span>
 <a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="nb">print</span><span class="p">(</span><span class="n">ga4gh_identify</span><span class="p">(</span><span class="n">fresh</span><span class="p">),</span> <span class="n">ga4gh_identify</span><span class="p">(</span><span class="n">fresh</span><span class="p">)</span> <span class="o">==</span> <span class="n">allele</span><span class="p">[</span><span class="s2">"id"</span><span class="p">])</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>iriReference #/location/ga4gh:SL.sk5GccwF1vh_M4zGnjDYkoYNGrRKc6uW
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>ga4gh:VA.yXEFCuYP7t_V3ALpYIMvWTy4PhfvT8ts True
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>iriReference #/location/ga4gh:SL.sF-Pr6l0-_uRAtk8bv9UzOPYvr6TK9IC
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>ga4gh:VA.1Oo5_TVyd33l8M9QsAac-ULaZR86hDCx True
 </code></pre></div>
 <p><code>ga4gh_identify</code> needs the location inline: the allele's digest is computed over its location's digest, and
-the location's over its sequence reference. Recomputed this way, all 2,027 allele ids and the one
-<code>copyNumberChange</code> id in the sample match the published ids.</p>
+the location's over its sequence reference, of which it uses only <code>type</code> and <code>refgetAccession</code>. Recomputed this
+way, every <code>allele</code> and <code>copyNumberChange</code> id in the delta whose location is also in the delta (176 of 233)
+matches the published id.</p>
 <h3 id="cat-vrs-categorical-variants">Cat-VRS categorical variants<a class="headerlink" href="#cat-vrs-categorical-variants" title="Permanent link">&para;</a></h3>
 <p>A <code>variation</code> record is a Cat-VRS <code>CategoricalVariant</code>. Its defining constraint points to an <code>allele</code> (or, for
-copy-number variants, a <code>location</code>) record:</p>
+copy-number variants, a <code>location</code>) record. Continuing with <code>variation</code> from the pointer walk:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ga4gh.cat_vrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span> <span class="k">as</span> <span class="n">catvrs</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">categorical</span> <span class="o">=</span> <span class="n">catvrs</span><span class="o">.</span><span class="n">CategoricalVariant</span><span class="p">(</span><span class="o">**</span><span class="n">variation</span><span class="p">)</span>
@@ -6995,11 +7024,12 @@ copy-number variants, a <code>location</code>) record:</p>
 <a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="nb">print</span><span class="p">([</span><span class="n">relation</span><span class="o">.</span><span class="n">primaryCoding</span><span class="o">.</span><span class="n">code</span><span class="o">.</span><span class="n">root</span> <span class="k">for</span> <span class="n">relation</span> <span class="ow">in</span> <span class="n">constraint</span><span class="o">.</span><span class="n">relations</span><span class="p">])</span>
 <a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="nb">print</span><span class="p">({</span><span class="n">e</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">categorical</span><span class="o">.</span><span class="n">extensions</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)})</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>DefiningAlleleConstraint #/allele/ga4gh:VA.yXEFCuYP7t_V3ALpYIMvWTy4PhfvT8ts
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>DefiningAlleleConstraint #/allele/ga4gh:VA.1Oo5_TVyd33l8M9QsAac-ULaZR86hDCx
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>['liftover_to', 'transcribed_to']
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>{'categoricalVariationType': 'CanonicalAllele', 'definingVrsVariationType': 'Allele', 'clinvarVariationType': 'single nucleotide variant', 'clinvarSubclassType': 'SimpleAllele', 'clinvarCytogeneticLocation': 'Xq13.1'}
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>{'categoricalVariationType': 'CanonicalAllele', 'definingVrsVariationType': 'Allele', 'clinvarVariationType': 'Deletion', 'clinvarSubclassType': 'SimpleAllele', 'clinvarCytogeneticLocation': '8q12.1'}
 </code></pre></div>
 <h3 id="va-spec-propositions-and-statements">VA-Spec propositions and statements<a class="headerlink" href="#va-spec-propositions-and-statements" title="Permanent link">&para;</a></h3>
+<p>Continuing with <code>proposition</code> and <code>scv</code> from the pointer walk:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ga4gh.va_spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">va</span>
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
 <a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">pathogenicity</span> <span class="o">=</span> <span class="n">va</span><span class="o">.</span><span class="n">VariantPathogenicityProposition</span><span class="p">(</span><span class="o">**</span><span class="n">proposition</span><span class="p">)</span>
@@ -7009,9 +7039,9 @@ copy-number variants, a <code>location</code>) record:</p>
 <a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="nb">print</span><span class="p">(</span><span class="n">statement</span><span class="o">.</span><span class="n">proposition</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
 <a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="nb">print</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">statement</span><span class="o">.</span><span class="n">extensions</span><span class="p">])</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>isCausalFor #/variation/clinvar:599425 #/condition/clinvar.trait:16789
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>disputes Definitive benign
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>#/propositionPathogenicity/SCV000864262-PATH
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>isCausalFor #/variation/clinvar:5042631 #/condition/clinvar.trait:66395
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>supports Likely likely pathogenic
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>#/propositionPathogenicity/SCV008145211-PATH
 <a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>['clinvarScvId', 'clinvarScvVersion', 'submittedCondition', 'clinvarScvReviewStatus', 'submittedScvLocalKey', 'submissionLevel']
 </code></pre></div>
 <p>Records in the <code>scv</code>, <code>vcv</code> and <code>rcv</code> sections load as <code>Statement</code>, and <code>evidenceLine</code> records as
@@ -7033,19 +7063,21 @@ copy-number variants, a <code>location</code>) record:</p>
 <h2 id="the-gkm-toolkit">The GKM Toolkit<a class="headerlink" href="#the-gkm-toolkit" title="Permanent link">&para;</a></h2>
 <p>The <a href="https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/">GKM Toolkit</a> (<code>ga4gh.gkm</code>) validates a
 producer's bundle against that producer's schemas. That is its intended way to validate producer data: you supply
-the schemas, and it checks every record against them. Validation works on ClinVar-GKM 1.1.0 bundles today; the
-toolkit's loader does not yet read them (see <a href="#loading-bundles">Loading bundles</a>).</p>
+the schemas, and it checks every record against them. Validation works on ClinVar-GKM 1.2.0 and 1.1.0 bundles
+today; the toolkit's loader does not yet read them (see <a href="#loading-bundles">Loading bundles</a>).</p>
 <h3 id="validate-a-bundle">Validate a bundle<a class="headerlink" href="#validate-a-bundle" title="Permanent link">&para;</a></h3>
-<p>The 1.1.0 release was validated this way: <code>validate_bundle_schema</code> with a <code>validator=</code> whose <code>referencing</code>
-registry holds the ClinVar-GKM 1.1.0 schemas and the GA4GH schemas they reference, taken from the
-<code>schema/</code> tree of this repository at tag <code>1.1.0</code>. <a href="../reference/release-validation/">Release Validation</a> lists
-the results, and its <a href="../reference/release-validation/#verification-reports">verification reports</a> record, per
+<p>Call <code>validate_bundle_schema</code> with a <code>validator=</code> whose <code>referencing</code> registry holds the ClinVar-GKM 1.2.0
+schemas and the GA4GH schemas they reference, taken from the <code>schema/</code> tree of this repository at tag <code>1.2.0</code>
+(for a 1.1.0 bundle, use tag <code>1.1.0</code>). The release checks use the same schemas;
+<a href="../reference/release-validation/">Release Validation</a> lists the results, and its
+<a href="../reference/release-validation/#verification-reports">verification reports</a> record, per
 published file, the schemas and tool versions used.</p>
 <p>Get the schema tree. The GA4GH schemas come in through the <code>va-spec</code> submodule:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>git<span class="w"> </span>clone<span class="w"> </span>-q<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span><span class="m">1</span>.1.0<span class="w"> </span>--recurse-submodules<span class="w"> </span>--shallow-submodules<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span>https://github.com/clingen-data-model/clinvar-gkm.git<span class="w"> </span>clinvar-gkm-1.1.0
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>git<span class="w"> </span>-c<span class="w"> </span>advice.detachedHead<span class="o">=</span><span class="nb">false</span><span class="w"> </span>clone<span class="w"> </span>-q<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span><span class="m">1</span>.2.0<span class="w"> </span>--recurse-submodules<span class="w"> </span>--shallow-submodules<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span>https://github.com/clingen-data-model/clinvar-gkm.git<span class="w"> </span>clinvar-gkm-1.2.0
 </code></pre></div>
-<p>Register every schema in the tree by its <code>$id</code>, then validate:</p>
+<p>Register every schema in the tree by its <code>$id</code>, then validate the delta (<code>bundle</code>, and <code>scv</code> from the pointer
+walk):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
 <a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -7055,9 +7087,9 @@ published file, the schemas and tool versions used.</p>
 <a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ga4gh.gkm.bundles</span><span class="w"> </span><span class="kn">import</span> <span class="n">BundleValidationError</span>
 <a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ga4gh.gkm.bundles.schema_validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_bundle_schema</span>
 <a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
-<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="c1"># Every schema in the 1.1.0 tree, keyed by $id: ClinVar-GKM's own and the GA4GH schemas they reference</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="c1"># Every schema in the 1.2.0 tree, keyed by $id: ClinVar-GKM's own and the GA4GH schemas they reference</span>
 <a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="n">schemas</span> <span class="o">=</span> <span class="p">{}</span>
-<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="k">for</span> <span class="n">directory</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="s2">"clinvar-gkm-1.1.0/schema"</span><span class="p">,</span> <span class="n">followlinks</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="k">for</span> <span class="n">directory</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="s2">"clinvar-gkm-1.2.0/schema"</span><span class="p">,</span> <span class="n">followlinks</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
 <a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>        <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>            <span class="n">document</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
@@ -7067,29 +7099,35 @@ published file, the schemas and tool versions used.</p>
 <a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>            <span class="n">schemas</span><span class="p">[</span><span class="n">document</span><span class="p">[</span><span class="s2">"$id"</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Resource</span><span class="o">.</span><span class="n">from_contents</span><span class="p">(</span><span class="n">document</span><span class="p">)</span>
 <a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="nb">print</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">Counter</span><span class="p">(</span><span class="s2">"/"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)[</span><span class="mi">5</span><span class="p">:</span><span class="mi">7</span><span class="p">])</span> <span class="k">for</span> <span class="n">uri</span> <span class="ow">in</span> <span class="n">schemas</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
 <a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>
-<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="n">bundle_schema</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"clinvar-gkm-1.1.0/schema/clinvar-gkm/clinvar-gkm-bundle.schema.json"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="n">bundle_schema</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"clinvar-gkm-1.2.0/schema/clinvar-gkm/clinvar-gkm-bundle.schema.json"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
 <a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a><span class="n">validator</span> <span class="o">=</span> <span class="n">Draft202012Validator</span><span class="p">(</span><span class="n">bundle_schema</span><span class="p">,</span> <span class="n">registry</span><span class="o">=</span><span class="n">Registry</span><span class="p">()</span><span class="o">.</span><span class="n">with_resources</span><span class="p">(</span><span class="n">schemas</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
 <a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>
-<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a><span class="n">validate_bundle_schema</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span> <span class="n">bundle_schema</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">validator</span><span class="p">)</span>  <span class="c1"># raises BundleValidationError on a violation</span>
-<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a><span class="nb">print</span><span class="p">(</span><span class="s2">"valid:"</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span> <span class="k">for</span> <span class="n">records</span> <span class="ow">in</span> <span class="n">bundle</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)),</span> <span class="s2">"records"</span><span class="p">)</span>
-<a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a>
-<a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a><span class="n">broken</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">"schema_version"</span><span class="p">:</span> <span class="s2">"1.1.0"</span><span class="p">,</span> <span class="s2">"scv"</span><span class="p">:</span> <span class="p">{</span><span class="n">scv</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]:</span> <span class="n">scv</span><span class="p">}}))</span>
-<a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a><span class="n">broken</span><span class="p">[</span><span class="s2">"scv"</span><span class="p">][</span><span class="n">scv</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]][</span><span class="s2">"direction"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"sideways"</span>  <span class="c1"># not a VA-Spec direction</span>
-<a id="__codelineno-15-30" name="__codelineno-15-30" href="#__codelineno-15-30"></a><span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-15-31" name="__codelineno-15-31" href="#__codelineno-15-31"></a>    <span class="n">validate_bundle_schema</span><span class="p">(</span><span class="n">broken</span><span class="p">,</span> <span class="n">bundle_schema</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">validator</span><span class="p">)</span>
-<a id="__codelineno-15-32" name="__codelineno-15-32" href="#__codelineno-15-32"></a><span class="k">except</span> <span class="n">BundleValidationError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
-<a id="__codelineno-15-33" name="__codelineno-15-33" href="#__codelineno-15-33"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a><span class="c1"># The first 100 records of each section: the whole delta takes about 17 minutes (see below)</span>
+<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a><span class="n">part</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"schema_version"</span><span class="p">:</span> <span class="n">bundle</span><span class="p">[</span><span class="s2">"schema_version"</span><span class="p">]}</span> <span class="o">|</span> <span class="p">{</span>
+<a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a>    <span class="n">section</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">records</span><span class="o">.</span><span class="n">items</span><span class="p">())[:</span><span class="mi">100</span><span class="p">])</span> <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">records</span> <span class="ow">in</span> <span class="n">bundle</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+<a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a><span class="p">}</span>
+<a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a><span class="n">validate_bundle_schema</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">bundle_schema</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">validator</span><span class="p">)</span>  <span class="c1"># raises BundleValidationError on a violation</span>
+<a id="__codelineno-15-30" name="__codelineno-15-30" href="#__codelineno-15-30"></a><span class="nb">print</span><span class="p">(</span><span class="s2">"valid:"</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span> <span class="k">for</span> <span class="n">records</span> <span class="ow">in</span> <span class="n">part</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)),</span> <span class="s2">"records"</span><span class="p">)</span>
+<a id="__codelineno-15-31" name="__codelineno-15-31" href="#__codelineno-15-31"></a>
+<a id="__codelineno-15-32" name="__codelineno-15-32" href="#__codelineno-15-32"></a><span class="n">broken</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">"schema_version"</span><span class="p">:</span> <span class="s2">"1.2.0"</span><span class="p">,</span> <span class="s2">"scv"</span><span class="p">:</span> <span class="p">{</span><span class="n">scv</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]:</span> <span class="n">scv</span><span class="p">}}))</span>
+<a id="__codelineno-15-33" name="__codelineno-15-33" href="#__codelineno-15-33"></a><span class="n">broken</span><span class="p">[</span><span class="s2">"scv"</span><span class="p">][</span><span class="n">scv</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]][</span><span class="s2">"direction"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"sideways"</span>  <span class="c1"># not a VA-Spec direction</span>
+<a id="__codelineno-15-34" name="__codelineno-15-34" href="#__codelineno-15-34"></a><span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-15-35" name="__codelineno-15-35" href="#__codelineno-15-35"></a>    <span class="n">validate_bundle_schema</span><span class="p">(</span><span class="n">broken</span><span class="p">,</span> <span class="n">bundle_schema</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">validator</span><span class="p">)</span>
+<a id="__codelineno-15-36" name="__codelineno-15-36" href="#__codelineno-15-36"></a><span class="k">except</span> <span class="n">BundleValidationError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<a id="__codelineno-15-37" name="__codelineno-15-37" href="#__codelineno-15-37"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>[('cat-vrs/1.1.1', 16), ('clinvar-gkm/1.1.0', 28), ('gkm-core/1.3.0', 11), ('va-spec/1.1.0', 40), ('vrs/2.1.1', 26)]
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>valid: 14761 records
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>Bundle does not match its JSON Schema at scv/clinvar.submission:SCV000864262.1/direction: 'sideways' is not one of ['supports', 'neutral', 'disputes']
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>[('cat-vrs/1.1.1', 16), ('clinvar-gkm/1.2.0', 76), ('gkm-core/1.3.0', 11), ('va-spec/1.1.0', 40), ('vrs/2.1.1', 26)]
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>valid: 1118 records
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>Bundle does not match its JSON Schema at scv/clinvar.submission:SCV008145211.1/direction: 'sideways' is not one of ['supports', 'neutral', 'disputes']
 </code></pre></div>
-<p>Records are validated as published, <code>#/…</code> pointers included, against the full ClinVar-GKM profiles. The whole
-sample, 14,761 records, took about 2 minutes on one core; <code>variation</code> records are the slowest.</p>
+<p>Records are validated as published, <code>#/…</code> pointers included, against the full ClinVar-GKM profiles. The
+1,118-record slice takes about 30 seconds on one core; the whole delta, 39,062 records, validates in about 17
+minutes (pass <code>bundle</code> instead of <code>part</code>).</p>
 <p>The same schemas resolve by <code>$id</code> through <a href="https://w3id.org/">w3id.org</a>, so a registry can fetch them on demand
 instead of reading a local tree. The bundle schema itself can be fetched the same way, from
-<code>https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json</code>. Fetching makes one request
-per schema, so validate a slice, here the first 25 records of each section:</p>
+<code>https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json</code>. Fetching makes one request
+per schema, so validate a slice, here the first 25 records of each section. This continues from the block above
+(<code>bundle_schema</code>, <code>Resource</code>, <code>Draft202012Validator</code>):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 <a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
 <a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
@@ -7108,7 +7146,7 @@ per schema, so validate a slice, here the first 25 records of each section:</p>
 <a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="nb">print</span><span class="p">(</span><span class="s2">"valid:"</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span> <span class="k">for</span> <span class="n">records</span> <span class="ow">in</span> <span class="n">part</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)),</span> <span class="s2">"records;"</span><span class="p">,</span>
 <a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a>      <span class="n">fetch</span><span class="o">.</span><span class="n">cache_info</span><span class="p">()</span><span class="o">.</span><span class="n">currsize</span><span class="p">,</span> <span class="s2">"schemas fetched"</span><span class="p">)</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>valid: 279 records; 74 schemas fetched
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>valid: 293 records; 104 schemas fetched
 </code></pre></div>
 <p><code>validate_bundle_schema</code> takes a whole bundle in memory. For multi-GB full bundles, the release used a streaming,
 multi-process wrapper around it; that wrapper is proposed for the toolkit, as <code>gkm-validate-bundle</code>, in
@@ -7120,12 +7158,12 @@ as the toolkit, and each version release also runs the toolkit on a sample of a 
 <a href="../reference/release-validation/">Release Validation</a>.</p>
 <h3 id="loading-bundles">Loading bundles<a class="headerlink" href="#loading-bundles" title="Permanent link">&para;</a></h3>
 <div class="admonition note">
-<p class="admonition-title">The toolkit's loader needs upstream updates for ClinVar-GKM 1.1.0</p>
+<p class="admonition-title">The toolkit's loader needs upstream updates for ClinVar-GKM bundles</p>
 <p>The toolkit's loader tools (<code>load_bundle</code>, <code>Bundle.resolve</code>, <code>Bundle.export</code> and its model conversion) do
-not yet read ClinVar-GKM 1.1.0 bundles. They need updating upstream in two ways:</p>
+not yet read ClinVar-GKM 1.1.0 or 1.2.0 bundles. They need updating upstream in two ways:</p>
 <ol>
-<li><strong>The most recent GKM spec versions</strong>, which 1.1.0 data uses: GKM-Core 1.3.0, VRS 2.1.1, Cat-VRS 1.1.1
-   and VA-Spec 1.1.0. <code>ga4gh.gkm</code> 0.4.1 matches these only through the pre-release libraries above, and
+<li><strong>The most recent GKM spec versions</strong>, which 1.1.0 and 1.2.0 data use: GKM-Core 1.3.0, VRS 2.1.1,
+   Cat-VRS 1.1.1 and VA-Spec 1.1.0. <code>ga4gh.gkm</code> 0.4.1 matches these only through the pre-release libraries above, and
    it accepts a schema version only when it equals the installed library's.</li>
 <li><strong>A way to handle producer-specific classes outside VA-Spec.</strong> The loader resolves schema references
    only against the GA4GH schemas it ships, cannot be given a producer's schemas, and converts records
@@ -7155,7 +7193,8 @@ decides how to get a model from it:</p>
 <p><a href="../parquet/build-your-own/">Build Your Own Tables and Mini-Bundles</a> covers <code>gkm-bundle-parquet</code>, the tool that
 builds the tables and cuts mini-bundles.</p>
 <h3 id="vrs-records-from-rows">VRS records from rows<a class="headerlink" href="#vrs-records-from-rows" title="Permanent link">&para;</a></h3>
-<p>Read rows as dictionaries through pyarrow, drop the NULLs, and build the models. Here, the alleles of three
+<p>Read rows as dictionaries through pyarrow, drop the NULLs, and build the models (<code>vrs</code> is imported in
+<a href="#vrs-alleles-and-their-identifiers">VRS alleles and their identifiers</a>). Here, the alleles of three
 variants: <code>variation.members</code> gives each member's id and the table it is in.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
 <a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
@@ -7195,7 +7234,7 @@ variants: <code>variation.members</code> gives each member's id and the table it
 <a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>ga4gh:VA.LDaqvF3c3y1IG8wF4mORiRfB--9Jjfzp NC_000012.12:g.25245350C&gt;T ga4gh:SL.qaHcVvdl8j0lpLRt49hE-bFI81128Mk9
 </code></pre></div>
 <p>The allele's <code>location</code> is a bare id. Follow it, and the location's <code>sequenceReference</code>, and recompute the
-identifiers as <a href="#vrs-alleles-and-their-identifiers">above</a>:</p>
+identifiers as <a href="#vrs-alleles-and-their-identifiers">above</a>, with <code>content</code> and <code>ga4gh_identify</code> from there:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># The record's own properties: start_min, start_max, end_min and end_max are derived columns</span>
 <a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="n">locations</span> <span class="o">=</span> <span class="n">by_id</span><span class="p">(</span><span class="s2">"location"</span><span class="p">,</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">"location"</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">alleles</span><span class="o">.</span><span class="n">values</span><span class="p">()],</span>
 <a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>                  <span class="s1">'id, type, digest, sequenceReference, start, "end"'</span><span class="p">)</span>
@@ -7225,7 +7264,7 @@ identifiers as <a href="#vrs-alleles-and-their-identifiers">above</a>:</p>
 <h3 id="statements-propositions-and-variants">Statements, propositions and variants<a class="headerlink" href="#statements-propositions-and-variants" title="Permanent link">&para;</a></h3>
 <p>For the other tables, query the columns. The proposition → statement → variant walk from the bundle examples,
 from the tables (<code>scv.proposition</code> and <code>variation.id</code> are the join keys; <a href="../parquet/joining/">Joining Tables</a>
-covers every hop):</p>
+covers every hop), with <code>rows</code>, <code>by_id</code> and <code>P</code> from the block above:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">prop_row</span> <span class="o">=</span> <span class="n">rows</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""</span>
 <a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="s2">    SELECT id, subject, predicate, geneContextQualifier.name AS gene</span>
 <a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="s2">    FROM '</span><span class="si">{</span><span class="n">P</span><span class="si">}</span><span class="s2">/propositionClinvarCustom.parquet'</span>
@@ -7248,14 +7287,20 @@ covers every hop):</p>
 weekly full of the manifest's <code>source_release</code>, which is <code>weekly/clinvar-gkm_00-latest_weekly.json.gz</code> while the
 tables are current. <code>gkm-bundle-parquet select</code> cuts a mini-bundle from it: the SCV and every record it points
 to, directly or through other records, so every pointer in it resolves inside the file.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">    </span>--full<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">    </span>--bundle-schema<span class="w"> </span>https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">    </span>--driver<span class="w"> </span>scv<span class="w"> </span>--ids<span class="w"> </span>clinvar.submission:SCV001142520.1<span class="w"> </span>--out<span class="w"> </span>SCV001142520.json.gz
+<p><code>select</code> reads the whole bundle, 4.9 GB compressed, so download it once and pass the local path; <code>--full</code> also
+takes a URL, but then streams the whole file on every run. <code>uvx</code> comes with
+<a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a>; without it, <code>pip install gkm-bundle-parquet==2.0.0</code>
+and run <code>gkm-bundle-parquet</code> in its place. <code>--out</code> must not exist yet: delete it to run again.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>curl<span class="w"> </span>-fO<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">    </span>--full<span class="w"> </span>clinvar-gkm_00-latest_weekly.json.gz<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">    </span>--bundle-schema<span class="w"> </span>https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="w">    </span>--driver<span class="w"> </span>scv<span class="w"> </span>--ids<span class="w"> </span>clinvar.submission:SCV001142520.1<span class="w"> </span>--out<span class="w"> </span>SCV001142520.json.gz
 </code></pre></div>
-<p><code>select</code> reads the whole bundle, so one id costs about as much as many: pass every id you need in one run
-(<code>--ids</code> takes a comma-separated list, <code>--ids-file</code> a file of ids). On a local copy of the 2026-10-31 full
-bundle, this selection took under 3 minutes. The mini-bundle loads like the sample:</p>
+<p>One id costs about as much as many: pass every id you need in one run (<code>--ids</code> takes a comma-separated list,
+<code>--ids-file</code> a file of ids). On a local copy of the 2026-11 full bundle, this selection took about 9 minutes,
+including the first <code>uvx</code> install and hashing the file. The mini-bundle loads like the delta; this block
+continues from the Parquet blocks above (<code>scv_row</code>) and the model blocks (<code>va</code>, <code>catvrs</code>):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"SCV001142520.json.gz"</span><span class="p">,</span> <span class="s2">"rt"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
 <a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>    <span class="n">mini</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 <a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>
@@ -7291,7 +7336,7 @@ them locally (<a href="../parquet/performance/#local-or-remote">Working at Scale
 <h2 id="round-trip">Round trip<a class="headerlink" href="#round-trip" title="Permanent link">&para;</a></h2>
 <p><code>model_dump(mode="json", exclude_none=True)</code> serializes a model back to JSON. Records carry no <code>null</code> fields
 (except the open bound of a VRS <code>Range</code>, which survives), so <code>exclude_none=True</code> loses nothing. Compare every
-record of the sample bundle with its round trip:</p>
+record of the delta with its round trip (this uses <code>vrs</code>, <code>catvrs</code> and <code>va</code> from the blocks above):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
 <a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>
 <a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ga4gh.core.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MappableConcept</span>
@@ -7321,63 +7366,64 @@ record of the sample bundle with its round trip:</p>
 <a id="__codelineno-28-27" name="__codelineno-28-27" href="#__codelineno-28-27"></a><span class="k">for</span> <span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">result</span><span class="p">),</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tally</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 <a id="__codelineno-28-28" name="__codelineno-28-28" href="#__codelineno-28-28"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">section</span><span class="si">:</span><span class="s2">33</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">result</span><span class="si">:</span><span class="s2">9</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">n</span><span class="si">:</span><span class="s2">5</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>sequenceReference                 identical    24
-<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>location                          identical  1913
-<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>allele                            identical  2027
-<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>copyNumberChange                  identical     1
-<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>gene                              identical   460
-<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>variation                         identical  2032
-<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a>condition                         identical   390
-<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a>conditionSet                      identical    33
-<a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a>submitter                         identical     1
-<a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a>propositionPathogenicity          identical   943
-<a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a>propositionSomaticClinicalImpact  identical  2994
-<a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a>evidenceLine                      identical  1497
-<a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a>scv                               differs    2443
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>location                          identical   176
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>allele                            identical   230
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>copyNumberChange                  identical     3
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>gene                              identical     5
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>variation                         identical  5471
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>condition                         identical   190
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a>conditionSet                      identical   138
+<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a>submitter                         identical    10
+<a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a>propositionPathogenicity          identical  3399
+<a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a>evidenceLine                      identical  6064
+<a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a>scv                               differs   17562
+<a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a>vcv                               identical  2941
+<a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a>rcv                               identical  2548
 </code></pre></div>
 <p>Every record comes back identical except for one field:</p>
 <ul>
 <li>
 <p><strong>Contribution dates.</strong> VA-Spec 1.1.0 types <code>Contribution.date</code> as a date-time. The records carry a date
-  (<code>"2019-01-22"</code>); the model parses it as midnight and writes it back with a time:</p>
+  (<code>"2026-11-14"</code>); the model parses it as midnight and writes it back with a time:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">dumped</span> <span class="o">=</span> <span class="n">statement</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">scv</span><span class="p">[</span><span class="s2">"contributions"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"date"</span><span class="p">],</span> <span class="s2">"-&gt;"</span><span class="p">,</span> <span class="n">dumped</span><span class="p">[</span><span class="s2">"contributions"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"date"</span><span class="p">])</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>2019-01-22 -&gt; 2019-01-22T00:00:00
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>2026-11-14 -&gt; 2026-11-14T00:00:00
 </code></pre></div>
 <p>Every SCV has contribution dates, so every SCV differs in those fields only. Compare dates by their
 first ten characters, or restore them after dumping.</p>
 </li>
 </ul>
-<p>The same sweep over the 2026-10-18 delta (215,170 records, including <code>vcv</code> and <code>rcv</code>) gives the same result:
-all 18,138 SCVs differ only in contribution dates, and every other record, apart from the plain-JSON custom
-propositions, is identical.</p>
+<p>The same sweep over the 1.1.0 sample sub-bundle (<code>nch-igm-bundle.json.gz</code>) gives the same result: every SCV
+differs only in contribution dates, and every other record, apart from the plain-JSON custom propositions, is
+identical.</p>
 <p>Key order is not preserved: the models write fields in class-definition order. Compare parsed objects, not
 strings.</p>
 <hr />
 <h2 id="large-bundles">Large bundles<a class="headerlink" href="#large-bundles" title="Permanent link">&para;</a></h2>
-<p>A full bundle is about 4.8 GB compressed, and a <code>json.load</code> of one does not fit in 16 GB of memory. Three ways
-to work with it:</p>
+<p>A full bundle is about 4.9 GB compressed and 68.5 GB decompressed, so a <code>json.load</code> of one does not fit in a
+laptop's memory. Three ways to work with it:</p>
 <ul>
 <li><strong>Stream it.</strong> <a href="https://pypi.org/project/ijson/"><code>ijson</code></a> reads one record at a time; <code>kvitems(f, "scv")</code>
   yields each <code>(id, record)</code> of a section. Build a model per record, keep what you need, and memory stays
   flat. One pass reads the whole file.</li>
 <li><strong>Query the Parquet</strong> for the latest release to find the records you need, and cut just those out of the
   bundle with <code>gkm-bundle-parquet select</code>, as <a href="#statements-propositions-and-variants">above</a>.</li>
-<li><strong>Cut a sub-bundle.</strong> The <a href="../pipeline/sub-bundle/">Sub-Bundle Extraction</a> tool, which made the sample
-  above, extracts a self-contained bundle for a list of statements. It reads the project's BigQuery tables,
-  not a published file, so it needs access to those datasets.</li>
+<li><strong>Cut a sub-bundle.</strong> The <a href="../pipeline/sub-bundle/">Sub-Bundle Extraction</a> tool, which made the 1.1.0
+  sample sub-bundle, extracts a self-contained bundle for a list of statements. It reads the project's
+  BigQuery tables, not a published file, so it needs access to those datasets.</li>
 </ul>
-<p>Streaming the delta's <code>scv</code> section, for example, to count classifications:</p>
+<p>Streaming the delta's <code>scv</code> section, for example, to count classifications (<code>gzip</code>, <code>Counter</code> and <code>va</code> are
+imported above):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">ijson</span>
 <a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>
 <a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="n">classifications</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
-<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"clinvar-gkm-delta_2026-1018.json.gz"</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"clinvar-gkm-delta_2026-1115.json.gz"</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
 <a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a>    <span class="k">for</span> <span class="n">scv_id</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">ijson</span><span class="o">.</span><span class="n">kvitems</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s2">"scv"</span><span class="p">,</span> <span class="n">use_float</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a>        <span class="n">classifications</span><span class="p">[</span><span class="n">va</span><span class="o">.</span><span class="n">Statement</span><span class="p">(</span><span class="o">**</span><span class="n">record</span><span class="p">)</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 <a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a><span class="nb">print</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">classifications</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">classifications</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>18138 [('Uncertain significance', 9724), ('Likely benign', 2766), ('Likely pathogenic', 2482), ('Pathogenic', 2337)]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>17562 [('Uncertain significance', 7388), ('Likely benign', 3389), ('Pathogenic', 2242), ('Likely pathogenic', 1986)]
 </code></pre></div>
 <p><code>use_float=True</code> makes ijson return floats instead of <code>Decimal</code>.</p>
 <hr />

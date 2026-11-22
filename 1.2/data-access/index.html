@@ -6339,11 +6339,15 @@
 <h2 id="latest-release">Latest Release<a class="headerlink" href="#latest-release" title="Permanent link">&para;</a></h2>
 <div class="admonition tip">
 <p class="admonition-title">Monthly full or weekly full?</p>
-<p><code>clinvar-gkm_00-latest.json.gz</code> is the newest <strong>official monthly</strong>; it reflects the <strong>last release of the <em>previous</em> month</strong> — e.g. the <code>2026-10</code> monthly is built from the <code>2026-09-28</code> release, the last one before ClinVar's October monthly cut. For the current week, download the newest weekly full, <code>weekly/clinvar-gkm_00-latest_weekly.json.gz</code>.</p>
+<p><code>clinvar-gkm_00-latest.json.gz</code> is the newest <strong>official monthly</strong>; it reflects the <strong>last release of the <em>previous</em> month</strong> — e.g. the <code>2026-11</code> monthly is built from the <code>2026-10-31</code> release, the last one before ClinVar's November monthly cut. For the current week, download the newest weekly full, <code>weekly/clinvar-gkm_00-latest_weekly.json.gz</code>.</p>
 </div>
 <p>Download the newest official monthly and the newest weekly full:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
+<div class="admonition note">
+<p class="admonition-title">Prerequisites</p>
+<p><strong>curl</strong>. Each full bundle is about 4.9 GB compressed and 68.5 GB decompressed, so decompress one only if you have the disk; tools can read the <code>.gz</code> directly, streamed with <code>gunzip -c</code> (<a href="output-files/#count-records-in-a-full-bundle">Output File</a>).</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-fO<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-fO<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
 </code></pre></div>
 <p>The full bundle is a single JSON object containing all bundle sections — variations, statements, propositions, conditions, and supporting reference data. A delta uses the same section structure but carries only the records added or updated since its baseline release. The Parquet dataset (one file per section) is derived from the bundle, published at <code>v1/1.2/parquet/</code> and overwritten every release. See <a href="../output-reference/overview/">Output Format</a> for the complete structure, <a href="weekly-deltas/">Weekly Deltas</a> for the replay model, and <a href="parquet/">Parquet Files</a> for the full Parquet list.</p>
 <hr />

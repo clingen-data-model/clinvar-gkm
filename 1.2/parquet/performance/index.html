@@ -6639,11 +6639,20 @@
 <div class="admonition info">
 <p class="admonition-title">Release</p>
 <p>File and row-group sizes on this page are from a <code>gkm-bundle-parquet</code> 2.0.0 build of the <strong>2026-10-31
-release</strong>. Timings and peak memory for queries over the full 2.0 tables have not been measured yet; the habits
-below don't depend on them. Your numbers will differ with the release and your machine.</p>
+release</strong>. The timings and peak memory in <a href="#materialize-join-tables">Materialize the joins you repeat</a> were
+measured on 2026-11-21 against the published 2026-11-15 tables, with the DuckDB 1.5.4 CLI on an Apple M2 Pro
+laptop (16 GB of memory, 10 cores). Your numbers will differ with the release and your machine.</p>
 </div>
 <p>The 2026-10-31 tables total <strong>4.6 GB</strong>. Eight are over 100 MB: <code>variation</code> (1.66 GB), <code>scv</code> (784 MB), <code>allele</code> (701 MB), <code>location</code> (427 MB), <code>propositionPathogenicity</code> (401 MB), <code>evidenceLine</code> (265 MB), <code>rcv</code> (182 MB) and <code>vcv</code> (145 MB). The other twelve are each 5 MB or less. A handful of habits keeps queries over the big ones fast on a laptop.</p>
 <h2 id="requirements">What you need<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Prerequisites</p>
+<p>The <a href="https://duckdb.org/docs/installation/">DuckDB CLI</a>, tested with <strong>1.5.4</strong>, run from a directory holding
+the tables each example names, downloaded from <a href="../../data-access/parquet/#download">Downloads → Parquet Files</a>.
+The <a href="#materialize-join-tables">materialized tables</a> need <code>scv.parquet</code> and the four <code>proposition*.parquet</code>
+tables (about 1.2 GB), about 3 GB of memory, 0.7 GB of disk for the database file and a little over a minute
+to build. The table below has the details.</p>
+</div>
 <table>
 <thead>
 <tr>
@@ -6774,9 +6783,11 @@ below don't depend on them. Your numbers will differ with the release and your m
 <p>Paying for that join on every query is slow locally, and slower over the network: <code>scv.parquet</code> is sorted by SCV id and has no variant column, so a lookup for one variant must read every row group of the file. In the browser's <a href="../#run-a-query-now">live console</a> it can also exhaust memory or trip the CDN's rate limit (<strong>HTTP 429</strong>).</p>
 <p>The fix is to run the join <strong>once</strong>, store the result as a table sorted by the column you look up most, and query that table instead. DuckDB has no <code>CREATE MATERIALIZED VIEW</code>; <code>CREATE TABLE … AS SELECT</code> in a database file does the same job. You refresh it by re-running the script when you download a new release.</p>
 <h3 id="build-it">Build it<a class="headerlink" href="#build-it" title="Permanent link">&para;</a></h3>
-<p>Download the four proposition tables and <code>scv.parquet</code> (see <a href="../#put-the-file-on-your-machine">Start Here</a>), then run this in the same directory. It writes a database file, <code>clinvar-gkm.duckdb</code>, that persists between sessions:</p>
+<p>Download the four proposition tables and <code>scv.parquet</code> (see <a href="../#put-the-file-on-your-machine">Start Here</a>) into one directory. Save the SQL below there as <code>materialize.sql</code>, then run it from that directory. It writes a database file, <code>clinvar-gkm.duckdb</code>, that persists between sessions:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>duckdb<span class="w"> </span>clinvar-gkm.duckdb<span class="w"> </span>&lt;<span class="w"> </span>materialize.sql
 </code></pre></div>
+<p>On the test laptop (see the release note at the top) the build took 71 seconds with DuckDB's default settings,
+peaked at about 3 GB of memory, and wrote a 0.65 GB database file.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">-- materialize.sql</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">SET</span><span class="w"> </span><span class="n">preserve_insertion_order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">false</span><span class="p">;</span><span class="w">   </span><span class="c1">-- lets DuckDB build large tables with less memory</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
@@ -6808,7 +6819,7 @@ below don't depend on them. Your numbers will differ with the release and your m
 </code></pre></div>
 <p>Only the columns the questions below need are carried over. Add others, such as <code>s.description</code> or <code>s.specifiedBy.name</code>, the same way.</p>
 <h3 id="query-it">Query it<a class="headerlink" href="#query-it" title="Permanent link">&para;</a></h3>
-<p>Each of these reads one small, sorted table, where the same question against the raw Parquet files means a join of two big ones.</p>
+<p>Each of these reads one small, sorted table, where the same question against the raw Parquet files means a join of two big ones. Run them in the database the build wrote (<code>duckdb clinvar-gkm.duckdb</code>); each took under half a second.</p>
 <p><strong>By subject (a variant)</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">-- PubMed ids cited by the SCVs for one variant</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">pmid</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n_scvs</span><span class="p">,</span>
@@ -6835,7 +6846,7 @@ below don't depend on them. Your numbers will differ with the release and your m
 <a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ALL</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
 <h3 id="the-same-pattern-for-the-aggregates">The same pattern for the aggregates<a class="headerlink" href="#the-same-pattern-for-the-aggregates" title="Permanent link">&para;</a></h3>
-<p>VCV and RCV statements join to the same <code>prop</code> table. Add this to <code>materialize.sql</code> to get every aggregate statement for a variant in one lookup:</p>
+<p>VCV and RCV statements join to the same <code>prop</code> table. Add this to <code>materialize.sql</code> (it needs <code>prop</code> and <code>vcv.parquet</code>; 14 seconds on the test laptop) to get every aggregate statement for a variant in one lookup:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">vcv_by_variant</span><span class="w"> </span><span class="k">AS</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">variant_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">object_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">proposition_type</span><span class="p">,</span>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">       </span><span class="n">v</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">vcv_id</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">classification</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">classification</span><span class="p">,</span>
@@ -6846,7 +6857,7 @@ below don't depend on them. Your numbers will differ with the release and your m
 </code></pre></div>
 <p>For <code>rcv</code>, swap in <code>rcv.parquet</code>.</p>
 <h3 id="share-it-as-a-sorted-parquet-file">Share it as a sorted Parquet file<a class="headerlink" href="#share-it-as-a-sorted-parquet-file" title="Permanent link">&para;</a></h3>
-<p>A materialized table can go back out as Parquet. Because the rows are sorted by <code>variant_id</code>, DuckDB's per-row-group min/max statistics let a reader skip almost all of the file, the same way the published tables skip by <code>id</code>:</p>
+<p>A materialized table can go back out as Parquet. Run this in <code>clinvar-gkm.duckdb</code>, which holds <code>scv_by_variant</code> (about 3 seconds; a 122 MB file). Because the rows are sorted by <code>variant_id</code>, DuckDB's per-row-group min/max statistics let a reader skip almost all of the file, the same way the published tables skip by <code>id</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">COPY</span><span class="w"> </span><span class="n">scv_by_variant</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="s1">'scv_by_variant.parquet'</span><span class="w"> </span><span class="p">(</span><span class="n">FORMAT</span><span class="w"> </span><span class="n">parquet</span><span class="p">);</span>
 </code></pre></div>
 <p>The same layout is what would make per-variant queries practical over the network, where every row group read is a request.</p>

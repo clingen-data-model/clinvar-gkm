@@ -7203,6 +7203,14 @@ you today's numbers. The 1.1 tables (<code>v1/1.1/parquet/</code>, 22 tables) ar
 <iframe src="../../assets/diagrams/parquet-table-map.html" style="width:100%; height:760px; border:1px solid rgba(128,128,128,.25); border-radius:6px;" title="ClinVar-GKM Parquet table map" loading="lazy"></iframe>
 
 <p>The map renders at full size in a scrollable frame. Each area has a runnable query you can expand, and each table box links to that table's <a href="#column-reference">column reference</a> below.</p>
+<div class="admonition note">
+<p class="admonition-title">Prerequisites</p>
+<p>The queries on this page and in the map run in the <a href="https://duckdb.org/docs/installation/">DuckDB CLI</a>, tested
+with <strong>1.5.4</strong>, from a directory holding the tables they name, downloaded from
+<a href="../../data-access/parquet/#download">Downloads → Parquet Files</a>. The two queries below read the four
+<code>proposition*.parquet</code> tables (about 405 MB together). Sizes of every table are in the
+<a href="#column-reference">column reference</a>.</p>
+</div>
 <h2 id="the-six-areas">The six areas<a class="headerlink" href="#the-six-areas" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -8161,7 +8169,7 @@ you today's numbers. The 1.1 tables (<code>v1/1.1/parquet/</code>, 22 tables) ar
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">FROM</span><span class="w"> </span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">'proposition*.parquet'</span><span class="p">,</span><span class="w"> </span><span class="n">union_by_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">)</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">subject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'clinvar:51592'</span><span class="p">;</span>
 </code></pre></div>
-<p>Without <code>union_by_name = true</code>, DuckDB takes the column list from the first file, <code>propositionClinvarCustom</code>: naming <code>conditionQualifier</code> is a binder error, and reading <code>modeOfInheritanceQualifier</code> fails with a schema mismatch when the scan reaches <code>propositionSomaticClinicalImpact</code>. A query that reads only the seven columns every table has (<code>id</code> to <code>object_section</code>, and <code>geneContextQualifier</code>) works either way.</p>
+<p>Without <code>union_by_name = true</code>, DuckDB takes the column list from the first file, <code>propositionClinvarCustom</code>: naming <code>conditionQualifier</code> is a binder error, and reading <code>modeOfInheritanceQualifier</code> fails with a schema mismatch when the scan reaches the second file, <code>propositionOncogenicity</code>, which lacks it. A query that reads only the seven columns every table has (<code>id</code> to <code>object_section</code>, and <code>geneContextQualifier</code>) works either way.</p>
 <details class="note">
 <summary>Full nested types — the qualifiers</summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>geneContextQualifier  STRUCT("type" VARCHAR, "name" VARCHAR, "extensions" STRUCT("name" VARCHAR, id VARCHAR, "extensions" VARCHAR[], description VARCHAR, value_string VARCHAR, value_string_array VARCHAR[])[], conceptType VARCHAR, primaryCoding STRUCT("name" VARCHAR, "system" VARCHAR, code VARCHAR, iris STRUCT(id VARCHAR, section VARCHAR)[]), mappings STRUCT(coding STRUCT("system" VARCHAR, code VARCHAR, iris STRUCT(id VARCHAR, section VARCHAR)[]), relation VARCHAR)[])

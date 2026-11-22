@@ -6517,7 +6517,7 @@ dataset into a single, self-contained <strong>sub-bundle</strong>: a JSON object
 <code>#/section/key</code> <a href="../../output-reference/id-references/">reference</a> resolves within the file. It is the practical companion
 to the <a href="../../output-reference/id-references/">ID References</a> model — useful for building worked examples, inspecting the
 complete object graph behind a statement, and producing small fixtures for downstream testing.</p>
-<p>The script lives at <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/714f387065f7d42595131c5736911d18af955cc5/src/scripts/sub-bundle.py"><code>src/scripts/sub-bundle.py</code></a>.</p>
+<p>The script lives at <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/96fd97734e7f3fbb58ce75fdf5f201dbe9e5df0d/src/scripts/sub-bundle.py"><code>src/scripts/sub-bundle.py</code></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Maintainer tool</p>
 <p>This is a pipeline-maintainer utility, not a general-audience download. It reads the BigQuery
@@ -6549,8 +6549,19 @@ as a full release, containing only the objects the requested statements need.</p
 <li>Access to a <strong>built</strong> release dataset — one that has the <code>gkm_dict_*</code> tables from a completed
   release (<code>run-release.sh</code> step 2). The script reads BigQuery directly; it does not operate on a published
   <code>.json.gz</code> bundle.</li>
-<li>The <code>bq</code> CLI authenticated to the dataset's project.</li>
+<li>The <code>bq</code> CLI authenticated to the dataset's project (<code>gcloud auth login</code>), with the right to run query jobs
+  there (BigQuery Job User) and read the dataset. See
+  <a href="../export/#prerequisites">Export &amp; Distribute: Prerequisites</a> for the shared setup.</li>
+<li>Python 3 (standard library only), run from the root of a clone of this repository: the script reads the
+  bundle schema in <code>schema/clinvar-gkm/</code>.</li>
 </ul>
+<div class="admonition warning">
+<p class="admonition-title">Billed queries</p>
+<p>Every run issues BigQuery queries, which are billed by the bytes they read. Each fetch reads whole rows of its
+table, so a run reads every table it touches in full, whatever the number of ids: about 25 GB for SCVs (mostly
+<code>gkm_dict_scv</code> and <code>gkm_dict_variation</code>, about 10 GB each), and up to about 40 GB when VCVs or RCVs are
+included (sizes of the 2026-08-16 dataset). The <code>bq query</code> in the last example below reads about 1 GB.</p>
+</div>
 <hr />
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python3 src/scripts/sub-bundle.py --dataset &lt;DATASET&gt; [--project &lt;PROJECT&gt;]
@@ -6602,30 +6613,33 @@ under it. An <code>SCV</code> accession is normalized to its <code>clinvar.submi
 submitter can contribute thousands of SCVs; to keep individual bundles manageable, select the SCV
 keys once and split them across several <code>--ids-file</code> runs (see the last example).</p>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># A few statements, mixed types, to one bundle file</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>python3<span class="w"> </span>src/scripts/sub-bundle.py<span class="w"> </span>--dataset<span class="w"> </span>clinvar_2026_08_16_v2_5_0<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span>SCV004101425.2<span class="w"> </span>VCV000012582.63-G-PATH-CP<span class="w"> </span>RCV000012345.8-G-PATH-CP<span class="w"> </span>-o<span class="w"> </span>bundle.json
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># Identifiers from a file</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>python3<span class="w"> </span>src/scripts/sub-bundle.py<span class="w"> </span>--dataset<span class="w"> </span>clinvar_2026_08_16_v2_5_0<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span>--ids-file<span class="w"> </span>ids.txt<span class="w"> </span>-o<span class="w"> </span>bundle.json
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="c1"># Identifiers piped on stdin</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>cat<span class="w"> </span>ids.txt<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>src/scripts/sub-bundle.py<span class="w"> </span>--dataset<span class="w"> </span>clinvar_2026_08_16_v2_5_0<span class="w"> </span>-
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a># A built release dataset of the current line, e.g. the newest release's
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>DATASET=clinvar_&lt;yyyy&gt;_&lt;mm&gt;_&lt;dd&gt;_&lt;version&gt;
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a># A few statements, mixed types, to one bundle file
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>python3 src/scripts/sub-bundle.py --dataset "$DATASET" \
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    SCV004101425.2 VCV000012582.63-G-PATH-CP RCV000012345.8-G-PATH-CP -o bundle.json
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a># Identifiers from a file
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>python3 src/scripts/sub-bundle.py --dataset "$DATASET" \
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    --ids-file ids.txt -o bundle.json
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="c1"># Every SCV from a submitter (e.g. 196472 = IGM Clinical Laboratory, Nationwide Children's Hospital)</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>python3<span class="w"> </span>src/scripts/sub-bundle.py<span class="w"> </span>--dataset<span class="w"> </span>clinvar_2026_08_16_v2_5_0<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span>--submitter<span class="w"> </span><span class="m">196472</span><span class="w"> </span>-o<span class="w"> </span>nch-igm.json
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="c1"># A large submitter split across two bundles: list the SCV keys, split, bundle each half</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>bq<span class="w"> </span>query<span class="w"> </span>--project_id<span class="o">=</span>clingen-dev<span class="w"> </span>--use_legacy_sql<span class="o">=</span><span class="nb">false</span><span class="w"> </span>--format<span class="o">=</span>csv<span class="w"> </span>--quiet<span class="w"> </span>--max_rows<span class="o">=</span><span class="m">100000</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">  </span><span class="s2">"SELECT id FROM \`clinvar_2026_08_16_v2_5_0.gkm_dict_scv\`</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="s2">   WHERE EXISTS(SELECT 1 FROM UNNEST(contributions) c</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="s2">                WHERE c.contributor='#/submitter/clinvar.submitter:196472')</span>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="s2">   ORDER BY id"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-n<span class="w"> </span>+2<span class="w"> </span>&gt;<span class="w"> </span>nch_scvs.txt
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>split<span class="w"> </span>-n<span class="w"> </span>l/2<span class="w"> </span>nch_scvs.txt<span class="w"> </span>nch_half_
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>python3<span class="w"> </span>src/scripts/sub-bundle.py<span class="w"> </span>--dataset<span class="w"> </span>clinvar_2026_08_16_v2_5_0<span class="w"> </span>--ids-file<span class="w"> </span>nch_half_aa<span class="w"> </span>-o<span class="w"> </span>nch-1.json
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>python3<span class="w"> </span>src/scripts/sub-bundle.py<span class="w"> </span>--dataset<span class="w"> </span>clinvar_2026_08_16_v2_5_0<span class="w"> </span>--ids-file<span class="w"> </span>nch_half_ab<span class="w"> </span>-o<span class="w"> </span>nch-2.json
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a># Identifiers piped on stdin
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>cat ids.txt | python3 src/scripts/sub-bundle.py --dataset "$DATASET" -
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a># Every SCV from a submitter (e.g. 196472 = IGM Clinical Laboratory, Nationwide Children's Hospital)
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>python3 src/scripts/sub-bundle.py --dataset "$DATASET" \
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    --submitter 196472 -o nch-igm.json
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a># A large submitter split across two bundles: list the SCV keys, split, bundle each half
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>bq query --project_id=clingen-dev --use_legacy_sql=false --format=csv --quiet --max_rows=100000 \
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>  "SELECT id FROM \`${DATASET}.gkm_dict_scv\`
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>   WHERE EXISTS(SELECT 1 FROM UNNEST(contributions) c
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>                WHERE c.contributor='#/submitter/clinvar.submitter:196472')
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>   ORDER BY id" | tail -n +2 &gt; nch_scvs.txt
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>split -l $(( ($(wc -l &lt; nch_scvs.txt) + 1) / 2 )) nch_scvs.txt nch_half_   # two halves; portable (macOS and Linux)
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>python3 src/scripts/sub-bundle.py --dataset "$DATASET" --ids-file nch_half_aa -o nch-1.json
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>python3 src/scripts/sub-bundle.py --dataset "$DATASET" --ids-file nch_half_ab -o nch-2.json
 </code></pre></div>
 <hr />
 <h2 id="output">Output<a class="headerlink" href="#output" title="Permanent link">&para;</a></h2>
@@ -6665,7 +6679,7 @@ instead of hundreds of thousands — much easier to <code>grep</code>, diff, or 
 </ul>
 <hr />
 <h2 id="example-fragments">Example fragments<a class="headerlink" href="#example-fragments" title="Permanent link">&para;</a></h2>
-<p>The files in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/714f387065f7d42595131c5736911d18af955cc5/examples"><code>examples/</code></a> are made by a
+<p>The files in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/96fd97734e7f3fbb58ce75fdf5f201dbe9e5df0d/examples"><code>examples/</code></a> are made by a
 different script, <code>src/scripts/extract-example.py</code>. It reads a published full bundle (<code>.json.gz</code>), not BigQuery, and
 writes bounded <strong>fragments</strong>: each holds one statement or variation and the records it references, but keeps pointers
 into <code>scv</code> and <code>variation</code> unresolved. A VCV or RCV fragment holds its nested layer statements, down to the <code>#/scv/</code>

@@ -6623,6 +6623,18 @@ which the tables reproduce record for record. Re-run a recipe to get today's num
 </div>
 <p>Each recipe answers one question: the question in plain language, a query you can run, and what to expect. They run against <strong>downloaded</strong> files; most touch one of the larger tables, which is too much for the <a href="../#run-a-query-now">live console</a>. See <a href="../#put-the-file-on-your-machine">Start Here</a> to download.</p>
 <p>Change the line marked <code>-- &lt;-</code> to ask about your own variant, condition, gene or submitter. <a href="../joining/">Joining Tables</a> explains each join used here.</p>
+<div class="admonition note">
+<p class="admonition-title">Prerequisites</p>
+<ul>
+<li><strong><a href="https://duckdb.org/docs/installation/">DuckDB CLI</a></strong>, tested with <strong>1.5.4</strong>. No extension is needed.</li>
+<li><strong>All 20 tables in one folder</strong>, about 4.6 GB: download them with the loop on
+  <a href="../../data-access/parquet/#download">Parquet Files → Download</a>, then start <code>duckdb</code> in that folder. The
+  queries name each table by its file name (<code>'scv.parquet'</code>) and read the four proposition tables with the
+  glob <code>proposition*.parquet</code>.</li>
+<li>Each recipe stands alone. Most finish in a few seconds; the three that read every variant's gene or HGVS
+  list take about a minute.</li>
+</ul>
+</div>
 <table>
 <thead>
 <tr>
@@ -6682,7 +6694,7 @@ which the tables reproduce record for record. Re-run a recipe to get today's num
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>id             name
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>clinvar:51592  NM_000059.4(BRCA2):c.4090A&gt;C (p.Ile1364Leu)
 </code></pre></div>
-<p>This scans every variant's HGVS list, the largest part of the 1.66 GB <code>variation.parquet</code>. For a GRCh38 genomic expression the allele table is much faster, because it is a short string column:</p>
+<p>This scans every variant's HGVS list, the largest part of the 1.66 GB <code>variation.parquet</code>, and takes about a minute. For a GRCh38 genomic expression the allele table is much faster, because it is a short string column:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">name</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'allele.parquet'</span><span class="w"> </span><span class="n">a</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">JOIN</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">unnest</span><span class="p">(</span><span class="n">members</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">member</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'variation.parquet'</span><span class="p">)</span><span class="w"> </span><span class="n">v</span>
@@ -6962,7 +6974,7 @@ which the tables reproduce record for record. Re-run a recipe to get today's num
 <a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>Pathogenic/Likely pathogenic                        95
 <a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>…
 </code></pre></div>
-<p>Nearly all the work is reading the gene lists in <code>variation.parquet</code>. The <code>relationship_type</code> filter drops large copy-number variants that merely overlap the gene and variants near it; remove it to include them.</p>
+<p>Nearly all the work, about a minute, is reading the gene lists in <code>variation.parquet</code>. The <code>relationship_type</code> filter drops large copy-number variants that merely overlap the gene and variants near it; remove it to include them.</p>
 <div class="admonition tip">
 <p class="admonition-title">Reach into nested lists with <code>[… FOR … IN …]</code>, not <code>unnest</code></p>
 <p>The gene filter above uses a list comprehension. Written instead with <code>unnest(extensions)</code> and
@@ -6999,7 +7011,7 @@ variant's whole extension list into rows, which is many times slower and uses mo
 <a id="__codelineno-20-26" name="__codelineno-20-26" href="#__codelineno-20-26"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ALL</span>
 <a id="__codelineno-20-27" name="__codelineno-20-27" href="#__codelineno-20-27"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">pmid</span><span class="p">;</span>
 </code></pre></div>
-<p>One row per (variant, PubMed id). For MYH7 that is 6,980 rows in 2026-10-31, covering 1,695 variants and 1,095 distinct PubMed ids. For a list of distinct PubMed ids instead, wrap the final <code>SELECT</code> and group by <code>pmid</code>.</p>
+<p>One row per (variant, PubMed id). For MYH7 that is 6,980 rows in 2026-10-31, covering 1,695 variants and 1,095 distinct PubMed ids. For a list of distinct PubMed ids instead, wrap the final <code>SELECT</code> and group by <code>pmid</code>. Like the rollup, it takes about a minute, nearly all of it reading the gene lists.</p>
 <h2 id="export">Export a slice to CSV or Parquet<a class="headerlink" href="#export" title="Permanent link">&para;</a></h2>
 <p>Spreadsheets and many tools can't read Parquet, and you rarely want a whole table anyway. Wrap any query in <code>COPY</code> to write its result to a file:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1">-- Expert-panel and practice-guideline submissions, with their variant</span>

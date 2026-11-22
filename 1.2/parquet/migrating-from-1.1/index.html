@@ -7010,6 +7010,20 @@ and the <strong>2026-10-24 release</strong> for the 1.1 tables, the last set the
 for the 1.1 line, at <code>v1/1.1/parquet/</code>. This page calls them the <strong>2.0 tables</strong> and the <strong>1.1 tables</strong>. The
 records are the same; the table layout is not. Every query written for the 1.1 tables needs a review, and most
 need small rewrites.</p>
+<div class="admonition note">
+<p class="admonition-title">Prerequisites</p>
+<ul>
+<li><strong><a href="https://duckdb.org/docs/installation/">DuckDB CLI</a></strong>, tested with <strong>1.5.4</strong>. No extension is needed.</li>
+<li><strong>The 2.0 tables</strong>: download all 20 into one folder (<a href="../../data-access/parquet/#download">Parquet Files → Download</a>)
+  and start <code>duckdb</code> in that folder. The queries name each table by its file name (<code>'scv.parquet'</code>) and read
+  the four proposition tables with the glob <code>proposition*.parquet</code>.</li>
+<li><strong>The 1.1 tables</strong>, for the queries marked <code>-- 1.1</code> only: the same file names under
+  <code>https://data.clinvar-gkm.org/v1/1.1/parquet/</code> while that set is still served (see <a href="#timeline">Timeline</a>),
+  in a folder of their own. The set is 13.2 GB; <code>scv.parquet</code> and <code>variation.parquet</code> are 3 to 4 GB each.</li>
+<li><strong><a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a></strong>, for the <code>rebuild</code> example only. It reads
+  the whole 2.0 set and writes a bundle about the size of the published one (about 5 GB compressed).</li>
+</ul>
+</div>
 <hr />
 <h2 id="who-is-affected">Who is affected<a class="headerlink" href="#who-is-affected" title="Permanent link">&para;</a></h2>
 <ul>
@@ -7477,7 +7491,10 @@ the build checks every row against its source record before it writes the file.<
   record.</li>
 <li>
 <p><strong>The bundle's own records:</strong> read the bundle, or rebuild it from a full set of tables:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>rebuild<span class="w"> </span>clinvar-gkm-parquet/<span class="w"> </span>-o<span class="w"> </span>rebuilt.json.gz
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># run from the folder that holds clinvar-gkm-parquet/, the 20 tables and manifest.json</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>curl<span class="w"> </span>-f<span class="w"> </span>-o<span class="w"> </span>clinvar-gkm-parquet/table-spec.json<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="s2">"https://data.clinvar-gkm.org/v1/1.2/parquet/table-spec.json"</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>rebuild<span class="w"> </span>clinvar-gkm-parquet/<span class="w"> </span>-o<span class="w"> </span>rebuilt.json.gz
 </code></pre></div>
 <p><code>rebuild</code> needs every table and the <code>manifest.json</code> and <code>table-spec.json</code> beside them. It writes a bundle
 whose records are identical to the source's: the same canonical JSON once key order, array order and
@@ -7775,10 +7792,15 @@ because each row group's minimum and maximum id are in the footer.</li>
 <a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'clinvarGeneList'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'clinvar:51592'</span><span class="p">;</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1">-- 2.0</span>
-<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="k">g</span><span class="p">.</span><span class="n">gene</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="k">g</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">value_object_array</span><span class="p">]</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">genes</span>
-<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'variation.parquet'</span><span class="p">,</span><span class="w"> </span><span class="k">unnest</span><span class="p">(</span><span class="n">extensions</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'clinvarGeneList'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'clinvar:51592'</span><span class="p">;</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">       </span><span class="p">[</span><span class="k">g</span><span class="p">.</span><span class="n">gene</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="k">g</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">[</span><span class="n">e</span><span class="p">.</span><span class="n">value_object_array</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">extensions</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">                         </span><span class="k">IF</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'clinvarGeneList'</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">genes</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'variation.parquet'</span>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'clinvar:51592'</span><span class="p">;</span>
 </code></pre></div>
+<p>This 2.0 query, and the next, pick the extension with a list comprehension instead of <code>unnest(extensions)</code> in
+<code>FROM</code>. The <code>unnest</code> form still returns the same rows, but it expands every record's extensions before it
+filters: over a minute for this one variant, against a few seconds.</p>
 <h3 id="therapies">Therapies<a class="headerlink" href="#therapies" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1">-- 1.1</span>
 <a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="k">g</span><span class="p">.</span><span class="k">key</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">therapy_group</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">therapy</span>
@@ -7798,10 +7820,11 @@ because each row group's minimum and maximum id are in the footer.</li>
 <a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="c1">-- 2.0</span>
-<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">value_object</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">submitted_condition</span>
-<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span><span class="p">,</span><span class="w"> </span><span class="k">unnest</span><span class="p">(</span><span class="n">extensions</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'submittedCondition'</span>
-<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">       </span><span class="p">[</span><span class="n">e</span><span class="p">.</span><span class="n">value_object</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">extensions</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'submittedCondition'</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">submitted_condition</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="k">FROM</span><span class="w"> </span><span class="s1">'scv.parquet'</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">list_contains</span><span class="p">([</span><span class="n">e</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">extensions</span><span class="p">],</span><span class="w"> </span><span class="s1">'submittedCondition'</span><span class="p">)</span>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
 </code></pre></div>
 <p>The <a href="../recipes/">Recipes</a>, <a href="../joining/">Joining Tables</a> and <a href="../performance/">Working at Scale</a> pages are written
 for the 2.0 tables throughout.</p>

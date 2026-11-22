@@ -6680,9 +6680,23 @@ so it pairs with that URL. The tool's fixture names the <code>$id</code> correct
 serve, and is refused with it.</p>
 <hr />
 <h2 id="build-the-tables">Build the tables<a class="headerlink" href="#build-the-tables" title="Permanent link">&para;</a></h2>
-<p>The commands run the tool with <code>uvx</code>, which needs no install; with the tool installed
+<p>The commands run the tool with <code>uvx</code>, which runs a pinned release without installing it; with the tool installed
 (<a href="../build-your-own/#install">Install</a>), write <code>gkm-bundle-parquet</code> in place of <code>uvx gkm-bundle-parquet@2.0.0</code>.
 They work in bash and zsh.</p>
+<div class="admonition note">
+<p class="admonition-title">Prerequisites</p>
+<ul>
+<li><strong><a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a></strong> for <code>uvx</code> (tested with 0.6.14), or
+  <code>gkm-bundle-parquet</code> 2.0.0 installed with <code>pipx</code> or <code>pip</code> (<a href="../build-your-own/#install">Install</a>); it needs
+  Python 3.10 or later (tested with 3.14).</li>
+<li><code>curl</code>, <code>python3</code> (step 1) and <code>shasum</code> (macOS) or <code>sha256sum</code> (Linux).</li>
+<li><strong>Data:</strong> a <code>v1/1.1/</code> bundle, found in step 1 and downloaded in step 2. A delta is 2 to 150 MB; the 24 MB
+  delta in the examples built in 37 seconds with a 3.1 GB memory peak and verified in 29 seconds on a 16 GB
+  Apple M2 Pro. For a monthly, see <a href="#time-and-memory">Time and memory</a> first.</li>
+<li>Each step continues from the one before: step 2 downloads a path that step 1 prints, and steps 3 and 4
+  read the file step 2 downloaded and the <code>parquet/</code> folder step 3 writes.</li>
+</ul>
+</div>
 <h3 id="1-find-the-bundle">1. Find the bundle<a class="headerlink" href="#1-find-the-bundle" title="Permanent link">&para;</a></h3>
 <p>Read the paths from the line's own <code>index.json</code>. A frozen line keeps every path, but the folders differ by
 month (the line's last month of deltas is in <code>deltas/</code>, earlier months in <code>deltas/YYYY-MM/</code>), so copy the path

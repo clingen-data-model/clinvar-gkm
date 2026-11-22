@@ -425,19 +425,21 @@ clinvar.trait:16789                not specified</div>
 <details class="q"><summary>Query — an SCV's submitter and classification</summary>
 <pre><span class="c">-- contributions[].contributor is the submitter id</span>
 SELECT DISTINCT s.classification.name AS classification, sub.name AS submitter
-FROM 'scv.parquet' s, unnest(s.contributions) AS t(con)
+FROM (SELECT classification, contributions FROM 'scv.parquet'   <span class="c">-- filter first, then unnest</span>
+      WHERE proposition IN (SELECT id FROM read_parquet('proposition*.parquet', union_by_name = true)
+                            WHERE subject = 'clinvar:51592')) s,
+     unnest(s.contributions) AS t(con)
 JOIN 'submitter.parquet' sub ON sub.id = con.contributor
-WHERE s.proposition IN (
-    SELECT id FROM read_parquet('proposition*.parquet', union_by_name = true) WHERE subject = 'clinvar:51592')
+ORDER BY classification, submitter
 LIMIT 12;</pre>
 <div class="out">classification           submitter
-Likely benign            Blueprint Genetics
-Benign                   Genome Diagnostics Laboratory, University Medical Center Utrecht
-Benign                   Clinical Genetics DNA and cytogenetics Diagnostics Lab, Erasmus MC, Erasmus Medical Center
-Benign                   BRCAlab, Lund University
-Benign                   Department of Pathology and Laboratory Medicine, Sinai Health System
-Benign                   Clinical Genetics Laboratory, Department of Pathology, Netherlands Cancer Institute
+Benign                   ARUP Laboratories, Molecular Genetics and Genomics, ARUP Laboratories
+Benign                   All of Us Research Program, National Institutes of Health
 Benign                   Ambry Genetics
+Benign                   BRCAlab, Lund University
+Benign                   Baylor Genetics
+Benign                   Breakthrough Genomics, Breakthrough Genomics
+Benign                   CHEO Genetics Diagnostic Laboratory, Children's Hospital of Eastern Ontario
 …  (many submitters; classifications span Benign / Likely benign / Uncertain significance / not provided)</div>
 </details>
 

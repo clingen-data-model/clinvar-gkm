@@ -6618,7 +6618,9 @@ remained:</p>
 </ul>
 <h3 id="how-to-see-it-in-the-data">How to see it in the data<a class="headerlink" href="#how-to-see-it-in-the-data" title="Permanent link">&para;</a></h3>
 <p>The qualifier is part of each SCV proposition in the bundle, and the <code>geneContextQualifier</code> STRUCT column of the
-proposition Parquet tables:</p>
+proposition Parquet tables. The query below runs in <a href="https://duckdb.org/docs/installation/">DuckDB</a> (tested with
+1.5.4) from the folder that holds <code>propositionPathogenicity.parquet</code>, downloaded from
+<a href="../../data-access/parquet/#download">Parquet Files</a>, which lists the prerequisites:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">-- Extensions are picked by name: the qualifier can carry two.</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">       </span><span class="n">geneContextQualifier</span><span class="p">.</span><span class="n">name</span><span class="w">               </span><span class="k">AS</span><span class="w"> </span><span class="n">qualifier_gene</span><span class="p">,</span>

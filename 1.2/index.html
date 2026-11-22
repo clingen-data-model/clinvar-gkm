@@ -6476,7 +6476,7 @@
 </div>
 <div class="admonition tip">
 <p class="admonition-title">New to GKM datasets? Start with the GKM Starter Kit</p>
-<p>The GA4GH <a href="https://ga4gh.github.io/gkm-starter-kit/"><strong>GKM Starter Kit</strong></a> is a practical entry point for working with GKM data. It brings together the <a href="https://ga4gh.github.io/gkm-starter-kit/latest/tools/reference-implementations/">reference libraries</a> (vrs-python, cat-vrs-python, va-spec-python), the <a href="https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/">GKM Toolkit</a> for loading and exploring published bundles, and <a href="https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/">user stories</a> from projects putting GKM to work. clinvar-gkm is a GKM data producer: the reference libraries read its records directly, and <a href="working-in-python/"><strong>Working in Python</strong></a> shows them on ClinVar-GKM bundles and Parquet, with the library versions that read 1.1.0. The GKM Toolkit <a href="working-in-python/#validate-a-bundle">validates ClinVar-GKM bundles</a> against the ClinVar-GKM schemas you supply; its <a href="working-in-python/#loading-bundles">loader</a> needs upstream updates before it reads them.</p>
+<p>The GA4GH <a href="https://ga4gh.github.io/gkm-starter-kit/"><strong>GKM Starter Kit</strong></a> is a practical entry point for working with GKM data. It brings together the <a href="https://ga4gh.github.io/gkm-starter-kit/latest/tools/reference-implementations/">reference libraries</a> (vrs-python, cat-vrs-python, va-spec-python), the <a href="https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/">GKM Toolkit</a> for loading and exploring published bundles, and <a href="https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/">user stories</a> from projects putting GKM to work. clinvar-gkm is a GKM data producer: the reference libraries read its records directly, and <a href="working-in-python/"><strong>Working in Python</strong></a> shows them on ClinVar-GKM bundles and Parquet, with the library versions that read 1.2.0 (and 1.1.0). The GKM Toolkit <a href="working-in-python/#validate-a-bundle">validates ClinVar-GKM bundles</a> against the ClinVar-GKM schemas you supply; its <a href="working-in-python/#loading-bundles">loader</a> needs upstream updates before it reads them.</p>
 </div>
 <h2 id="why-clinvar-gkm">Why ClinVar-GKM<a class="headerlink" href="#why-clinvar-gkm" title="Permanent link">&para;</a></h2>
 <p>ClinVar is one of the most widely used public archives of human genetic variation and its relationship to disease. However, the native ClinVar XML format presents challenges for programmatic consumption — inconsistent structures, deeply nested records, and representations that do not align with emerging genomic data standards.</p>
@@ -6548,10 +6548,14 @@
 </div>
 <h3 id="download-the-latest-release">Download the Latest Release<a class="headerlink" href="#download-the-latest-release" title="Permanent link">&para;</a></h3>
 <p>The latest ClinVar-GKM release is available as a single compressed JSON file:</p>
+<div class="admonition note">
+<p class="admonition-title">Prerequisites</p>
+<p><strong>curl</strong>. Each full bundle is about 4.9 GB compressed and 68.5 GB decompressed, so decompress one only if you have the disk; tools can read the <code>.gz</code> directly, streamed with <code>gunzip -c</code> (<a href="data-access/output-files/#count-records-in-a-full-bundle">Output File</a>).</p>
+</div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Download the newest official monthly release</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-fO<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Decompress</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Decompress (68.5 GB; skip this to read the .gz streamed)</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>gunzip<span class="w"> </span>clinvar-gkm_00-latest.json.gz
 </code></pre></div>
 <h3 id="whats-in-the-file">What's in the File<a class="headerlink" href="#whats-in-the-file" title="Permanent link">&para;</a></h3>
@@ -6618,8 +6622,8 @@
 <p>The stable filenames <code>clinvar-gkm_00-latest.json.gz</code> (official monthly) and <code>weekly/clinvar-gkm_00-latest_weekly.json.gz</code> (weekly full) always point to the newest of each. Any past week can be rebuilt from a monthly plus the deltas after it.</p>
 <h3 id="downloads">Downloads<a class="headerlink" href="#downloads" title="Permanent link">&para;</a></h3>
 <p>Download the newest official monthly and the newest weekly full:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>-fO<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>curl<span class="w"> </span>-fO<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
 </code></pre></div>
 <p>See <a href="data-access/release-model/">How Releases Work</a> for the release model, and <a href="data-access/weekly-deltas/">Weekly Deltas</a> for the deltas and the replay recipe.</p>
 <h3 id="directory-structure">Directory Structure<a class="headerlink" href="#directory-structure" title="Permanent link">&para;</a></h3>
@@ -6663,7 +6667,7 @@
 <ul>
 <li><strong>Not for direct clinical use.</strong> ClinVar's information "is not intended for direct diagnostic use or medical decision-making without review by a genetics professional."</li>
 <li><strong>Attribute and cite ClinVar</strong> as the data source, as ClinVar asks, and cite ClinVar-GKM (<a href="https://doi.org/10.5281/zenodo.18343663">DOI 10.5281/zenodo.18343663</a>) if you used these files.</li>
-<li><strong>License.</strong> The code and the published files — the transformed bundles and Parquet sets — are dedicated to the public domain under <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/714f387065f7d42595131c5736911d18af955cc5/LICENSE">CC0 1.0 Universal</a>. CC0 covers ClinGen's contribution and adds no restriction; NCBI's and ClinVar's policies still apply to the ClinVar content.</li>
+<li><strong>License.</strong> The code and the published files — the transformed bundles and Parquet sets — are dedicated to the public domain under <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/96fd97734e7f3fbb58ce75fdf5f201dbe9e5df0d/LICENSE">CC0 1.0 Universal</a>. CC0 covers ClinGen's contribution and adds no restriction; NCBI's and ClinVar's policies still apply to the ClinVar content.</li>
 <li><strong>No endorsement.</strong> ClinVar-GKM is not an NCBI, NLM or NIH product and is not endorsed by them.</li>
 </ul>
 <p><a href="data-use/"><strong>Data Use and Citation</strong></a> gives the citations, what to carry with the data when you redistribute it, and the policy text behind each point.</p>

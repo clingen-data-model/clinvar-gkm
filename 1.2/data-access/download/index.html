@@ -6513,10 +6513,10 @@
 
 <noscript>
 The interactive release table needs JavaScript. Without it, fetch the release index directly:
-<code>curl -s https://data.clinvar-gkm.org/v1/1.2/index.json | python3 -m json.tool</code>
+<code>curl -fsS https://data.clinvar-gkm.org/v1/1.2/index.json | python3 -m json.tool</code>
 — or grab the newest monthly and weekly fulls:
-<code>curl -O https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz</code>
-<code>curl -O https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz</code>
+<code>curl -fO https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz</code>
+<code>curl -fO https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz</code>
 </noscript>
 
 <p>Browse history and archives: <a href="../monthly-full/">Monthly Full Bundles</a> · <a href="../weekly-full/">Weekly Full Bundles</a> · <a href="../weekly-deltas/">Weekly Deltas</a> · <a href="../parquet/">Parquet Files</a>. Earlier release lines: <a href="../previous-releases/">Previous Releases</a>.</p>
@@ -6527,7 +6527,7 @@ The interactive release table needs JavaScript. Without it, fetch the release in
 
 <noscript>
 The list of earlier lines needs JavaScript. Without it, read the root version manifest, which lists every line, its status and the path of its own index:
-<code>curl -s https://data.clinvar-gkm.org/index.json | python3 -m json.tool</code>
+<code>curl -fsS https://data.clinvar-gkm.org/index.json | python3 -m json.tool</code>
 </noscript>
 
 <hr />

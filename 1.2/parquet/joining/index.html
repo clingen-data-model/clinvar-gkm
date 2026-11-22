@@ -6515,6 +6515,15 @@ every record about the example variants. Re-run a query to get today's numbers.<
 <iframe src="../../assets/diagrams/parquet-join-seams.html" style="width:100%; height:760px; border:1px solid rgba(128,128,128,.25); border-radius:6px;" title="ClinVar-GKM Parquet join seams" loading="lazy"></iframe>
 
 <p>Every query on this page runs against <strong>downloaded</strong> files; the joins read the larger tables, which is too much for the <a href="../#run-a-query-now">live console</a>. Each table name links to its entry in the <a href="../tables/#column-reference">column reference</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Prerequisites</p>
+<p>The <a href="https://duckdb.org/docs/installation/">DuckDB CLI</a>, tested with <strong>1.5.4</strong>, run from a directory holding
+the tables from <a href="../../data-access/parquet/#download">Downloads → Parquet Files</a>. Between them the queries read
+<code>variation</code>, the four <code>proposition*</code> tables, <code>condition</code>, <code>conditionSet</code>, <code>scv</code>, <code>rcv</code>, <code>vcv</code> and
+<code>evidenceLine</code>: about 3.5 GB of the 4.6 GB set. Each query stands alone, and each finishes in seconds on a
+laptop; the heaviest, the whole-release count in <a href="#seam-c-proposition-statements-1-1">Seam C</a>, took 5 seconds
+and under 2 GB of memory with 4 threads on a 16 GB Apple M2 Pro.</p>
+</div>
 <h2 id="seam-a-variant-proposition">Seam A · Variant → Proposition<a class="headerlink" href="#seam-a-variant-proposition" title="Permanent link">&para;</a></h2>
 <p>Every proposition has a subject, and every subject is a <a href="../tables/#variation"><code>variation</code></a> id: 28,192,371 references in 2026-10-31. One glob reads the four proposition tables as a single table; <code>union_by_name = true</code> lines up their <a href="../tables/#proposition-columns">different columns</a>, and <code>filename = true</code> adds the file each row came from:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">-- One variant, every proposition, from all four tables</span>
@@ -6525,7 +6534,7 @@ every record about the example variants. Re-run a query to get today's numbers.<
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">JOIN</span><span class="w"> </span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">'proposition*.parquet'</span><span class="p">,</span><span class="w"> </span><span class="n">union_by_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">)</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">subject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">id</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'clinvar:10'</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ALL</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">propositions</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">propositions</span><span class="w"> </span><span class="k">DESC</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="k">type</span><span class="p">;</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>id          name                                    prop_table                type                             propositions
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>clinvar:10  NM_000410.4(HFE):c.187C&gt;G (p.His63Asp)  propositionPathogenicity  VariantPathogenicityProposition            80

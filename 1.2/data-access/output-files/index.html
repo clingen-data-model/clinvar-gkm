@@ -6355,6 +6355,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#count-records-in-a-full-bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Count records in a full bundle
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -6395,13 +6406,36 @@
 <h2 id="file-format">File Format<a class="headerlink" href="#file-format" title="Permanent link">&para;</a></h2>
 <p>The release file is a <code>.json.gz</code> file. The decompressed content is a single JSON object with named bundle sections at the root level — each section is a keyed collection of objects of the same class.</p>
 <p><code>schema_version</code> is the first top-level key, and the sections follow in a fixed order. Each record is written on its own line as compact JSON (raw UTF-8) with its object keys <strong>sorted at every depth</strong>, and the lists whose order carries no meaning and is not stable in ClinVar's source — a condition's <code>aliases</code> — are written in sorted order, so a record that has not changed has the same bytes in every release. The order of records within a section is not fixed and differs between releases.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Decompress and inspect the top-level keys</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>gunzip<span class="w"> </span>-c<span class="w"> </span>clinvar-gkm_00-latest.json.gz<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="s2">import json, sys</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="s2">data = json.load(sys.stdin)</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="s2">for key in data:</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="s2">    print(f'{key}: {len(data[key]):,} entries')</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="s2">"</span>
+<div class="admonition note">
+<p class="admonition-title">Prerequisites</p>
+<ul>
+<li><strong>Python 3</strong> (standard library only; tested with 3.14) and <code>gunzip</code>, which macOS and Linux include.</li>
+<li>
+<p><strong>A bundle.</strong> The examples on this page that load a whole bundle read the <strong>2026-11-15 weekly delta</strong>,
+  <code>clinvar-gkm-delta_2026-1115.json.gz</code> (5 MB). Download it into your working directory. Its path changes
+  when its month ends (it moves to <code>deltas/2026-11/</code>), so the commands look it up in the line's <code>index.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nv">DELTA</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-fsS<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/index.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s1">'</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="s1">import json, sys</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="s1">print(next(d["bundle"]["path"] for d in json.load(sys.stdin)["deltas"] if d["release"] == "2026-11-15"))'</span><span class="k">)</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>curl<span class="w"> </span>-fO<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/</span><span class="si">${</span><span class="nv">DELTA</span><span class="si">}</span><span class="s2">"</span>
+</code></pre></div>
+</li>
+<li>
+<p><strong>A full bundle is too large to load whole.</strong> It is about 4.9 GB compressed and 68.5 GB decompressed, so
+  <code>json.load</code> on it needs far more memory than a laptop has, and decompressing it to disk needs 68.5 GB free.
+  Stream it instead, as in <a href="#count-records-in-a-full-bundle">Count records in a full bundle</a>, or query the
+  <a href="../parquet/">Parquet files</a>.</p>
+</li>
+</ul>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Decompress and inspect the top-level keys</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>gunzip<span class="w"> </span>-c<span class="w"> </span>clinvar-gkm-delta_2026-1115.json.gz<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="s2">import json, sys</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="s2">data = json.load(sys.stdin)</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="s2">for key, value in data.items():</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="s2">    if isinstance(value, dict):  # skip schema_version, a string</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="s2">        print(f'{key}: {len(value):,} entries')</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="s2">"</span>
 </code></pre></div>
 <p>See <a href="../../output-reference/overview/">Output Format</a> for the full bundle structure, section inventory, and reference patterns.</p>
 <hr />
@@ -6412,63 +6446,81 @@
 <p><code>clinvar-gkm_00-latest.json.gz</code> reflects the <strong>last release of the <em>previous</em> month</strong> — e.g. the <code>2026-10</code> monthly is built from the <code>2026-09-28</code> release, the last one before ClinVar's October monthly cut. For the current week, use <code>clinvar-gkm_00-latest_weekly.json.gz</code> — see <a href="../weekly-full/">Weekly Full Bundles</a>.</p>
 </div>
 <p>Stable filenames that always point to the newest official monthly and the newest weekly full:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>clinvar-gkm_00-latest.json.gz               (newest official monthly)
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>weekly/clinvar-gkm_00-latest_weekly.json.gz (newest weekly full)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>clinvar-gkm_00-latest.json.gz               (newest official monthly)
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>weekly/clinvar-gkm_00-latest_weekly.json.gz (newest weekly full)
 </code></pre></div>
 <p>The <code>00-</code> prefix ensures these sort before dated files in directory listings, as in NCBI's <code>ClinVarVCVRelease_00-latest.xml.gz</code>.</p>
 <h3 id="monthly-full-bundles">Monthly Full Bundles<a class="headerlink" href="#monthly-full-bundles" title="Permanent link">&para;</a></h3>
 <p>Official monthly full bundles include the year and month:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>clinvar-gkm_yyyy-mm.json.gz                 (current year, at the top of the line folder)
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>archive/yyyy/clinvar-gkm_yyyy-mm.json.gz    (prior years)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>clinvar-gkm_yyyy-mm.json.gz                 (current year, at the top of the line folder)
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>archive/yyyy/clinvar-gkm_yyyy-mm.json.gz    (prior years)
 </code></pre></div>
 <p>For example, <code>clinvar-gkm_2026-10.json.gz</code> for ClinVar's October 2026 monthly release.</p>
 <h3 id="weekly-full-bundles">Weekly Full Bundles<a class="headerlink" href="#weekly-full-bundles" title="Permanent link">&para;</a></h3>
 <p>Weekly full bundles include the ClinVar release year, month, and day, and are kept for the current month only:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>weekly/clinvar-gkm_yyyy-mmdd.json.gz
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>weekly/clinvar-gkm_yyyy-mmdd.json.gz
 </code></pre></div>
 <p>For example, <code>weekly/clinvar-gkm_2026-1018.json.gz</code> for the October 18, 2026 release.</p>
 <h3 id="weekly-deltas">Weekly Deltas<a class="headerlink" href="#weekly-deltas" title="Permanent link">&para;</a></h3>
 <p>Each weekly delta is a bundle and a manifest named with the ClinVar release year, month, and day:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>deltas/clinvar-gkm-delta_yyyy-mmdd.json.gz          (current month)
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>deltas/clinvar-gkm-delta_yyyy-mmdd.manifest.json
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>deltas/yyyy-mm/clinvar-gkm-delta_yyyy-mmdd.*        (earlier months of the current year)
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>archive/yyyy/deltas/yyyy-mm/clinvar-gkm-delta_*     (prior years)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>deltas/clinvar-gkm-delta_yyyy-mmdd.json.gz          (current month)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>deltas/clinvar-gkm-delta_yyyy-mmdd.manifest.json
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>deltas/yyyy-mm/clinvar-gkm-delta_yyyy-mmdd.*        (earlier months of the current year)
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>archive/yyyy/deltas/yyyy-mm/clinvar-gkm-delta_*     (prior years)
 </code></pre></div>
 <p>For example, <code>deltas/clinvar-gkm-delta_2026-1018.json.gz</code> for the October 18, 2026 release, which moves to <code>deltas/2026-10/</code> when November's first release is published. The delta bundle carries only added and updated records; deletes and per-section change counts are recorded in the accompanying manifest. See <a href="../weekly-deltas/">Weekly Deltas</a> for the delta model and replay recipe.</p>
 <p>Every bundle has a <code>&lt;file&gt;.sha256</code> sidecar. All paths are relative to the line folder, <code>https://data.clinvar-gkm.org/v1/1.2/</code>.</p>
 <hr />
 <h2 id="working-with-the-file">Working with the File<a class="headerlink" href="#working-with-the-file" title="Permanent link">&para;</a></h2>
 <h3 id="python">Python<a class="headerlink" href="#python" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">gzip</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">'clinvar-gkm_00-latest.json.gz'</span><span class="p">,</span> <span class="s1">'rt'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">bundle</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Look up a specific variation</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">variant</span> <span class="o">=</span> <span class="n">bundle</span><span class="p">[</span><span class="s1">'variation'</span><span class="p">][</span><span class="s1">'clinvar:10'</span><span class="p">]</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="nb">print</span><span class="p">(</span><span class="n">variant</span><span class="p">[</span><span class="s1">'name'</span><span class="p">])</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="c1"># Resolve a reference</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="n">allele_ref</span> <span class="o">=</span> <span class="n">variant</span><span class="p">[</span><span class="s1">'members'</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># e.g., "#/allele/ga4gh:VA.abc123"</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="n">section</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">allele_ref</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">'#/'</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="n">allele</span> <span class="o">=</span> <span class="n">bundle</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">gzip</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">'clinvar-gkm-delta_2026-1115.json.gz'</span><span class="p">,</span> <span class="s1">'rt'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">bundle</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># Look up a specific variation (one present in this delta)</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="n">variant</span> <span class="o">=</span> <span class="n">bundle</span><span class="p">[</span><span class="s1">'variation'</span><span class="p">][</span><span class="s1">'clinvar:5042639'</span><span class="p">]</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="nb">print</span><span class="p">(</span><span class="n">variant</span><span class="p">[</span><span class="s1">'name'</span><span class="p">])</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="c1"># Resolve a reference</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="n">allele_ref</span> <span class="o">=</span> <span class="n">variant</span><span class="p">[</span><span class="s1">'members'</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># e.g., "#/allele/ga4gh:VA.abc123"</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="n">section</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">allele_ref</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">'#/'</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="n">allele</span> <span class="o">=</span> <span class="n">bundle</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
 </code></pre></div>
 <h3 id="command-line">Command Line<a class="headerlink" href="#command-line" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Count entries per section</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>gunzip<span class="w"> </span>-c<span class="w"> </span>clinvar-gkm_00-latest.json.gz<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="s2">import json, sys</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="s2">data = json.load(sys.stdin)</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="s2">for key in data:</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="s2">    print(f'{key}: {len(data[key]):,}')</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="s2">"</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="c1"># Extract a single variation as pretty-printed JSON</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>gunzip<span class="w"> </span>-c<span class="w"> </span>clinvar-gkm_00-latest.json.gz<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="s2">import json, sys</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="s2">data = json.load(sys.stdin)</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="s2">print(json.dumps(data['variation']['clinvar:10'], indent=2))</span>
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="s2">"</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Count entries per section</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>gunzip<span class="w"> </span>-c<span class="w"> </span>clinvar-gkm-delta_2026-1115.json.gz<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="s2">import json, sys</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="s2">data = json.load(sys.stdin)</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="s2">for key, value in data.items():</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="s2">    if isinstance(value, dict):  # skip schema_version, a string</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="s2">        print(f'{key}: {len(value):,}')</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="s2">"</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="c1"># Extract a single variation as pretty-printed JSON</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>gunzip<span class="w"> </span>-c<span class="w"> </span>clinvar-gkm-delta_2026-1115.json.gz<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="s2">import json, sys</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="s2">data = json.load(sys.stdin)</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="s2">print(json.dumps(data['variation']['clinvar:5042639'], indent=2))</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="s2">"</span>
+</code></pre></div>
+<h3 id="count-records-in-a-full-bundle">Count records in a full bundle<a class="headerlink" href="#count-records-in-a-full-bundle" title="Permanent link">&para;</a></h3>
+<p>A full bundle is too large to load whole, but each record is on its own line, so a script can stream it. This
+counts the records of each section of the newest monthly, <code>clinvar-gkm_00-latest.json.gz</code> (4.9 GB, from
+<a href="../monthly-full/">Monthly Full Bundles</a>), in about a minute and 20 MB of memory on a laptop:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>gunzip<span class="w"> </span>-c<span class="w"> </span>clinvar-gkm_00-latest.json.gz<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="s2">import sys</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="s2">counts = {}</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="s2">for line in sys.stdin:</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="s2">    if line.startswith('  \"') and line.rstrip().endswith('{'):  # a section opens</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="s2">        section = line.split('\"')[1]</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="s2">        counts[section] = 0</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="s2">    elif line.startswith('    \"'):                            # one record</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="s2">        counts[section] += 1</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="s2">for section, n in counts.items():</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="s2">    print(f'{section}: {n:,}')</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="s2">"</span>
 </code></pre></div>
 <hr />
 <h2 id="sections-included">Sections Included<a class="headerlink" href="#sections-included" title="Permanent link">&para;</a></h2>

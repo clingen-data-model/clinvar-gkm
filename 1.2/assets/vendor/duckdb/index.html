@@ -6261,10 +6261,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#why-duckdb-browserbundledmjs-is-a-local-build" class="md-nav__link">
+  <a href="#why-duckdb-browserbundledjs-is-a-local-build" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Why <code>duckdb-browser.bundled.mjs</code> is a local build
+        Why <code>duckdb-browser.bundled.js</code> is a local build
       </span>
     </span>
   </a>
@@ -6339,12 +6339,14 @@ there is no runtime dependency on jsdelivr.</p>
 <p>DuckDB-Wasm ships three bundles: <code>mvp</code>, <code>eh</code>, and <code>coi</code>. <code>coi</code> needs cross-origin isolation (COOP/COEP
 headers) that GitHub Pages cannot set, so it is unusable here. <code>eh</code> (exception handling) is supported by every
 modern browser, so the <code>mvp</code> fallback buys almost nothing for +38 MB. We vendor <code>eh</code> only.</p>
-<h2 id="why-duckdb-browserbundledmjs-is-a-local-build">Why <code>duckdb-browser.bundled.mjs</code> is a local build<a class="headerlink" href="#why-duckdb-browserbundledmjs-is-a-local-build" title="Permanent link">&para;</a></h2>
+<h2 id="why-duckdb-browserbundledjs-is-a-local-build">Why <code>duckdb-browser.bundled.js</code> is a local build<a class="headerlink" href="#why-duckdb-browserbundledjs-is-a-local-build" title="Permanent link">&para;</a></h2>
 <p>The package's own <code>dist/duckdb-browser.mjs</code> has a <strong>bare import</strong> — <code>import * as … from "apache-arrow"</code> — which a
-browser cannot resolve without an import map or a bundler. So we bundle it into one self-contained ESM:</p>
+browser cannot resolve without an import map or a bundler. So we bundle it into one self-contained ESM. The build
+needs Node.js with npm (tested with Node 22.14 and npm 11.3, on macOS) and runs outside the repository. esbuild is
+pinned: with 0.28.2 these commands reproduce the committed bundle byte for byte.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mkdir<span class="w"> </span>ddw-build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>ddw-build
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>npm<span class="w"> </span>init<span class="w"> </span>-y
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>npm<span class="w"> </span>i<span class="w"> </span>@duckdb/duckdb-wasm@1.29.0
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>npm<span class="w"> </span>i<span class="w"> </span>@duckdb/duckdb-wasm@1.29.0<span class="w"> </span>esbuild@0.28.2
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nb">printf</span><span class="w"> </span><span class="s1">'export * from "@duckdb/duckdb-wasm";\n'</span><span class="w"> </span>&gt;<span class="w"> </span>entry.mjs
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>npx<span class="w"> </span>esbuild<span class="w"> </span>entry.mjs<span class="w"> </span>--bundle<span class="w"> </span>--format<span class="o">=</span>esm<span class="w"> </span>--platform<span class="o">=</span>browser<span class="w"> </span>--minify<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>--legal-comments<span class="o">=</span>none<span class="w"> </span>--outfile<span class="o">=</span>duckdb-browser.bundled.js

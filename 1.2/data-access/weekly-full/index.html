@@ -6297,17 +6297,28 @@
 </div>
 <div class="r2-browser" data-r2-type="weekly"></div>
 
+<div class="admonition note">
+<p class="admonition-title">Prerequisites</p>
+<ul>
+<li><strong>curl</strong>, and <strong><code>sha256sum</code></strong> (Linux, recent macOS) or <strong><code>shasum -a 256</code></strong> (any macOS) to check the download.</li>
+<li><strong>Disk.</strong> A weekly full is about 4.9 GB compressed and 68.5 GB decompressed. Read it streamed
+  (<code>gunzip -c</code>) rather than decompressing it to disk; see <a href="../output-files/#count-records-in-a-full-bundle">Output File</a>.</li>
+</ul>
+</div>
 <details class="example">
 <summary>Download a weekly full with curl</summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Newest weekly full (stable URL)</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-O<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-fO<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Or a specific week of the current month, with its checksum</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># (the dates of the current month's weekly fulls are in index.json)</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="nv">D</span><span class="o">=</span><span class="s2">"2026-1206"</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>curl<span class="w"> </span>-O<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_</span><span class="si">${</span><span class="nv">D</span><span class="si">}</span><span class="s2">.json.gz"</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>curl<span class="w"> </span>-O<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_</span><span class="si">${</span><span class="nv">D</span><span class="si">}</span><span class="s2">.json.gz.sha256"</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>sha256sum<span class="w"> </span>-c<span class="w"> </span><span class="s2">"clinvar-gkm_</span><span class="si">${</span><span class="nv">D</span><span class="si">}</span><span class="s2">.json.gz.sha256"</span><span class="w">      </span><span class="c1"># macOS: shasum -a 256 -c</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Or a dated weekly full, with its checksum. index.json lists the current month's weekly fulls</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># (they are deleted when the month ends); this takes the newest, or pick one by its "release" date.</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="nv">W</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-fsS<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/index.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s1">'</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="s1">import json, sys</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="s1">weekly = [w for w in json.load(sys.stdin)["datasets"]["weekly"] if not w["latest"]]</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="s1">print(max(weekly, key=lambda w: w["release"])["path"])'</span><span class="k">)</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>curl<span class="w"> </span>-fO<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/</span><span class="si">${</span><span class="nv">W</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>curl<span class="w"> </span>-fO<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/</span><span class="si">${</span><span class="nv">W</span><span class="si">}</span><span class="s2">.sha256"</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>sha256sum<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span><span class="k">$(</span>basename<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">W</span><span class="si">}</span><span class="s2">"</span><span class="k">)</span><span class="s2">.sha256"</span><span class="w">      </span><span class="c1"># macOS: shasum -a 256 -c</span>
 </code></pre></div>
 </details>
 <div class="admonition tip">

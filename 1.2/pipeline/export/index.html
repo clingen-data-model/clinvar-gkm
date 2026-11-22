@@ -5833,6 +5833,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Prerequisites
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#workflow" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -5976,17 +5987,6 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Retired: gkm_json_proc
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Prerequisites
       </span>
     </span>
   </a>
@@ -6500,6 +6500,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Prerequisites
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#workflow" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6650,17 +6661,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Prerequisites
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#full-example" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6701,14 +6701,79 @@
 <li>Every bundle gets a <code>&lt;file&gt;.sha256</code> sidecar.</li>
 </ul>
 <hr />
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<p>The commands on this page are maintainer commands. They run from the root of a clone of this repository, use the
+project's Google Cloud resources, and publish to the public R2 bucket. The <a href="../">Pipeline Overview</a> and
+<a href="../vrs-processing/">VRS Processing</a> pages need the same setup.</p>
+<div class="admonition warning">
+<p class="admonition-title">Billed, and published to the live line</p>
+<ul>
+<li><strong>BigQuery bills the export.</strong> The <code>EXPORT DATA</code> queries of Step 1 scan about 55–60 GB per full export
+  (<code>bq extract</code> is not billed). The procedures that build the <code>gkm_dict_*</code> tables bill about 0.2 TiB per full
+  build (<a href="../">Pipeline Overview</a>).</li>
+<li><strong>GCS.</strong> Steps 1 and 2 write NDJSON to <code>gs://clinvar-gkm/</code>, and the assembler deletes the prefix it read
+  (unless <code>--keep-source</code>). <code>gkm-dicts/</code> and <code>gkm-deltas/</code> are the release scripts' staging prefixes; a hand
+  run uses a prefix of its own.</li>
+<li><strong>R2.</strong> Steps 3–5 write to the <strong>live</strong> version line (<code>R2_LINE</code>, default <code>v1/1.2/</code>) and regenerate its
+  <code>index.json</code>, which every reader sees. <code>--dry-run</code> prints the writes instead, and <code>--no-upload</code> stops before R2.</li>
+</ul>
+</div>
+<ul>
+<li><strong>Repository</strong> — a clone with its submodules (<code>git submodule update --init --recursive</code>); validation reads the
+  schemas of the <code>va-spec</code> submodule. Run every command from the repository root.</li>
+<li><strong>Google Cloud SDK</strong> — <code>bq</code>, <code>gsutil</code> and <code>gcloud</code>, signed in with <code>gcloud auth login</code>, with the default project
+  set: <code>gcloud config set project clingen-dev</code>. <code>export-gkm-dicts.sh</code> names its tables without a project, so it runs
+  in gcloud's default project; <code>run-release.sh</code> and <code>check-cloud-vrsify.sh</code> read <code>PROJECT_ID</code> (default
+  <code>clingen-dev</code>). The scripts call only these CLIs, so Application Default Credentials are not needed.</li>
+<li><strong>Google Cloud access</strong> in <code>clingen-dev</code> — to run queries and procedures and write tables (for example the
+  BigQuery Job User and BigQuery Data Editor roles), to write and delete objects in <code>gs://clinvar-gkm</code> (Storage
+  Object Admin), and, for the VRS transform, to execute Cloud Run jobs.</li>
+<li><strong>AWS CLI with an <code>r2</code> profile</strong> — an R2 API token with Object Read &amp; Write on the <code>clinvar-gkm</code> bucket, stored
+  with <code>aws configure --profile r2</code> (the token's access key ID and secret, region <code>auto</code>). The scripts add the R2
+  endpoint themselves. <code>--dry-run</code> lists the bucket too, so it also needs the profile.</li>
+<li><strong>Cloudflare purge credentials</strong> — <code>CF_ZONE_ID</code> and <code>CF_PURGE_TOKEN</code>, in the environment or in
+  <code>~/.config/clinvar-gkm/cloudflare.env</code> (<code>CF_ENV_FILE</code> sets another path). <code>--purge</code> and the month rollover use
+  them to clear the CDN copy of overwritten, moved or deleted files. Without them the purge is skipped with a
+  warning, and the CDN can serve the old copy until it expires.</li>
+<li>
+<p><strong>Python 3.12 with <code>orjson</code></strong> — the release scripts use <code>venv/3.12/bin/python3</code> when it exists, and <code>python3</code>
+  otherwise. <code>orjson</code> is required (Step 2). <code>make venv/3.12</code> creates the environment (it needs <code>python3.12</code> on the
+  <code>PATH</code>); the project requirements don't include <code>orjson</code>, so install it there:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>make<span class="w"> </span>venv/3.12
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>venv/3.12/bin/pip<span class="w"> </span>install<span class="w"> </span>orjson
+</code></pre></div>
+</li>
+<li>
+<p><strong><a href="https://docs.astral.sh/uv/">uv</a></strong> — <code>validate-bundle.sh</code> builds its validation environment with uv, and <code>uvx</code>
+  runs the pinned <a href="https://pypi.org/project/gkm-bundle-parquet/2.0.0/"><code>gkm-bundle-parquet</code> 2.0.0</a> (Step 5).
+  <code>./src/scripts/validate-bundle.sh --check-setup --engine rs</code> confirms that uv, the environment and the schema
+  tree are ready.</p>
+</li>
+<li><strong><code>curl</code> and <code>shasum</code></strong> — installed on macOS; on Linux, <code>shasum</code> comes with Perl.</li>
+<li><strong>Environment variables</strong> (all optional):<ul>
+<li><code>R2_LINE</code> — the version line written (default <code>v1/1.2/</code>)</li>
+<li><code>STAGE_DIR</code> — where bundles and the Parquet build are staged (default <code>/tmp</code>); a full bundle is about 5 GB,
+  and the Parquet build needs about 25 GB free</li>
+<li><code>PROJECT_ID</code> — the GCP project of <code>run-release.sh</code> and <code>check-cloud-vrsify.sh</code> (default <code>clingen-dev</code>)</li>
+<li><code>GKS_FULL</code>, <code>INCREMENTAL</code> — <code>vrs-to-bq-table.sh</code> only; see
+  <a href="../vrs-processing/#step-4-transform-load-run-procedures">VRS Processing</a></li>
+<li><code>PARQUET_TOOL_CMD</code>, <code>PARQUET_MEMORY_LIMIT</code> — Step 5; see <a href="#options-and-resources">Options and Resources</a></li>
+</ul>
+</li>
+</ul>
+<hr />
 <h2 id="workflow">Workflow<a class="headerlink" href="#workflow" title="Permanent link">&para;</a></h2>
 <p>The export and distribution process has five steps. <code>release-gkm.sh</code> runs Steps 1–3 for a full bundle, <code>release-gkm-delta.sh</code> runs Step 4, and <code>release-gkm-parquet.sh</code> runs Step 5. <code>run-release.sh</code> calls all three for every release (Steps 1–4 are its step 3, Step 5 its step 4). Each step can also be run on its own.</p>
 <h3 id="step-1-export-dictionaries-to-gcs">Step 1: Export Dictionaries to GCS<a class="headerlink" href="#step-1-export-dictionaries-to-gcs" title="Permanent link">&para;</a></h3>
 <p><code>export-gkm-dicts.sh</code> exports the dictionary and statement tables from BigQuery to Google Cloud Storage as sharded, gzip-compressed NDJSON for bundle assembly (<code>gkm-dicts/</code>). Most tables use <code>bq extract</code>; <code>variation</code>, <code>conditionSet</code>, <code>evidenceLine</code>, <code>scv</code> and the proposition sections use <code>EXPORT DATA</code> queries, which filter rows, keep <code>INT64</code> values numeric, or collapse the typed extension values to <code>value</code>. BigQuery exports no Parquet: the Parquet set is built from the published bundle (Step 5).</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>./src/scripts/export-gkm-dicts.sh<span class="w"> </span>&lt;dataset&gt;<span class="w"> </span>&lt;gcs_bucket&gt;<span class="w"> </span><span class="o">[</span>prefix<span class="o">]</span><span class="w"> </span><span class="o">[</span>--delta<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>./src/scripts/export-gkm-dicts.sh &lt;dataset&gt; &lt;gcs_bucket&gt; [prefix] [--delta]
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># What release-gkm.sh runs</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>./src/scripts/export-gkm-dicts.sh<span class="w"> </span>clinvar_2026_10_18_v2_6_0<span class="w"> </span>clinvar-gkm<span class="w"> </span>gkm-dicts
+<p><code>release-gkm.sh</code> clears <code>gs://clinvar-gkm/gkm-dicts/</code> and then runs the script on the release's dataset,
+<code>clinvar_&lt;yyyy&gt;_&lt;mm&gt;_&lt;dd&gt;_&lt;version&gt;</code>. The script itself doesn't clear its prefix, so shards an earlier run left
+there would be assembled too. By hand, export to a prefix of your own and clear it first (the <code>EXPORT DATA</code> queries
+are billed, about 55–60 GB scanned):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>gsutil -m rm -r gs://clinvar-gkm/gkm-dicts-&lt;user&gt;/ 2&gt;/dev/null || true
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>./src/scripts/export-gkm-dicts.sh clinvar_&lt;yyyy&gt;_&lt;mm&gt;_&lt;dd&gt;_&lt;version&gt; clinvar-gkm gkm-dicts-&lt;user&gt;
 </code></pre></div>
 <p><code>--delta</code> reads the <code>delta_gkm_dict_*</code> tables instead (what <code>release-gkm-delta.sh</code> runs).</p>
 <p>The three proposition tables are exported as the four proposition sections. <code>clinvar_ingest.gkm_proposition_section(type)</code> names each row's section, and the export first asserts that every proposition maps to one of them, so an unmapped type fails the export instead of dropping rows. The script writes these 22 outputs:</p>
@@ -6801,12 +6866,12 @@
 <p>BigQuery shards large tables across multiple files automatically.</p>
 <h3 id="step-2-assemble-bundle">Step 2: Assemble Bundle<a class="headerlink" href="#step-2-assemble-bundle" title="Permanent link">&para;</a></h3>
 <p><code>assemble-gkm-dicts.py</code> reads all NDJSON shard files and assembles them into a single keyed JSON bundle file.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python3<span class="w"> </span>./src/scripts/assemble-gkm-dicts.py<span class="w"> </span>&lt;source&gt;<span class="w"> </span>&lt;date&gt;<span class="w"> </span><span class="o">[</span>--keep-source<span class="o">]</span><span class="w"> </span><span class="o">[</span>--copy-to-gcs<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>venv/3.12/bin/python3 ./src/scripts/assemble-gkm-dicts.py &lt;source&gt; &lt;date&gt; [--keep-source] [--copy-to-gcs] [--output PATH]
 </code></pre></div>
-<p><code>&lt;source&gt;</code> is a local path or <code>gs://</code> URI containing the NDJSON shards. <code>&lt;date&gt;</code> is the ClinVar release date (<code>YYYY-MM-DD</code>); the output path is derived as <code>/tmp/clinvar-gkm-{date}.json.gz</code>. By default, source files are deleted after assembly; use <code>--keep-source</code> to retain them.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python3<span class="w"> </span>./src/scripts/assemble-gkm-dicts.py<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>gs://clinvar-gkm/gkm-dicts/<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="m">2026</span>-06-14
+<p><code>&lt;source&gt;</code> is a local path or <code>gs://</code> URI containing the NDJSON shards. <code>&lt;date&gt;</code> is the ClinVar release date (<code>YYYY-MM-DD</code>); the output path is <code>/tmp/clinvar-gkm-{date}.json.gz</code> unless <code>--output</code> names another. By default, source files are deleted after assembly; use <code>--keep-source</code> to retain them.</p>
+<p>Continuing from the export above, assemble the bundle, then validate it strictly as <code>release-gkm.sh</code> does:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>venv/3.12/bin/python3 ./src/scripts/assemble-gkm-dicts.py gs://clinvar-gkm/gkm-dicts-&lt;user&gt;/ &lt;yyyy-mm-dd&gt;
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>./src/scripts/validate-bundle.sh /tmp/clinvar-gkm-&lt;yyyy-mm-dd&gt;.json.gz --engine rs
 </code></pre></div>
 <p>The script assembles 20 bundle sections in a fixed order: <code>sequenceReference</code>, <code>location</code>, <code>allele</code>, <code>copyNumberCount</code>, <code>copyNumberChange</code>, <code>gene</code>, <code>variation</code>, <code>condition</code>, <code>conditionSet</code>, <code>therapy</code>, <code>therapyGroup</code>, <code>submitter</code>, <code>propositionPathogenicity</code>, <code>propositionOncogenicity</code>, <code>propositionSomaticClinicalImpact</code>, <code>propositionClinvarCustom</code>, <code>evidenceLine</code>, <code>scv</code>, <code>vcv</code>, <code>rcv</code>. The <code>therapy</code> / <code>therapyGroup</code> sections hold content-addressed (deduplicated) drug therapies referenced by <code>VariantTherapeuticResponseProposition.object</code> via <code>#/therapy/</code> and <code>#/therapyGroup/</code>. Each section is a keyed object where the key is the record's unique identifier. Propositions from SCV, VCV, and RCV are delivered in <strong>four sections grouped by meaning</strong> — <code>propositionPathogenicity</code>, <code>propositionOncogenicity</code>, <code>propositionSomaticClinicalImpact</code> (clinical significance, diagnostic, prognostic, therapeutic response), <code>propositionClinvarCustom</code> (the <code>Clinvar*</code> types) — split by the one canonical function <code>clinvar_ingest.gkm_proposition_section(type)</code>, which fails the export on an unmapped type; evidence line shards are merged into a single <code>evidenceLine</code> section.</p>
 <h4 id="record-text">Record Text<a class="headerlink" href="#record-text" title="Permanent link">&para;</a></h4>
@@ -6822,8 +6887,9 @@ assembler, so an unchanged record has the same bytes in every release:</p>
   <strong>sorted at every depth</strong>, independent of the column order of the BigQuery tables</li>
 <li><strong>Layout</strong> — <code>schema_version</code> is the first top-level key, followed by the sections in the fixed order above</li>
 </ul>
-<p><code>orjson</code> writes this text, so the assembler requires it and stops without it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span>orjson
+<p><code>orjson</code> writes this text, so the assembler requires it and stops without it. Install it in the environment the
+release scripts use (see <a href="#prerequisites">Prerequisites</a>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>venv/3.12/bin/pip<span class="w"> </span>install<span class="w"> </span>orjson
 </code></pre></div>
 <p><code>release-gkm.sh</code> then validates every record of the assembled full bundle with <code>validate-bundle.sh --engine rs</code> and stops before upload if any fails (see <a href="#step-4-publish-the-weekly-delta">Strict validation stops the release</a>).</p>
 <h3 id="step-3-upload-the-weekly-and-monthly-fulls-to-r2">Step 3: Upload the Weekly and Monthly Fulls to R2<a class="headerlink" href="#step-3-upload-the-weekly-and-monthly-fulls-to-r2" title="Permanent link">&para;</a></h3>
@@ -6832,18 +6898,27 @@ assembler, so an unchanged record has the same bytes in every release:</p>
 <li><strong><code>--weekly</code></strong> — the weekly full of <code>&lt;export_date&gt;</code>, written to <code>weekly/clinvar-gkm_yyyy-mmdd.json.gz</code>; when it is the newest weekly full it is also copied to <code>weekly/clinvar-gkm_00-latest_weekly.json.gz</code>. A weekly full older than the line's current month is refused.</li>
 <li><strong><code>--month-label=YYYY-MM</code></strong> — the official monthly, published <strong>once a month, aligned to ClinVar's own monthly VCV releases</strong>: when a new <code>ClinVarVCVRelease_YYYY-MM.xml.gz</code> appears at ClinVar's <a href="https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/">XML index</a>, <code>run-release.sh</code> publishes our <code>clinvar-gkm_YYYY-MM</code> full from the most recent weekly release <strong>before</strong> ClinVar's monthly cut datetime (ADR 0002). <code>&lt;export_date&gt;</code> is that source release, so the month slot is set independently of it (e.g. the <code>2026-07</code> full is built from our <code>2026-06-27</code> release, the last one before ClinVar's <code>_2026-07</code> cut). With <code>--from-weekly</code> the monthly is a server-side copy of <code>weekly/clinvar-gkm_&lt;export_date&gt;.json.gz</code> and no local bundle is needed (pass <code>-</code>). When it is the newest monthly it is also copied to <code>clinvar-gkm_00-latest.json.gz</code>, and the index records <code>&lt;export_date&gt;</code> as the monthly's <code>source_release</code>.</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>./src/scripts/upload-gkm-to-r2.sh<span class="w"> </span>&lt;export_date&gt;<span class="w"> </span>&lt;dataset_version&gt;<span class="w"> </span>&lt;bundle_file<span class="p">|</span>-&gt;<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="o">[</span>--weekly<span class="w"> </span><span class="p">|</span><span class="w"> </span>--month-label<span class="o">=</span>YYYY-MM<span class="w"> </span><span class="o">[</span>--from-weekly<span class="o">]]</span><span class="w"> </span><span class="o">[</span>--dry-run<span class="o">]</span><span class="w"> </span><span class="o">[</span>--purge<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>./src/scripts/upload-gkm-to-r2.sh &lt;export_date&gt; &lt;dataset_version&gt; &lt;bundle_file|-&gt; \
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  [--weekly | --month-label=YYYY-MM [--from-weekly]] [--dry-run] [--purge]
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># A release's weekly full (+ sha256 sidecar)</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>./src/scripts/upload-gkm-to-r2.sh<span class="w"> </span><span class="m">2026</span>-10-18<span class="w"> </span>v2_6_0<span class="w"> </span>/tmp/clinvar-gkm-2026-10-18.json.gz<span class="w"> </span>--weekly
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># The 2026-10 official monthly, as a server-side copy of the weekly full of its source release, 2026-09-28</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>./src/scripts/upload-gkm-to-r2.sh<span class="w"> </span><span class="m">2026</span>-09-28<span class="w"> </span>v2_6_0<span class="w"> </span>-<span class="w"> </span>--month-label<span class="o">=</span><span class="m">2026</span>-10<span class="w"> </span>--from-weekly
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># Preview without uploading</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>./src/scripts/upload-gkm-to-r2.sh<span class="w"> </span><span class="m">2026</span>-10-18<span class="w"> </span>v2_6_0<span class="w"> </span>/tmp/clinvar-gkm-2026-10-18.json.gz<span class="w"> </span>--weekly<span class="w"> </span>--dry-run
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a># A release's weekly full (+ sha256 sidecar); the release must be in the line's current month
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>./src/scripts/upload-gkm-to-r2.sh &lt;yyyy-mm-dd&gt; &lt;version&gt; /tmp/clinvar-gkm-&lt;yyyy-mm-dd&gt;.json.gz --weekly
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a># The &lt;yyyy-mm&gt; official monthly, as a server-side copy of the weekly full of its ADR 0002 source release
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>./src/scripts/upload-gkm-to-r2.sh &lt;source-release&gt; &lt;version&gt; - --month-label=&lt;yyyy-mm&gt; --from-weekly
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a># Preview: lists the bucket and prints the writes, uploading nothing
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>./src/scripts/upload-gkm-to-r2.sh &lt;yyyy-mm-dd&gt; &lt;version&gt; /tmp/clinvar-gkm-&lt;yyyy-mm-dd&gt;.json.gz --weekly --dry-run
 </code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Writes to the live line</p>
+<p>Without <code>--dry-run</code>, these commands write to the public line (<code>R2_LINE</code>) and regenerate its <code>index.json</code>. The
+guards also apply to <code>--dry-run</code>: a weekly full dated before the line's current month is refused, and
+<code>--from-weekly</code> stops when the source release's weekly full is no longer in R2 (re-export it with
+<code>release-gkm.sh &lt;source-release&gt; &lt;version&gt; --month-label=&lt;yyyy-mm&gt;</code> instead). Pass <code>--weekly</code> or
+<code>--month-label</code>: without either, the script publishes the bundle as the monthly of <code>&lt;export_date&gt;</code>'s own month,
+which is not the ADR 0002 mapping.</p>
+</div>
 <p>The R2 layout mirrors NCBI's ClinVar XML folder (ADR 0009). Under the line folder <code>v1/1.2/</code>:</p>
 <ul>
 <li><strong>top level</strong> — official monthly fulls for the current year (<code>clinvar-gkm_yyyy-mm.json.gz</code>) plus a stable <code>clinvar-gkm_00-latest.json.gz</code>, each with a <code>.sha256</code> sidecar</li>
@@ -6853,17 +6928,22 @@ assembler, so an unchanged record has the same bytes in every release:</p>
 <p>Rollovers are done by <code>r2-rollover.sh &lt;release_date&gt;</code>, which <code>run-release.sh</code> runs before the weekly uploads and again after any monthly is published; it is idempotent, so a run with nothing to move does nothing. <strong>New month</strong> (the first release dated in a new month): the finished month's deltas move into <code>deltas/{yyyy-mm}/</code> and its weekly fulls are deleted, except the newest, which is kept until the new month's official monthly is published (the monthly's source candidate) and deleted by the run that publishes it. <strong>New year:</strong> the finished year's monthlies and delta folders move into <code>archive/{yyyy}/</code>. Each move or delete is followed by a CDN purge of the old paths. After upload, <code>generate-r2-index.sh</code> regenerates the line's <code>index.json</code>, which lists the monthlies (with their sha256 and <code>source_release</code>, the release each was built from), the weekly fulls, the deltas wherever they now sit, the <code>archive</code> years and the Parquet dataset.</p>
 <h3 id="step-4-publish-the-weekly-delta">Step 4: Publish the Weekly Delta<a class="headerlink" href="#step-4-publish-the-weekly-delta" title="Permanent link">&para;</a></h3>
 <p><code>release-gkm-delta.sh</code> publishes the per-release delta for every ClinVar release. It exports the <code>delta_&lt;dict&gt;</code> change tables produced by step 8 of the pipeline, assembles a delta bundle (added + updated records, same section structure as the full), builds the delta manifest, and uploads them to R2. Deltas carry no Parquet.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>./src/scripts/release-gkm-delta.sh<span class="w"> </span>&lt;export_date&gt;<span class="w"> </span>&lt;dataset_version&gt;<span class="w"> </span><span class="o">[</span>--start-step<span class="o">=</span>N<span class="o">]</span><span class="w"> </span><span class="o">[</span>--dry-run<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>./src/scripts/release-gkm-delta.sh &lt;export_date&gt; &lt;dataset_version&gt; [--start-step=N] [--dry-run] [--no-upload]
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Publish the weekly delta for a release</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>./src/scripts/release-gkm-delta.sh<span class="w"> </span><span class="m">2026</span>-07-06<span class="w"> </span>v2_5_0
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a># Build and strictly validate a release's delta, keeping it in STAGE_DIR; nothing is written to R2
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>./src/scripts/release-gkm-delta.sh &lt;yyyy-mm-dd&gt; &lt;version&gt; --no-upload
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a># Publish it to deltas/ in the live line
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>./src/scripts/release-gkm-delta.sh &lt;yyyy-mm-dd&gt; &lt;version&gt; --start-step=3
 </code></pre></div>
+<p>The upload is refused unless the delta follows the newest delta already in the line (the chain check below), so a
+delta is published for each release in order.</p>
 <p>The internal steps are: export delta tables to GCS, assemble and strictly validate the delta bundle, then build the manifest (<code>build-delta-manifest.py</code>) and upload (<code>upload-gkm-delta-to-r2.sh</code>).</p>
 <div class="admonition warning">
 <p class="admonition-title">Strict validation stops the release</p>
 <p>Every delta record is validated with <a href="https://pypi.org/project/jsonschema-rs/">jsonschema-rs</a> by <code>validate-bundle.sh --engine rs</code> before upload, as every full is (see <a href="../../reference/release-validation/">Release Validation</a>). <code>run-release.sh</code> does this at the start of stage 5, so a failing delta stops the release with R2 untouched; the bundle stays in <code>STAGE_DIR</code> for inspection. The check needs <a href="https://docs.astral.sh/uv/"><code>uv</code></a> and the <code>va-spec</code> submodule (<code>git submodule update --init --recursive</code>), and <code>run-release.sh</code> confirms both at startup.</p>
 <p><code>--start-step=3</code> publishes the staged bundle without validating it again, so only use it on a bundle that passed.</p>
-<p>Every full bundle is validated too: <code>release-gkm.sh</code> validates each full it assembles, the weekly full and any re-exported monthly, before upload, and <code>run-release.sh</code> builds the weekly full with the delta, so a failing full also stops the release with R2 untouched. The GKM Toolkit takes hours on a full, so fulls are validated with <a href="https://github.com/Stranger6667/jsonschema">jsonschema-rs</a> instead (<code>validate-bundle.sh --engine rs</code>): the same bundle schema, the same <code>schema/</code> registry and the same document for each record, in minutes. jsonschema-rs is not the GKM Toolkit. Its verdicts are tested against the toolkit's: both engines must name the same failing records in a bundle with planted violations (<code>src/scripts/tests/test_validate_bundle_rs.py</code>). It reads only the one-record-per-line layout the assembler writes and stops on any other. Run <code>./src/scripts/validate-bundle.sh &lt;bundle.json.gz&gt;</code> (the toolkit, the default) on a full by hand when the official validator's verdict is needed, as for a version release.</p>
+<p>Every full bundle is validated too: <code>release-gkm.sh</code> validates each full it assembles, the weekly full and any re-exported monthly, before upload, and <code>run-release.sh</code> builds the weekly full with the delta, so a failing full also stops the release with R2 untouched. The GKM Toolkit takes hours on a full, so fulls are validated with <a href="https://github.com/Stranger6667/jsonschema">jsonschema-rs</a> instead (<code>validate-bundle.sh --engine rs</code>): the same bundle schema, the same <code>schema/</code> registry and the same document for each record, in minutes. jsonschema-rs is not the GKM Toolkit. Its verdicts are tested against the toolkit's: both engines must name the same failing records in a bundle with planted violations (<code>src/scripts/tests/test_validate_bundle_rs.py</code>). It reads only the one-record-per-line layout the assembler writes and stops on any other. Run <code>./src/scripts/validate-bundle.sh &lt;bundle.json.gz&gt; --engine toolkit</code> on a full by hand when the official validator's verdict is needed, as for a version release; without <code>--engine</code>, the script uses jsonschema-rs.</p>
 </div>
 <p>The uploader writes:</p>
 <ul>
@@ -6880,8 +6960,9 @@ record and the Parquet set is a convenience that can be regenerated from it. To 
 cut a mini-bundle from a full bundle, see <a href="../../parquet/build-your-own/">Build Your Own Tables and Mini-Bundles</a>.</p>
 <p><code>run-release.sh</code> runs this step as its step 4, after its step 3 has uploaded the weekly full; <code>--skip-parquet</code> skips it
 and leaves the previous set in place. It can also be run on its own for a release that is already published:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>./src/scripts/release-gkm-parquet.sh<span class="w"> </span>&lt;export_date&gt;<span class="w"> </span>&lt;dataset_version&gt;<span class="w"> </span><span class="o">[</span>--start-step<span class="o">=</span>N<span class="o">]</span><span class="w"> </span><span class="o">[</span>--dry-run<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-upload<span class="o">]</span><span class="w"> </span><span class="o">[</span>--purge<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>./src/scripts/release-gkm-parquet.sh &lt;export_date&gt; &lt;dataset_version&gt; [--start-step=N] [--dry-run] [--no-upload] [--purge]
 </code></pre></div>
+<p>Without <code>--no-upload</code> or <code>--dry-run</code>, it overwrites <code>parquet/</code> in the live line.</p>
 <h4 id="what-it-builds">What It Builds<a class="headerlink" href="#what-it-builds" title="Permanent link">&para;</a></h4>
 <p>The tables are the tool's <strong>default column set, generated from the bundle schema</strong>: no column set is kept in this
 repo. For the bundle schema of the assembler's <code>SCHEMA_VERSION</code>
@@ -6901,9 +6982,9 @@ reference is in <a href="../../parquet/tables/">Parquet Tables</a>.</p>
    sha256 the index gives. With neither, the step stops.</li>
 <li>
 <p><strong><code>gkm-bundle-parquet build</code></strong> streams the bundle from that URL, checks its sha256, and writes the tables:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>build<span class="w"> </span>--full<span class="w"> </span>&lt;bundle<span class="w"> </span>URL&gt;<span class="w"> </span>--sha256<span class="w"> </span>&lt;sha256&gt;<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span>--bundle-schema<span class="w"> </span>https://w3id.org/clingen/schema/clinvar-gkm/&lt;SCHEMA_VERSION&gt;/clinvar-gkm-bundle.schema.json<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span>--version-property<span class="w"> </span>schema_version<span class="w"> </span>--out<span class="w"> </span>&lt;dir&gt;<span class="w"> </span>--work-dir<span class="w"> </span>&lt;dir&gt;.work
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uvx gkm-bundle-parquet@2.0.0 build --full &lt;bundle URL&gt; --sha256 &lt;sha256&gt; \
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  --bundle-schema https://w3id.org/clingen/schema/clinvar-gkm/&lt;SCHEMA_VERSION&gt;/clinvar-gkm-bundle.schema.json \
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  --version-property schema_version --out &lt;dir&gt; --work-dir &lt;dir&gt;.work
 </code></pre></div>
 <p>The build rebuilds every record from the tables and compares it with its source, and records a records sha256 of
 the bundle in its <code>manifest.json</code>.
@@ -6941,43 +7022,52 @@ the bundle in its <code>manifest.json</code>.
 <hr />
 <h2 id="r2-bucket-cors-policy">R2 bucket CORS policy<a class="headerlink" href="#r2-bucket-cors-policy" title="Permanent link">&para;</a></h2>
 <p>The release browsers on the Downloads pages — the <a href="../../data-access/monthly-full/">Monthly Full Bundles</a>, <a href="../../data-access/weekly-full/">Weekly Full Bundles</a>, <a href="../../data-access/weekly-deltas/">Weekly Deltas</a>, and <a href="../../data-access/parquet/">Parquet Files</a> child pages, plus the Downloads hub's Latest Release view — each do a cross-origin <code>fetch()</code> of <code>index.json</code> from the docs site. That only works if the public R2 bucket serves a CORS policy allowing <code>GET</code> from other origins — otherwise the browsers block the read and can't populate (they then show a network/CORS message with a <code>curl</code> fallback).</p>
-<p>The policy is checked in at <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/714f387065f7d42595131c5736911d18af955cc5/src/scripts/r2-cors.json"><code>src/scripts/r2-cors.json</code></a> (<code>GET</code>/<code>HEAD</code> from <code>*</code> — appropriate for public, read-only data). It is <strong>not</strong> applied by the release scripts, because their object-scoped <code>r2</code> upload token cannot read or write bucket configuration (<code>PutBucketCors</code> → <code>AccessDenied</code>). Apply it once with an <strong>Admin Read &amp; Write</strong> R2 token:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># after configuring an admin token as an aws profile (default name: r2admin)</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>./src/scripts/apply-r2-cors.sh<span class="w">            </span><span class="c1"># or: ./src/scripts/apply-r2-cors.sh &lt;profile&gt;</span>
+<p>The policy is checked in at <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/96fd97734e7f3fbb58ce75fdf5f201dbe9e5df0d/src/scripts/r2-cors.json"><code>src/scripts/r2-cors.json</code></a> (<code>GET</code>/<code>HEAD</code> from <code>*</code> — appropriate for public, read-only data). It is <strong>not</strong> applied by the release scripts, because their object-scoped <code>r2</code> upload token cannot read or write bucket configuration (<code>PutBucketCors</code> → <code>AccessDenied</code>). Apply it once with an <strong>Admin Read &amp; Write</strong> R2 token (Cloudflare dashboard: <strong>R2 → Manage R2 API Tokens</strong>), stored as an AWS profile with <code>aws configure --profile r2admin</code> (region <code>auto</code>). The script writes the live bucket's configuration:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>./src/scripts/apply-r2-cors.sh<span class="w">            </span><span class="c1"># profile r2admin; another profile: ./src/scripts/apply-r2-cors.sh PROFILE</span>
 </code></pre></div>
 <p>Or paste <code>r2-cors.json</code>'s rules into the Cloudflare dashboard: <strong>R2 → clinvar-gkm → Settings → CORS Policy</strong>. It only needs to be re-applied if the bucket is recreated or the policy is cleared.</p>
 <hr />
 <h2 id="retired-gkm_json_proc">Retired: gkm_json_proc<a class="headerlink" href="#retired-gkm_json_proc" title="Permanent link">&para;</a></h2>
 <p><code>gkm_json_proc</code> previously rendered the statement and dictionary tables into inlined JSON columns. Those render tables were <strong>never published</strong> — the export assembles the bundle directly from the <code>gkm_dict_*</code> tables — so the procedure has been retired from the hot path. The null/empty stripping it used to perform is now applied during assembly (<code>assemble-gkm-dicts.py</code>), matching the old <code>remove_empty</code> cleanup. <code>gkm_json_proc</code> is not a live pipeline step and not a downstream consumer of the dictionary tables.</p>
 <hr />
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>Google Cloud SDK</strong> — <code>bq</code> and <code>gsutil</code> commands for BigQuery export and GCS operations</li>
-<li><strong>AWS CLI</strong> — configured with an <code>r2</code> profile for Cloudflare R2 access</li>
-<li><strong>Python 3</strong> — for the assembly script, with <code>orjson</code> (required: it writes the bundle text)</li>
-<li><strong><a href="https://docs.astral.sh/uv/">uv</a></strong> — <code>uvx</code> runs the pinned <a href="https://pypi.org/project/gkm-bundle-parquet/2.0.0/"><code>gkm-bundle-parquet</code> 2.0.0</a> for the Parquet set (Step 5)</li>
-<li><strong>BigQuery access</strong> — read access to the target dataset in <code>clingen-dev</code></li>
-</ul>
-<hr />
 <h2 id="full-example">Full Example<a class="headerlink" href="#full-example" title="Permanent link">&para;</a></h2>
-<p>Publish the monthly full bundle for June 14, 2026:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>./src/scripts/release-gkm.sh<span class="w"> </span><span class="m">2026</span>-06-14<span class="w"> </span>v2_5_0
+<p>The weekly publish of one release by hand, in the order <code>run-release.sh</code> runs it (its steps 3 and 4; see
+<a href="../#single-command-run">Single-command run</a>). <code>run-release.sh</code> also publishes any monthly that is due, so
+prefer it for a real release. <code>&lt;yyyy-mm-dd&gt;</code> is a release in the line's current month whose dataset,
+<code>clinvar_&lt;yyyy&gt;_&lt;mm&gt;_&lt;dd&gt;_&lt;version&gt;</code>, is built, and whose delta follows the newest delta in the line.</p>
+<div class="admonition warning">
+<p class="admonition-title">Billed, and published to the live line</p>
+<p>The <code>--no-upload</code> commands bill BigQuery for their exports. Every later command writes to the public line
+(<code>R2_LINE</code>) and regenerates its <code>index.json</code>. Add <code>--dry-run</code> to any of them to print the writes instead. See
+<a href="#prerequisites">Prerequisites</a> for the access each needs.</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a># Build and strictly validate the delta and the weekly full; nothing is written to R2
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>./src/scripts/release-gkm-delta.sh &lt;yyyy-mm-dd&gt; &lt;version&gt; --no-upload
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>./src/scripts/release-gkm.sh &lt;yyyy-mm-dd&gt; &lt;version&gt; --weekly --no-upload
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a># Month or year rollover of the line (does nothing when none is due), then publish the weekly full and the delta
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>./src/scripts/r2-rollover.sh &lt;yyyy-mm-dd&gt;
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>./src/scripts/release-gkm.sh &lt;yyyy-mm-dd&gt; &lt;version&gt; --weekly --start-step=3
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>./src/scripts/release-gkm-delta.sh &lt;yyyy-mm-dd&gt; &lt;version&gt; --start-step=3
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a># Rebuild the latest Parquet from the weekly full just published
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>./src/scripts/release-gkm-parquet.sh &lt;yyyy-mm-dd&gt; &lt;version&gt; --purge
 </code></pre></div>
-<p>This runs export to GCS, assembly of the JSON bundle, and the upload of the monthly full to R2.</p>
-<p>Publish the weekly delta for the same release:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>./src/scripts/release-gkm-delta.sh<span class="w"> </span><span class="m">2026</span>-06-14<span class="w"> </span>v2_5_0
-</code></pre></div>
-<p>The export and assembly can also be run individually; use <code>--start-step</code> to resume <code>release-gkm.sh</code> from a specific step (1 export, 2 assemble, 3 upload). Build the latest Parquet from the published weekly full with <code>./src/scripts/release-gkm-parquet.sh 2026-06-14 v2_5_0</code> (Step 5).</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># 1. Export dictionary tables to GCS (bundle NDJSON)</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>./src/scripts/export-gkm-dicts.sh<span class="w"> </span>clinvar_2026_06_14_v2_5_0<span class="w"> </span>clinvar-gkm<span class="w"> </span>gkm-dicts
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># 2. Assemble NDJSON into a single JSON bundle</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>python3<span class="w"> </span>./src/scripts/assemble-gkm-dicts.py<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">  </span>gs://clinvar-gkm/gkm-dicts/<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">  </span><span class="m">2026</span>-06-14
+<p>When ClinVar has published a new monthly XML since the line's newest monthly, <code>run-release.sh</code> publishes it after
+the weekly full, from its ADR 0002 source release (see <a href="#step-3-upload-the-weekly-and-monthly-fulls-to-r2">Step 3</a>),
+and runs <code>r2-rollover.sh</code> again.</p>
+<p><code>release-gkm.sh</code> runs export, assembly and validation, and upload as steps 1, 2 and 3; <code>--start-step</code> resumes it
+from one, and step 3 reads the bundle from <code>STAGE_DIR</code>. The same steps by hand (Steps 1–3 above):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a># 1. Export the dictionary tables to a GCS prefix of your own, cleared first
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>gsutil -m rm -r gs://clinvar-gkm/gkm-dicts-&lt;user&gt;/ 2&gt;/dev/null || true
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>./src/scripts/export-gkm-dicts.sh clinvar_&lt;yyyy&gt;_&lt;mm&gt;_&lt;dd&gt;_&lt;version&gt; clinvar-gkm gkm-dicts-&lt;user&gt;
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a># 2. Assemble the NDJSON into one bundle (this deletes the shards), then validate it strictly
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>venv/3.12/bin/python3 ./src/scripts/assemble-gkm-dicts.py gs://clinvar-gkm/gkm-dicts-&lt;user&gt;/ &lt;yyyy-mm-dd&gt;
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>./src/scripts/validate-bundle.sh /tmp/clinvar-gkm-&lt;yyyy-mm-dd&gt;.json.gz --engine rs
 <a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>
-<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="c1"># 3. Upload to R2</span>
-<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>./src/scripts/release-gkm.sh<span class="w"> </span><span class="m">2026</span>-06-14<span class="w"> </span>v2_5_0<span class="w"> </span>--start-step<span class="o">=</span><span class="m">3</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a># 3. Upload the validated bundle as the weekly full (writes to the live line)
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>./src/scripts/upload-gkm-to-r2.sh &lt;yyyy-mm-dd&gt; &lt;version&gt; /tmp/clinvar-gkm-&lt;yyyy-mm-dd&gt;.json.gz --weekly
 </code></pre></div>
 
 
