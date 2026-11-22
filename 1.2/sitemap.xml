@@ -340,6 +340,9 @@
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/migrating-from-1.1/</loc>
       </url>
       <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/previous-releases/</loc>
+      </url>
+      <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/working-in-python/</loc>
       </url>
       <url>

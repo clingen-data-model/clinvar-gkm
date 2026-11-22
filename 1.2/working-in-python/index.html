@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/working-in-python/">
       
       
-        <link rel="prev" href="../parquet/migrating-from-1.1/">
+        <link rel="prev" href="../parquet/previous-releases/">
       
       
         <link rel="next" href="../user-story/">
@@ -368,6 +368,8 @@
       
         
           
+        
+      
         
       
         
@@ -4220,6 +4222,8 @@
       
         
       
+        
+      
     
     
     
@@ -4479,6 +4483,33 @@
     
   
   Moving from 1.1 to 2.0
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parquet/previous-releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Parquet for Previous Releases
 
     
   </span>
@@ -6872,7 +6903,7 @@ the same three pre-releases.</p>
   resolves inside the file.</li>
 <li><strong><code>clinvar-gkm-delta_2026-1018.json.gz</code></strong> (24 MB): the published 2026-10-18 <a href="../data-access/weekly-deltas/">weekly delta</a>.</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>-sLO<span class="w"> </span>https://github.com/clingen-data-model/clinvar-gkm/raw/ddfbfa9ae2b321c80c3791b68581fe97b7302de8/nch-igm-bundle.json.gz
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>-sLO<span class="w"> </span>https://github.com/clingen-data-model/clinvar-gkm/raw/2eb5bb280cc67583b262a6b80d8393eef22348af/nch-igm-bundle.json.gz
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>curl<span class="w"> </span>-sO<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.1/deltas/clinvar-gkm-delta_2026-1018.json.gz
 </code></pre></div>
 <p>The full bundles are about 4.8 GB compressed. Don't <code>json.load</code> one; see <a href="#large-bundles">Large bundles</a>.</p>

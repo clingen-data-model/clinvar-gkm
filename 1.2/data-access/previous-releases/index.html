@@ -384,6 +384,8 @@
       
         
       
+        
+      
     
     
     
@@ -4278,6 +4280,8 @@
       
         
       
+        
+      
     
     
     
@@ -4534,6 +4538,33 @@
     
   
   Moving from 1.1 to 2.0
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parquet/previous-releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Parquet for Previous Releases
 
     
   </span>
@@ -6324,6 +6355,7 @@
 <ul>
 <li><strong>What a frozen line keeps:</strong> its official monthlies, the <code>00-latest</code> copy of the newest one, its <code>archive/YYYY/</code> folders and every weekly delta with its manifest, all at the paths they had when the line was current, with the same bytes and <code>.sha256</code> sidecars. It gains a <code>MANIFEST.json</code> (every file's size and sha256) and a <code>README.txt</code>.</li>
 <li><strong>What a frozen line drops:</strong> its weekly full bundles and its Parquet set, deleted at the freeze. Any past week is rebuilt from a monthly plus deltas (<a href="../weekly-deltas/#rebuild-a-past-week">Rebuild a past week</a>), and Parquet is rebuilt from a monthly bundle with <a href="../../parquet/build-your-own/"><code>gkm-bundle-parquet</code></a>.</li>
+<li><strong>Parquet for a frozen line:</strong> <a href="../../parquet/previous-releases/">Parquet for Previous Releases</a> gives the commands and the column set.</li>
 <li><strong>Which schema it uses:</strong> each line's bundles validate against that line's schema version, shown below. The <a href="../../reference/changelog/">changelog</a> lists the changes between versions.</li>
 </ul>
 <p>To keep reading one line, read releases only from its own <code>index.json</code>; see <a href="../../reference/versioning/#finding-and-pinning-a-version">Finding and pinning a version</a>. The docs that describe a line are in the version selector in the header: the <code>1.1</code> docs describe <code>v1/1.1/</code>, and their copy of this page lists the lines before 1.1.</p>

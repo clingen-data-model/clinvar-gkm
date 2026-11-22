@@ -384,6 +384,8 @@
       
         
       
+        
+      
     
     
     
@@ -4350,6 +4352,8 @@
       
         
       
+        
+      
     
     
     
@@ -4606,6 +4610,33 @@
     
   
   Moving from 1.1 to 2.0
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parquet/previous-releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Parquet for Previous Releases
 
     
   </span>
@@ -6825,9 +6856,9 @@
 <h2 id="earlier-releases">Earlier releases<a class="headerlink" href="#earlier-releases" title="Permanent link">&para;</a></h2>
 <p>Only the current Parquet dataset of each live line is published; it is overwritten every release, and weekly deltas, archives and frozen lines carry no Parquet. To work with an earlier state:</p>
 <ul>
-<li><strong>Build it from the bundles.</strong> Every official monthly stays published (in <code>archive/YYYY/</code> after its year ends) with a <code>.sha256</code> sidecar, and so does every delta. Rebuild the bundle for the week you need with the <a href="../weekly-deltas/#rebuild-a-past-week">replay recipe</a>, then build its tables with <a href="../../parquet/build-your-own/"><code>gkm-bundle-parquet</code></a> (on <a href="https://pypi.org/project/gkm-bundle-parquet/">PyPI</a>), the tool that builds the published set. A full build needs a large machine; see <a href="../../parquet/build-your-own/#a-full-bundle">Build Your Own</a>. The columns come from the bundle's own schema version, so a bundle of schema 1.1.0 gives a wider set of tables than the 1.2.0 tables described here.</li>
+<li><strong>Build it from the bundles.</strong> Every official monthly stays published (in <code>archive/YYYY/</code> after its year ends) with a <code>.sha256</code> sidecar, and so does every delta. Rebuild the bundle for the week you need with the <a href="../weekly-deltas/#rebuild-a-past-week">replay recipe</a>, then build its tables with <a href="../../parquet/build-your-own/"><code>gkm-bundle-parquet</code></a> (on <a href="https://pypi.org/project/gkm-bundle-parquet/">PyPI</a>), the tool that builds the published set. A full build needs a large machine; see <a href="../../parquet/build-your-own/#a-full-bundle">Build Your Own</a>. The columns come from the bundle's own schema version, so a bundle of schema 1.1.0 gives a wider set of tables than the 1.2.0 tables described here, unless you build it with ClinVar-GKM's 1.1.0 column set; see <a href="../../parquet/previous-releases/">Parquet for Previous Releases</a>.</li>
 <li><strong>Take only what you need.</strong> <code>gkm-bundle-parquet select</code> cuts a <a href="../../parquet/build-your-own/#cut-a-mini-bundle">mini-bundle</a> (one variant, gene or submitter and everything it refers to) from any published bundle, without a large machine.</li>
-<li><strong>The 1.0.1 generation</strong> is the frozen line <code>v1/1.0/</code>: its bundles and delta manifests, with no Parquet.</li>
+<li><strong>The 1.0.1 generation</strong> is the frozen line <code>v1/1.0/</code>: its bundles and delta manifests, with no Parquet. Its bundles can't be built into tables; build from the <code>v1/1.1/</code> bundle of the same release (<a href="../../parquet/previous-releases/#the-10-line">why</a>).</li>
 </ul>
 <p>Parquet downloaded from an earlier release keeps its old tables and columns; see the <a href="../../reference/changelog/">changelog</a> for what changed, and <a href="../../parquet/migrating-from-1.1/">Moving from the 1.1 Tables</a> for the 1.1 tables.</p>
 

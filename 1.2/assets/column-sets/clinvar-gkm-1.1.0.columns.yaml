@@ -1,0 +1,110 @@
+# ClinVar-GKM column set for bundles of schema_version 1.1.0 (release line v1/1.1), for gkm-bundle-parquet 2.0.0.
+# Published by ClinVar-GKM (gkm-bundle-parquet ADR 0009: a producer publishes its own column sets). Guide:
+# https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/previous-releases/
+# Format: https://github.com/clingen-data-model/gkm-bundle-parquet/blob/v2.0.0/docs/column-set-format.md
+#
+#   gkm-bundle-parquet build --full <bundle.json.gz> \
+#       --bundle-schema https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json \
+#       --column-set clinvar-gkm-1.1.0.columns.yaml --out parquet/
+#
+# A named projection: it narrows the 1.1.0 schema's generated default (339 top-level columns on a weekly delta, 122
+# of them JSON text) to the properties the 1.1 producer writes (163 top-level columns, none JSON text). The tool
+# stops the build on any record holding a property this set doesn't list, so a build that completes kept every
+# value; `rebuild` or `verify --roundtrip --full` proves it record by record.
+#
+# The body is gkm-bundle-parquet v2.0.0 tests/fixtures/clinvar-gkm/1.1.0/columns.yaml, unchanged but for `schema`
+# and `projection`. `schema` is the root $id the 1.1.0 URL serves (the 1.1.0 tag's), so the set pairs with
+# --bundle-schema <that URL>; the tool's fixture names the $id corrected after the tag, which the URL doesn't serve.
+#
+# Source of the fixture's facts, unless a comment says otherwise: the ClinVar-GKM producer at origin/1.0 c8d9c000
+# (src/procedures/gkm-*-proc.sql, gkm-proposition-section-func.sql, src/scripts/export-gkm-dicts.sh).
+#
+# In sections, a listed property is one the producer emits; a bare name takes its type from the schema. `id` is listed
+# where the record carries its own: sequenceReference, therapy and therapyGroup records have none, though their classes
+# allow it.
+schema: https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/json/ClinvarGkmBundle
+version_property: schema_version
+projection: clinvar-gkm-1.1.0-producer
+
+# `integer`: the producer writes these from BigQuery INT64 columns, never a Range (schemas/vrs_output_2_0_1.schema.json,
+# the gkm_vrs load schema). location.start and location.end are left to the schema: integer or Range, three columns;
+# they are renamed because `end` is an SQL keyword.
+sections:
+  sequenceReference: {type, refgetAccession, name, moleculeType, residueAlphabet, extensions: [string]}
+  location: {id, type, digest, start as loc_start, end as loc_end, sequenceReference: ->sequenceReference}
+  allele:
+    {id, type, digest, name, location: ->location, expressions: {syntax, value},
+     state: {type, sequence, length: integer, repeatSubunitLength}}
+  copyNumberCount: {id, type, digest, copies: integer, location: ->location}
+  copyNumberChange: {id, type, digest, copyChange, location: ->location}
+  gene:
+    {id, type, conceptType, name, primaryCoding: &coding {code, name, system, iris},
+     mappings: &mappings {coding: {code, system, iris}, relation}}
+  variation:
+    {id, type, name,
+     constraints:
+       {type, allele: ->allele, location: ->location, copies: integer, copyChange,
+        matchCharacteristic: &relation {type, primaryCoding: {code, system, iris}}, relations: *relation},
+     members: ->allele|copyNumberCount|copyNumberChange,
+     extensions:
+       [string,
+        [{nucleotideExpression: {syntax, value, extensions: [string, boolean]}, nucleotideType, maneSelect, manePlus,
+          proteinExpression: {syntax, value}, molecularConsequence: {code, system, name, iris},
+          gene: ->gene, relationship_type, source}]],
+     mappings: {coding: {system, code, iris}, relation}}
+  condition:
+    {id, type, conceptType, name, aliases, primaryCoding: {name, code, system, iris},
+     mappings: {coding: {name, code, system, iris}, relation}}
+  conditionSet: {id, type, conceptSetType, concepts: ->condition|conditionSet, membershipOperator}
+  therapy: {name, type, conceptType}
+  therapyGroup: {type, concepts: ->therapy, membershipOperator}
+  submitter: {id, type, name}
+  propositionPathogenicity:
+    &germline
+    {id, type, subject: ->variation, predicate, object: ->condition|conditionSet,
+     geneContextQualifier:
+       &geneContext
+       {type, conceptType, name, primaryCoding: *coding, mappings: *mappings, extensions: [string, [string]]},
+     modeOfInheritanceQualifier: {type, conceptType, name, primaryCoding: *coding, extensions: [string]},
+     penetranceQualifier: {type, conceptType, name, extensions: [string]}}
+  propositionOncogenicity:
+    {id, type, subject: ->variation, predicate, object: ->condition|conditionSet, geneContextQualifier: *geneContext}
+  propositionSomaticClinicalImpact:
+    {id, type, subject: ->variation, predicate, object: ->condition|conditionSet|therapy|therapyGroup,
+     geneContextQualifier: *geneContext, conditionQualifier: ->condition|conditionSet}
+  propositionClinvarCustom: *germline
+  evidenceLine:
+    {id, type, targetProposition: ->propositionSomaticClinicalImpact, directionOfEvidenceProvided,
+     evidenceOutcome: &concept {type, conceptType, name},
+     # The submitted condition(s): the classes' extensions are open here, and in part on scv.
+     extensions:
+       [&submitted
+        {conditionSet: string, condition: string, multiple_condition_explanation: string,
+         concepts:
+           [{id: string, name: string, type: string, medgen_id: string, xrefs: &xrefs [{code: string, system: string}],
+             original_medgen_match: &medgen {id: string, name: string}, direct_match: string, normalized_match: string,
+             normalized_resolution: string, mapping: &mapping {type: string, ref: string, value: string}}],
+         id: string, name: string, type: string, medgen_id: string, xrefs: *xrefs, original_medgen_match: *medgen,
+         direct_match: string, normalized_match: string, normalized_resolution: string, mapping: *mapping}],
+     strengthOfEvidenceProvided: *concept, hasEvidenceItems: ->scv|vcv|rcv}
+  scv:
+    {id, type,
+     proposition:
+       &propositions ->propositionPathogenicity|propositionOncogenicity|propositionSomaticClinicalImpact|propositionClinvarCustom,
+     classification: {type, conceptType, name, primaryCoding: {code, system}, extensions: [string]},
+     strength: {type, conceptType, name, primaryCoding: {code, system}}, direction, quality: *concept, description,
+     contributions: {type, contributor: ->submitter, date, activityType},
+     specifiedBy:
+       {type, methodType, name,
+        reportedIn:
+          &document
+          {type: string, pmid: string, doi: string, urls: [string], name: string, documentType: string,
+           extensions: [string, boolean]},
+        extensions: [[*document]]},  # the method's documents, in an open extension: so the types are stated
+     reportedIn: *document, extensions: [string, *submitted], hasEvidenceLines: ->evidenceLine}
+  vcv:
+    &aggregate
+    {id, type, direction, strength: *concept, quality: *concept,
+     classification: {type, conceptType, name, extensions: [string]},
+     proposition: *propositions, extensions, hasEvidenceLines: ->evidenceLine}
+  rcv: *aggregate

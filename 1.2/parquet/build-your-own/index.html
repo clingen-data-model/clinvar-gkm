@@ -386,6 +386,8 @@
       
         
       
+        
+      
     
     
     
@@ -4222,6 +4224,8 @@
       
         
       
+        
+      
     
     
     
@@ -4685,6 +4689,33 @@
     
   
   Moving from 1.1 to 2.0
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../previous-releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Parquet for Previous Releases
 
     
   </span>
@@ -6620,7 +6651,8 @@
 <p>The published Parquet is built by one open tool, <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>gkm-bundle-parquet</code></a>,
 from the published JSON bundle. You can run the same tool yourself to:</p>
 <ul>
-<li><strong>build the tables</strong> for any release, including releases whose Parquet is no longer published;</li>
+<li><strong>build the tables</strong> for any release, including releases whose Parquet is no longer published (for the frozen
+  lines, see <a href="../previous-releases/">Parquet for Previous Releases</a>);</li>
 <li><strong>cut a mini-bundle</strong>: the records of one submitter, one variant or one gene and everything they point to,
   as a small JSON bundle or a small set of tables;</li>
 <li><strong>rebuild the bundle</strong> from a set of tables and prove the records are identical;</li>
@@ -6702,7 +6734,8 @@ own <code>schema_version</code>, and <code>--version-property schema_version</co
   extensions.</li>
 <li><strong>A 1.1.0 bundle gives wider tables.</strong> Its schema leaves many classes open, so the same delta built with the
   1.1.0 schema has 339 top-level columns, and <code>generate</code> lists 181 JSON-text positions. The records are the same;
-  only the columns differ.</li>
+  only the columns differ. ClinVar-GKM publishes a column set that narrows them to what 1.1.0 bundles hold; see
+  <a href="../previous-releases/">Parquet for Previous Releases</a>.</li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">1.2.0 schema URLs</p>
