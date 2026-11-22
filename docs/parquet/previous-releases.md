@@ -74,25 +74,29 @@ month (the line's last month of deltas is in `deltas/`, earlier months in `delta
 rather than guess it.
 
 ```bash
-curl -s https://data.clinvar-gkm.org/v1/1.1/index.json | python3 -c '
-import json, sys
-d = json.load(sys.stdin)
+curl -sSf --retry 5 -o index.json https://data.clinvar-gkm.org/v1/1.1/index.json && python3 -c '
+import json
+d = json.load(open("index.json"))
 for m in d["datasets"]["monthly"]:
     print("monthly", m["release"], m["source_release"], m["size"], m["path"])
 for x in d["deltas"]:
     print("delta  ", x["release"], x["bundle"]["size"], x["bundle"]["path"])'
 ```
 
+`-f` makes `curl` stop with the HTTP error when a request fails, instead of saving the server's error page, and
+`&&` runs Python only when the download succeeded; `--retry 5` rides out a brief server error (HTTP 5xx).
+
 A **monthly** is a full bundle (4.5 to 4.8 GB compressed, about 90 million records); its `source_release` is the
-weekly release it holds. A **delta** holds only what changed in one weekly release (2 to 150 MB). To get a full
-bundle for a week between monthlies, replay the deltas onto the monthly first; see
+weekly release it holds. The newest monthly is listed twice: under its own name and as
+`clinvar-gkm_00-latest.json.gz`, a copy of it. A **delta** holds only what changed in one weekly release (2 to
+150 MB). To get a full bundle for a week between monthlies, replay the deltas onto the monthly first; see
 [Rebuild a past week](../data-access/weekly-deltas.md#rebuild-a-past-week).
 
 ### 2. Download it and check its sha256
 
 ```bash
 B=v1/1.1/deltas/2026-09/clinvar-gkm-delta_2026-0928.json.gz     # a path from step 1
-curl -O "https://data.clinvar-gkm.org/$B" -O "https://data.clinvar-gkm.org/$B.sha256"
+curl -f --retry 5 -O "https://data.clinvar-gkm.org/$B" -O "https://data.clinvar-gkm.org/$B.sha256"
 shasum -a 256 -c "$(basename "$B").sha256"                       # sha256sum -c on Linux
 ```
 
