@@ -276,7 +276,7 @@ SELECT tp.type AS evidence_target_proposition, tp.predicate,
        e.evidenceOutcome.name AS tier, count(*) n
 FROM 'evidenceLine.parquet' e
 JOIN 'propositionSomaticClinicalImpact.parquet' tp ON tp.id = e.targetProposition
-GROUP BY 1, 2, 3 ORDER BY n DESC;</pre>
+GROUP BY 1, 2, 3 ORDER BY n DESC, 1, 2, 3;</pre>
 <div class="out">evidence_target_proposition            predicate                           tier       n
 VariantDiagnosticProposition           isDiagnosticInclusionCriterionFor   Level A/B  987
 VariantDiagnosticProposition           isDiagnosticInclusionCriterionFor   Level C/D  534

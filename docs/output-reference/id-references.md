@@ -97,21 +97,37 @@ Objects reference each other using `#/{section}/{key}` strings. To resolve a ref
 
 ### Resolution Example
 
+!!! note "Prerequisites"
+    Python 3.9 or later (standard library only; tested with 3.14.5) and the 5 MB 2026-11-15
+    [weekly delta](../data-access/weekly-deltas.md), a 1.2.0 bundle:
+
+    Its path changes when its month ends, so the commands look it up in the line's `index.json`:
+
+    ```bash
+    DELTA=$(curl -fsS https://data.clinvar-gkm.org/v1/1.2/index.json | python3 -c '
+    import json, sys
+    print(next(d["bundle"]["path"] for d in json.load(sys.stdin)["deltas"] if d["release"] == "2026-11-15"))')
+    curl -fsO "https://data.clinvar-gkm.org/${DELTA}"
+    ```
+
+    A full bundle is 4.9 GB compressed and 68.5 GB decompressed: too big to `json.load`. Stream it, or cut out
+    the records you need; see [Large bundles](../working-in-python.md#large-bundles).
+
 ```python
 import gzip
 import json
 
 # Load the bundle
-with gzip.open("clinvar-gkm_00-latest.json.gz", "rt") as f:
+with gzip.open("clinvar-gkm-delta_2026-1115.json.gz", "rt") as f:
     bundle = json.load(f)
 
 def resolve(bundle, ref):
     """Resolve a #/section/key reference to the target object."""
-    parts = ref.lstrip("#/").split("/", 1)
-    return bundle[parts[0]][parts[1]]
+    section, key = ref.removeprefix("#/").split("/", 1)
+    return bundle[section][key]
 
 # Look up a variation
-variant = bundle["variation"]["clinvar:10"]
+variant = bundle["variation"]["clinvar:5042631"]
 
 # Resolve its allele member
 allele = resolve(bundle, variant["members"][0])
@@ -119,8 +135,19 @@ allele = resolve(bundle, variant["members"][0])
 # Resolve the allele's location
 location = resolve(bundle, allele["location"])
 
-# Resolve the location's sequence reference
-seq_ref = resolve(bundle, location["sequenceReference"])
+print(variant["name"])
+print(allele["id"], allele["name"])
+print(location["id"], location["sequenceReference"])
+
+# A delta carries only the records that changed, and this one has no sequenceReference section.
+# In a full bundle, the last hop resolves the same way:
+#     seq_ref = resolve(bundle, location["sequenceReference"])
+```
+
+```text
+NM_006269.2(RP1):c.2238_2239del (p.Lys746_Ser747insTer)
+ga4gh:VA.1Oo5_TVyd33l8M9QsAac-ULaZR86hDCx NC_000008.11:g.54626120_54626121del
+ga4gh:SL.sF-Pr6l0-_uRAtk8bv9UzOPYvr6TK9IC #/sequenceReference/SQ.209Z7zJ-mFypBEWLk4rNC6S_OxY5p7bs
 ```
 
 !!! tip "From pointers to GA4GH models"
@@ -128,7 +155,7 @@ seq_ref = resolve(bundle, location["sequenceReference"])
     reference and loads each record into the GA4GH model libraries. The
     [GKM Toolkit](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/) resolves and exports
     pointers for the bundles its loader reads; the loader needs
-    [upstream updates](../working-in-python.md#loading-bundles) before it reads ClinVar-GKM 1.1.0 bundles.
+    [upstream updates](../working-in-python.md#loading-bundles) before it reads ClinVar-GKM 1.1.0 or 1.2.0 bundles.
 
 ---
 

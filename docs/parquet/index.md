@@ -24,6 +24,17 @@ The first example counts every **condition** in ClinVar: **23,426**. `condition.
 
 Each of these is in the console's **Example** dropdown. Read them top to bottom — they go from "how much is here" to "find the one I care about".
 
+!!! note "Prerequisites"
+    - **In the console:** nothing to install.
+    - **On your machine:** the [DuckDB CLI](https://duckdb.org/docs/installation/) (tested with **1.5.4**) and
+      `curl`, and `condition.parquet` (about 2 MB) downloaded into the directory you run DuckDB from, as in
+      [Put the file on your machine](#put-the-file-on-your-machine).
+    - **Querying a URL instead of a file** (`FROM 'https://data.clinvar-gkm.org/…'`): DuckDB installs and loads its
+      `httpfs` extension the first time a query reads a URL, which needs internet access to DuckDB's extension
+      repository. Where that is blocked, install it by hand
+      ([installing extensions](https://duckdb.org/docs/stable/extensions/installing_extensions)), or download
+      the file first.
+
 ```sql
 -- 1. How many conditions are there?
 SELECT count(*) FROM 'condition.parquet';
@@ -47,7 +58,7 @@ To go past the browser console — larger queries, your own scripts, repeated wo
 
 ```bash
 BASE="https://data.clinvar-gkm.org/v1/1.2/parquet"
-curl -O "${BASE}/condition.parquet"
+curl -fO "${BASE}/condition.parquet"
 
 duckdb -c "SELECT id, name FROM 'condition.parquet' WHERE name ILIKE '%marfan%'"
 ```

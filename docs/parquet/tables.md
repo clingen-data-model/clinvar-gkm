@@ -12,6 +12,13 @@ The Parquet release is **20 tables**, one per bundle section. They fall into six
 
 The map renders at full size in a scrollable frame. Each area has a runnable query you can expand, and each table box links to that table's [column reference](#column-reference) below.
 
+!!! note "Prerequisites"
+    The queries on this page and in the map run in the [DuckDB CLI](https://duckdb.org/docs/installation/), tested
+    with **1.5.4**, from a directory holding the tables they name, downloaded from
+    [Downloads → Parquet Files](../data-access/parquet.md#download). The two queries below read the four
+    `proposition*.parquet` tables (about 405 MB together). Sizes of every table are in the
+    [column reference](#column-reference).
+
 ## The six areas
 
 | Area | Tables | The question it answers |
@@ -365,7 +372,7 @@ FROM read_parquet('proposition*.parquet', union_by_name = true)
 WHERE subject = 'clinvar:51592';
 ```
 
-Without `union_by_name = true`, DuckDB takes the column list from the first file, `propositionClinvarCustom`: naming `conditionQualifier` is a binder error, and reading `modeOfInheritanceQualifier` fails with a schema mismatch when the scan reaches `propositionSomaticClinicalImpact`. A query that reads only the seven columns every table has (`id` to `object_section`, and `geneContextQualifier`) works either way.
+Without `union_by_name = true`, DuckDB takes the column list from the first file, `propositionClinvarCustom`: naming `conditionQualifier` is a binder error, and reading `modeOfInheritanceQualifier` fails with a schema mismatch when the scan reaches the second file, `propositionOncogenicity`, which lacks it. A query that reads only the seven columns every table has (`id` to `object_section`, and `geneContextQualifier`) works either way.
 
 ??? note "Full nested types — the qualifiers"
     ```text

@@ -7,13 +7,16 @@ ClinVar-GKM is distributed as **official monthly full bundles**, **weekly full b
 ## Latest Release
 
 !!! tip "Monthly full or weekly full?"
-    `clinvar-gkm_00-latest.json.gz` is the newest **official monthly**; it reflects the **last release of the _previous_ month** — e.g. the `2026-10` monthly is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. For the current week, download the newest weekly full, `weekly/clinvar-gkm_00-latest_weekly.json.gz`.
+    `clinvar-gkm_00-latest.json.gz` is the newest **official monthly**; it reflects the **last release of the _previous_ month** — e.g. the `2026-11` monthly is built from the `2026-10-31` release, the last one before ClinVar's November monthly cut. For the current week, download the newest weekly full, `weekly/clinvar-gkm_00-latest_weekly.json.gz`.
 
 Download the newest official monthly and the newest weekly full:
 
+!!! note "Prerequisites"
+    **curl**. Each full bundle is about 4.9 GB compressed and 68.5 GB decompressed, so decompress one only if you have the disk; tools can read the `.gz` directly, streamed with `gunzip -c` ([Output File](output-files.md#count-records-in-a-full-bundle)).
+
 ```bash
-curl -O https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
-curl -O https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
+curl -fO https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
+curl -fO https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
 ```
 
 The full bundle is a single JSON object containing all bundle sections — variations, statements, propositions, conditions, and supporting reference data. A delta uses the same section structure but carries only the records added or updated since its baseline release. The Parquet dataset (one file per section) is derived from the bundle, published at `v1/1.2/parquet/` and overwritten every release. See [Output Format](../output-reference/overview.md) for the complete structure, [Weekly Deltas](weekly-deltas.md) for the replay model, and [Parquet Files](parquet.md) for the full Parquet list.
