@@ -6517,7 +6517,7 @@ dataset into a single, self-contained <strong>sub-bundle</strong>: a JSON object
 <code>#/section/key</code> <a href="../../output-reference/id-references/">reference</a> resolves within the file. It is the practical companion
 to the <a href="../../output-reference/id-references/">ID References</a> model — useful for building worked examples, inspecting the
 complete object graph behind a statement, and producing small fixtures for downstream testing.</p>
-<p>The script lives at <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/2eb5bb280cc67583b262a6b80d8393eef22348af/src/scripts/sub-bundle.py"><code>src/scripts/sub-bundle.py</code></a>.</p>
+<p>The script lives at <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/714f387065f7d42595131c5736911d18af955cc5/src/scripts/sub-bundle.py"><code>src/scripts/sub-bundle.py</code></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Maintainer tool</p>
 <p>This is a pipeline-maintainer utility, not a general-audience download. It reads the BigQuery
@@ -6665,7 +6665,7 @@ instead of hundreds of thousands — much easier to <code>grep</code>, diff, or 
 </ul>
 <hr />
 <h2 id="example-fragments">Example fragments<a class="headerlink" href="#example-fragments" title="Permanent link">&para;</a></h2>
-<p>The files in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/2eb5bb280cc67583b262a6b80d8393eef22348af/examples"><code>examples/</code></a> are made by a
+<p>The files in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/714f387065f7d42595131c5736911d18af955cc5/examples"><code>examples/</code></a> are made by a
 different script, <code>src/scripts/extract-example.py</code>. It reads a published full bundle (<code>.json.gz</code>), not BigQuery, and
 writes bounded <strong>fragments</strong>: each holds one statement or variation and the records it references, but keeps pointers
 into <code>scv</code> and <code>variation</code> unresolved. A VCV or RCV fragment holds its nested layer statements, down to the <code>#/scv/</code>
