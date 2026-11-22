@@ -84,10 +84,12 @@ weekly release it holds. The newest monthly is listed twice: under its own name 
 ### 2. Download it and check its sha256
 
 ```bash
-B=v1/1.1/deltas/2026-09/clinvar-gkm-delta_2026-0928.json.gz     # a path from step 1
+B=v1/1.1/deltas/2026-09/clinvar-gkm-delta_2026-0928.json.gz
 curl -f --retry 5 -O "https://data.clinvar-gkm.org/$B" -O "https://data.clinvar-gkm.org/$B.sha256"
-shasum -a 256 -c "$(basename "$B").sha256"                       # sha256sum -c on Linux
+shasum -a 256 -c "$(basename "$B").sha256"
 ```
+
+`B` is a path from step 1. On Linux, `sha256sum -c` does the same as `shasum -a 256 -c`.
 
 ### 3. Build { #build }
 
@@ -128,6 +130,51 @@ keep the rebuilt bundle, run `rebuild parquet/ -o rebuilt.json.gz` instead: it e
 
 ---
 
+## Parquet for one weekly release { #parquet-for-one-weekly-release }
+
+`build` reads one bundle, so a full set of tables for one week is built from that week's full bundle. A
+monthly is the full bundle of its `source_release`. For any other 1.1 week, rebuild the week's full bundle from
+a monthly and the deltas after it with
+[`replay-bundle.py`](https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py),
+the script the 1.2 docs publish. It needs only `python3` (3.9 or later); name the line with `--line v1/1.1`:
+
+```bash
+curl -fsSO --retry 5 https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py
+python3 replay-bundle.py --line v1/1.1 --release 2026-10-24 --plan
+python3 replay-bundle.py --line v1/1.1 --release 2026-10-24
+```
+
+The first lists the monthly and deltas it would use; the second downloads them and replays the deltas.
+
+It picks the monthly and the deltas as [Rebuild a past week](../data-access/weekly-deltas.md#rebuild-a-past-week)
+says, refuses a broken chain, checks every download's sha256 against `index.json`, reuses a file already in the
+folder when its sha256 matches, and writes `clinvar-gkm_2026-1024.replayed.json.gz` with a `.sha256` sidecar. It
+keeps only the deltas' records in memory and streams the monthly once.
+
+Measured on 2026-11-21 on a 16 GB laptop, rebuilding 2026-10-24 from the 2026-10 monthly (source release
+2026-09-28) and the four deltas 2026-10-04 to 2026-10-24: **7.3 minutes** with the downloads (6.2 minutes of
+replay), 2.2 GB peak memory, a 4.8 GB bundle of 91,502,593 records. Compared with the published weekly full
+`v1/1.1/weekly/clinvar-gkm_2026-1024.json.gz` section by section (record count and the sha256 of every record line,
+in any order), every record matches, and 19 of the 20 sections match byte for byte. In `condition`, 1,461 records
+list their `aliases` in another order than that weekly full does. The 1.1 pipeline wrote that array in the order
+its source gave, which changed from one release to the next (1.2.0 sorts it), and the replay keeps the order of
+the monthly and deltas it was built from. With arrays compared as sets of values, as the tool's round trip
+compares them, all 1,461 are identical.
+
+Then build it as in [Build](#build), with the 1.1.0 schema URL and the column set:
+
+```bash
+uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm_2026-1024.replayed.json.gz \
+    --bundle-schema https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json \
+    --column-set https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml \
+    --out parquet-2026-1024/
+```
+
+That is a full build: it needs the large machine in [Time and memory](#time-and-memory), and it was not run for
+this page.
+
+---
+
 ## Time and memory
 
 | Bundle | `build` (time, peak memory) | `verify --roundtrip` | Where |
@@ -144,13 +191,18 @@ with about 65 GB free, and expect a much longer run.
 
 ## What is verified
 
-On 2026-11-20, with `gkm-bundle-parquet` 2.0.0, the column set and the 1.1.0 schema URL above:
+On 2026-11-20 and 2026-11-21, with `gkm-bundle-parquet` 2.0.0, the column set and the 1.1.0 schema URL above:
 
 - **Every published `v1/1.1/` delta** (18 deltas, 2026-07-06 to 2026-10-31, 10,267,303 records) built, and the
   round trip was identical.
 - **The newest monthly**, `clinvar-gkm_2026-11.json.gz` (91,854,927 records), was scanned for every property its
   records hold; the 528 records holding something no delta holds were built on their own and round-tripped
   identically.
+- **The oldest monthly**, `clinvar-gkm_2026-07.json.gz` (86,810,319 records), was scanned the same way; the 14
+  `variation` records holding something new (extensions nested inside a `nucleotideExpression`) were built on
+  their own and round-tripped identically.
+- **The monthlies between** (2026-08 to 2026-10) each equal the 2026-07 monthly plus the deltas after it, so
+  every record any published `v1/1.1/` bundle holds is covered, and no published 1.1 bundle stops the build.
 
 The 1.2 docs give the details:
 [Parquet for Previous Releases](https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/previous-releases/).
