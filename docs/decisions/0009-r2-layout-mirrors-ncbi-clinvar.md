@@ -6,7 +6,7 @@
   §1 (a content-only correction that rewrites bundles takes a MINOR line, §5 below),
   [ADR 0005](0005-r2-custom-domain-and-cdn.md) (cache rules, path allowlist, layout note),
   ADR 0006 (on PR #146) Decision 2 (1.1.0 ships under `v1/1.1/`, not in place in `/v1/`), [ADR 0008](0008-bundles-are-the-public-record.md) (a), (c), (e)
-- **Plan:** [`docs/superpowers/plans/2026-10-18-bundle-record-and-metrics.md`](../superpowers/plans/2026-10-18-bundle-record-and-metrics.md)
+- **Plan:** [`docs/superpowers/plans/2026-10-18-bundle-record-and-metrics.md`](https://github.com/clingen-data-model/clinvar-gkm/blob/0b9d10b3ad67f6a3ad006c5144ae5e0bcf0a9ed8/docs/superpowers/plans/2026-10-18-bundle-record-and-metrics.md)
 - **Decided:** 2026-10-21 (maintainer): §5 is no longer open. A content-only correction that rewrites published
   bundles is released as a new MINOR line folder; a PATCH only adds new dated files.
 - **Amended:** 2026-10-21 to match the layout code merged on `1.0` (PR #182: `r2_layout.py`, `r2-rollover.sh`,

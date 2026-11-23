@@ -2,7 +2,7 @@
 
 - **Status:** Proposed
 - **Date:** 2026-10-18
-- **Plan:** [`docs/superpowers/plans/2026-10-18-bundle-record-and-metrics.md`](../superpowers/plans/2026-10-18-bundle-record-and-metrics.md)
+- **Plan:** [`docs/superpowers/plans/2026-10-18-bundle-record-and-metrics.md`](https://github.com/clingen-data-model/clinvar-gkm/blob/0b9d10b3ad67f6a3ad006c5144ae5e0bcf0a9ed8/docs/superpowers/plans/2026-10-18-bundle-record-and-metrics.md)
 - **Amends:** [ADR 0004](0004-schema-versioning-and-release-management.md) §3 (no live window: a superseded line
   freezes at the switch-over and is kept indefinitely, with no EOL date) and §5 (the in-place exception ends
   with 1.1.0); ADR 0006 (on PR #146) consequences (advance notice, (g)).

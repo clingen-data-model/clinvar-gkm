@@ -5,7 +5,7 @@ exported from, the real staged bundles themselves, and the Parquet dataset deriv
 published only when every gate passes. This page lists the gates and the results for 1.1.0.
 
 The step-by-step procedure, with the exact commands and the expected output of each gate, is the
-[1.1.0 rebuild runbook](https://github.com/clingen-data-model/clinvar-gkm/blob/main/docs/superpowers/plans/2026-10-20-1.1.0-rebuild-runbook.md).
+[1.1.0 rebuild runbook](https://github.com/clingen-data-model/clinvar-gkm/blob/0b9d10b3ad67f6a3ad006c5144ae5e0bcf0a9ed8/docs/superpowers/plans/2026-10-20-1.1.0-rebuild-runbook.md).
 The changes these gates verified are listed in the [1.1.0 changelog](changelog.md#110).
 
 ---
