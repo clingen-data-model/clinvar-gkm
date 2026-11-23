@@ -1,5 +1,9 @@
 # ID References
 
+!!! abstract "What this page answers"
+    What each identifier in a bundle means, and how to follow a `#/section/key` pointer to the record it names.
+    Read it when you write code that joins records, or decode a VCV or RCV statement id.
+
 ## Overview
 
 The ClinVar-GKM bundle uses typed identifiers and `#/` JSON pointer references to link objects across bundle sections. This page documents all identifier formats, reference patterns, and how to resolve them.
@@ -13,18 +17,18 @@ All ClinVar-GKM identifiers use a prefix namespace to indicate the resource type
 | Prefix | Resource Type | Format | Example |
 | --- | --- | --- | --- |
 | `clinvar:` | Variation | `clinvar:{variation_id}` | `clinvar:12582` |
-| `clinvar.submission:` | SCV submission | `clinvar.submission:SCV{id}.{version}` | `clinvar.submission:SCV001571657.2` |
+| `clinvar.submission:` | [SCV](../reference/glossary.md#scv) submission | `clinvar.submission:SCV{id}.{version}` | `clinvar.submission:SCV001571657.2` |
 | `clinvar.submitter:` | Submitter organization | `clinvar.submitter:{submitter_id}` | `clinvar.submitter:508027` |
 | `clinvar.trait:` | Condition / trait | `clinvar.trait:{trait_id}` | `clinvar.trait:9580` |
-| `clinvar.traitset:` | Condition set | `clinvar.traitset:{trait_set_id}` | `clinvar.traitset:1234` |
+| `clinvar.traitset:` | Condition set ([`conditionSet`](../reference/glossary.md#conditionset)) | `clinvar.traitset:{trait_set_id}` | `clinvar.traitset:1234` |
 | `clinvar.conditionset:` | Condition set minted for a VCV aggregate | `clinvar.conditionset:vcv-{md5}` | `clinvar.conditionset:vcv-c620785e2025efde81bdd15c814fa83d` |
 | `clinvar.therapy:` | Therapy (drug/procedure) | `clinvar.therapy:{sha256}` | `clinvar.therapy:ab221549…d1c2b` |
 | `clinvar.therapygroup:` | Therapy group (combination) | `clinvar.therapygroup:{sha256}` | `clinvar.therapygroup:df1d8467…9f05c` |
 | `ncbigene:` | Gene | `ncbigene:{gene_id}` | `ncbigene:3077` |
-| `ga4gh:` | VRS identity | `ga4gh:{type}.{digest}` | `ga4gh:VA.ELQCnIBGqaTl0AEE0Az18XZ2cgIHAQIY` |
+| `ga4gh:` | [VRS](../reference/glossary.md#vrs) identity | `ga4gh:{type}.{digest}` | `ga4gh:VA.ELQCnIBGqaTl0AEE0Az18XZ2cgIHAQIY` |
 | `SQ.` | Sequence reference | `SQ.{digest}` | `SQ.0iKlIQk2oZLoeOG9P1riRU6hvL5Ux8TV` |
 
-VCV and RCV aggregate statement IDs use a hierarchical format without a namespace prefix — see [VCV Statement IDs](#vcv-statement-ids) and [RCV Statement IDs](#rcv-statement-ids).
+[VCV](../reference/glossary.md#vcv) and [RCV](../reference/glossary.md#rcv) aggregate statement IDs use a hierarchical format without a namespace prefix — see [VCV Statement IDs](#vcv-statement-ids) and [RCV Statement IDs](#rcv-statement-ids).
 
 ---
 
@@ -241,3 +245,11 @@ Variation records contain `mappings` to external databases using standardized UR
 | PubMed | `https://pubmed.ncbi.nlm.nih.gov/{id}` |
 
 Condition records contain `mappings` to disease/phenotype databases (OMIM, MONDO, HPO, Orphanet, MeSH) and a `primaryCoding` from MedGen.
+
+---
+
+## See Also { #see-also }
+
+- [Output Format](overview.md) — the sections the pointers lead to
+- [Working in Python](../working-in-python.md) — following pointers into the GA4GH model libraries
+- [Variations](cat-vrs.md), [SCV Statements](scv-statements.md), [VCV Statements](vcv-statements.md), [RCV Statements](rcv-statements.md) — the records the ids name

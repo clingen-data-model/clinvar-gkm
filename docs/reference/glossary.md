@@ -6,22 +6,22 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 
 ## Standards and Organizations
 
-**GA4GH** (Global Alliance for Genomics and Health)
+<a id="ga4gh"></a>**GA4GH** (Global Alliance for Genomics and Health)
 :   International consortium developing standards for genomic data representation and exchange.
 
-**GKS** (Genomic Knowledge Standards)
+<a id="gks"></a>**GKS** (Genomic Knowledge Standards)
 :   The GA4GH workstream that develops standards for representing genomic knowledge. Its schema set is referred to in this project as GKM (see below).
 
-**GKM** (Genomic Knowledge Model)
+<a id="gkm"></a>**GKM** (Genomic Knowledge Model)
 :   The set of GA4GH GKS schemas — VRS, Cat-VRS, VA-Spec, and gkm-core — that ClinVar-GKM transforms ClinVar data into. Also the project's name and output brand.
 
-**VRS** (Variation Representation Specification)
+<a id="vrs"></a>**VRS** (Variation Representation Specification)
 :   GA4GH standard for normalized, computable variant identifiers. Defines how variants are represented with sequence references, locations, and states.
 
-**Cat-VRS** (Categorical Variation Representation Specification)
+<a id="cat-vrs"></a>**Cat-VRS** (Categorical Variation Representation Specification)
 :   GA4GH standard for categorical variant representations that group variants at a higher level — CanonicalAlleles, CategoricalCnvChange, CategoricalCnvCount.
 
-**VA-Spec** (Variant Annotation Specification)
+<a id="va-spec"></a>**VA-Spec** (Variant Annotation Specification)
 :   GA4GH standard for variant annotation statements. Defines the Statement, Proposition, and EvidenceLine structures used by SCV and VCV outputs.
 
 **ACMG** (American College of Medical Genetics and Genomics)
@@ -34,32 +34,41 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 
 ## ClinVar Concepts
 
-**ClinVar**
+<a id="clinvar"></a>**ClinVar**
 :   NCBI database of variant submissions and aggregate classifications from clinical, research, and community sources.
 
-**SCV** (ClinVar does not expand the letters)
+<a id="scv"></a>**SCV** (ClinVar does not expand the letters)
 :   The accession ClinVar assigns to one submitted record: in ClinVar's words, "the submitted interpretation of the variation-condition relationship" from one submitter ([ClinVar FTP README](https://ftp.ncbi.nlm.nih.gov/pub/clinvar/README.txt)). Each SCV carries one classification for one variant and condition combination, and is versioned (`SCV000184036.1`) so that updates are tracked.
 
-**VCV** (Variation in ClinVar)
+<a id="vcv"></a>**VCV** (Variation in ClinVar)
 :   The accession for the variant-level record: submissions about the same variant (ClinVar Variation ID) are "aggregated in a 'Variation in ClinVar' record and assigned an accession number prefixed with VCV" ([Landrum et al. 2018](https://pmc.ncbi.nlm.nih.gov/articles/PMC5753237/)). The digits are the Variation ID padded to nine (`VCV000096923`); the version (`.19`) increments when an underlying SCV changes. The VCV is ClinVar's default web display.
 
-**RCV** (Reference ClinVar)
+<a id="rcv"></a>**RCV** (Reference ClinVar)
 :   The accession for a variant-condition pair: "Submissions for the same variant and condition from multiple submitters are aggregated into a reference ClinVar record which is assigned an accession number beginning with the prefix RCV" ([Landrum et al. 2016](https://pmc.ncbi.nlm.nih.gov/articles/PMC4702865/)). ClinVar still publishes RCV accessions and a separate RCV XML release; ClinVar-GKM represents each as an RCV statement.
 
-**Trait** (ClinVar terminology)
+<a id="trait"></a>**Trait** (ClinVar terminology)
 :   A disease, phenotype, or finding associated with a variant submission. In GKS output, this is termed "Condition."
 
-**TraitSet**
+<a id="traitset"></a>**TraitSet**
 :   A group of traits with a membership operator. In GKS output, this is termed "ConditionSet."
 
-**Review Status**
+<a id="variation"></a>**Variation** (ClinVar Variation ID)
+:   ClinVar's record of one variant, identified by its Variation ID: a single allele, a copy number variant, or a haplotype or genotype. In the bundle each is a CategoricalVariant keyed `clinvar:{variation_id}` in the `variation` section. See [Variations](../output-reference/cat-vrs.md).
+
+<a id="condition"></a>**Condition**
+:   A ClinVar trait in the bundle: a MappableConcept in the `condition` section keyed `clinvar.trait:{trait_id}`, with a MedGen `primaryCoding` and `mappings` to other disease and phenotype vocabularies.
+
+<a id="submitted-condition"></a>**Submitted condition**
+:   The condition as the submitter named or coded it on an SCV. The SCV's `submittedCondition` (one condition) or `submittedConditionSet` (several) extension records it and how ClinVar's trait mapping resolved it to a `clinvar.trait:{id}`. See [SubmittedCondition](../output-reference/scv-statements.md#submittedcondition).
+
+<a id="review-status"></a>**Review Status**
 :   Star levels (0-4) indicating submission confidence. Determines how submissions are ranked during aggregation. See [Review Status](../profiles/review-status.md).
 
 ---
 
 ## Submission Levels
 
-**Submission Level**
+<a id="submission-level"></a>**Submission Level**
 :   Classification of SCV authority and review rigor. Determines aggregation logic and review status derivation.
 
 **PG** (Practice Guideline)
@@ -84,28 +93,31 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 
 ## Data Model
 
-**Statement** (VA-Spec)
-:   A complete assertion containing classification, proposition, evidence, contributions, and metadata. Both SCV and VCV records are Statements.
+<a id="statement"></a>**Statement** (VA-Spec)
+:   A complete assertion containing classification, proposition, evidence, contributions, and metadata. SCV, VCV and RCV records are all Statements.
 
-**Proposition** (VA-Spec)
+<a id="proposition"></a>**Proposition** (VA-Spec)
 :   The core claim being asserted. Contains a subject (variant), predicate (relationship), object (condition/therapy), and optional qualifiers.
 
-**EvidenceLine** (VA-Spec)
+<a id="evidenceline"></a>**EvidenceLine** (VA-Spec)
 :   Links a proposition to evidence items with direction and strength assessments. Evidence lines are stored in the `evidenceLine` bundle section and referenced from all statement levels via `hasEvidenceLines` arrays of `#/evidenceLine/` JSON pointer strings.
 
-**CategoricalVariant** (Cat-VRS)
+<a id="categoricalvariant"></a>**CategoricalVariant** (Cat-VRS)
 :   Higher-level grouping that associates a ClinVar variation with its resolved VRS representation. Types: CanonicalAllele, CategoricalCnvChange, CategoricalCnvCount.
 
-**MappableConcept**
+<a id="mappableconcept"></a>**MappableConcept**
 :   A single concept with `conceptType`, `name`, and optional `extension` array. Used for single-label classifications and single-condition `object` values.
 
-**ConceptSet**
+<a id="conceptset"></a>**ConceptSet**
 :   A structured group of concepts with `type` (`ConceptSet`), a `concepts` array, `conceptSetType`, and `membershipOperator`. Used for multi-condition `object` values (OR operator for VCV with multiple distinct conditions; AND operator for RCV conditionSets).
 
-**Constraint** (Cat-VRS)
+<a id="conditionset"></a>**conditionSet** (bundle section)
+:   The bundle section of condition ConceptSets. A ClinVar trait set is keyed `clinvar.traitset:{trait_set_id}`, and its `membershipOperator` (`AND` or `OR`) follows the relationship of its traits (see [Condition Sets](../pipeline/conditions-and-traits/condition-sets.md)); a set minted for a VCV aggregate whose contributing SCVs name several conditions is keyed `clinvar.conditionset:vcv-{md5}` and joins them with `OR`. Members are `#/condition/` or `#/conditionSet/` references.
+
+<a id="constraint"></a>**Constraint** (Cat-VRS)
 :   Defining relationship between a categorical variant and its VRS representation. Types: DefiningAlleleConstraint, DefiningLocationConstraint, CopyChangeConstraint, CopyCountConstraint.
 
-**Extension**
+<a id="extension"></a>**Extension**
 :   Name/value pair carrying metadata not part of core GA4GH specifications but essential for interpreting the data. Present on statements, classifications, propositions, conditions, and categorical variants.
 
 ---
@@ -137,13 +149,13 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 
 ## Classification Terms
 
-**Quality**
+<a id="quality"></a>**Quality**
 :   Statement-level attribute (`Statement.quality`, va-spec 2026-09) indicating the submission level — a review-status/trust rating. A Concept struct with `conceptType: "Quality"` and `name` set to the submission level label (e.g., `"criteria provided"`, `"expert panel"`). Present on SCV and aggregate (VCV/RCV) statements. Replaces the former `confidence` attribute.
 
-**Direction**
+<a id="direction"></a>**Direction**
 :   Whether evidence supports or disputes a proposition. Values: `supports`, `disputes`, `neutral`. On aggregate statements, the direction ClinVar's lookup gives the classification label (multi-SCV groups, priority and aggregate layers; for a label the lookup lacks, `neutral` for a conflicting label or the FLAG label, and for a combination the direction its SCVs share, else `supports`) or passed through from the contributing SCV (single-SCV classification groups).
 
-**Strength**
+<a id="strength"></a>**Strength**
 :   Evidence strength level. Values: `definitive`, `likely`, `strong`, `potential`. Omitted (null) when not applicable. On aggregate statements, the strength ClinVar's lookup gives the classification label (multi-SCV groups, priority and aggregate layers) or passed through from the contributing SCV (single-SCV classification groups).
 
 **Tier I** / **Tier II** / **Tier III** / **Tier IV**
@@ -159,7 +171,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 
 ## Qualifier Types
 
-**Gene Context Qualifier**
+<a id="gene-context-qualifier"></a>**Gene Context Qualifier**
 :   Proposition qualifier restricting an assertion to a specific gene. Contains NCBI Gene identifier and HGNC mappings.
 
 **geneContextSource**
@@ -175,7 +187,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 
 ## VCV Aggregation
 
-**Aggregation**
+<a id="aggregation"></a>**Aggregation**
 :   Process of combining multiple SCV submissions into higher-order VCV statements following submission-level-specific logic.
 
 **Winner-Takes-All**
@@ -231,20 +243,20 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 **clinvar.traitset:{trait_set_id}**
 :   Condition set identifier. References a condition set in the `conditionSet` bundle section. Example: `clinvar.traitset:1234`.
 
-**ga4gh:{type}.{digest}**
+<a id="vrs-identifier"></a>**ga4gh:{type}.{digest}**
 :   VRS identity digest. References alleles or locations in the corresponding bundle sections. Example: `ga4gh:VA.xXBYkzzu1AH0oyMKlbBtP2`.
 
 ---
 
 ## Output Format
 
-**Bundle**
+<a id="bundle"></a>**Bundle**
 :   A JSON file containing all data for a ClinVar release, organized as named sections at the root level. Each section is a keyed collection of objects of the same class, where the key is the object's unique identifier. Objects reference each other using `#/` JSON pointer strings. Typed Parquet files derived from the bundle are published for the latest release only.
 
-**Bundle Section**
+<a id="bundle-section"></a>**Bundle Section**
 :   A named top-level key in the bundle file (e.g., `variation`, `scv`, `propositionPathogenicity`) containing a keyed collection of objects.
 
-**JSON Pointer Reference**
+<a id="json-pointer-reference"></a>**JSON Pointer Reference**
 :   A `#/{section}/{key}` string used to reference an object in another bundle section. Example: `#/allele/ga4gh:VA.abc123` resolves to the allele with that key in the `allele` section.
 
 ---
@@ -257,7 +269,7 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 **Weekly full**
 :   The full bundle of one weekly release, `weekly/clinvar-gkm_YYYY-MMDD.json.gz`, published for every release and kept for the current month only.
 
-**Delta**
+<a id="delta"></a>**Delta**
 :   The records added or updated since the prior release, `clinvar-gkm-delta_YYYY-MMDD.json.gz`, with a manifest listing per-section adds, updates and deletes. See [Weekly Deltas](../data-access/weekly-deltas.md).
 
 **`00-latest`**
@@ -278,6 +290,12 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 
 **By-Reference Format**
 :   JSON structure where related objects are referenced by ID rather than embedded inline. Reduces duplication when many statements reference the same variant.
+
+<a id="hgvs"></a>**HGVS**
+:   The Human Genome Variation Society's nomenclature for sequence variants, such as `NM_006269.2:c.2238_2239del`. ClinVar's HGVS expressions are in a variation's `clinvarHgvsList` extension, and an allele's genomic `hgvs.g` expression in its `expressions`.
+
+<a id="spdi"></a>**SPDI**
+:   NCBI's Sequence, Position, Deletion, Insertion notation for a variant, such as `NC_000008.11:54626117:AAAA:AA`. An allele's `expressions` carry it with `syntax: "spdi"`, alongside its `hgvs.g` and `gnomad` (VCF-style chromosome-position-reference-alternate) expressions.
 
 **Inline Format**
 :   JSON structure where related objects are fully embedded within the parent. Self-contained — each record has all data needed for interpretation.

@@ -1,5 +1,10 @@
 # Classifications
 
+!!! abstract "What this page answers"
+    Which classification values each statement type allows, and the `direction` and `strength` each value maps to
+    in a statement. Read it when you filter or compare classifications, or need to know why a statement says
+    `supports` or `likely`.
+
 Each statement type has a set list of classification values to which ClinVar normalizes historic or similar classification terms used by some submitters. These classification terms are mapped to the GKS VA statement class' **direction** and **strength**.
 
 ## Germline Classification
