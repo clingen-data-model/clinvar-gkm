@@ -43,8 +43,9 @@ project's Google Cloud resources, and publish to the public R2 bucket. The [Pipe
   with `aws configure --profile r2` (the token's access key ID and secret, region `auto`). The scripts add the R2
   endpoint themselves. `--dry-run` lists the bucket too, so it also needs the profile.
 - **Cloudflare purge credentials** — `CF_ZONE_ID` and `CF_PURGE_TOKEN`, in the environment or in
-  `~/.config/clinvar-gkm/cloudflare.env` (`CF_ENV_FILE` sets another path). `--purge` and the month rollover use
-  them to clear the CDN copy of overwritten, moved or deleted files. Without them the purge is skipped with a
+  `~/.config/clinvar-gkm/cloudflare.env` (`CF_ENV_FILE` sets another path). The uploads, the Parquet `--purge` and
+  the month rollover use them to clear the CDN copy of new, overwritten, moved or deleted files (the CDN may have
+  cached a 404 for a new path requested before it existed). Without them the purge is skipped with a
   warning, and the CDN can serve the old copy until it expires.
 - **Python 3.12 with `orjson`** — the release scripts use `venv/3.12/bin/python3` when it exists, and `python3`
   otherwise. `orjson` is required (Step 2). `make venv/3.12` creates the environment (it needs `python3.12` on the

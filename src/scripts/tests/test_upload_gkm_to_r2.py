@@ -45,7 +45,7 @@ def test_weekly_upload_regenerates_the_index(tmp_path):
     result, calls = run(tmp_path)
     assert result.returncode == 0, result.stderr
     assert "unbound variable" not in result.stderr
-    assert calls[-1] == "generate-r2-index.sh "
+    assert "generate-r2-index.sh " in calls
     assert "r2_put v1/1.2/weekly/clinvar-gkm_2026-1115.json.gz" in calls
     assert "FULL upload complete" in result.stdout
 
@@ -56,3 +56,11 @@ def test_an_abort_is_never_exit_0(tmp_path):
     assert result.returncode != 0
     assert not any(c.startswith("generate-r2-index.sh") for c in calls)
     assert "FULL upload complete" not in result.stdout
+
+
+def test_upload_always_purges_the_dated_files_it_writes(tmp_path):
+    # Without --purge: a new dated path may hold a CDN-cached 404 from a request made before it existed.
+    result, calls = run(tmp_path)
+    assert result.returncode == 0, result.stderr
+    assert ("cf_purge files v1/1.2/weekly/clinvar-gkm_2026-1115.json.gz"
+            " v1/1.2/weekly/clinvar-gkm_2026-1115.json.gz.sha256") in calls
