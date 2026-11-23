@@ -47,12 +47,12 @@ project's Google Cloud resources, and publish to the public R2 bucket. The [Pipe
   them to clear the CDN copy of overwritten, moved or deleted files. Without them the purge is skipped with a
   warning, and the CDN can serve the old copy until it expires.
 - **Python 3.12 with `orjson`** — the release scripts use `venv/3.12/bin/python3` when it exists, and `python3`
-  otherwise. `orjson` is required (Step 2). `make venv/3.12` creates the environment (it needs `python3.12` on the
-  `PATH`); the project requirements don't include `orjson`, so install it there:
+  otherwise. `orjson` is required (Step 2) and is in the project requirements. `make venv/3.12` creates the environment (it
+  needs `python3.12` on the `PATH`); then install the requirements into it:
 
     ```bash
     make venv/3.12
-    venv/3.12/bin/pip install orjson
+    venv/3.12/bin/pip install -r .requirements.txt
     ```
 
 - **[uv](https://docs.astral.sh/uv/)** — `validate-bundle.sh` builds its validation environment with uv, and `uvx`

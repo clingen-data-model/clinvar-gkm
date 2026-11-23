@@ -1,7 +1,8 @@
 # 0012 — Documentation examples must run, and say what they need
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-21
+- **Decided:** 2026-11-22 (maintainer)
 
 ## Context
 
