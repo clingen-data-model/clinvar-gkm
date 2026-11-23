@@ -6302,7 +6302,7 @@
 <ul>
 <li><strong>curl</strong>, and <strong><code>sha256sum</code></strong> (Linux, recent macOS) or <strong><code>shasum -a 256</code></strong> (any macOS) to check the download.</li>
 <li><strong>Disk.</strong> A weekly full is about 4.9 GB compressed and 68.5 GB decompressed. Read it streamed
-  (<code>gunzip -c</code>) rather than decompressing it to disk; see <a href="../output-files/#count-records-in-a-full-bundle">Output File</a>.</li>
+  (<code>gunzip -c</code>) rather than decompressing it to disk; see <a href="../download/#count-records-in-a-full-bundle">Count records in a full bundle</a>.</li>
 </ul>
 </div>
 <details class="example">
@@ -6326,7 +6326,7 @@
 <ul>
 <li><strong>The current state:</strong> the newest weekly full.</li>
 <li><strong>A fixed monthly snapshot that matches ClinVar's monthly release:</strong> the official monthly.</li>
-<li><strong>Keeping a local copy current without re-downloading a full bundle every week:</strong> the monthly plus the <a href="../weekly-deltas/">weekly deltas</a>.</li>
+<li><strong>Keeping a local copy current without re-downloading a full bundle every week:</strong> the monthly plus the <a href="../weekly-deltas/">weekly deltas</a>, all from one line. When a new line starts, start again from its first monthly (<a href="../weekly-deltas/#consumer-replay-model">Consumer Replay Model</a>).</li>
 </ul>
 </div>
 

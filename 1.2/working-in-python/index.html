@@ -6927,7 +6927,7 @@ the same three pre-releases.</p>
 <a href="#large-bundles">Large bundles</a>.</p>
 <p>The repository also has <strong><code>nch-igm-bundle.json.gz</code></strong> (1.6 MB), a self-contained 1.1.0 sub-bundle of every SCV
 from one submitter, cut with <a href="../pipeline/sub-bundle/">Sub-Bundle Extraction</a>, in which every pointer resolves
-inside the file (<code>curl -fsLO https://github.com/clingen-data-model/clinvar-gkm/raw/4a47d6dc1ecfbc1d26364bacdbd2f8d258512f17/nch-igm-bundle.json.gz</code>).
+inside the file (<code>curl -fsLO https://github.com/clingen-data-model/clinvar-gkm/raw/d57691715cd2f3ff740e5585f63c832a1e43422f/nch-igm-bundle.json.gz</code>).
 The same libraries read it; validate it against the schema tree at tag <code>1.1.0</code>, not <code>1.2.0</code>.</p>
 <hr />
 <h2 id="load-a-bundle-and-follow-pointers">Load a bundle and follow pointers<a class="headerlink" href="#load-a-bundle-and-follow-pointers" title="Permanent link">&para;</a></h2>
@@ -7409,9 +7409,10 @@ laptop's memory. Three ways to work with it:</p>
   flat. One pass reads the whole file.</li>
 <li><strong>Query the Parquet</strong> for the latest release to find the records you need, and cut just those out of the
   bundle with <code>gkm-bundle-parquet select</code>, as <a href="#statements-propositions-and-variants">above</a>.</li>
-<li><strong>Cut a sub-bundle.</strong> The <a href="../pipeline/sub-bundle/">Sub-Bundle Extraction</a> tool, which made the 1.1.0
-  sample sub-bundle, extracts a self-contained bundle for a list of statements. It reads the project's
-  BigQuery tables, not a published file, so it needs access to those datasets.</li>
+<li><strong>Cut a mini-bundle without the Parquet.</strong> <code>select</code> also picks records by a condition on any section
+  (<code>--driver submitter --where "name = '…'"</code>), follows their pointers, and writes a small bundle the libraries
+  read like the delta; see
+  <a href="../parquet/build-your-own/#cut-a-mini-bundle">Cut a mini-bundle</a>.</li>
 </ul>
 <p>Streaming the delta's <code>scv</code> section, for example, to count classifications (<code>gzip</code>, <code>Counter</code> and <code>va</code> are
 imported above):</p>

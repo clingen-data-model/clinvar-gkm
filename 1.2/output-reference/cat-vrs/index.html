@@ -6695,16 +6695,16 @@
 <p>ClinVar variations are represented using the GA4GH <a href="https://cat-vrs.readthedocs.io/">Cat-VRS</a> (Categorical Variation) specification. Cat-VRS defines categorical variant types that group variants at a higher level than individual VRS alleles — bridging the gap between ClinVar's variation concept and VRS's precise genomic representations.</p>
 <p>This section is produced by the <a href="../../pipeline/cat-vrs/">Cat-VRS procedure</a>.</p>
 <h3 id="variation-types">Variation Types<a class="headerlink" href="#variation-types" title="Permanent link">&para;</a></h3>
-<p>ClinVar variations map to three Cat-VRS representation types:</p>
+<p>Every record has <code>type</code> <code>CategoricalVariant</code> and validates against one of four ClinVar profiles, in three groups:</p>
 <ul>
 <li>
-<p><strong>CanonicalAllele</strong> — The vast majority of ClinVar variations. ClinVar identifies each variation by mapping submitted variant attributes to a GRCh38 genomic allele (falling back to GRCh37 or NCBI36 for historical data). This <em>defining allele</em> becomes the <code>DefiningAlleleConstraint</code>, and the same genomic allele generates the VRS allele referenced via <code>#/allele/</code>. See the <a href="https://cat-vrs.readthedocs.io/">Cat-VRS CanonicalAllele</a> specification.</p>
+<p><strong>CanonicalAllele</strong> (<a href="../classes/ClinvarCanonicalAllele/">ClinvarCanonicalAllele</a>) — The vast majority of ClinVar variations. ClinVar identifies each variation by mapping submitted variant attributes to a GRCh38 genomic allele (falling back to GRCh37 or NCBI36 for historical data). This <em>defining allele</em> becomes the <code>DefiningAlleleConstraint</code>, and the same genomic allele generates the VRS allele referenced via <code>#/allele/</code>. See the <a href="https://cat-vrs.readthedocs.io/">Cat-VRS CanonicalAllele</a> specification.</p>
 </li>
 <li>
-<p><strong>CategoricalCnvCount / CategoricalCnvChange</strong> — Copy number variants use a <code>DefiningLocationConstraint</code> following the same identification approach, with an additional <code>CopyCountConstraint</code> when an absolute copy count is provided, or a <code>CopyChangeConstraint</code> when only gain/loss is indicated.</p>
+<p><strong>Categorical CNV</strong> (<a href="../classes/ClinvarCategoricalCnvCount/">ClinvarCategoricalCnvCount</a> and <a href="../classes/ClinvarCategoricalCnvChange/">ClinvarCategoricalCnvChange</a>, two profiles) — Copy number variants use a <code>DefiningLocationConstraint</code> following the same identification approach, with an additional <code>CopyCountConstraint</code> when an absolute copy count is provided, or a <code>CopyChangeConstraint</code> when only gain/loss is indicated.</p>
 </li>
 <li>
-<p><strong>Generalized Categorical Variant</strong> — Haplotypes, genotypes, and other complex or ambiguously defined variants that cannot yet be mapped to a specific VRS allele or location. These rely solely on the ClinVar variation ID to distinguish them. Work continues within the GA4GH GKS workstream to expand VRS and Cat-VRS coverage for these types as community need arises.</p>
+<p><strong>Non-constrained variant</strong> (<a href="../classes/ClinvarNonConstrainedVariant/">ClinvarNonConstrainedVariant</a>) — Haplotypes, genotypes, and other complex or ambiguously defined variants that cannot yet be mapped to a specific VRS allele or location. These rely solely on the ClinVar variation ID to distinguish them. Work continues within the GA4GH GKS workstream to expand VRS and Cat-VRS coverage for these types as community need arises.</p>
 </li>
 </ul>
 <hr />
@@ -7028,7 +7028,7 @@
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
 <p>Annotated JSONC examples of variation records are available in the repository:</p>
 <ul>
-<li><a href="https://github.com/clingen-data-model/clinvar-gkm/tree/4a47d6dc1ecfbc1d26364bacdbd2f8d258512f17/examples/cat-vrs">Cat-VRS examples</a> — CanonicalAllele records for ClinVar variations</li>
+<li><a href="https://github.com/clingen-data-model/clinvar-gkm/tree/d57691715cd2f3ff740e5585f63c832a1e43422f/examples/cat-vrs">Cat-VRS examples</a> — CanonicalAllele records for ClinVar variations</li>
 </ul>
 
 

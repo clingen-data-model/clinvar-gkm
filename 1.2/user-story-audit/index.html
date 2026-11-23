@@ -6462,9 +6462,10 @@ wrong?" into a query that produces a fresh report each time ClinVar updates.</p>
 <li><strong>Products</strong> — VA-Spec, Cat-VRS, VRS, GKM-Core</li>
 <li><strong>Pattern</strong> — Submitter self-audit / QC across releases</li>
 <li><strong>Tools</strong> — <a href="https://duckdb.org/">DuckDB</a> or pandas over the published
-  <a href="../data-access/parquet/">Parquet</a>; the <a href="../pipeline/sub-bundle/">sub-bundle</a> extract;
+  <a href="../data-access/parquet/">Parquet</a>; a <a href="../parquet/build-your-own/#cut-a-mini-bundle">mini-bundle</a> cut with
+  <code>gkm-bundle-parquet select</code>;
   optionally <a href="https://github.com/ga4gh/va-spec-python">va-spec-python</a></li>
-<li><strong>Status</strong> — Release candidate</li>
+<li><strong>Status</strong> — In production: generally available since 1.1.0; current line 1.2</li>
 </ul>
 <div class="admonition tip">
 <p class="admonition-title">New to GKM datasets?</p>
@@ -6505,7 +6506,7 @@ many years. Several quality questions are hard to answer from ClinVar's web UI o
 </ul>
 <h2 id="the-data">The data<a class="headerlink" href="#the-data" title="Permanent link">&para;</a></h2>
 <p>To make this concrete, the repository ships
-<strong><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/4a47d6dc1ecfbc1d26364bacdbd2f8d258512f17/nch-igm-bundle.json.gz"><code>nch-igm-bundle.json.gz</code></a></strong> —
+<strong><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/d57691715cd2f3ff740e5585f63c832a1e43422f/nch-igm-bundle.json.gz"><code>nch-igm-bundle.json.gz</code></a></strong> —
 the complete GKM extract of one real submitter, the IGM Clinical Laboratory at Nationwide Children's
 Hospital (submitter <code>196472</code>): <strong>all 2,443 of their SCVs</strong> plus every variation, condition, therapy,
 proposition, and submitter record those statements reference, in a single self-contained 1.6 MB file. It
@@ -6573,8 +6574,9 @@ and newly odd conditions surface on their own.</p>
   report; DuckDB reads the <code>.parquet</code> files directly with no load step.</li>
 <li><strong>The clinvar-gkm <a href="../data-access/parquet/">Parquet</a></strong> — one typed file per bundle
   section, refreshed every release.</li>
-<li><strong>The <a href="../pipeline/sub-bundle/">sub-bundle</a> tool</strong> (maintainers) — <code>--submitter &lt;id&gt;</code> extracts one
-  submitter's entire footprint into a single portable bundle, as with <code>nch-igm-bundle.json.gz</code>.</li>
+<li><strong><code>gkm-bundle-parquet select</code></strong> — <code>--driver submitter</code> cuts one submitter's footprint out of a published
+  bundle into a single portable <a href="../parquet/build-your-own/#cut-a-mini-bundle">mini-bundle</a>, the shape of
+  <code>nch-igm-bundle.json.gz</code>.</li>
 <li><strong><a href="https://github.com/ga4gh/va-spec-python">va-spec-python</a></strong> — optionally load the flagged statements
   as typed VA-Spec models for deeper, programmatic checks.</li>
 </ul>
@@ -6583,12 +6585,13 @@ and newly odd conditions surface on their own.</p>
 <li><strong>Get the data</strong> — <a href="../data-access/parquet/">Parquet Files</a> (the one Parquet dataset, at
   <code>v1/1.2/parquet/</code>).</li>
 <li><strong>See one submitter's whole footprint</strong> — open
-  <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/4a47d6dc1ecfbc1d26364bacdbd2f8d258512f17/nch-igm-bundle.json.gz"><code>nch-igm-bundle.json.gz</code></a>
+  <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/d57691715cd2f3ff740e5585f63c832a1e43422f/nch-igm-bundle.json.gz"><code>nch-igm-bundle.json.gz</code></a>
   (2,443 SCVs, self-contained).</li>
 <li><strong>Understand review status</strong> — <a href="../profiles/review-status/">Review Status</a> (the star levels the audit
   flags on).</li>
-<li><strong>Extract your own</strong> — maintainers can run the <a href="../pipeline/sub-bundle/">sub-bundle</a> tool by
-  <code>--submitter</code>; anyone can filter the Parquet by their submitter id as shown above.</li>
+<li><strong>Extract your own</strong> — cut your submissions out of a published bundle with <code>gkm-bundle-parquet select
+  --driver submitter</code> (<a href="../parquet/build-your-own/#one-submitters-submissions">One submitter's submissions</a>), or
+  filter the Parquet by your submitter id as shown above.</li>
 <li><strong>See more GKM use cases</strong> — the GKM Starter Kit's
   <a href="https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/">user stories</a>.</li>
 </ul>

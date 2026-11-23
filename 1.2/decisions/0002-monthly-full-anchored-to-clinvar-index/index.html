@@ -6304,7 +6304,7 @@
 <ul>
 <li><strong>Status:</strong> Accepted</li>
 <li><strong>Date:</strong> 2026-08-24</li>
-<li><strong>Spec:</strong> <code>docs/superpowers/specs/2026-08-24-clinvar-index-monthly-trigger-design.md</code></li>
+<li><strong>Spec:</strong> <code>superpowers/specs/2026-08-24-clinvar-index-monthly-trigger-design.md</code></li>
 </ul>
 <h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
 <p>The monthly full bundle was triggered by our own weekly cadence (a <code>schema_on</code> calendar-month boundary),
@@ -6323,7 +6323,7 @@ into the <code>YYYY-MM</code> slot. ClinVar's monthly XML is only a trigger sign
 <li><code>run-release.sh</code> Stage 5 scrapes the index (bounded to months newer than the latest published full) instead
   of using <code>schema_on</code>; the full is a re-export of existing <code>gkm_dict_*</code> tables, not a rebuild.</li>
 <li>A one-time re-align moved existing fulls to the new scheme. Prior-month/prior-year retention is still an open
-  design (<a href="../../superpowers/specs/2026-08-26-release-browser-reorg-and-archiving-design/">release browser + archiving spec</a>).</li>
+  design (<a href="https://github.com/clingen-data-model/clinvar-gkm/blob/d57691715cd2f3ff740e5585f63c832a1e43422f/superpowers/specs/2026-08-26-release-browser-reorg-and-archiving-design.md">release browser + archiving spec</a>).</li>
 </ul>
 
 

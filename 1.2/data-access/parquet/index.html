@@ -6504,10 +6504,10 @@
 <p class="admonition-title">Parquet is derived from the bundle and overwritten every release</p>
 <p>The JSON bundles are the release record. Parquet is a convenience: the tables hold the bundle's records, and the bundle can be rebuilt from them. <strong>One</strong> Parquet dataset is published per release line, rebuilt every release (weekly) from the newest weekly release and overwritten in place. There are no dated, per-delta or archived Parquet sets.</p>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Two sets of tables during the move to 1.2</p>
-<p>The 1.1 line's set, at <code>v1/1.1/parquet/</code>, is the one exported from BigQuery for the <strong>2026-10-24</strong> release (its <code>manifest.json</code> gives <code>builder: "BigQuery export"</code> and <code>source_release: "2026-10-24"</code>). It is not rebuilt, so it lags the bundles, and it is deleted once the 1.2 set is published: a frozen line keeps no Parquet. Its 22 tables have different columns; see <a href="../../parquet/migrating-from-1.1/">Moving from the 1.1 Tables</a>.</p>
-<p>This page describes the 1.2 line's set, at <code>v1/1.2/parquet/</code>: the 20 tables that <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>gkm-bundle-parquet</code></a> 2.0 builds from each 1.2 release's bundle, published from the first 1.2 release on. Parquet is built only from the bundle, never from BigQuery.</p>
+<div class="admonition note">
+<p class="admonition-title">The 1.1 tables were removed when the 1.1 line was frozen</p>
+<p>The 1.1 line's set, at <code>v1/1.1/parquet/</code> (22 tables exported from BigQuery for the 2026-10-24 release), was deleted on 2026-11-23, when <code>v1/1.1/</code> was frozen: a frozen line keeps its bundles and no Parquet. To get tables for a 1.1 release, build them from its bundle; see <a href="../../parquet/previous-releases/">Parquet for Previous Releases</a>. The 1.1 tables had different columns; see <a href="../../parquet/migrating-from-1.1/">Moving from the 1.1 Tables</a>.</p>
+<p>This page describes the 1.2 line's set, at <code>v1/1.2/parquet/</code>: the 20 tables that <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>gkm-bundle-parquet</code></a> 2.0 builds from each 1.2 release's bundle. Parquet is built only from the bundle, never from BigQuery.</p>
 </div>
 <p>The dataset lives at one stable path, <code>v1/1.2/parquet/</code>, one file per section, with a <code>manifest.json</code> and a <code>table-spec.json</code> beside it:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>v1/1.2/parquet/

@@ -6662,12 +6662,12 @@
 <h2 id="clinvar-concepts">ClinVar Concepts<a class="headerlink" href="#clinvar-concepts" title="Permanent link">&para;</a></h2>
 <p><strong>ClinVar</strong>
 :   NCBI database of variant submissions and aggregate classifications from clinical, research, and community sources.</p>
-<p><strong>SCV</strong> (Submitted Clinical Variant)
-:   Individual submission from a laboratory, research group, or other organization reporting their interpretation of a variant. Each SCV contains one classification for one variant and condition combination.</p>
-<p><strong>VCV</strong> (Variant-level Clinical Variant)
-:   Aggregate classification combining all SCV submissions for the same variant across all conditions. Represents the variant-level summary.</p>
-<p><strong>RCV</strong> (Review-level Clinical Variant)
-:   Aggregate classification combining all SCV submissions for the same variant AND the same condition. Used internally by ClinVar for aggregation.</p>
+<p><strong>SCV</strong> (ClinVar does not expand the letters)
+:   The accession ClinVar assigns to one submitted record: in ClinVar's words, "the submitted interpretation of the variation-condition relationship" from one submitter (<a href="https://ftp.ncbi.nlm.nih.gov/pub/clinvar/README.txt">ClinVar FTP README</a>). Each SCV carries one classification for one variant and condition combination, and is versioned (<code>SCV000184036.1</code>) so that updates are tracked.</p>
+<p><strong>VCV</strong> (Variation in ClinVar)
+:   The accession for the variant-level record: submissions about the same variant (ClinVar Variation ID) are "aggregated in a 'Variation in ClinVar' record and assigned an accession number prefixed with VCV" (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5753237/">Landrum et al. 2018</a>). The digits are the Variation ID padded to nine (<code>VCV000096923</code>); the version (<code>.19</code>) increments when an underlying SCV changes. The VCV is ClinVar's default web display.</p>
+<p><strong>RCV</strong> (Reference ClinVar)
+:   The accession for a variant-condition pair: "Submissions for the same variant and condition from multiple submitters are aggregated into a reference ClinVar record which is assigned an accession number beginning with the prefix RCV" (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4702865/">Landrum et al. 2016</a>). ClinVar still publishes RCV accessions and a separate RCV XML release; ClinVar-GKM represents each as an RCV statement.</p>
 <p><strong>Trait</strong> (ClinVar terminology)
 :   A disease, phenotype, or finding associated with a variant submission. In GKS output, this is termed "Condition."</p>
 <p><strong>TraitSet</strong>

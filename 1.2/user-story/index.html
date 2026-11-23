@@ -6463,7 +6463,7 @@ ClinVar up against any other VRS-aware dataset, without translating coordinates.
 <li><strong>Products</strong> — VRS, Cat-VRS, VA-Spec, GKM-Core</li>
 <li><strong>Pattern</strong> — Cross-source variant harmonization</li>
 <li><strong>Tools</strong> — <a href="https://github.com/ga4gh/vrs-python">vrs-python</a> and <a href="https://github.com/ga4gh/va-spec-python">va-spec-python</a>; the published clinvar-gkm <a href="../data-access/download/">bundle</a></li>
-<li><strong>Status</strong> — Release candidate</li>
+<li><strong>Status</strong> — In production: generally available since 1.1.0; current line 1.2</li>
 </ul>
 <div class="admonition tip">
 <p class="admonition-title">New to GKM datasets?</p>
@@ -6537,8 +6537,9 @@ its strength, review status, submitter, and condition straight from the bundle.<
 <li><strong>Get the data</strong> — <a href="../data-access/download/">Downloads</a>.</li>
 <li><strong>Understand the shape</strong> — <a href="../output-reference/overview/">Output Format</a> and
   <a href="../output-reference/id-references/">ID References</a> (including a small <code>resolve()</code> helper for pointers).</li>
-<li><strong>Pull one variant's full graph</strong> — maintainers can use the
-  <a href="../pipeline/sub-bundle/">Sub-Bundle Extraction</a> tool to slice a self-contained example like the one above.</li>
+<li><strong>Pull one variant's full graph</strong> — <code>gkm-bundle-parquet select</code> cuts a variant's propositions and statements
+  out of a published bundle into a mini-bundle (a second pass adds what those statements point
+  to); see <a href="../parquet/build-your-own/#one-variant">One variant</a>.</li>
 <li><strong>See more GKM use cases</strong> — the GKM Starter Kit's
   <a href="https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/">user stories</a>.</li>
 </ul>

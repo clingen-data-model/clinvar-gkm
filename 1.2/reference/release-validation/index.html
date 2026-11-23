@@ -6038,6 +6038,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#120-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.2.0 Results
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.2.0 Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#120-follow-ups" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Follow-ups
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#110-results" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6363,6 +6391,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#120-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.2.0 Results
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.2.0 Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#120-follow-ups" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Follow-ups
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#110-results" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6411,10 +6467,12 @@
 <h1 id="release-validation">Release Validation<a class="headerlink" href="#release-validation" title="Permanent link">&para;</a></h1>
 <p>Every release is gated before any file is published. The gates check the BigQuery tables the bundles are
 exported from, the real staged bundles themselves, and the Parquet dataset derived from them. A release is
-published only when every gate passes. This page lists the gates and the results for 1.1.0.</p>
-<p>The step-by-step procedure, with the exact commands and the expected output of each gate, is the
-<a href="https://github.com/clingen-data-model/clinvar-gkm/blob/4a47d6dc1ecfbc1d26364bacdbd2f8d258512f17/docs/superpowers/plans/2026-10-20-1.1.0-rebuild-runbook.md">1.1.0 rebuild runbook</a>.
-The changes these gates verified are listed in the <a href="../changelog/#110">1.1.0 changelog</a>.</p>
+published only when every gate passes. This page lists the gates and the results of each release, newest first.</p>
+<p>The step-by-step procedures, with the exact commands, are the
+<a href="https://github.com/clingen-data-model/clinvar-gkm/blob/d57691715cd2f3ff740e5585f63c832a1e43422f/superpowers/plans/2026-11-18-1.2.0-release-runbook.md">1.2.0 release runbook</a>
+and the
+<a href="https://github.com/clingen-data-model/clinvar-gkm/blob/d57691715cd2f3ff740e5585f63c832a1e43422f/superpowers/plans/2026-10-20-1.1.0-rebuild-runbook.md">1.1.0 rebuild runbook</a>.
+The changes these gates verified are listed in the changelog: <a href="../changelog/#120">1.2.0</a>, <a href="../changelog/#110">1.1.0</a>.</p>
 <hr />
 <h2 id="gates">Gates<a class="headerlink" href="#gates" title="Permanent link">&para;</a></h2>
 <table>
@@ -6458,7 +6516,7 @@ The changes these gates verified are listed in the <a href="../changelog/#110">1
 </tr>
 <tr>
 <td><strong>No null or empty values</strong></td>
-<td>No field anywhere carries <code>null</code>, <code>""</code>, <code>[]</code> or <code>{}</code>, except the null bound of a VRS <code>Range</code>, which VRS uses for an open-ended coordinate</td>
+<td>No field anywhere carries <code>null</code>, <code>""</code>, <code>[]</code> or <code>{}</code>, except the null bound of a VRS <code>Range</code>, which VRS uses for an open-ended coordinate, and the empty <code>sequence</code> of a deletion's VRS <code>ReferenceLengthExpression</code> (<code>length</code> 0)</td>
 <td>Every staged bundle</td>
 </tr>
 <tr>
@@ -6481,6 +6539,67 @@ takes about 15 minutes on a full bundle. The toolkit takes about 17 hours on 64 
 over layered <code>allOf</code>/<code>$ref</code> schemas (71 uses, against 27 in 1.1.0), and python-jsonschema re-evaluates every
 layer to apply it, where jsonschema-rs does not. So the toolkit now cross-checks a sample at each version release
 (see the table), and the engine tests require both engines to fail the same records.</p>
+<hr />
+<h2 id="120-results">1.2.0 Results<a class="headerlink" href="#120-results" title="Permanent link">&para;</a></h2>
+<p>1.2.0 built 3 BigQuery datasets with the 1.2.0 procedures (2026-10-31, 2026-11-08 and 2026-11-15) and published the
+new line <code>v1/1.2/</code>: the checkpoint monthly <code>clinvar-gkm_2026-11</code> (built from 2026-10-31), the weekly full bundles
+and deltas of 2026-11-08 and 2026-11-15, and a Parquet dataset built from 2026-11-15. The 1.2.0 runbook gated each
+release with delta reconstruction, jsonschema-rs on every record, the toolkit cross-check and the Parquet checks;
+the other gates are marked below.</p>
+<table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Proposition structure and reference integrity</td>
+<td><strong>Not run</strong> as a separate gate for 1.2.0</td>
+</tr>
+<tr>
+<td>Expected difference</td>
+<td><strong>Not run</strong> for 1.2.0. The 1.2.0 changes to VCV and RCV records are described in the <a href="../changelog/#120">changelog</a></td>
+</tr>
+<tr>
+<td>Delta reconstruction</td>
+<td><strong>PASS</strong> on both published pairs, <code>0,0,0</code> on all 21 tables: 2026-10-31 → 2026-11-08 (across the ClinVar ingest versions <code>v2_6_1</code> → <code>v2_7_0</code>) and 2026-11-08 → 2026-11-15. The pair 2026-10-24 → 2026-10-31 spans the change of procedures (1.1.0 → 1.2.0) and is not a published 1.2 delta</td>
+</tr>
+<tr>
+<td>Strict schema validation</td>
+<td><strong>PASS</strong>, <code>failing: 0</code>, jsonschema-rs 0.61.1 on every record: the 2026-11 monthly (91,854,927 records), the 2026-11-08 weekly full (91,965,575), the 2026-11-15 weekly full (91,973,603) and the 2026-11-15 delta (39,062). The 2026-11-08 delta (1,779,702 records) was validated with the toolkit engine instead: <code>failing: 0</code></td>
+</tr>
+<tr>
+<td>Official toolkit cross-check</td>
+<td><strong>PASS</strong>, <code>failing: 0</code>: the stratified 1% sample of the 2026-11 monthly, 940,700 records in 20 sections (1,771 s), and the whole 2026-11-08 delta (above)</td>
+</tr>
+<tr>
+<td>Structural check</td>
+<td>Each validation run checked <code>schema_version</code> 1.2.0 against the schema's constant and counted the records of every section. No separate comparison with the BigQuery counts was run</td>
+</tr>
+<tr>
+<td>No null or empty values</td>
+<td><strong>28 records found</strong> in the 2026-11 monthly (91,854,927 records); none in the 2026-11-08 and 2026-11-15 deltas (1,779,702 and 39,062). Scanned on 2026-11-23 from the published files. In those 28 SCVs, the <code>submittedCondition</code> extension's <code>original_medgen_match</code> has an empty <code>name</code> (a MedGen id with no name; 27 at the top level, 1 inside <code>concepts</code>). The schema allows it, so schema validation passes; removing it is a <a href="#120-follow-ups">follow-up</a>. The deltas also hold 84 deletions whose <code>ReferenceLengthExpression</code> has an empty <code>sequence</code> (allowed, above). Each weekly full is the monthly plus the deltas before it, so it holds at most these 28</td>
+</tr>
+<tr>
+<td>Bundle ↔ Parquet</td>
+<td><strong>PASS</strong> for 2026-11-08 and 2026-11-15, with <code>gkm-bundle-parquet</code> 2.0.0: <code>verify --bundle-recompute</code> (0 groups differ) and <code>verify --roundtrip</code> (identical) against the full bundle, 20 tables whose rows equal the bundle's records (91,965,575 and 91,973,603). The published set is 2026-11-15's</td>
+</tr>
+</tbody>
+</table>
+<p>A delta's manifest counts the condition sets its change log records, including single-member sets, which the
+export drops (the 2026-11-15 delta's manifest counts 149 <code>conditionSet</code> records, the bundle holds 138). This doesn't
+affect the bundles: replaying the 2026-11 monthly and both deltas gives the 2026-11-15 weekly full exactly, in all
+20 sections, and replaying 2026-11-08 + the 2026-11-15 delta gives it exactly in <code>conditionSet</code>.</p>
+<h3 id="120-follow-ups">Follow-ups<a class="headerlink" href="#120-follow-ups" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Empty MedGen name.</strong> The export should leave out an empty <code>original_medgen_match.name</code> in the
+  <code>submittedCondition</code> extension (28 SCVs in the 2026-11 monthly), so the no-empty-values rule holds again.</li>
+<li><strong>Gates not run for 1.2.0.</strong> Proposition structure and reference integrity, and the expected-difference
+  comparison, weren't run; the next release runbook should run them, or say why they no longer apply.</li>
+</ul>
+<p>No stamped validation reports are attached to the 1.2.0 GitHub Release.</p>
 <hr />
 <h2 id="110-results">1.1.0 Results<a class="headerlink" href="#110-results" title="Permanent link">&para;</a></h2>
 <p>1.1.0 rebuilt 17 BigQuery datasets, 2026-06-27 through 2026-10-18, and staged 4 monthly full bundles, 3 weekly

@@ -7017,9 +7017,9 @@ need small rewrites.</p>
 <li><strong>The 2.0 tables</strong>: download all 20 into one folder (<a href="../../data-access/parquet/#download">Parquet Files → Download</a>)
   and start <code>duckdb</code> in that folder. The queries name each table by its file name (<code>'scv.parquet'</code>) and read
   the four proposition tables with the glob <code>proposition*.parquet</code>.</li>
-<li><strong>The 1.1 tables</strong>, for the queries marked <code>-- 1.1</code> only: the same file names under
-  <code>https://data.clinvar-gkm.org/v1/1.1/parquet/</code> while that set is still served (see <a href="#timeline">Timeline</a>),
-  in a folder of their own. The set is 13.2 GB; <code>scv.parquet</code> and <code>variation.parquet</code> are 3 to 4 GB each.</li>
+<li><strong>The 1.1 tables</strong>, for the queries marked <code>-- 1.1</code> only: a copy you downloaded from
+  <code>https://data.clinvar-gkm.org/v1/1.1/parquet/</code> before that set was removed (see <a href="#timeline">Timeline</a>), in a
+  folder of their own. It is no longer served. The set is 13.2 GB; <code>scv.parquet</code> and <code>variation.parquet</code> are 3 to 4 GB each.</li>
 <li><strong><a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a></strong>, for the <code>rebuild</code> example only. It reads
   the whole 2.0 set and writes a bundle about the size of the published one (about 5 GB compressed).</li>
 </ul>
@@ -7174,8 +7174,9 @@ need small rewrites.</p>
 <li><strong>The live console</strong> on <a href="../#run-a-query-now">Start Here</a> reads the current line's Parquet, so from the
   moment 1.2.0 is published it reads <code>v1/1.2/parquet/</code>. It has no tables to read for the short time until the 2.0
   set is published.</li>
-<li><strong>To keep the 1.1 tables</strong>, download them before 1.2.0 is published; the advance notice gives the date. They
-  are not rebuilt afterwards: they came from BigQuery, not from the bundle.</li>
+<li><strong>The 1.1 tables are no longer served</strong>: they were removed once the 2.0 set was published, and they are not
+  rebuilt, because they came from BigQuery, not from the bundle. A copy downloaded earlier still works with the
+  <code>-- 1.1</code> queries.</li>
 <li><strong>To get tables for an earlier release</strong>, build them from that release's bundle with <code>gkm-bundle-parquet</code>
   (see <a href="../build-your-own/">Build Your Own</a> and <a href="../../data-access/parquet/#earlier-releases">Earlier releases</a>). The columns come from the bundle's
   schema, so a bundle of schema 1.1.0 gives a wider set than the one this documentation describes, with more
