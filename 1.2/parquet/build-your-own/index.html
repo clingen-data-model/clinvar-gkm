@@ -4561,6 +4561,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#parquet-for-one-weekly-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Parquet for one weekly release
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parquet for one weekly release">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rebuild-a-weeks-full-bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Rebuild a week's full bundle
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cut-a-mini-bundle" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6525,6 +6553,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#parquet-for-one-weekly-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Parquet for one weekly release
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parquet for one weekly release">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rebuild-a-weeks-full-bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Rebuild a week's full bundle
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cut-a-mini-bundle" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -6651,8 +6707,9 @@
 <p>The published Parquet is built by one open tool, <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>gkm-bundle-parquet</code></a>,
 from the published JSON bundle. You can run the same tool yourself to:</p>
 <ul>
-<li><strong>build the tables</strong> for any release, including releases whose Parquet is no longer published (for the frozen
-  lines, see <a href="../previous-releases/">Parquet for Previous Releases</a>);</li>
+<li><strong>build the tables</strong> for any release, including releases whose Parquet is no longer published (for one week,
+  see <a href="#parquet-for-one-weekly-release">Parquet for one weekly release</a>; for the frozen lines, see
+  <a href="../previous-releases/">Parquet for Previous Releases</a>);</li>
 <li><strong>cut a mini-bundle</strong>: the records of one submitter, one variant or one gene and everything they point to,
   as a small JSON bundle or a small set of tables;</li>
 <li><strong>rebuild the bundle</strong> from a set of tables and prove the records are identical;</li>
@@ -6697,8 +6754,9 @@ from the published JSON bundle. You can run the same tool yourself to:</p>
   <a href="#build-the-tables">Build the tables</a>. The full-bundle examples read the newest monthly,
   <code>clinvar-gkm_00-latest.json.gz</code> (4.9 GB compressed), from <a href="../../data-access/monthly-full/">Monthly Full Bundles</a>.</li>
 <li><strong>Resources.</strong> Every command on the delta finishes in under 15 s with under 2 GB of memory. A full-bundle
-  <code>build</code> needs about 65 GiB of memory and 65 GB of free disk (<a href="#a-full-bundle">A full bundle</a>); a full-bundle
-  <code>select</code> streams, taking about 11 minutes and under 100 MB of memory.</li>
+  <code>build</code> takes about 3.5 hours on a 16 GB machine (10 GiB of memory, about 30 GB of free disk), or 40
+  minutes on a large one (<a href="#a-full-bundle">A full bundle</a>); a full-bundle <code>select</code> streams, taking about 11
+  minutes and under 100 MB of memory.</li>
 <li>Run every command from one working directory: later blocks read the files earlier blocks write.</li>
 </ul>
 </div>
@@ -6707,19 +6765,36 @@ from the published JSON bundle. You can run the same tool yourself to:</p>
 <p>Every command on this page was run with <code>gkm-bundle-parquet</code> 2.0.0 from PyPI, on an Apple M2 Pro laptop
 (16 GB of memory, 10 cores), against the published <strong>2026-11-15 weekly delta</strong>
 (<code>v1/1.2/deltas/clinvar-gkm-delta_2026-1115.json.gz</code>, 5 MB, 39,062 records). The output quoted is the real
-output. Figures for a <strong>full</strong> bundle come from the tool's own release measurements, except the full-bundle
-<code>select</code>, which was run on this laptop against the <code>2026-11</code> monthly.</p>
+output. Figures for a <strong>full</strong> bundle come from a 16 GB cloud machine and the tool's own release measurements
+(<a href="#a-full-bundle">A full bundle</a>), except the full-bundle <code>select</code> and the
+<a href="#rebuild-a-weeks-full-bundle">weekly replay</a>, which were run on this laptop.</p>
 </div>
 <hr />
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>version<span class="w">          </span><span class="c1"># run a pinned release with no install</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>gkm-bundle-parquet<span class="o">==</span><span class="m">2</span>.0.0<span class="w">     </span><span class="c1"># or install the command with uv</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pipx<span class="w"> </span>install<span class="w"> </span>gkm-bundle-parquet<span class="o">==</span><span class="m">2</span>.0.0<span class="w">        </span><span class="c1"># or with pipx</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>pip<span class="w"> </span>install<span class="w"> </span>gkm-bundle-parquet<span class="o">==</span><span class="m">2</span>.0.0<span class="w">         </span><span class="c1"># or into a virtual environment of your own</span>
+<p>The quickest way to run the tool is <a href="https://docs.astral.sh/uv/"><code>uvx</code></a>, from <a href="https://docs.astral.sh/uv/">uv</a>:
+it fetches the pinned release and runs it, with nothing to install. <strong>Every command on this page is written that
+way</strong>, as <code>uvx gkm-bundle-parquet@2.0.0 …</code>, so you can paste it as it is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>version
 </code></pre></div>
-<p>DuckDB is pinned exactly (1.5.4), because the bytes of the files depend on it, so <code>uvx</code>, <code>uv tool</code> or <code>pipx</code> keep
-it apart from a DuckDB you use for queries. The examples below run the tool with <code>uvx gkm-bundle-parquet@2.0.0</code>,
-which needs no install. With the command installed, write <code>gkm-bundle-parquet</code> in its place.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>gkm-bundle-parquet 2.0.0: table spec sections 2.0, policy 2.0; duckdb 1.5.4
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>…
+</code></pre></div>
+<p>To have a <code>gkm-bundle-parquet</code> command instead, install it with one of these (uv, pipx, or pip into a virtual
+environment of your own), then write <code>gkm-bundle-parquet</code> wherever this page writes <code>uvx gkm-bundle-parquet@2.0.0</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>gkm-bundle-parquet<span class="o">==</span><span class="m">2</span>.0.0
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pipx<span class="w"> </span>install<span class="w"> </span>gkm-bundle-parquet<span class="o">==</span><span class="m">2</span>.0.0
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gkm-bundle-parquet<span class="o">==</span><span class="m">2</span>.0.0
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title"><code>command not found: gkm-bundle-parquet</code></p>
+<p>The shell finds no installed command. Run the <code>uvx gkm-bundle-parquet@2.0.0</code> form, or install the tool with
+one of the lines above (after <code>uv tool install</code> or <code>pipx install</code>, open a new shell if the command is still
+not found: <code>uv tool update-shell</code> or <code>pipx ensurepath</code> puts their folder on your <code>PATH</code>).</p>
+</div>
+<p>DuckDB is pinned exactly (1.5.4), because the bytes of the files depend on it, so <code>uvx</code>, <code>uv tool</code> and <code>pipx</code>
+keep it apart from a DuckDB you use for queries.</p>
 <hr />
 <h2 id="name-the-bundles-schema">Name the bundle's schema<a class="headerlink" href="#name-the-bundles-schema" title="Permanent link">&para;</a></h2>
 <p>Every command that reads a bundle takes the bundle's JSON Schema, <code>--bundle-schema</code>. The tables are generated from
@@ -6759,35 +6834,35 @@ own <code>schema_version</code>, and <code>--version-property schema_version</co
 <p>The commands below use a shell array for the two options, written <code>"${P[@]}"</code>; an array works in both bash and
 zsh, where a plain string variable would reach the tool as one argument. Set it once in the shell you run the
 other blocks in:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">P</span><span class="o">=(</span>--bundle-schema<span class="w"> </span>https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json<span class="w"> </span>--version-property<span class="w"> </span>schema_version<span class="o">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nv">P</span><span class="o">=(</span>--bundle-schema<span class="w"> </span>https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json<span class="w"> </span>--version-property<span class="w"> </span>schema_version<span class="o">)</span>
 </code></pre></div>
 <hr />
 <h2 id="build-the-tables">Build the tables<a class="headerlink" href="#build-the-tables" title="Permanent link">&para;</a></h2>
 <p>Download the 2026-11-15 weekly delta and its checksum sidecar into the working directory. Every delta example on
 this page reads it. Its path changes when its month ends (it moves to <code>deltas/2026-11/</code>), so the commands look it
 up in the line's <code>index.json</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">DELTA</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-fsS<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/index.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s1">'</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="s1">import json, sys</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="s1">print(next(d["bundle"]["path"] for d in json.load(sys.stdin)["deltas"] if d["release"] == "2026-11-15"))'</span><span class="k">)</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>curl<span class="w"> </span>-fO<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/</span><span class="si">${</span><span class="nv">DELTA</span><span class="si">}</span><span class="s2">"</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>curl<span class="w"> </span>-fO<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/</span><span class="si">${</span><span class="nv">DELTA</span><span class="si">}</span><span class="s2">.sha256"</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nv">DELTA</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-fsS<span class="w"> </span>https://data.clinvar-gkm.org/v1/1.2/index.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s1">'</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="s1">import json, sys</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="s1">print(next(d["bundle"]["path"] for d in json.load(sys.stdin)["deltas"] if d["release"] == "2026-11-15"))'</span><span class="k">)</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>curl<span class="w"> </span>-fO<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/</span><span class="si">${</span><span class="nv">DELTA</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>curl<span class="w"> </span>-fO<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/</span><span class="si">${</span><span class="nv">DELTA</span><span class="si">}</span><span class="s2">.sha256"</span>
 </code></pre></div>
 <p><code>build</code> reads one bundle and writes one Parquet file per section, plus <code>manifest.json</code> and <code>table-spec.json</code>
 (uses <code>P</code> from <a href="#name-the-bundles-schema">Name the bundle's schema</a>):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>build<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm-delta_2026-1115.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>--out<span class="w"> </span>parquet/
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>build<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm-delta_2026-1115.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>--out<span class="w"> </span>parquet/
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>built 20 table(s) of spec sections 2.0, 39062 rows
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  sequenceReference                               0  e3e7d2b96baf
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  location                                      176  8b17d4d0e861
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  allele                                        230  dbc7056a155d
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>  …
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>  propositionPathogenicity                     3399  4f59dd9944fe
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>  …
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>  evidenceLine                                 6064  038fd5c573b3
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>  scv                                         17562  333222b90a40
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>  vcv                                          2941  ca684960ee57
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>  rcv                                          2548  b7796596ea52
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>manifest: parquet/manifest.json
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>built 20 table(s) of spec sections 2.0, 39062 rows
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  sequenceReference                               0  e3e7d2b96baf
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  location                                      176  8b17d4d0e861
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  allele                                        230  dbc7056a155d
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>  …
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  propositionPathogenicity                     3399  4f59dd9944fe
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>  …
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>  evidenceLine                                 6064  038fd5c573b3
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>  scv                                         17562  333222b90a40
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>  vcv                                          2941  ca684960ee57
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>  rcv                                          2548  b7796596ea52
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>manifest: parquet/manifest.json
 </code></pre></div>
 <p>The last column is the start of each file's sha256. Progress lines go to stderr. A delta holds only the records
 that changed that week, so some tables are empty.</p>
@@ -6801,58 +6876,154 @@ that changed that week, so some tables are empty.</p>
   <code>table_spec_sha256</code> as the published set.</li>
 </ul>
 <h3 id="a-full-bundle">A full bundle<a class="headerlink" href="#a-full-bundle" title="Permanent link">&para;</a></h3>
-<p>To build the tables of a whole release, pass a monthly or weekly full bundle (about 4.8 GB compressed, 91.9
-million records in 2026-10-31), such as <code>clinvar-gkm_00-latest.json.gz</code> from
-<a href="../../data-access/monthly-full/">Monthly Full Bundles</a>. Measured by the tool's maintainers on the 2026-10-31 full relabelled as 1.2.0, on
-a 16-core cloud machine with 128 GiB of memory:</p>
+<p>To build the tables of a whole release, pass a monthly or weekly full bundle (about 4.9 GB compressed; 91,973,603
+records in the 2026-11-15 weekly full), such as <code>clinvar-gkm_00-latest.json.gz</code> from
+<a href="../../data-access/monthly-full/">Monthly Full Bundles</a>. It builds on a 16 GB machine; more memory makes it faster.</p>
 <table>
 <thead>
 <tr>
 <th>Command</th>
-<th style="text-align: right;">Time</th>
-<th style="text-align: right;">Peak memory</th>
+<th style="text-align: right;">16 GB machine</th>
+<th style="text-align: right;">128 GiB machine</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>build</code></td>
-<td style="text-align: right;">38 min</td>
-<td style="text-align: right;">65 GiB</td>
+<td style="text-align: right;">3 h 19 min, 10.0 GiB peak</td>
+<td style="text-align: right;">38 min, 65 GiB peak</td>
 </tr>
 <tr>
 <td><code>verify --bundle-recompute</code></td>
-<td style="text-align: right;">9 min</td>
 <td style="text-align: right;"></td>
+<td style="text-align: right;">9 min</td>
 </tr>
 <tr>
 <td><code>verify --roundtrip</code></td>
+<td style="text-align: right;">over 2 h (not run to the end)</td>
 <td style="text-align: right;">30 min</td>
-<td style="text-align: right;"></td>
 </tr>
 <tr>
 <td><code>rebuild</code></td>
-<td style="text-align: right;">20 min</td>
 <td style="text-align: right;"></td>
+<td style="text-align: right;">20 min</td>
 </tr>
 <tr>
 <td><code>validate</code> (<code>rs</code> engine)</td>
-<td style="text-align: right;">11 min</td>
 <td style="text-align: right;"></td>
+<td style="text-align: right;">11 min</td>
 </tr>
 </tbody>
 </table>
-<p>The output is 4.6 GB. Plan for about 65 GB of free working disk for a full build: the staged records and DuckDB's
-spill files go to <code>--work-dir</code> (default: beside <code>--out</code>). A full build was not run on a laptop for this page.</p>
-<p><strong>Memory.</strong> Without <code>--memory-limit</code>, the tool gives DuckDB half the memory the process may use (the machine's, or
-a container's limit when lower), and DuckDB spills to <code>--work-dir</code> past that. On a smaller machine set it
-explicitly, and point <code>--work-dir</code> at a disk with room (replace <code>/big/disk/tmp</code> with a directory on a disk with
-about 65 GB free):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>build<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm_00-latest.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>--out<span class="w"> </span>parquet-full/<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span>--memory-limit<span class="w"> </span>12GB<span class="w"> </span>--work-dir<span class="w"> </span>/big/disk/tmp
+<p>The <strong>16 GB machine</strong> is a Google Cloud <code>e2-standard-4</code> (4 vCPUs, 16 GB of memory, SSD, Debian 12), building the
+2026-11-15 weekly full on 2026-11-22 with the defaults and a <code>--work-dir</code>. The same command for the newest monthly
+(replace <code>/big/disk/tmp</code> with a directory on a disk with about 30 GB free):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>build<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm_00-latest.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>--out<span class="w"> </span>parquet-full/<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span>--work-dir<span class="w"> </span>/big/disk/tmp
 </code></pre></div>
-<p>The limit doesn't change the files: a build that spills writes the same bytes. Full builds have been measured
-only on the 128 GiB machine above; on a smaller one, expect them to take longer. When you need only part of a
-release, cut a mini-bundle instead.</p>
+<p>All 20 tables were written, with no <code>--threads 1</code> needed. The machine as a whole peaked at 11.3 GiB used, with no
+swap. The round trip was stopped after 2 hours, still running, when the measurement ended. The <strong>128 GiB machine</strong>
+figures are the tool maintainers' own, on a 16-core cloud machine, for the 2026-10-31 full relabelled as 1.2.0.</p>
+<p>The output is 4.6 GB. <strong>Disk:</strong> the staged records and DuckDB's spill files go to <code>--work-dir</code> (default: beside
+<code>--out</code>); on the 16 GB machine they peaked at 24 GiB beside the bundle, so plan for about 30 GB free there plus the
+bundle and the output. <code>validate</code> was also run on the laptop, on a full bundle: 24 minutes, with 0 failing records
+(see <a href="#parquet-for-one-weekly-release">Parquet for one weekly release</a>).</p>
+<p><strong>Memory.</strong> Without <code>--memory-limit</code>, the tool gives DuckDB half the memory the process may use (the machine's, or
+a container's limit when lower), and DuckDB spills to <code>--work-dir</code> past that. The limit is DuckDB's, not the
+whole process's: on the 16 GB machine the default gave DuckDB about 7.8 GiB and the process peaked at 10.0 GiB.
+So the default suits a machine the build has to itself. Set <code>--memory-limit</code> lower only when other work needs the
+memory, and leave about 3 GB above it for the rest of the process; a lower limit means more spilling and a slower
+build, and wasn't measured. The limit doesn't change the files: a build that spills writes the same bytes. When
+you need only part of a release, cut a mini-bundle instead.</p>
+<hr />
+<h2 id="parquet-for-one-weekly-release">Parquet for one weekly release<a class="headerlink" href="#parquet-for-one-weekly-release" title="Permanent link">&para;</a></h2>
+<p><code>build</code> reads one bundle (<code>--full</code>), so a full set of tables for one week is built from that week's full bundle:</p>
+<table>
+<thead>
+<tr>
+<th>The week</th>
+<th>How</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The newest release</td>
+<td>Already published at <code>v1/1.2/parquet/</code>; see <a href="../../data-access/parquet/">Parquet Files</a></td>
+</tr>
+<tr>
+<td>A week in the current month</td>
+<td>Download its weekly full from <code>v1/1.2/weekly/</code> (<a href="../../data-access/weekly-full/">Weekly Full Bundles</a>) and <code>build --full</code> it</td>
+</tr>
+<tr>
+<td>Any earlier week</td>
+<td>Rebuild that week's full bundle from a monthly plus deltas (below), then <code>build --full</code> it</td>
+</tr>
+</tbody>
+</table>
+<p>Building any full bundle takes about 3.5 hours on a 16 GB machine, or 40 minutes on a large one
+(<a href="#a-full-bundle">A full bundle</a>). To get only some of the week's records, use its full bundle for
+<a href="#cut-a-mini-bundle">selections</a> instead: <code>select</code> streams it.</p>
+<h3 id="rebuild-a-weeks-full-bundle">Rebuild a week's full bundle<a class="headerlink" href="#rebuild-a-weeks-full-bundle" title="Permanent link">&para;</a></h3>
+<p>Weekly fulls are kept only for the current month. For an earlier week, download
+<a href="../../assets/scripts/replay-bundle.py"><code>replay-bundle.py</code></a>, a script ClinVar-GKM publishes. It needs only <code>python3</code>
+(3.9 or later, standard library), in bash or zsh:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>curl<span class="w"> </span>-fsSO<span class="w"> </span>--retry<span class="w"> </span><span class="m">5</span><span class="w"> </span>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>python3<span class="w"> </span>replay-bundle.py<span class="w"> </span>--release<span class="w"> </span><span class="m">2026</span>-11-15<span class="w"> </span>--plan
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>line v1/1.2, release 2026-11-15
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  monthly clinvar-gkm_2026-11.json.gz (source_release 2026-10-31, 4,881,641,096 bytes)
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  delta   clinvar-gkm-delta_2026-1108.json.gz (60,824,851 bytes)
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>  delta   clinvar-gkm-delta_2026-1115.json.gz (5,355,360 bytes)
+</code></pre></div>
+<p><code>--plan</code> lists what it would use and stops. Without it, the script downloads them and writes the week's bundle:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>python3<span class="w"> </span>replay-bundle.py<span class="w"> </span>--release<span class="w"> </span><span class="m">2026</span>-11-15
+</code></pre></div>
+<p>What it does:</p>
+<ul>
+<li><strong>It picks the bundles from <code>index.json</code></strong> as <a href="../../data-access/weekly-deltas/#rebuild-a-past-week">Rebuild a past week</a>
+  says: the newest official monthly whose <code>source_release</code> is on or before the week (never the <code>00-latest</code>
+  copy), and every delta after that <code>source_release</code>, up to and including the week, in release order. It checks
+  the chain (each delta's <code>baseline_release</code> is the release before it) and stops on a gap.</li>
+<li><strong>It checks every download.</strong> Each bundle's sha256 must match <code>index.json</code>. Downloads are retried, and a
+  partial download resumes. A bundle already in the folder (<code>--dir</code>, default the current one) is used when its
+  sha256 matches, so a monthly you downloaded before isn't downloaded again.</li>
+<li><strong>It needs little memory.</strong> It reads the deltas into memory as text, section by section: each delta's
+  deletes (from its manifest) and then its records. It then streams the monthly once: a record a delta replaced
+  is written from the delta, a deleted one is dropped, any other is copied as it is, and each section ends with
+  the deltas' new records.</li>
+<li><strong>It writes the published layout.</strong> The result, <code>clinvar-gkm_2026-1115.replayed.json.gz</code>, has the same
+  one-record-per-line layout and <code>schema_version</code> as the published bundles, and a <code>.sha256</code> sidecar beside it.</li>
+</ul>
+<p>Measured on the laptop, rebuilding 2026-11-15 from the 2026-11 monthly and the 2026-11-08 and 2026-11-15 deltas
+(1,818,764 records and 1,669,779 deletes): <strong>7.6 minutes</strong> in an empty folder, downloads included (6.4 minutes
+with the monthly already there), 2.2 GB peak memory, a 4.9 GB bundle of 91,973,603 records. Both runs wrote the
+same bytes (sha256 <code>876b41ec…</code>): the output doesn't depend on the run.</p>
+<p><strong>It matches the published weekly full.</strong> Compared with <code>v1/1.2/weekly/clinvar-gkm_2026-1115.json.gz</code> section by
+section, by the record count and the sum of the sha256 of every record line (its key and its text, so the order
+of records doesn't matter), all 20 sections are equal: every record of the rebuilt bundle has the published
+record's exact text. Only the order of the records within a section differs. And the tool reads it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>validate<span class="w"> </span>clinvar-gkm_2026-1115.replayed.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>bundle: clinvar-gkm_2026-1115.replayed.json.gz (sha256 876b41ecb379019726fa1f80124400a6770bde359b33b2f1a787fb14c35436aa, sidecar)
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>version: 1.2.0; schema set sha256 3b3920180d08f3343d7466ce55bbcb95f5cbc467c505a4e03797b8f3c48d6798
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>engine: rs; 10 workers
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>  section                                records  failing cpu ms/rec  compile s
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>  …
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>records: 91,973,603  failing: 0  (1,438.0 s)
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>PASS
+</code></pre></div>
+<p>Then build it, as for any full bundle (<a href="#a-full-bundle">A full bundle</a>; not run on the replayed file for this page,
+which holds the same records as the weekly full measured there):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>build<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm_2026-1115.replayed.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>--out<span class="w"> </span>parquet-2026-1115/
+</code></pre></div>
+<p>For a week of the frozen 1.1 line, add <code>--line v1/1.1</code> to the script, and build with the 1.1.0 schema and column
+set (<a href="../previous-releases/">Parquet for Previous Releases</a>). Tested on 1.1's 2026-10-24 (the 2026-10 monthly and
+four deltas, 91,502,593 records, 7.3 minutes with the downloads), every record matches the published weekly full
+of that week, but not every one byte for byte: 1,461 <code>condition</code> records list their <code>aliases</code> in another order.
+The 1.1 pipeline wrote that array in the order its source gave, which changed between releases (1.2.0 sorts it),
+so a 1.1 replay keeps the order of the monthly and deltas. As sets of values, the tool's round-trip comparison,
+they are identical.</p>
+<hr />
 <hr />
 <h2 id="cut-a-mini-bundle">Cut a mini-bundle<a class="headerlink" href="#cut-a-mini-bundle" title="Permanent link">&para;</a></h2>
 <p>A <strong>selection</strong> starts from rows of one table, the <strong>driver</strong>, and follows the bundle's <code>#/…</code> references to
@@ -6907,17 +7078,17 @@ propositions. Keep <code>--max-depth</code> low whenever the walk can reach a co
 <h3 id="one-submitters-submissions">One submitter's submissions<a class="headerlink" href="#one-submitters-submissions" title="Permanent link">&para;</a></h3>
 <p>Every SCV of one submitter, their propositions and evidence lines, the variants and conditions they are about,
 and the VCV and RCV statements that cite them:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span><span class="k">select</span><span class="w"> </span>--full<span class="w"> </span>clinvar-gkm-delta_2026-1115.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span>--driver<span class="w"> </span>submitter<span class="w"> </span>--where<span class="w"> </span><span class="s2">"name = 'ClinGen Leukodystrophy and Leukoencephalopathy Variant Curation Expert Panel, ClinGen'"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span>--follow<span class="w"> </span>both<span class="w"> </span>--max-depth<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span>--out<span class="w"> </span>leukodystrophy-ep.json.gz
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span><span class="k">select</span><span class="w"> </span>--full<span class="w"> </span>clinvar-gkm-delta_2026-1115.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span>--driver<span class="w"> </span>submitter<span class="w"> </span>--where<span class="w"> </span><span class="s2">"name = 'ClinGen Leukodystrophy and Leukoencephalopathy Variant Curation Expert Panel, ClinGen'"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span>--follow<span class="w"> </span>both<span class="w"> </span>--max-depth<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span>--out<span class="w"> </span>leukodystrophy-ep.json.gz
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>selected 219 record(s) in 5 section(s) from clinvar-gkm-delta_2026-1115.json.gz: leukodystrophy-ep.json.gz (17718 bytes, sha256 989c64af…)
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  submitter                                       1
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  evidenceLine                                   73
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>  scv                                            72
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>  vcv                                             1
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>  rcv                                            72
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>selected 219 record(s) in 5 section(s) from clinvar-gkm-delta_2026-1115.json.gz: leukodystrophy-ep.json.gz (17718 bytes, sha256 989c64af…)
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>  submitter                                       1
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>  evidenceLine                                   73
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>  scv                                            72
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>  vcv                                             1
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>  rcv                                            72
 </code></pre></div>
 <p><strong>1 s</strong> on the delta. From the submitter, depth 1 reaches its SCVs; depth 2 their propositions and the VCV and
 RCV evidence lines that cite them; depth 3 the variants, the conditions and the citing VCV and RCV statements.
@@ -6927,10 +7098,10 @@ unchanged propositions). A selection from a full bundle has none.</p>
 <h3 id="one-variant">One variant<a class="headerlink" href="#one-variant" title="Permanent link">&para;</a></h3>
 <p>A variant's propositions and every statement about them, from a full bundle (<code>clinvar-gkm_00-latest.json.gz</code>,
 from <a href="../../data-access/monthly-full/">Monthly Full Bundles</a>):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span><span class="k">select</span><span class="w"> </span>--full<span class="w"> </span>clinvar-gkm_00-latest.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span>--driver<span class="w"> </span>variation<span class="w"> </span>--ids<span class="w"> </span>clinvar:10,clinvar:51592<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span>--follow<span class="w"> </span><span class="k">in</span><span class="w"> </span>--max-depth<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span>--out<span class="w"> </span>two-variants.json.gz
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span><span class="k">select</span><span class="w"> </span>--full<span class="w"> </span>clinvar-gkm_00-latest.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span>--driver<span class="w"> </span>variation<span class="w"> </span>--ids<span class="w"> </span>clinvar:10,clinvar:51592<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span>--follow<span class="w"> </span><span class="k">in</span><span class="w"> </span>--max-depth<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span>--out<span class="w"> </span>two-variants.json.gz
 </code></pre></div>
 <p><code>--follow in</code> from a variant reaches its propositions (depth 1) and the SCV, VCV and RCV statements about them
 (depth 2). To add what those statements point to (submitters, conditions, the VRS records), run a second
@@ -6941,19 +7112,19 @@ the disk of a full build.</p>
 <h3 id="one-genes-variants">One gene's variants<a class="headerlink" href="#one-genes-variants" title="Permanent link">&para;</a></h3>
 <p>The gene list on each variant points to <code>gene</code>, so <code>--follow in</code> from a gene reaches its variants, then their
 propositions, then the statements:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span><span class="k">select</span><span class="w"> </span>--full<span class="w"> </span>clinvar-gkm_00-latest.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span>--driver<span class="w"> </span>gene<span class="w"> </span>--where<span class="w"> </span><span class="s2">"name = 'MYH7'"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span>--follow<span class="w"> </span><span class="k">in</span><span class="w"> </span>--max-depth<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span>--out<span class="w"> </span>myh7.json.gz
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span><span class="k">select</span><span class="w"> </span>--full<span class="w"> </span>clinvar-gkm_00-latest.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">    </span>--driver<span class="w"> </span>gene<span class="w"> </span>--where<span class="w"> </span><span class="s2">"name = 'MYH7'"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span>--follow<span class="w"> </span><span class="k">in</span><span class="w"> </span>--max-depth<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span>--out<span class="w"> </span>myh7.json.gz
 </code></pre></div>
 <p>This is a full-bundle example: a weekly delta holds only the genes whose records changed. It was not run for
 this page.</p>
 <h3 id="tables-straight-from-a-selection">Tables straight from a selection<a class="headerlink" href="#tables-straight-from-a-selection" title="Permanent link">&para;</a></h3>
 <p><code>build</code> takes the same options and builds the selection's tables directly:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>build<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm-delta_2026-1115.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span>--driver<span class="w"> </span>submitter<span class="w"> </span>--where<span class="w"> </span><span class="s2">"name = 'ClinGen Leukodystrophy and Leukoencephalopathy Variant Curation Expert Panel, ClinGen'"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span>--follow<span class="w"> </span>both<span class="w"> </span>--max-depth<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span>--out<span class="w"> </span>leukodystrophy-ep/
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>build<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm-delta_2026-1115.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">    </span>--driver<span class="w"> </span>submitter<span class="w"> </span>--where<span class="w"> </span><span class="s2">"name = 'ClinGen Leukodystrophy and Leukoencephalopathy Variant Curation Expert Panel, ClinGen'"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">    </span>--follow<span class="w"> </span>both<span class="w"> </span>--max-depth<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">    </span>--out<span class="w"> </span>leukodystrophy-ep/
 </code></pre></div>
 <p><strong>3 s</strong>, 0.3 GB peak memory, 264 KB of tables. Every file records the selection in its key-value metadata
 (<code>gkm_bundle_parquet.selection</code>), and so does <code>manifest.json</code>. <code>verify --bundle-recompute</code> checks such a set
@@ -6962,9 +7133,9 @@ against its mini-bundle. <code>rebuild</code> refuses a set built with <code>--d
 <hr />
 <h2 id="rebuild-the-bundle">Rebuild the bundle<a class="headerlink" href="#rebuild-the-bundle" title="Permanent link">&para;</a></h2>
 <p><code>rebuild</code> turns a full set of tables back into a bundle:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>rebuild<span class="w"> </span>parquet/<span class="w"> </span>-o<span class="w"> </span>rebuilt.json.gz
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>rebuild<span class="w"> </span>parquet/<span class="w"> </span>-o<span class="w"> </span>rebuilt.json.gz
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>rebuilt rebuilt.json.gz: bundle schema 1.2.0, 14 section(s), 39062 records, 68660443 bytes of text, records sha256 473016fd65cf2b61a81c04487597fa6f4b2a6cdea71ee694a14e6b518cb66927 (matches the manifest's records_sha256 and every section's section_records_sha256: record-identical to the source)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>rebuilt rebuilt.json.gz: bundle schema 1.2.0, 14 section(s), 39062 records, 68660443 bytes of text, records sha256 473016fd65cf2b61a81c04487597fa6f4b2a6cdea71ee694a14e6b518cb66927 (matches the manifest's records_sha256 and every section's section_records_sha256: record-identical to the source)
 </code></pre></div>
 <p><strong>5 s</strong>, 0.7 GB peak memory, a 4 MB bundle. It needs every table, <code>manifest.json</code> and <code>table-spec.json</code>, but neither the
 schema nor the source bundle. <strong>Record-identical</strong> means each rebuilt record has the same canonical JSON as its
@@ -6974,13 +7145,15 @@ anyone can recompute from a bundle with a JSON parser and sha256; the tool's
 <a href="https://github.com/clingen-data-model/gkm-bundle-parquet/blob/main/docs/round-trip.md">round-trip.md</a> defines it.</p>
 <hr />
 <h2 id="verify-a-set-of-tables">Verify a set of tables<a class="headerlink" href="#verify-a-set-of-tables" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>verify<span class="w"> </span>parquet/<span class="w">                                                                </span><span class="c1"># the directory alone</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>verify<span class="w"> </span>parquet/<span class="w"> </span>--roundtrip<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm-delta_2026-1115.json.gz<span class="w">                 </span><span class="c1"># rebuild and compare</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>verify<span class="w"> </span>parquet/<span class="w"> </span>--bundle-recompute<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm-delta_2026-1115.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="c1"># recompute every value</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>verify<span class="w"> </span>parquet/
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>verify<span class="w"> </span>parquet/<span class="w"> </span>--roundtrip<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm-delta_2026-1115.json.gz
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>verify<span class="w"> </span>parquet/<span class="w"> </span>--bundle-recompute<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm-delta_2026-1115.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>verify pass: directory check: 0 problem(s)
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>verify pass: directory check: 0 problem(s); round trip: identical
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>verify pass: directory check: 0 problem(s); bundle recompute: 0 group(s) differ
+<p>The first checks the directory alone, the second rebuilds the records and compares them with the bundle's, and
+the third recomputes every value from the bundle:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>verify pass: directory check: 0 problem(s)
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>verify pass: directory check: 0 problem(s); round trip: identical
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>verify pass: directory check: 0 problem(s); bundle recompute: 0 group(s) differ
 </code></pre></div>
 <table>
 <thead>
@@ -7013,18 +7186,18 @@ the bundle of the same release.</p>
 <hr />
 <h2 id="validate-a-bundle">Validate a bundle<a class="headerlink" href="#validate-a-bundle" title="Permanent link">&para;</a></h2>
 <p><code>validate</code> checks every record against the bundle's JSON Schema, each record on its own:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>validate<span class="w"> </span>clinvar-gkm-delta_2026-1115.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>validate<span class="w"> </span>clinvar-gkm-delta_2026-1115.json.gz<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>bundle: clinvar-gkm-delta_2026-1115.json.gz (sha256 b370d385…, sidecar)
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>version: 1.2.0; schema set sha256 3b392018…
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>engine: rs; 10 workers
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>  section                                records  failing cpu ms/rec  compile s
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>  …
-<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>  scv                                     17,562        0      0.050        0.0
-<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>  vcv                                      2,941        0      0.069        0.0
-<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>  rcv                                      2,548        0      0.079        0.0
-<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>records: 39,062  failing: 0  (3.7 s)
-<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>PASS
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>bundle: clinvar-gkm-delta_2026-1115.json.gz (sha256 b370d385…, sidecar)
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>version: 1.2.0; schema set sha256 3b392018…
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>engine: rs; 10 workers
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>  section                                records  failing cpu ms/rec  compile s
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>  …
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>  scv                                     17,562        0      0.050        0.0
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>  vcv                                      2,941        0      0.069        0.0
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>  rcv                                      2,548        0      0.079        0.0
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>records: 39,062  failing: 0  (3.7 s)
+<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a>PASS
 </code></pre></div>
 <p><strong>4 s</strong> on the delta. <code>--failures bad.jsonl</code> writes each failing record's section, key and error paths. The
 default engine is <code>jsonschema-rs</code>; <code>--engine python</code> uses the GA4GH GKM Toolkit's validator instead (much
@@ -7033,15 +7206,15 @@ slower; install <code>gkm-bundle-parquet[reference]</code>). Validate a bundle a
 <h2 id="see-the-columns-before-you-build">See the columns before you build<a class="headerlink" href="#see-the-columns-before-you-build" title="Permanent link">&para;</a></h2>
 <p><code>generate</code> writes the column set the tables follow from, and lists every position the schema leaves as JSON
 text or as an IRI without a declared target:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>generate<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>-o<span class="w"> </span>clinvar-gkm-1.2.0.columns.yaml
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>generate<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">P</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>-o<span class="w"> </span>clinvar-gkm-1.2.0.columns.yaml
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="s">"https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json"</span>
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="nt">version_property</span><span class="p">:</span><span class="w"> </span><span class="s">"schema_version"</span>
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="nt">sections</span><span class="p">:</span>
-<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">  </span><span class="nt">sequenceReference</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">type</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">extensions</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">refgetAccession</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">residueAlphabet</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">moleculeType</span><span class="p p-Indicator">}</span>
-<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">  </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">id</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">type</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">digest</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">sequenceReference</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">start</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">end</span><span class="p p-Indicator">}</span>
-<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">  </span><span class="nt">allele</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">id</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">type</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">digest</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">expressions</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">location</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">state</span><span class="p p-Indicator">}</span>
-<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">…</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="s">"https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json"</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="nt">version_property</span><span class="p">:</span><span class="w"> </span><span class="s">"schema_version"</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="nt">sections</span><span class="p">:</span>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="w">  </span><span class="nt">sequenceReference</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">type</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">extensions</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">refgetAccession</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">residueAlphabet</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">moleculeType</span><span class="p p-Indicator">}</span>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="w">  </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">id</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">type</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">digest</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">sequenceReference</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">start</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">end</span><span class="p p-Indicator">}</span>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="w">  </span><span class="nt">allele</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">id</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">type</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">digest</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">expressions</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">location</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">state</span><span class="p p-Indicator">}</span>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">…</span>
 </code></pre></div>
 <p>A column set you write yourself is a <strong>projection</strong>: it narrows the tables (fewer columns, other names) and must
 say <code>projection: &lt;name&gt;</code>. See

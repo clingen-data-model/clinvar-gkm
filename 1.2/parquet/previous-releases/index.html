@@ -6714,13 +6714,17 @@ rather than guess it.</p>
 <p>A <strong>monthly</strong> is a full bundle (4.5 to 4.8 GB compressed, about 90 million records); its <code>source_release</code> is the
 weekly release it holds. The newest monthly is listed twice: under its own name and as
 <code>clinvar-gkm_00-latest.json.gz</code>, a copy of it. A <strong>delta</strong> holds only what changed in one weekly release (2 to
-150 MB). To get a full bundle for a week between monthlies, replay the deltas onto the monthly first; see
-<a href="../../data-access/weekly-deltas/#rebuild-a-past-week">Rebuild a past week</a>.</p>
+150 MB). To get a full bundle for a week between monthlies, replay the deltas onto the monthly first with
+<code>replay-bundle.py --line v1/1.1</code>; see <a href="../build-your-own/#parquet-for-one-weekly-release">Parquet for one weekly release</a>
+and <a href="../../data-access/weekly-deltas/#rebuild-a-past-week">Rebuild a past week</a>.</p>
 <h3 id="2-download-it-and-check-its-sha256">2. Download it and check its sha256<a class="headerlink" href="#2-download-it-and-check-its-sha256" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">B</span><span class="o">=</span>v1/1.1/deltas/2026-09/clinvar-gkm-delta_2026-0928.json.gz<span class="w">     </span><span class="c1"># a path from step 1</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">B</span><span class="o">=</span>v1/1.1/deltas/2026-09/clinvar-gkm-delta_2026-0928.json.gz
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-f<span class="w"> </span>--retry<span class="w"> </span><span class="m">5</span><span class="w"> </span>-O<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/</span><span class="nv">$B</span><span class="s2">"</span><span class="w"> </span>-O<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/</span><span class="nv">$B</span><span class="s2">.sha256"</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>shasum<span class="w"> </span>-a<span class="w"> </span><span class="m">256</span><span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span><span class="k">$(</span>basename<span class="w"> </span><span class="s2">"</span><span class="nv">$B</span><span class="s2">"</span><span class="k">)</span><span class="s2">.sha256"</span><span class="w">                       </span><span class="c1"># sha256sum -c on Linux</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>shasum<span class="w"> </span>-a<span class="w"> </span><span class="m">256</span><span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span><span class="k">$(</span>basename<span class="w"> </span><span class="s2">"</span><span class="nv">$B</span><span class="s2">"</span><span class="k">)</span><span class="s2">.sha256"</span>
 </code></pre></div>
+<p><code>B</code> is a path from step 1. On Linux, <code>sha256sum -c</code> does the same as <code>shasum -a 256 -c</code>. The commands on this
+page hold no <code>#</code> comments: zsh, unlike bash, reads <code>#</code> in a pasted command as text unless
+<code>setopt interactivecomments</code> is on.</p>
 <h3 id="build">3. Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>build<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm-delta_2026-0928.json.gz<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span>--bundle-schema<span class="w"> </span>https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json<span class="w"> </span><span class="se">\</span>
@@ -6778,37 +6782,56 @@ To keep the rebuilt bundle, run <code>rebuild parquet/ -o rebuilt.json.gz</code>
 <td>a 16 GB laptop</td>
 </tr>
 <tr>
-<td>a monthly, about 90 million records</td>
+<td>a full bundle, about 92 million records</td>
+<td style="text-align: right;">3 h 19 min, 10.0 GiB</td>
+<td style="text-align: right;">over 2 h</td>
+<td>a 16 GB cloud machine</td>
+</tr>
+<tr>
+<td>a full bundle, about 92 million records</td>
 <td style="text-align: right;">38 min, 65 GiB</td>
 <td style="text-align: right;">30 min</td>
 <td>a 128 GiB machine</td>
 </tr>
 </tbody>
 </table>
-<p>Every delta builds on a laptop. A monthly needs a large machine: the full-bundle figures are the tool's own
-measurements of a 1.2.0 full (<a href="../build-your-own/#a-full-bundle">A full bundle</a>), and a 1.1.0 full with this
-column set is the same size of job. On a smaller machine, pass <code>--memory-limit</code> and a <code>--work-dir</code> with about
-65 GB free, and expect a much longer run; a monthly was not built on a laptop for this page. If you need only
+<p>Every delta builds on a laptop. The full-bundle figures are for the 1.2 line's 2026-11-15 weekly full
+(<a href="../build-your-own/#a-full-bundle">A full bundle</a>); a 1.1.0 monthly with this column set is the same size of job.
+On a 16 GB machine it needs about 30 GB free in <code>--work-dir</code> and a few hours; a monthly was not built on a laptop
+for this page. If you need only
 part of a release, <a href="../build-your-own/#cut-a-mini-bundle">cut a mini-bundle</a> instead: <code>select</code> takes the same
 <code>--bundle-schema</code> and <code>--column-set</code>.</p>
 <hr />
 <h2 id="what-is-verified">What is verified<a class="headerlink" href="#what-is-verified" title="Permanent link">&para;</a></h2>
-<p>Run on 2026-11-20 with <code>gkm-bundle-parquet</code> 2.0.0, the published 1.1.0 column set and the 1.1.0 schema URL:</p>
+<p>Run on 2026-11-20 and 2026-11-21 with <code>gkm-bundle-parquet</code> 2.0.0, the published 1.1.0 column set and the 1.1.0
+schema URL. No monthly was built whole (a job of hours, as above); the two monthlies at the ends of the line
+were scanned instead, and every other <code>v1/1.1/</code> bundle is made of their records and the deltas':</p>
 <ul>
 <li><strong>Every published <code>v1/1.1/</code> delta</strong> (18 deltas, 2026-07-06 to 2026-10-31, 10,267,303 records):
   each built, <code>rebuild</code> reported it record-identical to the source, <code>verify --roundtrip --full</code> passed, and a
   separate record-by-record comparison of the rebuilt bundle with the source, keeping array order, found no
   difference. The 2026-08-16 delta needed <code>--threads 1</code> (see the note under <a href="#build">Build</a>).</li>
 <li><strong>The newest monthly</strong>, <code>clinvar-gkm_2026-11.json.gz</code> (source release 2026-10-31, 91,854,927 records), was
-  not built: that needs a large machine. Instead it was streamed once, and every property each record holds was
-  listed with the JSON kind of its value and the section each <code>#/…</code> pointer names, then compared with what the
-  verified deltas hold. 528 records hold something no delta holds: the 38 <code>therapy</code> and 10 <code>therapyGroup</code>
-  records, 463 somatic clinical impact propositions that point to a therapy, a therapy group or a condition set
-  or carry a condition qualifier,
-  and 17 statements and evidence lines with a method or condition extension no delta has. Built on their own
-  with the column set, those 528 round-trip identically. Every other record holds only what the verified deltas
-  hold. The scan took 26 minutes on the laptop.</li>
+  streamed once, and every property each record holds was listed with the JSON kind of its value and the
+  section each <code>#/…</code> pointer names, then compared with what the verified deltas hold. 528 records hold something
+  no delta holds: the 38 <code>therapy</code> and 10 <code>therapyGroup</code> records, 463 somatic clinical impact propositions that
+  point to a therapy, a therapy group or a condition set or carry a condition qualifier, and 17 statements and
+  evidence lines with a method or condition extension no delta has. Built on their own with the column set,
+  those 528 round-trip identically. Every other record holds only what the verified deltas hold. The scan took
+  26 minutes on the laptop.</li>
+<li><strong>The oldest monthly</strong>, <code>clinvar-gkm_2026-07.json.gz</code> (source release 2026-06-27, 86,810,319 records), was
+  streamed the same way on 2026-11-21: no key appears twice, and its sha256 matches its sidecar. Compared with
+  what the verified deltas and the 2026-11 monthly hold, 14 <code>variation</code> records hold something new: extensions
+  nested inside a <code>nucleotideExpression</code> (for example <code>invalidClinvarExpression</code> with a string value, and
+  <code>expressionMerged</code> with a boolean). Built on their own with the column set, those 14 round-trip identically
+  (<code>verify --roundtrip --full</code> identical; <code>rebuild</code> record-identical).</li>
+<li><strong>The monthlies between</strong> (2026-08, 2026-09 and 2026-10) were not scanned on their own. Each equals the
+  2026-07 monthly plus the deltas after it, as the delta-reconstruction check proved for each release when it
+  was published, so each of their records is a record of the 2026-07 monthly or of a verified delta.</li>
 </ul>
+<p>So every record any published <code>v1/1.1/</code> bundle holds is covered by the 2026-07 and 2026-11 monthlies and the 18
+deltas, and no published 1.1 bundle stops the build. A full bundle you
+<a href="../build-your-own/#parquet-for-one-weekly-release">rebuild for one week</a> is made of the same records.</p>
 <hr />
 <h2 id="the-10-line">The 1.0 line<a class="headerlink" href="#the-10-line" title="Permanent link">&para;</a></h2>
 <p>The 1.0 line (<code>v1/1.0/</code>, schema <code>1.0.1</code>) can't be built with <code>gkm-bundle-parquet</code>, with or without a column

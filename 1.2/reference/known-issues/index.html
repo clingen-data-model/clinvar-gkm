@@ -6621,7 +6621,7 @@ codes case-insensitively until the lookup is fixed upstream. See
 <h2 id="past-parquet-is-built-not-downloaded">Past Parquet is built, not downloaded<a class="headerlink" href="#past-parquet-is-built-not-downloaded" title="Permanent link">&para;</a></h2>
 <p>Only the latest Parquet set of each live line is published. Tables for an earlier release are built from its
 bundle with <a href="https://github.com/clingen-data-model/gkm-bundle-parquet"><code>gkm-bundle-parquet</code></a> (2.0.0 on PyPI),
-which needs about 65 GiB of memory for a full bundle; a mini-bundle of the records you need takes far less. See
+which builds a full bundle in about 3.5 hours on a 16 GB machine, or 40 minutes on a 128 GiB one; a mini-bundle of the records you need takes far less. See
 <a href="../../parquet/build-your-own/">Build Your Own Tables and Mini-Bundles</a>.</p>
 <hr />
 <p>Additional edge cases, transformation caveats, and specific limitations will be documented here as they are

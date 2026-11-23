@@ -6652,8 +6652,15 @@
 <a id="__codelineno-4-69" name="__codelineno-4-69" href="#__codelineno-4-69"></a>
 <a id="__codelineno-4-70" name="__codelineno-4-70" href="#__codelineno-4-70"></a><span class="c1"># `state` now holds the full bundle at release W (prev == W when W is a published release).</span>
 </code></pre></div>
-<p>The recipe shows the logic. A monthly full is about 4.8 GB compressed and much larger as Python objects, so for real use stream the sections to disk or a database instead of holding them in memory.</p>
+<p>The recipe shows the logic. It holds the whole bundle in memory (about 92 million records, far more than a 16 GB machine has) and writes no file, so use the script below to rebuild a week for real.</p>
 </details>
+<p>To write a week's full bundle to disk without holding it in memory, use <a href="../../assets/scripts/replay-bundle.py"><code>replay-bundle.py</code></a>. It follows the rules above (the monthly, the deltas by release date, the chain check), checks each download's sha256 against <code>index.json</code>, keeps only the deltas' records in memory, streams the monthly once, and writes the bundle in the published layout with a <code>.sha256</code> sidecar. It needs only <code>python3</code> (3.9 or later, standard library):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>curl<span class="w"> </span>-fsSO<span class="w"> </span>--retry<span class="w"> </span><span class="m">5</span><span class="w"> </span>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>python3<span class="w"> </span>replay-bundle.py<span class="w"> </span>--release<span class="w"> </span><span class="m">2026</span>-11-15<span class="w"> </span>--plan
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>python3<span class="w"> </span>replay-bundle.py<span class="w"> </span>--release<span class="w"> </span><span class="m">2026</span>-11-15
+</code></pre></div>
+<p>The first lists the monthly and deltas it would use; the second downloads them, replays the deltas and writes <code>clinvar-gkm_2026-1115.replayed.json.gz</code>.</p>
+<p>For a week of the frozen 1.1 line, add <code>--line v1/1.1</code>. The <a href="../../parquet/build-your-own/#parquet-for-one-weekly-release">Parquet for one weekly release</a> section measures it and builds tables from the result.</p>
 
 
 
