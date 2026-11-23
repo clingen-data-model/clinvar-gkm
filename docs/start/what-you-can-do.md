@@ -117,7 +117,7 @@ page that already covers them.
     **Why it is hard with ClinVar XML:** you would have to rebuild the submission-to-variant links and ClinVar's
     precedence rules before changing one of them.
 
-    **Try it:** [Re-run the aggregation](#own-rules) (tested below) ·
+    **Try it:** [Re-run the aggregation](#own-rules) (CLI; tested below) ·
     **Concept:** [VCV aggregation](../reference/glossary.md#vcv-aggregation)
 
 -   **Why is a variant conflicting, and who disagrees?**
@@ -146,7 +146,7 @@ page that already covers them.
     **Why it is hard with ClinVar XML:** the XML gives the submitted trait and the RCV's trait, not how one was
     matched to the other.
 
-    **Try it:** [Measure condition-mapping quality](#condition-mapping-quality) (tested below) ·
+    **Try it:** [Measure condition-mapping quality](#condition-mapping-quality) (CLI; tested below) ·
     **Concept:** [SubmittedCondition](../output-reference/scv-statements.md#submittedcondition)
 
 -   **Where does a submitter's gene differ from the variant's gene?**
@@ -191,7 +191,7 @@ page that already covers them.
     **Why it is hard with ClinVar XML:** each release is a new full file; finding what changed means diffing two
     of them yourself.
 
-    **Try it:** [A weekly reclassification alert](#weekly-alert) (tested below) ·
+    **Try it:** [A weekly reclassification alert](#weekly-alert) (CLI; tested below) ·
     [Keep Your Data Current](../data-access/keep-current.md) ·
     **Concept:** [The delta manifest](../data-access/weekly-deltas.md#manifestjson)
 
@@ -215,7 +215,7 @@ page that already covers them.
     **Why it is hard with ClinVar XML:** drugs, drug combinations and the tumor context are free-text parts of a
     somatic submission, not linked records.
 
-    **Try it:** [Drug response in a tumor type](#drug-response) (tested below; runs in the
+    **Try it:** [Drug response in a tumor type](#drug-response) (console or CLI; tested below; runs in the
     [live console](../parquet/index.md#run-a-query-now)) ·
     **Concept:** [`propositionSomaticClinicalImpact`](../parquet/tables.md#propositionSomaticClinicalImpact)
 
@@ -331,7 +331,7 @@ page that already covers them.
     **Why it is hard with ClinVar XML:** two releases of XML in two shapes, each parsed and normalized, before
     any comparison.
 
-    **Try it:** [Compare classifications across releases](#compare-releases) (tested below) ·
+    **Try it:** [Compare classifications across releases](#compare-releases) (CLI; tested below) ·
     [Track Change Over Time](../build/track-change.md) ·
     **Concept:** [Previous Releases](../data-access/previous-releases.md)
 
@@ -426,7 +426,7 @@ submissions), lets the highest level win, and treats only *P/LP* against *B/LB* 
 significance* submission no longer blocks a call. It then counts the variants whose call differs from ClinVar's.
 The lines marked `-- <-` are the rules; change them to try your own.
 
-Tables: `scv.parquet` (785 MB), `propositionPathogenicity.parquet` (403 MB), `vcv.parquet` (148 MB). About 5
+**CLI.** Tables: `scv.parquet` (785 MB), `propositionPathogenicity.parquet` (403 MB), `vcv.parquet` (148 MB). About 5
 seconds on a laptop.
 
 ```sql
@@ -509,7 +509,7 @@ extension:
 - `original_medgen_match`: set when the submitted MedGen concept was remapped to a different one.
 - `direct_match`: set when the condition the submitted reference matched directly differs from the final one.
 
-Tables: `scv.parquet` (785 MB). About 10 seconds.
+**CLI.** Tables: `scv.parquet` (785 MB). About 10 seconds.
 
 ```sql
 WITH sc AS (
@@ -584,7 +584,7 @@ a combination of drugs given together, in a tumor type. Each such claim is a the
 its `object` is a `therapy` or a `therapyGroup` (a combination, `membershipOperator` `AND`), and its
 `conditionQualifier` is the tumor type.
 
-This query reads four small tables from the published URLs (about 2 MB together), so it runs in the
+**Console or CLI.** This query reads four small tables from the published URLs (about 2 MB together), so it runs in the
 [live console](../parquet/index.md#run-a-query-now) (about 2 seconds) as well as the DuckDB CLI:
 
 ```sql
@@ -634,7 +634,7 @@ manifest's `deleted` list and a record with the same accession and statement cod
 the old key up in last week's `vcv` table, and compare the calls. A new version doesn't always mean a new call:
 most version bumps are a new or updated submission that leaves the call as it was.
 
-You need:
+**CLI.** You need:
 
 - **Last week's `vcv.parquet`**, in a folder `last-week/`: the published file you downloaded the week before, or
   the copy you keep current ([Keep Your Data Current](../data-access/keep-current.md)). For a week whose Parquet is
@@ -709,7 +709,7 @@ ClinVar-GKM's history starts with the **2026-06-27** release: the oldest monthly
 line. Every release since then can be compared with today's, from a monthly, or a monthly plus the weekly deltas
 after it. Earlier ClinVar releases are not published in this form.
 
-The published Parquet is only the current release. For a past one, build the table you need from its bundle.
+**CLI.** The published Parquet is only the current release. For a past one, build the table you need from its bundle.
 Here, only the germline pathogenicity root statements of the 2026-07 monthly, with
 [`gkm-bundle-parquet`](../parquet/build-your-own.md) and the
 [1.1.0 column set](../parquet/previous-releases.md#the-110-column-set) (the monthly is in the 1.1 line):
