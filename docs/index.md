@@ -63,7 +63,7 @@ New releases are produced within a day or two after ClinVar's XML releases and a
 The latest ClinVar-GKM release is available as a single compressed JSON file:
 
 !!! note "Prerequisites"
-    **curl**. Each full bundle is about 4.9 GB compressed and 68.5 GB decompressed, so decompress one only if you have the disk; tools can read the `.gz` directly, streamed with `gunzip -c` ([Output File](data-access/output-files.md#count-records-in-a-full-bundle)).
+    **curl**. Each full bundle is about 4.9 GB compressed and 68.5 GB decompressed, so decompress one only if you have the disk; tools can read the `.gz` directly, streamed with `gunzip -c` ([Count records in a full bundle](data-access/download.md#count-records-in-a-full-bundle)).
 
 ```bash
 # Download the newest official monthly release
