@@ -19,8 +19,8 @@ from the published JSON bundle. You can run the same tool yourself to:
 
 !!! note "Prerequisites"
     - **Python 3.10 or later** (tested with 3.14.5), and one way to run the tool:
-      [uv](https://docs.astral.sh/uv/getting-started/installation/) (`uvx`),
-      [pipx](https://pipx.pypa.io/stable/), or `pip` in a virtual environment of your own. See
+      [uv](https://docs.astral.sh/uv/getting-started/installation/) (`uvx`, as the examples are written; tested
+      with 0.6.14), [pipx](https://pipx.pypa.io/stable/), or `pip` in a virtual environment of your own. See
       [Install](#install).
     - **bash or zsh.** The commands work in both, on macOS and Linux.
     - **A bundle.** The examples read the **2026-11-15 weekly delta**,
@@ -45,13 +45,14 @@ from the published JSON bundle. You can run the same tool yourself to:
 
 ```bash
 uvx gkm-bundle-parquet@2.0.0 version          # run a pinned release with no install
-pipx install gkm-bundle-parquet==2.0.0        # or install the command
+uv tool install gkm-bundle-parquet==2.0.0     # or install the command with uv
+pipx install gkm-bundle-parquet==2.0.0        # or with pipx
 pip install gkm-bundle-parquet==2.0.0         # or into a virtual environment of your own
 ```
 
-DuckDB is pinned exactly (1.5.4), because the bytes of the files depend on it, so `uvx` or `pipx` keep it apart
-from a DuckDB you use for queries. The examples below write `gkm-bundle-parquet`; with `uvx`, put
-`uvx gkm-bundle-parquet@2.0.0` in its place.
+DuckDB is pinned exactly (1.5.4), because the bytes of the files depend on it, so `uvx`, `uv tool` or `pipx` keep
+it apart from a DuckDB you use for queries. The examples below run the tool with `uvx gkm-bundle-parquet@2.0.0`,
+which needs no install. With the command installed, write `gkm-bundle-parquet` in its place.
 
 ---
 
@@ -107,7 +108,7 @@ curl -fO "https://data.clinvar-gkm.org/${DELTA}.sha256"
 (uses `P` from [Name the bundle's schema](#name-the-bundles-schema)):
 
 ```bash
-gkm-bundle-parquet build --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}" --out parquet/
+uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}" --out parquet/
 ```
 
 ```text
@@ -161,7 +162,7 @@ explicitly, and point `--work-dir` at a disk with room (replace `/big/disk/tmp` 
 about 65 GB free):
 
 ```bash
-gkm-bundle-parquet build --full clinvar-gkm_00-latest.json.gz "${P[@]}" --out parquet-full/ \
+uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm_00-latest.json.gz "${P[@]}" --out parquet-full/ \
     --memory-limit 12GB --work-dir /big/disk/tmp
 ```
 
@@ -199,7 +200,7 @@ Every SCV of one submitter, their propositions and evidence lines, the variants 
 and the VCV and RCV statements that cite them:
 
 ```bash
-gkm-bundle-parquet select --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}" \
+uvx gkm-bundle-parquet@2.0.0 select --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}" \
     --driver submitter --where "name = 'ClinGen Leukodystrophy and Leukoencephalopathy Variant Curation Expert Panel, ClinGen'" \
     --follow both --max-depth 3 \
     --out leukodystrophy-ep.json.gz
@@ -226,7 +227,7 @@ A variant's propositions and every statement about them, from a full bundle (`cl
 from [Monthly Full Bundles](../data-access/monthly-full.md)):
 
 ```bash
-gkm-bundle-parquet select --full clinvar-gkm_00-latest.json.gz "${P[@]}" \
+uvx gkm-bundle-parquet@2.0.0 select --full clinvar-gkm_00-latest.json.gz "${P[@]}" \
     --driver variation --ids clinvar:10,clinvar:51592 \
     --follow in --max-depth 2 \
     --out two-variants.json.gz
@@ -246,7 +247,7 @@ The gene list on each variant points to `gene`, so `--follow in` from a gene rea
 propositions, then the statements:
 
 ```bash
-gkm-bundle-parquet select --full clinvar-gkm_00-latest.json.gz "${P[@]}" \
+uvx gkm-bundle-parquet@2.0.0 select --full clinvar-gkm_00-latest.json.gz "${P[@]}" \
     --driver gene --where "name = 'MYH7'" \
     --follow in --max-depth 3 \
     --out myh7.json.gz
@@ -260,7 +261,7 @@ this page.
 `build` takes the same options and builds the selection's tables directly:
 
 ```bash
-gkm-bundle-parquet build --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}" \
+uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}" \
     --driver submitter --where "name = 'ClinGen Leukodystrophy and Leukoencephalopathy Variant Curation Expert Panel, ClinGen'" \
     --follow both --max-depth 3 \
     --out leukodystrophy-ep/
@@ -278,7 +279,7 @@ against its mini-bundle. `rebuild` refuses a set built with `--driver`; to get t
 `rebuild` turns a full set of tables back into a bundle:
 
 ```bash
-gkm-bundle-parquet rebuild parquet/ -o rebuilt.json.gz
+uvx gkm-bundle-parquet@2.0.0 rebuild parquet/ -o rebuilt.json.gz
 ```
 
 ```text
@@ -297,9 +298,9 @@ anyone can recompute from a bundle with a JSON parser and sha256; the tool's
 ## Verify a set of tables
 
 ```bash
-gkm-bundle-parquet verify parquet/                                                                # the directory alone
-gkm-bundle-parquet verify parquet/ --roundtrip --full clinvar-gkm-delta_2026-1115.json.gz                 # rebuild and compare
-gkm-bundle-parquet verify parquet/ --bundle-recompute --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}" # recompute every value
+uvx gkm-bundle-parquet@2.0.0 verify parquet/                                                                # the directory alone
+uvx gkm-bundle-parquet@2.0.0 verify parquet/ --roundtrip --full clinvar-gkm-delta_2026-1115.json.gz                 # rebuild and compare
+uvx gkm-bundle-parquet@2.0.0 verify parquet/ --bundle-recompute --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}" # recompute every value
 ```
 
 ```text
@@ -324,7 +325,7 @@ the bundle of the same release.
 `validate` checks every record against the bundle's JSON Schema, each record on its own:
 
 ```bash
-gkm-bundle-parquet validate clinvar-gkm-delta_2026-1115.json.gz "${P[@]}"
+uvx gkm-bundle-parquet@2.0.0 validate clinvar-gkm-delta_2026-1115.json.gz "${P[@]}"
 ```
 
 ```text
@@ -352,7 +353,7 @@ slower; install `gkm-bundle-parquet[reference]`). Validate a bundle against its 
 text or as an IRI without a declared target:
 
 ```bash
-gkm-bundle-parquet generate "${P[@]}" -o clinvar-gkm-1.2.0.columns.yaml
+uvx gkm-bundle-parquet@2.0.0 generate "${P[@]}" -o clinvar-gkm-1.2.0.columns.yaml
 ```
 
 ```yaml
