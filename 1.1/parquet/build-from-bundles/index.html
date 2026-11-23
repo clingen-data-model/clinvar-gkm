@@ -3070,6 +3070,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#parquet-for-one-weekly-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Parquet for one weekly release
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#time-and-memory" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -4914,6 +4925,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#parquet-for-one-weekly-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Parquet for one weekly release
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#time-and-memory" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -5068,10 +5090,11 @@ weekly release it holds. The newest monthly is listed twice: under its own name 
 150 MB). To get a full bundle for a week between monthlies, replay the deltas onto the monthly first; see
 <a href="../../data-access/weekly-deltas/#rebuild-a-past-week">Rebuild a past week</a>.</p>
 <h3 id="2-download-it-and-check-its-sha256">2. Download it and check its sha256<a class="headerlink" href="#2-download-it-and-check-its-sha256" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">B</span><span class="o">=</span>v1/1.1/deltas/2026-09/clinvar-gkm-delta_2026-0928.json.gz<span class="w">     </span><span class="c1"># a path from step 1</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">B</span><span class="o">=</span>v1/1.1/deltas/2026-09/clinvar-gkm-delta_2026-0928.json.gz
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-f<span class="w"> </span>--retry<span class="w"> </span><span class="m">5</span><span class="w"> </span>-O<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/</span><span class="nv">$B</span><span class="s2">"</span><span class="w"> </span>-O<span class="w"> </span><span class="s2">"https://data.clinvar-gkm.org/</span><span class="nv">$B</span><span class="s2">.sha256"</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>shasum<span class="w"> </span>-a<span class="w"> </span><span class="m">256</span><span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span><span class="k">$(</span>basename<span class="w"> </span><span class="s2">"</span><span class="nv">$B</span><span class="s2">"</span><span class="k">)</span><span class="s2">.sha256"</span><span class="w">                       </span><span class="c1"># sha256sum -c on Linux</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>shasum<span class="w"> </span>-a<span class="w"> </span><span class="m">256</span><span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span><span class="k">$(</span>basename<span class="w"> </span><span class="s2">"</span><span class="nv">$B</span><span class="s2">"</span><span class="k">)</span><span class="s2">.sha256"</span>
 </code></pre></div>
+<p><code>B</code> is a path from step 1. On Linux, <code>sha256sum -c</code> does the same as <code>shasum -a 256 -c</code>.</p>
 <h3 id="build">3. Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>build<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm-delta_2026-0928.json.gz<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span>--bundle-schema<span class="w"> </span>https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json<span class="w"> </span><span class="se">\</span>
@@ -5101,6 +5124,39 @@ trip is identical.</p>
 keep the rebuilt bundle, run <code>rebuild parquet/ -o rebuilt.json.gz</code> instead: it ends with
 <code>record-identical to the source</code> when every record matches.</p>
 <hr />
+<h2 id="parquet-for-one-weekly-release">Parquet for one weekly release<a class="headerlink" href="#parquet-for-one-weekly-release" title="Permanent link">&para;</a></h2>
+<p><code>build</code> reads one bundle, so a full set of tables for one week is built from that week's full bundle. A
+monthly is the full bundle of its <code>source_release</code>. For any other 1.1 week, rebuild the week's full bundle from
+a monthly and the deltas after it with
+<a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py"><code>replay-bundle.py</code></a>,
+the script the 1.2 docs publish. It needs only <code>python3</code> (3.9 or later); name the line with <code>--line v1/1.1</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>curl<span class="w"> </span>-fsSO<span class="w"> </span>--retry<span class="w"> </span><span class="m">5</span><span class="w"> </span>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>python3<span class="w"> </span>replay-bundle.py<span class="w"> </span>--line<span class="w"> </span>v1/1.1<span class="w"> </span>--release<span class="w"> </span><span class="m">2026</span>-10-24<span class="w"> </span>--plan
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>python3<span class="w"> </span>replay-bundle.py<span class="w"> </span>--line<span class="w"> </span>v1/1.1<span class="w"> </span>--release<span class="w"> </span><span class="m">2026</span>-10-24
+</code></pre></div>
+<p>The first lists the monthly and deltas it would use; the second downloads them and replays the deltas.</p>
+<p>It picks the monthly and the deltas as <a href="../../data-access/weekly-deltas/#rebuild-a-past-week">Rebuild a past week</a>
+says, refuses a broken chain, checks every download's sha256 against <code>index.json</code>, reuses a file already in the
+folder when its sha256 matches, and writes <code>clinvar-gkm_2026-1024.replayed.json.gz</code> with a <code>.sha256</code> sidecar. It
+keeps only the deltas' records in memory and streams the monthly once.</p>
+<p>Measured on 2026-11-21 on a 16 GB laptop, rebuilding 2026-10-24 from the 2026-10 monthly (source release
+2026-09-28) and the four deltas 2026-10-04 to 2026-10-24: <strong>7.3 minutes</strong> with the downloads (6.2 minutes of
+replay), 2.2 GB peak memory, a 4.8 GB bundle of 91,502,593 records. Compared with the published weekly full
+<code>v1/1.1/weekly/clinvar-gkm_2026-1024.json.gz</code> section by section (record count and the sha256 of every record line,
+in any order), every record matches, and 19 of the 20 sections match byte for byte. In <code>condition</code>, 1,461 records
+list their <code>aliases</code> in another order than that weekly full does. The 1.1 pipeline wrote that array in the order
+its source gave, which changed from one release to the next (1.2.0 sorts it), and the replay keeps the order of
+the monthly and deltas it was built from. With arrays compared as sets of values, as the tool's round trip
+compares them, all 1,461 are identical.</p>
+<p>Then build it as in <a href="#build">Build</a>, with the 1.1.0 schema URL and the column set:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>build<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm_2026-1024.replayed.json.gz<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span>--bundle-schema<span class="w"> </span>https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span>--column-set<span class="w"> </span>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span>--out<span class="w"> </span>parquet-2026-1024/
+</code></pre></div>
+<p>That is a full build: it needs the large machine in <a href="#time-and-memory">Time and memory</a>, and it was not run for
+this page.</p>
+<hr />
 <h2 id="time-and-memory">Time and memory<a class="headerlink" href="#time-and-memory" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -5125,25 +5181,38 @@ keep the rebuilt bundle, run <code>rebuild parquet/ -o rebuilt.json.gz</code> in
 <td>a 16 GB laptop</td>
 </tr>
 <tr>
-<td>a monthly, about 90 million records</td>
+<td>a full bundle, about 92 million records</td>
+<td style="text-align: right;">3 h 19 min, 10.0 GiB</td>
+<td style="text-align: right;">over 2 h</td>
+<td>a 16 GB cloud machine</td>
+</tr>
+<tr>
+<td>a full bundle, about 92 million records</td>
 <td style="text-align: right;">38 min, 65 GiB</td>
 <td style="text-align: right;">30 min</td>
 <td>a 128 GiB machine</td>
 </tr>
 </tbody>
 </table>
-<p>Every delta builds on a laptop. A monthly needs a large machine (the full-bundle figures are the tool's own
-measurements of a full bundle of the same size). On a smaller machine, pass <code>--memory-limit</code> and a <code>--work-dir</code>
-with about 65 GB free, and expect a much longer run.</p>
+<p>Every delta builds on a laptop. The full-bundle figures are for a 1.2 full bundle of the same size (the 2026-11-15
+weekly full; the 16 GB run's round trip was stopped after 2 hours, still running). A monthly builds on a 16 GB
+machine with the default memory settings and about 30 GB free in <code>--work-dir</code>, in a few hours; more memory makes
+it faster. <code>--memory-limit</code> caps DuckDB, not the whole process, so leave about 3 GB above it. The 1.2 docs give
+the details: <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/build-your-own/#a-full-bundle">A full bundle</a>.</p>
 <hr />
 <h2 id="what-is-verified">What is verified<a class="headerlink" href="#what-is-verified" title="Permanent link">&para;</a></h2>
-<p>On 2026-11-20, with <code>gkm-bundle-parquet</code> 2.0.0, the column set and the 1.1.0 schema URL above:</p>
+<p>On 2026-11-20 and 2026-11-21, with <code>gkm-bundle-parquet</code> 2.0.0, the column set and the 1.1.0 schema URL above:</p>
 <ul>
 <li><strong>Every published <code>v1/1.1/</code> delta</strong> (18 deltas, 2026-07-06 to 2026-10-31, 10,267,303 records) built, and the
   round trip was identical.</li>
 <li><strong>The newest monthly</strong>, <code>clinvar-gkm_2026-11.json.gz</code> (91,854,927 records), was scanned for every property its
   records hold; the 528 records holding something no delta holds were built on their own and round-tripped
   identically.</li>
+<li><strong>The oldest monthly</strong>, <code>clinvar-gkm_2026-07.json.gz</code> (86,810,319 records), was scanned the same way; the 14
+  <code>variation</code> records holding something new (extensions nested inside a <code>nucleotideExpression</code>) were built on
+  their own and round-tripped identically.</li>
+<li><strong>The monthlies between</strong> (2026-08 to 2026-10) each equal the 2026-07 monthly plus the deltas after it, so
+  every record any published <code>v1/1.1/</code> bundle holds is covered, and no published 1.1 bundle stops the build.</li>
 </ul>
 <p>The 1.2 docs give the details:
 <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/previous-releases/">Parquet for Previous Releases</a>.</p>
