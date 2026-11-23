@@ -42,4 +42,4 @@ v1/1.2/weekly/
 !!! tip "Monthly, weekly full, or monthly plus deltas?"
     - **The current state:** the newest weekly full.
     - **A fixed monthly snapshot that matches ClinVar's monthly release:** the official monthly.
-    - **Keeping a local copy current without re-downloading a full bundle every week:** the monthly plus the [weekly deltas](weekly-deltas.md).
+    - **Keeping a local copy current without re-downloading a full bundle every week:** the monthly plus the [weekly deltas](weekly-deltas.md), all from one line. When a new line starts, start again from its first monthly ([Consumer Replay Model](weekly-deltas.md#consumer-replay-model)).

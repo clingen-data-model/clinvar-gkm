@@ -3,7 +3,7 @@
 !!! info "Release"
     Row counts and sizes on this page are from a `gkm-bundle-parquet` 2.0.0 build of the **2026-10-31 release**
     with the 1.2.0 schema (decimal units: 1 MB is 1,000,000 bytes). They change with every release; the queries give
-    you today's numbers. The 1.1 tables (`v1/1.1/parquet/`, 22 tables) are described only in
+    you today's numbers. The 1.1 tables (22 tables, published at `v1/1.1/parquet/` until the 1.1 line was frozen) are described only in
     [Moving from the 1.1 Tables](migrating-from-1.1.md).
 
 The Parquet release is **20 tables**, one per bundle section. They fall into six areas that you can learn one at a time. Variants and conditions are the nouns. Propositions say what is claimed about them. Statements say who claimed it, and how confidently.
