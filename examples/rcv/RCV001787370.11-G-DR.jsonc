@@ -2,19 +2,19 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:36871": {
-      "id": "clinvar.trait:36871",
-      "type": "MappableConcept",
       "conceptType": "Condition",
+      "id": "clinvar.trait:36871",
       "name": "ivacaftor / lumacaftor response - Efficacy",
       "primaryCoding": {
-        "name": "ivacaftor / lumacaftor response - Efficacy",
         "code": "CN322746",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
         "iris": [
           "https://identifiers.org/medgen:CN322746",
           "https://www.ncbi.nlm.nih.gov/medgen/CN322746"
-        ]
-      }
+        ],
+        "name": "ivacaftor / lumacaftor response - Efficacy",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     }
   },
   "propositionClinvarCustom": {
@@ -35,48 +35,44 @@
   },
   "evidenceLine": {
     "RCV001787370.11-G-DR-EP.contributing": {
-      "id": "RCV001787370.11-G-DR-EP.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV002031250.1"
-      ]
+      ],
+      "id": "RCV001787370.11-G-DR-EP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "RCV001787370.11-G-DR.contributing": {
-      "id": "RCV001787370.11-G-DR.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/rcv/RCV001787370.11-G-DR-EP"
-      ]
+      ],
+      "id": "RCV001787370.11-G-DR.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     }
   },
   "rcv": {
     "RCV001787370.11-G-DR": {
-      "id": "RCV001787370.11-G-DR",
-      "type": "Statement",
-      "direction": "supports",
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "expert panel"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "drug response"
+        "name": "drug response",
+        "primaryCoding": {
+          "code": "drug response",
+          "system": "ClinVar"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionClinvarCustom/RCV001787370-G-DR",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -85,23 +81,27 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV001787370.11-G-DR.contributing"
-      ]
+      ],
+      "id": "RCV001787370.11-G-DR",
+      "proposition": "#/propositionClinvarCustom/RCV001787370-G-DR",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "expert panel",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "RCV001787370.11-G-DR-EP": {
-      "id": "RCV001787370.11-G-DR-EP",
-      "type": "Statement",
-      "direction": "supports",
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "expert panel"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "drug response"
+        "name": "drug response",
+        "primaryCoding": {
+          "code": "drug response",
+          "system": "ClinVar"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionClinvarCustom/RCV001787370-G-DR-EP",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -110,7 +110,15 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV001787370.11-G-DR-EP.contributing"
-      ]
+      ],
+      "id": "RCV001787370.11-G-DR-EP",
+      "proposition": "#/propositionClinvarCustom/RCV001787370-G-DR-EP",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "expert panel",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     }
   }
 }

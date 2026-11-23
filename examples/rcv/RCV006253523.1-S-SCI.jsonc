@@ -2,32 +2,32 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:67996": {
-      "id": "clinvar.trait:67996",
-      "type": "MappableConcept",
       "conceptType": "Disease",
-      "name": "Diffuse pediatric-type high-grade glioma, H3-wildtype and IDH-wildtype",
-      "primaryCoding": {
-        "name": "Diffuse pediatric-type high-grade glioma, H3-wildtype and IDH-wildtype",
-        "code": "C5669918",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C5669918",
-          "https://www.ncbi.nlm.nih.gov/medgen/C5669918"
-        ]
-      },
+      "id": "clinvar.trait:67996",
       "mappings": [
         {
           "coding": {
             "code": "0858939",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0858939",
               "https://identifiers.org/mondo:0858939"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Diffuse pediatric-type high-grade glioma, H3-wildtype and IDH-wildtype",
+      "primaryCoding": {
+        "code": "C5669918",
+        "iris": [
+          "https://identifiers.org/medgen:C5669918",
+          "https://www.ncbi.nlm.nih.gov/medgen/C5669918"
+        ],
+        "name": "Diffuse pediatric-type high-grade glioma, H3-wildtype and IDH-wildtype",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     }
   },
   "propositionSomaticClinicalImpact": {
@@ -55,114 +55,113 @@
   },
   "evidenceLine": {
     "RCV006253523.1-S-SCI-CP-T1.contributing": {
-      "id": "RCV006253523.1-S-SCI-CP-T1.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV007105405.1"
-      ]
+      ],
+      "id": "RCV006253523.1-S-SCI-CP-T1.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "RCV006253523.1-S-SCI-CP.contributing": {
-      "id": "RCV006253523.1-S-SCI-CP.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/rcv/RCV006253523.1-S-SCI-CP-T1"
-      ]
+      ],
+      "id": "RCV006253523.1-S-SCI-CP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "RCV006253523.1-S-SCI.contributing": {
-      "id": "RCV006253523.1-S-SCI.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/rcv/RCV006253523.1-S-SCI-CP"
-      ]
+      ],
+      "id": "RCV006253523.1-S-SCI.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     }
   },
   "rcv": {
     "RCV006253523.1-S-SCI": {
-      "id": "RCV006253523.1-S-SCI",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Strong"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+        "primaryCoding": {
+          "code": "tier 1",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionSomaticClinicalImpact/RCV006253523-S-SCI",
+      "direction": "supports",
       "hasEvidenceLines": [
         "#/evidenceLine/RCV006253523.1-S-SCI.contributing"
-      ]
+      ],
+      "id": "RCV006253523.1-S-SCI",
+      "proposition": "#/propositionSomaticClinicalImpact/RCV006253523-S-SCI",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Strong",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "RCV006253523.1-S-SCI-CP": {
-      "id": "RCV006253523.1-S-SCI-CP",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Strong"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+        "primaryCoding": {
+          "code": "tier 1",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionSomaticClinicalImpact/RCV006253523-S-SCI-CP",
+      "direction": "supports",
       "hasEvidenceLines": [
         "#/evidenceLine/RCV006253523.1-S-SCI-CP.contributing"
-      ]
+      ],
+      "id": "RCV006253523.1-S-SCI-CP",
+      "proposition": "#/propositionSomaticClinicalImpact/RCV006253523-S-SCI-CP",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Strong",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "RCV006253523.1-S-SCI-CP-T1": {
-      "id": "RCV006253523.1-S-SCI-CP-T1",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Strong"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+        "primaryCoding": {
+          "code": "tier 1",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionSomaticClinicalImpact/RCV006253523-S-SCI-CP-T1",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -171,7 +170,20 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV006253523.1-S-SCI-CP-T1.contributing"
-      ]
+      ],
+      "id": "RCV006253523.1-S-SCI-CP-T1",
+      "proposition": "#/propositionSomaticClinicalImpact/RCV006253523-S-SCI-CP-T1",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Strong",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     }
   }
 }

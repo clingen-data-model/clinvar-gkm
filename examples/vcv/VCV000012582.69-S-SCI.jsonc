@@ -2,600 +2,598 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:10532": {
-      "id": "clinvar.trait:10532",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "Precursor B-cell acute lymphoblastic leukemia",
       "aliases": [
         "B Acute Lymphoblastic Leukemia",
         "Pre-B-cell acute lymphoblastic leukemia"
       ],
-      "primaryCoding": {
-        "name": "Precursor B-cell acute lymphoblastic leukemia",
-        "code": "C0349636",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0349636",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0349636"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:10532",
       "mappings": [
         {
           "coding": {
             "code": "0004812",
-            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0004812",
               "https://identifiers.org/HP:0004812"
-            ]
+            ],
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "0020511",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0020511",
               "https://identifiers.org/mondo:0020511"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "99860",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_99860",
               "https://identifiers.org/orphanet:99860"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "277572006",
-            "system": "https://www.snomed.org/",
             "iris": [
               "https://identifiers.org/snomedct:277572006"
-            ]
+            ],
+            "system": "https://www.snomed.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Precursor B-cell acute lymphoblastic leukemia",
+      "primaryCoding": {
+        "code": "C0349636",
+        "iris": [
+          "https://identifiers.org/medgen:C0349636",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0349636"
+        ],
+        "name": "Precursor B-cell acute lymphoblastic leukemia",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:18479": {
-      "id": "clinvar.trait:18479",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "Glioma",
       "aliases": [
         "Neuroglial tumor"
       ],
-      "primaryCoding": {
-        "name": "Glioma",
-        "code": "C0017638",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0017638",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0017638"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:18479",
       "mappings": [
         {
           "coding": {
             "code": "0009733",
-            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0009733",
               "https://identifiers.org/HP:0009733"
-            ]
+            ],
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "D005910",
-            "system": "https://id.nlm.nih.gov/mesh/",
             "iris": [
               "https://identifiers.org/mesh:D005910",
               "https://www.ncbi.nlm.nih.gov/mesh/?term=D005910"
-            ]
+            ],
+            "system": "https://id.nlm.nih.gov/mesh/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "0021042",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0021042",
               "https://identifiers.org/mondo:0021042"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "PS137800",
-            "system": "https://www.omim.org/phenotypicSeries/",
             "iris": [
               "https://www.omim.org/phenotypicSeries/PS137800"
-            ]
+            ],
+            "system": "https://www.omim.org/phenotypicSeries/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "182067",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_182067",
               "https://identifiers.org/orphanet:182067"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "393564001",
-            "system": "https://www.snomed.org/",
             "iris": [
               "https://identifiers.org/snomedct:393564001"
-            ]
+            ],
+            "system": "https://www.snomed.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Glioma",
+      "primaryCoding": {
+        "code": "C0017638",
+        "iris": [
+          "https://identifiers.org/medgen:C0017638",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0017638"
+        ],
+        "name": "Glioma",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:25813": {
-      "id": "clinvar.trait:25813",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "Embryonal rhabdomyosarcoma",
       "aliases": [
         "Botryoid rhabdomyosarcoma (type of ERMS)",
         "Spindle cell rhabdomyosarcomas (type of ERMS)"
       ],
-      "primaryCoding": {
-        "name": "Embryonal rhabdomyosarcoma",
-        "code": "C0206656",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0206656",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0206656"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:25813",
       "mappings": [
         {
           "coding": {
             "code": "0006743",
-            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0006743",
               "https://identifiers.org/HP:0006743"
-            ]
+            ],
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "0009993",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0009993",
               "https://identifiers.org/mondo:0009993"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "99757",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_99757",
               "https://identifiers.org/orphanet:99757"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Embryonal rhabdomyosarcoma",
+      "primaryCoding": {
+        "code": "C0206656",
+        "iris": [
+          "https://identifiers.org/medgen:C0206656",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0206656"
+        ],
+        "name": "Embryonal rhabdomyosarcoma",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:32349": {
-      "id": "clinvar.trait:32349",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "Colorectal cancer",
       "aliases": [
         "Colorectal cancer, somatic",
         "Malignant Colorectal Neoplasm"
       ],
-      "primaryCoding": {
-        "name": "Colorectal cancer",
-        "code": "C0346629",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0346629",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0346629"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:32349",
       "mappings": [
         {
           "coding": {
             "code": "0005575",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0005575",
               "https://identifiers.org/mondo:0005575"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "NBK1211",
-            "system": "https://www.ncbi.nlm.nih.gov/books/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/books/NBK1211"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/books/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000500646",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000500646"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "114500",
-            "system": "https://www.omim.org/",
             "iris": [
               "https://identifiers.org/mim:114500",
               "https://www.omim.org/entry/114500"
-            ]
+            ],
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Colorectal cancer",
+      "primaryCoding": {
+        "code": "C0346629",
+        "iris": [
+          "https://identifiers.org/medgen:C0346629",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0346629"
+        ],
+        "name": "Colorectal cancer",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:37720": {
-      "id": "clinvar.trait:37720",
-      "type": "MappableConcept",
       "conceptType": "Phenotype",
-      "name": "Adenocarcinoma of the large intestine",
-      "primaryCoding": {
-        "name": "Adenocarcinoma of the large intestine",
-        "code": "C1319315",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C1319315",
-          "https://www.ncbi.nlm.nih.gov/medgen/C1319315"
-        ]
-      },
+      "id": "clinvar.trait:37720",
       "mappings": [
         {
           "coding": {
             "code": "0040275",
-            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0040275",
               "https://identifiers.org/HP:0040275"
-            ]
+            ],
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "0005008",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0005008",
               "https://identifiers.org/mondo:0005008"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Adenocarcinoma of the large intestine",
+      "primaryCoding": {
+        "code": "C1319315",
+        "iris": [
+          "https://identifiers.org/medgen:C1319315",
+          "https://www.ncbi.nlm.nih.gov/medgen/C1319315"
+        ],
+        "name": "Adenocarcinoma of the large intestine",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:4269": {
-      "id": "clinvar.trait:4269",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "Papillary thyroid carcinoma",
       "aliases": [
-        "Thyroid gland papillary carcinoma",
+        "NONMEDULLARY THYROID CARCINOMA, PAPILLARY",
         "Thyroid carcinoma, papillary, somatic",
-        "NONMEDULLARY THYROID CARCINOMA, PAPILLARY"
+        "Thyroid gland papillary carcinoma"
       ],
-      "primaryCoding": {
-        "name": "Papillary thyroid carcinoma",
-        "code": "C0238463",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0238463",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0238463"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:4269",
       "mappings": [
         {
           "coding": {
             "code": "0002895",
-            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0002895",
               "https://identifiers.org/HP:0002895"
-            ]
+            ],
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "D000077273",
-            "system": "https://id.nlm.nih.gov/mesh/",
             "iris": [
               "https://identifiers.org/mesh:D000077273",
               "https://www.ncbi.nlm.nih.gov/mesh/?term=D000077273"
-            ]
+            ],
+            "system": "https://id.nlm.nih.gov/mesh/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "0005075",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0005075",
               "https://identifiers.org/mondo:0005075"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "188550",
-            "system": "https://www.omim.org/",
             "iris": [
               "https://identifiers.org/mim:188550",
               "https://www.omim.org/entry/188550"
-            ]
+            ],
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "146",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_146",
               "https://identifiers.org/orphanet:146"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "255029007",
-            "system": "https://www.snomed.org/",
             "iris": [
               "https://identifiers.org/snomedct:255029007"
-            ]
+            ],
+            "system": "https://www.snomed.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Papillary thyroid carcinoma",
+      "primaryCoding": {
+        "code": "C0238463",
+        "iris": [
+          "https://identifiers.org/medgen:C0238463",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0238463"
+        ],
+        "name": "Papillary thyroid carcinoma",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:4352": {
-      "id": "clinvar.trait:4352",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "Alveolar rhabdomyosarcoma",
       "aliases": [
-        "RHABDOMYOSARCOMA 2",
-        "Alveolar rhabdomyosarcoma (disease)"
+        "Alveolar rhabdomyosarcoma (disease)",
+        "RHABDOMYOSARCOMA 2"
       ],
-      "primaryCoding": {
-        "name": "Alveolar rhabdomyosarcoma",
-        "code": "C0206655",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0206655",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0206655"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:4352",
       "mappings": [
         {
           "coding": {
             "code": "0006779",
-            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0006779",
               "https://identifiers.org/HP:0006779"
-            ]
+            ],
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "0009994",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0009994",
               "https://identifiers.org/mondo:0009994"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "268220",
-            "system": "https://www.omim.org/",
             "iris": [
               "https://identifiers.org/mim:268220",
               "https://www.omim.org/entry/268220"
-            ]
+            ],
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "780",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_780",
               "https://identifiers.org/orphanet:780"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "99756",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_99756",
               "https://identifiers.org/orphanet:99756"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Alveolar rhabdomyosarcoma",
+      "primaryCoding": {
+        "code": "C0206655",
+        "iris": [
+          "https://identifiers.org/medgen:C0206655",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0206655"
+        ],
+        "name": "Alveolar rhabdomyosarcoma",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:44673": {
-      "id": "clinvar.trait:44673",
-      "type": "MappableConcept",
       "conceptType": "Disease",
-      "name": "Ovarian mucinous adenocarcinoma",
-      "primaryCoding": {
-        "name": "Ovarian mucinous adenocarcinoma",
-        "code": "C1335167",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C1335167",
-          "https://www.ncbi.nlm.nih.gov/medgen/C1335167"
-        ]
-      },
+      "id": "clinvar.trait:44673",
       "mappings": [
         {
           "coding": {
             "code": "0005601",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0005601",
               "https://identifiers.org/mondo:0005601"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "398961",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_398961",
               "https://identifiers.org/orphanet:398961"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Ovarian mucinous adenocarcinoma",
+      "primaryCoding": {
+        "code": "C1335167",
+        "iris": [
+          "https://identifiers.org/medgen:C1335167",
+          "https://www.ncbi.nlm.nih.gov/medgen/C1335167"
+        ],
+        "name": "Ovarian mucinous adenocarcinoma",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:67946": {
-      "id": "clinvar.trait:67946",
-      "type": "MappableConcept",
       "conceptType": "Disease",
-      "name": "Medulloblastoma non-WNT/non-SHH",
-      "primaryCoding": {
-        "name": "Medulloblastoma non-WNT/non-SHH",
-        "code": "C4330667",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C4330667",
-          "https://www.ncbi.nlm.nih.gov/medgen/C4330667"
-        ]
-      },
+      "id": "clinvar.trait:67946",
       "mappings": [
         {
           "coding": {
             "code": "0850198",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0850198",
               "https://identifiers.org/mondo:0850198"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Medulloblastoma non-WNT/non-SHH",
+      "primaryCoding": {
+        "code": "C4330667",
+        "iris": [
+          "https://identifiers.org/medgen:C4330667",
+          "https://www.ncbi.nlm.nih.gov/medgen/C4330667"
+        ],
+        "name": "Medulloblastoma non-WNT/non-SHH",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:67996": {
-      "id": "clinvar.trait:67996",
-      "type": "MappableConcept",
       "conceptType": "Disease",
-      "name": "Diffuse pediatric-type high-grade glioma, H3-wildtype and IDH-wildtype",
-      "primaryCoding": {
-        "name": "Diffuse pediatric-type high-grade glioma, H3-wildtype and IDH-wildtype",
-        "code": "C5669918",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C5669918",
-          "https://www.ncbi.nlm.nih.gov/medgen/C5669918"
-        ]
-      },
+      "id": "clinvar.trait:67996",
       "mappings": [
         {
           "coding": {
             "code": "0858939",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0858939",
               "https://identifiers.org/mondo:0858939"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Diffuse pediatric-type high-grade glioma, H3-wildtype and IDH-wildtype",
+      "primaryCoding": {
+        "code": "C5669918",
+        "iris": [
+          "https://identifiers.org/medgen:C5669918",
+          "https://www.ncbi.nlm.nih.gov/medgen/C5669918"
+        ],
+        "name": "Diffuse pediatric-type high-grade glioma, H3-wildtype and IDH-wildtype",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:73010": {
-      "id": "clinvar.trait:73010",
-      "type": "MappableConcept",
       "conceptType": "Disease",
-      "name": "Diffuse midline glioma, H3 K27M-mutant",
-      "primaryCoding": {
-        "name": "Diffuse midline glioma, H3 K27M-mutant",
-        "code": "C4289688",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C4289688",
-          "https://www.ncbi.nlm.nih.gov/medgen/C4289688"
-        ]
-      },
+      "id": "clinvar.trait:73010",
       "mappings": [
         {
           "coding": {
             "code": "0957196",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0957196",
               "https://identifiers.org/mondo:0957196"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Diffuse midline glioma, H3 K27M-mutant",
+      "primaryCoding": {
+        "code": "C4289688",
+        "iris": [
+          "https://identifiers.org/medgen:C4289688",
+          "https://www.ncbi.nlm.nih.gov/medgen/C4289688"
+        ],
+        "name": "Diffuse midline glioma, H3 K27M-mutant",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     }
   },
   "conditionSet": {
     "clinvar.conditionset:vcv-858088cbd92576605b628f50bfea8d5d": {
-      "id": "clinvar.conditionset:vcv-858088cbd92576605b628f50bfea8d5d",
-      "type": "ConceptSet",
       "concepts": [
         "#/condition/clinvar.trait:10532",
         "#/condition/clinvar.trait:18479",
@@ -605,17 +603,19 @@
         "#/condition/clinvar.trait:44673",
         "#/condition/clinvar.trait:67996"
       ],
-      "membershipOperator": "OR"
+      "id": "clinvar.conditionset:vcv-858088cbd92576605b628f50bfea8d5d",
+      "membershipOperator": "OR",
+      "type": "ConceptSet"
     },
     "clinvar.conditionset:vcv-bb7bbe4b9359ca3cee03dda641611e4c": {
-      "id": "clinvar.conditionset:vcv-bb7bbe4b9359ca3cee03dda641611e4c",
-      "type": "ConceptSet",
       "concepts": [
         "#/condition/clinvar.trait:4352",
         "#/condition/clinvar.trait:67946",
         "#/condition/clinvar.trait:73010"
       ],
-      "membershipOperator": "OR"
+      "id": "clinvar.conditionset:vcv-bb7bbe4b9359ca3cee03dda641611e4c",
+      "membershipOperator": "OR",
+      "type": "ConceptSet"
     }
   },
   "propositionSomaticClinicalImpact": {
@@ -664,14 +664,7 @@
   },
   "evidenceLine": {
     "VCV000012582.69-S-SCI-CP-T1.contributing": {
-      "id": "VCV000012582.69-S-SCI-CP-T1.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV007105405.1",
         "#/scv/clinvar.submission:SCV007105406.1",
@@ -680,173 +673,179 @@
         "#/scv/clinvar.submission:SCV007105422.1",
         "#/scv/clinvar.submission:SCV007105432.1",
         "#/scv/clinvar.submission:SCV007105520.1"
-      ]
+      ],
+      "id": "VCV000012582.69-S-SCI-CP-T1.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "VCV000012582.69-S-SCI-CP-T2.contributing": {
-      "id": "VCV000012582.69-S-SCI-CP-T2.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV007105413.1",
         "#/scv/clinvar.submission:SCV007105418.1",
         "#/scv/clinvar.submission:SCV007105434.1"
-      ]
+      ],
+      "id": "VCV000012582.69-S-SCI-CP-T2.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "VCV000012582.69-S-SCI-CP.contributing": {
-      "id": "VCV000012582.69-S-SCI-CP.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/vcv/VCV000012582.69-S-SCI-CP-T1"
-      ]
+      ],
+      "id": "VCV000012582.69-S-SCI-CP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "VCV000012582.69-S-SCI-CP.non-contributing": {
-      "id": "VCV000012582.69-S-SCI-CP.non-contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "neutral",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Non-contributing"
-      },
       "hasEvidenceItems": [
         "#/vcv/VCV000012582.69-S-SCI-CP-T2"
-      ]
+      ],
+      "id": "VCV000012582.69-S-SCI-CP.non-contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Non-contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "VCV000012582.69-S-SCI-NOCP-T1.contributing": {
-      "id": "VCV000012582.69-S-SCI-NOCP-T1.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV006076878.1"
-      ]
+      ],
+      "id": "VCV000012582.69-S-SCI-NOCP-T1.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "VCV000012582.69-S-SCI-NOCP.contributing": {
-      "id": "VCV000012582.69-S-SCI-NOCP.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/vcv/VCV000012582.69-S-SCI-NOCP-T1"
-      ]
+      ],
+      "id": "VCV000012582.69-S-SCI-NOCP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "VCV000012582.69-S-SCI.contributing": {
-      "id": "VCV000012582.69-S-SCI.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/vcv/VCV000012582.69-S-SCI-CP"
-      ]
+      ],
+      "id": "VCV000012582.69-S-SCI.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "VCV000012582.69-S-SCI.non-contributing": {
-      "id": "VCV000012582.69-S-SCI.non-contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "neutral",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Non-contributing"
-      },
       "hasEvidenceItems": [
         "#/vcv/VCV000012582.69-S-SCI-NOCP"
-      ]
+      ],
+      "id": "VCV000012582.69-S-SCI.non-contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Non-contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     }
   },
   "vcv": {
     "VCV000012582.69-S-SCI": {
-      "id": "VCV000012582.69-S-SCI",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Strong"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Tier I (Strong)"
+        "name": "Tier I (Strong)",
+        "primaryCoding": {
+          "code": "tier 1",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI",
+      "direction": "supports",
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000012582.69-S-SCI.contributing",
         "#/evidenceLine/VCV000012582.69-S-SCI.non-contributing"
-      ]
+      ],
+      "id": "VCV000012582.69-S-SCI",
+      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Strong",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "VCV000012582.69-S-SCI-CP": {
-      "id": "VCV000012582.69-S-SCI-CP",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Strong"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Tier I (Strong)"
+        "name": "Tier I (Strong)",
+        "primaryCoding": {
+          "code": "tier 1",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI-CP",
+      "direction": "supports",
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000012582.69-S-SCI-CP.contributing",
         "#/evidenceLine/VCV000012582.69-S-SCI-CP.non-contributing"
-      ]
+      ],
+      "id": "VCV000012582.69-S-SCI-CP",
+      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI-CP",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Strong",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "VCV000012582.69-S-SCI-CP-T1": {
-      "id": "VCV000012582.69-S-SCI-CP-T1",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Strong"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Tier I (Strong)"
+        "name": "Tier I (Strong)",
+        "primaryCoding": {
+          "code": "tier 1",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI-CP-T1",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -855,28 +854,32 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000012582.69-S-SCI-CP-T1.contributing"
-      ]
+      ],
+      "id": "VCV000012582.69-S-SCI-CP-T1",
+      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI-CP-T1",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Strong",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "VCV000012582.69-S-SCI-CP-T2": {
-      "id": "VCV000012582.69-S-SCI-CP-T2",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Strong"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Tier II (Potential)"
+        "name": "Tier II (Potential)",
+        "primaryCoding": {
+          "code": "tier 2",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI-CP-T2",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -885,52 +888,60 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000012582.69-S-SCI-CP-T2.contributing"
-      ]
+      ],
+      "id": "VCV000012582.69-S-SCI-CP-T2",
+      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI-CP-T2",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Potential",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "VCV000012582.69-S-SCI-NOCP": {
-      "id": "VCV000012582.69-S-SCI-NOCP",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Strong"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "no assertion criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Tier I (Strong)"
+        "name": "Tier I (Strong)",
+        "primaryCoding": {
+          "code": "tier 1",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI-NOCP",
+      "direction": "supports",
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000012582.69-S-SCI-NOCP.contributing"
-      ]
+      ],
+      "id": "VCV000012582.69-S-SCI-NOCP",
+      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI-NOCP",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "no assertion criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Strong",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "VCV000012582.69-S-SCI-NOCP-T1": {
-      "id": "VCV000012582.69-S-SCI-NOCP-T1",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Strong"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "no assertion criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Tier I (Strong)"
+        "name": "Tier I (Strong)",
+        "primaryCoding": {
+          "code": "tier 1",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI-NOCP-T1",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -939,7 +950,20 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000012582.69-S-SCI-NOCP-T1.contributing"
-      ]
+      ],
+      "id": "VCV000012582.69-S-SCI-NOCP-T1",
+      "proposition": "#/propositionSomaticClinicalImpact/VCV000012582-S-SCI-NOCP-T1",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "no assertion criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Strong",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     }
   }
 }

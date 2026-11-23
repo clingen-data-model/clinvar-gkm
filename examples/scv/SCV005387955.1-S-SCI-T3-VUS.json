@@ -2,57 +2,57 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:3902": {
-      "id": "clinvar.trait:3902",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "Familial papillary thyroid carcinoma with renal papillary neoplasia",
       "aliases": [
         "Thyroid carcinoma, papillary, with papillary renal neoplasia"
       ],
-      "primaryCoding": {
-        "name": "Familial papillary thyroid carcinoma with renal papillary neoplasia",
-        "code": "C1854104",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C1854104",
-          "https://www.ncbi.nlm.nih.gov/medgen/C1854104"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:3902",
       "mappings": [
         {
           "coding": {
             "code": "0011578",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0011578",
               "https://identifiers.org/mondo:0011578"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "605642",
-            "system": "https://www.omim.org/",
             "iris": [
               "https://identifiers.org/mim:605642",
               "https://www.omim.org/entry/605642"
-            ]
+            ],
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "97290",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_97290",
               "https://identifiers.org/orphanet:97290"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Familial papillary thyroid carcinoma with renal papillary neoplasia",
+      "primaryCoding": {
+        "code": "C1854104",
+        "iris": [
+          "https://identifiers.org/medgen:C1854104",
+          "https://www.ncbi.nlm.nih.gov/medgen/C1854104"
+        ],
+        "name": "Familial papillary thyroid carcinoma with renal papillary neoplasia",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     }
   },
   "submitter": {
@@ -106,60 +106,42 @@
   },
   "scv": {
     "clinvar.submission:SCV005387955.1": {
-      "id": "clinvar.submission:SCV005387955.1",
-      "type": "Statement",
-      "proposition": "#/propositionSomaticClinicalImpact/SCV005387955-SCI",
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Tier III - Unknown",
-        "primaryCoding": {
-          "code": "tier 3",
-          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
-        },
         "extensions": [
           {
             "name": "description",
             "value": "for Familial papillary thyroid carcinoma with renal papillary neoplasia\nClassification is based on the no assertion criteria provided submission\nSep 2024 by Excellence Center for Genomics and Precision Medicine, King Chulalongkorn Memorial Hospital and Chulalongkorn University, Chulalongkorn University"
           }
-        ]
-      },
-      "direction": "neutral",
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "no assertion criteria provided"
+        ],
+        "name": "Tier III - Unknown",
+        "primaryCoding": {
+          "code": "tier 3",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "type": "MappableConcept"
       },
       "contributions": [
         {
-          "type": "Contribution",
+          "activityType": "submitted",
           "contributor": "#/submitter/clinvar.submitter:507783",
           "date": "2025-05-15",
-          "activityType": "submitted"
+          "type": "Contribution"
         },
         {
-          "type": "Contribution",
+          "activityType": "created",
           "contributor": "#/submitter/clinvar.submitter:507783",
           "date": "2025-05-15",
-          "activityType": "created"
+          "type": "Contribution"
         },
         {
-          "type": "Contribution",
+          "activityType": "evaluated",
           "contributor": "#/submitter/clinvar.submitter:507783",
           "date": "2024-09-30",
-          "activityType": "evaluated"
+          "type": "Contribution"
         }
       ],
-      "reportedIn": [
-        {
-          "type": "Document",
-          "pmid": "19633549",
-          "urls": [
-            "https://pubmed.ncbi.nlm.nih.gov/19633549"
-          ],
-          "documentType": "general"
-        }
-      ],
+      "direction": "neutral",
       "extensions": [
         {
           "name": "clinvarScvId",
@@ -207,7 +189,25 @@
           "name": "submissionLevel",
           "value": "NOCP"
         }
-      ]
+      ],
+      "id": "clinvar.submission:SCV005387955.1",
+      "proposition": "#/propositionSomaticClinicalImpact/SCV005387955-SCI",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "no assertion criteria provided",
+        "type": "MappableConcept"
+      },
+      "reportedIn": [
+        {
+          "documentType": "general",
+          "pmid": "19633549",
+          "type": "Document",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/19633549"
+          ]
+        }
+      ],
+      "type": "Statement"
     }
   }
 }

@@ -2,74 +2,74 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:6752": {
-      "id": "clinvar.trait:6752",
-      "type": "MappableConcept",
       "conceptType": "Disease",
-      "name": "Encephalocraniocutaneous lipomatosis",
-      "primaryCoding": {
-        "name": "Encephalocraniocutaneous lipomatosis",
-        "code": "C0406612",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0406612",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0406612"
-        ]
-      },
+      "id": "clinvar.trait:6752",
       "mappings": [
         {
           "coding": {
             "code": "0013074",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0013074",
               "https://identifiers.org/mondo:0013074"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "NBK576966",
-            "system": "https://www.ncbi.nlm.nih.gov/books/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/books/NBK576966"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/books/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "613001",
-            "system": "https://www.omim.org/",
             "iris": [
               "https://identifiers.org/mim:613001",
               "https://www.omim.org/entry/613001"
-            ]
+            ],
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "2396",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_2396",
               "https://identifiers.org/orphanet:2396"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "238905009",
-            "system": "https://www.snomed.org/",
             "iris": [
               "https://identifiers.org/snomedct:238905009"
-            ]
+            ],
+            "system": "https://www.snomed.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Encephalocraniocutaneous lipomatosis",
+      "primaryCoding": {
+        "code": "C0406612",
+        "iris": [
+          "https://identifiers.org/medgen:C0406612",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0406612"
+        ],
+        "name": "Encephalocraniocutaneous lipomatosis",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     }
   },
   "submitter": {
@@ -123,64 +123,41 @@
   },
   "scv": {
     "clinvar.submission:SCV002099547.2": {
-      "id": "clinvar.submission:SCV002099547.2",
-      "type": "Statement",
-      "proposition": "#/propositionClinvarCustom/SCV002099547-NP",
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "not provided",
-        "primaryCoding": {
-          "code": "not provided",
-          "system": "ClinVar"
-        },
         "extensions": [
           {
             "name": "description",
             "value": "for Encephalocraniocutaneous lipomatosis\nClassification is based on the no classification submission\n(-) by GeneReviews"
           }
-        ]
-      },
-      "direction": "supports",
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "no classification"
+        ],
+        "name": "not provided",
+        "primaryCoding": {
+          "code": "not provided",
+          "system": "ClinVar"
+        },
+        "type": "MappableConcept"
       },
       "contributions": [
         {
-          "type": "Contribution",
+          "activityType": "submitted",
           "contributor": "#/submitter/clinvar.submitter:500062",
           "date": "2022-10-01",
-          "activityType": "submitted"
+          "type": "Contribution"
         },
         {
-          "type": "Contribution",
+          "activityType": "created",
           "contributor": "#/submitter/clinvar.submitter:500062",
           "date": "2022-03-03",
-          "activityType": "created"
+          "type": "Contribution"
         },
         {
-          "type": "Contribution",
+          "activityType": "evaluated",
           "contributor": "#/submitter/clinvar.submitter:500062",
-          "activityType": "evaluated"
+          "type": "Contribution"
         }
       ],
-      "reportedIn": [
-        {
-          "type": "Document",
-          "pmid": "30443000",
-          "urls": [
-            "https://pubmed.ncbi.nlm.nih.gov/30443000"
-          ]
-        },
-        {
-          "type": "Document",
-          "urls": [
-            "https://www.ncbi.nlm.nih.gov/books/NBK576966"
-          ]
-        }
-      ],
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarScvId",
@@ -224,7 +201,30 @@
           "name": "submissionLevel",
           "value": "NOCL"
         }
-      ]
+      ],
+      "id": "clinvar.submission:SCV002099547.2",
+      "proposition": "#/propositionClinvarCustom/SCV002099547-NP",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "no classification",
+        "type": "MappableConcept"
+      },
+      "reportedIn": [
+        {
+          "pmid": "30443000",
+          "type": "Document",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/30443000"
+          ]
+        },
+        {
+          "type": "Document",
+          "urls": [
+            "https://www.ncbi.nlm.nih.gov/books/NBK576966"
+          ]
+        }
+      ],
+      "type": "Statement"
     }
   }
 }
