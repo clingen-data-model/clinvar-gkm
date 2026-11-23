@@ -90,7 +90,7 @@ codes case-insensitively until the lookup is fixed upstream. See
 
 Only the latest Parquet set of each live line is published. Tables for an earlier release are built from its
 bundle with [`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) (2.0.0 on PyPI),
-which needs about 65 GiB of memory for a full bundle; a mini-bundle of the records you need takes far less. See
+which builds a full bundle in about 3.5 hours on a 16 GB machine, or 40 minutes on a 128 GiB one; a mini-bundle of the records you need takes far less. See
 [Build Your Own Tables and Mini-Bundles](../parquet/build-your-own.md).
 
 ---
