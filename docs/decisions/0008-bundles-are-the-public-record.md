@@ -2,7 +2,7 @@
 
 - **Status:** Proposed
 - **Date:** 2026-10-18
-- **Plan:** [`docs/superpowers/plans/2026-10-18-bundle-record-and-metrics.md`](../superpowers/plans/2026-10-18-bundle-record-and-metrics.md)
+- **Plan:** [`superpowers/plans/2026-10-18-bundle-record-and-metrics.md`](https://github.com/clingen-data-model/clinvar-gkm/blob/main/superpowers/plans/2026-10-18-bundle-record-and-metrics.md)
 - **Amends:** [ADR 0004](0004-schema-versioning-and-release-management.md) §3 (no live window: a superseded line
   freezes at the switch-over and is kept indefinitely, with no EOL date) and §5 (the in-place exception ends
   with 1.1.0); ADR 0006 (on PR #146) consequences (advance notice, (g)).
@@ -17,7 +17,7 @@
   `status: "frozen"` and `superseded_by` as the root and line `index.json` publish them (b); the Parquet
   manifest fields (e).
 - **Amended:** 2026-11-18 for 1.2.0 (maintainer decisions D1, D2, D6 of the
-  [1.2.0 runbook](../superpowers/plans/2026-11-18-1.2.0-release-runbook.md)): a new line may start from one
+  [1.2.0 runbook](https://github.com/clingen-data-model/clinvar-gkm/blob/main/superpowers/plans/2026-11-18-1.2.0-release-runbook.md)): a new line may start from one
   checkpoint monthly plus deltas, without republishing history; a frozen line loses its weekly fulls and, once
   the next line has Parquet, its `parquet/` (b), (c).
 

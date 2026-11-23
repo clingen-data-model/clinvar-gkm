@@ -8,7 +8,7 @@ importing them so they don't bloat every session's context.
 
 - Filename: `NNNN-kebab-title.md` (zero-padded, monotonically increasing).
 - Copy [`0000-template.md`](0000-template.md) to start.
-- Keep it short. Link to the fuller design spec in `docs/superpowers/specs/` when there is one.
+- Keep it short. Link to the fuller design spec in `superpowers/specs/` when there is one.
 - Status: `Proposed` → `Accepted` → (later) `Superseded by NNNN`. Don't rewrite history — supersede.
 - Land ADRs via PR review, like code.
 

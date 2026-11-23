@@ -5,9 +5,9 @@ exported from, the real staged bundles themselves, and the Parquet dataset deriv
 published only when every gate passes. This page lists the gates and the results of each release, newest first.
 
 The step-by-step procedures, with the exact commands, are the
-[1.2.0 release runbook](https://github.com/clingen-data-model/clinvar-gkm/blob/main/docs/superpowers/plans/2026-11-18-1.2.0-release-runbook.md)
+[1.2.0 release runbook](https://github.com/clingen-data-model/clinvar-gkm/blob/main/superpowers/plans/2026-11-18-1.2.0-release-runbook.md)
 and the
-[1.1.0 rebuild runbook](https://github.com/clingen-data-model/clinvar-gkm/blob/main/docs/superpowers/plans/2026-10-20-1.1.0-rebuild-runbook.md).
+[1.1.0 rebuild runbook](https://github.com/clingen-data-model/clinvar-gkm/blob/main/superpowers/plans/2026-10-20-1.1.0-rebuild-runbook.md).
 The changes these gates verified are listed in the changelog: [1.2.0](changelog.md#120), [1.1.0](changelog.md#110).
 
 ---

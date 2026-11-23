@@ -91,7 +91,7 @@ CALL `clinvar_ingest.variation_identity`(CURRENT_DATE(), FALSE);
 ```
 
 > **Incremental `variation_identity` (see [dataset-diff.md](./dataset-diff.md) and
-> `docs/superpowers/plans/2026-08-05-incremental-variation-identity-v2.md`):**
+> `superpowers/plans/2026-08-05-incremental-variation-identity-v2.md`):**
 > `variation_identity_incremental` re-runs the heavy per-variation content parsing
 > (`parseSequenceLocations` / `parseHGVS` / `parseXRefs` / SPDI) only for the variations
 > changed since the prior release (`diff_variation` new|modified ∪ the copy-number CAV/CA

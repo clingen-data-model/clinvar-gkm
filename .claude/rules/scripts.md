@@ -43,7 +43,7 @@ arrays and "key val" pair lists.
 ## Release model (context)
 
 Incremental by default (carry-forward UNION delta); the monthly full bundle is triggered by ClinVar's monthly
-XML index (see `docs/superpowers/specs/2026-08-24-clinvar-index-monthly-trigger-design.md` and
+XML index (see `superpowers/specs/2026-08-24-clinvar-index-monthly-trigger-design.md` and
 [ADR 0002](../../docs/decisions/0002-monthly-full-anchored-to-clinvar-index.md)). Never touch live R2 without
 explicit user confirmation.
 

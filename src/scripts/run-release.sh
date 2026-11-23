@@ -160,7 +160,7 @@ fi
 # early each month; its appearance is the ONLY signal we use (we never ingest that XML).
 # Our monthly full for YYYY-MM = the most recent of OUR builds with release date strictly
 # before ClinVar's monthly Released datetime, re-exported into the YYYY-MM slot (label from
-# ClinVar, content from our build). See docs/superpowers/specs/2026-08-24-clinvar-index-
+# ClinVar, content from our build). See superpowers/specs/2026-08-24-clinvar-index-
 # monthly-trigger-design.md.
 CLINVAR_XML_INDEX="https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/"
 R2_LINE="${R2_LINE:-v1/1.2/}"

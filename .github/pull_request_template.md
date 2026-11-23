@@ -2,7 +2,7 @@
 
 ## Summary
 
-<!-- What does this change and why? Link the spec (docs/superpowers/specs/) or ADR (docs/decisions/) if there is one. -->
+<!-- What does this change and why? Link the spec (superpowers/specs/) or ADR (docs/decisions/) if there is one. -->
 
 ## Shared-context checklist
 
