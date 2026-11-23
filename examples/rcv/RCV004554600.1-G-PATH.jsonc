@@ -2,10 +2,10 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:76385": {
-      "id": "clinvar.trait:76385",
-      "type": "MappableConcept",
       "conceptType": "Disease",
-      "name": "Congenital Pulmonary Airway Malformations"
+      "id": "clinvar.trait:76385",
+      "name": "Congenital Pulmonary Airway Malformations",
+      "type": "MappableConcept"
     }
   },
   "propositionPathogenicity": {
@@ -26,53 +26,44 @@
   },
   "evidenceLine": {
     "RCV004554600.1-G-PATH-CP.contributing": {
-      "id": "RCV004554600.1-G-PATH-CP.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV005044128.1"
-      ]
+      ],
+      "id": "RCV004554600.1-G-PATH-CP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "RCV004554600.1-G-PATH.contributing": {
-      "id": "RCV004554600.1-G-PATH.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/rcv/RCV004554600.1-G-PATH-CP"
-      ]
+      ],
+      "id": "RCV004554600.1-G-PATH.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     }
   },
   "rcv": {
     "RCV004554600.1-G-PATH": {
-      "id": "RCV004554600.1-G-PATH",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Definitive"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Pathogenic"
+        "name": "Pathogenic",
+        "primaryCoding": {
+          "code": "pathogenic",
+          "system": "ACMG Guidelines, 2015"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionPathogenicity/RCV004554600-G-PATH",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -81,28 +72,32 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV004554600.1-G-PATH.contributing"
-      ]
+      ],
+      "id": "RCV004554600.1-G-PATH",
+      "proposition": "#/propositionPathogenicity/RCV004554600-G-PATH",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Definitive",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "RCV004554600.1-G-PATH-CP": {
-      "id": "RCV004554600.1-G-PATH-CP",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Definitive"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Pathogenic"
+        "name": "Pathogenic",
+        "primaryCoding": {
+          "code": "pathogenic",
+          "system": "ACMG Guidelines, 2015"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionPathogenicity/RCV004554600-G-PATH-CP",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -111,7 +106,20 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV004554600.1-G-PATH-CP.contributing"
-      ]
+      ],
+      "id": "RCV004554600.1-G-PATH-CP",
+      "proposition": "#/propositionPathogenicity/RCV004554600-G-PATH-CP",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Definitive",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     }
   }
 }

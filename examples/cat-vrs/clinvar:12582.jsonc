@@ -84,9 +84,6 @@
   },
   "variation": {
     "clinvar:12582": {
-      "id": "clinvar:12582",
-      "type": "CategoricalVariant",
-      "name": "NM_004985.5(KRAS):c.35G>A (p.Gly12Asp)",
       "constraints": [
         {
           "allele": "#/allele/ga4gh:VA.LDaqvF3c3y1IG8wF4mORiRfB--9Jjfzp",
@@ -111,9 +108,6 @@
           ],
           "type": "DefiningAlleleConstraint"
         }
-      ],
-      "members": [
-        "#/allele/ga4gh:VA.LDaqvF3c3y1IG8wF4mORiRfB--9Jjfzp"
       ],
       "extensions": [
         {
@@ -288,68 +282,74 @@
           ]
         }
       ],
+      "id": "clinvar:12582",
       "mappings": [
         {
           "coding": {
-            "system": "https://www.ncbi.nlm.nih.gov/clinvar/",
             "code": "12582",
             "iris": [
               "https://identifiers.org/clinvar:12582"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/clinvar/"
           },
           "relation": "exactMatch"
         },
         {
           "coding": {
-            "system": "https://reg.clinicalgenome.org/",
             "code": "CA122538",
             "iris": [
               "https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_caid?caid=CA122538"
-            ]
+            ],
+            "system": "https://reg.clinicalgenome.org/"
           },
           "relation": "closeMatch"
         },
         {
           "coding": {
-            "system": "https://www.ncbi.nlm.nih.gov/snp/",
             "code": "121913529",
             "iris": [
               "https://identifiers.org/dbsnp:rs121913529"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/snp/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "system": "https://www.omim.org/",
             "code": "190070.0005",
             "iris": [
               "http://www.omim.org/entry/190070#0005"
-            ]
+            ],
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "system": "https://www.omim.org/",
             "code": "190070.0025",
             "iris": [
               "http://www.omim.org/entry/190070#0025"
-            ]
+            ],
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
-            "system": "https://www.uniprot.org/",
             "code": "P01116#VAR_016026",
             "iris": [
               "https://www.uniprot.org/uniprot/P01116#VAR_016026"
-            ]
+            ],
+            "system": "https://www.uniprot.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "members": [
+        "#/allele/ga4gh:VA.LDaqvF3c3y1IG8wF4mORiRfB--9Jjfzp"
+      ],
+      "name": "NM_004985.5(KRAS):c.35G>A (p.Gly12Asp)",
+      "type": "CategoricalVariant"
     }
   }
 }

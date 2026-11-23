@@ -2,722 +2,720 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:1065": {
-      "id": "clinvar.trait:1065",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "Bronchiectasis with or without elevated sweat chloride 1",
       "aliases": [
         "Cystic Fibrosis-Like Syndrome"
       ],
-      "primaryCoding": {
-        "name": "Bronchiectasis with or without elevated sweat chloride 1",
-        "code": "C2749757",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C2749757",
-          "https://www.ncbi.nlm.nih.gov/medgen/C2749757"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:1065",
       "mappings": [
         {
           "coding": {
             "code": "0008887",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0008887",
               "https://identifiers.org/mondo:0008887"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "211400",
-            "system": "https://www.omim.org/",
             "iris": [
               "https://identifiers.org/mim:211400",
               "https://www.omim.org/entry/211400"
-            ]
+            ],
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "60033",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_60033",
               "https://identifiers.org/orphanet:60033"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Bronchiectasis with or without elevated sweat chloride 1",
+      "primaryCoding": {
+        "code": "C2749757",
+        "iris": [
+          "https://identifiers.org/medgen:C2749757",
+          "https://www.ncbi.nlm.nih.gov/medgen/C2749757"
+        ],
+        "name": "Bronchiectasis with or without elevated sweat chloride 1",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:1695": {
-      "id": "clinvar.trait:1695",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "Cystic fibrosis",
       "aliases": [
         "MUCOVISCIDOSIS"
       ],
-      "primaryCoding": {
-        "name": "Cystic fibrosis",
-        "code": "C0010674",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0010674",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0010674"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:1695",
       "mappings": [
         {
           "coding": {
             "code": "0009061",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0009061",
               "https://identifiers.org/mondo:0009061"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "NBK1250",
-            "system": "https://www.ncbi.nlm.nih.gov/books/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/books/NBK1250"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/books/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000004176",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000004176"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000025280",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000025280"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000028916",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000028916"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000074114",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000074114"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000226639",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000226639"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000246717",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000246717"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000328569",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000328569"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000330969",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000330969"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000332363",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000332363"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000507003",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000507003"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000507010",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000507010"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000508782",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000508782"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000508889",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000508889"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000514611",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000514611"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000521905",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000521905"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000522527",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000522527"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000556535",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000556535"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000556536",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000556536"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000558875",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000558875"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000558928",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000558928"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000568279",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000568279"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000569602",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000569602"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000569790",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000569790"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000569791",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000569791"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000569946",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000569946"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000569960",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000569960"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000570317",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000570317"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000591289",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000591289"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "219700",
-            "system": "https://www.omim.org/",
             "iris": [
               "https://identifiers.org/mim:219700",
               "https://www.omim.org/entry/219700"
-            ]
+            ],
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "586",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_586",
               "https://identifiers.org/orphanet:586"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "190905008",
-            "system": "https://www.snomed.org/",
             "iris": [
               "https://identifiers.org/snomedct:190905008"
-            ]
+            ],
+            "system": "https://www.snomed.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Cystic fibrosis",
+      "primaryCoding": {
+        "code": "C0010674",
+        "iris": [
+          "https://identifiers.org/medgen:C0010674",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0010674"
+        ],
+        "name": "Cystic fibrosis",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:17556": {
-      "id": "clinvar.trait:17556",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "not provided",
       "aliases": [
         "none provided"
       ],
+      "conceptType": "Disease",
+      "id": "clinvar.trait:17556",
+      "name": "not provided",
       "primaryCoding": {
-        "name": "not provided",
         "code": "C3661900",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
         "iris": [
           "https://identifiers.org/medgen:C3661900",
           "https://www.ncbi.nlm.nih.gov/medgen/C3661900"
-        ]
-      }
+        ],
+        "name": "not provided",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:18728": {
-      "id": "clinvar.trait:18728",
-      "type": "MappableConcept",
       "conceptType": "Trait",
-      "name": "See cases"
+      "id": "clinvar.trait:18728",
+      "name": "See cases",
+      "type": "MappableConcept"
     },
     "clinvar.trait:29850": {
-      "id": "clinvar.trait:29850",
-      "type": "MappableConcept",
       "conceptType": "Phenotype",
-      "name": "Obstructive azoospermia",
-      "primaryCoding": {
-        "name": "Obstructive azoospermia",
-        "code": "C4023106",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C4023106",
-          "https://www.ncbi.nlm.nih.gov/medgen/C4023106"
-        ]
-      },
+      "id": "clinvar.trait:29850",
       "mappings": [
         {
           "coding": {
             "code": "0011962",
-            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0011962",
               "https://identifiers.org/HP:0011962"
-            ]
+            ],
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Obstructive azoospermia",
+      "primaryCoding": {
+        "code": "C4023106",
+        "iris": [
+          "https://identifiers.org/medgen:C4023106",
+          "https://www.ncbi.nlm.nih.gov/medgen/C4023106"
+        ],
+        "name": "Obstructive azoospermia",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:30822": {
-      "id": "clinvar.trait:30822",
-      "type": "MappableConcept",
       "conceptType": "Phenotype",
-      "name": "Recurrent pancreatitis",
-      "primaryCoding": {
-        "name": "Recurrent pancreatitis",
-        "code": "C4551632",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C4551632",
-          "https://www.ncbi.nlm.nih.gov/medgen/C4551632"
-        ]
-      },
+      "id": "clinvar.trait:30822",
       "mappings": [
         {
           "coding": {
             "code": "0100027",
-            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0100027",
               "https://identifiers.org/HP:0100027"
-            ]
+            ],
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Recurrent pancreatitis",
+      "primaryCoding": {
+        "code": "C4551632",
+        "iris": [
+          "https://identifiers.org/medgen:C4551632",
+          "https://www.ncbi.nlm.nih.gov/medgen/C4551632"
+        ],
+        "name": "Recurrent pancreatitis",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:31615": {
-      "id": "clinvar.trait:31615",
-      "type": "MappableConcept",
       "conceptType": "Phenotype",
-      "name": "Duodenal stenosis",
-      "primaryCoding": {
-        "name": "Duodenal stenosis",
-        "code": "C0238093",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0238093",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0238093"
-        ]
-      },
+      "id": "clinvar.trait:31615",
       "mappings": [
         {
           "coding": {
             "code": "0100867",
-            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0100867",
               "https://identifiers.org/HP:0100867"
-            ]
+            ],
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Duodenal stenosis",
+      "primaryCoding": {
+        "code": "C0238093",
+        "iris": [
+          "https://identifiers.org/medgen:C0238093",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0238093"
+        ],
+        "name": "Duodenal stenosis",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:3261": {
-      "id": "clinvar.trait:3261",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "Hereditary pancreatitis",
       "aliases": [
         "Hereditary chronic pancreatitis",
         "PRSS1-Related Hereditary Pancreatitis"
       ],
-      "primaryCoding": {
-        "name": "Hereditary pancreatitis",
-        "code": "C0238339",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0238339",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0238339"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:3261",
       "mappings": [
         {
           "coding": {
             "code": "0008185",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0008185",
               "https://identifiers.org/mondo:0008185"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "NBK84399",
-            "system": "https://www.ncbi.nlm.nih.gov/books/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/books/NBK84399"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/books/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "167800",
-            "system": "https://www.omim.org/",
             "iris": [
               "https://identifiers.org/mim:167800",
               "https://www.omim.org/entry/167800"
-            ]
+            ],
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "676",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_676",
               "https://identifiers.org/orphanet:676"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "68072000",
-            "system": "https://www.snomed.org/",
             "iris": [
               "https://identifiers.org/snomedct:68072000"
-            ]
+            ],
+            "system": "https://www.snomed.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Hereditary pancreatitis",
+      "primaryCoding": {
+        "code": "C0238339",
+        "iris": [
+          "https://identifiers.org/medgen:C0238339",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0238339"
+        ],
+        "name": "Hereditary pancreatitis",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:3944": {
-      "id": "clinvar.trait:3944",
-      "type": "MappableConcept",
       "conceptType": "Disease",
-      "name": "Congenital bilateral aplasia of vas deferens from CFTR mutation",
-      "primaryCoding": {
-        "name": "Congenital bilateral aplasia of vas deferens from CFTR mutation",
-        "code": "C0403814",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0403814",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0403814"
-        ]
-      },
+      "id": "clinvar.trait:3944",
       "mappings": [
         {
           "coding": {
             "code": "0010178",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0010178",
               "https://identifiers.org/mondo:0010178"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000028916",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000028916"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000558875",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000558875"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "GTR000558928",
-            "system": "https://www.ncbi.nlm.nih.gov/gtr/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/gtr/tests/GTR000558928"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/gtr/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "277180",
-            "system": "https://www.omim.org/",
             "iris": [
               "https://identifiers.org/mim:277180",
               "https://www.omim.org/entry/277180"
-            ]
+            ],
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "48",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_48",
               "https://identifiers.org/orphanet:48"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Congenital bilateral aplasia of vas deferens from CFTR mutation",
+      "primaryCoding": {
+        "code": "C0403814",
+        "iris": [
+          "https://identifiers.org/medgen:C0403814",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0403814"
+        ],
+        "name": "Congenital bilateral aplasia of vas deferens from CFTR mutation",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:42248": {
-      "id": "clinvar.trait:42248",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "CFTR-related disorder",
       "aliases": [
-        "CFTR-related disorders",
-        "CFTR-related condition"
+        "CFTR-related condition",
+        "CFTR-related disorders"
       ],
-      "primaryCoding": {
-        "name": "CFTR-related disorder",
-        "code": "C5924204",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C5924204",
-          "https://www.ncbi.nlm.nih.gov/medgen/C5924204"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:42248",
       "mappings": [
         {
           "coding": {
             "code": "7770004",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_7770004",
               "https://identifiers.org/mondo:7770004"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "CFTR-related disorder",
+      "primaryCoding": {
+        "code": "C5924204",
+        "iris": [
+          "https://identifiers.org/medgen:C5924204",
+          "https://www.ncbi.nlm.nih.gov/medgen/C5924204"
+        ],
+        "name": "CFTR-related disorder",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     },
     "clinvar.trait:79793": {
-      "id": "clinvar.trait:79793",
-      "type": "MappableConcept",
       "conceptType": "Disease",
-      "name": "Cystic fibrosis diagnostic test"
+      "id": "clinvar.trait:79793",
+      "name": "Cystic fibrosis diagnostic test",
+      "type": "MappableConcept"
     },
     "clinvar.trait:81304": {
-      "id": "clinvar.trait:81304",
-      "type": "MappableConcept",
       "conceptType": "Disease",
-      "name": "Fetal anomalies with a likely genetic cause"
+      "id": "clinvar.trait:81304",
+      "name": "Fetal anomalies with a likely genetic cause",
+      "type": "MappableConcept"
     }
   },
   "conditionSet": {
     "clinvar.conditionset:vcv-192de0ca81bbc94c042e78f0f34e8ee6": {
-      "id": "clinvar.conditionset:vcv-192de0ca81bbc94c042e78f0f34e8ee6",
-      "type": "ConceptSet",
       "concepts": [
         "#/condition/clinvar.trait:1065",
         "#/condition/clinvar.trait:1695",
@@ -735,31 +733,31 @@
         "#/conditionSet/clinvar.traitset:9180",
         "#/conditionSet/clinvar.traitset:9641"
       ],
-      "membershipOperator": "OR"
+      "id": "clinvar.conditionset:vcv-192de0ca81bbc94c042e78f0f34e8ee6",
+      "membershipOperator": "OR",
+      "type": "ConceptSet"
     },
     "clinvar.conditionset:vcv-19a2113997fd0e7e4375609c23b0cfdf": {
-      "id": "clinvar.conditionset:vcv-19a2113997fd0e7e4375609c23b0cfdf",
-      "type": "ConceptSet",
       "concepts": [
         "#/condition/clinvar.trait:1695",
         "#/condition/clinvar.trait:17556",
         "#/condition/clinvar.trait:42248"
       ],
-      "membershipOperator": "OR"
+      "id": "clinvar.conditionset:vcv-19a2113997fd0e7e4375609c23b0cfdf",
+      "membershipOperator": "OR",
+      "type": "ConceptSet"
     },
     "clinvar.traitset:12209": {
-      "id": "clinvar.traitset:12209",
-      "type": "ConceptSet",
       "conceptSetType": "Disease",
       "concepts": [
         "#/condition/clinvar.trait:1695",
         "#/condition/clinvar.trait:3261"
       ],
-      "membershipOperator": "AND"
+      "id": "clinvar.traitset:12209",
+      "membershipOperator": "AND",
+      "type": "ConceptSet"
     },
     "clinvar.traitset:9180": {
-      "id": "clinvar.traitset:9180",
-      "type": "ConceptSet",
       "conceptSetType": "Disease",
       "concepts": [
         "#/condition/clinvar.trait:1065",
@@ -767,17 +765,19 @@
         "#/condition/clinvar.trait:3261",
         "#/condition/clinvar.trait:3944"
       ],
-      "membershipOperator": "AND"
+      "id": "clinvar.traitset:9180",
+      "membershipOperator": "AND",
+      "type": "ConceptSet"
     },
     "clinvar.traitset:9641": {
-      "id": "clinvar.traitset:9641",
-      "type": "ConceptSet",
       "conceptSetType": "Disease",
       "concepts": [
         "#/condition/clinvar.trait:1695",
         "#/condition/clinvar.trait:3944"
       ],
-      "membershipOperator": "AND"
+      "id": "clinvar.traitset:9641",
+      "membershipOperator": "AND",
+      "type": "ConceptSet"
     }
   },
   "propositionPathogenicity": {
@@ -819,14 +819,7 @@
   },
   "evidenceLine": {
     "VCV000007105.214-G-PATH-CP.contributing": {
-      "id": "VCV000007105.214-G-PATH-CP.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV000074347.16",
         "#/scv/clinvar.submission:SCV000221179.6",
@@ -911,30 +904,30 @@
         "#/scv/clinvar.submission:SCV007675062.1",
         "#/scv/clinvar.submission:SCV007984673.1",
         "#/scv/clinvar.submission:SCV008128387.1"
-      ]
+      ],
+      "id": "VCV000007105.214-G-PATH-CP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "VCV000007105.214-G-PATH-EP.contributing": {
-      "id": "VCV000007105.214-G-PATH-EP.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV000071493.4"
-      ]
+      ],
+      "id": "VCV000007105.214-G-PATH-EP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "VCV000007105.214-G-PATH-NOCP.contributing": {
-      "id": "VCV000007105.214-G-PATH-NOCP.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV000027724.10",
         "#/scv/clinvar.submission:SCV000536740.1",
@@ -946,71 +939,69 @@
         "#/scv/clinvar.submission:SCV002507456.1",
         "#/scv/clinvar.submission:SCV004024086.1",
         "#/scv/clinvar.submission:SCV004101106.1"
-      ]
+      ],
+      "id": "VCV000007105.214-G-PATH-NOCP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "VCV000007105.214-G-PATH-PG.contributing": {
-      "id": "VCV000007105.214-G-PATH-PG.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV000071392.3"
-      ]
+      ],
+      "id": "VCV000007105.214-G-PATH-PG.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "VCV000007105.214-G-PATH.contributing": {
-      "id": "VCV000007105.214-G-PATH.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/vcv/VCV000007105.214-G-PATH-PG"
-      ]
+      ],
+      "id": "VCV000007105.214-G-PATH.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "VCV000007105.214-G-PATH.non-contributing": {
-      "id": "VCV000007105.214-G-PATH.non-contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "neutral",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Non-contributing"
-      },
       "hasEvidenceItems": [
         "#/vcv/VCV000007105.214-G-PATH-EP",
         "#/vcv/VCV000007105.214-G-PATH-CP",
         "#/vcv/VCV000007105.214-G-PATH-NOCP"
-      ]
+      ],
+      "id": "VCV000007105.214-G-PATH.non-contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Non-contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     }
   },
   "vcv": {
     "VCV000007105.214-G-PATH": {
-      "id": "VCV000007105.214-G-PATH",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Definitive"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "practice guidelines"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Pathogenic"
+        "name": "Pathogenic",
+        "primaryCoding": {
+          "code": "pathogenic",
+          "system": "ACMG Guidelines, 2015"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionPathogenicity/VCV000007105-G-PATH",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -1020,23 +1011,32 @@
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000007105.214-G-PATH.contributing",
         "#/evidenceLine/VCV000007105.214-G-PATH.non-contributing"
-      ]
+      ],
+      "id": "VCV000007105.214-G-PATH",
+      "proposition": "#/propositionPathogenicity/VCV000007105-G-PATH",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "practice guidelines",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Definitive",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "VCV000007105.214-G-PATH-CP": {
-      "id": "VCV000007105.214-G-PATH-CP",
-      "type": "Statement",
-      "direction": "supports",
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Pathogenic/Likely pathogenic"
+        "name": "Pathogenic/Likely pathogenic",
+        "primaryCoding": {
+          "code": "pathogenic/likely pathogenic",
+          "system": "ClinVar"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionPathogenicity/VCV000007105-G-PATH-CP",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -1045,28 +1045,27 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000007105.214-G-PATH-CP.contributing"
-      ]
+      ],
+      "id": "VCV000007105.214-G-PATH-CP",
+      "proposition": "#/propositionPathogenicity/VCV000007105-G-PATH-CP",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "VCV000007105.214-G-PATH-EP": {
-      "id": "VCV000007105.214-G-PATH-EP",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Definitive"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "expert panel"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Pathogenic"
+        "name": "Pathogenic",
+        "primaryCoding": {
+          "code": "pathogenic",
+          "system": "ACMG Guidelines, 2015"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionPathogenicity/VCV000007105-G-PATH-EP",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -1075,28 +1074,32 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000007105.214-G-PATH-EP.contributing"
-      ]
+      ],
+      "id": "VCV000007105.214-G-PATH-EP",
+      "proposition": "#/propositionPathogenicity/VCV000007105-G-PATH-EP",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "expert panel",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Definitive",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "VCV000007105.214-G-PATH-NOCP": {
-      "id": "VCV000007105.214-G-PATH-NOCP",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Definitive"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "no assertion criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Pathogenic"
+        "name": "Pathogenic",
+        "primaryCoding": {
+          "code": "pathogenic",
+          "system": "ACMG Guidelines, 2015"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionPathogenicity/VCV000007105-G-PATH-NOCP",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -1105,28 +1108,32 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000007105.214-G-PATH-NOCP.contributing"
-      ]
+      ],
+      "id": "VCV000007105.214-G-PATH-NOCP",
+      "proposition": "#/propositionPathogenicity/VCV000007105-G-PATH-NOCP",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "no assertion criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Definitive",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "VCV000007105.214-G-PATH-PG": {
-      "id": "VCV000007105.214-G-PATH-PG",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Definitive"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "practice guidelines"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Pathogenic"
+        "name": "Pathogenic",
+        "primaryCoding": {
+          "code": "pathogenic",
+          "system": "ACMG Guidelines, 2015"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionPathogenicity/VCV000007105-G-PATH-PG",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -1135,7 +1142,20 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000007105.214-G-PATH-PG.contributing"
-      ]
+      ],
+      "id": "VCV000007105.214-G-PATH-PG",
+      "proposition": "#/propositionPathogenicity/VCV000007105-G-PATH-PG",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "practice guidelines",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Definitive",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     }
   }
 }

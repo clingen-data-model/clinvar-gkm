@@ -2,69 +2,69 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:32759": {
-      "id": "clinvar.trait:32759",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "Neoplasm",
       "aliases": [
-        "tumor",
+        "Neoplasm (disease)",
         "Neoplasms",
-        "Neoplasm (disease)"
+        "tumor"
       ],
-      "primaryCoding": {
-        "name": "Neoplasm",
-        "code": "C0027651",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0027651",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0027651"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:32759",
       "mappings": [
         {
           "coding": {
             "code": "0002664",
-            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0002664",
               "https://identifiers.org/HP:0002664"
-            ]
+            ],
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "D009369",
-            "system": "https://id.nlm.nih.gov/mesh/",
             "iris": [
               "https://identifiers.org/mesh:D009369",
               "https://www.ncbi.nlm.nih.gov/mesh/?term=D009369"
-            ]
+            ],
+            "system": "https://id.nlm.nih.gov/mesh/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "0005070",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0005070",
               "https://identifiers.org/mondo:0005070"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "108369006",
-            "system": "https://www.snomed.org/",
             "iris": [
               "https://identifiers.org/snomedct:108369006"
-            ]
+            ],
+            "system": "https://www.snomed.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Neoplasm",
+      "primaryCoding": {
+        "code": "C0027651",
+        "iris": [
+          "https://identifiers.org/medgen:C0027651",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0027651"
+        ],
+        "name": "Neoplasm",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     }
   },
   "propositionOncogenicity": {
@@ -85,53 +85,44 @@
   },
   "evidenceLine": {
     "RCV004668724.2-S-ONCO-CP.contributing": {
-      "id": "RCV004668724.2-S-ONCO-CP.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV005094257.2"
-      ]
+      ],
+      "id": "RCV004668724.2-S-ONCO-CP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "RCV004668724.2-S-ONCO.contributing": {
-      "id": "RCV004668724.2-S-ONCO.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/rcv/RCV004668724.2-S-ONCO-CP"
-      ]
+      ],
+      "id": "RCV004668724.2-S-ONCO.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     }
   },
   "rcv": {
     "RCV004668724.2-S-ONCO": {
-      "id": "RCV004668724.2-S-ONCO",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Definitive"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Oncogenic"
+        "name": "Oncogenic",
+        "primaryCoding": {
+          "code": "oncogenic",
+          "system": "ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionOncogenicity/RCV004668724-S-ONCO",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -140,28 +131,32 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV004668724.2-S-ONCO.contributing"
-      ]
+      ],
+      "id": "RCV004668724.2-S-ONCO",
+      "proposition": "#/propositionOncogenicity/RCV004668724-S-ONCO",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Definitive",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "RCV004668724.2-S-ONCO-CP": {
-      "id": "RCV004668724.2-S-ONCO-CP",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Definitive"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Oncogenic"
+        "name": "Oncogenic",
+        "primaryCoding": {
+          "code": "oncogenic",
+          "system": "ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionOncogenicity/RCV004668724-S-ONCO-CP",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -170,7 +165,20 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV004668724.2-S-ONCO-CP.contributing"
-      ]
+      ],
+      "id": "RCV004668724.2-S-ONCO-CP",
+      "proposition": "#/propositionOncogenicity/RCV004668724-S-ONCO-CP",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Definitive",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     }
   }
 }
