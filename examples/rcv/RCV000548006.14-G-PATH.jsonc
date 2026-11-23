@@ -2,47 +2,47 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:17678": {
-      "id": "clinvar.trait:17678",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "RASopathy",
       "aliases": [
-        "rasopathies",
-        "Noonan spectrum disorder"
+        "Noonan spectrum disorder",
+        "rasopathies"
       ],
-      "primaryCoding": {
-        "name": "RASopathy",
-        "code": "C5555857",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C5555857",
-          "https://www.ncbi.nlm.nih.gov/medgen/C5555857"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:17678",
       "mappings": [
         {
           "coding": {
             "code": "0021060",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0021060",
               "https://identifiers.org/mondo:0021060"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "536391",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_536391",
               "https://identifiers.org/orphanet:536391"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "RASopathy",
+      "primaryCoding": {
+        "code": "C5555857",
+        "iris": [
+          "https://identifiers.org/medgen:C5555857",
+          "https://www.ncbi.nlm.nih.gov/medgen/C5555857"
+        ],
+        "name": "RASopathy",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     }
   },
   "propositionPathogenicity": {
@@ -63,54 +63,45 @@
   },
   "evidenceLine": {
     "RCV000548006.14-G-PATH-CP.contributing": {
-      "id": "RCV000548006.14-G-PATH-CP.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV000659085.3",
         "#/scv/clinvar.submission:SCV002601600.1"
-      ]
+      ],
+      "id": "RCV000548006.14-G-PATH-CP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "RCV000548006.14-G-PATH.contributing": {
-      "id": "RCV000548006.14-G-PATH.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/rcv/RCV000548006.14-G-PATH-CP"
-      ]
+      ],
+      "id": "RCV000548006.14-G-PATH.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     }
   },
   "rcv": {
     "RCV000548006.14-G-PATH": {
-      "id": "RCV000548006.14-G-PATH",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Definitive"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Pathogenic"
+        "name": "Pathogenic",
+        "primaryCoding": {
+          "code": "pathogenic",
+          "system": "ACMG Guidelines, 2015"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionPathogenicity/RCV000548006-G-PATH",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -119,28 +110,32 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV000548006.14-G-PATH.contributing"
-      ]
+      ],
+      "id": "RCV000548006.14-G-PATH",
+      "proposition": "#/propositionPathogenicity/RCV000548006-G-PATH",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Definitive",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "RCV000548006.14-G-PATH-CP": {
-      "id": "RCV000548006.14-G-PATH-CP",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Definitive"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Pathogenic"
+        "name": "Pathogenic",
+        "primaryCoding": {
+          "code": "pathogenic",
+          "system": "ACMG Guidelines, 2015"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionPathogenicity/RCV000548006-G-PATH-CP",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -149,7 +144,20 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV000548006.14-G-PATH-CP.contributing"
-      ]
+      ],
+      "id": "RCV000548006.14-G-PATH-CP",
+      "proposition": "#/propositionPathogenicity/RCV000548006-G-PATH-CP",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Definitive",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     }
   }
 }

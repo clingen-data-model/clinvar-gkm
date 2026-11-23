@@ -2,69 +2,69 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:32759": {
-      "id": "clinvar.trait:32759",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "Neoplasm",
       "aliases": [
-        "tumor",
+        "Neoplasm (disease)",
         "Neoplasms",
-        "Neoplasm (disease)"
+        "tumor"
       ],
-      "primaryCoding": {
-        "name": "Neoplasm",
-        "code": "C0027651",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0027651",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0027651"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:32759",
       "mappings": [
         {
           "coding": {
             "code": "0002664",
-            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0002664",
               "https://identifiers.org/HP:0002664"
-            ]
+            ],
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "D009369",
-            "system": "https://id.nlm.nih.gov/mesh/",
             "iris": [
               "https://identifiers.org/mesh:D009369",
               "https://www.ncbi.nlm.nih.gov/mesh/?term=D009369"
-            ]
+            ],
+            "system": "https://id.nlm.nih.gov/mesh/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "0005070",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0005070",
               "https://identifiers.org/mondo:0005070"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "108369006",
-            "system": "https://www.snomed.org/",
             "iris": [
               "https://identifiers.org/snomedct:108369006"
-            ]
+            ],
+            "system": "https://www.snomed.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Neoplasm",
+      "primaryCoding": {
+        "code": "C0027651",
+        "iris": [
+          "https://identifiers.org/medgen:C0027651",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0027651"
+        ],
+        "name": "Neoplasm",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     }
   },
   "submitter": {
@@ -124,108 +124,42 @@
   },
   "scv": {
     "clinvar.submission:SCV005093950.2": {
-      "id": "clinvar.submission:SCV005093950.2",
-      "type": "Statement",
-      "proposition": "#/propositionOncogenicity/SCV005093950-ONCO",
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Oncogenic",
-        "primaryCoding": {
-          "code": "oncogenic",
-          "system": "ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022"
-        },
         "extensions": [
           {
             "name": "description",
             "value": "for Neoplasm\nClassification is based on the criteria provided submission\nMar 2025 by Center for Genomic Medicine, Rigshospitalet, Copenhagen University Hospital"
           }
-        ]
-      },
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Definitive",
+        ],
+        "name": "Oncogenic",
         "primaryCoding": {
-          "code": "definitive",
+          "code": "oncogenic",
           "system": "ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022"
-        }
-      },
-      "direction": "supports",
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
+        },
+        "type": "MappableConcept"
       },
       "contributions": [
         {
-          "type": "Contribution",
+          "activityType": "submitted",
           "contributor": "#/submitter/clinvar.submitter:505691",
           "date": "2025-03-11",
-          "activityType": "submitted"
+          "type": "Contribution"
         },
         {
-          "type": "Contribution",
+          "activityType": "created",
           "contributor": "#/submitter/clinvar.submitter:505691",
           "date": "2024-08-11",
-          "activityType": "created"
+          "type": "Contribution"
         },
         {
-          "type": "Contribution",
+          "activityType": "evaluated",
           "contributor": "#/submitter/clinvar.submitter:505691",
           "date": "2025-03-04",
-          "activityType": "evaluated"
+          "type": "Contribution"
         }
       ],
-      "specifiedBy": {
-        "type": "Method",
-        "methodType": "clinical testing",
-        "name": "ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022",
-        "reportedIn": {
-          "type": "Document",
-          "pmid": "35101336",
-          "urls": [
-            "https://pubmed.ncbi.nlm.nih.gov/35101336"
-          ]
-        }
-      },
-      "reportedIn": [
-        {
-          "type": "Document",
-          "pmid": "23220880",
-          "urls": [
-            "https://pubmed.ncbi.nlm.nih.gov/23220880"
-          ]
-        },
-        {
-          "type": "Document",
-          "pmid": "29967253",
-          "urls": [
-            "https://pubmed.ncbi.nlm.nih.gov/29967253"
-          ]
-        },
-        {
-          "type": "Document",
-          "pmid": "30531871",
-          "urls": [
-            "https://pubmed.ncbi.nlm.nih.gov/30531871"
-          ]
-        },
-        {
-          "type": "Document",
-          "pmid": "31588020",
-          "urls": [
-            "https://pubmed.ncbi.nlm.nih.gov/31588020"
-          ]
-        },
-        {
-          "type": "Document",
-          "pmid": "35503682",
-          "urls": [
-            "https://pubmed.ncbi.nlm.nih.gov/35503682"
-          ]
-        }
-      ],
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarScvId",
@@ -269,7 +203,73 @@
           "name": "submissionLevel",
           "value": "CP"
         }
-      ]
+      ],
+      "id": "clinvar.submission:SCV005093950.2",
+      "proposition": "#/propositionOncogenicity/SCV005093950-ONCO",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "reportedIn": [
+        {
+          "pmid": "23220880",
+          "type": "Document",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/23220880"
+          ]
+        },
+        {
+          "pmid": "29967253",
+          "type": "Document",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/29967253"
+          ]
+        },
+        {
+          "pmid": "30531871",
+          "type": "Document",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/30531871"
+          ]
+        },
+        {
+          "pmid": "31588020",
+          "type": "Document",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/31588020"
+          ]
+        },
+        {
+          "pmid": "35503682",
+          "type": "Document",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/35503682"
+          ]
+        }
+      ],
+      "specifiedBy": {
+        "methodType": "clinical testing",
+        "name": "ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022",
+        "reportedIn": {
+          "pmid": "35101336",
+          "type": "Document",
+          "urls": [
+            "https://pubmed.ncbi.nlm.nih.gov/35101336"
+          ]
+        },
+        "type": "Method"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Definitive",
+        "primaryCoding": {
+          "code": "definitive",
+          "system": "ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022"
+        },
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     }
   }
 }

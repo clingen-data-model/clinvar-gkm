@@ -2,80 +2,80 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:2683": {
-      "id": "clinvar.trait:2683",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "Chronic myeloid leukemia",
       "aliases": [
         "Chronic myelogenous leukemia",
         "Chronic myelogenous leukemia, BCR-ABL1 positive"
       ],
-      "primaryCoding": {
-        "name": "Chronic myeloid leukemia",
-        "code": "C0279543",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0279543",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0279543"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:2683",
       "mappings": [
         {
           "coding": {
             "code": "0005506",
-            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0005506",
               "https://identifiers.org/HP:0005506"
-            ]
+            ],
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "D015464",
-            "system": "https://id.nlm.nih.gov/mesh/",
             "iris": [
               "https://identifiers.org/mesh:D015464",
               "https://www.ncbi.nlm.nih.gov/mesh/?term=D015464"
-            ]
+            ],
+            "system": "https://id.nlm.nih.gov/mesh/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "0011996",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0011996",
               "https://identifiers.org/mondo:0011996"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "608232",
-            "system": "https://www.omim.org/",
             "iris": [
               "https://identifiers.org/mim:608232",
               "https://www.omim.org/entry/608232"
-            ]
+            ],
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "521",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_521",
               "https://identifiers.org/orphanet:521"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Chronic myeloid leukemia",
+      "primaryCoding": {
+        "code": "C0279543",
+        "iris": [
+          "https://identifiers.org/medgen:C0279543",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0279543"
+        ],
+        "name": "Chronic myeloid leukemia",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     }
   },
   "submitter": {
@@ -129,50 +129,42 @@
   },
   "scv": {
     "clinvar.submission:SCV005061369.1": {
-      "id": "clinvar.submission:SCV005061369.1",
-      "type": "Statement",
-      "proposition": "#/propositionSomaticClinicalImpact/SCV005061369-SCI",
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Tier IV - Benign/Likely benign",
-        "primaryCoding": {
-          "code": "tier 4",
-          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
-        },
         "extensions": [
           {
             "name": "description",
             "value": "for Chronic myeloid leukemia\nClassification is based on the no assertion criteria provided submission\n(-) by Molecular Biology (Zoology) Lab, University of Education, Lahore"
           }
-        ]
+        ],
+        "name": "Tier IV - Benign/Likely benign",
+        "primaryCoding": {
+          "code": "tier 4",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "type": "MappableConcept"
       },
-      "direction": "disputes",
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "no assertion criteria provided"
-      },
-      "description": "Classified as Benign/likely benign based on the presence of de novo mutation in a patient with clinical features consistent with CML. Functional studies (Soverini et al., 2015, PMID: 26297264) demonstrated that mutation in the Tp53 gene relates to the loss of function of the protein. Classification follows ACMG/AMP guidelines, meeting criteria PS2 (de novo occurrence), PS3 (functional evidence), and PM2 (absence in controls).",
       "contributions": [
         {
-          "type": "Contribution",
+          "activityType": "submitted",
           "contributor": "#/submitter/clinvar.submitter:509361",
           "date": "2024-06-17",
-          "activityType": "submitted"
+          "type": "Contribution"
         },
         {
-          "type": "Contribution",
+          "activityType": "created",
           "contributor": "#/submitter/clinvar.submitter:509361",
           "date": "2024-06-17",
-          "activityType": "created"
+          "type": "Contribution"
         },
         {
-          "type": "Contribution",
+          "activityType": "evaluated",
           "contributor": "#/submitter/clinvar.submitter:509361",
-          "activityType": "evaluated"
+          "type": "Contribution"
         }
       ],
+      "description": "Classified as Benign/likely benign based on the presence of de novo mutation in a patient with clinical features consistent with CML. Functional studies (Soverini et al., 2015, PMID: 26297264) demonstrated that mutation in the Tp53 gene relates to the loss of function of the protein. Classification follows ACMG/AMP guidelines, meeting criteria PS2 (de novo occurrence), PS3 (functional evidence), and PM2 (absence in controls).",
+      "direction": "disputes",
       "extensions": [
         {
           "name": "clinvarScvId",
@@ -220,7 +212,15 @@
           "name": "submissionLevel",
           "value": "NOCP"
         }
-      ]
+      ],
+      "id": "clinvar.submission:SCV005061369.1",
+      "proposition": "#/propositionSomaticClinicalImpact/SCV005061369-SCI",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "no assertion criteria provided",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     }
   }
 }
