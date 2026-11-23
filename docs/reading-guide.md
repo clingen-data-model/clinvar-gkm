@@ -10,20 +10,21 @@ The site has six tabs, one per reader goal:
 
 | Tab | What it gives you | Read it when |
 | --- | --- | --- |
-| [Home](index.md) | What ClinVar-GKM is and its key concepts, plus this guide, [Data Use and Citation](data-use.md) (the ClinVar disclaimer, how to cite, the license) and [Stay Informed](stay-informed.md) (the announcement list) | You are new to the project, or about to use, publish or share the data |
-| [Get the Data](data-access/download.md) | The files: monthly and weekly full bundles, weekly deltas, Parquet, and [how releases work](data-access/release-model.md) | You need the data, or need to keep a copy current |
-| [Understand the Data](output-reference/overview.md) | What each part of the bundle means: variations, SCV, VCV and RCV statements, ID references and annotated examples. Also the [Data Model](output-reference/classes/index.md), every class and field generated from the schemas, and [Mapping & Vocabularies](profiles/index.md), which maps ClinVar's statement types, classifications and review status | You want to understand the data, or need exact field definitions |
-| [Use the Data](parquet/index.md) | [Query the Data](parquet/index.md) (the 20 Parquet tables, a browser query console, joins, recipes and working at scale), [Working in Python](working-in-python.md) (the GA4GH libraries on bundles and Parquet) and two end-to-end [User Stories](user-story.md) | You want to work with the data in SQL or Python, or see it used for a real task |
+| [Start Here](index.md) | What ClinVar-GKM is, a quick start, its key concepts, which data to choose, what you can do with it and the tools to set up, plus this guide, [Data Use and Citation](data-use.md) (the ClinVar disclaimer, how to cite, the license) and [Stay Informed](stay-informed.md) (the announcement list) | You are new to the project, or about to use, publish or share the data |
+| [Get the Data](data-access/download.md) | The files: monthly and weekly full bundles, weekly deltas, keeping a copy current, Parquet, and [how releases work](data-access/release-model.md) | You need the data, or need to keep a copy current |
+| [Build & Query](parquet/index.md) | [Query with SQL](parquet/index.md) (the 20 Parquet tables, a browser query console, joins and working at scale), [Recipes](parquet/recipes.md), [Build Your Own Dataset](build/index.md), tracking change over time, [Working in Python](working-in-python.md) (the GA4GH libraries on bundles and Parquet) and two end-to-end [User Stories](user-story.md) | You want to work with the data in SQL or Python, or see it used for a real task |
+| [Understand the Data](output-reference/overview.md) | What each part of the bundle means: variations, SCV, VCV and RCV statements, ID references and annotated examples, and [Mapping & Vocabularies](profiles/index.md), which maps ClinVar's statement types, classifications and review status | You want to understand the data |
 | [How It's Built](pipeline/index.md) | Each step from ClinVar's XML to the published bundle | You want to know how a value was produced |
-| Reference | [Versioning](reference/versioning.md), [Changelog](reference/changelog.md), [Release Validation](reference/release-validation.md), [Known Issues](reference/known-issues.md), [FAQ](reference/faq.md), [Glossary](reference/glossary.md) and more | You need what changed, what is guaranteed, or a definition |
+| Reference | The [Data Model](output-reference/classes/index.md) (every class and field, generated from the schemas), [Versioning](reference/versioning.md), [Changelog](reference/changelog.md), [Release Validation](reference/release-validation.md), [Known Issues](reference/known-issues.md), [FAQ](reference/faq.md), [Glossary](reference/glossary.md) and more | You need exact field definitions, what changed, what is guaranteed, or a definition |
 
 The tabs build on each other:
 
+- **Start Here** orients you and gets you to a first result.
 - **Get the Data** delivers the files.
-- **Understand the Data** explains what is in them and defines every field exactly.
-- **Use the Data** offers the same content as tables you can query.
+- **Build & Query** turns them into tables you can query, and datasets of your own.
+- **Understand the Data** explains what is in them.
 - **How It's Built** explains how each value was derived from ClinVar.
-- **Reference** records what changes between releases and what each release guarantees.
+- **Reference** defines every field exactly, and records what changes between releases and what each release guarantees.
 
 ---
 
@@ -43,7 +44,7 @@ Everything on a ClinVar variation page has a place in the bundle. This table map
 | "Pathogenic", "Drug response", and the other classification terms | A classification on a typed **proposition** (for example `VariantPathogenicityProposition`) | [Classifications](profiles/classifications.md), [Propositions](profiles/propositions.md) |
 
 **Suggested order:**
-1. The [Key Concepts](index.md#key-concepts) on Home.
+1. The [Key Concepts](index.md#key-concepts) on the home page.
 2. [Output Format](output-reference/overview.md), for how the bundle's sections fit together.
 3. The statement pages, starting with [SCV Statements](output-reference/scv-statements.md).
 4. The annotated [Examples](data-access/examples.md), to see one real variation end to end.
