@@ -21,20 +21,22 @@
 # Usage: ./upload-gkm-delta-to-r2.sh <export_date> <delta_bundle> <manifest_file> [--dry-run] [--purge] [--allow-gap]
 #
 # --dry-run completes a COPY of the manifest (prints its checkpoint) and writes nothing to R2.
-# --purge purges the CDN copy of the paths written; only needed when overwriting an existing delta.
+# The files written (bundle, .sha256, manifest) are purged from the CDN afterwards: dated paths are cached for a
+# month, so a request made before a file existed would otherwise keep returning a cached 404. --purge is accepted
+# and changes nothing.
 set -euo pipefail
 
 if [[ $# -lt 3 ]]; then
-  sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'; exit 1
+  sed -n '2,26p' "$0" | sed 's/^# \{0,1\}//'; exit 1
 fi
 EXPORT_DATE="$1"; DELTA_BUNDLE="$2"; MANIFEST_FILE="$3"; shift 3
 [[ "$EXPORT_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "ERROR: export_date must be YYYY-MM-DD, got '${EXPORT_DATE}'" >&2; exit 1; }
 
-DRY_RUN=false; PURGE=false; ALLOW_GAP=false
+DRY_RUN=false; ALLOW_GAP=false
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=true ;;
-    --purge) PURGE=true ;;
+    --purge) ;;
     --allow-gap) ALLOW_GAP=true ;;
     *) echo "ERROR: unknown argument '${arg}'" >&2; exit 1 ;;
   esac
@@ -95,6 +97,6 @@ r2_put "${MAN}" "${MAN_KEY}" "application/json"
 IDX=(); ${DRY_RUN} && IDX+=(--dry-run)
 "${SCRIPT_DIR}/generate-r2-index.sh" "${IDX[@]+"${IDX[@]}"}"
 
-${PURGE} && cf_purge files "${KEY}" "${KEY}.sha256" "${MAN_KEY}"
+cf_purge files "${KEY}" "${KEY}.sha256" "${MAN_KEY}"
 
 echo "=== DELTA upload complete: ${R2_PUBLIC_URL}/${KEY} ==="

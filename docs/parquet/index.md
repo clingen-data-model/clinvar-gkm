@@ -72,7 +72,7 @@ The [Downloads → Parquet Files](../data-access/parquet.md) page lists every fi
 Two ways to query without installing anything:
 
 - **The console on this page** (above) — already running against the published data.
-- **The DuckDB Web Shell** at [shell.duckdb.org](https://shell.duckdb.org){ target=_blank rel=noopener } — drag a downloaded `condition.parquet` onto the page (or use **Import**), then run `SELECT id, name FROM condition;`.
+- **The DuckDB Web Shell** at [shell.duckdb.org](https://shell.duckdb.org){ target=_blank rel=noopener } — drag a downloaded `condition.parquet` onto the page (or use **Import**), then run `SELECT id, name FROM 'condition.parquet';` (quote the file name: the shell registers a file, not a table).
 
 ---
 
