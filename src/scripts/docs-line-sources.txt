@@ -13,8 +13,9 @@
 #
 # 1.2: the 1.2.0 tag predates the per-line download pages and the Previous Releases page
 # (#241), the per-version Previous Releases rule (#247) and Parquet for Previous Releases
-# (#250), with the clearer download commands. 714f387 is that commit on 1.0.
+# (#250), with the clearer download commands and the runnable examples (#257, #261, ADR 0012).
+# 3364921 is that commit on 1.0.
 #
 # line  source                                    label
 1.1     cae716ef0d270854ecae2c688114109c4ef64d9d  1.1.0
-1.2     714f387065f7d42595131c5736911d18af955cc5  1.2.0
+1.2     3364921e94b0a2ba9c29736bb127b0ef9f1a5645  1.2.0

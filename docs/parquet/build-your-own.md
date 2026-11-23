@@ -18,20 +18,29 @@ from the published JSON bundle. You can run the same tool yourself to:
 | Writes | table spec `sections` 2.0, default policy 2.0, with DuckDB 1.5.4 (pinned) |
 | Needs | Python 3.10 or later |
 
+!!! note "Prerequisites"
+    - **Python 3.10 or later** (tested with 3.14.5), and one way to run the tool:
+      [uv](https://docs.astral.sh/uv/getting-started/installation/) (`uvx`, as the examples are written; tested
+      with 0.6.14), [pipx](https://pipx.pypa.io/stable/), or `pip` in a virtual environment of your own. See
+      [Install](#install).
+    - **bash or zsh.** The commands work in both, on macOS and Linux.
+    - **A bundle.** The examples read the **2026-11-15 weekly delta**,
+      `clinvar-gkm-delta_2026-1115.json.gz` (5 MB, 39,062 records), downloaded in
+      [Build the tables](#build-the-tables). The full-bundle examples read the newest monthly,
+      `clinvar-gkm_00-latest.json.gz` (4.9 GB compressed), from [Monthly Full Bundles](../data-access/monthly-full.md).
+    - **Resources.** Every command on the delta finishes in under 15 s with under 2 GB of memory. A full-bundle
+      `build` takes about 3.5 hours on a 16 GB machine (10 GiB of memory, about 30 GB of free disk), or 40
+      minutes on a large one ([A full bundle](#a-full-bundle)); a full-bundle `select` streams, taking about 11
+      minutes and under 100 MB of memory.
+    - Run every command from one working directory: later blocks read the files earlier blocks write.
+
 !!! info "Measured runs"
-    The commands on this page were run as written, in zsh, with `gkm-bundle-parquet` 2.0.0 from PyPI (through
-    `uvx`), on 2026-11-21, on an Apple M2 Pro laptop (16 GB of memory, 10 cores) that was running other work at
-    the same time. The full `build` commands are the exception: they were measured on other machines, and say so
-    where they appear. The bundles are the published 1.2 ones:
-
-    - the **2026-11-08 weekly delta** (`v1/1.2/deltas/clinvar-gkm-delta_2026-1108.json.gz`, 61 MB, 1,779,702
-      records) for the quick examples;
-    - the **2026-11-15 weekly full** (`v1/1.2/weekly/clinvar-gkm_2026-1115.json.gz`, 4.9 GB, 91,973,603
-      records) for the selections that need a whole release.
-
-    The output quoted is the real output; times and peak memory come from `/usr/bin/time -l`. A full `build` was
-    not run on the laptop: its figures come from a 16 GB cloud machine and from the tool maintainers' own
-    measurements on a 128 GiB one ([A full bundle](#a-full-bundle)).
+    Every command on this page was run with `gkm-bundle-parquet` 2.0.0 from PyPI, on an Apple M2 Pro laptop
+    (16 GB of memory, 10 cores), against the published **2026-11-15 weekly delta**
+    (`v1/1.2/deltas/clinvar-gkm-delta_2026-1115.json.gz`, 5 MB, 39,062 records). The output quoted is the real
+    output. Figures for a **full** bundle come from a 16 GB cloud machine and the tool's own release measurements
+    ([A full bundle](#a-full-bundle)), except the full-bundle `select` and the
+    [weekly replay](#rebuild-a-weeks-full-bundle), which were run on this laptop.
 
 ---
 
@@ -93,14 +102,15 @@ The tool fetches the schema and every schema it references once, and caches them
   declares the target table of most references, so nearly every value gets a typed column: 146 top-level columns
   over the 20 tables. `generate` lists the 51 positions it keeps as JSON text, mostly extensions nested inside
   extensions.
-- **A 1.1.0 bundle gives wider tables.** Its schema leaves many classes open, so a 1.1.0 bundle built with the
-  1.1.0 schema has 339 top-level columns, and `generate` lists 181 JSON-text positions. The records are the same
-  kind; only the columns differ. ClinVar-GKM publishes a column set that narrows them to what 1.1.0 bundles hold;
-  see [Parquet for Previous Releases](previous-releases.md).
+- **A 1.1.0 bundle gives wider tables.** Its schema leaves many classes open, so the 1.1.0 2026-10-31 delta
+  (495,547 records) built with the 1.1.0 schema has 339 top-level columns, and `generate` lists 181 JSON-text
+  positions. The records are the same;
+  only the columns differ. ClinVar-GKM publishes a column set that narrows them to what 1.1.0 bundles hold; see
+  [Parquet for Previous Releases](previous-releases.md).
 
-The commands below keep the two options in a shell array, `P`, and pass it as `"${P[@]}"`. Written this way it
-works in bash and in zsh (zsh passes a plain string variable, `$P`, as one argument, which the tool refuses with
-`unrecognized arguments`):
+The commands below use a shell array for the two options, written `"${P[@]}"`; an array works in both bash and
+zsh, where a plain string variable would reach the tool as one argument. Set it once in the shell you run the
+other blocks in:
 
 ```bash
 P=(--bundle-schema https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json --version-property schema_version)
@@ -108,62 +118,46 @@ P=(--bundle-schema https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm
 
 ---
 
-## Get a bundle
-
-The quick examples use the 2026-11-08 weekly delta. Download it with its `.sha256` sidecar, and check it:
-
-```bash
-D=https://data.clinvar-gkm.org/v1/1.2/deltas/clinvar-gkm-delta_2026-1108.json.gz
-curl -f --retry 5 -O "$D" -O "$D.sha256"
-shasum -a 256 -c clinvar-gkm-delta_2026-1108.json.gz.sha256
-```
-
-```text
-clinvar-gkm-delta_2026-1108.json.gz: OK
-```
-
-On Linux, `sha256sum -c` does the same as `shasum -a 256 -c`.
-
-A delta's folder changes when its month ends (November's deltas move to `deltas/2026-11/` when December's first
-release is published), so for any other bundle copy the path from the line's
-[`index.json`](https://data.clinvar-gkm.org/v1/1.2/index.json); see
-[Weekly Deltas](../data-access/weekly-deltas.md) and [Weekly Full Bundles](../data-access/weekly-full.md).
-
-!!! note "A delta holds only that week's changes"
-    A delta holds the records added or updated in one weekly release, not the records they point to. Built on its
-    own it gives tables of those records, and a selection from it reports **dangling pointers**: references to
-    records the delta doesn't carry, such as an unchanged variant. Use a full bundle when you need everything a
-    record points to.
-
----
-
 ## Build the tables
 
-`build` reads one bundle and writes one Parquet file per section, plus `manifest.json` and `table-spec.json`:
+Download the 2026-11-15 weekly delta and its checksum sidecar into the working directory. Every delta example on
+this page reads it. Its path changes when its month ends (it moves to `deltas/2026-11/`), so the commands look it
+up in the line's `index.json`:
 
 ```bash
-uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm-delta_2026-1108.json.gz "${P[@]}" --out parquet/
+DELTA=$(curl -fsS https://data.clinvar-gkm.org/v1/1.2/index.json | python3 -c '
+import json, sys
+print(next(d["bundle"]["path"] for d in json.load(sys.stdin)["deltas"] if d["release"] == "2026-11-15"))')
+curl -fO "https://data.clinvar-gkm.org/${DELTA}"
+curl -fO "https://data.clinvar-gkm.org/${DELTA}.sha256"
+```
+
+`build` reads one bundle and writes one Parquet file per section, plus `manifest.json` and `table-spec.json`
+(uses `P` from [Name the bundle's schema](#name-the-bundles-schema)):
+
+```bash
+uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}" --out parquet/
 ```
 
 ```text
-built 20 table(s) of spec sections 2.0, 1779702 rows
-  sequenceReference                               0  06fe78a6d748
-  location                                     3801  942f31c1104c
-  allele                                       4286  c0f91b3de4a9
+built 20 table(s) of spec sections 2.0, 39062 rows
+  sequenceReference                               0  e3e7d2b96baf
+  location                                      176  8b17d4d0e861
+  allele                                        230  dbc7056a155d
   …
-  propositionPathogenicity                    43250  73fec52f0434
+  propositionPathogenicity                     3399  4f59dd9944fe
   …
-  evidenceLine                               797887  6616d29e09ba
-  scv                                        173337  bd3404974e35
-  vcv                                        392507  332563e2e81c
-  rcv                                        358893  c25034d75154
+  evidenceLine                                 6064  038fd5c573b3
+  scv                                         17562  333222b90a40
+  vcv                                          2941  ca684960ee57
+  rcv                                          2548  b7796596ea52
 manifest: parquet/manifest.json
 ```
 
-The last column is the start of each file's sha256. A section the bundle doesn't hold gets an empty table, so a
-set always has all 20. Progress lines go to stderr.
+The last column is the start of each file's sha256. Progress lines go to stderr. A delta holds only the records
+that changed that week, so some tables are empty.
 
-On the delta: **32 s**, 3.4 GB peak memory, 42 MB of output (20 tables, `manifest.json`, `table-spec.json`).
+On the delta: **9 s**, 1.9 GB peak memory, 5 MB of output (20 tables, `manifest.json`, `table-spec.json`).
 
 - **The bundle's checksum.** Pass `--sha256 <hex>`, or keep the published `<file>.sha256` sidecar beside the
   bundle and the tool checks it. A bundle URL works as `--full` too; it is streamed.
@@ -175,7 +169,8 @@ On the delta: **32 s**, 3.4 GB peak memory, 42 MB of output (20 tables, `manifes
 ### A full bundle
 
 To build the tables of a whole release, pass a monthly or weekly full bundle (about 4.9 GB compressed; 91,973,603
-records in the 2026-11-15 weekly full). It builds on a 16 GB machine; more memory makes it faster.
+records in the 2026-11-15 weekly full), such as `clinvar-gkm_00-latest.json.gz` from
+[Monthly Full Bundles](../data-access/monthly-full.md). It builds on a 16 GB machine; more memory makes it faster.
 
 | Command | 16 GB machine | 128 GiB machine |
 | --- | ---: | ---: |
@@ -186,10 +181,11 @@ records in the 2026-11-15 weekly full). It builds on a 16 GB machine; more memor
 | `validate` (`rs` engine) | | 11 min |
 
 The **16 GB machine** is a Google Cloud `e2-standard-4` (4 vCPUs, 16 GB of memory, SSD, Debian 12), building the
-2026-11-15 weekly full on 2026-11-22 with this command and no other options:
+2026-11-15 weekly full on 2026-11-22 with the defaults and a `--work-dir`. The same command for the newest monthly
+(replace `/big/disk/tmp` with a directory on a disk with about 30 GB free):
 
 ```bash
-uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm_2026-1115.json.gz "${P[@]}" --out parquet-2026-1115/ \
+uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm_00-latest.json.gz "${P[@]}" --out parquet-full/ \
     --work-dir /big/disk/tmp
 ```
 
@@ -307,6 +303,8 @@ they are identical.
 
 ---
 
+---
+
 ## Cut a mini-bundle
 
 A **selection** starts from rows of one table, the **driver**, and follows the bundle's `#/…` references to
@@ -332,101 +330,79 @@ propositions. Keep `--max-depth` low whenever the walk can reach a condition, ge
 ### One submitter's submissions
 
 Every SCV of one submitter, their propositions and evidence lines, the variants and conditions they are about,
-and the VCV and RCV statements that cite them, from the delta:
+and the VCV and RCV statements that cite them:
 
 ```bash
-uvx gkm-bundle-parquet@2.0.0 select --full clinvar-gkm-delta_2026-1108.json.gz "${P[@]}" \
-    --driver submitter --where "name = 'Egypt Genome Project'" \
+uvx gkm-bundle-parquet@2.0.0 select --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}" \
+    --driver submitter --where "name = 'ClinGen Leukodystrophy and Leukoencephalopathy Variant Curation Expert Panel, ClinGen'" \
     --follow both --max-depth 3 \
-    --out egypt-genome-project.json.gz
+    --out leukodystrophy-ep.json.gz
 ```
 
 ```text
-selected 155 record(s) in 7 section(s) from clinvar-gkm-delta_2026-1108.json.gz: egypt-genome-project.json.gz (11234 bytes, sha256 47602f0da2bafb35e7d6f716ab57cad52673da3ac34b8426c54675b9307c3f7b)
-  variation                                      16
+selected 219 record(s) in 5 section(s) from clinvar-gkm-delta_2026-1115.json.gz: leukodystrophy-ep.json.gz (17718 bytes, sha256 989c64af…)
   submitter                                       1
-  propositionPathogenicity                       23
-  evidenceLine                                   46
-  scv                                            23
-  vcv                                            23
-  rcv                                            23
+  evidenceLine                                   73
+  scv                                            72
+  vcv                                             1
+  rcv                                            72
 ```
 
-**19 s** on the delta, 0.1 GB of memory. From the submitter, depth 1 reaches its SCVs; depth 2 their propositions
-and the VCV and RCV evidence lines that cite them; depth 3 the variants, the conditions and the citing VCV and RCV
-statements. The run also reported `46 dangling pointer(s) (a full bundle should have none)`, for example
-`#/variation/clinvar:1019796`: the delta holds only the records that changed that week, not the unchanged
-variants and conditions they point to. A selection from a full bundle has none.
+**1 s** on the delta. From the submitter, depth 1 reaches its SCVs; depth 2 their propositions and the VCV and
+RCV evidence lines that cite them; depth 3 the variants, the conditions and the citing VCV and RCV statements.
+A delta holds only the records that changed that week: here the SCVs changed but their propositions didn't, so
+the walk stops at them, and the run also reported 72 references to records the delta doesn't carry (the
+unchanged propositions). A selection from a full bundle has none.
 
 ### One variant
 
-A variant's propositions and every statement about them, from the 2026-11-15 weekly full (download it as in
-[Weekly Full Bundles](../data-access/weekly-full.md), with its sidecar):
+A variant's propositions and every statement about them, from a full bundle (`clinvar-gkm_00-latest.json.gz`,
+from [Monthly Full Bundles](../data-access/monthly-full.md)):
 
 ```bash
-uvx gkm-bundle-parquet@2.0.0 select --full clinvar-gkm_2026-1115.json.gz "${P[@]}" \
+uvx gkm-bundle-parquet@2.0.0 select --full clinvar-gkm_00-latest.json.gz "${P[@]}" \
     --driver variation --ids clinvar:10,clinvar:51592 \
     --follow in --max-depth 2 \
     --out two-variants.json.gz
 ```
 
-```text
-selected 336 record(s) in 6 section(s) from clinvar-gkm_2026-1115.json.gz: two-variants.json.gz (32876 bytes, sha256 03601a91901a4fa22bcab39079e69e78fb336413ea5baa565ac9a7fbfd6a24cb)
-  variation                                       2
-  propositionPathogenicity                      140
-  propositionClinvarCustom                       27
-  scv                                            98
-  vcv                                            16
-  rcv                                            53
-```
-
-**9.9 minutes** on the laptop, two passes over the 4.9 GB file, under 0.1 GB of memory, 0 dangling pointers. A
-selection streams the bundle, so it needs neither the memory nor the disk of a full build.
-
 `--follow in` from a variant reaches its propositions (depth 1) and the SCV, VCV and RCV statements about them
 (depth 2). To add what those statements point to (submitters, conditions, the VRS records), run a second
 selection from the statements with `--follow out`, for example `--driver vcv --ids-file vcv-ids.txt --follow out`.
 
+Run on this laptop against the `2026-11` monthly (4.9 GB): **11 min**, two passes over the file, under 100 MB
+of memory, 336 records. A selection streams the bundle, so it needs neither the memory nor
+the disk of a full build.
+
 ### One gene's variants
 
 The gene list on each variant points to `gene`, so `--follow in` from a gene reaches its variants, then their
-propositions, then the statements. This needs a full bundle: a weekly delta holds only the genes whose records
-changed.
+propositions, then the statements:
 
 ```bash
-uvx gkm-bundle-parquet@2.0.0 select --full clinvar-gkm_2026-1115.json.gz "${P[@]}" \
+uvx gkm-bundle-parquet@2.0.0 select --full clinvar-gkm_00-latest.json.gz "${P[@]}" \
     --driver gene --where "name = 'MYH7'" \
     --follow in --max-depth 3 \
     --out myh7.json.gz
 ```
 
-```text
-selected 116806 record(s) in 7 section(s) from clinvar-gkm_2026-1115.json.gz: myh7.json.gz (6937325 bytes, sha256 1af03adc593c8df2d6e45ea284167ecffb33a0bda0fb0689f9c09451d5de9564)
-  gene                                            1
-  variation                                    6049
-  propositionPathogenicity                    55243
-  propositionClinvarCustom                      135
-  scv                                         16531
-  vcv                                         12728
-  rcv                                         26119
-```
-
-**14 minutes** on the laptop, three passes over the file, 0.2 GB of memory, 0 dangling pointers.
+This is a full-bundle example: a weekly delta holds only the genes whose records changed. It was not run for
+this page.
 
 ### Tables straight from a selection
 
 `build` takes the same options and builds the selection's tables directly:
 
 ```bash
-uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm-delta_2026-1108.json.gz "${P[@]}" \
-    --driver submitter --where "name = 'Egypt Genome Project'" \
+uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}" \
+    --driver submitter --where "name = 'ClinGen Leukodystrophy and Leukoencephalopathy Variant Curation Expert Panel, ClinGen'" \
     --follow both --max-depth 3 \
-    --out egypt-genome-project/
+    --out leukodystrophy-ep/
 ```
 
-**22 s**, 0.6 GB peak memory, 292 KB of tables (155 rows). Every file records the selection in its key-value
-metadata (`gkm_bundle_parquet.selection`), and so does `manifest.json`. `verify --bundle-recompute` checks such a
-set against its mini-bundle. `rebuild` refuses a set built with `--driver`; to get tables you can rebuild from,
+**3 s**, 0.3 GB peak memory, 264 KB of tables. Every file records the selection in its key-value metadata
+(`gkm_bundle_parquet.selection`), and so does `manifest.json`. `verify --bundle-recompute` checks such a set
+against its mini-bundle. `rebuild` refuses a set built with `--driver`; to get tables you can rebuild from,
 `select` the mini-bundle first and `build --full` it.
 
 ---
@@ -440,14 +416,14 @@ uvx gkm-bundle-parquet@2.0.0 rebuild parquet/ -o rebuilt.json.gz
 ```
 
 ```text
-rebuilt rebuilt.json.gz: bundle schema 1.2.0, 15 section(s), 1779702 records, 1202083529 bytes of text, records sha256 76b3ba7fd7dcaebdefd756c71b191adc82e97f402d22edfad30b8e2af8b3a091 (matches the manifest's records_sha256 and every section's section_records_sha256: record-identical to the source)
+rebuilt rebuilt.json.gz: bundle schema 1.2.0, 14 section(s), 39062 records, 68660443 bytes of text, records sha256 473016fd65cf2b61a81c04487597fa6f4b2a6cdea71ee694a14e6b518cb66927 (matches the manifest's records_sha256 and every section's section_records_sha256: record-identical to the source)
 ```
 
-**19 s**, 1.2 GB peak memory, a 38 MB bundle. It needs every table, `manifest.json` and `table-spec.json`, but
-neither the schema nor the source bundle. **Record-identical** means each rebuilt record has the same canonical
-JSON as its source record: keys sorted, arrays compared as sets of values, numbers by value. The file's text
-differs (key order, spacing); the records don't. The **records sha256** is a hash over every record's canonical
-form, which anyone can recompute from a bundle with a JSON parser and sha256; the tool's
+**5 s**, 0.7 GB peak memory, a 4 MB bundle. It needs every table, `manifest.json` and `table-spec.json`, but neither the
+schema nor the source bundle. **Record-identical** means each rebuilt record has the same canonical JSON as its
+source record: keys sorted, arrays compared as sets of values, numbers by value. The file's text differs (key
+order, spacing); the records don't. The **records sha256** is a hash over every record's canonical form, which
+anyone can recompute from a bundle with a JSON parser and sha256; the tool's
 [round-trip.md](https://github.com/clingen-data-model/gkm-bundle-parquet/blob/main/docs/round-trip.md) defines it.
 
 ---
@@ -456,8 +432,8 @@ form, which anyone can recompute from a bundle with a JSON parser and sha256; th
 
 ```bash
 uvx gkm-bundle-parquet@2.0.0 verify parquet/
-uvx gkm-bundle-parquet@2.0.0 verify parquet/ --roundtrip --full clinvar-gkm-delta_2026-1108.json.gz
-uvx gkm-bundle-parquet@2.0.0 verify parquet/ --bundle-recompute --full clinvar-gkm-delta_2026-1108.json.gz "${P[@]}"
+uvx gkm-bundle-parquet@2.0.0 verify parquet/ --roundtrip --full clinvar-gkm-delta_2026-1115.json.gz
+uvx gkm-bundle-parquet@2.0.0 verify parquet/ --bundle-recompute --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}"
 ```
 
 The first checks the directory alone, the second rebuilds the records and compares them with the bundle's, and
@@ -472,8 +448,8 @@ verify pass: directory check: 0 problem(s); bundle recompute: 0 group(s) differ
 | Check | What it proves | Delta |
 | --- | --- | ---: |
 | `verify DIR` | every file matches the manifest's sha256 and row counts, and carries the expected metadata | < 1 s |
-| `--roundtrip` | the tables rebuild the bundle's records exactly | 27 s, 1.3 GB |
-| `--bundle-recompute` | every row and value equals what the bundle gives | 7 s, 0.6 GB |
+| `--roundtrip` | the tables rebuild the bundle's records exactly | 6 s, 0.7 GB |
+| `--bundle-recompute` | every row and value equals what the bundle gives | 1 s, 0.2 GB |
 
 This is how the published set is checked before each upload, and how you can check a downloaded copy against
 the bundle of the same release.
@@ -485,26 +461,25 @@ the bundle of the same release.
 `validate` checks every record against the bundle's JSON Schema, each record on its own:
 
 ```bash
-uvx gkm-bundle-parquet@2.0.0 validate clinvar-gkm-delta_2026-1108.json.gz "${P[@]}"
+uvx gkm-bundle-parquet@2.0.0 validate clinvar-gkm-delta_2026-1115.json.gz "${P[@]}"
 ```
 
 ```text
-bundle: clinvar-gkm-delta_2026-1108.json.gz (sha256 c98b5b0c0b583fa311c6efc3be4eb9281e922afeab77bc1e0c0421b4c54cb605, sidecar)
-version: 1.2.0; schema set sha256 3b3920180d08f3343d7466ce55bbcb95f5cbc467c505a4e03797b8f3c48d6798
+bundle: clinvar-gkm-delta_2026-1115.json.gz (sha256 b370d385…, sidecar)
+version: 1.2.0; schema set sha256 3b392018…
 engine: rs; 10 workers
   section                                records  failing cpu ms/rec  compile s
   …
-  scv                                    173,337        0      0.048        0.0
-  vcv                                    392,507        0      0.073        0.0
-  rcv                                    358,893        0      0.077        0.0
-records: 1,779,702  failing: 0  (12.4 s)
+  scv                                     17,562        0      0.050        0.0
+  vcv                                      2,941        0      0.069        0.0
+  rcv                                      2,548        0      0.079        0.0
+records: 39,062  failing: 0  (3.7 s)
 PASS
 ```
 
-**13 s** on the delta; 24 minutes on the 2026-11-15 full bundle (above). `--failures bad.jsonl` writes each
-failing record's section, key and error paths. The default engine is `jsonschema-rs`; `--engine python` uses the
-GA4GH GKM Toolkit's validator instead (much slower; install `gkm-bundle-parquet[reference]`). Validate a bundle
-against its own `schema_version`'s schema.
+**4 s** on the delta. `--failures bad.jsonl` writes each failing record's section, key and error paths. The
+default engine is `jsonschema-rs`; `--engine python` uses the GA4GH GKM Toolkit's validator instead (much
+slower; install `gkm-bundle-parquet[reference]`). Validate a bundle against its own `schema_version`'s schema.
 
 ---
 
@@ -527,9 +502,8 @@ sections:
   …
 ```
 
-Under a second, from the schema alone; stderr lists the 29 IRI positions and the 51 JSON-text positions. A column
-set you write yourself is a **projection**: it narrows the tables (fewer columns, other names) and must say
-`projection: <name>`. See
+A column set you write yourself is a **projection**: it narrows the tables (fewer columns, other names) and must
+say `projection: <name>`. See
 [column-set-format.md](https://github.com/clingen-data-model/gkm-bundle-parquet/blob/main/docs/column-set-format.md).
 The published tables use no column set: they are the 1.2.0 schema's default.
 

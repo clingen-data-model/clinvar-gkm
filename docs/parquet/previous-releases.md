@@ -63,9 +63,20 @@ serve, and is refused with it.
 
 ## Build the tables
 
-The commands run the tool with `uvx`, which needs no install; with the tool installed
+The commands run the tool with `uvx`, which runs a pinned release without installing it; with the tool installed
 ([Install](build-your-own.md#install)), write `gkm-bundle-parquet` in place of `uvx gkm-bundle-parquet@2.0.0`.
 They work in bash and zsh.
+
+!!! note "Prerequisites"
+    - **[uv](https://docs.astral.sh/uv/getting-started/installation/)** for `uvx` (tested with 0.6.14), or
+      `gkm-bundle-parquet` 2.0.0 installed with `pipx` or `pip` ([Install](build-your-own.md#install)); it needs
+      Python 3.10 or later (tested with 3.14).
+    - `curl`, `python3` (step 1) and `shasum` (macOS) or `sha256sum` (Linux).
+    - **Data:** a `v1/1.1/` bundle, found in step 1 and downloaded in step 2. A delta is 2 to 150 MB; the 24 MB
+      delta in the examples built in 37 seconds with a 3.1 GB memory peak and verified in 29 seconds on a 16 GB
+      Apple M2 Pro. For a monthly, see [Time and memory](#time-and-memory) first.
+    - Each step continues from the one before: step 2 downloads a path that step 1 prints, and steps 3 and 4
+      read the file step 2 downloaded and the `parquet/` folder step 3 writes.
 
 ### 1. Find the bundle
 

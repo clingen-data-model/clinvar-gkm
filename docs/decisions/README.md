@@ -25,3 +25,4 @@ importing them so they don't bloat every session's context.
 - [0009 — R2 layout mirrors NCBI ClinVar](0009-r2-layout-mirrors-ncbi-clinvar.md)
 - [0010 — Automated monthly release announcements](0010-automated-monthly-release-announcements.md)
 - [0011 — Versioned documentation](0011-versioned-documentation.md)
+- [0012 — Documentation examples must run, and say what they need](0012-runnable-doc-examples.md)

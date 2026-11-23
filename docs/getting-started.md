@@ -5,7 +5,7 @@
 The latest ClinVar-GKM release is available as a compressed JSON file (with Parquet files also available for analytical use):
 
 !!! tip "Monthly full or weekly full?"
-    `clinvar-gkm_00-latest.json.gz` is the newest **official monthly**; it reflects the **last release of the _previous_ month** — e.g. the `2026-10` monthly is built from the `2026-09-28` release, the last one before ClinVar's October monthly cut. For the current week, download `weekly/clinvar-gkm_00-latest_weekly.json.gz` instead — see [Weekly Full Bundles](data-access/weekly-full.md).
+    `clinvar-gkm_00-latest.json.gz` is the newest **official monthly**; it reflects the **last release of the _previous_ month** — e.g. the `2026-11` monthly is built from the `2026-10-31` release, the last one before ClinVar's November monthly cut. For the current week, download `weekly/clinvar-gkm_00-latest_weekly.json.gz` instead — see [Weekly Full Bundles](data-access/weekly-full.md).
 
 ```text
 https://data.clinvar-gkm.org/v1/1.2/
@@ -13,14 +13,17 @@ https://data.clinvar-gkm.org/v1/1.2/
 
 Download and decompress:
 
+!!! note "Prerequisites"
+    **curl**. Each full bundle is about 4.9 GB compressed and 68.5 GB decompressed, so decompress one only if you have the disk; tools can read the `.gz` directly, streamed with `gunzip -c` ([Output File](data-access/output-files.md#count-records-in-a-full-bundle)).
+
 ```bash
 # Download the newest official monthly release
-curl -O https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
+curl -fO https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
 
 # Or the newest weekly release
-curl -O https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
+curl -fO https://data.clinvar-gkm.org/v1/1.2/weekly/clinvar-gkm_00-latest_weekly.json.gz
 
-# Decompress
+# Decompress (68.5 GB; skip this to read the .gz streamed)
 gunzip clinvar-gkm_00-latest.json.gz
 ```
 

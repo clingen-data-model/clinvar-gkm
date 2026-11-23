@@ -25,8 +25,8 @@ The list is read from the root `index.json`, so a line appears here as soon as i
 <noscript>
 The list of frozen lines needs JavaScript. Without it, read the root version manifest, which lists every line, its
 status and the path of its own index:
-<code>curl -s https://data.clinvar-gkm.org/index.json | python3 -m json.tool</code>
+<code>curl -fsS https://data.clinvar-gkm.org/index.json | python3 -m json.tool</code>
 — then a frozen line's index and plain-text guide, for example:
-<code>curl -s https://data.clinvar-gkm.org/v1/1.1/index.json | python3 -m json.tool</code>
-<code>curl -s https://data.clinvar-gkm.org/v1/1.0/README.txt</code>
+<code>curl -fsS https://data.clinvar-gkm.org/v1/1.1/index.json | python3 -m json.tool</code>
+<code>curl -fsS https://data.clinvar-gkm.org/v1/1.0/README.txt</code>
 </noscript>

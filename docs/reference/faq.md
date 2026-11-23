@@ -125,7 +125,9 @@ From 1.1.0, the first two gaps are closed and the third is labeled:
 ### How to see it in the data
 
 The qualifier is part of each SCV proposition in the bundle, and the `geneContextQualifier` STRUCT column of the
-proposition Parquet tables:
+proposition Parquet tables. The query below runs in [DuckDB](https://duckdb.org/docs/installation/) (tested with
+1.5.4) from the folder that holds `propositionPathogenicity.parquet`, downloaded from
+[Parquet Files](../data-access/parquet.md#download), which lists the prerequisites:
 
 ```sql
 -- Extensions are picked by name: the qualifier can carry two.

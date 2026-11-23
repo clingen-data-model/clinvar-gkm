@@ -18,15 +18,17 @@ DuckDB-Wasm ships three bundles: `mvp`, `eh`, and `coi`. `coi` needs cross-origi
 headers) that GitHub Pages cannot set, so it is unusable here. `eh` (exception handling) is supported by every
 modern browser, so the `mvp` fallback buys almost nothing for +38 MB. We vendor `eh` only.
 
-## Why `duckdb-browser.bundled.mjs` is a local build
+## Why `duckdb-browser.bundled.js` is a local build
 
 The package's own `dist/duckdb-browser.mjs` has a **bare import** — `import * as … from "apache-arrow"` — which a
-browser cannot resolve without an import map or a bundler. So we bundle it into one self-contained ESM:
+browser cannot resolve without an import map or a bundler. So we bundle it into one self-contained ESM. The build
+needs Node.js with npm (tested with Node 22.14 and npm 11.3, on macOS) and runs outside the repository. esbuild is
+pinned: with 0.28.2 these commands reproduce the committed bundle byte for byte.
 
 ```bash
 mkdir ddw-build && cd ddw-build
 npm init -y
-npm i @duckdb/duckdb-wasm@1.29.0
+npm i @duckdb/duckdb-wasm@1.29.0 esbuild@0.28.2
 printf 'export * from "@duckdb/duckdb-wasm";\n' > entry.mjs
 npx esbuild entry.mjs --bundle --format=esm --platform=browser --minify \
   --legal-comments=none --outfile=duckdb-browser.bundled.js

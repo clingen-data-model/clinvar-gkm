@@ -13,19 +13,21 @@ The 1.2 line starts with one **checkpoint monthly**, the first 1.2.0 full (`2026
 <div class="r2-browser" data-r2-type="monthly"></div>
 
 !!! note "Prerequisites"
-    The curl recipe needs only a shell. The Python recipe uses **Python 3** and only the standard library. New to Python? Install it from [python.org/downloads](https://www.python.org/downloads/) or your OS package manager.
+    - The curl recipe needs **curl**, and **`sha256sum`** (Linux, recent macOS) or **`shasum -a 256`** (any macOS) to check the download.
+    - The Python recipe uses **Python 3** and only the standard library (tested with 3.14). New to Python? Install it from [python.org/downloads](https://www.python.org/downloads/) or your OS package manager.
+    - **Disk.** A monthly full is about 4.9 GB compressed and 68.5 GB decompressed; each recipe shows two downloads of the same bytes (the stable URL and the dated one), so run the one you need. Read it streamed (`gunzip -c`) rather than decompressing it to disk; see [Output File](output-files.md#count-records-in-a-full-bundle).
 
 ??? example "Download a monthly full with curl"
     ```bash
     # Newest official monthly full (stable URL)
-    curl -O https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
+    curl -fO https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_00-latest.json.gz
 
     # Or a specific month of the current year, with its checksum
-    curl -O https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_2026-11.json.gz
-    curl -O https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_2026-11.json.gz.sha256
+    curl -fO https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_2026-11.json.gz
+    curl -fO https://data.clinvar-gkm.org/v1/1.2/clinvar-gkm_2026-11.json.gz.sha256
     sha256sum -c clinvar-gkm_2026-11.json.gz.sha256      # macOS: shasum -a 256 -c
 
-    # Decompress
+    # Decompress, only if you need the plain file: it is 68.5 GB, and gunzip -c streams it instead
     gunzip clinvar-gkm_00-latest.json.gz
     ```
 
@@ -47,12 +49,9 @@ The 1.2 line starts with one **checkpoint monthly**, the first 1.2.0 full (`2026
         "clinvar-gkm_2026-11.json.gz"
     )
 
-    # A prior year's monthly is under archive/YYYY/ (2026's monthlies move there when the first
-    # release of 2027 is published)
-    urllib.request.urlretrieve(
-        f"{BASE}/archive/2026/clinvar-gkm_2026-07.json.gz",
-        "clinvar-gkm_2026-07.json.gz"
-    )
+    # A prior year's monthly is under archive/YYYY/. 2026's monthlies move there when the first
+    # release of 2027 is published; from then on, 2026-11 is at
+    #     f"{BASE}/archive/2026/clinvar-gkm_2026-11.json.gz"
     ```
 
 !!! tip "Validate a downloaded bundle"

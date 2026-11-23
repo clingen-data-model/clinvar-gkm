@@ -75,10 +75,17 @@ regenerated from the 2026-10-18 release with the maintainer [sub-bundle](pipelin
 For the recurring, release-over-release audit, a submitter works from the published Parquet instead. A
 single DuckDB query flags the records that need a second look:
 
+!!! note "Prerequisites"
+    The [DuckDB CLI](https://duckdb.org/docs/installation/), tested with **1.5.4**, run from a directory holding
+    six files from `v1/1.2/parquet/`: `scv.parquet`, the four `proposition*.parquet` tables and
+    `condition.parquet`, about 1.2 GB together ([Downloads → Parquet Files](data-access/parquet.md#download)).
+    They must be local: `read_parquet('proposition*.parquet')` is a glob, and DuckDB can't expand a glob over
+    HTTPS.
+
 ```sql
 -- Everything submitter 196472 has in ClinVar, flagged for review.
--- (scv.parquet, the four proposition*.parquet tables and condition.parquet
---  from v1/1.2/parquet/ — rebuilt from the newest release every week.)
+-- Reads six downloaded files from v1/1.2/parquet/ (rebuilt from the newest release
+-- every week): scv.parquet, the four proposition*.parquet tables and condition.parquet.
 WITH mine AS (
   SELECT
     s.id,
@@ -100,8 +107,8 @@ SELECT
   id, classification, review_status, condition_name, last_evaluated,
   last_evaluated < '2022-01-01'                        AS stale,
   review_status IN ('no assertion criteria provided',
-                    'no classification provided',
-                    'flagged submission')               AS weak_status,
+                    'no classification',
+                    'flagged')                          AS weak_status,
   coalesce(lower(condition_name) IN ('not provided', 'not specified'), TRUE)
                                                         AS odd_condition
 FROM mine
