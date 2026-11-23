@@ -17,7 +17,7 @@ ClinVar up against any other VRS-aware dataset, without translating coordinates.
 - **Products** — VRS, Cat-VRS, VA-Spec, GKM-Core
 - **Pattern** — Cross-source variant harmonization
 - **Tools** — [vrs-python](https://github.com/ga4gh/vrs-python) and [va-spec-python](https://github.com/ga4gh/va-spec-python); the published clinvar-gkm [bundle](data-access/download.md)
-- **Status** — Release candidate
+- **Status** — In production: generally available since 1.1.0; current line 1.2
 
 !!! tip "New to GKM datasets?"
     The GA4GH [**GKM Starter Kit**](https://ga4gh.github.io/gkm-starter-kit/) is the best place to get
@@ -99,7 +99,8 @@ its strength, review status, submitter, and condition straight from the bundle.
 - **Get the data** — [Downloads](data-access/download.md).
 - **Understand the shape** — [Output Format](output-reference/overview.md) and
   [ID References](output-reference/id-references.md) (including a small `resolve()` helper for pointers).
-- **Pull one variant's full graph** — maintainers can use the
-  [Sub-Bundle Extraction](pipeline/sub-bundle.md) tool to slice a self-contained example like the one above.
+- **Pull one variant's full graph** — `gkm-bundle-parquet select` cuts a variant's propositions and statements
+  out of a published bundle into a mini-bundle (a second pass adds what those statements point
+  to); see [One variant](parquet/build-your-own.md#one-variant).
 - **See more GKM use cases** — the GKM Starter Kit's
   [user stories](https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/).

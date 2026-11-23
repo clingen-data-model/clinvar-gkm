@@ -1,12 +1,12 @@
 # Start Here
 
 !!! info "Release"
-    Counts on this page are from the **2026-10-31 release**. The Parquet tables are built from the JSON bundle and rebuilt each release, and one set is published per release line, overwritten every release, so the console's numbers are today's and may be higher than this page's.
+    Counts on this page are from the **2026-11-15 release** (the Parquet set published 2026-11-20). The Parquet tables are built from the JSON bundle and rebuilt each release, and one set is published per release line, overwritten every release, so the console's numbers are today's and may be higher than this page's.
 
 !!! warning "New tables from release 1.2.0"
     From release 1.2.0 the tables are built by `gkm-bundle-parquet` 2.0 and published at `v1/1.2/parquet/`: 20 tables
-    with different columns from the 22 BigQuery-exported tables at `v1/1.1/parquet/`. This track describes the new
-    tables. If you have queries for the old ones, see [Moving from the 1.1 Tables](migrating-from-1.1.md).
+    with different columns from the 22 BigQuery-exported tables the 1.1 line published at `v1/1.1/parquet/` (since
+    removed). This track describes the new tables. If you have queries for the old ones, see [Moving from the 1.1 Tables](migrating-from-1.1.md).
 
 ClinVar-GKM publishes all of ClinVar as **Parquet** — 20 typed tables you query with SQL, with no database server and no data-loading step. This page gets a real answer from real ClinVar data in about five minutes: no joins, no genomics background, and — to begin — nothing to install.
 
@@ -16,7 +16,7 @@ The console below runs SQL **in your browser**, directly against the published d
 
 <iframe src="../assets/duckdb-console.html" style="width:100%; height:640px; border:1px solid rgba(128,128,128,.25); border-radius:8px;" title="ClinVar-GKM live query console" loading="lazy"></iframe>
 
-The first example counts every **condition** in ClinVar: **23,426**. `condition.parquet` is the right table to start with — about 2 MB, one row per condition, and a plain-English `name` column, with none of the variant identifiers or nested structures the larger tables carry.
+The first example counts every **condition** in ClinVar: **23,450**. `condition.parquet` is the right table to start with — about 2 MB, one row per condition, and a plain-English `name` column, with none of the variant identifiers or nested structures the larger tables carry.
 
 ---
 

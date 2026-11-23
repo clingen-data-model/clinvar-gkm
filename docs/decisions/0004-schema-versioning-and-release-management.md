@@ -2,7 +2,7 @@
 
 - **Status:** Proposed
 - **Date:** 2026-10-08
-- **Spec:** `docs/superpowers/specs/2026-10-08-schema-versioning-and-release-management-design.md`
+- **Spec:** `superpowers/specs/2026-10-08-schema-versioning-and-release-management-design.md`
 - **Amended:** 2026-10-21 by [ADR 0008](0008-bundles-are-the-public-record.md) and
   [ADR 0009](0009-r2-layout-mirrors-ncbi-clinvar.md) (PR #168):
   - **§1:** a content-only correction that rewrites published bundles opens a new MINOR line folder (e.g.

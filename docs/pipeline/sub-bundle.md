@@ -1,5 +1,10 @@
 # Sub-Bundle Extraction
 
+!!! tip "Not a maintainer? Use `gkm-bundle-parquet select`"
+    This page describes a maintainer script that needs the project's BigQuery datasets. To cut a
+    self-contained subset out of a published bundle, use `gkm-bundle-parquet select` instead: see
+    [Cut a mini-bundle](../parquet/build-your-own.md#cut-a-mini-bundle).
+
 `sub-bundle.py` pulls a list of statements — SCV, VCV, and/or RCV — out of a built release
 dataset into a single, self-contained **sub-bundle**: a JSON object of named sections in which every
 `#/section/key` [reference](../output-reference/id-references.md) resolves within the file. It is the practical companion

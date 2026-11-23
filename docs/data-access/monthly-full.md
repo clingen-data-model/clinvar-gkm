@@ -15,7 +15,7 @@ The 1.2 line starts with one **checkpoint monthly**, the first 1.2.0 full (`2026
 !!! note "Prerequisites"
     - The curl recipe needs **curl**, and **`sha256sum`** (Linux, recent macOS) or **`shasum -a 256`** (any macOS) to check the download.
     - The Python recipe uses **Python 3** and only the standard library (tested with 3.14). New to Python? Install it from [python.org/downloads](https://www.python.org/downloads/) or your OS package manager.
-    - **Disk.** A monthly full is about 4.9 GB compressed and 68.5 GB decompressed; each recipe shows two downloads of the same bytes (the stable URL and the dated one), so run the one you need. Read it streamed (`gunzip -c`) rather than decompressing it to disk; see [Output File](output-files.md#count-records-in-a-full-bundle).
+    - **Disk.** A monthly full is about 4.9 GB compressed and 68.5 GB decompressed; each recipe shows two downloads of the same bytes (the stable URL and the dated one), so run the one you need. Read it streamed (`gunzip -c`) rather than decompressing it to disk; see [Count records in a full bundle](download.md#count-records-in-a-full-bundle).
 
 ??? example "Download a monthly full with curl"
     ```bash

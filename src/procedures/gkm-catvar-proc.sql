@@ -6,7 +6,7 @@
 --   gkm_catvar_proc_incremental(on_date, debug)  -> incremental (carry-forward + merge)
 --   gkm_catvar_build(on_date, debug, incremental) -> internal implementation
 --
--- Incremental strategy (see docs/superpowers/plans/2026-08-06-incremental-gks-
+-- Incremental strategy (see superpowers/plans/2026-08-06-incremental-gks-
 -- downstream-plan-1-catvar-and-foundations.md):
 --   The six global dedup dictionaries (sequence_reference, location, allele,
 --   copy_number_count, copy_number_change, gene) are ALWAYS globally recomputed —

@@ -2,7 +2,7 @@
 
 - **Status:** Proposed
 - **Date:** 2026-10-18
-- **Plan:** [`docs/superpowers/plans/2026-10-18-pipeline-simplification.md`](../superpowers/plans/2026-10-18-pipeline-simplification.md)
+- **Plan:** [`superpowers/plans/2026-10-18-pipeline-simplification.md`](https://github.com/clingen-data-model/clinvar-gkm/blob/main/superpowers/plans/2026-10-18-pipeline-simplification.md)
 
 ## Context
 
@@ -95,7 +95,7 @@ are.
 ## Consequences
 
 The principles point the pipeline toward fewer moving parts. The
-[simplification plan](../superpowers/plans/2026-10-18-pipeline-simplification.md) has the detail, the
+[simplification plan](https://github.com/clingen-data-model/clinvar-gkm/blob/main/superpowers/plans/2026-10-18-pipeline-simplification.md) has the detail, the
 measurements and the decisions still needed. In summary:
 
 - **Generate Parquet from the bundle output.** Build the Parquet tables from the cleaned records the assembler

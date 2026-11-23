@@ -691,9 +691,10 @@ laptop's memory. Three ways to work with it:
   flat. One pass reads the whole file.
 - **Query the Parquet** for the latest release to find the records you need, and cut just those out of the
   bundle with `gkm-bundle-parquet select`, as [above](#statements-propositions-and-variants).
-- **Cut a sub-bundle.** The [Sub-Bundle Extraction](pipeline/sub-bundle.md) tool, which made the 1.1.0
-  sample sub-bundle, extracts a self-contained bundle for a list of statements. It reads the project's
-  BigQuery tables, not a published file, so it needs access to those datasets.
+- **Cut a mini-bundle without the Parquet.** `select` also picks records by a condition on any section
+  (`--driver submitter --where "name = '…'"`), follows their pointers, and writes a small bundle the libraries
+  read like the delta; see
+  [Cut a mini-bundle](parquet/build-your-own.md#cut-a-mini-bundle).
 
 Streaming the delta's `scv` section, for example, to count classifications (`gzip`, `Counter` and `va` are
 imported above):

@@ -9,7 +9,7 @@
 --   gkm_rcv_statement_proc_incremental(on_date, debug)  -> incremental (carry-forward + merge)
 --   gkm_rcv_statement_build(on_date, debug, incremental) -> internal implementation
 --
--- Incremental strategy (see docs/superpowers/plans/2026-08-08-incremental-gks-
+-- Incremental strategy (see superpowers/plans/2026-08-08-incremental-gks-
 -- downstream-plan-3-rcv-vcv.md, Chunk 3):
 --   All three outputs are per-RCV-parent. They are built FROM the three rcv agg tables
 --   (gkm_rcv_classification_agg / _priority_agg / _aggregate_contribution — each carries

@@ -16,9 +16,10 @@ wrong?" into a query that produces a fresh report each time ClinVar updates.
 - **Products** — VA-Spec, Cat-VRS, VRS, GKM-Core
 - **Pattern** — Submitter self-audit / QC across releases
 - **Tools** — [DuckDB](https://duckdb.org/) or pandas over the published
-  [Parquet](data-access/parquet.md); the [sub-bundle](pipeline/sub-bundle.md) extract;
+  [Parquet](data-access/parquet.md); a [mini-bundle](parquet/build-your-own.md#cut-a-mini-bundle) cut with
+  `gkm-bundle-parquet select`;
   optionally [va-spec-python](https://github.com/ga4gh/va-spec-python)
-- **Status** — Release candidate
+- **Status** — In production: generally available since 1.1.0; current line 1.2
 
 !!! tip "New to GKM datasets?"
     The GA4GH [**GKM Starter Kit**](https://ga4gh.github.io/gkm-starter-kit/) is the best place to get
@@ -136,8 +137,9 @@ and newly odd conditions surface on their own.
   report; DuckDB reads the `.parquet` files directly with no load step.
 - **The clinvar-gkm [Parquet](data-access/parquet.md)** — one typed file per bundle
   section, refreshed every release.
-- **The [sub-bundle](pipeline/sub-bundle.md) tool** (maintainers) — `--submitter <id>` extracts one
-  submitter's entire footprint into a single portable bundle, as with `nch-igm-bundle.json.gz`.
+- **`gkm-bundle-parquet select`** — `--driver submitter` cuts one submitter's footprint out of a published
+  bundle into a single portable [mini-bundle](parquet/build-your-own.md#cut-a-mini-bundle), the shape of
+  `nch-igm-bundle.json.gz`.
 - **[va-spec-python](https://github.com/ga4gh/va-spec-python)** — optionally load the flagged statements
   as typed VA-Spec models for deeper, programmatic checks.
 
@@ -150,7 +152,8 @@ and newly odd conditions surface on their own.
   (2,443 SCVs, self-contained).
 - **Understand review status** — [Review Status](profiles/review-status.md) (the star levels the audit
   flags on).
-- **Extract your own** — maintainers can run the [sub-bundle](pipeline/sub-bundle.md) tool by
-  `--submitter`; anyone can filter the Parquet by their submitter id as shown above.
+- **Extract your own** — cut your submissions out of a published bundle with `gkm-bundle-parquet select
+  --driver submitter` ([One submitter's submissions](parquet/build-your-own.md#one-submitters-submissions)), or
+  filter the Parquet by your submitter id as shown above.
 - **See more GKM use cases** — the GKM Starter Kit's
   [user stories](https://ga4gh.github.io/gkm-starter-kit/latest/user-stories/).

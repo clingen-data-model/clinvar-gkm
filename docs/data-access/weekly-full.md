@@ -21,7 +21,7 @@ v1/1.2/weekly/
 !!! note "Prerequisites"
     - **curl**, and **`sha256sum`** (Linux, recent macOS) or **`shasum -a 256`** (any macOS) to check the download.
     - **Disk.** A weekly full is about 4.9 GB compressed and 68.5 GB decompressed. Read it streamed
-      (`gunzip -c`) rather than decompressing it to disk; see [Output File](output-files.md#count-records-in-a-full-bundle).
+      (`gunzip -c`) rather than decompressing it to disk; see [Count records in a full bundle](download.md#count-records-in-a-full-bundle).
 
 ??? example "Download a weekly full with curl"
     ```bash
@@ -42,4 +42,4 @@ v1/1.2/weekly/
 !!! tip "Monthly, weekly full, or monthly plus deltas?"
     - **The current state:** the newest weekly full.
     - **A fixed monthly snapshot that matches ClinVar's monthly release:** the official monthly.
-    - **Keeping a local copy current without re-downloading a full bundle every week:** the monthly plus the [weekly deltas](weekly-deltas.md).
+    - **Keeping a local copy current without re-downloading a full bundle every week:** the monthly plus the [weekly deltas](weekly-deltas.md), all from one line. When a new line starts, start again from its first monthly ([Consumer Replay Model](weekly-deltas.md#consumer-replay-model)).

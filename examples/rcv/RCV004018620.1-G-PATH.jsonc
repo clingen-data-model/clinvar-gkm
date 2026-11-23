@@ -2,19 +2,19 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:33389": {
-      "id": "clinvar.trait:33389",
-      "type": "MappableConcept",
       "conceptType": "Phenotype",
+      "id": "clinvar.trait:33389",
       "name": "Cardiovascular phenotype",
       "primaryCoding": {
-        "name": "Cardiovascular phenotype",
         "code": "CN230736",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
         "iris": [
           "https://identifiers.org/medgen:CN230736",
           "https://www.ncbi.nlm.nih.gov/medgen/CN230736"
-        ]
-      }
+        ],
+        "name": "Cardiovascular phenotype",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     }
   },
   "propositionPathogenicity": {
@@ -35,53 +35,44 @@
   },
   "evidenceLine": {
     "RCV004018620.1-G-PATH-CP.contributing": {
-      "id": "RCV004018620.1-G-PATH-CP.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV005023563.1"
-      ]
+      ],
+      "id": "RCV004018620.1-G-PATH-CP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "RCV004018620.1-G-PATH.contributing": {
-      "id": "RCV004018620.1-G-PATH.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/rcv/RCV004018620.1-G-PATH-CP"
-      ]
+      ],
+      "id": "RCV004018620.1-G-PATH.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     }
   },
   "rcv": {
     "RCV004018620.1-G-PATH": {
-      "id": "RCV004018620.1-G-PATH",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Likely"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Likely pathogenic"
+        "name": "Likely pathogenic",
+        "primaryCoding": {
+          "code": "likely pathogenic",
+          "system": "ACMG Guidelines, 2015"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionPathogenicity/RCV004018620-G-PATH",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -90,28 +81,32 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV004018620.1-G-PATH.contributing"
-      ]
+      ],
+      "id": "RCV004018620.1-G-PATH",
+      "proposition": "#/propositionPathogenicity/RCV004018620-G-PATH",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Likely",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "RCV004018620.1-G-PATH-CP": {
-      "id": "RCV004018620.1-G-PATH-CP",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Likely"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Likely pathogenic"
+        "name": "Likely pathogenic",
+        "primaryCoding": {
+          "code": "likely pathogenic",
+          "system": "ACMG Guidelines, 2015"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionPathogenicity/RCV004018620-G-PATH-CP",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -120,7 +115,20 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV004018620.1-G-PATH-CP.contributing"
-      ]
+      ],
+      "id": "RCV004018620.1-G-PATH-CP",
+      "proposition": "#/propositionPathogenicity/RCV004018620-G-PATH-CP",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Likely",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     }
   }
 }

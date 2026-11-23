@@ -9,7 +9,7 @@
 --   gkm_vcv_proc_incremental(on_date, debug)  -> incremental (carry-forward + merge)
 --   gkm_vcv_build(on_date, debug, incremental) -> internal implementation
 --
--- Incremental strategy (see docs/superpowers/plans/2026-08-08-incremental-gks-
+-- Incremental strategy (see superpowers/plans/2026-08-08-incremental-gks-
 -- downstream-plan-3-rcv-vcv.md, Chunk 4 — the VCV mirror of Chunk 2):
 --   All three outputs are per-VCV-parent (every row carries vcv_accession). Only the
 --   VCV parents impacted by this release are recomputed; the rest are carried forward

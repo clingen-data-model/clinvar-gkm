@@ -75,9 +75,10 @@ python3 src/scripts/extract-example.py --bundle clinvar-gkm_YYYY-MM.json.gz --al
 `--schema-version` overrides the `schema_version` written to the files. To print one fragment instead, pass a section
 and a key: `extract-example.py --bundle <bundle> vcv VCV000012582.69-G-PATH`.
 
-To validate a file, gzip it and run the official toolkit, which reads any JSON layout:
-`gzip -c examples/vcv/VCV000012582.69-G-PATH.jsonc > /tmp/x.json.gz && src/scripts/validate-bundle.sh /tmp/x.json.gz`.
+To validate a file, gzip it and run the official toolkit engine, which reads any JSON layout (the default `rs`
+engine reads only the bundle's one-record-per-line layout, and these files are indented):
+`gzip -c examples/vcv/VCV000012582.69-G-PATH.jsonc > /tmp/x.json.gz && src/scripts/validate-bundle.sh /tmp/x.json.gz --engine toolkit`.
 
-The current files come from the 2026-10-31 full bundle (schema 1.1.0), with `schema_version` relabeled 1.2.0: its
-records validate unchanged against the 1.2.0 schema. **Regenerate them from the first 1.2.0 full bundle at release:** that
-release adds `primaryCoding` to VCV and RCV classifications (#202), which these files do not have yet.
+The current files come from the first 1.2.0 full bundle, `v1/1.2/clinvar-gkm_2026-11.json.gz` (built from the
+2026-10-31 release; sha256 `157ef338…`), regenerated on 2026-11-23. Every file validates against the 1.2.0 bundle
+schema (42 files, 425 records, 0 failing).

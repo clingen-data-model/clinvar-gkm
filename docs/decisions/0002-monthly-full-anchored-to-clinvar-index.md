@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-08-24
-- **Spec:** `docs/superpowers/specs/2026-08-24-clinvar-index-monthly-trigger-design.md`
+- **Spec:** `superpowers/specs/2026-08-24-clinvar-index-monthly-trigger-design.md`
 
 ## Context
 
@@ -25,4 +25,4 @@ into the `YYYY-MM` slot. ClinVar's monthly XML is only a trigger signal — we n
 - `run-release.sh` Stage 5 scrapes the index (bounded to months newer than the latest published full) instead
   of using `schema_on`; the full is a re-export of existing `gkm_dict_*` tables, not a rebuild.
 - A one-time re-align moved existing fulls to the new scheme. Prior-month/prior-year retention is still an open
-  design ([release browser + archiving spec](../superpowers/specs/2026-08-26-release-browser-reorg-and-archiving-design.md)).
+  design ([release browser + archiving spec](https://github.com/clingen-data-model/clinvar-gkm/blob/main/superpowers/specs/2026-08-26-release-browser-reorg-and-archiving-design.md)).
