@@ -7,7 +7,7 @@
 --   gkm_scv_statement_proc_incremental(on_date, debug)  -> incremental (carry-forward + merge)
 --   gkm_scv_statement_build(on_date, debug, incremental) -> internal implementation
 --
--- Incremental strategy (see docs/superpowers/plans/2026-08-07-incremental-gks-
+-- Incremental strategy (see superpowers/plans/2026-08-07-incremental-gks-
 -- downstream-plan-2-scv.md, Chunk 3):
 --   TWO outputs are recomputed GLOBALLY every release (never carried forward):
 --     * gkm_dict_submitter — a GLOBAL dedup dictionary (GROUP BY submitter over the

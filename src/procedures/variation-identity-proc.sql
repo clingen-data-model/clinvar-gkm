@@ -7,7 +7,7 @@
 --   variation_identity_incremental(on_date, debug)  -> incremental (carry-forward + merge)
 --   variation_identity_build(on_date, debug, incr)  -> internal implementation
 --
--- Incremental strategy (see docs/superpowers/plans/2026-08-05-incremental-variation-identity-v2.md):
+-- Incremental strategy (see superpowers/plans/2026-08-05-incremental-variation-identity-v2.md):
 --   The heavy per-variation content parsing (parseSequenceLocations / parseHGVS /
 --   parseXRefs / SPDI) runs ONLY for the variations that changed since the prior
 --   release; the rest are carried forward from the baseline release and merged via

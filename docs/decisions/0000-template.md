@@ -2,7 +2,7 @@
 
 - **Status:** Proposed | Accepted | Superseded by NNNN
 - **Date:** YYYY-MM-DD
-- **Spec (if any):** `docs/superpowers/specs/…`
+- **Spec (if any):** `superpowers/specs/…`
 
 ## Context
 

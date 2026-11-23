@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-08-09
-- **Spec:** `docs/superpowers/specs/2026-08-06-incremental-gks-downstream-and-deltas-design.md`
+- **Spec:** `superpowers/specs/2026-08-06-incremental-gks-downstream-and-deltas-design.md`
 
 ## Context
 
