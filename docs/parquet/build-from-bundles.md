@@ -181,11 +181,14 @@ this page.
 | --- | ---: | ---: | --- |
 | 2026-10-31 delta, 495,547 records | 22 s, 2.4 GB | 16 s, 0.9 GB | a 16 GB laptop |
 | 2026-09-23 delta, 4,530,457 records (the largest) | 82 s, 3.3 GB | 66 s, 1.7 GB | a 16 GB laptop |
-| a monthly, about 90 million records | 38 min, 65 GiB | 30 min | a 128 GiB machine |
+| a full bundle, about 92 million records | 3 h 19 min, 10.0 GiB | over 2 h | a 16 GB cloud machine |
+| a full bundle, about 92 million records | 38 min, 65 GiB | 30 min | a 128 GiB machine |
 
-Every delta builds on a laptop. A monthly needs a large machine (the full-bundle figures are the tool's own
-measurements of a full bundle of the same size). On a smaller machine, pass `--memory-limit` and a `--work-dir`
-with about 65 GB free, and expect a much longer run.
+Every delta builds on a laptop. The full-bundle figures are for a 1.2 full bundle of the same size (the 2026-11-15
+weekly full; the 16 GB run's round trip was stopped after 2 hours, still running). A monthly builds on a 16 GB
+machine with the default memory settings and about 30 GB free in `--work-dir`, in a few hours; more memory makes
+it faster. `--memory-limit` caps DuckDB, not the whole process, so leave about 3 GB above it. The 1.2 docs give
+the details: [A full bundle](https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/build-your-own/#a-full-bundle).
 
 ---
 
