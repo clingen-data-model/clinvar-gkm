@@ -2,11 +2,13 @@
 
 Every release is gated before any file is published. The gates check the BigQuery tables the bundles are
 exported from, the real staged bundles themselves, and the Parquet dataset derived from them. A release is
-published only when every gate passes. This page lists the gates and the results for 1.1.0.
+published only when every gate passes. This page lists the gates and the results of each release, newest first.
 
-The step-by-step procedure, with the exact commands and the expected output of each gate, is the
+The step-by-step procedures, with the exact commands, are the
+[1.2.0 release runbook](https://github.com/clingen-data-model/clinvar-gkm/blob/main/docs/superpowers/plans/2026-11-18-1.2.0-release-runbook.md)
+and the
 [1.1.0 rebuild runbook](https://github.com/clingen-data-model/clinvar-gkm/blob/main/docs/superpowers/plans/2026-10-20-1.1.0-rebuild-runbook.md).
-The changes these gates verified are listed in the [1.1.0 changelog](changelog.md#110).
+The changes these gates verified are listed in the changelog: [1.2.0](changelog.md#120), [1.1.0](changelog.md#110).
 
 ---
 
@@ -20,7 +22,7 @@ The changes these gates verified are listed in the [1.1.0 changelog](changelog.m
 | **Strict schema validation** | `validate-bundle.sh`, with [jsonschema-rs](https://pypi.org/project/jsonschema-rs/) and a registry holding the repo's `schema/` tree (the ClinVar-GKM schemas and the GA4GH schemas they reference), validates every record of the real staged bundle, verbatim, against the bundle schema (Draft 2020-12). A failure stops the release before upload | Every full bundle and every delta (from 1.2.0; see below) |
 | **Official toolkit cross-check** | The official GA4GH gkm-toolkit's `validate_bundle_schema` (`ga4gh.gkm` 0.4.0, python-jsonschema) validates a stratified 1% sample of the line's first full bundle (`sample-bundle.py`: at least 3,000 records of every section, spread over the section, copied verbatim). The tests also require both engines to name the same failing records in bundles with planted violations, including inside the layered `variation`, `vcv` and `scv` profiles | Each version release |
 | **Structural check** | `schema_version`, section order, one well-formed record per line, and per-section record counts equal to the BigQuery tables | Every other full bundle |
-| **No null or empty values** | No field anywhere carries `null`, `""`, `[]` or `{}`, except the null bound of a VRS `Range`, which VRS uses for an open-ended coordinate | Every staged bundle |
+| **No null or empty values** | No field anywhere carries `null`, `""`, `[]` or `{}`, except the null bound of a VRS `Range`, which VRS uses for an open-ended coordinate, and the empty `sequence` of a deletion's VRS `ReferenceLengthExpression` (`length` 0) | Every staged bundle |
 | **Bundle ↔ Parquet** | Per-section record counts, ids in both directions, and a sampled comparison of each row's `data` with the bundle record | The Parquet dataset against the full bundle of the release it was built from |
 
 **1.1.0: the official toolkit on every record.** In 1.1.0 the gkm-toolkit validated the 2026-06-27 full and
@@ -37,6 +39,41 @@ takes about 15 minutes on a full bundle. The toolkit takes about 17 hours on 64 
 over layered `allOf`/`$ref` schemas (71 uses, against 27 in 1.1.0), and python-jsonschema re-evaluates every
 layer to apply it, where jsonschema-rs does not. So the toolkit now cross-checks a sample at each version release
 (see the table), and the engine tests require both engines to fail the same records.
+
+---
+
+## 1.2.0 Results
+
+1.2.0 built 3 BigQuery datasets with the 1.2.0 procedures (2026-10-31, 2026-11-08 and 2026-11-15) and published the
+new line `v1/1.2/`: the checkpoint monthly `clinvar-gkm_2026-11` (built from 2026-10-31), the weekly full bundles
+and deltas of 2026-11-08 and 2026-11-15, and a Parquet dataset built from 2026-11-15. The 1.2.0 runbook gated each
+release with delta reconstruction, jsonschema-rs on every record, the toolkit cross-check and the Parquet checks;
+the other gates are marked below.
+
+| Gate | Result |
+| --- | --- |
+| Proposition structure and reference integrity | **Not run** as a separate gate for 1.2.0 |
+| Expected difference | **Not run** for 1.2.0. The 1.2.0 changes to VCV and RCV records are described in the [changelog](changelog.md#120) |
+| Delta reconstruction | **PASS** on both published pairs, `0,0,0` on all 21 tables: 2026-10-31 → 2026-11-08 (across the ClinVar ingest versions `v2_6_1` → `v2_7_0`) and 2026-11-08 → 2026-11-15. The pair 2026-10-24 → 2026-10-31 spans the change of procedures (1.1.0 → 1.2.0) and is not a published 1.2 delta |
+| Strict schema validation | **PASS**, `failing: 0`, jsonschema-rs 0.61.1 on every record: the 2026-11 monthly (91,854,927 records), the 2026-11-08 weekly full (91,965,575), the 2026-11-15 weekly full (91,973,603) and the 2026-11-15 delta (39,062). The 2026-11-08 delta (1,779,702 records) was validated with the toolkit engine instead: `failing: 0` |
+| Official toolkit cross-check | **PASS**, `failing: 0`: the stratified 1% sample of the 2026-11 monthly, 940,700 records in 20 sections (1,771 s), and the whole 2026-11-08 delta (above) |
+| Structural check | Each validation run checked `schema_version` 1.2.0 against the schema's constant and counted the records of every section. No separate comparison with the BigQuery counts was run |
+| No null or empty values | **28 records found** in the 2026-11 monthly (91,854,927 records); none in the 2026-11-08 and 2026-11-15 deltas (1,779,702 and 39,062). Scanned on 2026-11-23 from the published files. In those 28 SCVs, the `submittedCondition` extension's `original_medgen_match` has an empty `name` (a MedGen id with no name; 27 at the top level, 1 inside `concepts`). The schema allows it, so schema validation passes; removing it is a [follow-up](#120-follow-ups). The deltas also hold 84 deletions whose `ReferenceLengthExpression` has an empty `sequence` (allowed, above). Each weekly full is the monthly plus the deltas before it, so it holds at most these 28 |
+| Bundle ↔ Parquet | **PASS** for 2026-11-08 and 2026-11-15, with `gkm-bundle-parquet` 2.0.0: `verify --bundle-recompute` (0 groups differ) and `verify --roundtrip` (identical) against the full bundle, 20 tables whose rows equal the bundle's records (91,965,575 and 91,973,603). The published set is 2026-11-15's |
+
+A delta's manifest counts the condition sets its change log records, including single-member sets, which the
+export drops (the 2026-11-15 delta's manifest counts 149 `conditionSet` records, the bundle holds 138). This doesn't
+affect the bundles: replaying the 2026-11 monthly and both deltas gives the 2026-11-15 weekly full exactly, in all
+20 sections, and replaying 2026-11-08 + the 2026-11-15 delta gives it exactly in `conditionSet`.
+
+### Follow-ups { #120-follow-ups }
+
+- **Empty MedGen name.** The export should leave out an empty `original_medgen_match.name` in the
+  `submittedCondition` extension (28 SCVs in the 2026-11 monthly), so the no-empty-values rule holds again.
+- **Gates not run for 1.2.0.** Proposition structure and reference integrity, and the expected-difference
+  comparison, weren't run; the next release runbook should run them, or say why they no longer apply.
+
+No stamped validation reports are attached to the 1.2.0 GitHub Release.
 
 ---
 
