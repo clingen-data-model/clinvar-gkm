@@ -10,13 +10,13 @@ This section is produced by the [Cat-VRS procedure](../pipeline/cat-vrs/index.md
 
 ### Variation Types
 
-ClinVar variations map to three Cat-VRS representation types:
+Every record has `type` `CategoricalVariant` and validates against one of four ClinVar profiles, in three groups:
 
-- **CanonicalAllele** — The vast majority of ClinVar variations. ClinVar identifies each variation by mapping submitted variant attributes to a GRCh38 genomic allele (falling back to GRCh37 or NCBI36 for historical data). This *defining allele* becomes the `DefiningAlleleConstraint`, and the same genomic allele generates the VRS allele referenced via `#/allele/`. See the [Cat-VRS CanonicalAllele](https://cat-vrs.readthedocs.io/) specification.
+- **CanonicalAllele** ([ClinvarCanonicalAllele](classes/ClinvarCanonicalAllele.md)) — The vast majority of ClinVar variations. ClinVar identifies each variation by mapping submitted variant attributes to a GRCh38 genomic allele (falling back to GRCh37 or NCBI36 for historical data). This *defining allele* becomes the `DefiningAlleleConstraint`, and the same genomic allele generates the VRS allele referenced via `#/allele/`. See the [Cat-VRS CanonicalAllele](https://cat-vrs.readthedocs.io/) specification.
 
-- **CategoricalCnvCount / CategoricalCnvChange** — Copy number variants use a `DefiningLocationConstraint` following the same identification approach, with an additional `CopyCountConstraint` when an absolute copy count is provided, or a `CopyChangeConstraint` when only gain/loss is indicated.
+- **Categorical CNV** ([ClinvarCategoricalCnvCount](classes/ClinvarCategoricalCnvCount.md) and [ClinvarCategoricalCnvChange](classes/ClinvarCategoricalCnvChange.md), two profiles) — Copy number variants use a `DefiningLocationConstraint` following the same identification approach, with an additional `CopyCountConstraint` when an absolute copy count is provided, or a `CopyChangeConstraint` when only gain/loss is indicated.
 
-- **Generalized Categorical Variant** — Haplotypes, genotypes, and other complex or ambiguously defined variants that cannot yet be mapped to a specific VRS allele or location. These rely solely on the ClinVar variation ID to distinguish them. Work continues within the GA4GH GKS workstream to expand VRS and Cat-VRS coverage for these types as community need arises.
+- **Non-constrained variant** ([ClinvarNonConstrainedVariant](classes/ClinvarNonConstrainedVariant.md)) — Haplotypes, genotypes, and other complex or ambiguously defined variants that cannot yet be mapped to a specific VRS allele or location. These rely solely on the ClinVar variation ID to distinguish them. Work continues within the GA4GH GKS workstream to expand VRS and Cat-VRS coverage for these types as community need arises.
 
 ---
 

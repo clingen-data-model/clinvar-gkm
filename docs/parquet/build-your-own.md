@@ -59,6 +59,9 @@ gkm-bundle-parquet 2.0.0: table spec sections 2.0, policy 2.0; duckdb 1.5.4
 …
 ```
 
+`version --json` prints the same as JSON (the tool, table spec, policy, DuckDB and validator versions), for a
+script that records what built a set.
+
 To have a `gkm-bundle-parquet` command instead, install it with one of these (uv, pipx, or pip into a virtual
 environment of your own), then write `gkm-bundle-parquet` wherever this page writes `uvx gkm-bundle-parquet@2.0.0`:
 
@@ -165,6 +168,9 @@ On the delta: **9 s**, 1.9 GB peak memory, 5 MB of output (20 tables, `manifest.
   source record. A difference stops the build; nothing is dropped silently.
 - **What you get is the published layout.** The same bundle and schema give the same tables and the same
   `table_spec_sha256` as the published set.
+- **Only some tables.** `--tables submitter,scv` builds only those tables (on the delta: 4 s, 1.0 GB peak
+  memory). Such a set is for querying: `verify` reports the other tables missing, and `rebuild` and
+  `verify --roundtrip` need every table.
 
 ### A full bundle
 
@@ -314,12 +320,12 @@ bundle's own layout. It is a real bundle: every tool that reads ClinVar-GKM bund
 | Option | Meaning |
 | --- | --- |
 | `--driver <table>` | the table the selection starts from |
-| `--where "<SQL>"` | a DuckDB condition over that table's columns, e.g. `name = 'OMIM'` |
+| `--where "<SQL>"` | a DuckDB condition over that table's columns, e.g. `name = 'OMIM'`; a field inside a STRUCT column by its dotted path, e.g. `classification.name = 'Pathogenic'` |
 | `--ids a,b` / `--ids-file f` | starting keys (added to `--where`) |
 | `--follow out` | add every record a selected record points to (the default) |
 | `--follow in` | add every record that points to a selected record |
 | `--follow both` | both, from every record reached |
-| `--max-depth N` | stop after N reference hops from the driver |
+| `--max-depth N` | stop after N reference hops from the driver; `0` keeps only the driver rows `--where` matched |
 | `--sections a,b` | only traverse and write these sections |
 
 Choose `--follow` and `--max-depth` with the bundle's hubs in mind. Following references **out** of a record
@@ -386,8 +392,29 @@ uvx gkm-bundle-parquet@2.0.0 select --full clinvar-gkm_00-latest.json.gz "${P[@]
     --out myh7.json.gz
 ```
 
-This is a full-bundle example: a weekly delta holds only the genes whose records changed. It was not run for
-this page.
+This is a full-bundle example, and it was not run for this page on a full bundle. A weekly delta holds only the
+genes whose records changed: the 2026-11-15 delta holds five, and MYH7 isn't one of them, so on the delta this
+command stops with `no driver keys`. With one of the delta's genes, `--where "name = 'TMEM266-AS1'"`, the same
+command selects the gene and the 3 changed variants that point to it, in **1 s**.
+
+### Rows of one table
+
+`--max-depth 0` follows no references, so a selection is a plain filter on the driver table. `--where` reaches
+into STRUCT columns by their dotted path. Every SCV classified Pathogenic in the delta:
+
+```bash
+uvx gkm-bundle-parquet@2.0.0 select --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}" \
+    --driver scv --where "classification.name = 'Pathogenic'" \
+    --max-depth 0 \
+    --out pathogenic-scvs.json.gz
+```
+
+```text
+selected 2242 record(s) in 1 section(s) from clinvar-gkm-delta_2026-1115.json.gz: pathogenic-scvs.json.gz (491629 bytes, sha256 2253d30d…)
+  scv                                          2242
+```
+
+**2 s**, 0.45 GB peak memory. The result is a bundle with one section; `validate` passes it.
 
 ### Tables straight from a selection
 
@@ -452,7 +479,8 @@ verify pass: directory check: 0 problem(s); bundle recompute: 0 group(s) differ
 | `--bundle-recompute` | every row and value equals what the bundle gives | 1 s, 0.2 GB |
 
 This is how the published set is checked before each upload, and how you can check a downloaded copy against
-the bundle of the same release.
+the bundle of the same release. Add `--report verify-report.md` to any of the three to keep the result as a
+Markdown report, with a `verify-report.json` beside it.
 
 ---
 
@@ -502,9 +530,32 @@ sections:
   …
 ```
 
-A column set you write yourself is a **projection**: it narrows the tables (fewer columns, other names) and must
-say `projection: <name>`. See
+A column set you write yourself is a **projection** and must say `projection: <name>`. In 2.0.0 a projection can
+rename a column (`name as submitter_name`) and give a type to a position the schema leaves as JSON text, but it
+can't drop data: it must list every section, and the build stops on any record that holds a property no column
+covers. The 1.2.0 schema allows only what the pipeline writes, so a 1.2.0 column set has no column it can leave
+out. On the 2026-11-15 delta, leaving `name` out of `submitter`, and leaving the `submitter` section out, stop the
+build with:
+
+```text
+error: table submitter: query failed: Invalid Input Error: table submitter: record: key clinvar.submitter:509533: top-level field(s) no column covers: [name]
+error: schema …/1.2.0/clinvar-gkm-bundle.schema.json: section submitter: position (the record): the collection has no entry in the column set; the column set must list its properties
+```
+
+The [1.1.0 column set](previous-releases.md#the-110-column-set) has fewer columns than its default only because
+the 1.1.0 schema allows properties no 1.1 bundle holds. See
 [column-set-format.md](https://github.com/clingen-data-model/gkm-bundle-parquet/blob/main/docs/column-set-format.md).
 The published tables use no column set: they are the 1.2.0 schema's default.
+
+To get **fewer tables**, build with `--tables` ([Build the tables](#build-the-tables)). To get **fewer columns**,
+build the tables and copy the columns you want into a file of your own with DuckDB, as in
+[Materialize the joins you repeat](performance.md#materialize-join-tables) (continues from
+[Build the tables](#build-the-tables)):
+
+```bash
+duckdb -c "COPY (SELECT id, classification.name AS classification, proposition FROM 'parquet/scv.parquet') TO 'scv-narrow.parquet' (FORMAT parquet)"
+```
+
+Such a file is yours to query; the tool's `verify` and `rebuild` don't read it.
 
 Next: the [20 tables](tables.md) the default gives, and [moving from the 1.1 tables](migrating-from-1.1.md).

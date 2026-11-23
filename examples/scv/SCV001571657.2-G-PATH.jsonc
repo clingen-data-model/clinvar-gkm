@@ -2,104 +2,104 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:15736": {
-      "id": "clinvar.trait:15736",
-      "type": "MappableConcept",
-      "conceptType": "Disease",
-      "name": "Acute myeloid leukemia",
       "aliases": [
-        "Acute myeloid leukemia, adult",
         "AML adult",
-        "Acute non-lymphocytic leukemia",
         "Acute granulocytic leukemia",
-        "Leukemia, acute myeloid, somatic",
-        "Leukemia, acute myelogenous, somatic"
+        "Acute myeloid leukemia, adult",
+        "Acute non-lymphocytic leukemia",
+        "Leukemia, acute myelogenous, somatic",
+        "Leukemia, acute myeloid, somatic"
       ],
-      "primaryCoding": {
-        "name": "Acute myeloid leukemia",
-        "code": "C0023467",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0023467",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0023467"
-        ]
-      },
+      "conceptType": "Disease",
+      "id": "clinvar.trait:15736",
       "mappings": [
         {
           "coding": {
             "code": "0004808",
-            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0004808",
               "https://identifiers.org/HP:0004808"
-            ]
+            ],
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "D015470",
-            "system": "https://id.nlm.nih.gov/mesh/",
             "iris": [
               "https://identifiers.org/mesh:D015470",
               "https://www.ncbi.nlm.nih.gov/mesh/?term=D015470"
-            ]
+            ],
+            "system": "https://id.nlm.nih.gov/mesh/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "0018874",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0018874",
               "https://identifiers.org/mondo:0018874"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "NBK47457",
-            "system": "https://www.ncbi.nlm.nih.gov/books/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/books/NBK47457"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/books/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "601626",
-            "system": "https://www.omim.org/",
             "iris": [
               "https://identifiers.org/mim:601626",
               "https://www.omim.org/entry/601626"
-            ]
+            ],
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "519",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_519",
               "https://identifiers.org/orphanet:519"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "17788007",
-            "system": "https://www.snomed.org/",
             "iris": [
               "https://identifiers.org/snomedct:17788007"
-            ]
+            ],
+            "system": "https://www.snomed.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Acute myeloid leukemia",
+      "primaryCoding": {
+        "code": "C0023467",
+        "iris": [
+          "https://identifiers.org/medgen:C0023467",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0023467"
+        ],
+        "name": "Acute myeloid leukemia",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     }
   },
   "submitter": {
@@ -153,59 +153,42 @@
   },
   "scv": {
     "clinvar.submission:SCV001571657.2": {
-      "id": "clinvar.submission:SCV001571657.2",
-      "type": "Statement",
-      "proposition": "#/propositionPathogenicity/SCV001571657-PATH",
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Pathogenic",
-        "primaryCoding": {
-          "code": "pathogenic",
-          "system": "ACMG Guidelines, 2015"
-        },
         "extensions": [
           {
             "name": "description",
             "value": "for Acute myeloid leukemia\nClassification is based on the no assertion criteria provided submission\nMar 2018 by Hematopathology, The University of Texas M.D. Anderson Cancer Center"
           }
-        ]
-      },
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Definitive",
+        ],
+        "name": "Pathogenic",
         "primaryCoding": {
-          "code": "definitive",
+          "code": "pathogenic",
           "system": "ACMG Guidelines, 2015"
-        }
-      },
-      "direction": "supports",
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "no assertion criteria provided"
+        },
+        "type": "MappableConcept"
       },
       "contributions": [
         {
-          "type": "Contribution",
+          "activityType": "submitted",
           "contributor": "#/submitter/clinvar.submitter:508027",
           "date": "2025-04-13",
-          "activityType": "submitted"
+          "type": "Contribution"
         },
         {
-          "type": "Contribution",
+          "activityType": "created",
           "contributor": "#/submitter/clinvar.submitter:508027",
           "date": "2021-04-24",
-          "activityType": "created"
+          "type": "Contribution"
         },
         {
-          "type": "Contribution",
+          "activityType": "evaluated",
           "contributor": "#/submitter/clinvar.submitter:508027",
           "date": "2018-03-30",
-          "activityType": "evaluated"
+          "type": "Contribution"
         }
       ],
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarScvId",
@@ -244,7 +227,24 @@
           "name": "submissionLevel",
           "value": "NOCP"
         }
-      ]
+      ],
+      "id": "clinvar.submission:SCV001571657.2",
+      "proposition": "#/propositionPathogenicity/SCV001571657-PATH",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "no assertion criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Definitive",
+        "primaryCoding": {
+          "code": "definitive",
+          "system": "ACMG Guidelines, 2015"
+        },
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     }
   }
 }

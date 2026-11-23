@@ -12,13 +12,15 @@ A weekly delta is published for every ClinVar release. Each delta is a bundle, i
 
 ```text
 v1/1.2/deltas/
-  clinvar-gkm-delta_2026-1206.json.gz             added + updated records (same section structure as the full bundle)
-  clinvar-gkm-delta_2026-1206.json.gz.sha256
-  clinvar-gkm-delta_2026-1206.manifest.json       per-section adds, updates, and deletes for this release
-  2026-11/
-    clinvar-gkm-delta_2026-1108.json.gz           a finished month, moved here when December's first release posted
-    ...
+  clinvar-gkm-delta_2026-1108.json.gz             added + updated records (same section structure as the full bundle)
+  clinvar-gkm-delta_2026-1108.json.gz.sha256
+  clinvar-gkm-delta_2026-1108.manifest.json       per-section adds, updates, and deletes for this release
+  clinvar-gkm-delta_2026-1115.json.gz
+  clinvar-gkm-delta_2026-1115.json.gz.sha256
+  clinvar-gkm-delta_2026-1115.manifest.json
 ```
+
+That is the 1.2 line in November 2026. When December's first release is published, November's deltas move to `v1/1.2/deltas/2026-11/`. The frozen 1.1 line shows the finished-month layout, for example `v1/1.1/deltas/2026-09/clinvar-gkm-delta_2026-0928.json.gz`.
 
 A delta's folder changes when its month or year rolls over; its file name and bytes do not. The line's `index.json` lists every delta with its current `bundle.path` and `manifest` path, so look paths up there rather than composing them. Deltas carry no Parquet: Parquet is derived and published only for the latest release ([Parquet Files](parquet.md)).
 
@@ -73,24 +75,27 @@ Each delta's manifest, `clinvar-gkm-delta_YYYY-MMDD.manifest.json`, describes ex
     "path": "v1/1.2/clinvar-gkm_2026-11.json.gz",
     "release": "2026-10-31",
     "month": "2026-11",
-    "sha256": "5d41402abc4b2a76…"
+    "sha256": "157ef338d1948cce…"
   },
   "sections": {
-    "allele":  { "added": 812,  "updated": 34,  "deleted": ["ga4gh:VA.oldDigest1"] },
-    "scv":     { "added": 1203, "updated": 517, "deleted": ["clinvar.submission:SCV000000001.1"] },
-    "vcv":     { "added": 44,   "updated": 96,  "deleted": [] }
+    "allele": { "added": 230,  "updated": 0,     "deleted": ["ga4gh:VA.zZ9dcuDMYuDkSzBwy7rLMI0R1zvZalla", "…"] },
+    "scv":    { "added": 1023, "updated": 16539, "deleted": ["clinvar.submission:SCV007600890.1", "…"] },
+    "vcv":    { "added": 2937, "updated": 4,     "deleted": ["VCV000183114.34-G-PATH", "…"] },
+    "…": {}
   },
-  "counts": { "A": 2063, "U": 647, "D": 2 },
+  "counts": { "A": 16335, "U": 22738, "D": 8296 },
   "schema_version": "1.2.0",
   "bundle": {
     "name": "clinvar-gkm-delta_2026-1115.json.gz",
     "path": "v1/1.2/deltas/clinvar-gkm-delta_2026-1115.json.gz",
-    "size": 104857600,
-    "sha256": "9e107d9d372bb682…"
+    "size": 5355360,
+    "sha256": "b370d3857ffd709b…"
   },
-  "sha256": "9e107d9d372bb682…"
+  "sha256": "b370d3857ffd709b…"
 }
 ```
+
+That is the 2026-11-15 manifest, cut to three of its 14 sections and the first key of each `deleted` list.
 
 | Field | Description |
 | --- | --- |
@@ -107,11 +112,20 @@ Each delta's manifest, `clinvar-gkm-delta_YYYY-MMDD.manifest.json`, describes ex
 
 **Deletes live only in the manifest.** For each section, `deleted` is the list of keys that must be removed; the delta bundle itself carries only the added and updated records.
 
+**A new ClinVar version is a new key.** SCV, VCV and RCV keys carry the ClinVar accession's version (`clinvar.submission:SCV000024262.157`, `VCV000183114.34-G-PATH`). When ClinVar bumps the version, the record's key changes, so the delta shows a **delete of the old key and an add of the new one**, not an update. In the 2026-11-15 delta, `clinvar.submission:SCV000024262.157` is in the `scv` deleted list and `clinvar.submission:SCV000024262.158` is a record of the bundle; 108 of the 128 deleted SCV keys, 2,394 of the 2,416 VCV keys and 1,224 of the 1,254 RCV keys come back under the same accession with a new version. A change that keeps the version is an update under the same key. To follow one accession across releases, match on the accession without its version, not on the key.
+
+**Don't check a replay by the manifest's counts.** A section's `added` + `updated` can be larger than the number of records in the delta bundle. In the 2026-11-15 delta, `conditionSet` has `added` 149 and the bundle holds 138 records: condition sets with a single member are left out when the bundle is written. Every other section of that delta matches. Check a replay by comparing records, or against a published weekly full, not by counts.
+
 ### Consumer Replay Model
 
 A monthly full plus the deltas after it rebuild the state at any weekly release. Every official monthly has a **`source_release`** in `index.json`: the weekly release it was built from (in the frozen `v1/1.1/` line, the `2026-10` monthly has `source_release` `2026-09-28`). Each delta records the release it was diffed against (`baseline_release`) and the release it brings you to (`release`).
 
 For each delta, apply the manifest's deletes first, then upsert every record present in the delta bundle, section by section.
+
+!!! warning "When the line changes, start again from the new line's monthly"
+    Deltas apply only to a copy of the **same line**. A line's first delta builds on the end of the line before it: the 1.2 line's first delta (2026-11-08) has `baseline_release` 2026-10-31, the last release of the frozen 1.1 line, and both lines have a `2026-11` monthly with `source_release` 2026-10-31. So a copy built from 1.1 bundles passes a chain check on dates alone, and applying 1.2 deltas to it mixes 1.1.0 and 1.2.0 records.
+
+    Before applying a delta, check that its manifest's `schema_version` equals your copy's `schema_version` (the bundle's root property; in the frozen 1.0 line the manifests have none). When it differs, or the root [`index.json`](https://data.clinvar-gkm.org/index.json) names a new `current` line, stop: download the new line's checkpoint monthly (the delta's `checkpoint_full`) and replay that line's deltas from it.
 
 ### Rebuild a past week { #rebuild-a-past-week }
 
@@ -120,6 +134,7 @@ Weekly full bundles are kept only for the current month ([Weekly Full Bundles](w
 1. Take the **newest official monthly whose `source_release` ≤ W**.
 2. Apply, in release order, **every delta whose `release` is later than that `source_release` and ≤ W**.
 3. **Check the chain** as you go: the first delta's `baseline_release` equals the monthly's `source_release`, and each later delta's `baseline_release` equals the previous delta's `release`. A mismatch means a release is missing; stop rather than apply a partial chain.
+4. **Check the line**: each delta's `schema_version` equals the monthly's. Take the monthly and the deltas from the same line's `index.json`; a date match alone doesn't prove it (see above).
 
 The deltas to apply are chosen by **release date, not by month**. In `v1/1.1/`, the `2026-10` monthly is built from `2026-09-28`, so rebuilding `2026-10-11` takes the `2026-10` monthly and applies the `2026-10-04` and `2026-10-11` deltas, both from the monthly's own month. (An earlier version of this page skipped deltas from the monthly's month; that missed them.)
 
@@ -188,6 +203,11 @@ A delta's `checkpoint_full` names the newest monthly whose `source_release` is o
             raise SystemExit(
                 f"broken chain at {manifest['release']}: "
                 f"baseline {manifest['baseline_release']}, expected {prev}"
+            )
+        if manifest.get("schema_version", state.get("schema_version")) != state.get("schema_version"):
+            raise SystemExit(
+                f"line change at {manifest['release']}: delta is schema {manifest['schema_version']}, "
+                f"the copy is {state.get('schema_version')}; start again from that line's checkpoint monthly"
             )
         delta = fetch_json_gz(f"{BASE}/{d['bundle']['path']}")
 

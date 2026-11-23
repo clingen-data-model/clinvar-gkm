@@ -15,9 +15,9 @@ need small rewrites.
     - **The 2.0 tables**: download all 20 into one folder ([Parquet Files → Download](../data-access/parquet.md#download))
       and start `duckdb` in that folder. The queries name each table by its file name (`'scv.parquet'`) and read
       the four proposition tables with the glob `proposition*.parquet`.
-    - **The 1.1 tables**, for the queries marked `-- 1.1` only: the same file names under
-      `https://data.clinvar-gkm.org/v1/1.1/parquet/` while that set is still served (see [Timeline](#timeline)),
-      in a folder of their own. The set is 13.2 GB; `scv.parquet` and `variation.parquet` are 3 to 4 GB each.
+    - **The 1.1 tables**, for the queries marked `-- 1.1` only: a copy you downloaded from
+      `https://data.clinvar-gkm.org/v1/1.1/parquet/` before that set was removed (see [Timeline](#timeline)), in a
+      folder of their own. It is no longer served. The set is 13.2 GB; `scv.parquet` and `variation.parquet` are 3 to 4 GB each.
     - **[uv](https://docs.astral.sh/uv/getting-started/installation/)**, for the `rebuild` example only. It reads
       the whole 2.0 set and writes a bundle about the size of the published one (about 5 GB compressed).
 
@@ -104,8 +104,9 @@ WHERE decode(key) LIKE 'gkm_bundle_parquet.%';
 - **The live console** on [Start Here](index.md#run-a-query-now) reads the current line's Parquet, so from the
   moment 1.2.0 is published it reads `v1/1.2/parquet/`. It has no tables to read for the short time until the 2.0
   set is published.
-- **To keep the 1.1 tables**, download them before 1.2.0 is published; the advance notice gives the date. They
-  are not rebuilt afterwards: they came from BigQuery, not from the bundle.
+- **The 1.1 tables are no longer served**: they were removed once the 2.0 set was published, and they are not
+  rebuilt, because they came from BigQuery, not from the bundle. A copy downloaded earlier still works with the
+  `-- 1.1` queries.
 - **To get tables for an earlier release**, build them from that release's bundle with `gkm-bundle-parquet`
   (see [Build Your Own](build-your-own.md) and [Earlier releases](../data-access/parquet.md#earlier-releases)). The columns come from the bundle's
   schema, so a bundle of schema 1.1.0 gives a wider set than the one this documentation describes, with more

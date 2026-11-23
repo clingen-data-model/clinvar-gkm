@@ -2,19 +2,19 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:10302": {
-      "id": "clinvar.trait:10302",
-      "type": "MappableConcept",
       "conceptType": "Disease",
+      "id": "clinvar.trait:10302",
       "name": "BRONCHIECTASIS WITH OR WITHOUT ELEVATED SWEAT CHLORIDE 1, MODIFIER OF",
       "primaryCoding": {
-        "name": "BRONCHIECTASIS WITH OR WITHOUT ELEVATED SWEAT CHLORIDE 1, MODIFIER OF",
         "code": "C4017631",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
         "iris": [
           "https://identifiers.org/medgen:C4017631",
           "https://www.ncbi.nlm.nih.gov/medgen/C4017631"
-        ]
-      }
+        ],
+        "name": "BRONCHIECTASIS WITH OR WITHOUT ELEVATED SWEAT CHLORIDE 1, MODIFIER OF",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     }
   },
   "propositionClinvarCustom": {
@@ -35,48 +35,44 @@
   },
   "evidenceLine": {
     "VCV000007105.214-G-RF-NOCP.contributing": {
-      "id": "VCV000007105.214-G-RF-NOCP.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV000053487.10"
-      ]
+      ],
+      "id": "VCV000007105.214-G-RF-NOCP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "VCV000007105.214-G-RF.contributing": {
-      "id": "VCV000007105.214-G-RF.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/vcv/VCV000007105.214-G-RF-NOCP"
-      ]
+      ],
+      "id": "VCV000007105.214-G-RF.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     }
   },
   "vcv": {
     "VCV000007105.214-G-RF": {
-      "id": "VCV000007105.214-G-RF",
-      "type": "Statement",
-      "direction": "supports",
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "no assertion criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "risk factor"
+        "name": "risk factor",
+        "primaryCoding": {
+          "code": "risk factor",
+          "system": "ClinVar"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionClinvarCustom/VCV000007105-G-RF",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -85,23 +81,27 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000007105.214-G-RF.contributing"
-      ]
+      ],
+      "id": "VCV000007105.214-G-RF",
+      "proposition": "#/propositionClinvarCustom/VCV000007105-G-RF",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "no assertion criteria provided",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "VCV000007105.214-G-RF-NOCP": {
-      "id": "VCV000007105.214-G-RF-NOCP",
-      "type": "Statement",
-      "direction": "supports",
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "no assertion criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "risk factor"
+        "name": "risk factor",
+        "primaryCoding": {
+          "code": "risk factor",
+          "system": "ClinVar"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionClinvarCustom/VCV000007105-G-RF-NOCP",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -110,7 +110,15 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/VCV000007105.214-G-RF-NOCP.contributing"
-      ]
+      ],
+      "id": "VCV000007105.214-G-RF-NOCP",
+      "proposition": "#/propositionClinvarCustom/VCV000007105-G-RF-NOCP",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "no assertion criteria provided",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     }
   }
 }

@@ -2,74 +2,74 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:6752": {
-      "id": "clinvar.trait:6752",
-      "type": "MappableConcept",
       "conceptType": "Disease",
-      "name": "Encephalocraniocutaneous lipomatosis",
-      "primaryCoding": {
-        "name": "Encephalocraniocutaneous lipomatosis",
-        "code": "C0406612",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C0406612",
-          "https://www.ncbi.nlm.nih.gov/medgen/C0406612"
-        ]
-      },
+      "id": "clinvar.trait:6752",
       "mappings": [
         {
           "coding": {
             "code": "0013074",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0013074",
               "https://identifiers.org/mondo:0013074"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "NBK576966",
-            "system": "https://www.ncbi.nlm.nih.gov/books/",
             "iris": [
               "https://www.ncbi.nlm.nih.gov/books/NBK576966"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/books/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "613001",
-            "system": "https://www.omim.org/",
             "iris": [
               "https://identifiers.org/mim:613001",
               "https://www.omim.org/entry/613001"
-            ]
+            ],
+            "system": "https://www.omim.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "2396",
-            "system": "https://www.orpha.net/",
             "iris": [
               "http://www.orpha.net/ORDO/Orphanet_2396",
               "https://identifiers.org/orphanet:2396"
-            ]
+            ],
+            "system": "https://www.orpha.net/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "238905009",
-            "system": "https://www.snomed.org/",
             "iris": [
               "https://identifiers.org/snomedct:238905009"
-            ]
+            ],
+            "system": "https://www.snomed.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Encephalocraniocutaneous lipomatosis",
+      "primaryCoding": {
+        "code": "C0406612",
+        "iris": [
+          "https://identifiers.org/medgen:C0406612",
+          "https://www.ncbi.nlm.nih.gov/medgen/C0406612"
+        ],
+        "name": "Encephalocraniocutaneous lipomatosis",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     }
   },
   "propositionClinvarCustom": {
@@ -90,48 +90,44 @@
   },
   "evidenceLine": {
     "RCV001839445.10-G-NP-NOCL.contributing": {
-      "id": "RCV001839445.10-G-NP-NOCL.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV002099547.2"
-      ]
+      ],
+      "id": "RCV001839445.10-G-NP-NOCL.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "RCV001839445.10-G-NP.contributing": {
-      "id": "RCV001839445.10-G-NP.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/rcv/RCV001839445.10-G-NP-NOCL"
-      ]
+      ],
+      "id": "RCV001839445.10-G-NP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     }
   },
   "rcv": {
     "RCV001839445.10-G-NP": {
-      "id": "RCV001839445.10-G-NP",
-      "type": "Statement",
-      "direction": "supports",
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "no classification"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "not provided"
+        "name": "not provided",
+        "primaryCoding": {
+          "code": "not provided",
+          "system": "ClinVar"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionClinvarCustom/RCV001839445-G-NP",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -140,23 +136,27 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV001839445.10-G-NP.contributing"
-      ]
+      ],
+      "id": "RCV001839445.10-G-NP",
+      "proposition": "#/propositionClinvarCustom/RCV001839445-G-NP",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "no classification",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "RCV001839445.10-G-NP-NOCL": {
-      "id": "RCV001839445.10-G-NP-NOCL",
-      "type": "Statement",
-      "direction": "supports",
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "no classification"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "not provided"
+        "name": "not provided",
+        "primaryCoding": {
+          "code": "not provided",
+          "system": "ClinVar"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionClinvarCustom/RCV001839445-G-NP-NOCL",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -165,7 +165,15 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV001839445.10-G-NP-NOCL.contributing"
-      ]
+      ],
+      "id": "RCV001839445.10-G-NP-NOCL",
+      "proposition": "#/propositionClinvarCustom/RCV001839445-G-NP-NOCL",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "no classification",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     }
   }
 }

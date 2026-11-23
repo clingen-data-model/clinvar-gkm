@@ -10,10 +10,10 @@ Older release lines (1.1.x, 1.0.1) are on [Previous Releases](previous-releases.
 !!! info "Parquet is derived from the bundle and overwritten every release"
     The JSON bundles are the release record. Parquet is a convenience: the tables hold the bundle's records, and the bundle can be rebuilt from them. **One** Parquet dataset is published per release line, rebuilt every release (weekly) from the newest weekly release and overwritten in place. There are no dated, per-delta or archived Parquet sets.
 
-!!! warning "Two sets of tables during the move to 1.2"
-    The 1.1 line's set, at `v1/1.1/parquet/`, is the one exported from BigQuery for the **2026-10-24** release (its `manifest.json` gives `builder: "BigQuery export"` and `source_release: "2026-10-24"`). It is not rebuilt, so it lags the bundles, and it is deleted once the 1.2 set is published: a frozen line keeps no Parquet. Its 22 tables have different columns; see [Moving from the 1.1 Tables](../parquet/migrating-from-1.1.md).
+!!! note "The 1.1 tables were removed when the 1.1 line was frozen"
+    The 1.1 line's set, at `v1/1.1/parquet/` (22 tables exported from BigQuery for the 2026-10-24 release), was deleted on 2026-11-23, when `v1/1.1/` was frozen: a frozen line keeps its bundles and no Parquet. To get tables for a 1.1 release, build them from its bundle; see [Parquet for Previous Releases](../parquet/previous-releases.md). The 1.1 tables had different columns; see [Moving from the 1.1 Tables](../parquet/migrating-from-1.1.md).
 
-    This page describes the 1.2 line's set, at `v1/1.2/parquet/`: the 20 tables that [`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) 2.0 builds from each 1.2 release's bundle, published from the first 1.2 release on. Parquet is built only from the bundle, never from BigQuery.
+    This page describes the 1.2 line's set, at `v1/1.2/parquet/`: the 20 tables that [`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet) 2.0 builds from each 1.2 release's bundle. Parquet is built only from the bundle, never from BigQuery.
 
 The dataset lives at one stable path, `v1/1.2/parquet/`, one file per section, with a `manifest.json` and a `table-spec.json` beside it:
 

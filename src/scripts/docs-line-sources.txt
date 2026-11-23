@@ -15,9 +15,11 @@
 # 1.2: the 1.2.0 tag predates the per-line download pages and the Previous Releases page
 # (#241), the per-version Previous Releases rule (#247) and Parquet for Previous Releases
 # (#250), with the clearer download commands and the runnable examples (#257, #261, ADR 0012),
-# Parquet for one weekly release with the replay script (#255), and the Web Shell and console fixes (#265).
-# 4a47d6d is that commit on 1.0.
+# Parquet for one weekly release with the replay script (#255), the Web Shell and console fixes (#265),
+# the 1.2.0 examples and release-validation results (#270, #275), the plans and specs moved out of
+# the published docs (#271), and the content and Parquet corrections (#273, #274). d576917 is that
+# commit on 1.0.
 #
 # line  source                                    label
 1.1     0b9d10b3ad67f6a3ad006c5144ae5e0bcf0a9ed8  1.1.0
-1.2     4a47d6dc1ecfbc1d26364bacdbd2f8d258512f17  1.2.0
+1.2     d57691715cd2f3ff740e5585f63c832a1e43422f  1.2.0

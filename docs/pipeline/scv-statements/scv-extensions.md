@@ -21,7 +21,7 @@ Extensions on the top-level `Statement` record.
 |---|---|---|
 | `clinvarScvId` | string | The ClinVar SCV accession without version (e.g., `SCV001571657`). Always present. |
 | `clinvarScvVersion` | string | The version number of the SCV submission (e.g., `2`). Always present. |
-| `submittedCondition` | [SubmittedCondition](#submitted-condition) | Submitted condition provenance with normalization details, trait mapping, and `#/condition/` references. Present when the SCV maps to a single condition. See [Submitted Condition](#submitted-condition) below. |
+| `submittedCondition` | [SubmittedCondition](#submitted-condition) | Submitted condition provenance with normalization details, trait mapping, and the matched condition as a bare CURIE (`clinvar.trait:{id}`). Present when the SCV maps to a single condition. See [Submitted Condition](#submitted-condition) below. |
 | `submittedConditionSet` | [SubmittedConditionSet](#submitted-condition-set) | Submitted condition set provenance with multiple condition concepts. Present when the SCV maps to multiple conditions. See [Submitted Condition Set](#submitted-condition-set) below. |
 | `clinvarScvReviewStatus` | string | The ClinVar review status (e.g., `criteria provided, single submitter`). Present when the SCV has a review status. |
 | `submittedScvClassification` | string | The original classification text submitted by the submitter, preserved when it differs from the normalized classification name. Omitted when there is no submitted text. |
@@ -41,12 +41,12 @@ A typical germline SCV statement extensions array:
   {
     "name": "submittedCondition",
     "value": {
-      "condition": "#/condition/clinvar.trait:9582",
+      "condition": "clinvar.trait:9582",
       "id": "SCV002769510.0",
       "name": "Hemochromatosis",
       "type": "Disease",
       "medgen_id": "C3469186",
-      "normalized_match": "#/condition/clinvar.trait:9582",
+      "normalized_match": "clinvar.trait:9582",
       "normalized_resolution": "tm reftype xref omim",
       "xrefs": [{ "code": "235200", "system": "OMIM" }],
       "mapping": { "type": "XRef", "ref": "omim", "value": "235200" }
@@ -157,13 +157,15 @@ The `submittedCondition` extension captures the provenance of how a single submi
 
 | Field | Type | Description |
 |---|---|---|
-| `condition` | string | `#/condition/clinvar.trait:{id}` reference to the normalized condition in the bundle |
-| `conditionSet` | string | `#/conditionSet/clinvar.traitset:{id}` reference (present when the RCV trait set has one trait but the reference uses the set) |
+| `condition` | string | CURIE of the resolved condition, `clinvar.trait:{id}`: the key of its record in the bundle's `condition` section, not a `#/condition/…` pointer |
+| `conditionSet` | string | CURIE of a condition set, `clinvar.traitset:{id}` (a key in the `conditionSet` section). Usually absent; present when a single-trait submission maps to a multi-trait RCV |
 | `id` | string | The submitted clinical assertion trait ID (e.g., `SCV002769510.0`) |
 | `name` | string | The submitted condition name |
 | `type` | string | The submitted condition type (e.g., `Disease`, `Finding`) |
 | `medgen_id` | string | The submitted or resolved MedGen concept ID |
-| `normalized_match` | string | `#/condition/` reference to the matched normalized trait |
+| `original_medgen_match` | object | The original MedGen match, with `id` and `name`, when the submitted MedGen ID was remapped to a different MedGen concept. Absent when no remapping occurred |
+| `direct_match` | string | CURIE of the directly matched condition, `clinvar.trait:{id}`. Present only when it differs from `normalized_match` |
+| `normalized_match` | string | CURIE of the final normalized condition, `clinvar.trait:{id}` (a key in the `condition` section) |
 | `normalized_resolution` | string | The resolution method used to match the submitted condition (e.g., `tm reftype xref omim`, `random trait assignment`) |
 | `xrefs` | array | Submitted cross-references with `code` and `system` |
 | `mapping` | object | The trait mapping entry used for resolution: `type`, `ref`, `value` |
@@ -178,9 +180,9 @@ The `submittedConditionSet` extension captures provenance for multi-condition su
 
 | Field | Type | Description |
 |---|---|---|
-| `conditionSet` | string | `#/conditionSet/clinvar.traitset:{id}` reference |
-| `condition` | string | `#/condition/clinvar.trait:{id}` reference (present when the RCV set resolves to a single trait) |
+| `conditionSet` | string | CURIE of the resolved condition set, `clinvar.traitset:{id}` (a key in the `conditionSet` section) |
+| `condition` | string | CURIE of a condition, `clinvar.trait:{id}`. Usually absent; present when the RCV set resolves to a single trait |
 | `multiple_condition_explanation` | string | ClinVar's explanation for the multi-condition grouping |
-| `concepts` | array | Array of individual condition provenance objects, each with the same fields as [Submitted Condition](#submitted-condition) |
+| `concepts` | array | Array of individual condition provenance objects, ordered by `id`, each with the fields of [Submitted Condition](#submitted-condition) except `condition` and `conditionSet` |
 
 </div>

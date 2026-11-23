@@ -86,9 +86,6 @@
   },
   "variation": {
     "clinvar:208366": {
-      "id": "clinvar:208366",
-      "type": "CategoricalVariant",
-      "name": "NM_004700.4(KCNQ4):c.803CCT[1] (p.Ser269del)",
       "constraints": [
         {
           "allele": "#/allele/ga4gh:VA.kL06ErFmanQt9ZsXkcdpd7qSbJ8sXmj7",
@@ -113,9 +110,6 @@
           ],
           "type": "DefiningAlleleConstraint"
         }
-      ],
-      "members": [
-        "#/allele/ga4gh:VA.kL06ErFmanQt9ZsXkcdpd7qSbJ8sXmj7"
       ],
       "extensions": [
         {
@@ -283,38 +277,44 @@
           ]
         }
       ],
+      "id": "clinvar:208366",
       "mappings": [
         {
           "coding": {
-            "system": "https://www.ncbi.nlm.nih.gov/clinvar/",
             "code": "208366",
             "iris": [
               "https://identifiers.org/clinvar:208366"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/clinvar/"
           },
           "relation": "exactMatch"
         },
         {
           "coding": {
-            "system": "https://reg.clinicalgenome.org/",
             "code": "CA347424",
             "iris": [
               "https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_caid?caid=CA347424"
-            ]
+            ],
+            "system": "https://reg.clinicalgenome.org/"
           },
           "relation": "closeMatch"
         },
         {
           "coding": {
-            "system": "https://www.ncbi.nlm.nih.gov/snp/",
             "code": "797044966",
             "iris": [
               "https://identifiers.org/dbsnp:rs797044966"
-            ]
+            ],
+            "system": "https://www.ncbi.nlm.nih.gov/snp/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "members": [
+        "#/allele/ga4gh:VA.kL06ErFmanQt9ZsXkcdpd7qSbJ8sXmj7"
+      ],
+      "name": "NM_004700.4(KCNQ4):c.803CCT[1] (p.Ser269del)",
+      "type": "CategoricalVariant"
     }
   }
 }

@@ -71,12 +71,12 @@ When a value in the data surprises you, the matching pipeline step says where it
 
 **Suggested order:**
 1. [How Releases Work](data-access/release-model.md): monthly and weekly full bundles, weekly deltas, and how to keep a copy current. Then [Weekly Deltas](data-access/weekly-deltas.md) for applying a delta to a full bundle.
-2. [Versioning & Releases](reference/versioning.md): what is guaranteed. 1.1.0 is the general-availability release; published files are immutable, and a breaking change opens a new major line.
+2. [Versioning & Releases](reference/versioning.md): what is guaranteed. ClinVar-GKM has been generally available since 1.1.0, and the current line is 1.2 (`v1/1.2/`); published files are immutable, and a breaking change opens a new major line.
 3. Pick an interface:
    - **JSON bundles:** the [Output Format](output-reference/overview.md), [ID References](output-reference/id-references.md) for resolving `#/section/id` pointers, and the [Data Model](output-reference/classes/index.md) for exact fields and schemas.
    - **Parquet:** [Query the Data](parquet/index.md), from the [20 tables](parquet/tables.md) and [joins](parquet/joining.md) to [working at scale](parquet/performance.md) and [other tools](parquet/other-tools.md).
-4. The GA4GH libraries: vrs-python, cat-vrs-python and va-spec-python, collected in the [GKM Starter Kit](https://ga4gh.github.io/gkm-starter-kit/), read these records directly. [Working in Python](working-in-python.md) loads bundle and Parquet records into their models, with the library versions that read 1.1.0, and validates a bundle with the GKM Toolkit against the ClinVar-GKM schemas. See also [GA4GH Standards](reference/gks-standards.md).
-5. Worked problems: the [User Stories](user-story.md), and [Sub-Bundle Extraction](pipeline/sub-bundle.md) for cutting a self-contained subset.
+4. The GA4GH libraries: vrs-python, cat-vrs-python and va-spec-python, collected in the [GKM Starter Kit](https://ga4gh.github.io/gkm-starter-kit/), read these records directly. [Working in Python](working-in-python.md) loads bundle and Parquet records into their models, with the library versions that read 1.2.0 (and 1.1.0), and validates a bundle with the GKM Toolkit against the ClinVar-GKM schemas. See also [GA4GH Standards](reference/gks-standards.md).
+5. Worked problems: the [User Stories](user-story.md), and [Cut a mini-bundle](parquet/build-your-own.md#cut-a-mini-bundle) for cutting a self-contained subset with `gkm-bundle-parquet select`.
 
 Before you depend on a release, check the [Changelog](reference/changelog.md) for migration notes and [Known Issues](reference/known-issues.md). The [Release Validation](reference/release-validation.md) page lists the checks behind each release.
 

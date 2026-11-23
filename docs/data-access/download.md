@@ -75,7 +75,9 @@ v1/
   1.0/                                        frozen line: the 1.0.1 generation (bundles, delta manifests, MANIFEST.json; no Parquet)
 ```
 
-Every bundle has a `<file>.sha256` sidecar (`sha256sum -c` format), like NCBI's `.md5` files.
+Every bundle has a `<file>.sha256` sidecar (`sha256sum -c` format), like NCBI's `.md5` files. The `00-` prefix
+of the stable names sorts them before the dated files in a directory listing, as in NCBI's
+`ClinVarVCVRelease_00-latest.xml.gz`.
 
 ### When files move
 
@@ -103,6 +105,39 @@ Each ClinVar-GKM monthly `clinvar-gkm_YYYY-MM` lines up with ClinVar's `ClinVarV
 - **HTTP 403.** The CDN serves only the root `index.json` and paths under `/v1/`; a path allowlist answers every other path with 403, not 404. A 403 usually means a URL from before the current layout, such as a bucket-root `datasets/…` path. Look up the file's current path in the line's `index.json`.
 - **HTTP 404 under `/v1/`.** The file is not there: a weekly full deleted at month end, a delta moved to `deltas/YYYY-MM/`, or a monthly moved to `archive/YYYY/`. See [When files move](#when-files-move).
 - **HTTP 429.** Requests are rate-limited. Download whole files and query them locally rather than issuing many small range requests.
+
+---
+
+## File Format
+
+Each file is a gzip-compressed JSON object: `schema_version` first, then the bundle sections in a fixed order,
+each a keyed collection of records of one class (see [Output Format](../output-reference/overview.md)). Each
+record is written on its own line as compact JSON (raw UTF-8) with its object keys **sorted at every depth**, and
+the lists whose order carries no meaning and is not stable in ClinVar's source (a condition's `aliases`) are
+written sorted, so a record that has not changed has the same bytes in every release. The order of records
+within a section is not fixed and differs between releases.
+
+### Count records in a full bundle { #count-records-in-a-full-bundle }
+
+A full bundle is about 4.9 GB compressed and 68.5 GB decompressed, too large to load whole, but each record is
+on its own line, so a script can stream it. This counts the records of each section of the newest monthly,
+`clinvar-gkm_00-latest.json.gz` (from [Monthly Full Bundles](monthly-full.md)), in about a minute and 20 MB of
+memory on a laptop. It needs only Python 3 and `gunzip`, which macOS and Linux include:
+
+```bash
+gunzip -c clinvar-gkm_00-latest.json.gz | python3 -c "
+import sys
+counts = {}
+for line in sys.stdin:
+    if line.startswith('  \"') and line.rstrip().endswith('{'):  # a section opens
+        section = line.split('\"')[1]
+        counts[section] = 0
+    elif line.startswith('    \"'):                            # one record
+        counts[section] += 1
+for section, n in counts.items():
+    print(f'{section}: {n:,}')
+"
+```
 
 ---
 

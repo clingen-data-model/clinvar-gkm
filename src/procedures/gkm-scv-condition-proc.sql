@@ -7,7 +7,7 @@
 --   gkm_scv_condition_proc_incremental(on_date, debug)  -> incremental (carry-forward + merge)
 --   gkm_scv_condition_build(on_date, debug, incremental) -> internal implementation
 --
--- Incremental strategy (see docs/superpowers/plans/2026-08-07-incremental-gks-
+-- Incremental strategy (see superpowers/plans/2026-08-07-incremental-gks-
 -- downstream-plan-2-scv.md):
 --   The two global dedup dictionaries (gkm_dict_condition, gkm_dict_condition_set)
 --   are ALWAYS globally recomputed — gkm_dict_condition is a whole-snapshot dedup of

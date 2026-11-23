@@ -44,7 +44,9 @@ constraint shapes are set in `gkm-catvar-proc.sql`. Conformance invariants that 
   - [`docs.md`](.claude/rules/docs.md) — Zensical `--strict`, terminology, roadmap generation, when the site
     deploys (`docs/**`)
 - **Architectural decisions** — [`docs/decisions/`](docs/decisions/) (ADRs, one per decision). Fuller design
-  specs are in `docs/superpowers/specs/`.
+  specs are in `superpowers/specs/`.
+- **Superpowers specs and plans** go in `superpowers/specs/` and `superpowers/plans/` at the repo root, not the
+  skills' default `docs/superpowers/`: they stay out of `docs/` so they are not published or searchable.
 - **What changed since you last looked** — run `/catchup` (`.claude/commands/catchup.md`): it diffs `git log`,
   reads merged PR bodies + new ADRs, and briefs you on changes relevant to the files you're about to touch.
   Don't hand-maintain a "team memory" doc — derive the moving picture from git + GitHub.

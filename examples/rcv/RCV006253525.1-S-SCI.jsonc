@@ -2,43 +2,43 @@
   "schema_version": "1.2.0",
   "condition": {
     "clinvar.trait:37720": {
-      "id": "clinvar.trait:37720",
-      "type": "MappableConcept",
       "conceptType": "Phenotype",
-      "name": "Adenocarcinoma of the large intestine",
-      "primaryCoding": {
-        "name": "Adenocarcinoma of the large intestine",
-        "code": "C1319315",
-        "system": "https://www.ncbi.nlm.nih.gov/medgen/",
-        "iris": [
-          "https://identifiers.org/medgen:C1319315",
-          "https://www.ncbi.nlm.nih.gov/medgen/C1319315"
-        ]
-      },
+      "id": "clinvar.trait:37720",
       "mappings": [
         {
           "coding": {
             "code": "0040275",
-            "system": "https://hpo.jax.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/HP_0040275",
               "https://identifiers.org/HP:0040275"
-            ]
+            ],
+            "system": "https://hpo.jax.org/"
           },
           "relation": "relatedMatch"
         },
         {
           "coding": {
             "code": "0005008",
-            "system": "https://mondo.monarchinitiative.org/",
             "iris": [
               "http://purl.obolibrary.org/obo/MONDO_0005008",
               "https://identifiers.org/mondo:0005008"
-            ]
+            ],
+            "system": "https://mondo.monarchinitiative.org/"
           },
           "relation": "relatedMatch"
         }
-      ]
+      ],
+      "name": "Adenocarcinoma of the large intestine",
+      "primaryCoding": {
+        "code": "C1319315",
+        "iris": [
+          "https://identifiers.org/medgen:C1319315",
+          "https://www.ncbi.nlm.nih.gov/medgen/C1319315"
+        ],
+        "name": "Adenocarcinoma of the large intestine",
+        "system": "https://www.ncbi.nlm.nih.gov/medgen/"
+      },
+      "type": "MappableConcept"
     }
   },
   "propositionSomaticClinicalImpact": {
@@ -66,114 +66,113 @@
   },
   "evidenceLine": {
     "RCV006253525.1-S-SCI-CP-T1.contributing": {
-      "id": "RCV006253525.1-S-SCI-CP-T1.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/scv/clinvar.submission:SCV007105409.1"
-      ]
+      ],
+      "id": "RCV006253525.1-S-SCI-CP-T1.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "RCV006253525.1-S-SCI-CP.contributing": {
-      "id": "RCV006253525.1-S-SCI-CP.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/rcv/RCV006253525.1-S-SCI-CP-T1"
-      ]
+      ],
+      "id": "RCV006253525.1-S-SCI-CP.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     },
     "RCV006253525.1-S-SCI.contributing": {
-      "id": "RCV006253525.1-S-SCI.contributing",
-      "type": "EvidenceLine",
       "directionOfEvidenceProvided": "supports",
-      "strengthOfEvidenceProvided": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Contributing"
-      },
       "hasEvidenceItems": [
         "#/rcv/RCV006253525.1-S-SCI-CP"
-      ]
+      ],
+      "id": "RCV006253525.1-S-SCI.contributing",
+      "strengthOfEvidenceProvided": {
+        "conceptType": "Strength",
+        "name": "Contributing",
+        "type": "MappableConcept"
+      },
+      "type": "EvidenceLine"
     }
   },
   "rcv": {
     "RCV006253525.1-S-SCI": {
-      "id": "RCV006253525.1-S-SCI",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Strong"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+        "primaryCoding": {
+          "code": "tier 1",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionSomaticClinicalImpact/RCV006253525-S-SCI",
+      "direction": "supports",
       "hasEvidenceLines": [
         "#/evidenceLine/RCV006253525.1-S-SCI.contributing"
-      ]
+      ],
+      "id": "RCV006253525.1-S-SCI",
+      "proposition": "#/propositionSomaticClinicalImpact/RCV006253525-S-SCI",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Strong",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "RCV006253525.1-S-SCI-CP": {
-      "id": "RCV006253525.1-S-SCI-CP",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Strong"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+        "primaryCoding": {
+          "code": "tier 1",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionSomaticClinicalImpact/RCV006253525-S-SCI-CP",
+      "direction": "supports",
       "hasEvidenceLines": [
         "#/evidenceLine/RCV006253525.1-S-SCI-CP.contributing"
-      ]
+      ],
+      "id": "RCV006253525.1-S-SCI-CP",
+      "proposition": "#/propositionSomaticClinicalImpact/RCV006253525-S-SCI-CP",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Strong",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     },
     "RCV006253525.1-S-SCI-CP-T1": {
-      "id": "RCV006253525.1-S-SCI-CP-T1",
-      "type": "Statement",
-      "direction": "supports",
-      "strength": {
-        "type": "MappableConcept",
-        "conceptType": "Strength",
-        "name": "Strong"
-      },
-      "quality": {
-        "type": "MappableConcept",
-        "conceptType": "Quality",
-        "name": "criteria provided"
-      },
       "classification": {
-        "type": "MappableConcept",
         "conceptType": "Classification",
-        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)"
+        "name": "Tier I (Strong) - diagnostic - supports diagnosis (1)",
+        "primaryCoding": {
+          "code": "tier 1",
+          "system": "AMP/ASCO/CAP (AAC) Guidelines, 2017"
+        },
+        "type": "MappableConcept"
       },
-      "proposition": "#/propositionSomaticClinicalImpact/RCV006253525-S-SCI-CP-T1",
+      "direction": "supports",
       "extensions": [
         {
           "name": "clinvarReviewStatus",
@@ -182,7 +181,20 @@
       ],
       "hasEvidenceLines": [
         "#/evidenceLine/RCV006253525.1-S-SCI-CP-T1.contributing"
-      ]
+      ],
+      "id": "RCV006253525.1-S-SCI-CP-T1",
+      "proposition": "#/propositionSomaticClinicalImpact/RCV006253525-S-SCI-CP-T1",
+      "quality": {
+        "conceptType": "Quality",
+        "name": "criteria provided",
+        "type": "MappableConcept"
+      },
+      "strength": {
+        "conceptType": "Strength",
+        "name": "Strong",
+        "type": "MappableConcept"
+      },
+      "type": "Statement"
     }
   }
 }
