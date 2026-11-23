@@ -205,4 +205,16 @@ A delta's `checkpoint_full` names the newest monthly whose `source_release` is o
     # `state` now holds the full bundle at release W (prev == W when W is a published release).
     ```
 
-    The recipe shows the logic. A monthly full is about 4.8 GB compressed and much larger as Python objects, so for real use stream the sections to disk or a database instead of holding them in memory.
+    The recipe shows the logic. It holds the whole bundle in memory (about 92 million records, far more than a 16 GB machine has) and writes no file, so use the script below to rebuild a week for real.
+
+To write a week's full bundle to disk without holding it in memory, use [`replay-bundle.py`](../assets/scripts/replay-bundle.py). It follows the rules above (the monthly, the deltas by release date, the chain check), checks each download's sha256 against `index.json`, keeps only the deltas' records in memory, streams the monthly once, and writes the bundle in the published layout with a `.sha256` sidecar. It needs only `python3` (3.9 or later, standard library):
+
+```bash
+curl -fsSO --retry 5 https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py
+python3 replay-bundle.py --release 2026-11-15 --plan
+python3 replay-bundle.py --release 2026-11-15
+```
+
+The first lists the monthly and deltas it would use; the second downloads them, replays the deltas and writes `clinvar-gkm_2026-1115.replayed.json.gz`.
+
+For a week of the frozen 1.1 line, add `--line v1/1.1`. The [Parquet for one weekly release](../parquet/build-your-own.md#parquet-for-one-weekly-release) section measures it and builds tables from the result.

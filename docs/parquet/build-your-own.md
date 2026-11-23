@@ -3,8 +3,9 @@
 The published Parquet is built by one open tool, [`gkm-bundle-parquet`](https://github.com/clingen-data-model/gkm-bundle-parquet),
 from the published JSON bundle. You can run the same tool yourself to:
 
-- **build the tables** for any release, including releases whose Parquet is no longer published (for the frozen
-  lines, see [Parquet for Previous Releases](previous-releases.md));
+- **build the tables** for any release, including releases whose Parquet is no longer published (for one week,
+  see [Parquet for one weekly release](#parquet-for-one-weekly-release); for the frozen lines, see
+  [Parquet for Previous Releases](previous-releases.md));
 - **cut a mini-bundle**: the records of one submitter, one variant or one gene and everything they point to,
   as a small JSON bundle or a small set of tables;
 - **rebuild the bundle** from a set of tables and prove the records are identical;
@@ -28,31 +29,58 @@ from the published JSON bundle. You can run the same tool yourself to:
       [Build the tables](#build-the-tables). The full-bundle examples read the newest monthly,
       `clinvar-gkm_00-latest.json.gz` (4.9 GB compressed), from [Monthly Full Bundles](../data-access/monthly-full.md).
     - **Resources.** Every command on the delta finishes in under 15 s with under 2 GB of memory. A full-bundle
-      `build` needs about 65 GiB of memory and 65 GB of free disk ([A full bundle](#a-full-bundle)); a full-bundle
-      `select` streams, taking about 11 minutes and under 100 MB of memory.
+      `build` takes about 3.5 hours on a 16 GB machine (10 GiB of memory, about 30 GB of free disk), or 40
+      minutes on a large one ([A full bundle](#a-full-bundle)); a full-bundle `select` streams, taking about 11
+      minutes and under 100 MB of memory.
     - Run every command from one working directory: later blocks read the files earlier blocks write.
 
 !!! info "Measured runs"
     Every command on this page was run with `gkm-bundle-parquet` 2.0.0 from PyPI, on an Apple M2 Pro laptop
     (16 GB of memory, 10 cores), against the published **2026-11-15 weekly delta**
     (`v1/1.2/deltas/clinvar-gkm-delta_2026-1115.json.gz`, 5 MB, 39,062 records). The output quoted is the real
-    output. Figures for a **full** bundle come from the tool's own release measurements, except the full-bundle
-    `select`, which was run on this laptop against the `2026-11` monthly.
+    output. Figures for a **full** bundle come from a 16 GB cloud machine and the tool's own release measurements
+    ([A full bundle](#a-full-bundle)), except the full-bundle `select` and the
+    [weekly replay](#rebuild-a-weeks-full-bundle), which were run on this laptop.
 
 ---
 
 ## Install
 
+The quickest way to run the tool is [`uvx`](https://docs.astral.sh/uv/), from [uv](https://docs.astral.sh/uv/):
+it fetches the pinned release and runs it, with nothing to install. **Every command on this page is written that
+way**, as `uvx gkm-bundle-parquet@2.0.0 …`, so you can paste it as it is:
+
 ```bash
-uvx gkm-bundle-parquet@2.0.0 version          # run a pinned release with no install
-uv tool install gkm-bundle-parquet==2.0.0     # or install the command with uv
-pipx install gkm-bundle-parquet==2.0.0        # or with pipx
-pip install gkm-bundle-parquet==2.0.0         # or into a virtual environment of your own
+uvx gkm-bundle-parquet@2.0.0 version
 ```
 
-DuckDB is pinned exactly (1.5.4), because the bytes of the files depend on it, so `uvx`, `uv tool` or `pipx` keep
-it apart from a DuckDB you use for queries. The examples below run the tool with `uvx gkm-bundle-parquet@2.0.0`,
-which needs no install. With the command installed, write `gkm-bundle-parquet` in its place.
+```text
+gkm-bundle-parquet 2.0.0: table spec sections 2.0, policy 2.0; duckdb 1.5.4
+…
+```
+
+To have a `gkm-bundle-parquet` command instead, install it with one of these (uv, pipx, or pip into a virtual
+environment of your own), then write `gkm-bundle-parquet` wherever this page writes `uvx gkm-bundle-parquet@2.0.0`:
+
+```bash
+uv tool install gkm-bundle-parquet==2.0.0
+```
+
+```bash
+pipx install gkm-bundle-parquet==2.0.0
+```
+
+```bash
+pip install gkm-bundle-parquet==2.0.0
+```
+
+!!! tip "`command not found: gkm-bundle-parquet`"
+    The shell finds no installed command. Run the `uvx gkm-bundle-parquet@2.0.0` form, or install the tool with
+    one of the lines above (after `uv tool install` or `pipx install`, open a new shell if the command is still
+    not found: `uv tool update-shell` or `pipx ensurepath` puts their folder on your `PATH`).
+
+DuckDB is pinned exactly (1.5.4), because the bytes of the files depend on it, so `uvx`, `uv tool` and `pipx`
+keep it apart from a DuckDB you use for queries.
 
 ---
 
@@ -140,35 +168,140 @@ On the delta: **9 s**, 1.9 GB peak memory, 5 MB of output (20 tables, `manifest.
 
 ### A full bundle
 
-To build the tables of a whole release, pass a monthly or weekly full bundle (about 4.8 GB compressed, 91.9
-million records in 2026-10-31), such as `clinvar-gkm_00-latest.json.gz` from
-[Monthly Full Bundles](../data-access/monthly-full.md). Measured by the tool's maintainers on the 2026-10-31 full relabelled as 1.2.0, on
-a 16-core cloud machine with 128 GiB of memory:
+To build the tables of a whole release, pass a monthly or weekly full bundle (about 4.9 GB compressed; 91,973,603
+records in the 2026-11-15 weekly full), such as `clinvar-gkm_00-latest.json.gz` from
+[Monthly Full Bundles](../data-access/monthly-full.md). It builds on a 16 GB machine; more memory makes it faster.
 
-| Command | Time | Peak memory |
+| Command | 16 GB machine | 128 GiB machine |
 | --- | ---: | ---: |
-| `build` | 38 min | 65 GiB |
-| `verify --bundle-recompute` | 9 min | |
-| `verify --roundtrip` | 30 min | |
-| `rebuild` | 20 min | |
-| `validate` (`rs` engine) | 11 min | |
+| `build` | 3 h 19 min, 10.0 GiB peak | 38 min, 65 GiB peak |
+| `verify --bundle-recompute` | | 9 min |
+| `verify --roundtrip` | over 2 h (not run to the end) | 30 min |
+| `rebuild` | | 20 min |
+| `validate` (`rs` engine) | | 11 min |
 
-The output is 4.6 GB. Plan for about 65 GB of free working disk for a full build: the staged records and DuckDB's
-spill files go to `--work-dir` (default: beside `--out`). A full build was not run on a laptop for this page.
-
-**Memory.** Without `--memory-limit`, the tool gives DuckDB half the memory the process may use (the machine's, or
-a container's limit when lower), and DuckDB spills to `--work-dir` past that. On a smaller machine set it
-explicitly, and point `--work-dir` at a disk with room (replace `/big/disk/tmp` with a directory on a disk with
-about 65 GB free):
+The **16 GB machine** is a Google Cloud `e2-standard-4` (4 vCPUs, 16 GB of memory, SSD, Debian 12), building the
+2026-11-15 weekly full on 2026-11-22 with the defaults and a `--work-dir`. The same command for the newest monthly
+(replace `/big/disk/tmp` with a directory on a disk with about 30 GB free):
 
 ```bash
 uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm_00-latest.json.gz "${P[@]}" --out parquet-full/ \
-    --memory-limit 12GB --work-dir /big/disk/tmp
+    --work-dir /big/disk/tmp
 ```
 
-The limit doesn't change the files: a build that spills writes the same bytes. Full builds have been measured
-only on the 128 GiB machine above; on a smaller one, expect them to take longer. When you need only part of a
-release, cut a mini-bundle instead.
+All 20 tables were written, with no `--threads 1` needed. The machine as a whole peaked at 11.3 GiB used, with no
+swap. The round trip was stopped after 2 hours, still running, when the measurement ended. The **128 GiB machine**
+figures are the tool maintainers' own, on a 16-core cloud machine, for the 2026-10-31 full relabelled as 1.2.0.
+
+The output is 4.6 GB. **Disk:** the staged records and DuckDB's spill files go to `--work-dir` (default: beside
+`--out`); on the 16 GB machine they peaked at 24 GiB beside the bundle, so plan for about 30 GB free there plus the
+bundle and the output. `validate` was also run on the laptop, on a full bundle: 24 minutes, with 0 failing records
+(see [Parquet for one weekly release](#parquet-for-one-weekly-release)).
+
+**Memory.** Without `--memory-limit`, the tool gives DuckDB half the memory the process may use (the machine's, or
+a container's limit when lower), and DuckDB spills to `--work-dir` past that. The limit is DuckDB's, not the
+whole process's: on the 16 GB machine the default gave DuckDB about 7.8 GiB and the process peaked at 10.0 GiB.
+So the default suits a machine the build has to itself. Set `--memory-limit` lower only when other work needs the
+memory, and leave about 3 GB above it for the rest of the process; a lower limit means more spilling and a slower
+build, and wasn't measured. The limit doesn't change the files: a build that spills writes the same bytes. When
+you need only part of a release, cut a mini-bundle instead.
+
+---
+
+## Parquet for one weekly release { #parquet-for-one-weekly-release }
+
+`build` reads one bundle (`--full`), so a full set of tables for one week is built from that week's full bundle:
+
+| The week | How |
+| --- | --- |
+| The newest release | Already published at `v1/1.2/parquet/`; see [Parquet Files](../data-access/parquet.md) |
+| A week in the current month | Download its weekly full from `v1/1.2/weekly/` ([Weekly Full Bundles](../data-access/weekly-full.md)) and `build --full` it |
+| Any earlier week | Rebuild that week's full bundle from a monthly plus deltas (below), then `build --full` it |
+
+Building any full bundle takes about 3.5 hours on a 16 GB machine, or 40 minutes on a large one
+([A full bundle](#a-full-bundle)). To get only some of the week's records, use its full bundle for
+[selections](#cut-a-mini-bundle) instead: `select` streams it.
+
+### Rebuild a week's full bundle
+
+Weekly fulls are kept only for the current month. For an earlier week, download
+[`replay-bundle.py`](../assets/scripts/replay-bundle.py), a script ClinVar-GKM publishes. It needs only `python3`
+(3.9 or later, standard library), in bash or zsh:
+
+```bash
+curl -fsSO --retry 5 https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py
+python3 replay-bundle.py --release 2026-11-15 --plan
+```
+
+```text
+line v1/1.2, release 2026-11-15
+  monthly clinvar-gkm_2026-11.json.gz (source_release 2026-10-31, 4,881,641,096 bytes)
+  delta   clinvar-gkm-delta_2026-1108.json.gz (60,824,851 bytes)
+  delta   clinvar-gkm-delta_2026-1115.json.gz (5,355,360 bytes)
+```
+
+`--plan` lists what it would use and stops. Without it, the script downloads them and writes the week's bundle:
+
+```bash
+python3 replay-bundle.py --release 2026-11-15
+```
+
+What it does:
+
+- **It picks the bundles from `index.json`** as [Rebuild a past week](../data-access/weekly-deltas.md#rebuild-a-past-week)
+  says: the newest official monthly whose `source_release` is on or before the week (never the `00-latest`
+  copy), and every delta after that `source_release`, up to and including the week, in release order. It checks
+  the chain (each delta's `baseline_release` is the release before it) and stops on a gap.
+- **It checks every download.** Each bundle's sha256 must match `index.json`. Downloads are retried, and a
+  partial download resumes. A bundle already in the folder (`--dir`, default the current one) is used when its
+  sha256 matches, so a monthly you downloaded before isn't downloaded again.
+- **It needs little memory.** It reads the deltas into memory as text, section by section: each delta's
+  deletes (from its manifest) and then its records. It then streams the monthly once: a record a delta replaced
+  is written from the delta, a deleted one is dropped, any other is copied as it is, and each section ends with
+  the deltas' new records.
+- **It writes the published layout.** The result, `clinvar-gkm_2026-1115.replayed.json.gz`, has the same
+  one-record-per-line layout and `schema_version` as the published bundles, and a `.sha256` sidecar beside it.
+
+Measured on the laptop, rebuilding 2026-11-15 from the 2026-11 monthly and the 2026-11-08 and 2026-11-15 deltas
+(1,818,764 records and 1,669,779 deletes): **7.6 minutes** in an empty folder, downloads included (6.4 minutes
+with the monthly already there), 2.2 GB peak memory, a 4.9 GB bundle of 91,973,603 records. Both runs wrote the
+same bytes (sha256 `876b41ec…`): the output doesn't depend on the run.
+
+**It matches the published weekly full.** Compared with `v1/1.2/weekly/clinvar-gkm_2026-1115.json.gz` section by
+section, by the record count and the sum of the sha256 of every record line (its key and its text, so the order
+of records doesn't matter), all 20 sections are equal: every record of the rebuilt bundle has the published
+record's exact text. Only the order of the records within a section differs. And the tool reads it:
+
+```bash
+uvx gkm-bundle-parquet@2.0.0 validate clinvar-gkm_2026-1115.replayed.json.gz "${P[@]}"
+```
+
+```text
+bundle: clinvar-gkm_2026-1115.replayed.json.gz (sha256 876b41ecb379019726fa1f80124400a6770bde359b33b2f1a787fb14c35436aa, sidecar)
+version: 1.2.0; schema set sha256 3b3920180d08f3343d7466ce55bbcb95f5cbc467c505a4e03797b8f3c48d6798
+engine: rs; 10 workers
+  section                                records  failing cpu ms/rec  compile s
+  …
+records: 91,973,603  failing: 0  (1,438.0 s)
+PASS
+```
+
+Then build it, as for any full bundle ([A full bundle](#a-full-bundle); not run on the replayed file for this page,
+which holds the same records as the weekly full measured there):
+
+```bash
+uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm_2026-1115.replayed.json.gz "${P[@]}" --out parquet-2026-1115/
+```
+
+For a week of the frozen 1.1 line, add `--line v1/1.1` to the script, and build with the 1.1.0 schema and column
+set ([Parquet for Previous Releases](previous-releases.md)). Tested on 1.1's 2026-10-24 (the 2026-10 monthly and
+four deltas, 91,502,593 records, 7.3 minutes with the downloads), every record matches the published weekly full
+of that week, but not every one byte for byte: 1,461 `condition` records list their `aliases` in another order.
+The 1.1 pipeline wrote that array in the order its source gave, which changed between releases (1.2.0 sorts it),
+so a 1.1 replay keeps the order of the monthly and deltas. As sets of values, the tool's round-trip comparison,
+they are identical.
+
+---
 
 ---
 
@@ -298,10 +431,13 @@ anyone can recompute from a bundle with a JSON parser and sha256; the tool's
 ## Verify a set of tables
 
 ```bash
-uvx gkm-bundle-parquet@2.0.0 verify parquet/                                                                # the directory alone
-uvx gkm-bundle-parquet@2.0.0 verify parquet/ --roundtrip --full clinvar-gkm-delta_2026-1115.json.gz                 # rebuild and compare
-uvx gkm-bundle-parquet@2.0.0 verify parquet/ --bundle-recompute --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}" # recompute every value
+uvx gkm-bundle-parquet@2.0.0 verify parquet/
+uvx gkm-bundle-parquet@2.0.0 verify parquet/ --roundtrip --full clinvar-gkm-delta_2026-1115.json.gz
+uvx gkm-bundle-parquet@2.0.0 verify parquet/ --bundle-recompute --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}"
 ```
+
+The first checks the directory alone, the second rebuilds the records and compares them with the bundle's, and
+the third recomputes every value from the bundle:
 
 ```text
 verify pass: directory check: 0 problem(s)
