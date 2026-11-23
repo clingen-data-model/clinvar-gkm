@@ -6413,7 +6413,7 @@ tables. If you have queries for the old ones, see <a href="migrating-from-1.1/">
 <p>Two ways to query without installing anything:</p>
 <ul>
 <li><strong>The console on this page</strong> (above) — already running against the published data.</li>
-<li><strong>The DuckDB Web Shell</strong> at <a href="https://shell.duckdb.org" rel="noopener" target="_blank">shell.duckdb.org</a> — drag a downloaded <code>condition.parquet</code> onto the page (or use <strong>Import</strong>), then run <code>SELECT id, name FROM condition;</code>.</li>
+<li><strong>The DuckDB Web Shell</strong> at <a href="https://shell.duckdb.org" rel="noopener" target="_blank">shell.duckdb.org</a> — drag a downloaded <code>condition.parquet</code> onto the page (or use <strong>Import</strong>), then run <code>SELECT id, name FROM 'condition.parquet';</code> (quote the file name: the shell registers a file, not a table).</li>
 </ul>
 <hr />
 <h2 id="get-the-answer-into-a-spreadsheet">Get the answer into a spreadsheet<a class="headerlink" href="#get-the-answer-into-a-spreadsheet" title="Permanent link">&para;</a></h2>

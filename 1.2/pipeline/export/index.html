@@ -6732,15 +6732,16 @@ project's Google Cloud resources, and publish to the public R2 bucket. The <a hr
   with <code>aws configure --profile r2</code> (the token's access key ID and secret, region <code>auto</code>). The scripts add the R2
   endpoint themselves. <code>--dry-run</code> lists the bucket too, so it also needs the profile.</li>
 <li><strong>Cloudflare purge credentials</strong> — <code>CF_ZONE_ID</code> and <code>CF_PURGE_TOKEN</code>, in the environment or in
-  <code>~/.config/clinvar-gkm/cloudflare.env</code> (<code>CF_ENV_FILE</code> sets another path). <code>--purge</code> and the month rollover use
-  them to clear the CDN copy of overwritten, moved or deleted files. Without them the purge is skipped with a
+  <code>~/.config/clinvar-gkm/cloudflare.env</code> (<code>CF_ENV_FILE</code> sets another path). The uploads, the Parquet <code>--purge</code> and
+  the month rollover use them to clear the CDN copy of new, overwritten, moved or deleted files (the CDN may have
+  cached a 404 for a new path requested before it existed). Without them the purge is skipped with a
   warning, and the CDN can serve the old copy until it expires.</li>
 <li>
 <p><strong>Python 3.12 with <code>orjson</code></strong> — the release scripts use <code>venv/3.12/bin/python3</code> when it exists, and <code>python3</code>
-  otherwise. <code>orjson</code> is required (Step 2). <code>make venv/3.12</code> creates the environment (it needs <code>python3.12</code> on the
-  <code>PATH</code>); the project requirements don't include <code>orjson</code>, so install it there:</p>
+  otherwise. <code>orjson</code> is required (Step 2) and is in the project requirements. <code>make venv/3.12</code> creates the environment (it
+  needs <code>python3.12</code> on the <code>PATH</code>); then install the requirements into it:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>make<span class="w"> </span>venv/3.12
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>venv/3.12/bin/pip<span class="w"> </span>install<span class="w"> </span>orjson
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>venv/3.12/bin/pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>.requirements.txt
 </code></pre></div>
 </li>
 <li>
@@ -7022,7 +7023,7 @@ the bundle in its <code>manifest.json</code>.
 <hr />
 <h2 id="r2-bucket-cors-policy">R2 bucket CORS policy<a class="headerlink" href="#r2-bucket-cors-policy" title="Permanent link">&para;</a></h2>
 <p>The release browsers on the Downloads pages — the <a href="../../data-access/monthly-full/">Monthly Full Bundles</a>, <a href="../../data-access/weekly-full/">Weekly Full Bundles</a>, <a href="../../data-access/weekly-deltas/">Weekly Deltas</a>, and <a href="../../data-access/parquet/">Parquet Files</a> child pages, plus the Downloads hub's Latest Release view — each do a cross-origin <code>fetch()</code> of <code>index.json</code> from the docs site. That only works if the public R2 bucket serves a CORS policy allowing <code>GET</code> from other origins — otherwise the browsers block the read and can't populate (they then show a network/CORS message with a <code>curl</code> fallback).</p>
-<p>The policy is checked in at <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/1df72e1fa0558b140b023a31a0508e68c38ca60f/src/scripts/r2-cors.json"><code>src/scripts/r2-cors.json</code></a> (<code>GET</code>/<code>HEAD</code> from <code>*</code> — appropriate for public, read-only data). It is <strong>not</strong> applied by the release scripts, because their object-scoped <code>r2</code> upload token cannot read or write bucket configuration (<code>PutBucketCors</code> → <code>AccessDenied</code>). Apply it once with an <strong>Admin Read &amp; Write</strong> R2 token (Cloudflare dashboard: <strong>R2 → Manage R2 API Tokens</strong>), stored as an AWS profile with <code>aws configure --profile r2admin</code> (region <code>auto</code>). The script writes the live bucket's configuration:</p>
+<p>The policy is checked in at <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/4a47d6dc1ecfbc1d26364bacdbd2f8d258512f17/src/scripts/r2-cors.json"><code>src/scripts/r2-cors.json</code></a> (<code>GET</code>/<code>HEAD</code> from <code>*</code> — appropriate for public, read-only data). It is <strong>not</strong> applied by the release scripts, because their object-scoped <code>r2</code> upload token cannot read or write bucket configuration (<code>PutBucketCors</code> → <code>AccessDenied</code>). Apply it once with an <strong>Admin Read &amp; Write</strong> R2 token (Cloudflare dashboard: <strong>R2 → Manage R2 API Tokens</strong>), stored as an AWS profile with <code>aws configure --profile r2admin</code> (region <code>auto</code>). The script writes the live bucket's configuration:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>./src/scripts/apply-r2-cors.sh<span class="w">            </span><span class="c1"># profile r2admin; another profile: ./src/scripts/apply-r2-cors.sh PROFILE</span>
 </code></pre></div>
 <p>Or paste <code>r2-cors.json</code>'s rules into the Cloudflare dashboard: <strong>R2 → clinvar-gkm → Settings → CORS Policy</strong>. It only needs to be re-applied if the bucket is recreated or the policy is cleared.</p>
