@@ -20,20 +20,22 @@
 #   ./upload-gkm-to-r2.sh <export_date> <dataset_version> <bundle_file|-> [--weekly | --month-label=YYYY-MM
 #                         [--from-weekly]] [--dry-run] [--purge]
 #
-# --purge purges the CDN copy of the dated path written; only needed when overwriting an existing dated file.
+# Each dated file written (bundle + .sha256) is purged from the CDN afterwards: dated paths are cached for a month,
+# so a request made before the file existed would otherwise keep returning a cached 404. --purge is accepted and
+# changes nothing.
 set -euo pipefail
 
 if [[ $# -lt 3 ]]; then
-  sed -n '2,25p' "$0" | sed 's/^# \{0,1\}//'; exit 1
+  sed -n '2,27p' "$0" | sed 's/^# \{0,1\}//'; exit 1
 fi
 EXPORT_DATE="$1"; DATASET_VERSION="$2"; BUNDLE_FILE="$3"; shift 3
 [[ "$EXPORT_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "ERROR: export_date must be YYYY-MM-DD, got '${EXPORT_DATE}'" >&2; exit 1; }
 
-DRY_RUN=false; PURGE=false; WEEKLY=false; FROM_WEEKLY=false; MONTH_LABEL=""
+DRY_RUN=false; WEEKLY=false; FROM_WEEKLY=false; MONTH_LABEL=""
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=true ;;
-    --purge) PURGE=true ;;
+    --purge) ;;
     --weekly) WEEKLY=true ;;
     --from-weekly) FROM_WEEKLY=true ;;
     --month-label=*) MONTH_LABEL="${arg#--month-label=}" ;;
@@ -149,7 +151,7 @@ fi
 
 "${SCRIPT_DIR}/generate-r2-index.sh" ${INDEX_ARGS[@]+"${INDEX_ARGS[@]}"}
 
-${PURGE} && cf_purge files "${PURGE_KEYS[@]}"
+cf_purge files "${PURGE_KEYS[@]}"
 
 echo "=== FULL upload complete: ${R2_PUBLIC_URL}/${PURGE_KEYS[0]} ==="
 FINISHED=true
