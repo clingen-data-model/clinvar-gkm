@@ -1,7 +1,53 @@
 # FAQ
 
-Answers to recurring questions about how ClinVar content appears in ClinVar-GKM. Each answer states where the
-behavior comes from in the pipeline and how to see it in the data.
+Answers to recurring questions. [New to ClinVar-GKM](#new-to-clinvar-gkm) answers the first questions about the
+files; the sections after it explain how ClinVar content appears in ClinVar-GKM, where the behavior comes from in
+the pipeline and how to see it in the data.
+
+---
+
+## New to ClinVar-GKM { #new-to-clinvar-gkm }
+
+### Which release is this file? { #which-release-is-this-file }
+
+The file name says, not the file: a bundle carries its `schema_version` but no release date. A weekly full or a
+delta is named for its release (`clinvar-gkm-delta_2026-1115` is the 2026-11-15 release). A monthly is named for
+ClinVar's monthly it lines up with, and is built from the last weekly release before it, its `source_release`:
+`clinvar-gkm_2026-11` is the 2026-10-31 release. A `00-latest` copy is named for neither; find its sha256 in the
+line's `index.json` to get its entry. Record the release when you download a file. See
+[How Releases Work](../data-access/release-model.md) and
+[How a delta updates a copy](../data-access/keep-current.md#how-a-delta-updates-a-copy).
+
+### Why did a record show as deleted and added? { #why-did-a-record-show-as-deleted-and-added }
+
+Because ClinVar gave it a new version. SCV, VCV and RCV keys carry the accession's version, so a new version is
+a new key: the delta's manifest deletes the old key and the delta bundle adds the new one
+(`clinvar.submission:SCV000024262.157` → `.158` in the 2026-11-15 delta). Nothing was lost. To follow one
+accession, match it without its version, as the history table in
+[Track Change Over Time](../build/track-change.md) does. See also
+[Weekly Deltas](../data-access/weekly-deltas.md#manifestjson).
+
+### Can I apply 1.2 deltas to 1.1 data? { #can-i-apply-12-deltas-to-11-data }
+
+No. Each version line holds bundles of one schema, and its deltas apply only to its own records. The 1.2 line's
+first delta builds on 2026-10-31, the last release of the 1.1 line, so the dates line up, but applying it to 1.1
+data would mix 1.1.0 and 1.2.0 records. Check that a delta's `schema_version` equals your copy's, and when the
+line changes, start again from the new line's first monthly. See
+[Line changes](../data-access/keep-current.md#line-changes) and
+[Versioning & Releases](versioning.md).
+
+### How big is it, and do I need the full bundle? { #how-big-is-it }
+
+| File | Size |
+| --- | --- |
+| A full bundle (monthly or weekly) | 4.9 GB compressed, 68.5 GB of JSON, about 92 million records |
+| The published Parquet | 20 tables, 4.6 GB in all; download only the tables you need |
+| A weekly delta | 5 to 60 MB |
+
+You rarely need a full bundle. To query, use the Parquet tables. To stay current, apply the weekly deltas to a
+copy ([Keep Your Data Current](../data-access/keep-current.md)). A full bundle is for a complete JSON copy or for
+building your own tables, and is read as a stream, never loaded whole into memory. See
+[Choose Your Data](../start/choose-your-data.md).
 
 ---
 
