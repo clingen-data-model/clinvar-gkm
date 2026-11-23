@@ -21,17 +21,17 @@ from the published JSON bundle. You can run the same tool yourself to:
 !!! info "Measured runs"
     The commands on this page were run as written, in zsh, with `gkm-bundle-parquet` 2.0.0 from PyPI (through
     `uvx`), on 2026-11-21, on an Apple M2 Pro laptop (16 GB of memory, 10 cores) that was running other work at
-    the same time. The two full `build` commands are the exception: they need a larger machine, and say so where
-    they appear. The bundles are the published 1.2 ones:
+    the same time. The full `build` commands are the exception: they were measured on other machines, and say so
+    where they appear. The bundles are the published 1.2 ones:
 
     - the **2026-11-08 weekly delta** (`v1/1.2/deltas/clinvar-gkm-delta_2026-1108.json.gz`, 61 MB, 1,779,702
       records) for the quick examples;
     - the **2026-11-15 weekly full** (`v1/1.2/weekly/clinvar-gkm_2026-1115.json.gz`, 4.9 GB, 91,973,603
       records) for the selections that need a whole release.
 
-    The output quoted is the real output; times and peak memory come from `/usr/bin/time -l`. The figures for a
-    full `build` are the tool maintainers' own measurements, on a larger machine; a full build was not run on the
-    laptop.
+    The output quoted is the real output; times and peak memory come from `/usr/bin/time -l`. A full `build` was
+    not run on the laptop: its figures come from a 16 GB cloud machine and from the tool maintainers' own
+    measurements on a 128 GiB one ([A full bundle](#a-full-bundle)).
 
 ---
 
@@ -175,35 +175,40 @@ On the delta: **32 s**, 3.4 GB peak memory, 42 MB of output (20 tables, `manifes
 ### A full bundle
 
 To build the tables of a whole release, pass a monthly or weekly full bundle (about 4.9 GB compressed; 91,973,603
-records in the 2026-11-15 weekly full). Measured by the tool's maintainers on the 2026-10-31 full relabelled as
-1.2.0, on a 16-core cloud machine with 128 GiB of memory:
+records in the 2026-11-15 weekly full). It builds on a 16 GB machine; more memory makes it faster.
 
-| Command | Time | Peak memory |
+| Command | 16 GB machine | 128 GiB machine |
 | --- | ---: | ---: |
-| `build` | 38 min | 65 GiB |
-| `verify --bundle-recompute` | 9 min | |
-| `verify --roundtrip` | 30 min | |
-| `rebuild` | 20 min | |
-| `validate` (`rs` engine) | 11 min | |
+| `build` | 3 h 19 min, 10.0 GiB peak | 38 min, 65 GiB peak |
+| `verify --bundle-recompute` | | 9 min |
+| `verify --roundtrip` | over 2 h (not run to the end) | 30 min |
+| `rebuild` | | 20 min |
+| `validate` (`rs` engine) | | 11 min |
 
-The output is 4.6 GB. Plan for about 65 GB of free working disk for a full build: the staged records and DuckDB's
-spill files go to `--work-dir` (default: beside `--out`). A full build was not run on the laptop for this page;
-`validate` was, on a full bundle: 24 minutes, with 0 failing records (see
-[Parquet for one weekly release](#parquet-for-one-weekly-release)).
-
-**Memory.** Without `--memory-limit`, the tool gives DuckDB half the memory the process may use (the machine's, or
-a container's limit when lower), and DuckDB spills to `--work-dir` past that. On a smaller machine set it
-explicitly, and point `--work-dir` at a disk with room. This command is the form to use; it was not run for this
-page:
+The **16 GB machine** is a Google Cloud `e2-standard-4` (4 vCPUs, 16 GB of memory, SSD, Debian 12), building the
+2026-11-15 weekly full on 2026-11-22 with this command and no other options:
 
 ```bash
 uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm_2026-1115.json.gz "${P[@]}" --out parquet-2026-1115/ \
-    --memory-limit 12GB --work-dir /big/disk/tmp
+    --work-dir /big/disk/tmp
 ```
 
-The limit doesn't change the files: a build that spills writes the same bytes. Full builds have been measured
-only on the 128 GiB machine above; on a smaller one, expect them to take longer. When you need only part of a
-release, cut a mini-bundle instead.
+All 20 tables were written, with no `--threads 1` needed. The machine as a whole peaked at 11.3 GiB used, with no
+swap. The round trip was stopped after 2 hours, still running, when the measurement ended. The **128 GiB machine**
+figures are the tool maintainers' own, on a 16-core cloud machine, for the 2026-10-31 full relabelled as 1.2.0.
+
+The output is 4.6 GB. **Disk:** the staged records and DuckDB's spill files go to `--work-dir` (default: beside
+`--out`); on the 16 GB machine they peaked at 24 GiB beside the bundle, so plan for about 30 GB free there plus the
+bundle and the output. `validate` was also run on the laptop, on a full bundle: 24 minutes, with 0 failing records
+(see [Parquet for one weekly release](#parquet-for-one-weekly-release)).
+
+**Memory.** Without `--memory-limit`, the tool gives DuckDB half the memory the process may use (the machine's, or
+a container's limit when lower), and DuckDB spills to `--work-dir` past that. The limit is DuckDB's, not the
+whole process's: on the 16 GB machine the default gave DuckDB about 7.8 GiB and the process peaked at 10.0 GiB.
+So the default suits a machine the build has to itself. Set `--memory-limit` lower only when other work needs the
+memory, and leave about 3 GB above it for the rest of the process; a lower limit means more spilling and a slower
+build, and wasn't measured. The limit doesn't change the files: a build that spills writes the same bytes. When
+you need only part of a release, cut a mini-bundle instead.
 
 ---
 
@@ -217,8 +222,9 @@ release, cut a mini-bundle instead.
 | A week in the current month | Download its weekly full from `v1/1.2/weekly/` ([Weekly Full Bundles](../data-access/weekly-full.md)) and `build --full` it |
 | Any earlier week | Rebuild that week's full bundle from a monthly plus deltas (below), then `build --full` it |
 
-Building any full bundle needs the large machine of [A full bundle](#a-full-bundle). On a laptop, use the week's
-full bundle for [selections](#cut-a-mini-bundle) instead: `select` streams it.
+Building any full bundle takes about 3.5 hours on a 16 GB machine, or 40 minutes on a large one
+([A full bundle](#a-full-bundle)). To get only some of the week's records, use its full bundle for
+[selections](#cut-a-mini-bundle) instead: `select` streams it.
 
 ### Rebuild a week's full bundle
 
@@ -284,7 +290,8 @@ records: 91,973,603  failing: 0  (1,438.0 s)
 PASS
 ```
 
-Then build it on a machine large enough for a full bundle (not run for this page):
+Then build it, as for any full bundle ([A full bundle](#a-full-bundle); not run on the replayed file for this page,
+which holds the same records as the weekly full measured there):
 
 ```bash
 uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm_2026-1115.replayed.json.gz "${P[@]}" --out parquet-2026-1115/

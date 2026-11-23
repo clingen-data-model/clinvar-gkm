@@ -158,12 +158,13 @@ To keep the rebuilt bundle, run `rebuild parquet/ -o rebuilt.json.gz` instead: i
 | --- | ---: | ---: | --- |
 | 2026-10-31 delta, 495,547 records | 22 s, 2.4 GB | 16 s, 0.9 GB | a 16 GB laptop |
 | 2026-09-23 delta, 4,530,457 records (the largest) | 82 s, 3.3 GB | 66 s, 1.7 GB | a 16 GB laptop |
-| a monthly, about 90 million records | 38 min, 65 GiB | 30 min | a 128 GiB machine |
+| a full bundle, about 92 million records | 3 h 19 min, 10.0 GiB | over 2 h | a 16 GB cloud machine |
+| a full bundle, about 92 million records | 38 min, 65 GiB | 30 min | a 128 GiB machine |
 
-Every delta builds on a laptop. A monthly needs a large machine: the full-bundle figures are the tool's own
-measurements of a 1.2.0 full ([A full bundle](build-your-own.md#a-full-bundle)), and a 1.1.0 full with this
-column set is the same size of job. On a smaller machine, pass `--memory-limit` and a `--work-dir` with about
-65 GB free, and expect a much longer run; a monthly was not built on a laptop for this page. If you need only
+Every delta builds on a laptop. The full-bundle figures are for the 1.2 line's 2026-11-15 weekly full
+([A full bundle](build-your-own.md#a-full-bundle)); a 1.1.0 monthly with this column set is the same size of job.
+On a 16 GB machine it needs about 30 GB free in `--work-dir` and a few hours; a monthly was not built on a laptop
+for this page. If you need only
 part of a release, [cut a mini-bundle](build-your-own.md#cut-a-mini-bundle) instead: `select` takes the same
 `--bundle-schema` and `--column-set`.
 
@@ -172,7 +173,7 @@ part of a release, [cut a mini-bundle](build-your-own.md#cut-a-mini-bundle) inst
 ## What is verified
 
 Run on 2026-11-20 and 2026-11-21 with `gkm-bundle-parquet` 2.0.0, the published 1.1.0 column set and the 1.1.0
-schema URL. No monthly was built whole (that needs a large machine); the two monthlies at the ends of the line
+schema URL. No monthly was built whole (a job of hours, as above); the two monthlies at the ends of the line
 were scanned instead, and every other `v1/1.1/` bundle is made of their records and the deltas':
 
 - **Every published `v1/1.1/` delta** (18 deltas, 2026-07-06 to 2026-10-31, 10,267,303 records):
