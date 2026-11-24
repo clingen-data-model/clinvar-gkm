@@ -163,7 +163,7 @@
   // the line these docs describe, so no line is named here; until then (or when the line has no Parquet set)
   // it is null and Run is refused.
   const HOST = 'https://data.clinvar-gkm.org';
-  const LATEST_DOCS = 'https://dataexchange.clinicalgenome.org/clinvar-gkm/';   // redirects to the latest release
+  const LATEST_DOCS = location.origin + (docsPath(location.pathname)?.root || '/');   // the site root: the latest release
   let parquetBase = null;
   let indexError = null;       // why the release index couldn't be read, once loadReleases() gives up
   const relSel = document.getElementById('release');
@@ -194,16 +194,22 @@
   exSel.addEventListener('change', loadExample);
   syncBase(); loadExample();
 
-  // Find the Parquet dataset and the release it was built from. The docs version is the path segment after
-  // /clinvar-gkm/ in this page's own URL ("1.1" in /clinvar-gkm/1.1/assets/duckdb-console.html); the root
+  // Find the Parquet dataset and the release it was built from. The docs version is the first segment of the
+  // site path in this page's own URL ("1.1" in /1.1/assets/duckdb-console.html, or /clinvar-gkm/1.1/... where the
+  // site is still under that prefix, ADR 0013); the root
   // manifest (/index.json) names that line's index, whose Parquet entry gives its path and source_release. A URL
   // without a version (a local build), or a version with no data line, reads the current line. Runs in the
   // background so a slow fetch never blocks the page.
   const ROOT_INDEX_URL = `${HOST}/index.json`;
   const indexLink = document.getElementById('index-link');
+  // A docs page's site root and version: /1.2/assets/duckdb-console.html gives root "/" and version "1.2". Null
+  // for a path without a version (a local build).
+  function docsPath(path) {
+    const m = /^(\/(?:clinvar-gkm\/)?)(\d+\.\d+)(?:\/|$)/.exec(path || '');
+    return m ? { root: m[1], version: m[2] } : null;
+  }
   function docsVersion(path) {
-    const m = /\/clinvar-gkm\/(\d+\.\d+)(?:\/|$)/.exec(path || '');
-    return m ? m[1] : null;
+    return docsPath(path)?.version ?? null;
   }
   function currentKey(versions) {
     const keys = Object.keys(versions);
