@@ -149,7 +149,7 @@ A delta's `checkpoint_full` names the newest monthly whose `source_release` is o
 To write a week's full bundle to disk, use [`replay-bundle.py`](../assets/scripts/replay-bundle.py). It follows the rules above (the monthly, the deltas by release date, the chain check), checks each download's sha256 against `index.json`, keeps only the deltas' records in memory, streams the monthly once, and writes the bundle in the published layout with a `.sha256` sidecar. It needs only `python3` (3.9 or later, standard library):
 
 ```bash
-curl -fsSO --retry 5 https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py
+curl -fsSO --retry 5 https://clinvar-gkm.org/1.2/assets/scripts/replay-bundle.py
 python3 replay-bundle.py --release 2026-11-15 --plan
 python3 replay-bundle.py --release 2026-11-15
 ```

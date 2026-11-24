@@ -37,7 +37,7 @@ Constraints that shaped the choice:
 2. **Public host = `data.clinvar-gkm.org`**, attached to the `clinvar-gkm` R2 bucket via **R2 → Connect
    Domain** (auto-creates a proxied record + TLS). `data` (not `downloads`) because consumers also
    **range-read** the Parquet in place (DuckDB/`httpfs`), which isn't a "download". The apex is left free
-   for a future landing page.
+   for a future landing page. (Since 2026-11-24 the apex serves the documentation, ADR 0013.)
 3. **Scripts default to the custom host, env-overridable.** All uploaders + the index generator set
    `R2_PUBLIC_URL="${R2_PUBLIC_URL:-https://data.clinvar-gkm.org}"`. `generate-r2-index.sh` writes this as
    the `base_url` in `index.json` / the root manifest / `feed.xml` — the canonical consumer URL.

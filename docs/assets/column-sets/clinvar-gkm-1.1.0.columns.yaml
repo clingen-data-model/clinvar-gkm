@@ -1,6 +1,6 @@
 # ClinVar-GKM column set for bundles of schema_version 1.1.0 (release line v1/1.1), for gkm-bundle-parquet 2.0.0.
 # Published by ClinVar-GKM (gkm-bundle-parquet ADR 0009: a producer publishes its own column sets). Guide:
-# https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/previous-releases/
+# https://clinvar-gkm.org/1.2/parquet/previous-releases/
 # Format: https://github.com/clingen-data-model/gkm-bundle-parquet/blob/v2.0.0/docs/column-set-format.md
 #
 #   gkm-bundle-parquet build --full <bundle.json.gz> \

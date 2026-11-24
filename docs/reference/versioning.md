@@ -129,7 +129,7 @@ version.
   same page in the latest release. It shows the site as it was last built for that line.
 
 Unreleased changes are not published as a docs version: the docs change with a release. A link to the former
-`dev` version (`…/clinvar-gkm/dev/<page>/`) opens the same page in the latest release.
+`dev` version (`https://clinvar-gkm.org/dev/<page>/`, or the older `…/clinvar-gkm/dev/<page>/`) opens the same page in the latest release.
 
 The download tables and the live query console in each version read that version's data line: the `1.1` docs
 list the files in `v1/1.1/`, the `1.2` docs those in `v1/1.2/`. On a frozen line the weekly full bundles and the
@@ -145,8 +145,10 @@ repository files point there too: the release tag (such as `1.1.0`). The
 at that branch's commit.
 
 To link to a page in whatever release is latest, use a link without a version, such as
-`https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/changelog/`. To pin a link to one version,
-include it: `…/clinvar-gkm/1.1/reference/changelog/`. The decision record is
+`https://clinvar-gkm.org/reference/changelog/`. To pin a link to one version,
+include it: `https://clinvar-gkm.org/1.1/reference/changelog/`. Links to the docs' former address,
+`https://dataexchange.clinicalgenome.org/clinvar-gkm/…`, open the same page here
+([ADR 0013](../decisions/0013-docs-on-clinvar-gkm-org.md)). The decision record is
 [ADR 0011](../decisions/0011-versioned-documentation.md).
 
 ## Release notes

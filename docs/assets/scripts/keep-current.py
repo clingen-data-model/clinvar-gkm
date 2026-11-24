@@ -21,7 +21,7 @@ The same for a directory of Parquet tables (its state is in <dir>/keep-current.j
 Options: --db (default clinvar-gkm.duckdb), --cache (default gkm-cache/, where deltas are downloaded).
 Every path comes from the root index.json and the line's index.json; every download is checked by its sha256.
 Needs Python 3.9 or later and the duckdb package; parquet-update also runs gkm-bundle-parquet 2.0.0.
-https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/keep-current/
+https://clinvar-gkm.org/data-access/keep-current/
 """
 import argparse
 import gzip
