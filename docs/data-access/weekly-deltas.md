@@ -191,10 +191,10 @@ A delta's `checkpoint_full` names the newest monthly whose `source_release` is o
 
     The recipe shows the logic. A monthly full is about 4.8 GB compressed and much larger as Python objects, so for real use stream the sections to disk or a database instead of holding them in memory.
 
-To write a week's full bundle to disk without holding it in memory, use [`replay-bundle.py`](https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py), published with the 1.2 docs. It follows the rules above (the monthly, the deltas by release date, the chain check), checks each download's sha256 against `index.json`, keeps only the deltas' records in memory, streams the monthly once, and writes the bundle in the published layout with a `.sha256` sidecar. It needs only `python3` (3.9 or later). The 1.1 line is frozen, so name it with `--line v1/1.1` (without it, the script uses the current line):
+To write a week's full bundle to disk without holding it in memory, use [`replay-bundle.py`](https://clinvar-gkm.org/1.2/assets/scripts/replay-bundle.py), published with the 1.2 docs. It follows the rules above (the monthly, the deltas by release date, the chain check), checks each download's sha256 against `index.json`, keeps only the deltas' records in memory, streams the monthly once, and writes the bundle in the published layout with a `.sha256` sidecar. It needs only `python3` (3.9 or later). The 1.1 line is frozen, so name it with `--line v1/1.1` (without it, the script uses the current line):
 
 ```bash
-curl -fsSO --retry 5 https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py
+curl -fsSO --retry 5 https://clinvar-gkm.org/1.2/assets/scripts/replay-bundle.py
 python3 replay-bundle.py --line v1/1.1 --release 2026-10-24 --plan
 python3 replay-bundle.py --line v1/1.1 --release 2026-10-24
 ```
