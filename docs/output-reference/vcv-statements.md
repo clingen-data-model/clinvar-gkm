@@ -107,6 +107,9 @@ the same `clinvar_clinsig_types` row that gives the classification its `primaryC
 | Likely pathogenic; Likely benign; Likely oncogenic; Likely pathogenic, low penetrance; Likely risk allele | Likely |
 | Tier I (Strong) | Strong |
 | Tier II (Potential) | Potential |
+| VUS-high | High |
+| VUS-mid | Mid |
+| VUS-low | Low |
 | Tier III; Tier IV; Uncertain significance; Conflicting; combinations such as Pathogenic/Likely pathogenic; any other label | *null (omitted)* |
 
 A somatic clinical impact statement takes its tier's strength (at the priority and aggregate layers, the top

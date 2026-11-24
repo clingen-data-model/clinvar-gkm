@@ -235,12 +235,15 @@ These statement-level fields are derived from the aggregate classification label
     | --- | --- | --- |
     | pathogenicity | Pathogenic; Benign; Pathogenic, low penetrance; Established risk allele | Definitive |
     | pathogenicity | Likely pathogenic; Likely benign; Likely pathogenic, low penetrance; Likely risk allele | Likely |
+    | pathogenicity | VUS-high | High |
+    | pathogenicity | VUS-mid | Mid |
+    | pathogenicity | VUS-low | Low |
     | oncogenicity | Oncogenic; Benign | Definitive |
     | oncogenicity | Likely oncogenic; Likely benign | Likely |
     | somatic clinical impact | Tier I (Strong) | Strong |
     | somatic clinical impact | Tier II (Potential) | Potential |
     | somatic clinical impact | Tier III Unknown; Tier IV (Benign)/Likely benign | omitted |
-    | any | every other label: Uncertain significance; VUS-high, VUS-mid, VUS-low; Uncertain risk allele; Pathogenic/Likely pathogenic; Benign/Likely benign; the labels of ClinVar's other proposition types; conflicting, combination and FLAG labels | omitted |
+    | any | every other label: Uncertain significance; Uncertain risk allele; Pathogenic/Likely pathogenic; Benign/Likely benign; the labels of ClinVar's other proposition types; conflicting, combination and FLAG labels | omitted |
 
 ---
 
