@@ -722,7 +722,7 @@ curl -f --retry 5 -O "https://data.clinvar-gkm.org/$M" -O "https://data.clinvar-
 shasum -a 256 -c clinvar-gkm_2026-07.json.gz.sha256
 uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm_2026-07.json.gz \
     --bundle-schema https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json \
-    --column-set https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml \
+    --column-set https://clinvar-gkm.org/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml \
     --driver vcv --where "regexp_matches(id, '-G-PATH$')" --max-depth 0 \
     --out vcv-2026-07/
 ```

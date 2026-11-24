@@ -39,7 +39,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from r2_layout import _monthly_pool  # noqa: E402
 
 ROOT_INDEX_URL = "https://data.clinvar-gkm.org/index.json"
-DOCS = "https://dataexchange.clinicalgenome.org/clinvar-gkm"
+DOCS = "https://clinvar-gkm.org"
 REPO = "https://github.com/clingen-data-model/clinvar-gkm"
 LIST = "clinvar-gkm@broadinstitute.org"
 CHANNELS = ("email", "discussion")

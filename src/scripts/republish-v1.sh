@@ -183,7 +183,7 @@ Known issues kept as published (the files are byte-identical to 1.0.1):
   * paths inside the delta manifests and bundles name the original v1/datasets/ and v1/deltas/ keys.
   * there is no Parquet for this line.
 
-Changelog: https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/changelog/
+Changelog: https://clinvar-gkm.org/reference/changelog/
 
 Source, attribution and disclaimer
   Derived from NCBI's ClinVar (https://www.ncbi.nlm.nih.gov/clinvar/). Attribute ClinVar as the data source and
@@ -192,7 +192,7 @@ Source, attribution and disclaimer
   for direct diagnostic use or medical decision-making without review by a genetics professional
   (https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/#disclaimer). Not an NCBI, NLM or NIH product and
   not endorsed by them. CC0 1.0 covers ClinGen's contribution only. See
-  https://dataexchange.clinicalgenome.org/clinvar-gkm/data-use/
+  https://clinvar-gkm.org/data-use/
 EOF
 }
 

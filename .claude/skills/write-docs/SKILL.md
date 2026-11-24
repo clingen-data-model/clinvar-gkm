@@ -12,7 +12,7 @@ You are writing documentation for the ClinVar-GKM project using Zensical with th
 ## Technology Stack
 
 - **Zensical** with the **Material** theme (classic variant)
-- Site served under `/clinvar-gkm/` prefix (set by `site_url` in `zensical.toml`)
+- Site served at the root of `https://clinvar-gkm.org/`, one folder per release line (`/1.2/`, `/1.1/`); `site_url` in `zensical.toml`, ADR 0013
 - Build command: `zensical build --strict` (catches broken links and warnings)
 - Local dev server: `zensical serve`
 

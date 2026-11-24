@@ -42,9 +42,9 @@ Releases are hosted on **Cloudflare R2** — free, no authentication, no egress 
 - **Parquet:** <https://data.clinvar-gkm.org/v1/1.1/parquet/> (one file per table, plus `manifest.json`)
 - **Release index:** <https://data.clinvar-gkm.org/index.json> (lists each version line and its `index.json`, which lists every file, including the weekly deltas)
 
-See the [Downloads guide](https://dataexchange.clinicalgenome.org/clinvar-gkm/data-access/download/) for the directory layout, dated releases, the delta replay model, and curl / Python / DuckDB examples. Sample records for each section are in the [`examples/`](examples/) directory.
+See the [Downloads guide](https://clinvar-gkm.org/data-access/download/) for the directory layout, dated releases, the delta replay model, and curl / Python / DuckDB examples. Sample records for each section are in the [`examples/`](examples/) directory.
 
-**Stay informed:** join the email list [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm) for release announcements, version changes and events ([how to join](https://dataexchange.clinicalgenome.org/clinvar-gkm/stay-informed/)), or watch this repository's Releases and Discussions.
+**Stay informed:** join the email list [clinvar-gkm@broadinstitute.org](https://groups.google.com/a/broadinstitute.org/g/clinvar-gkm) for release announcements, version changes and events ([how to join](https://clinvar-gkm.org/stay-informed/)), or watch this repository's Releases and Discussions.
 
 > **Operators:** the distribution domain (`data.clinvar-gkm.org`), CDN cache rules, rate-limiting, cost controls, and the cache-purge workflow are documented in [ADR 0005](docs/decisions/0005-r2-custom-domain-and-cdn.md).
 
@@ -62,7 +62,7 @@ The pipeline runs on **Google BigQuery** using SQL stored procedures, with an ex
 
 ## Documentation
 
-Full documentation is available at **[dataexchange.clinicalgenome.org/clinvar-gkm](https://dataexchange.clinicalgenome.org/clinvar-gkm/)**, including pipeline details, GA4GH profile definitions, data access guides, and a schema registry.
+Full documentation is available at **[clinvar-gkm.org](https://clinvar-gkm.org/)**, including pipeline details, GA4GH profile definitions, data access guides, and a schema registry.
 
 The site is versioned ([ADR 0011](docs/decisions/0011-versioned-documentation.md)): one version per release line (`1.1`, `1.2`, …), with the latest release at the site root. It is built from `docs/` by [`deploy-docs.yml`](.github/workflows/deploy-docs.yml). A docs merge deploys nothing: publishing a GitHub release `X.Y.Z` deploys the `X.Y` docs, and a daily schedule refreshes the latest release. To rebuild the latest release by hand: `gh workflow run deploy-docs.yml --ref main`; to (re)build a release line: `gh workflow run deploy-docs.yml --ref main -f ref=1.1.0 -f version=1.1`. Each version is built by [`build-versioned-docs.sh`](src/scripts/build-versioned-docs.sh), which runs `zensical build --clean --strict` and then [`check-site-links.py`](src/scripts/check-site-links.py), failing the deploy on a broken internal link or `#anchor`; run both locally before pushing docs changes.
 
@@ -88,7 +88,7 @@ ClinVar-GKM re-represents [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) data,
 - **Attribute ClinVar** as the data source, and carry that attribution and the disclaimer with any copy you redistribute.
 - **No endorsement.** ClinVar-GKM is not an NCBI, NLM or NIH product and is not endorsed by them.
 
-See [Data Use and Citation](https://dataexchange.clinicalgenome.org/clinvar-gkm/data-use/) for the full guidance and the policy text behind it.
+See [Data Use and Citation](https://clinvar-gkm.org/data-use/) for the full guidance and the policy text behind it.
 
 ## Citation
 

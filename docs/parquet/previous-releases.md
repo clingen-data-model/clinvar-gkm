@@ -49,7 +49,7 @@ completes kept every value, and the round-trip check below proves it record by r
 | | |
 | --- | --- |
 | File | [`clinvar-gkm-1.1.0.columns.yaml`](../assets/column-sets/clinvar-gkm-1.1.0.columns.yaml) |
-| URL | `https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml` |
+| URL | `https://clinvar-gkm.org/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml` |
 | For | bundles of `schema_version` `1.1.0`: every bundle in `v1/1.1/` |
 | Schema it pairs with | `--bundle-schema https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json` |
 | Tool | `gkm-bundle-parquet` 2.0.0 |
@@ -121,7 +121,7 @@ page hold no `#` comments: zsh, unlike bash, reads `#` in a pasted command as te
 ```bash
 uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm-delta_2026-0928.json.gz \
     --bundle-schema https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json \
-    --column-set https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml \
+    --column-set https://clinvar-gkm.org/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml \
     --out parquet/
 ```
 
