@@ -1,5 +1,10 @@
 # Review Status
 
+!!! abstract "What this page answers"
+    What each [review status](../reference/glossary.md#review-status) and star level means, how the pipeline ranks
+    them, and which review status a VCV or RCV aggregate gets. Read it when you filter by review status, or need to
+    know why one submission outranks another in an aggregate.
+
 All ClinVar submissions contain a review status, which differentiates submissions based on their level of confidence. These review status levels (also called star levels) are used in ClinVar to group and prioritize multiple submissions for the same variant and statement type.
 
 ## Individual Submission Review Status Levels

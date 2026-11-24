@@ -1,5 +1,11 @@
 # Mapping & Vocabularies
 
+!!! abstract "What this page answers"
+    How ClinVar's submissions are sorted into kinds of claim, which GA4GH proposition type each becomes, which
+    classifications each allows and how they map to direction and strength, and what review status levels mean.
+    Read it when a classification, a statement type code (`G.01`, `S.12`) or a review status in the data needs
+    explaining.
+
 Formerly *Statement Profiles*. This section describes the fundamental aspects of how ClinVar data is organized and transformed into GKS standard statements within the ClinVar-GKM pipeline.
 
 ## Overview
@@ -12,5 +18,5 @@ ClinVar-GKM maps each submission to a specific **statement type**, **proposition
 
 - [Statement Types](statement-types.md) — the 14 statement types and their categories
 - [Classifications](classifications.md) — classification values mapped to direction and strength
-- [Propositions](propositions.md) — mapping of statement types to GKS proposition types
+- [Proposition Types](propositions.md) — mapping of statement types to GKS proposition types
 - [Review Status](review-status.md) — star levels, rank order, and aggregation behavior

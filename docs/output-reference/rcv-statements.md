@@ -1,12 +1,17 @@
 # RCV Statements
 
+!!! abstract "What this page answers"
+    What ClinVar's aggregate says about one variant for one condition. Read it when you need a condition-specific
+    classification (for example, a variant's pathogenicity for cystic fibrosis rather than across all its
+    conditions). It builds on [VCV Statements](vcv-statements.md#layer-hierarchy), which explains the layers.
+
 ## Overview
 
-The `rcv` bundle section contains one record per condition-level aggregate classification. Each record is a `Statement` that aggregates individual SCV submissions for the same variant **and condition** into a hierarchical summary — combining classifications across submission levels to produce a single condition-specific result.
+The `rcv` bundle section contains one record per condition-level aggregate classification. Each record is a `Statement` that aggregates individual [SCV](../reference/glossary.md#scv) submissions for the same variant **and condition** into a hierarchical summary — combining classifications across submission levels to produce a single condition-specific result. [RCV](../reference/glossary.md#rcv) is ClinVar's variant-and-condition record.
 
-RCV statements differ from VCV statements in one important way: **condition-scoped aggregation** — each RCV is scoped to a specific condition (identified by `trait_set_id`), whereas VCV statements aggregate across all conditions for a variant.
+RCV statements differ from VCV statements in one important way: **condition-scoped aggregation** — each RCV is scoped to a specific condition (identified by `trait_set_id`), whereas [VCV](../reference/glossary.md#vcv) statements aggregate across all conditions for a variant. The condition is a `#/condition/` record or a [`conditionSet`](../reference/glossary.md#conditionset).
 
-RCV statements use `#/` references for propositions, contributing SCVs, and lower-level RCV groupings. They are produced by the [RCV Procedures](../pipeline/rcv-statements/rcv-proc.md).
+RCV statements use `#/` references for [propositions](../reference/glossary.md#proposition), contributing SCVs, and lower-level RCV groupings. They are produced by the [RCV Procedures](../pipeline/rcv-statements/rcv-proc.md).
 
 ---
 
@@ -157,3 +162,13 @@ See [RCV Procedures](../pipeline/rcv-statements/rcv-proc.md) for implementation 
 Annotated JSONC examples of RCV statement records are available in the repository:
 
 - [RCV statement examples](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples/rcv)
+
+---
+
+## See Also { #see-also }
+
+- [VCV Statements](vcv-statements.md) — the same layers, across all of a variant's conditions
+- [SCV Statements](scv-statements.md) — the submissions the lowest layer cites
+- [Aggregation Rules](../pipeline/vcv-statements/vcv-aggregation-rules.md) — how each layer picks its classification and [review status](../reference/glossary.md#review-status)
+- [ID References](id-references.md#rcv-statement-ids) — the RCV statement id format
+- [Examples](../data-access/examples.md#rcv-statements) — RCV hierarchies, germline and somatic
