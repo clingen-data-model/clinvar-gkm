@@ -1,10 +1,15 @@
 # Variations
 
+!!! abstract "What this page answers"
+    How a ClinVar variation is represented: its name, its VRS allele or location, its HGVS and other expressions,
+    its genes and its cross-references. Read it when you match ClinVar variants to your own data, or follow a
+    statement's `subject` to the variant it is about.
+
 ## Overview
 
-The `variation` bundle section contains one record per ClinVar variation. Each record represents a ClinVar variation and its relationship to a resolved VRS genomic identity, along with expressions, cross-references, gene associations, and ClinVar metadata.
+The `variation` bundle section contains one record per ClinVar [variation](../reference/glossary.md#variation). Each record represents a ClinVar variation and its relationship to a resolved VRS genomic identity, along with expressions, cross-references, gene associations, and ClinVar metadata.
 
-ClinVar variations are represented using the GA4GH [Cat-VRS](https://cat-vrs.readthedocs.io/) (Categorical Variation) specification. Cat-VRS defines categorical variant types that group variants at a higher level than individual VRS alleles — bridging the gap between ClinVar's variation concept and VRS's precise genomic representations.
+ClinVar variations are represented using the GA4GH [Cat-VRS](https://cat-vrs.readthedocs.io/) (Categorical Variation) specification ([glossary](../reference/glossary.md#cat-vrs)). Their precise genomic forms are [VRS](../reference/glossary.md#vrs) alleles and locations, in the `allele`, `location` and copy number sections. Cat-VRS defines categorical variant types that group variants at a higher level than individual VRS alleles — bridging the gap between ClinVar's variation concept and VRS's precise genomic representations.
 
 This section is produced by the [Cat-VRS procedure](../pipeline/cat-vrs/index.md).
 
@@ -30,7 +35,7 @@ Each record is a `CategoricalVariant` that validates against one of the four Cli
 | --- | --- | --- |
 | `id` | string | ClinVar-scoped identifier — `clinvar:{variation_id}` |
 | `type` | string | Always `CategoricalVariant` |
-| `name` | string | Best available HGVS expression for the variant |
+| `name` | string | The ClinVar display name for the variation — e.g., `NM_006269.2(RP1):c.2238_2239del (p.Lys746_Ser747insTer)`. See [Where a Value Comes From](../pipeline/value-provenance.md#variations) |
 | `constraints` | array | Defining constraints linking to the resolved VRS variant. Absent on generalized variants. See [Constraints](#constraints) |
 | `mappings` | array | Cross-references to external databases. See [Mappings](#mappings) |
 | `members` | array | A pointer to the resolved VRS variant: `#/allele/` for a CanonicalAllele, `#/copyNumberChange/` or `#/copyNumberCount/` for a copy number variant. Absent on generalized variants |
@@ -200,3 +205,12 @@ Each item in the `clinvarGeneList` extension array represents one gene associati
 Annotated JSONC examples of variation records are available in the repository:
 
 - [Cat-VRS examples](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples/cat-vrs) — CanonicalAllele records for ClinVar variations
+
+---
+
+## See Also { #see-also }
+
+- [ID References](id-references.md) — following `members` and `constraints` from a variation to its sequence
+- [Where a Value Comes From](../pipeline/value-provenance.md) — each variation field traced back to ClinVar's XML
+- [Cat-VRS procedure](../pipeline/cat-vrs/index.md) — how the records are built
+- [Examples](../data-access/examples.md#categorical-variants-cat-vrs) — two complete variation records

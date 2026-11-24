@@ -12,7 +12,7 @@ ClinVar-GKM publishes all of ClinVar as **Parquet** — 20 typed tables you quer
 
 ## Run a query now
 
-The console below runs SQL **in your browser**, directly against the published data at `data.clinvar-gkm.org`. It reads the Parquet set of the current release line, `v1/1.2/parquet/`, overwritten every release; the **Release** label shows the release it was built from. When a new line starts, its Parquet set is published shortly after its first release, and the console has no tables to read until then (see [the timeline](migrating-from-1.1.md#timeline)). Pick an example from the dropdown and press **Run**. The first query loads the engine (a few seconds, once); everything after is immediate. A query still running after 10 seconds is stopped, and the console shows the commands to download the tables it reads and run the same query on your machine.
+The console below runs SQL **in your browser**, directly against the published data at `data.clinvar-gkm.org`. It reads the Parquet set of the current release line, `v1/1.2/parquet/`, overwritten every release; the **Release** label shows the release it was built from. When a new line starts, its Parquet set is published shortly after its first release, and the console has no tables to read until then (see [the timeline](migrating-from-1.1.md#timeline)). Pick an example from the dropdown and press **Run**. The first query loads the engine (a few seconds, once); everything after is immediate. A query still running after 15 seconds is stopped, and the console shows the commands to download the tables it reads and run the same query on your machine.
 
 <iframe src="../assets/duckdb-console.html" style="width:100%; height:640px; border:1px solid rgba(128,128,128,.25); border-radius:8px;" title="ClinVar-GKM live query console" loading="lazy"></iframe>
 
@@ -96,5 +96,6 @@ duckdb -c "COPY (SELECT id, name FROM 'condition.parquet') TO 'conditions.csv' (
 - **The big tables are slow or run out of memory** — [Working at Scale](performance.md)
 - **I work in Python, R, or Spark** — [Beyond DuckDB](other-tools.md)
 - **I want the tables for another release, or a small slice as JSON** — [Build Your Own Tables and Mini-Bundles](build-your-own.md)
+- **A dataset of my own: a gene panel, one submitter, a week's changes** — [Build Your Own Dataset](../build/index.md), starting with [Your First Dataset](../build/first-dataset.md)
 - **I have queries for the 1.1 tables** — [Moving from the 1.1 Tables](migrating-from-1.1.md)
 - **I want tables for a frozen line (`v1/1.1/`, `v1/1.0/`)** — [Parquet for Previous Releases](previous-releases.md)

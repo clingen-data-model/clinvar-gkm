@@ -1,4 +1,9 @@
-# Propositions
+# Proposition Types { #propositions }
+
+!!! abstract "What this page answers"
+    Which GA4GH proposition type each statement type becomes, and the custom types ClinVar-GKM defines where GA4GH
+    has none. Read it when you need to know which proposition section a claim is in, or why a type name starts
+    with `Clinvar`.
 
 Each statement type is mapped to a GKS proposition type. Standard GA4GH proposition types are used where they exist. For statement types not covered by the GA4GH specifications, ClinVar-GKM defines custom proposition types.
 
@@ -19,14 +24,14 @@ These custom propositions are defined specifically for the ClinVar-GKM dataset t
 
 | Statement Type | Proposition Type |
 | --- | --- |
-| Risk Factor | ClinVarRiskFactorProposition |
-| Protective | ClinVarProtectiveProposition |
-| Drug Response | ClinVarDrugResponseProposition |
-| Other | ClinVarOtherProposition |
-| Not Provided | ClinVarNotProvidedProposition |
-| Affects | ClinVarAffectsProposition |
-| Association | ClinVarAssociationProposition |
-| Confers Sensitivity | ClinVarConfersSensitivityProposition |
+| Risk Factor | ClinvarRiskFactorProposition |
+| Protective | ClinvarProtectiveProposition |
+| Drug Response | ClinvarDrugResponseProposition |
+| Other | ClinvarOtherProposition |
+| Not Provided | ClinvarNotProvidedProposition |
+| Affects | ClinvarAffectsProposition |
+| Association | ClinvarAssociationProposition |
+| Confers Sensitivity | ClinvarConfersSensitivityProposition |
 
 ## Aggregate Propositions
 

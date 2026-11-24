@@ -1,10 +1,37 @@
 # VCV Statements
 
+!!! abstract "What this page answers"
+    What ClinVar's variant-level aggregate says about one variant, and how it was reached from the submissions
+    under it. Read it when you want ClinVar's overall classification of a variant, its review status, or which
+    submissions counted towards it.
+
 ## Overview
 
-The `vcv` bundle section contains one record per variation-level aggregate classification. Each record is a `Statement` that aggregates individual SCV submissions into a hierarchical summary — combining classifications across submission levels to produce a single variation-level result.
+The `vcv` bundle section contains one record per variation-level aggregate classification. Each record is a `Statement` that aggregates individual [SCV](../reference/glossary.md#scv) submissions into a hierarchical summary — combining classifications across submission levels to produce a single variation-level result. [VCV](../reference/glossary.md#vcv) is ClinVar's variant-level record; the aggregate [review status](../reference/glossary.md#review-status) is carried in the `clinvarReviewStatus` extension.
 
-VCV statements use `#/` references for propositions, contributing SCVs, and lower-level VCV groupings. They are produced by the [VCV Procedures](../pipeline/vcv-statements/vcv-proc.md).
+VCV statements use `#/` references for [propositions](../reference/glossary.md#proposition), contributing SCVs, and lower-level VCV groupings. They are produced by the [VCV Procedures](../pipeline/vcv-statements/vcv-proc.md).
+
+---
+
+## Layer Hierarchy
+
+VCV statements are built through a multi-layer aggregation hierarchy. The top-level output is the Aggregate Contribution layer; lower layers appear in the `hasEvidenceItems` of higher layers.
+
+| Layer | ID Format | Aggregates By | Scope |
+| --- | --- | --- | --- |
+| Classification | `{VCV}.{ver}-{group}-{PROP}-{level}[-{TIER}]` | Classification label within submission level | All |
+| Priority | `{VCV}.{ver}-{group}-{PROP}-{level}` | Tier priority within submission level | Somatic only |
+| Aggregate Contribution | `{VCV}.{ver}-{group}-{PROP}` | Submission level (winner-takes-all) | All |
+
+Submission level ranking at the Aggregate Contribution layer is `PG > EP > CP > NOCP > NOCL > FLAG`, with only matching submission levels aggregating together at the Classification layer.
+
+The diagram below reads one statement id left to right and shows the layers for germline and somatic statements.
+It is drawn for the [Parquet tables](../parquet/tables.md#reading-a-variants-statements), whose ids, layers and
+levels are the bundle's.
+
+<iframe src="../assets/diagrams/parquet-vcv-levels.html" style="width:100%; height:760px; border:1px solid rgba(128,128,128,.25); border-radius:6px;" title="Reading a variant's statements" loading="lazy"></iframe>
+
+See [Aggregation Rules](../pipeline/vcv-statements/vcv-aggregation-rules.md) for detailed submission level logic and [VCV Procedures](../pipeline/vcv-statements/vcv-proc.md) for implementation details.
 
 ---
 
@@ -180,24 +207,18 @@ Extensions on the `classification` MappableConcept within the Statement.
 
 ---
 
-## Layer Hierarchy
-
-VCV statements are built through a multi-layer aggregation hierarchy. The top-level output is the Aggregate Contribution layer; lower layers appear in the `hasEvidenceItems` of higher layers.
-
-| Layer | ID Format | Aggregates By | Scope |
-| --- | --- | --- | --- |
-| Classification | `{VCV}.{ver}-{group}-{PROP}-{level}[-{TIER}]` | Classification label within submission level | All |
-| Priority | `{VCV}.{ver}-{group}-{PROP}-{level}` | Tier priority within submission level | Somatic only |
-| Aggregate Contribution | `{VCV}.{ver}-{group}-{PROP}` | Submission level (winner-takes-all) | All |
-
-Submission level ranking at the Aggregate Contribution layer is `PG > EP > CP > NOCP > NOCL > FLAG`, with only matching submission levels aggregating together at the Classification layer.
-
-See [Aggregation Rules](../pipeline/vcv-statements/vcv-aggregation-rules.md) for detailed submission level logic and [VCV Procedures](../pipeline/vcv-statements/vcv-proc.md) for implementation details.
-
----
-
 ## Examples
 
 Annotated JSONC examples of VCV statement records are available in the repository:
 
 - [VCV statement examples](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples/vcv)
+
+---
+
+## See Also { #see-also }
+
+- [Aggregation Rules](../pipeline/vcv-statements/vcv-aggregation-rules.md) — how each layer picks its classification, review status, direction and strength
+- [RCV Statements](rcv-statements.md) — the same aggregation for one variant and one condition
+- [SCV Statements](scv-statements.md) — the submissions the lowest layer cites
+- [ID References](id-references.md#vcv-statement-ids) — the VCV statement and proposition id formats
+- [Examples](../data-access/examples.md#vcv-statements) — whole VCV hierarchies for two variants
