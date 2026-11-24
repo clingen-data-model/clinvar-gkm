@@ -18,9 +18,9 @@
 # (#250), with the clearer download commands and the runnable examples (#257, #261, ADR 0012),
 # Parquet for one weekly release with the replay script (#255), the Web Shell and console fixes (#265),
 # the 1.2.0 examples and release-validation results (#270, #275), the plans and specs moved out of
-# the published docs (#271), and the content and Parquet corrections (#273, #274). d576917 is that
-# commit on 1.0.
+# the published docs (#271), the content and Parquet corrections (#273, #274), and the restructure
+# with the Start Here and Build & Query tabs (#280-#283, #286, #287). ef9bea6 is that commit on 1.0.
 #
 # line  source                                    label
 1.1     f579e774ed80b0d08cc383df78c74a2cb16e76d2  1.1.0
-1.2     d57691715cd2f3ff740e5585f63c832a1e43422f  1.2.0
+1.2     ef9bea69b64e6c738533ec7f6d8be353e05c3a5d  1.2.0
