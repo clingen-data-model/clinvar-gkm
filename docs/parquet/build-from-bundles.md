@@ -11,7 +11,7 @@ tables from any `v1/1.1/` bundle yourself, with [`gkm-bundle-parquet`](https://g
     bundle, with every property of a record a typed column. These are not the 22 tables the 1.1 line published
     (exported from BigQuery, with other names and columns), so the queries in [Query the Data](index.md) need
     rewrites. The 1.2 docs map every old table and column to the new ones:
-    [Moving from the 1.1 Tables to 2.0](https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/migrating-from-1.1/).
+    [Moving from the 1.1 Tables to 2.0](https://clinvar-gkm.org/1.2/parquet/migrating-from-1.1/).
 
 ---
 
@@ -41,7 +41,7 @@ completes kept every value, and the round-trip check below proves it record by r
 
 | | |
 | --- | --- |
-| URL | `https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml` |
+| URL | `https://clinvar-gkm.org/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml` |
 | For | bundles of `schema_version` `1.1.0`: every bundle in `v1/1.1/` |
 | Schema it pairs with | `--bundle-schema https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json` |
 | Tool | `gkm-bundle-parquet` 2.0.0 |
@@ -96,7 +96,7 @@ shasum -a 256 -c "$(basename "$B").sha256"
 ```bash
 uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm-delta_2026-0928.json.gz \
     --bundle-schema https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json \
-    --column-set https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml \
+    --column-set https://clinvar-gkm.org/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml \
     --out parquet/
 ```
 
@@ -135,11 +135,11 @@ keep the rebuilt bundle, run `rebuild parquet/ -o rebuilt.json.gz` instead: it e
 `build` reads one bundle, so a full set of tables for one week is built from that week's full bundle. A
 monthly is the full bundle of its `source_release`. For any other 1.1 week, rebuild the week's full bundle from
 a monthly and the deltas after it with
-[`replay-bundle.py`](https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py),
+[`replay-bundle.py`](https://clinvar-gkm.org/1.2/assets/scripts/replay-bundle.py),
 the script the 1.2 docs publish. It needs only `python3` (3.9 or later); name the line with `--line v1/1.1`:
 
 ```bash
-curl -fsSO --retry 5 https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py
+curl -fsSO --retry 5 https://clinvar-gkm.org/1.2/assets/scripts/replay-bundle.py
 python3 replay-bundle.py --line v1/1.1 --release 2026-10-24 --plan
 python3 replay-bundle.py --line v1/1.1 --release 2026-10-24
 ```
@@ -166,7 +166,7 @@ Then build it as in [Build](#build), with the 1.1.0 schema URL and the column se
 ```bash
 uvx gkm-bundle-parquet@2.0.0 build --full clinvar-gkm_2026-1024.replayed.json.gz \
     --bundle-schema https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json \
-    --column-set https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml \
+    --column-set https://clinvar-gkm.org/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml \
     --out parquet-2026-1024/
 ```
 
@@ -188,7 +188,7 @@ Every delta builds on a laptop. The full-bundle figures are for a 1.2 full bundl
 weekly full; the 16 GB run's round trip was stopped after 2 hours, still running). A monthly builds on a 16 GB
 machine with the default memory settings and about 30 GB free in `--work-dir`, in a few hours; more memory makes
 it faster. `--memory-limit` caps DuckDB, not the whole process, so leave about 3 GB above it. The 1.2 docs give
-the details: [A full bundle](https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/build-your-own/#a-full-bundle).
+the details: [A full bundle](https://clinvar-gkm.org/1.2/parquet/build-your-own/#a-full-bundle).
 
 ---
 
@@ -208,7 +208,7 @@ On 2026-11-20 and 2026-11-21, with `gkm-bundle-parquet` 2.0.0, the column set an
   every record any published `v1/1.1/` bundle holds is covered, and no published 1.1 bundle stops the build.
 
 The 1.2 docs give the details:
-[Parquet for Previous Releases](https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/previous-releases/).
+[Parquet for Previous Releases](https://clinvar-gkm.org/1.2/parquet/previous-releases/).
 
 ---
 
