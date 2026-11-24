@@ -4556,7 +4556,7 @@ pipeline computed, or to find the procedure page that explains it in full.</p>
 <p>Every value in a bundle starts in ClinVar's XML release. The upstream
 <a href="https://github.com/clingen-data-model/clinvar-ingest">clinvar-ingest</a> pipeline loads the XML into relational
 BigQuery tables (<code>variation</code>, <code>scv_summary</code>, <code>clinical_assertion</code>, <code>trait</code>, <code>rcv_mapping</code> and others); the
-procedures in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/src/procedures"><code>src/procedures/</code></a> read
+procedures in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/f3b0a857808c7b679d75590242392421713562e9/src/procedures"><code>src/procedures/</code></a> read
 those tables and build one <code>gkm_dict_*</code> table per bundle section; the assembler turns those tables into the
 bundle (<a href="../export/#step-2-assemble-bundle">Export &amp; Distribute</a>).</p>
 <hr />
@@ -4583,32 +4583,32 @@ bundle (<a href="../export/#step-2-assemble-bundle">Export &amp; Distribute</a>)
 <tbody>
 <tr>
 <td><code>variation_identity</code></td>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/src/procedures/variation-identity-proc.sql"><code>variation-identity-proc.sql</code></a></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/src/procedures/variation-identity-proc.sql"><code>variation-identity-proc.sql</code></a></td>
 <td>The expression sent to vrs-python, HGVS, locations and cross-references per variation</td>
 </tr>
 <tr>
 <td><code>gkm_catvar_proc</code></td>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/src/procedures/gkm-catvar-proc.sql"><code>gkm-catvar-proc.sql</code></a></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/src/procedures/gkm-catvar-proc.sql"><code>gkm-catvar-proc.sql</code></a></td>
 <td><code>variation</code>, <code>allele</code>, <code>location</code>, <code>sequenceReference</code>, copy number sections, <code>gene</code></td>
 </tr>
 <tr>
 <td><code>gkm_scv_condition_proc</code></td>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/src/procedures/gkm-scv-condition-proc.sql"><code>gkm-scv-condition-proc.sql</code></a></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/src/procedures/gkm-scv-condition-proc.sql"><code>gkm-scv-condition-proc.sql</code></a></td>
 <td><code>condition</code>, ClinVar trait sets in <code>conditionSet</code>, each SCV's resolved condition</td>
 </tr>
 <tr>
 <td><code>gkm_scv_statement_proc</code></td>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/src/procedures/gkm-scv-statement-proc.sql"><code>gkm-scv-statement-proc.sql</code></a></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/src/procedures/gkm-scv-statement-proc.sql"><code>gkm-scv-statement-proc.sql</code></a></td>
 <td><code>scv</code>, SCV propositions, SCV evidence lines, <code>therapy</code>, <code>therapyGroup</code>, <code>submitter</code></td>
 </tr>
 <tr>
 <td><code>gkm_vcv_proc</code>, <code>gkm_vcv_statement_proc</code></td>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/src/procedures/gkm-vcv-proc.sql"><code>gkm-vcv-proc.sql</code></a>, <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/src/procedures/gkm-vcv-statement-proc.sql"><code>gkm-vcv-statement-proc.sql</code></a></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/src/procedures/gkm-vcv-proc.sql"><code>gkm-vcv-proc.sql</code></a>, <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/src/procedures/gkm-vcv-statement-proc.sql"><code>gkm-vcv-statement-proc.sql</code></a></td>
 <td><code>vcv</code>, VCV propositions and evidence lines, condition sets minted for VCVs</td>
 </tr>
 <tr>
 <td><code>gkm_rcv_proc</code>, <code>gkm_rcv_statement_proc</code></td>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/src/procedures/gkm-rcv-proc.sql"><code>gkm-rcv-proc.sql</code></a>, <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/src/procedures/gkm-rcv-statement-proc.sql"><code>gkm-rcv-statement-proc.sql</code></a></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/src/procedures/gkm-rcv-proc.sql"><code>gkm-rcv-proc.sql</code></a>, <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/src/procedures/gkm-rcv-statement-proc.sql"><code>gkm-rcv-statement-proc.sql</code></a></td>
 <td><code>rcv</code>, RCV propositions and evidence lines</td>
 </tr>
 </tbody>

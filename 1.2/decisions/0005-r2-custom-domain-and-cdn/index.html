@@ -4400,7 +4400,7 @@ long-term, with cache/abuse controls in front of the bucket.</p>
 <li><strong>Public host = <code>data.clinvar-gkm.org</code></strong>, attached to the <code>clinvar-gkm</code> R2 bucket via <strong>R2 → Connect
    Domain</strong> (auto-creates a proxied record + TLS). <code>data</code> (not <code>downloads</code>) because consumers also
    <strong>range-read</strong> the Parquet in place (DuckDB/<code>httpfs</code>), which isn't a "download". The apex is left free
-   for a future landing page.</li>
+   for a future landing page. (Since 2026-11-24 the apex serves the documentation, ADR 0013.)</li>
 <li><strong>Scripts default to the custom host, env-overridable.</strong> All uploaders + the index generator set
    <code>R2_PUBLIC_URL="${R2_PUBLIC_URL:-https://data.clinvar-gkm.org}"</code>. <code>generate-r2-index.sh</code> writes this as
    the <code>base_url</code> in <code>index.json</code> / the root manifest / <code>feed.xml</code> — the canonical consumer URL.</li>

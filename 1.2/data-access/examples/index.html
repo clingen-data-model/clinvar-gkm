@@ -4684,7 +4684,7 @@
 <a href="#annotated-walk-through">annotated walk-through</a> of one submission, then open the example file closest to
 what you need from the tables below.</p>
 </div>
-<p>Example files are maintained in the <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples">examples/</a> directory of the repository. These serve as reference targets for the data structures produced by the pipeline and are useful for early adopters and for validating output against expected formats.</p>
+<p>Example files are maintained in the <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/f3b0a857808c7b679d75590242392421713562e9/examples">examples/</a> directory of the repository. These serve as reference targets for the data structures produced by the pipeline and are useful for early adopters and for validating output against expected formats.</p>
 <hr />
 <h2 id="file-format">File Format<a class="headerlink" href="#file-format" title="Permanent link">&para;</a></h2>
 <p>Each file is a <strong>bundle fragment</strong>: a small JSON object with the same shape as a published bundle, <code>{"schema_version": "1.2.0", "&lt;section&gt;": {"&lt;key&gt;": record}, ...}</code>. It holds the record the file is named for (the <em>top record</em>) exactly as the bundle has it, so its references are <code>#/&lt;section&gt;/&lt;key&gt;</code> <a href="../../output-reference/id-references/">pointers</a>, plus the records those pointers lead to.</p>
@@ -4713,9 +4713,9 @@ what you need from the tables below.</p>
 <p>Pointers into <code>vcv</code> and <code>rcv</code> are followed, so a VCV or RCV file holds its whole aggregation hierarchy: the top statement and every nested layer statement below it (such as <code>…-G-PATH-CP</code>, or <code>…-S-SCI-CP</code> and <code>…-S-SCI-CP-T1</code>), each with its proposition, evidence lines and condition or condition set. The hierarchy ends at the <code>#/scv/</code> pointers of the lowest layer. An SCV file holds the statement, its proposition, submitter, condition or condition set (with its member conditions), and any evidence line and therapy. A Cat-VRS file holds the variation with its alleles, locations, sequence references and genes, so every pointer in it resolves.</p>
 <div class="admonition note">
 <p class="admonition-title">Fragments, not closed bundles</p>
-<p>Every file validates against the <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/schema/clinvar-gkm/clinvar-gkm-bundle.schema.json">bundle schema</a>, but not every <code>#/…</code> pointer resolves inside the file. A kept pointer names a record in the full bundle of the same release. A published bundle resolves every pointer; for a closed extract of a few statements, see <a href="../../pipeline/sub-bundle/">Sub-Bundle Extraction</a>.</p>
+<p>Every file validates against the <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/schema/clinvar-gkm/clinvar-gkm-bundle.schema.json">bundle schema</a>, but not every <code>#/…</code> pointer resolves inside the file. A kept pointer names a record in the full bundle of the same release. A published bundle resolves every pointer; for a closed extract of a few statements, see <a href="../../pipeline/sub-bundle/">Sub-Bundle Extraction</a>.</p>
 </div>
-<p>The files are regenerated from a published full bundle by <code>src/scripts/extract-example.py</code>; the <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/readme.md">examples readme</a> has the command.</p>
+<p>The files are regenerated from a published full bundle by <code>src/scripts/extract-example.py</code>; the <a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/readme.md">examples readme</a> has the command.</p>
 <hr />
 <h2 id="annotated-walk-through">Annotated Walk-Through<a class="headerlink" href="#annotated-walk-through" title="Permanent link">&para;</a></h2>
 <p>One submission, read field by field: <code>clinvar.submission:SCV008145211.1</code>, a likely pathogenic classification of
@@ -4911,13 +4911,13 @@ what each one leads to:</p>
 </thead>
 <tbody>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/cat-vrs/clinvar%3A12582.jsonc">A single-nucleotide variant with its VRS allele, HGVS expressions, genes and cross-references</a><br><code>clinvar:12582.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/cat-vrs/clinvar%3A12582.jsonc">A single-nucleotide variant with its VRS allele, HGVS expressions, genes and cross-references</a><br><code>clinvar:12582.jsonc</code></td>
 <td>KRAS (variation 12582)</td>
 <td>CanonicalAllele</td>
 <td>Canonical allele with DefiningAlleleConstraint, multiple expression formats, gene associations, cross-references</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/cat-vrs/clinvar%3A208366.jsonc">A microsatellite (repeat) variant as a canonical allele</a><br><code>clinvar:208366.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/cat-vrs/clinvar%3A208366.jsonc">A microsatellite (repeat) variant as a canonical allele</a><br><code>clinvar:208366.jsonc</code></td>
 <td>Variation 208366</td>
 <td>CanonicalAllele</td>
 <td>Additional canonical allele example</td>
@@ -4941,7 +4941,7 @@ what each one leads to:</p>
 </thead>
 <tbody>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/scv/SCV001571657.2-G-PATH.jsonc">A germline pathogenicity classification with its gene and condition</a><br><code>SCV001571657.2-G-PATH.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/scv/SCV001571657.2-G-PATH.jsonc">A germline pathogenicity classification with its gene and condition</a><br><code>SCV001571657.2-G-PATH.jsonc</code></td>
 <td>SCV001571657.2</td>
 <td>Pathogenic (definitive)</td>
 <td>KRAS / Acute myeloid leukemia</td>
@@ -4962,14 +4962,14 @@ what each one leads to:</p>
 </thead>
 <tbody>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/scv/SCV004035006.2-G-ASSOC.jsonc">An association claim whose condition is a set of several conditions</a><br><code>SCV004035006.2-G-ASSOC.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/scv/SCV004035006.2-G-ASSOC.jsonc">An association claim whose condition is a set of several conditions</a><br><code>SCV004035006.2-G-ASSOC.jsonc</code></td>
 <td>SCV004035006.2</td>
 <td>association (supports)</td>
 <td>Association</td>
 <td>ClinvarAssociationProposition, KRAS variant with multiple endometrial conditions in a ConditionSet</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/scv/SCV002099547.2-G-NP.jsonc">A submission with no classification ("not provided")</a><br><code>SCV002099547.2-G-NP.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/scv/SCV002099547.2-G-NP.jsonc">A submission with no classification ("not provided")</a><br><code>SCV002099547.2-G-NP.jsonc</code></td>
 <td>SCV002099547.2</td>
 <td>not provided (supports)</td>
 <td>Not Provided</td>
@@ -4990,7 +4990,7 @@ what each one leads to:</p>
 </thead>
 <tbody>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/scv/SCV005093950.2-S-ONCO.json">A somatic oncogenicity classification and the guideline it used</a><br><code>SCV005093950.2-S-ONCO.json</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/scv/SCV005093950.2-S-ONCO.json">A somatic oncogenicity classification and the guideline it used</a><br><code>SCV005093950.2-S-ONCO.json</code></td>
 <td>SCV005093950.2</td>
 <td>Oncogenic (definitive)</td>
 <td>ERBB2 / Neoplasm</td>
@@ -5012,7 +5012,7 @@ what each one leads to:</p>
 </thead>
 <tbody>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/scv/SCV004565358.1-S-SCI-T1-TR.json">A Tier I somatic claim with a drug-response evidence line</a><br><code>SCV004565358.1-S-SCI-T1-TR.json</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/scv/SCV004565358.1-S-SCI-T1-TR.json">A Tier I somatic claim with a drug-response evidence line</a><br><code>SCV004565358.1-S-SCI-T1-TR.json</code></td>
 <td>SCV004565358.1</td>
 <td>Tier I - Strong</td>
 <td>Tier I</td>
@@ -5020,7 +5020,7 @@ what each one leads to:</p>
 <td>EGFR L858R / NSCLC, drug sensitivity evidence line with erlotinib therapy, AMP/ASCO/CAP Guidelines 2017</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/scv/SCV004565361.1-S-SCI-T2-DIAG.json">A Tier II somatic claim with a diagnostic evidence line</a><br><code>SCV004565361.1-S-SCI-T2-DIAG.json</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/scv/SCV004565361.1-S-SCI-T2-DIAG.json">A Tier II somatic claim with a diagnostic evidence line</a><br><code>SCV004565361.1-S-SCI-T2-DIAG.json</code></td>
 <td>SCV004565361.1</td>
 <td>Tier II - Potential</td>
 <td>Tier II</td>
@@ -5028,7 +5028,7 @@ what each one leads to:</p>
 <td>ACVR1 / diffuse intrinsic pontine glioma, diagnostic inclusion criterion evidence line</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/scv/SCV005387955.1-S-SCI-T3-VUS.json">A Tier III (unknown significance) somatic claim, with a neutral direction</a><br><code>SCV005387955.1-S-SCI-T3-VUS.json</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/scv/SCV005387955.1-S-SCI-T3-VUS.json">A Tier III (unknown significance) somatic claim, with a neutral direction</a><br><code>SCV005387955.1-S-SCI-T3-VUS.json</code></td>
 <td>SCV005387955.1</td>
 <td>Tier III - Unknown</td>
 <td>Tier III</td>
@@ -5036,7 +5036,7 @@ what each one leads to:</p>
 <td>TG variant, neutral direction, no paired sub-statement</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/scv/SCV005061369.1-S-SCI-T4-BLB.json">A Tier IV (benign) somatic claim, with a disputes direction</a><br><code>SCV005061369.1-S-SCI-T4-BLB.json</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/scv/SCV005061369.1-S-SCI-T4-BLB.json">A Tier IV (benign) somatic claim, with a disputes direction</a><br><code>SCV005061369.1-S-SCI-T4-BLB.json</code></td>
 <td>SCV005061369.1</td>
 <td>Tier IV - Benign/LB</td>
 <td>Tier IV</td>
@@ -5062,49 +5062,49 @@ what each one leads to:</p>
 </thead>
 <tbody>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/vcv/VCV000012582.69-G-PATH.jsonc">Criteria-provided submissions outrank those without criteria; the condition is a set made for the aggregate</a><br><code>VCV000012582.69-G-PATH.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/vcv/VCV000012582.69-G-PATH.jsonc">Criteria-provided submissions outrank those without criteria; the condition is a set made for the aggregate</a><br><code>VCV000012582.69-G-PATH.jsonc</code></td>
 <td>VCV000012582</td>
 <td>Pathogenicity</td>
 <td>CP, NOCP</td>
 <td>Pathogenic/Likely pathogenic. CP contributing with 15 concordant SCVs; NOCP non-contributing with 20 SCVs. The proposition <code>object</code> is an <code>OR</code> condition set of 8 members minted for the aggregate; one member is itself a ClinVar trait set (<code>AND</code>) of 12 conditions</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/vcv/VCV000012582.69-G-ASSOC.jsonc">A one-submission aggregate whose condition is a ClinVar trait set</a><br><code>VCV000012582.69-G-ASSOC.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/vcv/VCV000012582.69-G-ASSOC.jsonc">A one-submission aggregate whose condition is a ClinVar trait set</a><br><code>VCV000012582.69-G-ASSOC.jsonc</code></td>
 <td>VCV000012582</td>
 <td>Association</td>
 <td>NOCP</td>
 <td>Single NOCP submission; the <code>object</code> is a ClinVar trait set (<code>AND</code>) of two conditions</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/vcv/VCV000012582.69-G-NP.jsonc">An aggregate of one submission with no classification</a><br><code>VCV000012582.69-G-NP.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/vcv/VCV000012582.69-G-NP.jsonc">An aggregate of one submission with no classification</a><br><code>VCV000012582.69-G-NP.jsonc</code></td>
 <td>VCV000012582</td>
 <td>Not Provided</td>
 <td>NOCL</td>
 <td>Single NOCL submission for Encephalocraniocutaneous lipomatosis</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/vcv/VCV000007105.214-G-PATH.jsonc">A practice guideline outranks the expert panel and every other submission</a><br><code>VCV000007105.214-G-PATH.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/vcv/VCV000007105.214-G-PATH.jsonc">A practice guideline outranks the expert panel and every other submission</a><br><code>VCV000007105.214-G-PATH.jsonc</code></td>
 <td>VCV000007105</td>
 <td>Pathogenicity</td>
 <td>PG, EP, CP, NOCP</td>
 <td>Pathogenic, practice guideline. PG contributing (1 SCV); EP (1 SCV), CP (83 SCVs) and NOCP (10 SCVs) non-contributing. Cystic fibrosis</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/vcv/VCV000007105.214-G-DR.jsonc">An expert-panel-only drug response aggregate</a><br><code>VCV000007105.214-G-DR.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/vcv/VCV000007105.214-G-DR.jsonc">An expert-panel-only drug response aggregate</a><br><code>VCV000007105.214-G-DR.jsonc</code></td>
 <td>VCV000007105</td>
 <td>Drug Response</td>
 <td>EP</td>
 <td>Two expert-panel SCVs; the <code>object</code> is an <code>OR</code> condition set of two drug-response conditions</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/vcv/VCV000007105.214-G-RF.jsonc">A single risk factor submission without assertion criteria</a><br><code>VCV000007105.214-G-RF.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/vcv/VCV000007105.214-G-RF.jsonc">A single risk factor submission without assertion criteria</a><br><code>VCV000007105.214-G-RF.jsonc</code></td>
 <td>VCV000007105</td>
 <td>Risk Factor</td>
 <td>NOCP</td>
 <td>Single NOCP submission for a bronchiectasis modifier condition</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/vcv/VCV000007105.214-G-NP.jsonc">Several submissions with no classification, across three conditions</a><br><code>VCV000007105.214-G-NP.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/vcv/VCV000007105.214-G-NP.jsonc">Several submissions with no classification, across three conditions</a><br><code>VCV000007105.214-G-NP.jsonc</code></td>
 <td>VCV000007105</td>
 <td>Not Provided</td>
 <td>NOCL</td>
@@ -5125,14 +5125,14 @@ what each one leads to:</p>
 </thead>
 <tbody>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/vcv/VCV000012582.69-S-SCI.jsonc">Somatic clinical impact in three layers: Tier I counts, Tier II does not</a><br><code>VCV000012582.69-S-SCI.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/vcv/VCV000012582.69-S-SCI.jsonc">Somatic clinical impact in three layers: Tier I counts, Tier II does not</a><br><code>VCV000012582.69-S-SCI.jsonc</code></td>
 <td>VCV000012582</td>
 <td>Somatic Clinical Impact</td>
 <td>Tier I, Tier II</td>
 <td>Aggregate Contribution → Priority Grouping → Classification Grouping hierarchy, three levels of statements. <code>-CP</code> contributes; under it <code>-CP-T1</code> (Tier I, 7 SCVs) contributes and <code>-CP-T2</code> (Tier II, 3 SCVs) does not. <code>-NOCP</code> is non-contributing, with <code>-NOCP-T1</code> (Tier I, 1 SCV) under it</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/vcv/VCV000012582.69-S-ONCO.jsonc">Somatic oncogenicity in two layers, with no tier layer</a><br><code>VCV000012582.69-S-ONCO.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/vcv/VCV000012582.69-S-ONCO.jsonc">Somatic oncogenicity in two layers, with no tier layer</a><br><code>VCV000012582.69-S-ONCO.jsonc</code></td>
 <td>VCV000012582</td>
 <td>Oncogenicity</td>
 <td>N/A</td>
@@ -5160,7 +5160,7 @@ what each one leads to:</p>
 </thead>
 <tbody>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV000007523.120-G-PATH.jsonc">A practice guideline aggregate for one condition</a><br><code>RCV000007523.120-G-PATH.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV000007523.120-G-PATH.jsonc">A practice guideline aggregate for one condition</a><br><code>RCV000007523.120-G-PATH.jsonc</code></td>
 <td>RCV000007523</td>
 <td>Variation 7105</td>
 <td>Pathogenicity</td>
@@ -5168,7 +5168,7 @@ what each one leads to:</p>
 <td>PG contributing (1 SCV); EP (1), CP (45) and NOCP (4) non-contributing</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV000007523.120-G-NP.jsonc">No-classification submissions for one condition</a><br><code>RCV000007523.120-G-NP.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV000007523.120-G-NP.jsonc">No-classification submissions for one condition</a><br><code>RCV000007523.120-G-NP.jsonc</code></td>
 <td>RCV000007523</td>
 <td>Variation 7105</td>
 <td>Not Provided</td>
@@ -5176,7 +5176,7 @@ what each one leads to:</p>
 <td>NOCL, 2 SCVs</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV001787370.11-G-DR.jsonc">An expert panel drug response for one drug combination</a><br><code>RCV001787370.11-G-DR.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV001787370.11-G-DR.jsonc">An expert panel drug response for one drug combination</a><br><code>RCV001787370.11-G-DR.jsonc</code></td>
 <td>RCV001787370</td>
 <td>Variation 7105</td>
 <td>Drug Response</td>
@@ -5184,7 +5184,7 @@ what each one leads to:</p>
 <td>EP, 1 SCV</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV001787371.11-G-DR.jsonc">The same variant's drug response for another drug combination</a><br><code>RCV001787371.11-G-DR.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV001787371.11-G-DR.jsonc">The same variant's drug response for another drug combination</a><br><code>RCV001787371.11-G-DR.jsonc</code></td>
 <td>RCV001787371</td>
 <td>Variation 7105</td>
 <td>Drug Response</td>
@@ -5192,7 +5192,7 @@ what each one leads to:</p>
 <td>EP, 1 SCV</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV000029215.25-G-PATH.jsonc">Criteria-provided submissions outrank one without criteria, for one condition</a><br><code>RCV000029215.25-G-PATH.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV000029215.25-G-PATH.jsonc">Criteria-provided submissions outrank one without criteria, for one condition</a><br><code>RCV000029215.25-G-PATH.jsonc</code></td>
 <td>RCV000029215</td>
 <td>KRAS (variation 12582)</td>
 <td>Pathogenicity</td>
@@ -5200,7 +5200,7 @@ what each one leads to:</p>
 <td>CP contributing (4 SCVs); NOCP non-contributing (1)</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV000272938.40-G-PATH.jsonc">An aggregate whose condition is "not provided"</a><br><code>RCV000272938.40-G-PATH.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV000272938.40-G-PATH.jsonc">An aggregate whose condition is "not provided"</a><br><code>RCV000272938.40-G-PATH.jsonc</code></td>
 <td>RCV000272938</td>
 <td>KRAS (variation 12582)</td>
 <td>Pathogenicity</td>
@@ -5208,7 +5208,7 @@ what each one leads to:</p>
 <td>CP contributing (4 SCVs); NOCP non-contributing (1)</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV000548006.14-G-PATH.jsonc">Two criteria-provided submissions that agree</a><br><code>RCV000548006.14-G-PATH.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV000548006.14-G-PATH.jsonc">Two criteria-provided submissions that agree</a><br><code>RCV000548006.14-G-PATH.jsonc</code></td>
 <td>RCV000548006</td>
 <td>KRAS (variation 12582)</td>
 <td>Pathogenicity</td>
@@ -5216,7 +5216,7 @@ what each one leads to:</p>
 <td>CP, 2 SCVs</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV000585796.12-G-PATH.jsonc">One criteria-provided submission outranks two without criteria</a><br><code>RCV000585796.12-G-PATH.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV000585796.12-G-PATH.jsonc">One criteria-provided submission outranks two without criteria</a><br><code>RCV000585796.12-G-PATH.jsonc</code></td>
 <td>RCV000585796</td>
 <td>KRAS (variation 12582)</td>
 <td>Pathogenicity</td>
@@ -5224,7 +5224,7 @@ what each one leads to:</p>
 <td>CP contributing (1 SCV); NOCP non-contributing (2)</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV004018620.1-G-PATH.jsonc">A single likely pathogenic submission</a><br><code>RCV004018620.1-G-PATH.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV004018620.1-G-PATH.jsonc">A single likely pathogenic submission</a><br><code>RCV004018620.1-G-PATH.jsonc</code></td>
 <td>RCV004018620</td>
 <td>KRAS (variation 12582)</td>
 <td>Pathogenicity</td>
@@ -5232,7 +5232,7 @@ what each one leads to:</p>
 <td>Likely pathogenic, CP, 1 SCV</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV004554600.1-G-PATH.jsonc">A single criteria-provided submission for one condition</a><br><code>RCV004554600.1-G-PATH.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV004554600.1-G-PATH.jsonc">A single criteria-provided submission for one condition</a><br><code>RCV004554600.1-G-PATH.jsonc</code></td>
 <td>RCV004554600</td>
 <td>KRAS (variation 12582)</td>
 <td>Pathogenicity</td>
@@ -5240,7 +5240,7 @@ what each one leads to:</p>
 <td>CP, 1 SCV</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV005007840.1-G-PATH.jsonc">An aggregate whose condition is a ClinVar trait set of 12 conditions</a><br><code>RCV005007840.1-G-PATH.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV005007840.1-G-PATH.jsonc">An aggregate whose condition is a ClinVar trait set of 12 conditions</a><br><code>RCV005007840.1-G-PATH.jsonc</code></td>
 <td>RCV005007840</td>
 <td>KRAS (variation 12582)</td>
 <td>Pathogenicity</td>
@@ -5248,7 +5248,7 @@ what each one leads to:</p>
 <td>CP, 1 SCV; the <code>object</code> is a <code>#/conditionSet/</code> reference</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV003327361.6-G-ASSOC.jsonc">An association aggregate whose condition is a two-condition trait set</a><br><code>RCV003327361.6-G-ASSOC.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV003327361.6-G-ASSOC.jsonc">An association aggregate whose condition is a two-condition trait set</a><br><code>RCV003327361.6-G-ASSOC.jsonc</code></td>
 <td>RCV003327361</td>
 <td>KRAS (variation 12582)</td>
 <td>Association</td>
@@ -5256,7 +5256,7 @@ what each one leads to:</p>
 <td>NOCP, 1 SCV</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV001839445.10-G-NP.jsonc">One submission with no classification</a><br><code>RCV001839445.10-G-NP.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV001839445.10-G-NP.jsonc">One submission with no classification</a><br><code>RCV001839445.10-G-NP.jsonc</code></td>
 <td>RCV001839445</td>
 <td>KRAS (variation 12582)</td>
 <td>Not Provided</td>
@@ -5264,7 +5264,7 @@ what each one leads to:</p>
 <td>NOCL, 1 SCV</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV001781420.15-G-PATH.jsonc">Conflicting classifications, with a neutral direction</a><br><code>RCV001781420.15-G-PATH.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV001781420.15-G-PATH.jsonc">Conflicting classifications, with a neutral direction</a><br><code>RCV001781420.15-G-PATH.jsonc</code></td>
 <td>RCV001781420</td>
 <td>Variation 97850</td>
 <td>Pathogenicity</td>
@@ -5287,7 +5287,7 @@ what each one leads to:</p>
 </thead>
 <tbody>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV004668724.2-S-ONCO.jsonc">Somatic oncogenicity for one tumor type</a><br><code>RCV004668724.2-S-ONCO.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV004668724.2-S-ONCO.jsonc">Somatic oncogenicity for one tumor type</a><br><code>RCV004668724.2-S-ONCO.jsonc</code></td>
 <td>RCV004668724</td>
 <td>KRAS (variation 12582)</td>
 <td>Oncogenicity</td>
@@ -5295,7 +5295,7 @@ what each one leads to:</p>
 <td>Oncogenic, CP, 1 SCV</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV006253518.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006253518.1-S-SCI.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV006253518.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006253518.1-S-SCI.jsonc</code></td>
 <td>RCV006253518</td>
 <td>KRAS (variation 12582)</td>
 <td>Somatic Clinical Impact</td>
@@ -5303,7 +5303,7 @@ what each one leads to:</p>
 <td>Tier I diagnostic, CP, 1 SCV</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV006253519.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006253519.1-S-SCI.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV006253519.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006253519.1-S-SCI.jsonc</code></td>
 <td>RCV006253519</td>
 <td>KRAS (variation 12582)</td>
 <td>Somatic Clinical Impact</td>
@@ -5311,7 +5311,7 @@ what each one leads to:</p>
 <td>Tier I diagnostic, CP, 1 SCV</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV006253521.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006253521.1-S-SCI.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV006253521.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006253521.1-S-SCI.jsonc</code></td>
 <td>RCV006253521</td>
 <td>KRAS (variation 12582)</td>
 <td>Somatic Clinical Impact</td>
@@ -5319,7 +5319,7 @@ what each one leads to:</p>
 <td>Tier I diagnostic, CP, 1 SCV</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV006253522.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006253522.1-S-SCI.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV006253522.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006253522.1-S-SCI.jsonc</code></td>
 <td>RCV006253522</td>
 <td>KRAS (variation 12582)</td>
 <td>Somatic Clinical Impact</td>
@@ -5327,7 +5327,7 @@ what each one leads to:</p>
 <td>Tier I diagnostic, CP, 1 SCV</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV006253523.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006253523.1-S-SCI.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV006253523.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006253523.1-S-SCI.jsonc</code></td>
 <td>RCV006253523</td>
 <td>KRAS (variation 12582)</td>
 <td>Somatic Clinical Impact</td>
@@ -5335,7 +5335,7 @@ what each one leads to:</p>
 <td>Tier I diagnostic, CP, 1 SCV</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV006253525.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006253525.1-S-SCI.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV006253525.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006253525.1-S-SCI.jsonc</code></td>
 <td>RCV006253525</td>
 <td>KRAS (variation 12582)</td>
 <td>Somatic Clinical Impact</td>
@@ -5343,7 +5343,7 @@ what each one leads to:</p>
 <td>Tier I diagnostic, CP, 1 SCV</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV006253527.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006253527.1-S-SCI.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV006253527.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006253527.1-S-SCI.jsonc</code></td>
 <td>RCV006253527</td>
 <td>KRAS (variation 12582)</td>
 <td>Somatic Clinical Impact</td>
@@ -5351,7 +5351,7 @@ what each one leads to:</p>
 <td>Tier I diagnostic, CP, 1 SCV</td>
 </tr>
 <tr>
-<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/examples/rcv/RCV006254391.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006254391.1-S-SCI.jsonc</code></td>
+<td><a href="https://github.com/clingen-data-model/clinvar-gkm/blob/f3b0a857808c7b679d75590242392421713562e9/examples/rcv/RCV006254391.1-S-SCI.jsonc">A Tier I diagnostic claim for one tumor type</a><br><code>RCV006254391.1-S-SCI.jsonc</code></td>
 <td>RCV006254391</td>
 <td>Variation 2758242</td>
 <td>Somatic Clinical Impact</td>

@@ -4554,7 +4554,7 @@ freezes the line it replaces in the same way, but starts from a checkpoint month
 republish (see <a href="#120-a-new-minor-line">1.2.0</a>), and the frozen line drops its weekly fulls and Parquet.</p>
 <div class="admonition info">
 <p class="admonition-title">The published schema always matches the data</p>
-<p>The schema in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/ef9bea69b64e6c738533ec7f6d8be353e05c3a5d/schema/clinvar-gkm"><code>schema/clinvar-gkm/</code></a>
+<p>The schema in <a href="https://github.com/clingen-data-model/clinvar-gkm/tree/f3b0a857808c7b679d75590242392421713562e9/schema/clinvar-gkm"><code>schema/clinvar-gkm/</code></a>
 is the source of truth and is updated in the same change as any adjustment to the emitted bundle — so a
 given release's data always validates against its stated schema version, and the published examples are
 validated against it.</p>
@@ -4599,7 +4599,7 @@ version.</p>
   same page in the latest release. It shows the site as it was last built for that line.</li>
 </ul>
 <p>Unreleased changes are not published as a docs version: the docs change with a release. A link to the former
-<code>dev</code> version (<code>…/clinvar-gkm/dev/&lt;page&gt;/</code>) opens the same page in the latest release.</p>
+<code>dev</code> version (<code>https://clinvar-gkm.org/dev/&lt;page&gt;/</code>, or the older <code>…/clinvar-gkm/dev/&lt;page&gt;/</code>) opens the same page in the latest release.</p>
 <p>The download tables and the live query console in each version read that version's data line: the <code>1.1</code> docs
 list the files in <code>v1/1.1/</code>, the <code>1.2</code> docs those in <code>v1/1.2/</code>. On a frozen line the weekly full bundles and the
 Parquet set are deleted, so those tables and the console say so and link to the latest docs (the console says so
@@ -4612,8 +4612,10 @@ repository files point there too: the release tag (such as <code>1.1.0</code>). 
 (the branch <code>docs/line-1.1</code>), because the <code>1.1.0</code> tag was cut without them, so their repository-file links point
 at that branch's commit.</p>
 <p>To link to a page in whatever release is latest, use a link without a version, such as
-<code>https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/changelog/</code>. To pin a link to one version,
-include it: <code>…/clinvar-gkm/1.1/reference/changelog/</code>. The decision record is
+<code>https://clinvar-gkm.org/reference/changelog/</code>. To pin a link to one version,
+include it: <code>https://clinvar-gkm.org/1.1/reference/changelog/</code>. Links to the docs' former address,
+<code>https://dataexchange.clinicalgenome.org/clinvar-gkm/…</code>, open the same page here
+(<a href="../../decisions/0013-docs-on-clinvar-gkm-org/">ADR 0013</a>). The decision record is
 <a href="../../decisions/0011-versioned-documentation/">ADR 0011</a>.</p>
 <h2 id="release-notes">Release notes<a class="headerlink" href="#release-notes" title="Permanent link">&para;</a></h2>
 <ul>

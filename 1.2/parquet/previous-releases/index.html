@@ -4584,7 +4584,7 @@ completes kept every value, and the round-trip check below proves it record by r
 </tr>
 <tr>
 <td>URL</td>
-<td><code>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml</code></td>
+<td><code>https://clinvar-gkm.org/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml</code></td>
 </tr>
 <tr>
 <td>For</td>
@@ -4654,7 +4654,7 @@ page hold no <code>#</code> comments: zsh, unlike bash, reads <code>#</code> in 
 <h3 id="build">3. Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>build<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm-delta_2026-0928.json.gz<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span>--bundle-schema<span class="w"> </span>https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>--column-set<span class="w"> </span>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>--column-set<span class="w"> </span>https://clinvar-gkm.org/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span>--out<span class="w"> </span>parquet/
 </code></pre></div>
 <p><code>--column-set</code> also takes the downloaded file. For a monthly, give the monthly's file name, and see

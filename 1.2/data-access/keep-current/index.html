@@ -4626,7 +4626,7 @@ record's JSON text as published, and a table <code>state</code> holding the copy
 <code>schema_version</code>. <a href="../../assets/scripts/keep-current.py"><code>keep-current.py</code></a> loads it and applies the deltas, by the
 rules above.</p>
 <h3 id="get-the-script">Get the script<a class="headerlink" href="#get-the-script" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-fsSO<span class="w"> </span>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/keep-current.py
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-fsSO<span class="w"> </span>https://clinvar-gkm.org/1.2/assets/scripts/keep-current.py
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>.<span class="w"> </span>.venv/bin/activate
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">duckdb</span><span class="o">==</span><span class="m">1</span>.5.4
