@@ -15,7 +15,7 @@ The Germline Classification category groups 9 statement types.
 | --- | --- | --- | --- | --- |
 | G.01 | Pathogenicity | Pathogenic | supports | definitive |
 |  |  | Pathogenic, low penetrance | supports | definitive |
-|  |  | Risk allele | supports | definitive |
+|  |  | Established risk allele | supports | definitive |
 |  |  | Likely pathogenic | supports | likely |
 |  |  | Likely pathogenic, low penetrance | supports | likely |
 |  |  | Likely risk allele | supports | likely |
