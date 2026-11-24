@@ -73,15 +73,32 @@ const cases = %(cases)s;
 """
 
 
-@pytest.fixture(scope="module")
-def not_found_script(tmp_path_factory):
-    pages = tmp_path_factory.mktemp("pages")
+def _not_found_script(pages, base):
     (pages / "1.1").mkdir()
     (pages / "1.2").mkdir()
     versions = dv.update_versions([], ["1.1", "1.2"], pages)
-    dv.write_root(pages, versions, BASE)
+    dv.write_root(pages, versions, base)
     html = (pages / "404.html").read_text()
     return re.search(r"<script>(.*?)</script>", html, re.S).group(1)
+
+
+def _run_404(script, path, exists):
+    js = HARNESS % {
+        "script": json.dumps(script),
+        "cases": json.dumps([{"path": path, "exists": exists}]),
+    }
+    out = subprocess.run(["node", "-e", js], check=True, capture_output=True, text=True).stdout
+    return json.loads(out)
+
+
+@pytest.fixture(scope="module")
+def not_found_script(tmp_path_factory):
+    return _not_found_script(tmp_path_factory.mktemp("pages"), BASE)
+
+
+@pytest.fixture(scope="module")
+def not_found_script_at_root(tmp_path_factory):
+    return _not_found_script(tmp_path_factory.mktemp("pages_root"), "/")
 
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node is not installed")
@@ -104,9 +121,36 @@ def not_found_script(tmp_path_factory):
     ],
 )
 def test_404_redirects(not_found_script, path, exists, expected):
-    js = HARNESS % {
-        "script": json.dumps(not_found_script),
-        "cases": json.dumps([{"path": path, "exists": exists}]),
-    }
-    out = subprocess.run(["node", "-e", js], check=True, capture_output=True, text=True).stdout
-    assert json.loads(out) == [expected]
+    assert _run_404(not_found_script, path, exists) == [expected]
+
+
+# The site at the root of clinvar-gkm.org (ADR 0013): links that still carry the former /clinvar-gkm/ prefix
+# drop it (the 404 page then runs again on the new path if that page is missing too).
+@pytest.mark.skipif(shutil.which("node") is None, reason="node is not installed")
+@pytest.mark.parametrize(
+    "path, exists, expected",
+    [
+        ("/clinvar-gkm/1.2/data-access/download/", [], "/1.2/data-access/download/"),
+        ("/clinvar-gkm/reference/changelog/", [], "/reference/changelog/"),
+        ("/clinvar-gkm/dev/parquet/migrating-from-1.1/", [], "/dev/parquet/migrating-from-1.1/"),
+        ("/clinvar-gkm/", [], "/"),
+        ("/clinvar-gkm", [], "/"),
+        # the second pass, on the path without the prefix
+        ("/reference/changelog/", ["/1.2/reference/changelog/"], "/1.2/reference/changelog/"),
+        ("/dev/parquet/migrating-from-1.1/", ["/1.2/parquet/migrating-from-1.1/"],
+         "/1.2/parquet/migrating-from-1.1/"),
+        ("/latest/reference/", [], "/1.2/reference/"),
+        ("/1.1/no-such-page/", [], "/1.1/"),
+        ("/no-such-page/", [], "/1.2/"),
+        # a path that only starts with the same letters is not the former prefix
+        ("/clinvar-gkmx/", [], "/1.2/"),
+    ],
+)
+def test_404_redirects_at_root(not_found_script_at_root, path, exists, expected):
+    assert _run_404(not_found_script_at_root, path, exists) == [expected]
+
+
+def test_former_prefix_only_at_root(tmp_path):
+    pages = pages_with(tmp_path, "1.2")
+    dv.write_root(pages, dv.update_versions([], ["1.2"], pages), BASE)
+    assert "FORMER = null" in (pages / "404.html").read_text()
