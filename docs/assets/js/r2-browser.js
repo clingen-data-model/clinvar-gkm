@@ -3,8 +3,9 @@
    TYPE ∈ latest | monthly | weekly | deltas | parquet-latest | previous | previous-summary
    (parquet-monthly is an alias of parquet-latest; Parquet is derived and one dataset is published)
    Reads the root version manifest (/index.json) and follows it to the index of the data line this docs
-   version describes (ADR 0011): the page's docs version is the path segment after /clinvar-gkm/ ("1.1" in
-   /clinvar-gkm/1.1/data-access/download/), and the line is the root manifest's versions["1.1"]. A page
+   version describes (ADR 0011): the page's docs version is the first segment of the site path ("1.1" in
+   /1.1/data-access/download/, or /clinvar-gkm/1.1/... where the site is still under that prefix, ADR 0013),
+   and the line is the root manifest's versions["1.1"]. A page
    without a version in its path (a local `zensical serve`), or a version with no data line, reads the
    current line. Then it renders each mount by its type.
    On a frozen line, a view whose files were deleted at the freeze (weekly fulls, Parquet) shows a note that
@@ -25,7 +26,6 @@
 
   var BASE_URL = "https://data.clinvar-gkm.org";
   var ROOT_INDEX_URL = BASE_URL + "/index.json";   // root version manifest
-  var LATEST_DOCS = "https://dataexchange.clinicalgenome.org/clinvar-gkm/";   // redirects to the latest release
 
   // Section order for composing Parquet URLs when the index entry carries no `sections` list.
   var PARQUET_SECTIONS = [
@@ -37,15 +37,23 @@
 
   var linePrefix = "";   // e.g. "v1/1.2/": the folder of the line's index.json
 
-  // The docs version a page belongs to: "1.2" for /clinvar-gkm/1.2/..., else null.
-  function docsVersion(path) {
-    var m = /\/clinvar-gkm\/(\d+\.\d+)(?:\/|$)/.exec(path || "");
-    return m ? m[1] : null;
+  // A docs page's site root, version and page: /1.2/data-access/download/ gives root "/", version "1.2" and
+  // page "data-access/download/". The site may still be served under /clinvar-gkm/ (ADR 0013). Null for a
+  // path without a version (a local `zensical serve`).
+  function docsPath(path) {
+    var m = /^(\/(?:clinvar-gkm\/)?)(\d+\.\d+)(?:\/(.*))?$/.exec(path || "");
+    return m ? { root: m[1], version: m[2], page: m[3] || "" } : null;
   }
-  // The same page in the latest docs: an unversioned link opens it in the latest release (or its home).
+  // The docs version a page belongs to: "1.2" for /1.2/..., else null.
+  function docsVersion(path) {
+    var d = docsPath(path);
+    return d ? d.version : null;
+  }
+  // The same page in the latest docs: an unversioned link, which the site's 404.html opens in the latest
+  // release (or its home).
   function latestDocsHref(path) {
-    var m = /\/clinvar-gkm\/\d+\.\d+\/(.*)$/.exec(path || "");
-    return LATEST_DOCS + (m ? m[1] : "");
+    var d = docsPath(path);
+    return location.origin + (d ? d.root + d.page : "/");
   }
 
   function el(tag, attrs, children) {
