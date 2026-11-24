@@ -12,7 +12,7 @@ Upcoming events and talks are announced on the email list; see [Stay Informed](.
 | --- | --- | --- | --- |
 | [ClinVar-GKM Primer](clinvar-gkm-primer.md) | GA4GH Connect · Oct 2, 2026 | Technical teams familiar with ClinVar but new to VA-Spec / the GKM model | ~8 min (15 slides) |
 | [What It Unlocks](clinvar-gkm-unlocks.md) | GA4GH Connect · Oct 2, 2026 | Anyone weighing why to adopt — a visual, opportunity-focused brief | ~6 min (14 slides) |
-| [Strict Profiles, Fast Tables](clinvar-gkm-strict-profiles.md) | Not presented — an educational preview (Nov 2026) | Data consumers learning why strict implementation profiles and Parquet extraction help | Self-paced (27 slides) |
+| [Strict Profiles, Fast Tables](clinvar-gkm-strict-profiles.md) | Not presented — an educational preview (Nov 2026) | Data consumers learning why strict implementation profiles and Parquet extraction help | Self-paced (28 slides) |
 
 !!! tip "Presenting from a deck"
     Open a presentation, then use its fullscreen launch link for a clean, full-window view. Inside a deck,

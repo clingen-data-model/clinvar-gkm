@@ -1,6 +1,6 @@
 # Strict Profiles, Fast Tables
 
-A 27-slide explainer for people who use ClinVar-GKM data. It shows why the GA4GH GKM specifications — VRS,
+A 28-slide explainer for people who use ClinVar-GKM data. It shows why the GA4GH GKM specifications — VRS,
 Cat-VRS, VA-Spec and gkm-core — are written to be open and flexible, and how ClinVar-GKM narrows them into
 **strict implementation profiles** that describe exactly the data ClinVar produces. It then shows what that
 strictness gives the JSON bundles and the **Parquet tables** built from them: a default column set that holds the
@@ -38,13 +38,15 @@ fullscreen (link above) to read it at full size.
 
 ## What it covers
 
-The deck describes schema 1.2.0 and the `gkm-bundle-parquet` 2.0.0 tool, as of November 2026.
+The deck describes schema 1.2.0 and the `gkm-bundle-parquet` 2.0.0 tool, as of November 2026. The slides on the
+SCV statement profiles also preview a draft design for schema 1.3.0, which may still change.
 
 1. **Open specs, strict profiles** — why base classes are open; three layers that only restrict (base classes,
    standard profiles and recipes, implementation profiles); five ways a profile narrows; a proposition and a
    variant traced end to end
-2. **What ClinVar-GKM materializes** — the subset of each specification it uses, where it stands on the ACMG 2015
-   statement profile, and the ClinVar profiles it adds where no standard exists yet
+2. **What ClinVar-GKM materializes** — the subset of each specification it uses; the planned 1.3.0 SCV statement
+   profiles modelled on the ACMG 2015, CCV 2022 and AMP/ASCO/CAP 2017 community profiles, and how far ClinVar data
+   departs from them; and the ClinVar profiles it adds where no standard exists yet
 3. **The 1.2.0 narrowing** — what was pruned, locked and made required, and what the bundles now guarantee
 4. **Parquet from the bundle** — Parquet as a reversible projection of the bundle; a default column set generated
    from the schema; why a narrowed schema makes narrower, typed, joinable tables

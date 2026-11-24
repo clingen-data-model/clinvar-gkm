@@ -330,7 +330,7 @@ body { counter-reset: page; }
 <h2 class="title">Three Layers, Each One Only Restricts</h2>
 <div class="funnel">
 <div class="band b1 anim" style="--i:0"><div class="bl"><h3>Base classes</h3><p class="bt">What can be said</p></div><p class="bx">gkm-core Entity and MappableConcept · VRS Allele · Cat-VRS CategoricalVariant · VA-Spec Statement and Proposition</p></div>
-<div class="band b2 anim" style="--i:1"><div class="bl"><h3>Standard profiles</h3><p class="bt">How a community agrees to say it</p></div><p class="bx">VA-Spec VariantPathogenicityProposition and the ACMG 2015 statement profile · Cat-VRS CanonicalAllele and CategoricalCnv recipes</p></div>
+<div class="band b2 anim" style="--i:1"><div class="bl"><h3>Standard profiles</h3><p class="bt">How a community agrees to say it</p></div><p class="bx">VA-Spec VariantPathogenicityProposition and the ACMG 2015, CCV 2022 and AMP/ASCO/CAP 2017 statement profiles · Cat-VRS CanonicalAllele and CategoricalCnv recipes</p></div>
 <div class="band b3 anim" style="--i:2"><div class="bl"><h3>Implementation profiles</h3><p class="bt">What one producer actually says</p></div><p class="bx">ClinVar-GKM 1.2: ClinvarScvStatement, ClinvarVariantPathogenicityProposition, ClinvarCanonicalAllele, …</p></div>
 </div>
 <p class="body mt">A record that is valid against a ClinVar profile is still valid against its GA4GH class. Narrowing removes options; it never changes what a field means.</p>
@@ -386,38 +386,61 @@ body { counter-reset: page; }
 <tr class="h"><th style="width:13%">Spec</th><th style="width:50%">Used by ClinVar-GKM</th><th style="width:37%">Not used</th></tr>
 <tr><td>VRS</td><td>Allele, SequenceLocation, SequenceReference, CopyNumberCount, CopyNumberChange; LiteralSequenceExpression and ReferenceLengthExpression states; Expression for HGVS, SPDI and gnomAD strings</td><td>RelativeAllele, CisPhasedBlock, Adjacency, Terminus, DerivativeMolecule</td></tr>
 <tr><td>Cat-VRS</td><td>CanonicalAllele and CategoricalCnv recipes; the plain CategoricalVariant for complex variants; DefiningAllele, DefiningLocation, CopyCount and CopyChange constraints</td><td>ProteinSequenceConsequence, FunctionVariant and GeneFusion recipes; FeatureContext, Function and Adjacency constraints</td></tr>
-<tr><td>VA-Spec</td><td>Statement and EvidenceLine; Pathogenicity, Oncogenicity, ClinicalSignificance, Diagnostic, Prognostic and TherapeuticResponse propositions</td><td>Statement profiles (ACMG 2015, CCV 2022, AMP/ASCO/CAP 2017), not yet; GeneDiseaseValidity</td></tr>
+<tr><td>VA-Spec</td><td>Statement and EvidenceLine; Pathogenicity, Oncogenicity, ClinicalSignificance, Diagnostic, Prognostic and TherapeuticResponse propositions</td><td>GeneDiseaseValidity. The ACMG 2015, CCV 2022 and AMP/ASCO/CAP 2017 statement profiles are the models for three ClinVar profiles planned for 1.3.0</td></tr>
 <tr><td>gkm-core</td><td>MappableConcept for genes, conditions and therapies; ConceptSet for condition and therapy sets; Coding; Extension</td><td></td></tr>
 </table>
 <p class="body mt">Anything not listed here cannot appear in a bundle.</p>
 <div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
-<aside class="snotes" hidden><p>This is the inventory. ClinVar-GKM uses a small part of VRS: simple alleles and copy number variants, located on sequences. From Cat-VRS it uses two recipes plus a plain categorical variant for the cases no recipe covers. From VA-Spec it uses the base Statement and EvidenceLine and six standard proposition types. Note the VA-Spec statement profiles: ClinVar-GKM does not use them yet, which the next slide explains. Because the bundle schema is closed, nothing outside this list can appear.</p></aside>
+<aside class="snotes" hidden><p>This is the inventory. ClinVar-GKM uses a small part of VRS: simple alleles and copy number variants, located on sequences. From Cat-VRS it uses two recipes plus a plain categorical variant for the cases no recipe covers. From VA-Spec it uses the base Statement and EvidenceLine and six standard proposition types. Note the VA-Spec statement profiles. In 1.2 every SCV uses one general ClinVar statement profile; the 1.3.0 plan adds three ClinVar profiles modelled on the ACMG 2015, CCV 2022 and AMP/ASCO/CAP 2017 community profiles, which the next two slides explain. Because the bundle schema is closed, nothing outside this list can appear.</p></aside>
 </section>
 <section id="acmg" class="slide">
 <p class="eyebrow">What ClinVar-GKM materializes</p>
-<h2 class="title">ACMG 2015: Where ClinVar-GKM Stands</h2>
-<div class="cards c2">
-<div class="card anim" style="--i:0">
+<h2 class="title">Community Statement Profiles: The 1.3.0 Plan</h2>
+<table class="t dense tight">
+<tr class="h"><th style="width:20%">ClinVar SCV type</th><th style="width:40%">ClinVar-GKM profile (1.3.0)</th><th style="width:40%">Modelled on (VA-Spec, unchanged)</th></tr>
+<tr><td>Germline pathogenicity</td><td>ClinvarScvPathogenicityStatement</td><td>ACMG 2015 VariantPathogenicityStatement</td></tr>
+<tr><td>Oncogenicity</td><td>ClinvarScvOncogenicityStatement</td><td>CCV 2022 VariantOncogenicityStatement</td></tr>
+<tr><td>Somatic clinical impact</td><td>ClinvarScvClinicalSignificanceStatement</td><td>AMP/ASCO/CAP 2017 VariantClinicalSignificanceStatement</td></tr>
+</table>
+<div class="cards c2 mt">
+<div class="card soft anim" style="--i:0">
 <div class="pills"><p class="pill ok">In 1.2</p></div>
-<h3>A standard proposition in a ClinVar statement</h3>
-<ul>
-<li>Germline pathogenicity SCVs carry the standard VariantPathogenicityProposition: predicate isCausalFor, a variant subject, a condition object.</li>
-<li>The statement is a ClinvarScvStatement, a profile of the base VA-Spec Statement. One statement class covers every ClinVar classification type.</li>
-<li>ClinVar’s classification terms are kept as ClinVar codings.</li>
-</ul>
+<p class="d">One ClinvarScvStatement profile covers every SCV. The standard VA-Spec propositions sit inside it.</p>
 </div>
-<div class="card soft anim" style="--i:1">
-<div class="pills"><p class="pill plan">Planned</p></div>
-<h3>The ACMG 2015 statement profile</h3>
-<ul>
-<li>Applied only to SCVs whose assertion method is ACMG 2015.</li>
-<li>Locks classification to the five ACMG terms, strength to definitive or likely, and requires specifiedBy.</li>
-<li>Open questions: mapping ClinVar’s free-text assertion methods, and matching ClinVar’s codings to the profile’s value sets.</li>
-</ul>
+<div class="card anim" style="--i:1">
+<div class="pills"><p class="pill plan">Planned for 1.3.0</p></div>
+<p class="d">Each profile restates its community profile’s classification codes, strength values and direction rules. The bundle schema picks it from the SCV’s proposition section.</p>
 </div>
 </div>
 <div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
-<aside class="snotes" hidden><p>It is worth being precise here. In 1.2, a germline pathogenicity SCV uses the standard VA-Spec pathogenicity proposition, but the statement around it is ClinVar’s own profile of the base Statement, not the ACMG 2015 VariantPathogenicityStatement profile. That is because one ClinVar statement class has to cover every classification type ClinVar has, and because ClinVar records the assertion method as free text. Adopting the ACMG 2015 profile, and the AMP/ASCO/CAP 2017 profile for somatic statements, is planned as a later phase: only for SCVs whose assertion method says the guideline was used.</p></aside>
+<aside class="snotes" hidden><p>Where ClinVar-GKM stands on the VA-Spec community statement profiles. In 1.2, a single ClinVar SCV statement profile covers every submission, with the standard VA-Spec propositions inside it. The 1.3.0 plan adds three ClinVar-GKM statement profiles, one per guideline-based SCV type, each modelled on the matching community profile: ACMG 2015 for germline pathogenicity, CCV 2022 for oncogenicity, and AMP/ASCO/CAP 2017 for somatic clinical impact. The community profiles themselves are not changed. ClinVar-GKM restates their rules rather than referencing them, because a reference cannot be relaxed where ClinVar’s data differs. SCVs record no statement type, so the bundle schema chooses the profile from the section the proposition points into; other SCVs stay on the general profile. This is a draft design for 1.3.0 and may still change.</p></aside>
+</section>
+<section id="profile-gaps" class="slide">
+<p class="eyebrow">What ClinVar-GKM materializes</p>
+<h2 class="title">Documented Differences, Not Hidden Ones</h2>
+<div style="display:flex; gap:40px; align-items:flex-start;">
+<div style="width:1000px; flex:none;">
+<table class="t dense tight">
+<tr class="h"><th style="width:24%">Community profile</th><th style="width:17%; text-align:right;">SCVs</th><th style="width:19%; text-align:right;">Not conformant</th><th style="width:40%">Main reason</th></tr>
+<tr><td>ACMG 2015</td><td style="text-align:right;">6,838,781</td><td style="text-align:right;">~401,500</td><td>400,832 have no specifiedBy (assertion method)</td></tr>
+<tr><td>CCV 2022</td><td style="text-align:right;">2,456</td><td style="text-align:right;">139</td><td>No specifiedBy</td></tr>
+<tr><td>AMP/ASCO/CAP 2017</td><td style="text-align:right;">1,752</td><td style="text-align:right;">1,752</td><td>Tier codes and system name differ</td></tr>
+</table>
+<p class="note mt">Measured on the 2026-11 full (schema 1.2.0) against the unchanged community profiles.</p>
+</div>
+<div class="card soft" style="flex:1;">
+<p class="k">Planned for 1.3.0</p>
+<h3>Fix at the source</h3>
+<ul>
+<li>tier 1…4 become tier i…iv, under “AMP/ASCO/CAP Guidelines, 2017”.</li>
+<li>Low-penetrance and risk-allele strengths coded under ACMG 2015.</li>
+<li>VUS-high/mid/low get a proposed 2026 guideline system.</li>
+</ul>
+</div>
+</div>
+<p class="body mt">What remains, such as an optional specifiedBy, is listed on a comparison page with record counts refreshed each release.</p>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>This is the narrowing principle applied honestly. Measured against the community profiles as they stand, about 401 thousand of 6.8 million ACMG-type SCVs do not conform, almost all because the submission names no assertion method, which the community profile requires. Every somatic clinical impact SCV fails today only because of how the tiers and the guideline system are coded. The 1.3.0 plan fixes what can be fixed at the source: tier codes, the AMP system name, a separate strength coding system, and a guideline system for the VUS sub-tiers, whose final name is still open. The rest, such as specifiedBy staying optional, combined labels and VUS sub-tiers, is kept as documented differences: a comparison page per community profile, an ADR, and a script that recounts the affected records at each monthly release. ClinVar-GKM does not claim conformance it does not have.</p></aside>
 </section>
 <section id="custom-props" class="slide">
 <p class="eyebrow">What ClinVar-GKM materializes</p>
@@ -442,7 +465,7 @@ body { counter-reset: page; }
 <p class="eyebrow">What ClinVar-GKM materializes</p>
 <h2 class="title">ClinVar’s Own Statements and Evidence Lines</h2>
 <div class="cards c2">
-<div class="card anim" style="--i:0"><p class="k">ClinvarScvStatement</p><h3>Submissions (SCV)</h3><p class="d">A profile of the base Statement. Submission metadata, such as review status and the submitted condition, rides in typed extensions.</p></div>
+<div class="card anim" style="--i:0"><p class="k">ClinvarScvStatement</p><h3>Submissions (SCV)</h3><p class="d">A profile of the base Statement. Submission metadata, such as review status and the submitted condition, rides in typed extensions. In 1.3.0, three guideline-specific profiles narrow it further.</p></div>
 <div class="card anim" style="--i:1"><p class="k">ClinvarAggregateStatement</p><h3>VCV and RCV statements</h3><p class="d">ClinVar’s aggregate classification over its SCVs, by variant or by variant and condition. VA-Spec has no aggregate pattern yet.</p></div>
 <div class="card anim" style="--i:2"><p class="k">ClinvarAggregateEvidenceLine</p><h3>Aggregate evidence</h3><p class="d">Groups the statements behind an aggregate as contributing or non-contributing, each a #/scv/, #/vcv/ or #/rcv/ pointer.</p></div>
 <div class="card anim" style="--i:3"><p class="k">ClinvarSomaticEvidenceLine</p><h3>Somatic evidence</h3><p class="d">Carries a somatic SCV’s therapeutic, diagnostic or prognostic proposition and its AMP/ASCO/CAP tier outcome.</p></div>
@@ -734,7 +757,7 @@ body { counter-reset: page; }
   </div>
 </div>
 
-<div id="counter">1 / 27</div>
+<div id="counter">1 / 28</div>
 <div id="navbtns">
   <button class="cbtn" id="prev" title="Previous (←)" aria-label="Previous slide">‹</button>
   <button class="cbtn" id="next" title="Next (→)" aria-label="Next slide">›</button>
