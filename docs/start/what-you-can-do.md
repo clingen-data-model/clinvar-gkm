@@ -411,7 +411,7 @@ The five tested cards. Each query ran as written against the **2026-11-15 releas
       bash or zsh: later blocks read the files earlier ones write.
     - The [live console](../parquet/index.md#run-a-query-now) takes no query from a link. To run a query there,
       copy it into the console. Only [Drug response in a tumor type](#drug-response) reads tables small enough
-      for it; the others read large tables, which the console stops after 10 seconds.
+      for it; the others read large tables, which the console stops after 15 seconds.
 
 ### Re-run ClinVar's aggregation under your own rules { #own-rules }
 
