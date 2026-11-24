@@ -1,10 +1,15 @@
 # SCV Statements
 
+!!! abstract "What this page answers"
+    What one submitter said about one variant: the classification, the condition as submitted, the method,
+    citations and dates. Read it when you work with individual submissions, or need to see what lies under a
+    [VCV](../reference/glossary.md#vcv) or [RCV](../reference/glossary.md#rcv) aggregate.
+
 ## Overview
 
-The `scv` bundle section contains one record per ClinVar submission (SCV). Each record is a VA-Spec `Statement` that captures a submitter's interpretation of a variant — including the classification, evidence, condition, variant, and method.
+The `scv` bundle section contains one record per ClinVar submission ([SCV](../reference/glossary.md#scv)). Each record is a VA-Spec `Statement` that captures a submitter's interpretation of a variant — including the classification, evidence, condition, variant, and method.
 
-SCV statements use `#/` references to link to propositions, submitters, and conditions in their respective bundle sections rather than embedding full objects inline.
+SCV statements use `#/` references to link to [propositions](../reference/glossary.md#proposition), submitters, and conditions in their respective bundle sections rather than embedding full objects inline.
 
 This section is produced by the [SCV Statements procedure](../pipeline/scv-statements/index.md).
 
@@ -335,3 +340,12 @@ The `submittedConditionSet` extension captures provenance for multi-condition su
 Annotated JSONC examples of SCV statement records are available in the repository:
 
 - [SCV statement examples](https://github.com/clingen-data-model/clinvar-gkm/tree/main/examples/scv) — pathogenicity, oncogenicity, somatic clinical impact, therapeutic response, and other statement types
+
+---
+
+## See Also { #see-also }
+
+- [VCV Statements](vcv-statements.md) and [RCV Statements](rcv-statements.md) — how ClinVar aggregates SCVs
+- [Mapping & Vocabularies](../profiles/index.md) — statement types, classifications, proposition types and [review status](../reference/glossary.md#review-status)
+- [Where a Value Comes From](../pipeline/value-provenance.md) — each SCV field traced back to ClinVar's XML
+- [Examples](../data-access/examples.md#annotated-walk-through) — an SCV record annotated field by field

@@ -2,6 +2,8 @@
 
 These docs serve three kinds of reader. Some want to understand the data, often starting from what they already know of ClinVar's website. Some want to know how ClinVar's XML becomes this format. Some are building a pipeline or an application on top of it. Find yours below, follow its path as far as you need, and use the tab map to jump around.
 
+Whichever path you take, the [Quick Start](start/quick-start.md) (ten minutes, nothing to install) and [Key Concepts](start/concepts.md) (five minutes) are the best first stops.
+
 ---
 
 ## The sections at a glance
@@ -10,20 +12,21 @@ The site has six tabs, one per reader goal:
 
 | Tab | What it gives you | Read it when |
 | --- | --- | --- |
-| [Home](index.md) | What ClinVar-GKM is and its key concepts, plus this guide, [Data Use and Citation](data-use.md) (the ClinVar disclaimer, how to cite, the license) and [Stay Informed](stay-informed.md) (the announcement list) | You are new to the project, or about to use, publish or share the data |
-| [Get the Data](data-access/download.md) | The files: monthly and weekly full bundles, weekly deltas, Parquet, and [how releases work](data-access/release-model.md) | You need the data, or need to keep a copy current |
-| [Understand the Data](output-reference/overview.md) | What each part of the bundle means: variations, SCV, VCV and RCV statements, ID references and annotated examples. Also the [Data Model](output-reference/classes/index.md), every class and field generated from the schemas, and [Mapping & Vocabularies](profiles/index.md), which maps ClinVar's statement types, classifications and review status | You want to understand the data, or need exact field definitions |
-| [Use the Data](parquet/index.md) | [Query the Data](parquet/index.md) (the 20 Parquet tables, a browser query console, joins, recipes and working at scale), [Working in Python](working-in-python.md) (the GA4GH libraries on bundles and Parquet) and two end-to-end [User Stories](user-story.md) | You want to work with the data in SQL or Python, or see it used for a real task |
+| [Start Here](index.md) | What ClinVar-GKM is, a quick start, its key concepts, which data to choose, what you can do with it and the tools to set up, plus this guide, [Data Use and Citation](data-use.md) (the ClinVar disclaimer, how to cite, the license) and [Stay Informed](stay-informed.md) (the announcement list) | You are new to the project, or about to use, publish or share the data |
+| [Get the Data](data-access/download.md) | The files: monthly and weekly full bundles, weekly deltas, keeping a copy current, Parquet, and [how releases work](data-access/release-model.md) | You need the data, or need to keep a copy current |
+| [Build & Query](parquet/index.md) | [Query with SQL](parquet/index.md) (the 20 Parquet tables, a browser query console, joins and working at scale), [Recipes](parquet/recipes.md), [Build Your Own Dataset](build/index.md), tracking change over time, [Working in Python](working-in-python.md) (the GA4GH libraries on bundles and Parquet) and two end-to-end [User Stories](user-story.md) | You want to work with the data in SQL or Python, or see it used for a real task |
+| [Understand the Data](output-reference/overview.md) | What each part of the bundle means: variations, SCV, VCV and RCV statements, ID references and annotated examples, and [Mapping & Vocabularies](profiles/index.md), which maps ClinVar's statement types, classifications and review status | You want to understand the data |
 | [How It's Built](pipeline/index.md) | Each step from ClinVar's XML to the published bundle | You want to know how a value was produced |
-| Reference | [Versioning](reference/versioning.md), [Changelog](reference/changelog.md), [Release Validation](reference/release-validation.md), [Known Issues](reference/known-issues.md), [FAQ](reference/faq.md), [Glossary](reference/glossary.md) and more | You need what changed, what is guaranteed, or a definition |
+| Reference | The [Data Model](output-reference/classes/index.md) (every class and field, generated from the schemas), [Versioning](reference/versioning.md), [Changelog](reference/changelog.md), [Release Validation](reference/release-validation.md), [Known Issues](reference/known-issues.md), [FAQ](reference/faq.md), [Glossary](reference/glossary.md) and more | You need exact field definitions, what changed, what is guaranteed, or a definition |
 
 The tabs build on each other:
 
+- **Start Here** orients you and gets you to a first result.
 - **Get the Data** delivers the files.
-- **Understand the Data** explains what is in them and defines every field exactly.
-- **Use the Data** offers the same content as tables you can query.
+- **Build & Query** turns them into tables you can query, and datasets of your own.
+- **Understand the Data** explains what is in them.
 - **How It's Built** explains how each value was derived from ClinVar.
-- **Reference** records what changes between releases and what each release guarantees.
+- **Reference** defines every field exactly, and records what changes between releases and what each release guarantees.
 
 ---
 
@@ -40,10 +43,10 @@ Everything on a ClinVar variation page has a place in the bundle. This table map
 | A classification for one condition (an `RCV`) | An `rcv` statement | [RCV Statements](output-reference/rcv-statements.md) |
 | The condition (a MedGen-linked trait) | A `condition`, or a `conditionSet` when there are several | [Output Format](output-reference/overview.md) |
 | Review status stars | The statement's review status, which also sets its rank when submissions are aggregated | [Review Status](profiles/review-status.md) |
-| "Pathogenic", "Drug response", and the other classification terms | A classification on a typed **proposition** (for example `VariantPathogenicityProposition`) | [Classifications](profiles/classifications.md), [Propositions](profiles/propositions.md) |
+| "Pathogenic", "Drug response", and the other classification terms | A classification on a typed **proposition** (for example `VariantPathogenicityProposition`) | [Classifications](profiles/classifications.md), [Proposition Types](profiles/propositions.md) |
 
 **Suggested order:**
-1. The [Key Concepts](index.md#key-concepts) on Home.
+1. [Key Concepts](start/concepts.md): variants, propositions, SCV, VCV and RCV statements, and how records point to each other.
 2. [Output Format](output-reference/overview.md), for how the bundle's sections fit together.
 3. The statement pages, starting with [SCV Statements](output-reference/scv-statements.md).
 4. The annotated [Examples](data-access/examples.md), to see one real variation end to end.
@@ -70,13 +73,15 @@ When a value in the data surprises you, the matching pipeline step says where it
 ## Path 3: I am building a pipeline or an application on this data
 
 **Suggested order:**
-1. [How Releases Work](data-access/release-model.md): monthly and weekly full bundles, weekly deltas, and how to keep a copy current. Then [Weekly Deltas](data-access/weekly-deltas.md) for applying a delta to a full bundle.
+1. [Choose Your Data](start/choose-your-data.md), then [How Releases Work](data-access/release-model.md): which files to use, the release schedule, the directory layout and when files move. [Keep Your Data Current](data-access/keep-current.md) applies the weekly deltas to a local copy.
 2. [Versioning & Releases](reference/versioning.md): what is guaranteed. ClinVar-GKM has been generally available since 1.1.0, and the current line is 1.2 (`v1/1.2/`); published files are immutable, and a breaking change opens a new major line.
-3. Pick an interface:
-   - **JSON bundles:** the [Output Format](output-reference/overview.md), [ID References](output-reference/id-references.md) for resolving `#/section/id` pointers, and the [Data Model](output-reference/classes/index.md) for exact fields and schemas.
-   - **Parquet:** [Query the Data](parquet/index.md), from the [20 tables](parquet/tables.md) and [joins](parquet/joining.md) to [working at scale](parquet/performance.md) and [other tools](parquet/other-tools.md).
-4. The GA4GH libraries: vrs-python, cat-vrs-python and va-spec-python, collected in the [GKM Starter Kit](https://ga4gh.github.io/gkm-starter-kit/), read these records directly. [Working in Python](working-in-python.md) loads bundle and Parquet records into their models, with the library versions that read 1.2.0 (and 1.1.0), and validates a bundle with the GKM Toolkit against the ClinVar-GKM schemas. See also [GA4GH Standards](reference/gks-standards.md).
-5. Worked problems: the [User Stories](user-story.md), and [Cut a mini-bundle](parquet/build-your-own.md#cut-a-mini-bundle) for cutting a self-contained subset with `gkm-bundle-parquet select`.
+3. [Set Up Your Tools](start/setup.md): the tools, versions, disk and memory the examples need.
+4. The **Build & Query** tab, by interface:
+   - **SQL on Parquet:** [Query with SQL](parquet/index.md), from the [20 tables](parquet/tables.md) and [joins](parquet/joining.md) to [working at scale](parquet/performance.md) and [other tools](parquet/other-tools.md), then the [Recipes](parquet/recipes.md).
+   - **Your own tables or subsets:** [Build Your Own Dataset](build/index.md) builds Parquet from a bundle and cuts self-contained mini-bundles with `gkm-bundle-parquet`. [Track Change Over Time](build/track-change.md) compares releases.
+   - **Python:** [Working in Python](working-in-python.md) loads bundle and Parquet records into the GA4GH libraries (vrs-python, cat-vrs-python and va-spec-python, collected in the [GKM Starter Kit](https://ga4gh.github.io/gkm-starter-kit/)), with the library versions that read 1.2.0 (and 1.1.0), and validates a bundle with the GKM Toolkit. See also [GA4GH Standards](reference/gks-standards.md).
+   - **Worked problems:** the two [User Stories](user-story.md).
+5. **JSON bundles:** the [Output Format](output-reference/overview.md), [ID References](output-reference/id-references.md) for resolving `#/section/id` pointers, and the [Data Model](output-reference/classes/index.md) for exact fields and schemas.
 
 Before you depend on a release, check the [Changelog](reference/changelog.md) for migration notes and [Known Issues](reference/known-issues.md). The [Release Validation](reference/release-validation.md) page lists the checks behind each release.
 

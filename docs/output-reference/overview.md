@@ -1,12 +1,37 @@
 # Output "Bundle" Format Overview
 
+!!! abstract "What this page answers"
+    How a ClinVar-GKM [bundle](../reference/glossary.md#bundle) is laid out: its sections, how one record points to
+    another, and the schema that validates it. Read it first, before the statement and variation pages, or whenever
+    you open a bundle or a Parquet table and need to know where a record lives. For the ideas behind the data, start
+    with [Key Concepts](../start/concepts.md).
+
 The ClinVar-GKM release file uses a **bundle format** — a single JSON object with named sections at the root level. A bundle is a dictionary-style approach to organizing a large amount of data across heterogeneous classes in a single file, where each section is a keyed collection of objects of the same class. The key is the object's unique identifier, and the value is the complete object.
 
 This design eliminates duplication (a sequence reference shared by thousands of locations appears once), keeps individual objects compact, and enables efficient lookups by ID.
 
+## Orientation { #orientation }
+
+The 20 sections hold four kinds of record. Each record names the others it depends on with a `#/section/key`
+[pointer](#json-pointer-references), so a reader follows pointers from a statement down to the sequence:
+
+| Kind | Sections | What it holds | Points to |
+| --- | --- | --- | --- |
+| **Statements** | `scv`, `vcv`, `rcv` | A classification: one submission ([SCV](../reference/glossary.md#scv)), or ClinVar's aggregate for a variant ([VCV](../reference/glossary.md#vcv)) or a variant and condition ([RCV](../reference/glossary.md#rcv)) | Its proposition; its submitters; its evidence lines |
+| **Evidence lines** | `evidenceLine` | The statements an aggregate counts (contributing) or sets aside (non-contributing), and an SCV's somatic evidence | The `scv`, `vcv` or `rcv` statements it cites; an SCV's line, the proposition it targets |
+| **Propositions** | `propositionPathogenicity`, `propositionOncogenicity`, `propositionSomaticClinicalImpact`, `propositionClinvarCustom` | What a statement claims: a variant (`subject`) related to a condition or therapy (`object`) — see [proposition](../reference/glossary.md#proposition) | `variation`; `condition`, `conditionSet`, `therapy` or `therapyGroup` |
+| **Variants and concepts** | `variation`, `allele`, `copyNumberCount`, `copyNumberChange`, `location`, `sequenceReference`, `gene`, `condition`, `conditionSet`, `therapy`, `therapyGroup`, `submitter` | The ClinVar variation as a [Cat-VRS](../reference/glossary.md#cat-vrs) categorical variant and its [VRS](../reference/glossary.md#vrs) alleles and locations; conditions and [condition sets](../reference/glossary.md#conditionset); therapies; submitters | `variation` → `allele`, `copyNumberCount`, `copyNumberChange` or `location`; those → `location` → `sequenceReference`; `variation` → `gene`; `conditionSet` → `condition` or `conditionSet` |
+
+A typical path: an `scv` statement → its proposition → the `variation` it is about → that variation's `allele` →
+`location` → `sequenceReference`. A `vcv` or `rcv` statement reaches its SCVs through `evidenceLine` records.
+Every published bundle resolves every pointer; a [delta](../reference/glossary.md#delta) holds only the records that
+changed, so some of its pointers name records in the full bundle.
+
 ---
 
 ## Structure
+
+The root object, one key per section (a bundle carries only the sections it has records for):
 
 ```json
 {
@@ -212,3 +237,14 @@ follows a statement down to its sequence reference. The GKM Toolkit's
 [`Bundle.export()`](https://ga4gh.github.io/gkm-starter-kit/latest/tools/gkm-toolkit/api/containers/) inlines
 references for the bundles it can load; its loader does not yet read ClinVar-GKM 1.1.0 bundles
 (see [Loading bundles](../working-in-python.md#loading-bundles)).
+
+---
+
+## See Also { #see-also }
+
+- [Key Concepts](../start/concepts.md) — the ideas behind statements, propositions and variations
+- [Variations](cat-vrs.md) — the `variation` section and its VRS records
+- [SCV Statements](scv-statements.md), [VCV Statements](vcv-statements.md), [RCV Statements](rcv-statements.md) — the three statement sections
+- [ID References](id-references.md) — every identifier format and pointer pattern, with a resolver
+- [Examples](../data-access/examples.md) — real records, with an annotated walk-through
+- [Where a Value Comes From](../pipeline/value-provenance.md) — each field traced back to ClinVar's XML

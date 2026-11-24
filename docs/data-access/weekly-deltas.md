@@ -27,7 +27,7 @@ A delta's folder changes when its month or year rolls over; its file name and by
 !!! note "Prerequisites"
     - **curl** and **`sha256sum`** (Linux, recent macOS) or **`shasum -a 256`** (any macOS), for the shell example.
     - **Python 3**, standard library only (tested with 3.14), for the Python examples.
-    - A delta is a few MB to about 60 MB. The [replay recipe](#rebuild-a-past-week) also downloads a monthly full (4.9 GB compressed, 68.5 GB decompressed) and holds it in memory as Python objects, which needs several hundred GB of memory: it shows the logic, and real use streams the sections to disk or a database.
+    - A delta is a few MB to about 60 MB. [Rebuilding a past week](#rebuild-a-past-week) also downloads a monthly full (4.9 GB compressed, 68.5 GB decompressed), which `replay-bundle.py` streams.
 
 ??? example "Download a weekly delta with curl / Python"
     ```bash
@@ -120,7 +120,7 @@ That is the 2026-11-15 manifest, cut to three of its 14 sections and the first k
 
 A monthly full plus the deltas after it rebuild the state at any weekly release. Every official monthly has a **`source_release`** in `index.json`: the weekly release it was built from (in the frozen `v1/1.1/` line, the `2026-10` monthly has `source_release` `2026-09-28`). Each delta records the release it was diffed against (`baseline_release`) and the release it brings you to (`release`).
 
-For each delta, apply the manifest's deletes first, then upsert every record present in the delta bundle, section by section.
+For each delta, apply the manifest's deletes first, then upsert every record present in the delta bundle, section by section. To keep a local copy (a database of the records, or the Parquet tables) at the newest release this way, week after week, see [Keep Your Data Current](keep-current.md).
 
 !!! warning "When the line changes, start again from the new line's monthly"
     Deltas apply only to a copy of the **same line**. A line's first delta builds on the end of the line before it: the 1.2 line's first delta (2026-11-08) has `baseline_release` 2026-10-31, the last release of the frozen 1.1 line, and both lines have a `2026-11` monthly with `source_release` 2026-10-31. So a copy built from 1.1 bundles passes a chain check on dates alone, and applying 1.2 deltas to it mixes 1.1.0 and 1.2.0 records.
@@ -141,93 +141,12 @@ The deltas to apply are chosen by **release date, not by month**. In `v1/1.1/`, 
 A delta's `checkpoint_full` names the newest monthly whose `source_release` is on or before the delta's `baseline_release`, so it is the right base for that delta and every delta after it up to the next monthly. Its `release` is the monthly's `source_release`, the release the first delta of the chain must have as its `baseline_release`.
 
 !!! note "A line starts at its first monthly"
-    Each version line holds only its own releases. `v1/1.2/` starts with one **checkpoint monthly**, the first 1.2.0 full, and its deltas run forward from it: the first delta's `baseline_release` is that monthly's `source_release`. A week before the checkpoint is rebuilt from the frozen line that held it, `v1/1.1/` (its `index.json`), with 1.1.0 records. The recipe below works on any line: set `LINE`.
+    Each version line holds only its own releases. `v1/1.2/` starts with one **checkpoint monthly**, the first 1.2.0 full, and its deltas run forward from it: the first delta's `baseline_release` is that monthly's `source_release`. A week before the checkpoint is rebuilt from the frozen line that held it, `v1/1.1/` (its `index.json`), with 1.1.0 records. `replay-bundle.py` below works on any line: pass `--line`.
 
 !!! note "Delta manifests in the frozen `v1/1.0/` line"
     The 1.0.1 delta manifests in `v1/1.0/` are kept byte-identical, so their paths still name the pre-1.1.0 `v1/datasets/` and `v1/deltas/` keys and every `checkpoint_full` says `2026-10`. For that line, pick the monthly from `v1/1.0/index.json` (each monthly's `source_release`) as above, not from `checkpoint_full`.
 
-??? example "Python: rebuild the full bundle at a weekly release"
-    ```python
-    import gzip
-    import json
-    import urllib.request
-
-    BASE = "https://data.clinvar-gkm.org"
-    W = None       # the weekly release to rebuild, YYYY-MM-DD; None = the line's newest
-    LINE = None    # None = the current line; or a frozen one, e.g. "v1/1.1"
-
-
-    def fetch_json(url):
-        with urllib.request.urlopen(url) as r:
-            return json.load(r)
-
-
-    def fetch_json_gz(url):
-        with urllib.request.urlopen(url) as r:
-            return json.loads(gzip.decompress(r.read()))
-
-
-    # 0. The line's release index, via the root version manifest.
-    root = fetch_json(f"{BASE}/index.json")
-    line = next(v for v in root["versions"].values()
-                if v["line"] == LINE or (LINE is None and v["status"] == "current"))
-    index = fetch_json(f"{BASE}/{line['index'].lstrip('/')}")
-    W = W or index["latest_release"]
-
-    # Monthlies and deltas of the current year, plus those moved to archive/YYYY/.
-    monthlies = list(index["datasets"]["monthly"])
-    deltas = list(index["deltas"])
-    for year in index.get("archives", {}).values():
-        monthlies += year.get("monthly", [])
-        deltas += year.get("deltas", [])
-
-    # 1. The newest official monthly whose source_release <= W (skip the 00-latest copy).
-    base = max(
-        (m for m in monthlies
-         if not m.get("latest") and m.get("source_release") and m["source_release"] <= W),
-        key=lambda m: m["source_release"],
-    )
-    state = fetch_json_gz(f"{BASE}/{base['path']}")
-
-    # 2. Every delta after the monthly's source_release, up to and including W, oldest first.
-    chain = sorted(
-        (d for d in deltas if base["source_release"] < d["release"] <= W),
-        key=lambda d: d["release"],
-    )
-
-    # 3. Replay, checking the chain: each delta must build on the release before it.
-    prev = base["source_release"]
-    for d in chain:
-        manifest = fetch_json(f"{BASE}/{d['manifest']}")
-        if manifest["baseline_release"] != prev:
-            raise SystemExit(
-                f"broken chain at {manifest['release']}: "
-                f"baseline {manifest['baseline_release']}, expected {prev}"
-            )
-        if manifest.get("schema_version", state.get("schema_version")) != state.get("schema_version"):
-            raise SystemExit(
-                f"line change at {manifest['release']}: delta is schema {manifest['schema_version']}, "
-                f"the copy is {state.get('schema_version')}; start again from that line's checkpoint monthly"
-            )
-        delta = fetch_json_gz(f"{BASE}/{d['bundle']['path']}")
-
-        # 3a. Apply deletes (manifest only), then 3b. upsert added + updated records.
-        for section, info in manifest["sections"].items():
-            target = state.setdefault(section, {})
-            for pk in info["deleted"]:
-                target.pop(pk, None)
-        for section, records in delta.items():
-            if isinstance(records, dict):           # skip top-level scalars such as schema_version
-                state.setdefault(section, {}).update(records)
-
-        prev = manifest["release"]
-
-    # `state` now holds the full bundle at release W (prev == W when W is a published release).
-    ```
-
-    The recipe shows the logic. It holds the whole bundle in memory (about 92 million records, far more than a 16 GB machine has) and writes no file, so use the script below to rebuild a week for real.
-
-To write a week's full bundle to disk without holding it in memory, use [`replay-bundle.py`](../assets/scripts/replay-bundle.py). It follows the rules above (the monthly, the deltas by release date, the chain check), checks each download's sha256 against `index.json`, keeps only the deltas' records in memory, streams the monthly once, and writes the bundle in the published layout with a `.sha256` sidecar. It needs only `python3` (3.9 or later, standard library):
+To write a week's full bundle to disk, use [`replay-bundle.py`](../assets/scripts/replay-bundle.py). It follows the rules above (the monthly, the deltas by release date, the chain check), checks each download's sha256 against `index.json`, keeps only the deltas' records in memory, streams the monthly once, and writes the bundle in the published layout with a `.sha256` sidecar. It needs only `python3` (3.9 or later, standard library):
 
 ```bash
 curl -fsSO --retry 5 https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py

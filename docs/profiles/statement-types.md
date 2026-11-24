@@ -1,5 +1,10 @@
 # Statement Types
 
+!!! abstract "What this page answers"
+    Which kind of claim a submission makes (pathogenicity, drug response, oncogenicity, somatic clinical impact and
+    so on), the code each kind has (`G.01` to `S.14`), and which of them ClinVar no longer accepts. Read it when you
+    meet a statement type code, or need to know which claims ClinVar aggregates together.
+
 ClinVar-GKM groups ClinVar submissions into 14 unique statement types. Several of these types are no longer accepted by ClinVar but exist historically.
 
 | # | Statement Type | Proposition Profile | Statement Category |

@@ -103,7 +103,7 @@
   <p class="caption">Runs SQL <b>in your browser</b> against the published ClinVar-GKM Parquet tables over
     <code>data.clinvar-gkm.org</code> &mdash; nothing is downloaded to disk and no server runs the query. Best for
     exploration: counts, schema, single-table and targeted lookups return in about a second. A query that runs
-    longer than 10&nbsp;seconds is stopped, with the steps to download its tables and run it on your machine.</p>
+    longer than 15&nbsp;seconds is stopped, with the steps to download its tables and run it on your machine.</p>
 
   <div class="bar">
     <label>Release
@@ -150,7 +150,7 @@
     The connection runs with <code>SET threads=1</code> to stay gentle on the CDN; a parallel full scan of a big
     table can trip rate limiting (<code>HTTP 429</code>); joins across the big tables belong on your machine, <a href="../parquet/performance/#materialize-join-tables" target="_top">materialized once</a>. To keep load on the shared service light, the console
     runs <b>at most one query every 10&nbsp;seconds</b> &mdash; the Run button greys out and a countdown beside it
-    shows when the next query is available &mdash; and <b>stops any query still running after 10&nbsp;seconds</b>
+    shows when the next query is available &mdash; and <b>stops any query still running after 15&nbsp;seconds</b>
     (the engine reloads from your browser cache on the next Run). Multiple statements separated by <code>;</code> run in order and the
     last result is shown. Output is capped at 500 rows.
   </p>
@@ -422,7 +422,7 @@
 
   // A query still running after this long is stopped: over the network it is reading row group after row group of
   // a big table, which is slow for the user and heavy for the shared CDN. The clock starts after the engine loads.
-  const QUERY_LIMIT_MS = 10000;
+  const QUERY_LIMIT_MS = 15000;
   const TIMED_OUT = Symbol('timed out');
   function withTimeout(promise, ms) {
     promise.catch(() => {});   // after a timeout the worker is killed; ignore whatever this promise does then

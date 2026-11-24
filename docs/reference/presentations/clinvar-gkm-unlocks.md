@@ -36,6 +36,9 @@ fullscreen (link above) for presenting.
 
 ## What it covers
 
+The deck's status tags are as presented on October 2, 2026. Where a status has changed since, the list below
+gives the current one; [What You Can Do](../../start/what-you-can-do.md) has the current status of each use case.
+
 1. **The shift** — from parsing pipelines to a queryable platform
 2. **Free the data** — one standardized source for everyone
 3. **Analyze without a parser** — bring-your-own-variants analysis
@@ -44,7 +47,8 @@ fullscreen (link above) for presenting.
 6. **A schema that won't surprise you** — governed, versioned GKM vs. ad-hoc XML change
 7. **Always current** — weekly deltas, no re-parsing
 8. **Rebuild VCFs — your way** — full or partial, tailored outputs
-9. **Temporal analysis** — how classifications change over time *(roadmap)*
+9. **Temporal analysis** — how classifications change over time *(partly available now: compare any two releases
+   from 2026-06-27 on, using the archived monthlies and weekly deltas; multi-year trend studies remain on the roadmap)*
 10. **AI-ready** — consistent, semantic ground truth for models, agents & knowledge graphs
 11. **Unlock case-level & functional data** — reach data few can use today *(roadmap)*
 12. **Better submissions** — review & submit tooling in your existing workflow
