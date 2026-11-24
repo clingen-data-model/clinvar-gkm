@@ -17,7 +17,7 @@ The counts and versions shown are from the **2026-11-15 release**. ClinVar updat
 
 The console runs SQL **in your browser**, against the published Parquet tables of the current release. Open it on [Query with SQL](../parquet/index.md), paste a query below into the text box, and press **Run**.
 
-Each query names the table by its URL under `https://data.clinvar-gkm.org/v1/1.2/parquet/`, the current line's tables, so it runs unchanged in the console and in DuckDB on your machine. The console runs one query every 10 seconds and stops any query that runs longer than 10 seconds; each query in Steps 2 to 4 reads only a few small parts of the files and finishes in a few seconds. If one is stopped, wait for the countdown and press **Run** again.
+Each query names the table by its URL under `https://data.clinvar-gkm.org/v1/1.2/parquet/`, the current line's tables, so it runs unchanged in the console and in DuckDB on your machine. The console runs one query every 10 seconds and stops any query that runs longer than 15 seconds; each query in Steps 2 to 4 reads only a few small parts of the files and finishes in a few seconds. If one is stopped, wait for the countdown and press **Run** again.
 
 ## Step 2: Find the variant
 
@@ -114,7 +114,7 @@ WHERE id >= 'VCV000000010.' AND id < 'VCV000000010/'
 ORDER BY id"
 ```
 
-Joins can take longer than the console's 10-second limit, so run them on your machine. This one follows the proposition to the names of its conditions:
+Joins can take longer than the console's 15-second limit, so run them on your machine. This one follows the proposition to the names of its conditions:
 
 ```bash
 duckdb -c "
