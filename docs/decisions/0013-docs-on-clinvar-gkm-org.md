@@ -1,7 +1,8 @@
 # 0013 — Serve the documentation at clinvar-gkm.org
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-24
+- **Decided:** 2026-11-24 (maintainer; the owner of `dataexchange.clinicalgenome.org` agreed)
 
 ## Context
 
@@ -47,12 +48,12 @@ shows its target.
    first path segment, with or without a `/clinvar-gkm/` prefix. Both are overlay files (ADR 0011), so every
    version, including frozen 1.1, gets the change on its next build. `versions.js`, `docs-versions.py` and
    `check-site-links.py` already read the base path from `site_url` and need no change.
-5. **This needs the agreement of the owner of `dataexchange.clinicalgenome.org`** (ClinGen), because the
-   docs leave that domain. The ADR stays Proposed until that is confirmed.
+5. **The owner of `dataexchange.clinicalgenome.org` (ClinGen) agreed** to the docs leaving that domain
+   (2026-11-24).
 
 ## Plan
 
-### Phase 1: make the site path-independent (one PR into `1.0`, forward-merged to `main`)
+### Phase 1: make the site path-independent (one PR into `1.0`, forward-merged to `main`; #291)
 
 This is safe to merge before the move: with the site still at `/clinvar-gkm/`, nothing changes for readers.
 
@@ -125,7 +126,7 @@ They all keep working through redirects, so this is tidying, not a fix:
 - Readers see and share one short address the project controls, for both the docs (`clinvar-gkm.org`) and the
   data (`data.clinvar-gkm.org`).
 - The docs no longer depend on how the organization's user site is configured.
-- The docs leave the `clinicalgenome.org` domain. ClinGen's agreement is a precondition (Decision 5).
+- The docs leave the `clinicalgenome.org` domain, with ClinGen's agreement (Decision 5).
 - The docs are not behind Cloudflare's CDN: GitHub Pages serves them over its own CDN, which is free, so there is
   no fee exposure to protect (unlike R2, ADR 0005). Proxying through Cloudflare would block GitHub's certificate.
 - The domain's renewal (Cloudflare Registrar, auto-renew) now matters for the docs as well as the data.
