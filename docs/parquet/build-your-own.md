@@ -18,6 +18,12 @@ from the published JSON bundle. You can run the same tool yourself to:
 | Writes | table spec `sections` 2.0, default policy 2.0, with DuckDB 1.5.4 (pinned) |
 | Needs | Python 3.10 or later |
 
+!!! tip "Shorter routes"
+    This is the full guide. [Your First Dataset](../build/first-dataset.md) walks one selection, from download to a
+    DuckDB query, in about five minutes; the [CLI Reference](../build/cli-reference.md) lists every command and
+    option; and [Build Your Own Dataset](../build/index.md) helps choose between building and the published
+    Parquet.
+
 !!! note "Prerequisites"
     - **Python 3.10 or later** (tested with 3.14.5), and one way to run the tool:
       [uv](https://docs.astral.sh/uv/getting-started/installation/) (`uvx`, as the examples are written; tested
@@ -99,7 +105,8 @@ own `schema_version`, and `--version-property schema_version`:
 | `1.1.0` (line `v1/1.1/`) | `https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json` |
 
 The tool fetches the schema and every schema it references once, and caches them
-(`~/.cache/gkm-bundle-parquet/`). A schema-set directory works too, for offline use.
+(`~/.cache/gkm-bundle-parquet/`). A schema-set directory works too, for
+[offline use](#offline-schema-set).
 
 - **A 1.2.0 bundle gives exactly the tables this guide documents.** Its schema narrows ClinVar-GKM's classes and
   declares the target table of most references, so nearly every value gets a typed column: 146 top-level columns
@@ -118,6 +125,33 @@ other blocks in:
 ```bash
 P=(--bundle-schema https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json --version-property schema_version)
 ```
+
+### Work offline with a schema set { #offline-schema-set }
+
+To build where there is no network, or to pin the exact schema files a build used, write the schema and every
+schema it references into a directory once, with `vendor-schemas.py` from the tool's source (it isn't in the
+PyPI package; `uvx --from` runs it with the tool's own libraries):
+
+```bash
+curl -fsSO https://raw.githubusercontent.com/clingen-data-model/gkm-bundle-parquet/v2.0.0/scripts/vendor-schemas.py
+uvx --from gkm-bundle-parquet==2.0.0 python vendor-schemas.py \
+    https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json clinvar-gkm-1.2.0-schemas/
+```
+
+```text
+clinvar-gkm-1.2.0-schemas: 143 files, schema set sha256 3b3920180d08f3343d7466ce55bbcb95f5cbc467c505a4e03797b8f3c48d6798
+```
+
+Then pass the directory as `--bundle-schema`; the tool reads it with no network:
+
+```bash
+P_OFFLINE=(--bundle-schema clinvar-gkm-1.2.0-schemas/ --version-property schema_version)
+```
+
+Use `"${P_OFFLINE[@]}"` wherever this page writes `"${P[@]}"`. The schema set sha256 is the same as the URL's, so
+the tables are the same: built from the 2026-11-15 delta with the network blocked and an empty schema cache, all
+20 files had the same sha256 as the build from the URL. On a machine without a network, the tool must already be
+installed there too.
 
 ---
 
@@ -309,8 +343,6 @@ they are identical.
 
 ---
 
----
-
 ## Cut a mini-bundle
 
 A **selection** starts from rows of one table, the **driver**, and follows the bundle's `#/…` references to
@@ -327,6 +359,10 @@ bundle's own layout. It is a real bundle: every tool that reads ClinVar-GKM bund
 | `--follow both` | both, from every record reached |
 | `--max-depth N` | stop after N reference hops from the driver; `0` keeps only the driver rows `--where` matched |
 | `--sections a,b` | only traverse and write these sections |
+
+Two rules from the [CLI Reference](../build/cli-reference.md#selection): every `--ids` key must be in the bundle
+(to start from a list that may hold keys a delta lacks, match it in `--where` with a subquery that reads the
+file), and on a delta, set `--max-depth`, because in 2.0.0 a walk into a section the delta omits doesn't finish.
 
 Choose `--follow` and `--max-depth` with the bundle's hubs in mind. Following references **out** of a record
 always ends: a statement points to its proposition, which points to its variant and condition. Following them

@@ -1,9 +1,10 @@
 # Beyond DuckDB
 
 !!! info "Release"
-    The expected answer is from the **2026-10-31 release**. The snippets were run against tables built with
-    `gkm-bundle-parquet` 2.0.0, with Python 3.12, DuckDB 1.5.4, pyarrow 26.0.1, pandas 3.1.1 and polars 2.1.0, and
-    with R 4.6.1, arrow 26.0.1.1 and dplyr 1.2.1.
+    The expected answer is from the published Parquet of the **2026-11-15 release**. The Python and Spark
+    snippets were run against it with Python 3.14.5, DuckDB 1.5.4, pyarrow 26.0.1, pandas 3.1.1, polars 2.1.0 and
+    PySpark 4.0.1 (OpenJDK 21). The R snippet was last run on the 2026-10-31 release, with R 4.6.1, arrow 26.0.1.1
+    and dplyr 1.2.1.
 
 Parquet is an open format, so any tool that reads it can read these files. This page does the **same small task** in each, so you can compare them: count the expert-panel SCVs by normalized classification, reading only the two fields that needs.
 
@@ -11,22 +12,22 @@ The expected answer, whichever tool you use:
 
 ```text
 code                    n
-pathogenic              10,068
-uncertain significance   4,081
-likely pathogenic        3,069
-benign                   2,881
-likely benign            2,867
+pathogenic              10,078
+uncertain significance   4,096
+likely pathogenic        3,078
+benign                   2,887
+likely benign            2,873
 …
 ```
 
-Whatever the tool, the rule from [Anatomy of a Table](table-anatomy.md#never-select-on-a-big-table) holds: **read only the columns you need.** `scv.parquet` is 784 MB on disk in 2026-10-31, and several times that once loaded whole.
+Whatever the tool, the rule from [Anatomy of a Table](table-anatomy.md#never-select-on-a-big-table) holds: **read only the columns you need.** `scv.parquet` is 785 MB on disk in 2026-11-15, and several times that once loaded whole.
 
 !!! note "Prerequisites"
     - **Data:** `scv.parquet` (784 MB) in the directory you run from, from
       [Downloads → Parquet Files](../data-access/parquet.md#download); the spreadsheet example reads
       `condition.parquet` (2 MB). Each snippet stands alone and reads only two fields; the pyarrow and pandas ones
       peaked at about 1.4 GB of memory.
-    - **Python** (tested with 3.12): install only the libraries for the snippets you run.
+    - **Python** (tested with 3.14.5): install only the libraries for the snippets you run.
 
         ```bash
         python3 -m venv .venv && . .venv/bin/activate
@@ -37,6 +38,8 @@ Whatever the tool, the rule from [Anatomy of a Table](table-anatomy.md#never-sel
       as with Homebrew's R on macOS, arrow compiles from source: set `Sys.setenv(NOT_CRAN = "true",
       LIBARROW_BINARY = "true")` first so it downloads a prebuilt Arrow C++ library, and expect the install to
       take 15 minutes or more.
+    - **Spark** (optional): Java 17 or 21 (tested with OpenJDK 21) and `pip install "pyspark==4.0.1"` (about 430 MB)
+      in the same environment.
     - **Command line:** the [DuckDB CLI](https://duckdb.org/docs/installation/), tested with 1.5.4.
 
 ## Python
@@ -141,9 +144,64 @@ The `duckdb` R package is the other route: it runs the SQL from this track uncha
 
 ## Spark and cloud warehouses
 
-The files load directly into Spark (`spark.read.parquet(...)`) and into cloud warehouses: as BigQuery external or loaded tables from a Cloud Storage copy, or as Athena tables over an S3 copy. Copy the files into your own bucket first; `data.clinvar-gkm.org` is a download host, not a query endpoint for warehouse engines.
+### Spark
 
-What survives the trip:
+Spark reads the files as they are, with dotted access into the STRUCT columns. Locally, with PySpark:
+
+```python
+from pyspark.sql import SparkSession, functions as F
+
+spark = (SparkSession.builder.master("local[*]").appName("clinvar-gkm")
+         .config("spark.driver.bindAddress", "127.0.0.1")   # a laptop: bind the driver to loopback
+         .config("spark.driver.host", "127.0.0.1")
+         .getOrCreate())
+scv = spark.read.parquet("scv.parquet")
+(scv.where(F.col("quality.name") == "expert panel")
+    .groupBy(F.col("classification.primaryCoding.code").alias("code"))
+    .count()
+    .orderBy(F.desc("count"))
+    .show(5, truncate=False))
+spark.stop()
+```
+
+```text
++----------------------+-----+
+|code                  |count|
++----------------------+-----+
+|pathogenic            |10078|
+|uncertain significance|4096 |
+|likely pathogenic     |3078 |
+|benign                |2887 |
+|likely benign         |2873 |
++----------------------+-----+
+only showing top 5 rows
+```
+
+Under 30 seconds on the test laptop, most of it starting Spark. The two `config` lines stop a laptop's Spark failing with
+`Can't assign requested address: Service 'sparkDriver'`; drop them on a cluster. On a cluster, read the files
+from your own storage (`spark.read.parquet("s3://…/scv.parquet")`).
+
+### BigQuery and other warehouses
+
+Copy the files into your own bucket first: `data.clinvar-gkm.org` is a download host, not a query endpoint for
+warehouse engines. For BigQuery, load each table from a Cloud Storage copy.
+
+!!! warning "Not run here; needs a GCP project"
+    These commands weren't run for this page. They need a Google Cloud project with billing, a Cloud Storage
+    bucket and a BigQuery dataset of your own; loading and querying are billed to that project. Replace
+    `my-bucket` and `my_dataset`.
+
+```text
+gcloud storage cp scv.parquet gs://my-bucket/clinvar-gkm/scv.parquet
+bq load --source_format=PARQUET --parquet_enable_list_inference=true \
+    my_dataset.scv gs://my-bucket/clinvar-gkm/scv.parquet
+```
+
+`--parquet_enable_list_inference=true` makes a Parquet list a BigQuery `ARRAY`; without it, each list column
+arrives wrapped in an extra record (`hasEvidenceLines.list.element`). An external table over the same
+`gs://` path (`bq mk --external_table_definition`) queries the files without loading them.
+
+What survives the trip, in BigQuery, Spark and Athena alike:
 
 - **`STRUCT` and `LIST` columns** arrive as the engine's record and array types (`STRUCT`/`ARRAY` in BigQuery and Spark, `struct`/`array` in Athena), so dotted access like `classification.name` works the same way.
 - **Every field is a typed column**, except the few nested positions kept as JSON text (see [Extensions](table-anatomy.md#extensions)); parse those with the engine's JSON functions (`JSON_VALUE` in BigQuery, `get_json_object` in Spark).

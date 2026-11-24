@@ -81,6 +81,52 @@ Any dataset that computes the same `ga4gh:VA.EE08XW4IpzeWhJAwComKOSmsPHTcP-1R` a
 pipeline, gnomAD, another knowledgebase — matches this ClinVar classification exactly, and can then read
 its strength, review status, submitter, and condition straight from the bundle.
 
+## The same join with the Parquet tables
+
+The published Parquet tables answer the same question with one query, with no bundle to parse. Given VRS allele
+ids for your variants (computed with vrs-python, or read from a VRS-annotated VCF), look them up in `variation`
+and read ClinVar's call from `vcv`.
+
+!!! note "Prerequisites"
+    The [DuckDB CLI](https://duckdb.org/docs/installation/) (tested with 1.5.4) and `curl`, in bash or zsh. The
+    query reads two published tables of the newest release, `variation.parquet` (1.7 GB) and `vcv.parquet`
+    (148 MB); it finishes in about 2 seconds on a laptop. Tested on the 2026-11-15 release.
+
+```bash
+BASE="https://data.clinvar-gkm.org/v1/1.2/parquet"
+curl -fO "${BASE}/variation.parquet"
+curl -fO "${BASE}/vcv.parquet"
+```
+
+```sql
+WITH mine AS (                     -- your VRS allele ids
+  SELECT * FROM (VALUES ('ga4gh:VA.EE08XW4IpzeWhJAwComKOSmsPHTcP-1R')) AS t(vrs_id)
+),
+v AS (                             -- each ClinVar variant and its VRS allele
+  SELECT id, name, unnest(members).id AS member_id FROM 'variation.parquet'
+),
+call AS (                          -- ClinVar's germline pathogenicity call per variant
+  SELECT 'clinvar:' || CAST(substr(id, 4, 9) AS INTEGER) AS variation_id,
+         classification.name AS clinvar_call, quality.name AS level
+  FROM 'vcv.parquet'
+  WHERE regexp_matches(id, '-G-PATH$')
+)
+SELECT m.vrs_id, v.id AS variation_id, v.name AS variation_name, c.clinvar_call, c.level
+FROM mine m
+JOIN v ON v.member_id = m.vrs_id
+LEFT JOIN call c ON c.variation_id = v.id;
+```
+
+```text
+vrs_id                                     variation_id   variation_name                             clinvar_call  level
+ga4gh:VA.EE08XW4IpzeWhJAwComKOSmsPHTcP-1R  clinvar:17662  NM_007294.4(BRCA1):c.68_69del (p.Glu23fs)  Pathogenic    expert panel
+```
+
+Run it in `duckdb` started in the folder holding the two files. For many ids, replace `mine` with a file
+(`read_csv('my-vrs-ids.txt', header = false, columns = {'vrs_id': 'VARCHAR'})`). For every ClinVar variant at
+once, keyed by VRS id and by VCF position, see the
+[VRS-keyed harmonization table](parquet/recipes.md#harmonization-table) recipe.
+
 ## The tools used
 
 - **[vrs-python](https://github.com/ga4gh/vrs-python)** — compute the VRS allele id for your own variants
