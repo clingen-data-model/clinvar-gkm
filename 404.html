@@ -5,9 +5,11 @@
 <title>ClinVar-GKM docs</title>
 <script>
 (function () {
-  var BASE = "/clinvar-gkm/", LATEST = "1.2", VERSIONS = ["1.2", "1.1"];
+  var BASE = "/", LATEST = "1.2", VERSIONS = ["1.2", "1.1"], FORMER = "/clinvar-gkm/";
   var home = BASE + LATEST + "/";
   var path = location.pathname, tail = location.search + location.hash;
+  // A link from before the move to the domain root (ADR 0013): the same path without the former base path.
+  if (FORMER && (path + "/").indexOf(FORMER) === 0) { location.replace(BASE + path.slice(FORMER.length) + tail); return; }
   if (path.indexOf(BASE) !== 0) { location.replace(home); return; }
   var rest = path.slice(BASE.length), first = rest.split("/")[0];
   if (first === "latest") { location.replace(home + rest.slice(first.length + 1) + tail); return; }
@@ -22,6 +24,6 @@
 </script>
 </head>
 <body>
-<p>Page not found. Redirecting to <a href="/clinvar-gkm/1.2/">the ClinVar-GKM docs (1.2)</a>.</p>
+<p>Page not found. Redirecting to <a href="/1.2/">the ClinVar-GKM docs (1.2)</a>.</p>
 </body>
 </html>
