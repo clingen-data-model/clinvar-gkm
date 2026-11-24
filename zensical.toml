@@ -141,6 +141,7 @@ nav = [
       "reference/presentations/index.md",
       { "ClinVar-GKM Primer" = "reference/presentations/clinvar-gkm-primer.md" },
       { "What It Unlocks" = "reference/presentations/clinvar-gkm-unlocks.md" },
+      { "Strict Profiles, Fast Tables" = "reference/presentations/clinvar-gkm-strict-profiles.md" },
     ] },
   ] },
 ]

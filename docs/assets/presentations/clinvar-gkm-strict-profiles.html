@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClinVar-GKM — Strict Profiles, Fast Tables</title>
+<style>
+:root {
+  --brand-logo: #19448d;
+  --brand-primary: #166894;
+  --brand-navy: #163760;
+  --brand-mid: #1e5183;
+  --brand-teal: #0fadb0;
+  --ink: #212529;
+  --ink-secondary: #666666;
+  --ink-inverse: #ffffff;
+  --surface-100: #ffffff;
+  --surface-200: #f8f9fa;
+  --surface-300: #f1f1f1;
+  --border: #dee2e6;
+  --border-strong: #cccccc;
+  --status-released-fg: #19692c;
+  --status-released-bg: #d4edda;
+  --status-beta-fg: #0f6674;
+  --status-beta-bg: #d1ecf1;
+  --status-planned-fg: #495057;
+  --status-planned-bg: #e9ecef;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #212529;
+}
+
+section {
+  padding: 128px 128px 160px;
+  background: var(--surface-100);
+  color: var(--ink);
+  counter-increment: page;
+}
+
+section.alt { background: var(--surface-300); }
+
+/* Footer band */
+.foot {
+  position: absolute;
+  left: 128px;
+  bottom: 64px;
+  width: 1664px;
+  display: flex;
+  justify-content: space-between;
+}
+.foot p { font-size: 24px; color: var(--ink-secondary); }
+.foot .pg::after { content: counter(page); }
+
+/* Headings and text */
+.eyebrow { font-size: 24px; font-weight: 700; letter-spacing: 1px; color: var(--brand-primary); margin-bottom: 12px; }
+.title { font-size: 60px; font-weight: 500; line-height: 1.15; color: var(--brand-logo); margin-bottom: 40px; }
+.lead { font-size: 36px; font-weight: 300; line-height: 1.4; color: var(--ink); }
+.body { font-size: 28px; line-height: 1.45; color: var(--ink); }
+.note { font-size: 24px; line-height: 1.45; color: var(--ink-secondary); }
+.mt { margin-top: 32px; }
+.id { color: var(--brand-primary); }
+
+/* Cards */
+.cards { display: grid; gap: 24px; }
+.c2 { grid-template-columns: 1fr 1fr; }
+.c3 { grid-template-columns: 1fr 1fr 1fr; }
+.c4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.card {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 32px;
+  background: var(--surface-100);
+}
+.card.soft { background: var(--surface-200); }
+.card.strong { background: var(--brand-logo); border-color: var(--brand-logo); }
+.card .k { font-size: 24px; font-weight: 700; color: var(--brand-primary); margin-bottom: 8px; }
+.card h3 { font-size: 36px; font-weight: 500; line-height: 1.2; color: var(--brand-logo); margin-bottom: 12px; }
+.card .d { font-size: 24px; line-height: 1.45; color: var(--ink); }
+.card.strong .k, .card.strong h3, .card.strong .d { color: var(--ink-inverse); }
+.card ul { font-size: 24px; line-height: 1.45; color: var(--ink); padding-left: 32px; }
+.card li { margin-bottom: 8px; }
+
+/* Pills */
+.pills { display: flex; gap: 12px; margin-bottom: 16px; }
+.pill { font-size: 24px; font-weight: 700; line-height: 1.2; padding: 6px 18px; border-radius: 40px; }
+.pill.ok { background: var(--status-released-bg); color: var(--status-released-fg); }
+.pill.maybe { background: var(--status-beta-bg); color: var(--status-beta-fg); }
+.pill.plan { background: var(--status-planned-bg); color: var(--status-planned-fg); }
+.pill.inv { background: var(--ink-inverse); color: var(--brand-logo); }
+
+/* Code */
+.code {
+  font-family: Menlo, Consolas, "Courier New", monospace;
+  font-size: 24px;
+  line-height: 1.4;
+  color: var(--ink);
+  background: var(--surface-200);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 28px 32px;
+}
+
+/* Tables */
+.t { width: 100%; font-size: 28px; color: var(--ink); }
+.t.dense { font-size: 24px; }
+.t .h { background: var(--surface-300); }
+
+/* Inheritance staircase */
+.stairs { display: flex; flex-direction: column; gap: 12px; }
+.step {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px 24px;
+  background: var(--surface-100);
+}
+.step .spec { width: 200px; flex: none; text-align: center; }
+.step .name { width: 660px; flex: none; font-size: 28px; font-weight: 700; color: var(--brand-logo); }
+.step .adds { flex: 1; font-size: 24px; line-height: 1.4; color: var(--ink); }
+.step.us { background: var(--brand-logo); border-color: var(--brand-logo); }
+.step.us .name, .step.us .adds { color: var(--ink-inverse); }
+.l1 { margin-left: 32px; }
+.l2 { margin-left: 64px; }
+.l3 { margin-left: 96px; }
+.l4 { margin-left: 128px; }
+
+/* Numbered rows */
+.rows { display: flex; flex-direction: column; }
+.row { display: flex; gap: 32px; align-items: baseline; padding: 18px 0; border-top: 1px solid var(--border); }
+.row .n { width: 64px; flex: none; font-size: 36px; font-weight: 500; color: var(--brand-primary); }
+.row .rt { width: 560px; flex: none; font-size: 28px; font-weight: 700; color: var(--ink); }
+.row .rd { flex: 1; font-size: 24px; line-height: 1.4; color: var(--ink-secondary); }
+
+/* Big numbers */
+.stats { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 24px; }
+.stat { border-top: 4px solid var(--brand-logo); padding-top: 20px; }
+.stat .n { font-size: 96px; font-weight: 500; line-height: 1; color: var(--brand-logo); margin-bottom: 12px; }
+.stat .l { font-size: 24px; line-height: 1.4; color: var(--ink); }
+
+/* Funnel */
+.funnel { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.band { display: flex; gap: 32px; align-items: center; border-radius: 4px; padding: 24px 32px; box-sizing: border-box; }
+.band .bl { width: 420px; flex: none; }
+.band h3 { font-size: 36px; font-weight: 500; line-height: 1.2; color: var(--brand-logo); margin-bottom: 6px; }
+.band .bt { font-size: 24px; font-weight: 700; color: var(--brand-primary); }
+.band .bx { flex: 1; font-size: 24px; line-height: 1.45; color: var(--ink); }
+.b1 { width: 1664px; background: var(--surface-300); }
+.b2 { width: 1380px; background: var(--status-beta-bg); }
+.b3 { width: 1096px; background: var(--brand-logo); }
+.b3 h3, .b3 .bt, .b3 .bx { color: var(--ink-inverse); }
+
+/* Ladder */
+.ladder { display: flex; gap: 16px; align-items: flex-end; }
+.rung { flex: 1; border: 1px solid var(--border); border-radius: 4px; padding: 24px; background: var(--surface-100); }
+.rung .k { font-size: 24px; font-weight: 700; color: var(--brand-primary); margin-bottom: 8px; }
+.rung h3 { font-size: 28px; font-weight: 700; line-height: 1.25; color: var(--brand-logo); margin-bottom: 12px; }
+.rung .d { font-size: 24px; line-height: 1.4; color: var(--ink); }
+.r1 { height: 360px; }
+.r2 { height: 420px; }
+.r3 { height: 480px; }
+.r4 { height: 540px; }
+.r5 { height: 600px; }
+
+/* Hero and statement slides */
+section.hero { background: linear-gradient(90deg, #163760 0%, #1e5183 60%, #0fadb0 100%); color: var(--ink-inverse); }
+section.dark { background: var(--brand-navy); color: var(--ink-inverse); }
+.dark .eyebrow { color: #a9c7e8; }
+.dark .title { color: var(--ink-inverse); }
+.dark .lead, .dark .body { color: var(--ink-inverse); }
+.dark .foot p { color: #c9d6e6; }
+
+/* Motion: arrival */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.anim { --i: 0; animation: rise 500ms ease-out both; animation-delay: calc(var(--i) * 110ms); }
+.t.tight th, .t.tight td { padding: 6px 14px; }
+
+
+/* ---- Dark theme: the ClinGen palette, re-toned (T toggles) ---- */
+:root[data-theme="dark"] {
+  --brand-logo: #9cc0f2; --brand-primary: #6fc3e3; --brand-navy: #0e2440;
+  --ink: #e7e9ec; --ink-secondary: #a7b0ba;
+  --surface-100: #141a21; --surface-200: #1b222a; --surface-300: #1f2730;
+  --border: #36404b; --border-strong: #4b5560;
+  --status-released-fg: #8fd19e; --status-released-bg: #1e3a27;
+  --status-beta-fg: #8ed8e6; --status-beta-bg: #123b44;
+  --status-planned-fg: #c3cad2; --status-planned-bg: #2b323a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --brand-logo: #9cc0f2; --brand-primary: #6fc3e3; --brand-navy: #0e2440;
+    --ink: #e7e9ec; --ink-secondary: #a7b0ba;
+    --surface-100: #141a21; --surface-200: #1b222a; --surface-300: #1f2730;
+    --border: #36404b; --border-strong: #4b5560;
+    --status-released-fg: #8fd19e; --status-released-bg: #1e3a27;
+    --status-beta-fg: #8ed8e6; --status-beta-bg: #123b44;
+    --status-planned-fg: #c3cad2; --status-planned-bg: #2b323a;
+  }
+}
+/* Filled blocks keep a deep blue ground in both themes. */
+.card.strong, .step.us, .b3 { background: #19448d; border-color: #19448d; }
+.card.strong .k, .card.strong h3, .card.strong .d, .step.us .name, .step.us .adds,
+.b3 h3, .b3 .bt, .b3 .bx { color: #ffffff; }
+.pill.inv { background: #ffffff; color: #19448d; }
+
+/* ---- Slide format defaults (no default margins; tables draw hairlines) ---- */
+* { box-sizing: border-box; }
+:where(.slide p, .slide h1, .slide h2, .slide h3, .slide ul) { margin: 0; }
+:where(.slide ul) { margin-top: 4px; }
+.slide a { color: var(--brand-primary); }
+.t { border-collapse: collapse; }
+.t th, .t td { text-align: left; vertical-align: top; padding: 0.35em 0.6em; border-bottom: 1px solid var(--border); }
+.t th { font-weight: 700; }
+.t.tight th, .t.tight td { padding: 6px 14px; }
+.hint { position: absolute; right: 128px; bottom: 96px; font-size: 24px; color: #ffffff; opacity: .85; }
+
+/* ---- Viewer chrome (shared engine with the other ClinVar-GKM decks) ---- */
+:root { --bg: var(--surface-300); --panel: var(--surface-200); --box: var(--surface-100);
+  --line: var(--border); --accent: var(--brand-primary); --ink-soft: var(--ink-secondary);
+  --shadow: 0 8px 30px rgba(20,28,40,.14); }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; }
+body { counter-reset: page; }
+#viewport { position: fixed; inset: 0; display: grid; place-items: center; overflow: hidden; }
+#stage { position: relative; width: 1920px; height: 1080px; transform: scale(var(--scale, 1));
+  transform-origin: center center; flex: none; }
+.slide { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity .35s ease;
+  border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); overflow: hidden; }
+.slide.active { opacity: 1; visibility: visible; }
+.slide:not(.active) .anim { animation: none; }
+@media (prefers-reduced-motion: reduce) { .slide { transition: none; } .anim { animation: none !important; } }
+
+#prog { position: fixed; left: 0; top: 0; height: 4px; width: 100%; z-index: 30; }
+#prog > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s ease; }
+#counter { position: fixed; right: 16px; bottom: 12px; font-size: 13px; color: var(--ink-soft);
+  font-family: ui-monospace, monospace; z-index: 30; background: var(--box);
+  padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); }
+#navbtns { position: fixed; right: 16px; bottom: 44px; display: flex; gap: 6px; z-index: 30; }
+.cbtn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--box);
+  color: var(--ink); font-size: 16px; cursor: pointer; display: grid; place-items: center; }
+.cbtn:hover { border-color: var(--accent); color: var(--accent); }
+#toolbar { position: fixed; right: 16px; top: 12px; display: flex; gap: 6px; z-index: 30; }
+#notes { position: fixed; left: 0; right: 0; bottom: 0; max-height: 42vh; overflow: auto; z-index: 45;
+  background: var(--panel); border-top: 2px solid var(--accent); padding: 16px 22px 18px;
+  transform: translateY(100%); transition: transform .25s ease; box-shadow: 0 -8px 30px rgba(0,0,0,.25); }
+#notes.open { transform: translateY(0); }
+#notes h4 { margin: 0 0 8px; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+#notes .ncontent { font-size: 15px; line-height: 1.5; color: var(--ink); max-width: 1000px; }
+#notes .ncontent p { margin: 0; }
+#help { position: fixed; inset: 0; z-index: 60; display: none; place-items: center; background: rgba(0,0,0,.35); }
+#help.open { display: grid; }
+#help .panel2 { background: var(--box); border: 1px solid var(--border-strong); border-radius: 14px;
+  padding: 24px 28px; width: 440px; box-shadow: var(--shadow); color: var(--ink); }
+#help h3 { margin: 0 0 14px; font-size: 20px; }
+#help table { width: 100%; border-collapse: collapse; font-size: 15px; }
+#help td { padding: 6px 4px; border-bottom: 1px solid var(--line); }
+#help kbd { font-family: ui-monospace, monospace; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 5px; padding: 1px 7px; font-size: 13px; }
+#help .close { margin-top: 16px; font-size: 13px; color: var(--ink-soft); }
+@media (max-width: 700px) { #navbtns, #toolbar { display: none; } }
+
+</style>
+</head>
+<body>
+<div id="prog"><i></i></div>
+
+<div id="viewport">
+  <div id="stage">
+
+<section id="cover" class="slide hero">
+<div style="position:absolute; left:128px; top:300px; width:1150px;">
+<p style="font-size:24px; font-weight:700; letter-spacing:1px; color:#ffffff; margin-bottom:24px;">ClinVar-GKM 1.2 · for data consumers</p>
+<h1 style="font-size:96px; font-weight:500; line-height:1.1; color:#ffffff; margin-bottom:40px;">Strict Profiles, Fast Tables</h1>
+<p style="font-size:36px; font-weight:300; line-height:1.4; color:#ffffff;">How ClinVar-GKM narrows the open GA4GH GKM specifications to exactly what ClinVar says, and how that shapes the JSON bundles and the Parquet tables you query.</p>
+</div>
+<p style="position:absolute; left:128px; bottom:96px; width:1100px; font-size:24px; color:#ffffff;">ClinGen Data Platform · November 2026</p>
+<p class="hint">Use ← / → to navigate · press ? for shortcuts</p>
+<aside class="snotes" hidden><p>This deck is for people who use ClinVar-GKM data: the JSON bundles and the Parquet tables built from them. Two ideas run through it. First, the GA4GH specs are open on purpose, and ClinVar-GKM is a strict, producer-specific version of them. Second, because the bundle is strict, its Parquet tables can be generated straight from the schema, and you can cut them down to just what your use case needs.</p></aside>
+</section>
+<section id="agenda" class="slide">
+<p class="eyebrow">Overview</p>
+<h2 class="title">What This Deck Covers</h2>
+<div class="rows">
+<div class="row anim" style="--i:0"><p class="n">1</p><p class="rt">Open specs, strict profiles</p><p class="rd">Why the GA4GH classes are open, and how profiles and recipes narrow them.</p></div>
+<div class="row anim" style="--i:1"><p class="n">2</p><p class="rt">What ClinVar-GKM materializes</p><p class="rd">The VRS, Cat-VRS and VA-Spec classes it uses, and the ClinVar profiles it had to add.</p></div>
+<div class="row anim" style="--i:2"><p class="n">3</p><p class="rt">The 1.2.0 narrowing</p><p class="rd">What was pruned, locked and made required, and what the bundles now guarantee.</p></div>
+<div class="row anim" style="--i:3"><p class="n">4</p><p class="rt">Parquet from the bundle</p><p class="rd">A default column set, generated from the schema, that holds the whole bundle.</p></div>
+<div class="row anim" style="--i:4"><p class="n">5</p><p class="rt">Slices and mini-bundles</p><p class="rd">From the full set down to fit-for-purpose subsets for a specific use.</p></div>
+</div>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>Five parts. The first two are concepts: how the GA4GH specs are layered, and where ClinVar-GKM sits. The last three are practical: what changed in 1.2.0, and how to use the Parquet tables, from the whole bundle down to a slice.</p></aside>
+</section>
+<section id="gkm-specs" class="slide">
+<p class="eyebrow">Open specs, strict profiles</p>
+<h2 class="title">The GKM Model: Four Specifications</h2>
+<div class="cards c4">
+<div class="card anim" style="--i:0"><p class="k">Variation</p><h3>VRS</h3><p class="d">Computable, digest-identified variants: Allele, SequenceLocation, CopyNumberCount, CopyNumberChange.</p></div>
+<div class="card anim" style="--i:1"><p class="k">Categorical variation</p><h3>Cat-VRS</h3><p class="d">Sets of variants defined by constraints, packaged as recipes such as CanonicalAllele and CategoricalCnv.</p></div>
+<div class="card anim" style="--i:2"><p class="k">Variant annotation</p><h3>VA-Spec</h3><p class="d">Statements that classify a proposition, with strength, direction, evidence lines and contributions.</p></div>
+<div class="card anim" style="--i:3"><p class="k">Shared building blocks</p><h3>gkm-core</h3><p class="d">Entity, Element, MappableConcept, ConceptSet, Coding and Extension, used by the other three.</p></div>
+</div>
+<p class="body mt">A ClinVar-GKM bundle holds records from all four, in 20 typed sections. Each section is typed by a ClinVar profile of one of these classes.</p>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>The GA4GH Genomic Knowledge Standards workstream curates these four specifications together as the GKM schema set. VRS identifies variants exactly. Cat-VRS describes categories of variants, such as "this allele on any assembly or transcript". VA-Spec carries the knowledge: a statement that classifies a proposition. gkm-core holds the shared pieces. Every record in a ClinVar-GKM bundle is an instance of one of these classes, narrowed by a ClinVar profile.</p></aside>
+</section>
+<section id="open-by-design" class="slide">
+<p class="eyebrow">Open specs, strict profiles</p>
+<h2 class="title">Base Classes Are Open by Design</h2>
+<p class="lead" style="margin-bottom:32px;">A base class has to fit every producer, so it leaves most choices to the producer.</p>
+<table class="t dense">
+<tr class="h"><th style="width:30%">Where the base leaves a choice</th><th style="width:70%">Example in the base spec</th></tr>
+<tr><td>Few required fields</td><td>VA-Spec Statement requires only type and proposition.</td></tr>
+<tr><td>Free vocabulary</td><td>Proposition.predicate is any string; profiles define the value set.</td></tr>
+<tr><td>Inline or reference</td><td>Allele.location is either a reference or a whole SequenceLocation.</td></tr>
+<tr><td>Any kind of subject</td><td>VariantPathogenicityProposition.subject: a MolecularVariation, a CategoricalVariant or a reference.</td></tr>
+<tr><td>Broad value sets</td><td>CopyNumberChange.copyChange allows 8 values.</td></tr>
+<tr><td>Open extensions</td><td>Any entity can carry extensions with any name and any value.</td></tr>
+</table>
+<p class="body mt">That openness makes the specs work for many producers. But every option is something a consumer’s code has to handle.</p>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>This is intentional in the GA4GH specs. They must serve labs, knowledge bases, registries and tools with very different data. So the base classes require little, accept free text where a community has not agreed on terms, and let you inline an object or point to it. For a consumer, that means many possible shapes for the same idea. The next slides show how profiles remove those options.</p></aside>
+</section>
+<section id="layers" class="slide">
+<p class="eyebrow">Open specs, strict profiles</p>
+<h2 class="title">Three Layers, Each One Only Restricts</h2>
+<div class="funnel">
+<div class="band b1 anim" style="--i:0"><div class="bl"><h3>Base classes</h3><p class="bt">What can be said</p></div><p class="bx">gkm-core Entity and MappableConcept · VRS Allele · Cat-VRS CategoricalVariant · VA-Spec Statement and Proposition</p></div>
+<div class="band b2 anim" style="--i:1"><div class="bl"><h3>Standard profiles</h3><p class="bt">How a community agrees to say it</p></div><p class="bx">VA-Spec VariantPathogenicityProposition and the ACMG 2015 statement profile · Cat-VRS CanonicalAllele and CategoricalCnv recipes</p></div>
+<div class="band b3 anim" style="--i:2"><div class="bl"><h3>Implementation profiles</h3><p class="bt">What one producer actually says</p></div><p class="bx">ClinVar-GKM 1.2: ClinvarScvStatement, ClinvarVariantPathogenicityProposition, ClinvarCanonicalAllele, …</p></div>
+</div>
+<p class="body mt">A record that is valid against a ClinVar profile is still valid against its GA4GH class. Narrowing removes options; it never changes what a field means.</p>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>Think of it as a funnel. The base classes define what can be said at all. Standard profiles, propositions and recipes are community agreements: for example, a pathogenicity proposition always uses the predicate isCausalFor, and a canonical allele always has exactly one defining allele constraint. Implementation profiles are the last step: one producer describes exactly what its data contains. Because every layer only restricts the one above it, ClinVar-GKM records stay valid GA4GH records.</p></aside>
+</section>
+<section id="how-narrow" class="slide">
+<p class="eyebrow">Open specs, strict profiles</p>
+<h2 class="title">Five Ways a Profile Narrows</h2>
+<div style="display:flex; gap:48px; align-items:flex-start;">
+<div class="rows" style="width:700px; flex:none;">
+<div class="row anim" style="--i:0"><p class="rt" style="width:160px;">Prune</p><p class="rd">Set properties the producer never writes to false.</p></div>
+<div class="row anim" style="--i:1"><p class="rt" style="width:160px;">Require</p><p class="rd">Make properties that every record carries required.</p></div>
+<div class="row anim" style="--i:2"><p class="rt" style="width:160px;">Lock</p><p class="rd">Fix values with const and enum.</p></div>
+<div class="row anim" style="--i:3"><p class="rt" style="width:160px;">Point</p><p class="rd">Replace inline objects with pointers into one bundle section, such as #/variation/.</p></div>
+<div class="row anim" style="--i:4"><p class="rt" style="width:160px;">Close</p><p class="rd">Add unevaluatedProperties: false, so nothing else can appear.</p></div>
+</div>
+<p class="code anim" style="--i:2; flex:1;">ClinvarVariantPathogenicityProposition:<br>&#160;&#160;allOf:<br>&#160;&#160;&#160;&#160;- $refCurie: va-spec:VariantPathogenicityProposition<br>&#160;&#160;&#160;&#160;- type: object<br>&#160;&#160;&#160;&#160;&#160;&#160;required: [id]<br>&#160;&#160;&#160;&#160;&#160;&#160;properties:<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;name: false<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;description: false<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;aliases: false<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;extensions: false<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;alleleOriginQualifier: false<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;subject:<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;$refCurie: gkm.core:iriReference<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;pattern: "^#/variation/"<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;object:<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;$refCurie: gkm.core:iriReference<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;pattern: "^#/(condition|conditionSet)/"</p>
+</div>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>A ClinVar profile is written as allOf: the GA4GH class, plus a block of restrictions. This is an abridged copy of the real source in schema/clinvar-gkm/clinvar-proposition-source.yaml. It requires an id, prunes five properties ClinVar never writes, and turns subject and object into pointers to specific bundle sections. The generator adds unevaluatedProperties: false to every profile, which closes it. Because it is allOf, a record must still pass the base class too.</p></aside>
+</section>
+<section id="chain-prop" class="slide">
+<p class="eyebrow">Open specs, strict profiles</p>
+<h2 class="title">A Proposition, End to End</h2>
+<div class="stairs">
+<div class="step anim" style="--i:0"><div class="spec"><p class="pill plan">gkm-core</p></div><p class="name">Entity</p><p class="adds">Base of everything: optional id, name, description, aliases and extensions.</p></div>
+<div class="step l1 anim" style="--i:1"><div class="spec"><p class="pill maybe">VA-Spec</p></div><p class="name">Proposition</p><p class="adds">Abstract. A subject, a predicate and an object; the predicate is any string.</p></div>
+<div class="step l2 anim" style="--i:2"><div class="spec"><p class="pill maybe">VA-Spec</p></div><p class="name">SubjectVariantProposition</p><p class="adds">The subject must be a variant: MolecularVariation, CategoricalVariant or a reference.</p></div>
+<div class="step l3 anim" style="--i:3"><div class="spec"><p class="pill maybe">VA-Spec</p></div><p class="name">VariantPathogenicityProposition</p><p class="adds">Predicate fixed to isCausalFor; object a Condition or ConditionSet.</p></div>
+<div class="step l4 us anim" style="--i:4"><div class="spec"><p class="pill inv">ClinVar-GKM</p></div><p class="name">ClinvarVariantPathogenicityProposition</p><p class="adds">id required; subject and object become pointers into the bundle; five properties forbidden.</p></div>
+</div>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>Here is one real chain. Each step only adds restrictions. The base Entity makes everything optional. VA-Spec’s Proposition is abstract with a free predicate. SubjectVariantProposition says the subject is a variant, and GeneticContextVariantProposition (not shown) adds gene context. The standard VariantPathogenicityProposition fixes the predicate to isCausalFor. ClinVar’s profile then says exactly how ClinVar writes it: an id is always present, the subject and object are pointers to records elsewhere in the bundle, and name, description, aliases, extensions and allele origin qualifier never appear.</p></aside>
+</section>
+<section id="chain-variant" class="slide">
+<p class="eyebrow">Open specs, strict profiles</p>
+<h2 class="title">A Variant, End to End</h2>
+<div class="stairs">
+<div class="step anim" style="--i:0"><div class="spec"><p class="pill plan">gkm-core</p></div><p class="name">Entity</p><p class="adds">Base of everything: optional id, name, description, aliases and extensions.</p></div>
+<div class="step l1 anim" style="--i:1"><div class="spec"><p class="pill maybe">Cat-VRS</p></div><p class="name">CategoricalVariant</p><p class="adds">Any set of variants, described by any list of constraints and members.</p></div>
+<div class="step l2 anim" style="--i:2"><div class="spec"><p class="pill maybe">Recipe</p></div><p class="name">CanonicalAllele</p><p class="adds">Exactly one DefiningAlleleConstraint, with liftover_to and transcribed_to relations.</p></div>
+<div class="step l3 us anim" style="--i:3"><div class="spec"><p class="pill inv">ClinVar-GKM</p></div><p class="name">ClinvarCanonicalAllele</p><p class="adds">Constraints and members required; the allele and members are #/allele/ pointers; ClinVar extensions typed.</p></div>
+</div>
+<p class="body mt">Also profiled: ClinvarCategoricalCnvChange and ClinvarCategoricalCnvCount (CategoricalCnv recipe), and ClinvarNonConstrainedVariant for haplotypes, genotypes and other complex variants.</p>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>The same pattern on the variant side. Cat-VRS’s CategoricalVariant is fully open. The CanonicalAllele recipe is the community agreement: exactly one defining allele constraint, related to other forms by liftover and transcription. ClinVar’s profile requires constraints and members, makes the defining allele and every member a pointer to the allele section, and types ClinVar’s extensions: the HGVS list, the gene list, the variation type and so on. Copy number variants follow the CategoricalCnv recipe. Variants that fit no recipe, such as haplotypes and genotypes, use the plain CategoricalVariant with no constraints.</p></aside>
+</section>
+<section id="what-used" class="slide">
+<p class="eyebrow">What ClinVar-GKM materializes</p>
+<h2 class="title">A Strict Subset of Each Specification</h2>
+<table class="t dense">
+<tr class="h"><th style="width:13%">Spec</th><th style="width:50%">Used by ClinVar-GKM</th><th style="width:37%">Not used</th></tr>
+<tr><td>VRS</td><td>Allele, SequenceLocation, SequenceReference, CopyNumberCount, CopyNumberChange; LiteralSequenceExpression and ReferenceLengthExpression states; Expression for HGVS, SPDI and gnomAD strings</td><td>RelativeAllele, CisPhasedBlock, Adjacency, Terminus, DerivativeMolecule</td></tr>
+<tr><td>Cat-VRS</td><td>CanonicalAllele and CategoricalCnv recipes; the plain CategoricalVariant for complex variants; DefiningAllele, DefiningLocation, CopyCount and CopyChange constraints</td><td>ProteinSequenceConsequence, FunctionVariant and GeneFusion recipes; FeatureContext, Function and Adjacency constraints</td></tr>
+<tr><td>VA-Spec</td><td>Statement and EvidenceLine; Pathogenicity, Oncogenicity, ClinicalSignificance, Diagnostic, Prognostic and TherapeuticResponse propositions</td><td>Statement profiles (ACMG 2015, CCV 2022, AMP/ASCO/CAP 2017), not yet; GeneDiseaseValidity</td></tr>
+<tr><td>gkm-core</td><td>MappableConcept for genes, conditions and therapies; ConceptSet for condition and therapy sets; Coding; Extension</td><td></td></tr>
+</table>
+<p class="body mt">Anything not listed here cannot appear in a bundle.</p>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>This is the inventory. ClinVar-GKM uses a small part of VRS: simple alleles and copy number variants, located on sequences. From Cat-VRS it uses two recipes plus a plain categorical variant for the cases no recipe covers. From VA-Spec it uses the base Statement and EvidenceLine and six standard proposition types. Note the VA-Spec statement profiles: ClinVar-GKM does not use them yet, which the next slide explains. Because the bundle schema is closed, nothing outside this list can appear.</p></aside>
+</section>
+<section id="acmg" class="slide">
+<p class="eyebrow">What ClinVar-GKM materializes</p>
+<h2 class="title">ACMG 2015: Where ClinVar-GKM Stands</h2>
+<div class="cards c2">
+<div class="card anim" style="--i:0">
+<div class="pills"><p class="pill ok">In 1.2</p></div>
+<h3>A standard proposition in a ClinVar statement</h3>
+<ul>
+<li>Germline pathogenicity SCVs carry the standard VariantPathogenicityProposition: predicate isCausalFor, a variant subject, a condition object.</li>
+<li>The statement is a ClinvarScvStatement, a profile of the base VA-Spec Statement. One statement class covers every ClinVar classification type.</li>
+<li>ClinVar’s classification terms are kept as ClinVar codings.</li>
+</ul>
+</div>
+<div class="card soft anim" style="--i:1">
+<div class="pills"><p class="pill plan">Planned</p></div>
+<h3>The ACMG 2015 statement profile</h3>
+<ul>
+<li>Applied only to SCVs whose assertion method is ACMG 2015.</li>
+<li>Locks classification to the five ACMG terms, strength to definitive or likely, and requires specifiedBy.</li>
+<li>Open questions: mapping ClinVar’s free-text assertion methods, and matching ClinVar’s codings to the profile’s value sets.</li>
+</ul>
+</div>
+</div>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>It is worth being precise here. In 1.2, a germline pathogenicity SCV uses the standard VA-Spec pathogenicity proposition, but the statement around it is ClinVar’s own profile of the base Statement, not the ACMG 2015 VariantPathogenicityStatement profile. That is because one ClinVar statement class has to cover every classification type ClinVar has, and because ClinVar records the assertion method as free text. Adopting the ACMG 2015 profile, and the AMP/ASCO/CAP 2017 profile for somatic statements, is planned as a later phase: only for SCVs whose assertion method says the guideline was used.</p></aside>
+</section>
+<section id="custom-props" class="slide">
+<p class="eyebrow">What ClinVar-GKM materializes</p>
+<h2 class="title">ClinVar’s Own Propositions</h2>
+<table class="t dense tight">
+<tr class="h"><th style="width:24%">ClinVar classification</th><th style="width:44%">ClinVar-GKM proposition</th><th style="width:32%">Fixed predicate</th></tr>
+<tr><td>risk factor</td><td>ClinvarRiskFactorProposition</td><td>isRiskFactorFor</td></tr>
+<tr><td>protective</td><td>ClinvarProtectiveProposition</td><td>isProtectiveFor</td></tr>
+<tr><td>drug response</td><td>ClinvarDrugResponseProposition</td><td>hasDrugResponseFor</td></tr>
+<tr><td>affects</td><td>ClinvarAffectsProposition</td><td>hasAffectFor</td></tr>
+<tr><td>association</td><td>ClinvarAssociationProposition</td><td>isAssociatedWith</td></tr>
+<tr><td>confers sensitivity</td><td>ClinvarConfersSensitivityProposition</td><td>confersSensitivityFor</td></tr>
+<tr><td>other</td><td>ClinvarOtherProposition</td><td>isClinvarOtherAssociationFor</td></tr>
+<tr><td>not provided</td><td>ClinvarNotProvidedProposition</td><td>hasNoProvidedClassificationFor</td></tr>
+<tr><td>conflicting data from submitters</td><td>ClinvarConflictingDataFromSubmitterProposition</td><td>isConflictingDataFromSubmittersFor</td></tr>
+<tr><td>(no mapping)</td><td>ClinvarUndefinedProposition</td><td>isClinvarUndefinedAssociationFor</td></tr>
+</table>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>VA-Spec has standard propositions for pathogenicity, oncogenicity and the somatic clinical significance family. ClinVar also accepts older and broader classification types that no GA4GH profile covers yet. Rather than force them into a standard type, ClinVar-GKM defines one custom proposition per type. Each is a profile of VA-Spec’s SubjectVariantProposition, through a shared ClinvarGermlineCustomProposition, with a const type and a fixed predicate, so every one is still a valid VA-Spec proposition. The last row is a fallback for a classification that maps to no type; the current data has none, but the pipeline could write one. In Parquet these all land in one table, propositionClinvarCustom.</p></aside>
+</section>
+<section id="custom-stmts" class="slide">
+<p class="eyebrow">What ClinVar-GKM materializes</p>
+<h2 class="title">ClinVar’s Own Statements and Evidence Lines</h2>
+<div class="cards c2">
+<div class="card anim" style="--i:0"><p class="k">ClinvarScvStatement</p><h3>Submissions (SCV)</h3><p class="d">A profile of the base Statement. Submission metadata, such as review status and the submitted condition, rides in typed extensions.</p></div>
+<div class="card anim" style="--i:1"><p class="k">ClinvarAggregateStatement</p><h3>VCV and RCV statements</h3><p class="d">ClinVar’s aggregate classification over its SCVs, by variant or by variant and condition. VA-Spec has no aggregate pattern yet.</p></div>
+<div class="card anim" style="--i:2"><p class="k">ClinvarAggregateEvidenceLine</p><h3>Aggregate evidence</h3><p class="d">Groups the statements behind an aggregate as contributing or non-contributing, each a #/scv/, #/vcv/ or #/rcv/ pointer.</p></div>
+<div class="card anim" style="--i:3"><p class="k">ClinvarSomaticEvidenceLine</p><h3>Somatic evidence</h3><p class="d">Carries a somatic SCV’s therapeutic, diagnostic or prognostic proposition and its AMP/ASCO/CAP tier outcome.</p></div>
+</div>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>Statements and evidence lines need the same treatment. The SCV statement is ClinVar’s profile of the base Statement. VCV and RCV records are aggregates: ClinVar’s own roll-up of many submissions, in classification and priority layers. VA-Spec has no standard for that yet, so ClinvarAggregateStatement and its evidence line define it. Somatic clinical impact submissions reuse the standard therapeutic, diagnostic and prognostic propositions inside a ClinVar evidence line. Each of these is a candidate for a future community profile; until then, the ClinVar profile says exactly what ClinVar means.</p></aside>
+</section>
+<section id="narrow-120" class="slide alt">
+<p class="eyebrow">The 1.2.0 narrowing</p>
+<h2 class="title">1.2.0: A ClinVar Profile for Every Section</h2>
+<div class="stats">
+<div class="stat anim" style="--i:0"><p class="n">204</p><p class="l">inherited properties set to false: things ClinVar never writes</p></div>
+<div class="stat anim" style="--i:1"><p class="n">34</p><p class="l">pointers limited to the sections they may target</p></div>
+<div class="stat anim" style="--i:2"><p class="n">117</p><p class="l">ClinVar profile classes, up from 59 in 1.1.0</p></div>
+<div class="stat anim" style="--i:3"><p class="n">71</p><p class="l">uses of unevaluatedProperties: false, up from 27</p></div>
+</div>
+<div class="rows mt">
+<div class="row"><p class="rt" style="width:240px;">Forbid</p><p class="rd" style="color:var(--ink);">a property only if the pipeline cannot write it.</p></div>
+<div class="row"><p class="rt" style="width:240px;">Lock</p><p class="rd" style="color:var(--ink);">a value with an enum only where the pipeline fixes it. ClinVar vocabulary codes stay a pattern, not a list.</p></div>
+<div class="row"><p class="rt" style="width:240px;">Require</p><p class="rd" style="color:var(--ink);">a property only if every record carries it in the 2026-10-31 full and the SQL cannot omit it.</p></div>
+</div>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>Release 1.2.0, published November 20, 2026, is the narrowing release. In 1.1, bundle sections pointed at open GA4GH classes. In 1.2, each of the 20 sections points at a ClinVar profile. The numbers show the scale. The three rules below kept the narrowing honest: nothing is forbidden that the pipeline could still produce, so a valid future record is never rejected; and nothing is required unless the data and the code both guarantee it.</p></aside>
+</section>
+<section id="before-after" class="slide">
+<p class="eyebrow">The 1.2.0 narrowing</p>
+<h2 class="title">Before and After: Upstream vs ClinVar-GKM 1.2</h2>
+<table class="t dense tight">
+<tr class="h"><th style="width:31%">Property</th><th style="width:31%">Upstream GA4GH class</th><th style="width:38%">ClinVar-GKM 1.2 profile</th></tr>
+<tr><td>CopyNumberChange.copyChange</td><td>8-value enum</td><td>loss or gain</td></tr>
+<tr><td>Allele.location</td><td>A reference or an inline SequenceLocation</td><td>Pointer only, matching ^#/location/</td></tr>
+<tr><td>Pathogenicity proposition subject</td><td>MolecularVariation, CategoricalVariant or a reference</td><td>Pointer only, matching ^#/variation/</td></tr>
+<tr><td>SCV statement classification</td><td>Any MappableConcept or a reference</td><td>ClinvarScvClassification; conceptType fixed; id, description, aliases and mappings forbidden</td></tr>
+<tr><td>SCV statement name, aliases, score, hasEvidence</td><td>Allowed</td><td>Forbidden</td></tr>
+<tr><td>VCV and RCV statement specifiedBy, contributions, reportedIn and 5 more</td><td>Allowed</td><td>Forbidden</td></tr>
+<tr><td>Molecular consequence code</td><td>Any string</td><td>^SO:[0-9]{7}$</td></tr>
+<tr><td>Section keys</td><td>A prefix, such as ^(SCV|VCV|RCV).+</td><td>The full form, such as SCV[0-9]{9}</td></tr>
+</table>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>Some concrete examples. Copy change drops from eight values to the two ClinVar uses. Inline-or-reference choices become pointer-only, with a pattern that names the target section. The SCV classification becomes a ClinVar concept with a fixed concept type. Properties the pipeline never writes are forbidden: four on the SCV statement and eight on the aggregate statements. Codes and keys get exact patterns. Each change removes a branch your code would otherwise have to handle.</p></aside>
+</section>
+<section id="required" class="slide">
+<p class="eyebrow">The 1.2.0 narrowing</p>
+<h2 class="title">What Became Required</h2>
+<div style="display:flex; gap:40px; align-items:flex-start;">
+<table class="t dense tight" style="width:1040px;">
+<tr class="h"><th style="width:38%">Class</th><th style="width:62%">Required in 1.2.0</th></tr>
+<tr><td>ClinvarScvStatement</td><td>id, classification, quality, contributions, extensions (the base Statement requires only type and proposition)</td></tr>
+<tr><td>ClinvarAggregateStatement</td><td>id, classification, quality, hasEvidenceLines</td></tr>
+<tr><td>ClinvarGene</td><td>id, conceptType, primaryCoding</td></tr>
+<tr><td>ClinvarCondition</td><td>id, conceptType</td></tr>
+<tr><td>Categorical variants</td><td>id, extensions, mappings; constraints and members on the constrained shapes</td></tr>
+<tr><td>Every extension</td><td>name, and value in almost all cases</td></tr>
+<tr><td>Every record class with an id</td><td>id</td></tr>
+</table>
+<div class="card soft anim" style="--i:1; flex:1;">
+<p class="k">Guarded in the pipeline</p>
+<h3>The SQL cannot break these rules</h3>
+<ul>
+<li>A proposition with no object stops the build.</li>
+<li>An extension is never written without a value.</li>
+<li>Qualifiers are written only where the profile allows them.</li>
+<li>Checked with 0 differences on all 20 tables.</li>
+</ul>
+</div>
+</div>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>Required fields are where strictness pays off most for consumers: you can read these without a null check. The rule was conservative. A property became required only if every record of that class carried it in the 2026-10-31 full release and the SQL could not leave it out. A follow-up change then hardened the SQL so it cannot regress: a proposition without an object now stops the build instead of producing an invalid record. That change was checked against production with zero differences in every table.</p></aside>
+</section>
+<section id="bundle-impact" class="slide">
+<p class="eyebrow">The 1.2.0 narrowing</p>
+<h2 class="title">Impact on the Bundles</h2>
+<div class="cards c2">
+<div class="card anim" style="--i:0">
+<p class="k">For consumers</p>
+<h3>What you can rely on</h3>
+<ul>
+<li>Exactly which properties can appear, per class.</li>
+<li>Pointers always target a known section.</li>
+<li>Required fields are always present.</li>
+<li>Exact key and code formats.</li>
+<li>Sorted keys and deterministic bytes.</li>
+</ul>
+</div>
+<div class="card soft anim" style="--i:1">
+<p class="k">For the producer</p>
+<h3>How it is checked</h3>
+<p class="d"><b>0 failures</b> across 91,854,927 records when the 2026-10-31 full is validated as 1.2.0.</p>
+<p class="d mt"><b>About 15 minutes</b> to validate a full with jsonschema-rs, the validator of record, before every upload.</p>
+<p class="d mt"><b>A 1% stratified sample</b> through the GA4GH gkm-toolkit at each version release.</p>
+</div>
+</div>
+<p class="body mt">The shape of the data is effectively unchanged. 1.2 bundles live in v1/1.2/; v1/1.1/ is frozen.</p>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>For consumers the bundle looks almost the same: the narrowing documents what was already true. The 2026-10-31 full, over 91 million records, validates against the 1.2.0 schema with no failures. The few content changes in 1.2.0 are separate fixes to the aggregate statements’ classification coding, strength and direction. What changes is what you can count on. The cost is validation: the nested allOf and oneOf profiles make the Python validator about 3.3 times slower per record, so every full and delta is validated with jsonschema-rs, and the GA4GH toolkit checks a stratified sample.</p></aside>
+</section>
+<section id="parquet-principle" class="slide alt">
+<p class="eyebrow">Parquet from the bundle</p>
+<h2 class="title">The Bundle Is the Record; Parquet Is a Projection</h2>
+<div style="display:flex; align-items:center; gap:24px; margin-bottom:40px;">
+<div class="card strong anim" style="--i:0; flex:1;"><p class="k">Source of truth</p><h3>JSON bundle</h3><p class="d">A monthly full or a weekly delta, validated against the 1.2.0 schema.</p></div>
+<div style="width:120px; flex:none; display:flex; flex-direction:column; align-items:center; gap:8px;"><p class="note" style="color:var(--ink);">build</p><svg width="80" height="40" viewBox="0 0 80 40" aria-hidden="true"><path d="M0 12h48V0l32 20-32 20V28H0z" fill="var(--brand-primary)"/></svg></div>
+<div class="card anim" style="--i:1; flex:1;"><p class="k">Fast access</p><h3>20 Parquet tables</h3><p class="d">One per bundle section, typed columns, joinable keys.</p></div>
+<div style="width:120px; flex:none; display:flex; flex-direction:column; align-items:center; gap:8px;"><p class="note" style="color:var(--ink);">rebuild</p><svg width="80" height="40" viewBox="0 0 80 40" aria-hidden="true"><path d="M0 12h48V0l32 20-32 20V28H0z" fill="var(--brand-primary)"/></svg></div>
+<div class="card anim" style="--i:2; flex:1;"><p class="k">Round trip</p><h3>The same records</h3><p class="d">Record-identical to the source, checked by a records hash.</p></div>
+</div>
+<div class="cards c3">
+<div><p class="body"><b>Traceable.</b> Every row and value comes from bundle JSON. Only derived forms are added, such as bare ids taken from pointers.</p></div>
+<div><p class="body"><b>One builder.</b> gkm-bundle-parquet builds the tables from the published bundle, not from the pipeline’s database.</p></div>
+<div><p class="body"><b>Gated.</b> Each published set must pass a round-trip check before it goes out.</p></div>
+</div>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>This is the principle behind the Parquet. The bundle is the public record; Parquet is a convenience view of it. Every value in a table must trace back to the JSON, and if a fact is needed that the bundle lacks, it goes into the bundle first. From 1.2, the tables are built only by the separate gkm-bundle-parquet tool, from the bundle you could download yourself. The old BigQuery export was retired because it re-derived the tables and drifted from the bundle. Because the projection is lossless, the tool can rebuild the bundle from the tables, and that round trip is checked before each publish.</p></aside>
+</section>
+<section id="default-columns" class="slide">
+<p class="eyebrow">Parquet from the bundle</p>
+<h2 class="title">A Default Column Set, Generated from the Schema</h2>
+<div style="display:flex; gap:40px; align-items:flex-start;">
+<div class="rows" style="width:960px; flex:none;">
+<div class="row"><p class="rt" style="width:300px;">Tables</p><p class="rd" style="color:var(--ink);">One per bundle section, with id first. Rows sorted by key.</p></div>
+<div class="row"><p class="rt" style="width:300px;">Columns</p><p class="rd" style="color:var(--ink);">Every property the schema allows, named in camelCase.</p></div>
+<div class="row"><p class="rt" style="width:300px;">Nesting</p><p class="rd" style="color:var(--ink);">Objects stay STRUCTs at any depth; lists stay lists.</p></div>
+<div class="row"><p class="rt" style="width:300px;">Pointers</p><p class="rd" style="color:var(--ink);">A ^#/section/ pointer becomes a foreign key holding the bare id, plus a _section column when it can target more than one.</p></div>
+<div class="row"><p class="rt" style="width:300px;">Mixed values</p><p class="rd" style="color:var(--ink);">Integer-or-Range becomes the value plus _min and _max; extensions get typed value_ slots.</p></div>
+</div>
+<div class="card soft" style="flex:1;">
+<p class="k">The 20 tables</p>
+<p class="d"><b>Variant:</b> variation, allele, copyNumberCount, copyNumberChange, location, sequenceReference, gene</p>
+<p class="d mt"><b>Condition and therapy:</b> condition, conditionSet, therapy, therapyGroup</p>
+<p class="d mt"><b>Proposition:</b> propositionPathogenicity, propositionOncogenicity, propositionSomaticClinicalImpact, propositionClinvarCustom</p>
+<p class="d mt"><b>Statement:</b> scv, vcv, rcv, evidenceLine, submitter</p>
+</div>
+</div>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>The default column set is not hand-written. The tool reads the bundle schema and applies a fixed policy, so the producer publishes no column list. Every property the schema allows becomes a column, so the default set holds the entire bundle. Nested objects stay as structs rather than being flattened, which keeps the round trip exact. Pointers are the key move: a string that must match a section pattern becomes a foreign key you can join on. Anything the schema cannot type is kept as compact JSON text, and the tool lists every such position.</p></aside>
+</section>
+<section id="narrow-tables" class="slide">
+<p class="eyebrow">Parquet from the bundle</p>
+<h2 class="title">A Narrower Schema Makes Better Tables</h2>
+<div style="display:flex; gap:40px; align-items:flex-start;">
+<div style="width:960px; flex:none;">
+<table class="t">
+<tr class="h"><th style="width:46%">Generated default</th><th style="width:27%; text-align:right;">1.1.0 schema</th><th style="width:27%; text-align:right;">1.2.0 schema</th></tr>
+<tr><td>Top-level columns</td><td style="text-align:right;">339</td><td style="text-align:right;">146</td></tr>
+<tr><td>JSON-text positions</td><td style="text-align:right;">181</td><td style="text-align:right;">51</td></tr>
+<tr><td>Declared foreign keys</td><td style="text-align:right;">0</td><td style="text-align:right;">26</td></tr>
+</table>
+<p class="note mt">Same records: the 2026-10-31 weekly delta, 495,547 records. For scale, the full 1.2 Parquet set is 4.6 GB; the 1.1 set, exported from BigQuery, was 13.2 GB.</p>
+</div>
+<div class="card soft" style="flex:1;">
+<p class="k">How narrowing reaches the tables</p>
+<ul>
+<li>A forbidden property gets no column.</li>
+<li>A pointer pattern becomes a foreign key.</li>
+<li>A closed extension gets a typed value slot.</li>
+<li>A required id drops the id_present column.</li>
+</ul>
+<p class="d mt">Columns stay nullable: required does not make a column NOT NULL.</p>
+</div>
+</div>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>This is where the narrowing pays off for Parquet users. Run the same generator over the same records with the old and the new schema. With the open 1.1.0 schema you get 339 top-level columns, many of them always empty, 181 positions that fall back to JSON text, and no declared foreign keys. With the narrowed 1.2.0 schema you get 146 columns, 51 JSON-text positions, mostly extensions nested in extensions, and 26 foreign keys. One honest caveat: required fields do not make columns non-nullable; their only table effect is to drop the id_present flag.</p></aside>
+</section>
+<section id="open-cost" class="slide alt">
+<p class="eyebrow">Why every producer should narrow</p>
+<h2 class="title">Open Schemas Make Empty Columns</h2>
+<div style="display:flex; gap:40px; align-items:flex-start;">
+<div style="width:900px; flex:none;">
+<table class="t">
+<tr class="h"><th style="width:44%">Bundle section</th><th style="width:28%; text-align:right;">Paths written</th><th style="width:28%; text-align:right;">Paths allowed</th></tr>
+<tr><td>scv</td><td style="text-align:right;">119</td><td style="text-align:right;">49,210</td></tr>
+<tr><td>variation</td><td style="text-align:right;">56</td><td style="text-align:right;">8,079</td></tr>
+<tr><td>propositionPathogenicity</td><td style="text-align:right;">35</td><td style="text-align:right;">3,462</td></tr>
+</table>
+<p class="note mt">Written: distinct paths in every record of the 2026-10-31 full, extensions counted by name. Allowed: positions the open 1.1.0 schema permits, nested to a fixed depth.</p>
+</div>
+<div class="card" style="flex:1;">
+<p class="k">What a consumer sees</p>
+<h3>Every open branch looks like data</h3>
+<ul>
+<li>A table generator has only the schema to go on, so each open branch becomes a column, nearly always empty.</li>
+<li>Each open choice falls back to JSON text.</li>
+<li>Every one of them looks like something a report or an analysis must handle.</li>
+</ul>
+</div>
+</div>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>This is the case for making narrowing the norm for every GKM producer, not just ClinVar-GKM. Before 1.2, the SCV class allowed about 49 thousand positions; ClinVar writes 119 of them. A Parquet generator cannot know which branches a producer never fills, so on an open schema it makes a column for each one, or falls back to JSON text. The table then signals to every consumer that all those branches might hold data and must be handled in scripts, reports and analyses. That is wasted work, and it misrepresents the dataset. On the same records, the open 1.1.0 schema gives 339 top-level columns; the narrowed 1.2.0 schema gives 146.</p></aside>
+</section>
+<section id="recommend" class="slide alt">
+<p class="eyebrow">Why every producer should narrow</p>
+<h2 class="title">Recommended: Narrow and Require to Your Data</h2>
+<div class="rows">
+<div class="row anim" style="--i:0"><p class="n">1</p><p class="rt">Inventory what you write</p><p class="rd" style="color:var(--ink);">Every path in a full release, with extensions counted by name.</p></div>
+<div class="row anim" style="--i:1"><p class="n">2</p><p class="rt">Prune everything else</p><p class="rd" style="color:var(--ink);">Set each unwritten inherited property to false. Keep what your pipeline can still write, even if today’s data has none.</p></div>
+<div class="row anim" style="--i:2"><p class="n">3</p><p class="rt">Require what is always there</p><p class="rd" style="color:var(--ink);">Only when every record has it and your code cannot leave it out.</p></div>
+<div class="row anim" style="--i:3"><p class="n">4</p><p class="rt">Lock values, name targets</p><p class="rd" style="color:var(--ink);">Enums for values you fix; pointer patterns that name the section a reference targets.</p></div>
+<div class="row anim" style="--i:4"><p class="n">5</p><p class="rt">Close every profile</p><p class="rd" style="color:var(--ink);">unevaluatedProperties: false, so nothing unlisted can appear.</p></div>
+<div class="row anim" style="--i:5"><p class="n">6</p><p class="rt">Guard and verify</p><p class="rd" style="color:var(--ink);">Make the pipeline fail rather than emit an invalid record; validate every release against the narrowed schema.</p></div>
+</div>
+<p class="body mt">The profile becomes your contract for exactly the data you offer.</p>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>This is the method ClinVar-GKM used in 1.2.0, offered as a recommended practice for any GKM implementation. Start from evidence: what your full release actually writes. Prune the rest, but do not forbid anything your pipeline could still produce, or a valid future record will fail. Require only what the data and the code both guarantee. Lock fixed values, make pointers name their target sections, and close every profile. Then harden the pipeline so it cannot break the profile, and validate every release. The profile becomes the producer’s contract, and the Parquet generated from it shows consumers only what is really there.</p></aside>
+</section>
+<section id="query" class="slide">
+<p class="eyebrow">Parquet from the bundle</p>
+<h2 class="title">A Query, End to End</h2>
+<div style="display:flex; gap:40px; align-items:flex-start;">
+<p class="code" style="width:1060px; flex:none;">BASE="https://data.clinvar-gkm.org/v1/1.2/parquet"<br>curl -fO "${BASE}/scv.parquet"<br>curl -fO "${BASE}/propositionPathogenicity.parquet"<br><br>SELECT s.id, s.classification.name AS classification,<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;p.predicate, p.object<br>FROM 'scv.parquet' s<br>JOIN 'propositionPathogenicity.parquet' p<br>&#160;&#160;ON s.proposition = p.id<br>WHERE s.classification.name = 'Pathogenic'<br>&#160;&#160;AND p.object = 'clinvar.trait:9580'<br>LIMIT 10;</p>
+<div class="rows" style="flex:1;">
+<div class="row"><p class="rd" style="color:var(--ink);"><b>s.proposition</b> is a foreign key: the bare id from the bundle’s pointer.</p></div>
+<div class="row"><p class="rd" style="color:var(--ink);"><b>proposition_section</b> says which of the four proposition tables it points to.</p></div>
+<div class="row"><p class="rd" style="color:var(--ink);"><b>classification</b> is a STRUCT; read its fields with a dot.</p></div>
+<div class="row"><p class="rd" style="color:var(--ink);"><b>p.object</b> is the condition’s bare id.</p></div>
+</div>
+</div>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>A typical query: pathogenic SCVs for one condition. Download two tables from the 1.2 Parquet folder and join them in DuckDB. The join key exists because the schema declares the SCV’s proposition as a pointer into the proposition sections; the tool turns that into a plain id column, plus a proposition_section column, because an SCV can point at any of four proposition tables. That _section column is the most common trap in joins, so check it whenever a pointer can target more than one table. The docs’ Joining Tables page walks through all five seams.</p></aside>
+</section>
+<section id="ladder" class="slide alt">
+<p class="eyebrow">Slices and mini-bundles</p>
+<h2 class="title">From the Whole Bundle to What You Need</h2>
+<div class="ladder">
+<div class="rung anim" style="--i:0; min-height:520px;"><div class="pills"><p class="pill ok">Exists</p></div><h3>Full default set</h3><p class="d">All 20 tables and every property: the entire bundle, and reversible.</p></div>
+<div class="rung anim" style="--i:1; min-height:470px;"><div class="pills"><p class="pill ok">Exists</p></div><h3>SQL slice</h3><p class="d">Filter and join the tables in DuckDB; export the rows you need.</p></div>
+<div class="rung anim" style="--i:2; min-height:420px;"><div class="pills"><p class="pill ok">Exists</p></div><h3>Mini-bundle</h3><p class="d">select follows pointers from a driver table and writes real JSON records.</p></div>
+<div class="rung anim" style="--i:3; min-height:370px;"><div class="pills"><p class="pill ok">Exists</p></div><h3>Mini-bundle tables</h3><p class="d">build on the mini-bundle writes tables for just that selection.</p></div>
+<div class="rung anim" style="--i:4; min-height:320px;"><div class="pills"><p class="pill ok">Exists</p></div><h3>Named projection</h3><p class="d">Your own column set, labelled with its name and hash.</p></div>
+</div>
+<p class="body mt">At every step, each value still traces back to the published bundle.</p>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>Here is the path from the whole to the specific. Start with the full default set: all of the bundle, in tables, and reversible back to JSON. The simplest cut is a SQL query over those tables. A mini-bundle goes further: the tool picks driver records, follows their pointers, and writes a smaller but complete JSON bundle, byte-for-byte as published. You can build tables from that mini-bundle. And if you need a different column layout, a named projection is allowed, but it is labelled so nobody mistakes it for the default. Every step is available in gkm-bundle-parquet 2.0.0.</p></aside>
+</section>
+<section id="mini-bundle" class="slide">
+<p class="eyebrow">Slices and mini-bundles</p>
+<h2 class="title">Cut a Mini-Bundle for One Expert Panel</h2>
+<p class="code">P=(--bundle-schema<br>&#160;&#160;&#160;https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json<br>&#160;&#160;&#160;--version-property schema_version)<br>uvx gkm-bundle-parquet@2.0.0 select --full clinvar-gkm-delta_2026-1115.json.gz "${P[@]}" \<br>&#160;&#160;&#160;&#160;--driver submitter \<br>&#160;&#160;&#160;&#160;--where "name = 'ClinGen Leukodystrophy and Leukoencephalopathy Variant Curation Expert Panel, ClinGen'" \<br>&#160;&#160;&#160;&#160;--follow both --max-depth 3 \<br>&#160;&#160;&#160;&#160;--out leukodystrophy-ep.json.gz<br><br>uvx gkm-bundle-parquet@2.0.0 build --full leukodystrophy-ep.json.gz "${P[@]}" --out ep-parquet/</p>
+<div class="cards c3 mt">
+<div><p class="body"><b>1 second</b> to select 219 records in 5 sections from a weekly delta.</p></div>
+<div><p class="body"><b>Real JSON:</b> ordinary ClinVar-GKM records, byte-for-byte as published.</p></div>
+<div><p class="body"><b>Then build:</b> Parquet tables for just that panel, from the mini-bundle.</p></div>
+</div>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>This is the documented example from the Build Your Own page. The driver is the submitter table, filtered to one expert panel. Following pointers both ways, three levels deep, collects that panel’s SCVs, their propositions, the variants and conditions they point to, and so on. The output is a mini-bundle: ordinary ClinVar-GKM JSON, just smaller. Building tables from it gives you Parquet for only that panel. On the November 15 delta, the selection took about a second.</p></aside>
+</section>
+<section id="recipes" class="slide">
+<p class="eyebrow">Slices and mini-bundles</p>
+<h2 class="title">Slices by Use Case</h2>
+<table class="t dense tight">
+<tr class="h"><th style="width:28%">Use case</th><th style="width:50%">How</th><th style="width:22%">Status</th></tr>
+<tr><td>One expert panel’s work</td><td>select --driver submitter --where "name = '…'" --follow both</td><td style="color:var(--status-released-fg);">Documented</td></tr>
+<tr><td>Expert-panel and guideline SCVs</td><td>SQL on scv: quality.name IN ('expert panel', 'practice guidelines'); 25,916 rows on 2026-10-31</td><td style="color:var(--status-released-fg);">Documented</td></tr>
+<tr><td>A gene panel</td><td>select --driver gene --where "name IN (…)" --follow in --max-depth 3</td><td style="color:var(--status-beta-fg);">Possible, not yet tested</td></tr>
+<tr><td>Pathogenicity statements only</td><td>select --driver scv, filtered on proposition_section</td><td style="color:var(--status-beta-fg);">Possible, not yet tested</td></tr>
+<tr><td>A plain row filter</td><td>--follow none: keep matching rows, follow no pointers</td><td style="color:var(--status-planned-fg);">Planned</td></tr>
+<tr><td>Reversible filtered tables</td><td>rebuild a bundle from tables built with --driver</td><td style="color:var(--status-planned-fg);">Planned</td></tr>
+<tr><td>Fast per-variant lookups</td><td>A variant-sorted, pre-joined SCV table</td><td style="color:var(--status-planned-fg);">Planned</td></tr>
+</table>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>Here is where the slicing story stands today. The first two rows are in the docs, with real outputs. The gene-panel and pathogenicity-only cuts use the same select options and should work, but nobody has run and documented them yet. The last three are planned: a plain filter that follows no pointers, a round trip for filtered builds, and a variant-sorted table so per-variant lookups over the CDN stop hitting rate limits. ClinVar-GKM does not publish curated subsets; the tool lets you cut your own.</p></aside>
+</section>
+<section id="takeaway" class="slide dark">
+<p class="eyebrow">Takeaways</p>
+<h2 class="title" style="width:1500px;">Open specs make it possible to say anything. Strict profiles make it possible to rely on what was said.</h2>
+<div class="cards c3 mt">
+<div class="anim" style="--i:0; border-top:4px solid #0fadb0; padding-top:24px;"><p class="body"><b>Read the ClinVar profile,</b> not just the GA4GH class. It lists exactly what you will get.</p></div>
+<div class="anim" style="--i:1; border-top:4px solid #0fadb0; padding-top:24px;"><p class="body"><b>Start from the default Parquet set.</b> Join on the foreign keys and check the _section columns.</p></div>
+<div class="anim" style="--i:2; border-top:4px solid #0fadb0; padding-top:24px;"><p class="body"><b>Cut down with SQL slices or mini-bundles.</b> Every value still traces to the published bundle.</p></div>
+</div>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>To sum up. The GA4GH specs are open so that many producers can use them. ClinVar-GKM is one producer saying exactly what its data contains, as strict profiles of those classes, with its own profiles where no standard exists yet. For you, that means a bundle you can code against without guessing, and Parquet tables that come straight from it: start with the whole set, then cut it down to your use.</p></aside>
+</section>
+<section id="resources" class="slide">
+<p class="eyebrow">Resources</p>
+<h2 class="title">Where to Find Everything</h2>
+<table class="t">
+<tr class="h"><th style="width:28%">What</th><th style="width:72%">Where</th></tr>
+<tr><td>Documentation</td><td><a href="https://clinvar-gkm.org/">clinvar-gkm.org</a></td></tr>
+<tr><td>Bundles and Parquet</td><td><a href="https://data.clinvar-gkm.org/v1/1.2/">data.clinvar-gkm.org/v1/1.2/</a></td></tr>
+<tr><td>Bundle schema</td><td><a href="https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/clinvar-gkm-bundle.schema.json">w3id.org/clingen/schema/clinvar-gkm/1.2.0/…</a></td></tr>
+<tr><td>Parquet tool</td><td>gkm-bundle-parquet 2.0.0 on PyPI: uvx gkm-bundle-parquet@2.0.0</td></tr>
+<tr><td>Source</td><td><a href="https://github.com/clingen-data-model/clinvar-gkm">github.com/clingen-data-model/clinvar-gkm</a></td></tr>
+<tr><td>Upstream specs</td><td>VA-Spec 1.1.0 · Cat-VRS 1.1.1 · VRS 2.1.1 · gkm-core 1.3.0</td></tr>
+</table>
+<div class="foot"><p>ClinVar-GKM 1.2 · Strict profiles, fast tables</p><p class="pg"></p></div>
+<aside class="snotes" hidden><p>Everything in this deck is in the docs. The Parquet section has the table reference, the joining guide with its five seams, recipes, and the Build Your Own page with the mini-bundle example. The bundle schema resolves through w3id. The tool runs with uvx, with no install step.</p></aside>
+</section>
+
+  </div>
+</div>
+
+<div id="counter">1 / 27</div>
+<div id="navbtns">
+  <button class="cbtn" id="prev" title="Previous (←)" aria-label="Previous slide">‹</button>
+  <button class="cbtn" id="next" title="Next (→)" aria-label="Next slide">›</button>
+</div>
+<div id="toolbar">
+  <button class="cbtn" id="btn-notes" title="Speaker notes (S)" aria-label="Toggle speaker notes">✎</button>
+  <button class="cbtn" id="btn-theme" title="Toggle theme (T)" aria-label="Toggle light/dark theme">◐</button>
+  <button class="cbtn" id="btn-full" title="Fullscreen (F)" aria-label="Toggle fullscreen">⤢</button>
+  <button class="cbtn" id="btn-help" title="Shortcuts (?)" aria-label="Show keyboard shortcuts">?</button>
+</div>
+
+<aside id="notes" aria-live="polite"><h4>Speaker notes</h4><div class="ncontent"></div></aside>
+
+<div id="help" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+  <div class="panel2">
+    <h3>Keyboard shortcuts</h3>
+    <table>
+      <tr><td><kbd>→</kbd> <kbd>Space</kbd></td><td>Next slide</td></tr>
+      <tr><td><kbd>←</kbd></td><td>Previous slide</td></tr>
+      <tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td>First / last slide</td></tr>
+      <tr><td><kbd>S</kbd> or <kbd>N</kbd></td><td>Toggle speaker notes</td></tr>
+      <tr><td><kbd>T</kbd></td><td>Toggle light / dark theme</td></tr>
+      <tr><td><kbd>F</kbd></td><td>Toggle fullscreen</td></tr>
+      <tr><td><kbd>?</kbd></td><td>Show / hide this help</td></tr>
+    </table>
+    <div class="close">An educational preview deck: it was not presented at an event.</div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var total = slides.length;
+  var i = 0;
+  var stage = document.getElementById("stage");
+  var counter = document.getElementById("counter");
+  var progbar = document.querySelector("#prog > i");
+  var notes = document.getElementById("notes");
+  var ncontent = notes.querySelector(".ncontent");
+  var help = document.getElementById("help");
+
+  function fromHash() { var n = parseInt((location.hash || "").replace("#", ""), 10); return (n >= 1 && n <= total) ? n - 1 : 0; }
+  function render() {
+    slides.forEach(function (s, n) { s.classList.toggle("active", n === i); });
+    counter.textContent = (i + 1) + " / " + total;
+    progbar.style.width = (i / (total - 1) * 100) + "%";
+    if (notes.classList.contains("open")) updateNotes();
+    if (location.hash !== "#" + (i + 1)) { try { history.replaceState(null, "", "#" + (i + 1)); } catch (e) { location.hash = i + 1; } }
+  }
+  function go(n) { i = Math.max(0, Math.min(total - 1, n)); render(); }
+  function next() { go(i + 1); } function prev() { go(i - 1); }
+  function updateNotes() { var src = slides[i].querySelector(".snotes"); ncontent.innerHTML = src ? src.innerHTML : "<p>(no notes)</p>"; }
+  function toggleNotes() { notes.classList.toggle("open"); if (notes.classList.contains("open")) updateNotes(); }
+
+  var THEME_KEY = "cgkm-strict-profiles-theme";
+  function applyTheme(t) { var r = document.documentElement; if (t === "light" || t === "dark") r.setAttribute("data-theme", t); else r.removeAttribute("data-theme"); }
+  function currentTheme() { var t = document.documentElement.getAttribute("data-theme"); if (t) return t; return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; }
+  function toggleTheme() { var t = currentTheme() === "dark" ? "light" : "dark"; applyTheme(t); try { localStorage.setItem(THEME_KEY, t); } catch (e) {} }
+  try { var saved = localStorage.getItem(THEME_KEY); if (saved) applyTheme(saved); } catch (e) {}
+
+  function toggleFull() { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+
+  function fit() { var pad = 24; stage.style.setProperty("--scale", Math.min((window.innerWidth - pad) / 1920, (window.innerHeight - pad) / 1080)); }
+  window.addEventListener("resize", fit);
+
+  document.getElementById("viewport").addEventListener("click", function (e) {
+    if (e.target.closest("a, button")) return;
+    if (help.classList.contains("open")) return;
+    var x = e.clientX / window.innerWidth;
+    if (x < 0.25) prev(); else if (x > 0.5) next();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    var k = e.key;
+    if (k === "?" || (k === "/" && e.shiftKey)) { help.classList.toggle("open"); e.preventDefault(); return; }
+    if (k === "Escape") { if (help.classList.contains("open")) help.classList.remove("open"); else if (notes.classList.contains("open")) notes.classList.remove("open"); return; }
+    if (help.classList.contains("open")) return;
+    switch (k) {
+      case "ArrowRight": case " ": case "PageDown": case "j": next(); e.preventDefault(); break;
+      case "ArrowLeft": case "PageUp": case "k": prev(); e.preventDefault(); break;
+      case "Home": go(0); e.preventDefault(); break;
+      case "End": go(total - 1); e.preventDefault(); break;
+      case "s": case "S": case "n": case "N": toggleNotes(); break;
+      case "t": case "T": toggleTheme(); break;
+      case "f": case "F": toggleFull(); break;
+    }
+  });
+
+  document.getElementById("prev").addEventListener("click", prev);
+  document.getElementById("next").addEventListener("click", next);
+  document.getElementById("btn-notes").addEventListener("click", toggleNotes);
+  document.getElementById("btn-theme").addEventListener("click", toggleTheme);
+  document.getElementById("btn-full").addEventListener("click", toggleFull);
+  document.getElementById("btn-help").addEventListener("click", function () { help.classList.toggle("open"); });
+  help.addEventListener("click", function (e) { if (e.target === help) help.classList.remove("open"); });
+  window.addEventListener("hashchange", function () { var n = fromHash(); if (n !== i) go(n); });
+
+  i = fromHash(); fit(); render();
+})();
+</script>
+</body>
+</html>
