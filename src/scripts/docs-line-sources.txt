@@ -9,7 +9,8 @@
 # 036bec2 (main right after the 1.1.0 forward-merge, #188) plus the 1.1 docs' own Previous
 # Releases page (ADR 0011, 2026-11-21 amendment), Build Parquet from the Bundles and its
 # weekly-release section (#255), with the plans and specs removed from the published docs
-# (#272). After a commit on docs/line-1.1, set the SHA
+# (#272), and its links and download commands moved to clinvar-gkm.org (#296, ADR 0013). After a
+# commit on docs/line-1.1, set the SHA
 # below to its new tip and dispatch 1.1. Keep the branch: CI's checkout (fetch-depth: 0)
 # fetches all branches, and git archive needs the commit to be reachable.
 #
@@ -19,8 +20,9 @@
 # Parquet for one weekly release with the replay script (#255), the Web Shell and console fixes (#265),
 # the 1.2.0 examples and release-validation results (#270, #275), the plans and specs moved out of
 # the published docs (#271), the content and Parquet corrections (#273, #274), and the restructure
-# with the Start Here and Build & Query tabs (#280-#283, #286, #287). ef9bea6 is that commit on 1.0.
+# with the Start Here and Build & Query tabs (#280-#283, #286, #287), ADR 0013 and the links and
+# download commands moved to clinvar-gkm.org (#290, #291, #293, #295). f3b0a85 is that commit on 1.0.
 #
 # line  source                                    label
-1.1     f579e774ed80b0d08cc383df78c74a2cb16e76d2  1.1.0
-1.2     ef9bea69b64e6c738533ec7f6d8be353e05c3a5d  1.2.0
+1.1     bec912dec492403b6d21c993457fb42aa70f23a9  1.1.0
+1.2     f3b0a857808c7b679d75590242392421713562e9  1.2.0

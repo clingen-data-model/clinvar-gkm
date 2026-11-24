@@ -10,7 +10,7 @@ monthlies.
     - **Python 3.9 or later** (tested with 3.14.5) and the **`duckdb`** Python package (tested with 1.5.4):
 
         ```bash
-        curl -fsSO https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/track-history.py
+        curl -fsSO https://clinvar-gkm.org/1.2/assets/scripts/track-history.py
         python3 -m venv .venv
         . .venv/bin/activate
         pip install duckdb==1.5.4

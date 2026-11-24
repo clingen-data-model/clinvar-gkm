@@ -30,7 +30,7 @@ redirect to the latest release (the highest release line). There is no `dev` ver
   versioning files (`docs/overrides/main.html`, `partials/header.html`, `partials/source.html`, `404.html`,
   `assets/js/versions.js`, `stylesheets/versions.css`) and the data views (`assets/js/r2-browser.js`,
   `assets/duckdb-console.html`) onto the ref and sets `site_url` per version. The data views read the data line
-  of the docs version in the page URL (`…/clinvar-gkm/1.1/…` → root `index.json` `versions["1.1"]`), so keep the
+  of the docs version in the page URL (`clinvar-gkm.org/1.1/…` → root `index.json` `versions["1.1"]`), so keep the
   mount types older pages use (`data-r2-type`) working. The header's repository widget shows the version's ref
   (the tag, or the line's label), and `pin-repo-links.py` rewrites `…/clinvar-gkm/blob/main/…` (and `tree`, `raw`) links to the ref the pages come
   from. Keep writing repo-file links as `/blob/main/…` in the source; the build pins them.

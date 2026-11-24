@@ -78,7 +78,7 @@ These data are derived from NCBI's ClinVar (https://www.ncbi.nlm.nih.gov/clinvar
   * Pass it on. If you redistribute these files or data derived from them, carry this attribution and
     disclaimer with them.
 
-Data use and citation: https://dataexchange.clinicalgenome.org/clinvar-gkm/data-use/
+Data use and citation: https://clinvar-gkm.org/data-use/
 
-Documentation: https://dataexchange.clinicalgenome.org/clinvar-gkm/
+Documentation: https://clinvar-gkm.org/
 Source: https://github.com/clingen-data-model/clinvar-gkm

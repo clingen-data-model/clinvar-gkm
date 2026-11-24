@@ -14,7 +14,7 @@ One row per statement record and the releases it was current for:
 of one SCV, VCV or RCV across versions share it. `valid_to` is the release whose delta deleted or replaced the
 row, NULL while it is current. Every path comes from the root index.json and the lines' index.json, and every
 download is checked by its sha256. Needs Python 3.9 or later and the duckdb package.
-https://dataexchange.clinicalgenome.org/clinvar-gkm/build/track-change/
+https://clinvar-gkm.org/build/track-change/
 """
 import argparse
 import gzip
