@@ -13,7 +13,7 @@ ClinVar-GKM is distributed as monthly and weekly full bundles plus weekly deltas
 ## Latest Release
 
 !!! tip "Monthly full or weekly full?"
-    `clinvar-gkm_00-latest.json.gz` is the newest **official monthly**: it reflects the **last release of the _previous_ month** — e.g. the `2026-11` monthly is built from the `2026-10-31` release, the last one before ClinVar's November monthly cut. For the **current week**, download `weekly/clinvar-gkm_00-latest_weekly.json.gz`, a full bundle of the newest release. See [Weekly Full Bundles](weekly-full.md).
+    The official monthly reflects the last release of the previous month; the newest weekly full is the current week. [Choose Your Data](../start/choose-your-data.md) compares every option, and [How Releases Work](release-model.md) gives the schedule.
 
 <div class="r2-browser" data-r2-type="latest"></div>
 
@@ -44,46 +44,10 @@ The list of earlier lines needs JavaScript. Without it, read the root version ma
 
 ## Directory Structure
 
-!!! note "Versioned layout"
-    The root `index.json` is a thin **version manifest** that lists the release lines and points to each line's index. Each line has its own folder, `v{major}/{major}.{minor}/`. The current line is **`1.2`**, served under **`v1/1.2/`**, with its release index at `v1/1.2/index.json`. PATCH releases (1.2.x) add to the same folder; a new MINOR starts `v1/1.3/` and a new MAJOR starts `v2/2.0/`. A replaced line is frozen and kept indefinitely: its monthlies and deltas stay, unchanged. The 1.1.x releases are the frozen line `v1/1.1/`, and the 1.0.1 generation is the frozen line `v1/1.0/`; [Previous Releases](previous-releases.md) lists every frozen line and its files.
+Each release line has its own folder, `v{major}/{major}.{minor}/`; the current line is `v1/1.2/`, and the root `index.json` lists every line. The full directory tree, and the stable `00-latest` names, are on [How Releases Work](release-model.md#directory-structure).
 
-```text
-index.json                                    version manifest (each line -> its index)
-v1/
-  1.2/                                        current line
-    index.json                                release index for the line
-    feed.xml                                  Atom feed of the line's releases
-    README.txt                                plain-text guide to the line
-    clinvar-gkm_00-latest.json.gz             newest official monthly full (stable URL)
-    clinvar-gkm_YYYY-MM.json.gz               official monthly fulls, current year
-    weekly/
-      clinvar-gkm_00-latest_weekly.json.gz    newest weekly full (stable URL)
-      clinvar-gkm_YYYY-MMDD.json.gz           weekly fulls, CURRENT MONTH ONLY
-    deltas/
-      clinvar-gkm-delta_YYYY-MMDD.json.gz     current month's weekly deltas
-      clinvar-gkm-delta_YYYY-MMDD.manifest.json
-      YYYY-MM/                                earlier months of the current year
-    archive/
-      YYYY/
-        clinvar-gkm_YYYY-MM.json.gz           monthly fulls from prior years
-        deltas/YYYY-MM/                       deltas from prior years
-    parquet/
-      {section}.parquet                       ONE Parquet dataset, the latest (built from the bundle; overwritten every release)
-      manifest.json                           build date, source release, builder, per-file sha256
-      table-spec.json                         every table's columns, types and derivations
-  1.1/                                        frozen line: the 1.1.x releases (monthlies, deltas, MANIFEST.json; no weekly fulls, no Parquet)
-  1.0/                                        frozen line: the 1.0.1 generation (bundles, delta manifests, MANIFEST.json; no Parquet)
-```
-
-Every bundle has a `<file>.sha256` sidecar (`sha256sum -c` format), like NCBI's `.md5` files. The `00-` prefix
-of the stable names sorts them before the dated files in a directory listing, as in NCBI's
-`ClinVarVCVRelease_00-latest.xml.gz`.
-
-### When files move
-
-- **New month.** When the first release of a new month is published, the finished month's deltas move from `deltas/` into `deltas/YYYY-MM/`, and the finished month's **weekly fulls are deleted**. The newest of them is kept until the new month's official monthly is published, because that monthly is normally a copy of it, and is deleted as soon as the monthly is up. A past week is rebuilt from a monthly plus deltas; see [Rebuild a past week](weekly-deltas.md#rebuild-a-past-week).
-- **New year.** When the first release of a new year is published, the finished year's monthlies move into `archive/YYYY/` and its delta folders into `archive/YYYY/deltas/YYYY-MM/`.
-- A move never changes a file's bytes, name or checksum, only its folder. Scripts that need a dated file should look up its current path in the line's `index.json`.
+Dated files move to another folder, or are deleted, when a month or year ends; [Month and Year Rollover](release-model.md#month-and-year-rollover) says which and when. Look up a dated file's current path in the line's `index.json` rather than writing it into a script.
+{ #when-files-move }
 
 ### How the layout mirrors NCBI
 

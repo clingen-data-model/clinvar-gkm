@@ -1,8 +1,24 @@
 # Pipeline Overview
 
+!!! abstract "What this page answers"
+    How ClinVar's XML release becomes a ClinVar-GKM bundle: the steps, what each one builds, and where each is
+    documented. Read it to understand where the data comes from; to trace one field back to ClinVar, see
+    [Where a Value Comes From](value-provenance.md). Maintainers running a release start at
+    [For Maintainers: Running a Release](#running-the-pipeline).
+
 The ClinVar-GKM pipeline transforms ClinVar XML release data into the GKM (Genomic Knowledge Model) schema set (VRS, Cat-VRS, VA-Spec) through a series of BigQuery stored procedures with an external VRS Python processing step.
 
-The two most expensive stages — [Variation Identity](variation-identity/index.md) and [VRS Processing](vrs-processing.md) — run **incrementally**: they recompute only the variations that changed since the prior release and carry the rest forward, driven by the release-to-release diff (`dataset_diff_on`). Both run in the [clinvar-ingest](https://github.com/clingen-data-model/clinvar-ingest) pipeline (v2.7.0 and later), which calls this repository's `dataset_diff_on`, `variation_identity` and `variation_vrs_changed` procedures; this project's release starts after them, at the check of the VRS translation (see [Single-command run](#single-command-run)). The downstream `gkm_*` procedures also have incremental wrappers, but from 1.1.0 the weekly run builds them in full (`run-release.sh <date> --full-procs`). The incremental wrappers proved no cheaper (about 0.22 TiB billed per dataset, against about 0.20 TiB for a full build) and fell back to a full build without saying so; [ADR 0007](../decisions/0007-pipeline-principles-and-simplification.md) workstream 3 decides their future.
+In outline: ClinVar's XML is first loaded into relational BigQuery tables by the upstream
+[clinvar-ingest](https://github.com/clingen-data-model/clinvar-ingest) pipeline. From those tables the pipeline
+picks one expression per variant and computes its [VRS](../reference/glossary.md#vrs) identifier with vrs-python,
+builds each ClinVar variation as a [Cat-VRS](../reference/glossary.md#cat-vrs) categorical variant, maps the
+submitted conditions to ClinVar traits, turns each submission into an [SCV](../reference/glossary.md#scv)
+statement with its [proposition](../reference/glossary.md#proposition), and aggregates the SCVs into
+[VCV](../reference/glossary.md#vcv) and [RCV](../reference/glossary.md#rcv) statements. The last steps record what
+changed since the previous release, then export, assemble, validate and publish the bundles and Parquet.
+[Where a Value Comes From](value-provenance.md) traces each bundle field through these steps.
+
+The two most expensive stages — [Variation Identity](variation-identity/index.md) and [VRS Processing](vrs-processing.md) — run **incrementally**: they recompute only the variations that changed since the prior release and carry the rest forward, driven by the release-to-release diff (`dataset_diff_on`). Both run in the [clinvar-ingest](https://github.com/clingen-data-model/clinvar-ingest) pipeline (v2.7.0 and later), which calls this repository's `dataset_diff_on`, `variation_identity` and `variation_vrs_changed` procedures; this project's release starts after them, at the check of the VRS translation (see [Single-command run](#single-command-run)).
 
 ## Pipeline Steps
 
@@ -54,8 +70,8 @@ The pipeline executes in the following order. Each step is a BigQuery stored pro
                │
 ┌──────────────▼───────────────┐
 │ 8. Change log + deltas       │  gkm_change_log +
-│    A/U/D per dict + delta     │  gkm_delta_build
-│    payloads for publishing    │  → gkm_change_log, delta_<dict>
+│    A/U/D per dict + delta    │  gkm_delta_build
+│    payloads for publishing   │  → gkm_change_log, delta_<dict>
 └──────────────┬───────────────┘
                │
 ┌──────────────▼───────────────┐
@@ -67,7 +83,34 @@ The pipeline executes in the following order. Each step is a BigQuery stored pro
 └──────────────────────────────┘
 ```
 
-## Running the Pipeline
+## Documentation Tracks
+
+The pipeline documentation serves two audiences:
+
+- **Pipeline** (this section) — documents how data flows through BigQuery stored procedures, including internal table schemas, transformation logic, and step-by-step workflows. Each step is tagged as <span class="role-badge badge-pipeline">Pipeline table</span>, <span class="role-badge badge-artifact">JSON artifact</span>, or <span class="role-badge badge-internal">Internal</span> to indicate its role
+- **[Output Reference](../output-reference/overview.md)** — documents the JSON output files from a consumer perspective, covering record structure, field meanings, and usage guidance
+
+---
+
+## Detailed Documentation
+
+Each pipeline step has its own documentation page:
+
+- [Where a Value Comes From](value-provenance.md) — each bundle field traced to its ClinVar source, procedure and step
+- [Variation Identity](variation-identity/index.md) — variant extraction, normalization, VRS class assignment
+- [VRS Processing](vrs-processing.md) — external VRS Python step
+- [Cat-VRS](cat-vrs/index.md) — categorical variant generation
+- [Conditions & Traits](conditions-and-traits/index.md) — condition mapping, traits, condition sets
+- [SCV Statements](scv-statements/index.md) — SCV records, propositions, final statements
+- [VCV Statements](vcv-statements/index.md) — aggregate variant-level VCV statements
+- [RCV Statements](rcv-statements/index.md) — aggregate condition-level RCV statements
+- [Export & Distribute](export.md) — export to GCS, assemble bundle, upload to R2
+
+---
+
+## For Maintainers: Running a Release { #running-the-pipeline }
+
+This section is for maintainers who run releases; readers of the data can skip it. The downstream `gkm_*` procedures also have incremental wrappers, but from 1.1.0 the weekly run builds them in full (`run-release.sh <date> --full-procs`). The incremental wrappers proved no cheaper (about 0.22 TiB billed per dataset, against about 0.20 TiB for a full build) and fell back to a full build without saying so; [ADR 0007](../decisions/0007-pipeline-principles-and-simplification.md) workstream 3 decides their future.
 
 ### Single-command run
 
@@ -178,25 +221,3 @@ venv/3.12/bin/python3 ./src/scripts/assemble-gkm-dicts.py gs://clinvar-gkm/gkm-d
 ```
 
 See [Export](export.md) for details on each step.
-
-## Documentation Tracks
-
-The pipeline documentation serves two audiences:
-
-- **Pipeline** (this section) — documents how data flows through BigQuery stored procedures, including internal table schemas, transformation logic, and step-by-step workflows. Each step is tagged as <span class="role-badge badge-pipeline">Pipeline table</span>, <span class="role-badge badge-artifact">JSON artifact</span>, or <span class="role-badge badge-internal">Internal</span> to indicate its role
-- **[Output Reference](../output-reference/overview.md)** — documents the JSON output files from a consumer perspective, covering record structure, field meanings, and usage guidance
-
----
-
-## Detailed Documentation
-
-Each pipeline step has its own documentation page:
-
-- [Variation Identity](variation-identity/index.md) — variant extraction, normalization, VRS class assignment
-- [VRS Processing](vrs-processing.md) — external VRS Python step
-- [Cat-VRS](cat-vrs/index.md) — categorical variant generation
-- [Conditions & Traits](conditions-and-traits/index.md) — condition mapping, traits, condition sets
-- [SCV Statements](scv-statements/index.md) — SCV records, propositions, final statements
-- [VCV Statements](vcv-statements/index.md) — aggregate variant-level VCV statements
-- [RCV Statements](rcv-statements/index.md) — aggregate condition-level RCV statements
-- [Export & Distribute](export.md) — export to GCS, assemble bundle, upload to R2

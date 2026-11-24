@@ -4,17 +4,10 @@ Links: [Monthly Full Bundles](monthly-full.md) · [Weekly Deltas](weekly-deltas.
 
 Older release lines (1.1.x, 1.0.1) are on [Previous Releases](previous-releases.md).
 
-A weekly full bundle is published for every ClinVar weekly release. It has the same content and structure as a monthly full, built from that week's release, so the newest one is the current state with no replay. The weekly fulls live in `v1/1.2/weekly/`, the counterpart of NCBI's [`xml/weekly_release/`](https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/weekly_release/):
-
-```text
-v1/1.2/weekly/
-  clinvar-gkm_00-latest_weekly.json.gz        newest weekly full (stable URL)
-  clinvar-gkm_YYYY-MMDD.json.gz               one per weekly release of the CURRENT month
-  clinvar-gkm_YYYY-MMDD.json.gz.sha256
-```
+A weekly full bundle is published for every ClinVar weekly release. It has the same content and structure as a monthly full, built from that week's release, so the newest one is the current state with no replay. The weekly fulls live in `v1/1.2/weekly/`, the counterpart of NCBI's [`xml/weekly_release/`](https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/weekly_release/); `weekly/clinvar-gkm_00-latest_weekly.json.gz` is a stable URL for the newest one ([Directory Structure](release-model.md#directory-structure)).
 
 !!! warning "Weekly fulls are kept for the current month only"
-    When the first release of a new month is published, the previous month's weekly fulls are **deleted**, as NCBI deletes its weekly releases. The newest of them stays until the new month's official monthly is published (the monthly is normally a copy of it), and is deleted as soon as the monthly is up. They are a convenience copy, not the record: the official monthly that follows is built from the month's last release, and every past week can be rebuilt exactly from a monthly plus deltas. See [Rebuild a past week](weekly-deltas.md#rebuild-a-past-week). Don't hard-code a dated weekly URL in a script that runs after the month ends.
+    A month's weekly fulls are **deleted** after the month ends, as NCBI deletes its weekly releases ([Month and Year Rollover](release-model.md#month-and-year-rollover) gives the timing). Every past week can be rebuilt exactly from a monthly plus deltas ([Rebuild a past week](weekly-deltas.md#rebuild-a-past-week)). Don't hard-code a dated weekly URL in a script that runs after the month ends.
 
 <div class="r2-browser" data-r2-type="weekly"></div>
 
@@ -40,6 +33,4 @@ v1/1.2/weekly/
     ```
 
 !!! tip "Monthly, weekly full, or monthly plus deltas?"
-    - **The current state:** the newest weekly full.
-    - **A fixed monthly snapshot that matches ClinVar's monthly release:** the official monthly.
-    - **Keeping a local copy current without re-downloading a full bundle every week:** the monthly plus the [weekly deltas](weekly-deltas.md), all from one line. When a new line starts, start again from its first monthly ([Consumer Replay Model](weekly-deltas.md#consumer-replay-model)).
+    [Choose Your Data](../start/choose-your-data.md) compares them. To keep a local copy current from a monthly plus the [weekly deltas](weekly-deltas.md), use files from one line; when a new line starts, start again from its first monthly ([Consumer Replay Model](weekly-deltas.md#consumer-replay-model)).
