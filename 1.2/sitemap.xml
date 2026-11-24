@@ -4,6 +4,21 @@
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/</loc>
       </url>
       <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/start/quick-start/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/start/concepts/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/start/choose-your-data/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/start/what-you-can-do/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/start/setup/</loc>
+      </url>
+      <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/reading-guide/</loc>
       </url>
       <url>
@@ -25,6 +40,9 @@
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/data-access/weekly-deltas/</loc>
       </url>
       <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/data-access/keep-current/</loc>
+      </url>
+      <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/data-access/parquet/</loc>
       </url>
       <url>
@@ -32,6 +50,57 @@
       </url>
       <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/data-access/release-model/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/table-anatomy/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/tables/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/joining/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/performance/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/other-tools/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/recipes/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/build/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/build-your-own/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/build/first-dataset/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/build/cli-reference/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/build/track-change/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/working-in-python/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/previous-releases/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/migrating-from-1.1/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/user-story/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/user-story-audit/</loc>
       </url>
       <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/overview/</loc>
@@ -55,249 +124,6 @@
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/data-access/examples/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/variations/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarCategoricalVariant/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarCanonicalAllele/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarCategoricalCnvChange/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarCategoricalCnvCount/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarNonConstrainedVariant/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarDefiningAlleleConstraint/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarDefiningLocationConstraint/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarCopyChangeConstraint/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarCopyCountConstraint/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarLiftoverToRelation/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarTranscribedToRelation/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarIsWithinMatch/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarVariationMapping/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarAllele/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarAlleleExpression/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarCopyNumberChange/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarCopyNumberCount/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarSequenceLocation/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarSequenceReference/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/HgvsListItem/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarNucleotideExpression/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarProteinExpression/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarMolecularConsequenceCoding/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/GeneListItem/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/concepts/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarGene/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarCondition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarConditionSet/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarTherapy/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarTherapyGroup/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarCoding/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarMappingCoding/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarConceptMapping/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarTermCoding/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarCodedTerm/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarTerm/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/propositions/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarVariantPathogenicityProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarVariantOncogenicityProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarVariantClinicalSignificanceProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarVariantDiagnosticProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarVariantPrognosticProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarVariantTherapeuticResponseProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarGermlineCustomProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarRiskFactorProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarProtectiveProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarDrugResponseProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarAffectsProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarAssociationProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarConfersSensitivityProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarOtherProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarNotProvidedProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarConflictingDataFromSubmitterProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarUndefinedProposition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarGeneContextQualifier/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarModeOfInheritanceQualifier/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarPenetranceQualifier/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/statements/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarStatement/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarScvStatement/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarAggregateStatement/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarVcvStatement/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarRcvStatement/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarScvClassification/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarAggregateClassification/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarStrength/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarAggregateStrength/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarQuality/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarMethod/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarDocument/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarContribution/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarSubmitter/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/SubmittedCondition/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/SubmittedConditionSet/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/SubmittedConditionMapping/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/SubmittedConditionMappingProperties/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/evidence/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarSomaticEvidenceLine/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/ClinvarAggregateEvidenceLine/</loc>
-      </url>
-      <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/profiles/</loc>
       </url>
       <url>
@@ -313,46 +139,10 @@
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/profiles/review-status/</loc>
       </url>
       <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/table-anatomy/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/tables/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/joining/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/recipes/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/performance/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/other-tools/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/build-your-own/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/migrating-from-1.1/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/previous-releases/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/working-in-python/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/user-story/</loc>
-      </url>
-      <url>
-        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/user-story-audit/</loc>
-      </url>
-      <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/pipeline/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/pipeline/value-provenance/</loc>
       </url>
       <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/pipeline/variation-identity/</loc>
@@ -434,6 +224,24 @@
       </url>
       <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/pipeline/sub-bundle/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/variations/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/concepts/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/propositions/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/statements/</loc>
+      </url>
+      <url>
+        <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/output-reference/classes/evidence/</loc>
       </url>
       <url>
         <loc>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/reference/roadmap/</loc>
