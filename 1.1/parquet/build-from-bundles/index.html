@@ -4998,7 +4998,7 @@ tables from any <code>v1/1.1/</code> bundle yourself, with <a href="https://gith
 bundle, with every property of a record a typed column. These are not the 22 tables the 1.1 line published
 (exported from BigQuery, with other names and columns), so the queries in <a href="../">Query the Data</a> need
 rewrites. The 1.2 docs map every old table and column to the new ones:
-<a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/migrating-from-1.1/">Moving from the 1.1 Tables to 2.0</a>.</p>
+<a href="https://clinvar-gkm.org/1.2/parquet/migrating-from-1.1/">Moving from the 1.1 Tables to 2.0</a>.</p>
 </div>
 <hr />
 <h2 id="why-a-column-set">Why a column set<a class="headerlink" href="#why-a-column-set" title="Permanent link">&para;</a></h2>
@@ -5048,7 +5048,7 @@ completes kept every value, and the round-trip check below proves it record by r
 <tbody>
 <tr>
 <td>URL</td>
-<td><code>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml</code></td>
+<td><code>https://clinvar-gkm.org/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml</code></td>
 </tr>
 <tr>
 <td>For</td>
@@ -5098,7 +5098,7 @@ weekly release it holds. The newest monthly is listed twice: under its own name 
 <h3 id="build">3. Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>build<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm-delta_2026-0928.json.gz<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span>--bundle-schema<span class="w"> </span>https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>--column-set<span class="w"> </span>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>--column-set<span class="w"> </span>https://clinvar-gkm.org/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span>--out<span class="w"> </span>parquet/
 </code></pre></div>
 <p>For a monthly, give the monthly's file name, and see <a href="#time-and-memory">Time and memory</a> first. The tool reads
@@ -5128,9 +5128,9 @@ keep the rebuilt bundle, run <code>rebuild parquet/ -o rebuilt.json.gz</code> in
 <p><code>build</code> reads one bundle, so a full set of tables for one week is built from that week's full bundle. A
 monthly is the full bundle of its <code>source_release</code>. For any other 1.1 week, rebuild the week's full bundle from
 a monthly and the deltas after it with
-<a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py"><code>replay-bundle.py</code></a>,
+<a href="https://clinvar-gkm.org/1.2/assets/scripts/replay-bundle.py"><code>replay-bundle.py</code></a>,
 the script the 1.2 docs publish. It needs only <code>python3</code> (3.9 or later); name the line with <code>--line v1/1.1</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>curl<span class="w"> </span>-fsSO<span class="w"> </span>--retry<span class="w"> </span><span class="m">5</span><span class="w"> </span>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>curl<span class="w"> </span>-fsSO<span class="w"> </span>--retry<span class="w"> </span><span class="m">5</span><span class="w"> </span>https://clinvar-gkm.org/1.2/assets/scripts/replay-bundle.py
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>python3<span class="w"> </span>replay-bundle.py<span class="w"> </span>--line<span class="w"> </span>v1/1.1<span class="w"> </span>--release<span class="w"> </span><span class="m">2026</span>-10-24<span class="w"> </span>--plan
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>python3<span class="w"> </span>replay-bundle.py<span class="w"> </span>--line<span class="w"> </span>v1/1.1<span class="w"> </span>--release<span class="w"> </span><span class="m">2026</span>-10-24
 </code></pre></div>
@@ -5151,7 +5151,7 @@ compares them, all 1,461 are identical.</p>
 <p>Then build it as in <a href="#build">Build</a>, with the 1.1.0 schema URL and the column set:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>uvx<span class="w"> </span>gkm-bundle-parquet@2.0.0<span class="w"> </span>build<span class="w"> </span>--full<span class="w"> </span>clinvar-gkm_2026-1024.replayed.json.gz<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span>--bundle-schema<span class="w"> </span>https://w3id.org/clingen/schema/clinvar-gkm/1.1.0/clinvar-gkm-bundle.schema.json<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span>--column-set<span class="w"> </span>https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span>--column-set<span class="w"> </span>https://clinvar-gkm.org/1.2/assets/column-sets/clinvar-gkm-1.1.0.columns.yaml<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span>--out<span class="w"> </span>parquet-2026-1024/
 </code></pre></div>
 <p>That is a full build: it needs the large machine in <a href="#time-and-memory">Time and memory</a>, and it was not run for
@@ -5198,7 +5198,7 @@ this page.</p>
 weekly full; the 16 GB run's round trip was stopped after 2 hours, still running). A monthly builds on a 16 GB
 machine with the default memory settings and about 30 GB free in <code>--work-dir</code>, in a few hours; more memory makes
 it faster. <code>--memory-limit</code> caps DuckDB, not the whole process, so leave about 3 GB above it. The 1.2 docs give
-the details: <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/build-your-own/#a-full-bundle">A full bundle</a>.</p>
+the details: <a href="https://clinvar-gkm.org/1.2/parquet/build-your-own/#a-full-bundle">A full bundle</a>.</p>
 <hr />
 <h2 id="what-is-verified">What is verified<a class="headerlink" href="#what-is-verified" title="Permanent link">&para;</a></h2>
 <p>On 2026-11-20 and 2026-11-21, with <code>gkm-bundle-parquet</code> 2.0.0, the column set and the 1.1.0 schema URL above:</p>
@@ -5215,7 +5215,7 @@ the details: <a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/pa
   every record any published <code>v1/1.1/</code> bundle holds is covered, and no published 1.1 bundle stops the build.</li>
 </ul>
 <p>The 1.2 docs give the details:
-<a href="https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/parquet/previous-releases/">Parquet for Previous Releases</a>.</p>
+<a href="https://clinvar-gkm.org/1.2/parquet/previous-releases/">Parquet for Previous Releases</a>.</p>
 <hr />
 <h2 id="the-10-line">The 1.0 line<a class="headerlink" href="#the-10-line" title="Permanent link">&para;</a></h2>
 <p>The 1.0 line (<code>v1/1.0/</code>, schema <code>1.0.1</code>) can't be built with <code>gkm-bundle-parquet</code>: its schema closes each
