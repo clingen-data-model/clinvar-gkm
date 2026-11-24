@@ -18,7 +18,9 @@ and a few root files this script writes:
                  `/clinvar-gkm/latest/...` and `/clinvar-gkm/dev/...` (links to
                  the retired dev docs) go to the same page in the latest
                  release, or its home; a missing page inside a version goes to
-                 that version's home.
+                 that version's home. When the site is at the domain root
+                 (ADR 0013), a path that still starts with the former base
+                 path `/clinvar-gkm/` goes to the same path without it.
 
 Anything else at the root is removed (the unversioned site that predates
 versioned docs), except `CNAME`, `.nojekyll` and `.git`.
@@ -40,6 +42,8 @@ from pathlib import Path
 
 RELEASE = re.compile(r"^(\d+)\.(\d+)$")
 KEEP = {"versions.json", "index.html", "404.html", "CNAME", ".nojekyll", ".git"}
+# The base path the site was served under before it moved to the root of clinvar-gkm.org (ADR 0013).
+FORMER_BASE = "/clinvar-gkm/"
 
 
 def read_base_path(config_path):
@@ -104,9 +108,11 @@ NOT_FOUND = """<!doctype html>
 <title>ClinVar-GKM docs</title>
 <script>
 (function () {{
-  var BASE = {base_js}, LATEST = {latest_js}, VERSIONS = {versions_js};
+  var BASE = {base_js}, LATEST = {latest_js}, VERSIONS = {versions_js}, FORMER = {former_js};
   var home = BASE + LATEST + "/";
   var path = location.pathname, tail = location.search + location.hash;
+  // A link from before the move to the domain root (ADR 0013): the same path without the former base path.
+  if (FORMER && (path + "/").indexOf(FORMER) === 0) {{ location.replace(BASE + path.slice(FORMER.length) + tail); return; }}
   if (path.indexOf(BASE) !== 0) {{ location.replace(home); return; }}
   var rest = path.slice(BASE.length), first = rest.split("/")[0];
   if (first === "latest") {{ location.replace(home + rest.slice(first.length + 1) + tail); return; }}
@@ -140,6 +146,7 @@ def write_root(pages, versions, base):
     (pages / "404.html").write_text(
         NOT_FOUND.format(
             base_js=json.dumps(base),
+            former_js=json.dumps(FORMER_BASE if base == "/" else None),
             latest_js=json.dumps(default["version"]),
             versions_js=json.dumps([v["version"] for v in versions]),
             home=html.escape(home),
