@@ -269,7 +269,7 @@ Weekly fulls are kept only for the current month. For an earlier week, download
 (3.9 or later, standard library), in bash or zsh:
 
 ```bash
-curl -fsSO --retry 5 https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/replay-bundle.py
+curl -fsSO --retry 5 https://clinvar-gkm.org/1.2/assets/scripts/replay-bundle.py
 python3 replay-bundle.py --release 2026-11-15 --plan
 ```
 

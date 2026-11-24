@@ -26,7 +26,7 @@ identifiers:
     value: 10.5281/zenodo.18343663
     description: Zenodo concept DOI for all versions
 repository-code: 'https://github.com/clingen-data-model/clinvar-gkm'
-url: 'https://dataexchange.clinicalgenome.org/clinvar-gkm/'
+url: 'https://clinvar-gkm.org/'
 doi: 10.5281/zenodo.18343663
 abstract: >-
   ClinVar-GKM is a data transformation pipeline that

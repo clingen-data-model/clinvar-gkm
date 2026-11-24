@@ -51,5 +51,5 @@ aws s3api get-bucket-cors \
 
 echo ""
 echo "Verify the header is now served (should print an Access-Control-Allow-Origin line):"
-echo "  curl -sI -H 'Origin: https://clingen-data-model.github.io' \\"
+echo "  curl -sI -H 'Origin: https://clinvar-gkm.org' \\"
 echo "    https://data.clinvar-gkm.org/index.json | grep -i access-control-allow-origin"

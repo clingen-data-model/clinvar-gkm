@@ -89,7 +89,7 @@ ATTRIBUTION = {
         "scope": ("CC0 covers ClinGen's contribution (the code and this published transformation) only. It adds no "
                   "restriction, and it cannot grant rights that NCBI or ClinVar's submitters hold."),
     },
-    "data_use": "https://dataexchange.clinicalgenome.org/clinvar-gkm/data-use/",
+    "data_use": "https://clinvar-gkm.org/data-use/",
 }
 
 
@@ -652,7 +652,7 @@ def frozen_readme(manifest):
             "To rebuild week W: take the newest monthly whose source release is on or before W, then apply in",
             "order every delta whose release is after that source release and on or before W. Each delta's",
             "baseline_release must be the release you hold.", "",
-            "Changelog: https://dataexchange.clinicalgenome.org/clinvar-gkm/reference/changelog/", "", ""]
+            "Changelog: https://clinvar-gkm.org/reference/changelog/", "", ""]
     return "\n".join(out) + _attribution_text()
 
 

@@ -70,7 +70,7 @@ rules above.
 ### Get the script { #get-the-script }
 
 ```bash
-curl -fsSO https://dataexchange.clinicalgenome.org/clinvar-gkm/1.2/assets/scripts/keep-current.py
+curl -fsSO https://clinvar-gkm.org/1.2/assets/scripts/keep-current.py
 python3 -m venv .venv
 . .venv/bin/activate
 pip install duckdb==1.5.4
