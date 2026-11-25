@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarGeneContextQualifier",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarGeneContextQualifier",
    "title": "ClinvarGeneContextQualifier",
    "description": "The gene context qualifier on a ClinVar SCV proposition: a gene MappableConcept with the codings of a ClinvarGene, and extensions saying where its gene came from (ExtensionGeneContextSource) and which gene symbols the submitter gave (ExtensionSubmittedGeneSymbols). No id, description or aliases.",
    "$defs": {
@@ -82,13 +82,13 @@
             },
             "primaryCoding": {
                "description": "The gene's NCBI Gene coding. Absent on a placeholder qualifier (geneContextSource 'submittedNotNormalized').",
-               "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarCoding"
+               "$ref": "/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarCoding"
             },
             "mappings": {
                "type": "array",
                "ordered": false,
                "items": {
-                  "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarConceptMapping"
+                  "$ref": "/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarConceptMapping"
                },
                "description": "Mappings of the gene to other gene codes (its HGNC coding). Absent on a placeholder qualifier."
             },

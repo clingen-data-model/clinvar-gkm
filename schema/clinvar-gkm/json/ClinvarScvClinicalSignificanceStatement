@@ -1,12 +1,12 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarScvClinicalSignificanceStatement",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarScvClinicalSignificanceStatement",
    "title": "ClinvarScvClinicalSignificanceStatement",
    "description": "A ClinVar SCV statement about a variant's somatic clinical impact, modelled on the VA-Spec AMP/ASCO/CAP 2017 VariantClinicalSignificanceStatement. Its classification is coded under the AMP/ASCO/CAP 2017 guidelines as 'tier i' to 'tier iv', with each tier's strength and direction. It differs from the community profile in two ways: specifiedBy is optional; and the canonical tier name ('Tier I') is on the classification's primaryCoding.name, while classification.name keeps ClinVar's label (e.g. 'Tier I - Strong'). See the Community Profiles page.",
    "maturity": "trial use",
    "allOf": [
       {
-         "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarScvStatement"
+         "$ref": "/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarScvStatement"
       },
       {
          "type": "object",

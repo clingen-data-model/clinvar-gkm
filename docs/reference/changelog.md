@@ -5,6 +5,19 @@ A running record of every schema change and data re-release on the 1.x line. See
 [GitHub Releases](https://github.com/clingen-data-model/clinvar-gkm/releases) page for the
 tagged source of each.
 
+## Unreleased: 1.3.0
+
+The bundle schema moves **`1.2.0 → 1.3.0`**, a **MINOR** release of corrections.
+
+- **SCV statement profiles.** An SCV in the pathogenicity, oncogenicity or somatic clinical impact section is also
+  held to a ClinVar-GKM profile modelled on the matching VA-Spec community profile (ACMG 2015, CCV 2022,
+  AMP/ASCO/CAP 2017): [ClinvarScvPathogenicityStatement](../output-reference/classes/ClinvarScvPathogenicityStatement.md),
+  [ClinvarScvOncogenicityStatement](../output-reference/classes/ClinvarScvOncogenicityStatement.md) and
+  [ClinvarScvClinicalSignificanceStatement](../output-reference/classes/ClinvarScvClinicalSignificanceStatement.md).
+  An SCV classification's coding is a
+  [ClinvarClassificationCoding](../output-reference/classes/ClinvarClassificationCoding.md), which carries an
+  AMP/ASCO/CAP tier's canonical name (`Tier I`).
+
 ## 1.2.0 — 2026-11-20 { #120 }
 
 ### 1.2.0: the ClinVar profiles describe exactly what the pipeline writes

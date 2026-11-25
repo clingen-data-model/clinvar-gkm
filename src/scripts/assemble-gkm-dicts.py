@@ -72,7 +72,7 @@ from gkm_json_cleanup import collapse_ext_values, order_unordered_arrays, strip_
 # bundle's first top-level key so a consumer can identify the version from the file alone.
 # Tracks the schema $id version (w3id.org/clingen/schema/clinvar-gkm/<version>/); bump in
 # lockstep with any MAJOR/MINOR/PATCH schema change.
-SCHEMA_VERSION = "1.2.0"
+SCHEMA_VERSION = "1.3.0"
 
 
 # Dictionary sections in output order.

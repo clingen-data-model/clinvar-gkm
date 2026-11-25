@@ -1,12 +1,12 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarScvPathogenicityStatement",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarScvPathogenicityStatement",
    "title": "ClinvarScvPathogenicityStatement",
    "description": "A ClinVar SCV statement about a variant's pathogenicity, modelled on the VA-Spec ACMG 2015 VariantPathogenicityStatement. Its classification is coded under the ACMG 2015 guidelines, the ClinGen 2024 low-penetrance and risk-allele recommendations, the SVCv4 VUS sub-tiers, or (for ClinVar's combined labels) ClinVar; a strength is coded in its classification's system. It differs from the community profile in four ways: specifiedBy is optional; the SVCv4 VUS sub-tiers and their strengths (high, mid, low) are allowed; low-penetrance and risk-allele strengths are coded under the ClinGen 2024 recommendations, not ACMG 2015; and ClinVar's combined labels are allowed. See the Community Profiles page.",
    "maturity": "trial use",
    "allOf": [
       {
-         "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarScvStatement"
+         "$ref": "/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarScvStatement"
       },
       {
          "type": "object",

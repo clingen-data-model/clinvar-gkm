@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarIsWithinMatch",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarIsWithinMatch",
    "title": "ClinvarIsWithinMatch",
    "description": "The match characteristic of a ClinVar defining location constraint: a MappableConcept with only its type and primary coding (code `is_within`, system `ga4gh-gks-term:location-match`, no IRIs).",
    "maturity": "trial use",

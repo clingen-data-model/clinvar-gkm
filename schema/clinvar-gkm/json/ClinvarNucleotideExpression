@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarNucleotideExpression",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarNucleotideExpression",
    "title": "ClinvarNucleotideExpression",
    "description": "The nucleotide HGVS expression of a HgvsListItem: an HGVS syntax and the expression text, with extensions only when ClinVar supplied an expression with no HGVS type letter. No id or syntax version.",
    "$defs": {

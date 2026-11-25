@@ -1,12 +1,12 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarStrength",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarStrength",
    "title": "ClinvarStrength",
    "description": "The strength of a ClinVar SCV statement: a ClinvarCodedTerm whose concept type is 'Strength'.",
    "maturity": "trial use",
    "allOf": [
       {
-         "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarCodedTerm"
+         "$ref": "/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarCodedTerm"
       },
       {
          "type": "object",
