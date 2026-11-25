@@ -23,7 +23,7 @@ The bundle schema moves **`1.2.0 → 1.3.0`**, a **MINOR** release of correction
   `AMP/ASCO/CAP Guidelines, 2017`, on SCV, VCV and RCV classifications and on SCV strengths. An SCV's
   `classification.primaryCoding.name` is the canonical tier name, `Tier I` to `Tier IV`;
   `classification.name` stays ClinVar's label, such as `Tier I - Strong`. The SCV evidence line's outcome is
-  `Level A/B` for `tier i` and `Level C/D` for `tier ii`; a `tier iii` or `tier iv` line carries the tier code.
+  `Level A/B` for `tier i` and `Level C/D` for `tier ii` (only those tiers have evidence lines).
 - **VUS-high, VUS-mid and VUS-low are coded under SVCv4.** Their system `SVC v4` becomes
   `ACMG/AMP/CAP/ClinGen SVCv4.0`, and their new strengths `high`, `mid` and `low` are coded under the same
   system. A strength is always coded in its classification's system: low-penetrance and risk-allele strengths

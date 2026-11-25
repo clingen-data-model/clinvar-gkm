@@ -255,7 +255,7 @@ Evidence lines appear on somatic clinical impact (SCI) statements. Each evidence
 }
 ```
 
-The `evidenceOutcome` is a MappableConcept with `conceptType: "Outcome"` giving the evidence level for the SCV's tier: `Level A/B` for `tier i`, `Level C/D` for `tier ii`, and the tier code itself (`tier iii`, `tier iv`) otherwise.
+The `evidenceOutcome` is a MappableConcept with `conceptType: "Outcome"` giving the evidence level for the SCV's tier: `Level A/B` for `tier i` and `Level C/D` for `tier ii`. Only tier i and tier ii SCVs have evidence lines.
 
 ---
 
