@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<title>ClinVar ingest model</title>
+<meta charset="utf8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Columns from the live BigQuery schemas of clinvar_2026_11_22_v2_7_1 (bq show --schema). -->
+<style>
+  /* Theme-aware tokens, same light/dark contract as the other repo diagrams: a media-query default
+     plus explicit :root[data-theme] overrides. Green = submitter data, blue = ClinVar-produced data,
+     yellow = notes, as in the original ClinVar Phase 1 Model diagram. */
+  :root {
+    --bg: #FFFFFF; --ink: #1B2430; --muted: #5B6572; --faint: #8A939E; --rule: #E2E6EA;
+    --line: #3B4652; --box: #FFFFFF;
+    --sub: #DDF5DA; --sub-hd: #A9E3A3; --sub-bd: #4E8F47;
+    --cv: #DCEEFB; --cv-hd: #8CCBF0; --cv-bd: #3F7FA8;
+    --note: #FFFBD6; --note-bd: #B8A94A;
+    --tag: #9A3B12;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #171D24; --ink: #E7E9EC; --muted: #97A1AC; --faint: #707A85; --rule: #2A323B;
+      --line: #A9B3BD; --box: #1B222A;
+      --sub: #1C2B1D; --sub-hd: #2F5A2C; --sub-bd: #6FB466;
+      --cv: #182633; --cv-hd: #24506E; --cv-bd: #6AAAD4;
+      --note: #2E2B17; --note-bd: #8C7F3A;
+      --tag: #F0A47E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #171D24; --ink: #E7E9EC; --muted: #97A1AC; --faint: #707A85; --rule: #2A323B;
+    --line: #A9B3BD; --box: #1B222A;
+    --sub: #1C2B1D; --sub-hd: #2F5A2C; --sub-bd: #6FB466;
+    --cv: #182633; --cv-hd: #24506E; --cv-bd: #6AAAD4;
+    --note: #2E2B17; --note-bd: #8C7F3A;
+    --tag: #F0A47E;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 var(--sans);
+    -webkit-font-smoothing: antialiased; }
+  /* Natural size; the embedding iframe scrolls when the diagram is wider than the column
+     (deliberate repo choice -- no scale-to-fit, matches the other diagrams). */
+  .frame { overflow: auto; padding: 4px; }
+  svg.erd { display: block; font-family: var(--sans); }
+
+  .tbl .bx { stroke-width: 1.1; }
+  .tbl.sub .bx { fill: var(--sub); stroke: var(--sub-bd); }
+  .tbl.cv .bx { fill: var(--cv); stroke: var(--cv-bd); }
+  .sub .hd { fill: var(--sub-hd); stroke: var(--sub-bd); stroke-width: 1.1; }
+  .cv .hd { fill: var(--cv-hd); stroke: var(--cv-bd); stroke-width: 1.1; }
+  .tbl.unread .bx, .bx.dash { stroke-dasharray: 5 3; stroke-width: 1.4; }
+  .bx.dash { fill: var(--box); stroke: var(--line); }
+  .tn { font-size: 11.5px; font-weight: 700; fill: var(--ink); }
+  .tn .tag { font-weight: 600; fill: var(--tag); }
+  .cl { font-size: 10.5px; fill: var(--ink); }
+  .cl.sub { fill: var(--muted); }
+  .cl .ty { fill: var(--muted); }
+  .mk { font-size: 9.5px; fill: var(--muted); font-style: italic; }
+
+  .r { fill: none; stroke: var(--line); stroke-width: 1.1; }
+  .dm.fd { fill: var(--line); stroke: var(--line); stroke-width: 1; }
+  .dm.od { fill: var(--bg); stroke: var(--line); stroke-width: 1.1; }
+  .m { font-size: 10px; fill: var(--ink); }
+  .lb { font-size: 10px; fill: var(--muted); }
+
+  .nt { fill: var(--note); stroke: var(--note-bd); stroke-width: 1; }
+  .nf { fill: none; stroke: var(--note-bd); stroke-width: 1; }
+  .nl { fill: none; stroke: var(--faint); stroke-width: 1; stroke-dasharray: 3 3; }
+  .ntx { font-size: 10.5px; fill: var(--ink); }
+
+  .lgbox { fill: var(--box); stroke: var(--rule); stroke-width: 1; }
+  .lgt { font-size: 13px; font-weight: 700; fill: var(--ink); }
+  .lgd { font-size: 10.5px; fill: var(--ink); }
+</style>
+<div class="frame">
+<svg class="erd" viewBox="0 0 1724 1314" width="1724" height="1314" role="img" aria-label="UML entity-relationship diagram of the 18 tables clinvar-ingest builds from the ClinVar XML: the VCV record (variation_archive, variation, genes, classifications), the SCV (clinical_assertion, its submitted variation, observations, trait sets and traits, submitter and submission), and the RCV (rcv_accession, its classifications, rcv_mapping, trait_set and trait).">
+<rect class="lgbox" x="24" y="24" width="280" height="262"/>
+<text class="lgt" x="34" y="44">ClinVar ingest model</text>
+<text class="lgd" x="34" y="64">The tables clinvar-ingest builds in BigQuery</text>
+<text class="lgd" x="34" y="77">from each ClinVar XML release, one dataset</text>
+<text class="lgd" x="34" y="90">per release (clinvar_YYYY_MM_DD_vX_Y_Z).</text>
+<text class="lgd" x="34" y="103">Columns as of clinvar_2026_11_22_v2_7_1;</text>
+<text class="lgd" x="34" y="116">every table also has release_date.</text>
+<g class="sub"><rect class="hd" x="34" y="132" width="22" height="14"/></g>
+<text class="lgd" x="66" y="143">Submitter data</text>
+<g class="cv"><rect class="hd" x="34" y="153" width="22" height="14"/></g>
+<text class="lgd" x="66" y="164">ClinVar-produced data</text>
+<rect class="nt" x="34" y="174" width="22" height="14"/>
+<text class="lgd" x="66" y="185">Notes</text>
+<rect class="bx dash" x="34" y="195" width="22" height="14"/>
+<text class="lgd" x="66" y="206">Not read by the GKM pipeline</text>
+<polygon class="dm fd" points="34.0,229.0 42.0,234.0 50.0,229.0 42.0,224.0"/>
+<path class="r" d="M50,229 H64"/>
+<text class="lgd" x="72" y="233">nested in the parent's XML element</text>
+<polygon class="dm od" points="34.0,249.0 42.0,254.0 50.0,249.0 42.0,244.0"/>
+<path class="r" d="M50,249 H64"/>
+<text class="lgd" x="72" y="253">member of a set or a variation tree</text>
+<path class="r" d="M34,269 H64"/>
+<text class="lgd" x="72" y="273">reference by key (label = key column)</text>
+<path class="nl" d="M110.0,375.0 L110.0,430.0"/>
+<path class="nt" d="M24,352 H236 L244,360 V375 H24 Z"/>
+<path class="nf" d="M236,352 V360 H244"/>
+<text class="ntx" x="31" y="367">ID = OrgID. One row per submitter.</text>
+<path class="nl" d="M110.0,748.0 L110.0,724.0"/>
+<path class="nt" d="M24,748 H296 L304,756 V797 H24 Z"/>
+<path class="nf" d="M296,748 V756 H304"/>
+<text class="ntx" x="31" y="763">ID = OrgID.SubmissionDate (3.2019-10-14).</text>
+<text class="ntx" x="31" y="776">Submission names stay on the SCV</text>
+<text class="ntx" x="31" y="789">(clinical_assertion.submission_names).</text>
+<path class="nl" d="M520.0,274.0 L520.0,330.0"/>
+<path class="nt" d="M410,212 H632 L640,220 V274 H410 Z"/>
+<path class="nf" d="M632,212 V220 H640"/>
+<text class="ntx" x="417" y="227">ID = SCV accession; internal_id is</text>
+<text class="ntx" x="417" y="240">ClinVar&#x27;s integer record ID.</text>
+<text class="ntx" x="417" y="253">rcv_accession_id is filled in from</text>
+<text class="ntx" x="417" y="266">rcv_mapping after the load.</text>
+<path class="nl" d="M304.0,900.0 L330.0,900.0"/>
+<path class="nt" d="M24,850 H296 L304,858 V938 H24 Z"/>
+<path class="nf" d="M296,850 V858 H304"/>
+<text class="ntx" x="31" y="865">content holds Sample, Method,</text>
+<text class="ntx" x="31" y="878">ObservedData and FunctionalData: the</text>
+<text class="ntx" x="31" y="891">case-level and functional evidence not</text>
+<text class="ntx" x="31" y="904">yet in GKM. bq-tools already parses</text>
+<text class="ntx" x="31" y="917">them (parseSample, parseMethods,</text>
+<text class="ntx" x="31" y="930">parseObservedData).</text>
+<path class="nl" d="M304.0,1050.0 L330.0,1050.0"/>
+<path class="nt" d="M24,1010 H296 L304,1018 V1072 H24 Z"/>
+<path class="nf" d="M296,1010 V1018 H304"/>
+<text class="ntx" x="31" y="1025">ID = SCV for the assertion&#x27;s TraitSet,</text>
+<text class="ntx" x="31" y="1038">SCV.n for an observation&#x27;s TraitSet.</text>
+<text class="ntx" x="31" y="1051">clinical_assertion_trait.id =</text>
+<text class="ntx" x="31" y="1064">&lt;trait set id&gt;.n</text>
+<path class="nl" d="M892.0,280.0 L905.0,290.0"/>
+<path class="nt" d="M752,250 H884 L892,258 V286 H752 Z"/>
+<path class="nf" d="M884,250 V258 H892"/>
+<text class="ntx" x="759" y="265">key = variation_id</text>
+<text class="ntx" x="759" y="278">+ gene_id</text>
+<path class="nl" d="M892.0,450.0 L905.0,450.0"/>
+<path class="nt" d="M752,420 H884 L892,428 V456 H752 Z"/>
+<path class="nf" d="M884,420 V428 H892"/>
+<text class="ntx" x="759" y="435">ID = NCBI GeneID.</text>
+<text class="ntx" x="759" y="448">One row per gene.</text>
+<path class="nl" d="M870.0,812.0 L870.0,766.0"/>
+<path class="nt" d="M752,812 H982 L990,820 V874 H752 Z"/>
+<path class="nf" d="M982,812 V820 H990"/>
+<text class="ntx" x="759" y="827">Maps a submitted trait (by name or</text>
+<text class="ntx" x="759" y="840">xref) to a MedGen concept; the ingest</text>
+<text class="ntx" x="759" y="853">uses it to set</text>
+<text class="ntx" x="759" y="866">clinical_assertion_trait.trait_id.</text>
+<path class="nl" d="M1370.0,1048.0 L1340.0,940.0"/>
+<path class="nt" d="M1370,1042 H1692 L1700,1050 V1078 H1370 Z"/>
+<path class="nf" d="M1692,1042 V1050 H1700"/>
+<text class="ntx" x="1377" y="1057">ID = TraitSetID. Only the record&#x27;s</text>
+<text class="ntx" x="1377" y="1070">ConditionList TraitSets.</text>
+<path class="nl" d="M1370.0,1102.0 L1340.0,1080.0"/>
+<path class="nt" d="M1370,1096 H1692 L1700,1104 V1132 H1370 Z"/>
+<path class="nf" d="M1692,1096 V1104 H1700"/>
+<text class="ntx" x="1377" y="1111">ID = TraitID; medgen_id is the MedGen</text>
+<text class="ntx" x="1377" y="1124">CUI from the ConditionList.</text>
+<path class="nt" d="M1400,914 H1692 L1700,922 V1028 H1400 Z"/>
+<path class="nf" d="M1692,914 V922 H1700"/>
+<text class="ntx" x="1407" y="929">The two *_classification tables hold one row</text>
+<text class="ntx" x="1407" y="942">per VCV or RCV and statement type (germline,</text>
+<text class="ntx" x="1407" y="955">somatic clinical impact, oncogenicity). An SCV</text>
+<text class="ntx" x="1407" y="968">joins the one for its own statement_type; an</text>
+<text class="ntx" x="1407" y="981">SCV with no classification provided has no</text>
+<text class="ntx" x="1407" y="994">statement_type and joins neither. GKM derives</text>
+<text class="ntx" x="1407" y="1007">VCV and RCV classifications from the SCVs, so</text>
+<text class="ntx" x="1407" y="1020">it does not read these tables.</text>
+<path class="nt" d="M1370,1160 H1692 L1700,1168 V1209 H1370 Z"/>
+<path class="nf" d="M1692,1160 V1168 H1700"/>
+<text class="ntx" x="1377" y="1175">rcv_mapping comes from the RCV release</text>
+<text class="ntx" x="1377" y="1188">file (ClinVarSet); every other table</text>
+<text class="ntx" x="1377" y="1201">comes from the VCV release file.</text>
+<path class="r" d="M380.0,330.0 L380.0,150.0"/>
+<polygon class="dm fd" points="380.0,330.0 385.0,322.0 380.0,314.0 375.0,322.0"/>
+<text class="m" x="388.0" y="322.0" text-anchor="start">1</text>
+<text class="m" x="388.0" y="164.0" text-anchor="start">1..*</text>
+<text class="lb" x="388.0" y="180.0" text-anchor="start">SimpleAllele | Haplotype | Genotype</text>
+<path class="r" d="M640.0,116.0 L662.0,116.0 L662.0,54.0 L640.0,54.0"/>
+<polygon class="dm od" points="640.0,54.0 648.0,59.0 656.0,54.0 648.0,49.0"/>
+<text class="lb" x="668.0" y="91.0" text-anchor="start">children</text>
+<text class="m" x="646.0" y="110.0" text-anchor="start">0..*</text>
+<path class="r" d="M1150.0,158.0 L1172.0,158.0 L1172.0,124.0 L1150.0,124.0"/>
+<polygon class="dm od" points="1150.0,124.0 1158.0,129.0 1166.0,124.0 1158.0,119.0"/>
+<text class="lb" x="1178.0" y="132.0" text-anchor="start">children</text>
+<text class="m" x="1156.0" y="152.0" text-anchor="start">0..*</text>
+<path class="r" d="M1400.0,74.0 L1150.0,74.0"/>
+<polygon class="dm fd" points="1400.0,74.0 1392.0,69.0 1384.0,74.0 1392.0,79.0"/>
+<text class="m" x="1384.0" y="68.0" text-anchor="end">1</text>
+<text class="m" x="1158.0" y="68.0" text-anchor="start">1</text>
+<text class="lb" x="1275.0" y="90.0" text-anchor="middle">ClassifiedRecord (root variation)</text>
+<path class="r" d="M1550.0,192.0 L1550.0,230.0"/>
+<polygon class="dm fd" points="1550.0,192.0 1545.0,200.0 1550.0,208.0 1555.0,200.0"/>
+<text class="m" x="1558.0" y="204.0" text-anchor="start">1</text>
+<text class="m" x="1558.0" y="226.0" text-anchor="start">0..*</text>
+<text class="lb" x="1500.0" y="215.0" text-anchor="end">Classifications</text>
+<path class="r" d="M1700.0,176.0 L1716.0,176.0 L1716.0,544.0 L1700.0,544.0"/>
+<polygon class="dm fd" points="1700.0,176.0 1708.0,181.0 1716.0,176.0 1708.0,171.0"/>
+<text class="m" x="1704.0" y="170.0" text-anchor="start">1</text>
+<text class="m" x="1704.0" y="538.0" text-anchor="start">1..*</text>
+<text class="lb" x="1694.0" y="504.0" text-anchor="end">RCVList</text>
+<path class="r" d="M1550.0,660.0 L1550.0,700.0"/>
+<polygon class="dm fd" points="1550.0,660.0 1545.0,668.0 1550.0,676.0 1555.0,668.0"/>
+<text class="m" x="1558.0" y="672.0" text-anchor="start">1</text>
+<text class="m" x="1558.0" y="696.0" text-anchor="start">0..*</text>
+<text class="lb" x="1500.0" y="684.0" text-anchor="end">RCVClassifications</text>
+<path class="r" d="M1005.0,192.0 L1005.0,260.0"/>
+<polygon class="dm fd" points="1005.0,192.0 1000.0,200.0 1005.0,208.0 1010.0,200.0"/>
+<text class="m" x="1012.0" y="204.0" text-anchor="start">1</text>
+<text class="m" x="1012.0" y="256.0" text-anchor="start">0..*</text>
+<text class="lb" x="998.0" y="234.0" text-anchor="end">GeneList</text>
+<path class="r" d="M1005.0,358.0 L1005.0,410.0"/>
+<text class="m" x="1012.0" y="370.0" text-anchor="start">1..*</text>
+<text class="m" x="1012.0" y="406.0" text-anchor="start">1</text>
+<path class="r" d="M640.0,545.0 L700.0,545.0 L700.0,134.0 L860.0,134.0"/>
+<text class="m" x="646.0" y="539.0" text-anchor="start">1..*</text>
+<text class="m" x="854.0" y="128.0" text-anchor="end">1</text>
+<text class="lb" x="706.0" y="184.0" text-anchor="start">variation_id</text>
+<path class="r" d="M640.0,560.0 L720.0,560.0 L720.0,215.0 L1000.5,215.0 A4.5,4.5 0 0 1 1009.5,215.0 L1370.0,215.0 L1370.0,152.0 L1400.0,152.0"/>
+<polygon class="dm fd" points="1400.0,152.0 1392.0,147.0 1384.0,152.0 1392.0,157.0"/>
+<text class="m" x="646.0" y="556.0" text-anchor="start">1..*</text>
+<text class="m" x="1394.0" y="146.0" text-anchor="end">1</text>
+<text class="lb" x="1240.0" y="209.0" text-anchor="middle">ClinicalAssertionList</text>
+<path class="r" d="M640.0,592.0 L1400.0,592.0"/>
+<text class="m" x="646.0" y="588.0" text-anchor="start">1..*</text>
+<text class="m" x="1394.0" y="586.0" text-anchor="end">1</text>
+<text class="lb" x="1150.0" y="586.0" text-anchor="middle">rcv_accession_id</text>
+<path class="r" d="M640.0,576.0 L740.0,576.0 L740.0,384.0 L1000.5,384.0 A4.5,4.5 0 0 1 1009.5,384.0 L1400.0,384.0"/>
+<text class="m" x="646.0" y="572.0" text-anchor="start">1..*</text>
+<text class="m" x="1394.0" y="378.0" text-anchor="end">0..1</text>
+<text class="lb" x="1230.0" y="378.0" text-anchor="middle">variation_archive_id + statement_type</text>
+<path class="r" d="M640.0,608.0 L1385.0,608.0 L1385.0,750.0 L1400.0,750.0"/>
+<text class="m" x="646.0" y="604.0" text-anchor="start">1..*</text>
+<text class="m" x="1380.0" y="754.0" text-anchor="end">0..1</text>
+<text class="lb" x="1150.0" y="622.0" text-anchor="middle">rcv_accession_id + statement_type</text>
+<path class="r" d="M640.0,656.0 L760.0,656.0"/>
+<polygon class="dm fd" points="640.0,656.0 648.0,661.0 656.0,656.0 648.0,651.0"/>
+<text class="m" x="646.0" y="650.0" text-anchor="start">1</text>
+<text class="m" x="754.0" y="650.0" text-anchor="end">0..*</text>
+<text class="lb" x="708.0" y="670.0" text-anchor="middle">TraitMappingList</text>
+<path class="r" d="M640.0,712.0 L685.0,712.0 L685.0,940.0 L1120.0,940.0"/>
+<text class="m" x="646.0" y="708.0" text-anchor="start">1..*</text>
+<text class="m" x="1114.0" y="934.0" text-anchor="end">1</text>
+<text class="lb" x="1000.0" y="934.0" text-anchor="middle">trait_set_id</text>
+<path class="r" d="M640.0,728.0 L662.0,728.0 L662.0,1050.0 L640.0,1050.0"/>
+<polygon class="dm od" points="640.0,728.0 648.0,733.0 656.0,728.0 648.0,723.0"/>
+<text class="m" x="646.0" y="740.0" text-anchor="start">1</text>
+<text class="m" x="646.0" y="1044.0" text-anchor="start">0..1</text>
+<text class="lb" x="668.0" y="1020.0" text-anchor="start">TraitSet</text>
+<path class="r" d="M400.0,736.0 L400.0,860.0"/>
+<polygon class="dm fd" points="400.0,736.0 395.0,744.0 400.0,752.0 405.0,744.0"/>
+<text class="m" x="408.0" y="750.0" text-anchor="start">1</text>
+<text class="m" x="408.0" y="854.0" text-anchor="start">0..*</text>
+<text class="lb" x="392.0" y="802.0" text-anchor="end">ObservedInList</text>
+<path class="r" d="M400.0,930.0 L400.0,1010.0"/>
+<polygon class="dm od" points="400.0,930.0 395.0,938.0 400.0,946.0 405.0,938.0"/>
+<text class="m" x="408.0" y="944.0" text-anchor="start">1</text>
+<text class="m" x="408.0" y="1004.0" text-anchor="start">0..1</text>
+<text class="lb" x="392.0" y="974.0" text-anchor="end">TraitSet</text>
+<path class="r" d="M640.0,1080.0 L760.0,1080.0"/>
+<polygon class="dm fd" points="640.0,1080.0 648.0,1085.0 656.0,1080.0 648.0,1075.0"/>
+<text class="m" x="646.0" y="1074.0" text-anchor="start">1</text>
+<text class="m" x="754.0" y="1074.0" text-anchor="end">1..*</text>
+<path class="r" d="M990.0,1090.0 L1120.0,1090.0"/>
+<text class="m" x="996.0" y="1084.0" text-anchor="start">1..*</text>
+<text class="m" x="1114.0" y="1084.0" text-anchor="end">0..1</text>
+<text class="lb" x="1055.0" y="1104.0" text-anchor="middle">trait_id</text>
+<path class="r" d="M1080.0,670.0 L1056.0,670.0 L1056.0,800.0 L740.0,800.0 L740.0,696.0 L640.0,696.0"/>
+<text class="m" x="646.0" y="692.0" text-anchor="start">1..*</text>
+<text class="lb" x="880.0" y="794.0" text-anchor="middle">scv_accessions[]</text>
+<path class="r" d="M1300.0,654.0 L1380.5,654.0 A4.5,4.5 0 0 1 1389.5,654.0 L1400.0,654.0"/>
+<text class="m" x="1394.0" y="648.0" text-anchor="end">1</text>
+<text class="lb" x="1340.0" y="668.0" text-anchor="middle">rcv_accession</text>
+<path class="r" d="M1240.0,724.0 L1240.0,880.0"/>
+<text class="m" x="1248.0" y="874.0" text-anchor="start">1</text>
+<text class="lb" x="1248.0" y="806.0" text-anchor="start">trait_set_id</text>
+<path class="r" d="M1700.0,640.0 L1716.0,640.0 L1716.0,886.0 L1340.0,886.0"/>
+<polygon class="dm fd" points="1340.0,886.0 1348.0,891.0 1356.0,886.0 1348.0,881.0"/>
+<text class="m" x="1704.0" y="634.0" text-anchor="start">1..*</text>
+<text class="m" x="1362.0" y="880.0" text-anchor="start">1</text>
+<text class="lb" x="1550.0" y="900.0" text-anchor="middle">ClassifiedConditionList</text>
+<path class="r" d="M1230.0,964.0 L1230.0,1010.0"/>
+<polygon class="dm od" points="1230.0,964.0 1225.0,972.0 1230.0,980.0 1235.0,972.0"/>
+<text class="m" x="1238.0" y="978.0" text-anchor="start">1..*</text>
+<text class="m" x="1238.0" y="1004.0" text-anchor="start">0..*</text>
+<path class="r" d="M70.0,542.0 L70.0,640.0"/>
+<text class="m" x="78.0" y="556.0" text-anchor="start">1</text>
+<text class="m" x="78.0" y="634.0" text-anchor="start">0..*</text>
+<text class="lb" x="62.0" y="595.0" text-anchor="end">primary</text>
+<path class="r" d="M190.0,542.0 L190.0,640.0"/>
+<text class="m" x="198.0" y="556.0" text-anchor="start">0..*</text>
+<text class="m" x="198.0" y="634.0" text-anchor="start">0..*</text>
+<text class="lb" x="182.0" y="595.0" text-anchor="end">additional</text>
+<path class="r" d="M262.0,470.0 L330.0,470.0"/>
+<text class="m" x="268.0" y="464.0" text-anchor="start">1</text>
+<text class="m" x="324.0" y="464.0" text-anchor="end">1..*</text>
+<text class="lb" x="296.0" y="486.0" text-anchor="middle">submitter_id</text>
+<path class="r" d="M262.0,680.0 L330.0,680.0"/>
+<polygon class="dm od" points="262.0,680.0 270.0,685.0 278.0,680.0 270.0,675.0"/>
+<text class="m" x="272.0" y="674.0" text-anchor="start">1</text>
+<text class="m" x="324.0" y="674.0" text-anchor="end">1..*</text>
+<text class="lb" x="296.0" y="696.0" text-anchor="middle">submission_id</text>
+<g class="tbl sub" id="t-clinical_assertion_variation">
+<rect class="bx" x="330" y="24" width="310" height="126"/>
+<rect class="hd" x="330" y="24" width="310" height="20"/>
+<text class="tn" x="485.0" y="38" text-anchor="middle">clinical_assertion_variation</text>
+<text class="cl" x="338" y="58.5">id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="633" y="58.5" text-anchor="end">pk</text>
+<text class="cl" x="338" y="72.5">clinical_assertion_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="633" y="72.5" text-anchor="end">fk</text>
+<text class="cl" x="338" y="86.5">variation_type<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="338" y="100.5">subclass_type<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="338" y="114.5">child_ids<tspan class="ty"> : string[]</tspan></text>
+<text class="mk" x="633" y="114.5" text-anchor="end">fk[]</text>
+<text class="cl" x="338" y="128.5">descendant_ids<tspan class="ty"> : string[]</tspan></text>
+<text class="mk" x="633" y="128.5" text-anchor="end">fk[]</text>
+<text class="cl" x="338" y="142.5">content<tspan class="ty"> : json</tspan></text>
+</g>
+<g class="tbl cv" id="t-variation">
+<rect class="bx" x="860" y="24" width="290" height="168"/>
+<rect class="hd" x="860" y="24" width="290" height="20"/>
+<text class="tn" x="1005.0" y="38" text-anchor="middle">variation</text>
+<text class="cl" x="868" y="58.5">id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1143" y="58.5" text-anchor="end">pk</text>
+<text class="cl" x="868" y="72.5">name<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="868" y="86.5">variation_type<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="868" y="100.5">subclass_type<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="868" y="114.5">allele_id<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="868" y="128.5">protein_change<tspan class="ty"> : string[]</tspan></text>
+<text class="cl" x="868" y="142.5">num_chromosomes<tspan class="ty"> : int</tspan></text>
+<text class="cl" x="868" y="156.5">child_ids<tspan class="ty"> : string[]</tspan></text>
+<text class="mk" x="1143" y="156.5" text-anchor="end">fk[]</text>
+<text class="cl" x="868" y="170.5">descendant_ids<tspan class="ty"> : string[]</tspan></text>
+<text class="mk" x="1143" y="170.5" text-anchor="end">fk[]</text>
+<text class="cl" x="868" y="184.5">content<tspan class="ty"> : json</tspan></text>
+</g>
+<g class="tbl cv" id="t-variation_archive">
+<rect class="bx" x="1400" y="24" width="300" height="168"/>
+<rect class="hd" x="1400" y="24" width="300" height="20"/>
+<text class="tn" x="1550.0" y="38" text-anchor="middle">variation_archive (VCV)</text>
+<text class="cl" x="1408" y="58.5">id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1693" y="58.5" text-anchor="end">pk</text>
+<text class="cl" x="1408" y="72.5">version<tspan class="ty"> : int</tspan></text>
+<text class="cl" x="1408" y="86.5">variation_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1693" y="86.5" text-anchor="end">fk</text>
+<text class="cl" x="1408" y="100.5">record_status<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1408" y="114.5">species<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1408" y="128.5">date_created<tspan class="ty"> : date</tspan></text>
+<text class="cl" x="1408" y="142.5">date_last_updated<tspan class="ty"> : date</tspan></text>
+<text class="cl" x="1408" y="156.5">num_submitters<tspan class="ty"> : int</tspan></text>
+<text class="cl" x="1408" y="170.5">num_submissions<tspan class="ty"> : int</tspan></text>
+<text class="cl" x="1408" y="184.5">content<tspan class="ty"> : json</tspan></text>
+</g>
+<g class="tbl cv unread" id="t-variation_archive_classification">
+<rect class="bx" x="1400" y="230" width="300" height="210"/>
+<rect class="hd" x="1400" y="230" width="300" height="20"/>
+<text class="tn" x="1550.0" y="244" text-anchor="middle">variation_archive_classification</text>
+<text class="cl" x="1408" y="264.5">vcv_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1693" y="264.5" text-anchor="end">pk, fk</text>
+<text class="cl" x="1408" y="278.5">statement_type<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1693" y="278.5" text-anchor="end">pk</text>
+<text class="cl" x="1408" y="292.5">review_status<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1408" y="306.5">interp_description<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1408" y="320.5">interp_explanation<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1408" y="334.5">num_submitters<tspan class="ty"> : int</tspan></text>
+<text class="cl" x="1408" y="348.5">num_submissions<tspan class="ty"> : int</tspan></text>
+<text class="cl" x="1408" y="362.5">date_created<tspan class="ty"> : date</tspan></text>
+<text class="cl" x="1408" y="376.5">date_last_evaluated<tspan class="ty"> : date</tspan></text>
+<text class="cl" x="1408" y="390.5">most_recent_submission<tspan class="ty"> : date</tspan></text>
+<text class="cl" x="1408" y="404.5">clinical_impact_assertion_type<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1408" y="418.5">clinical_impact_clinical_significance<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1408" y="432.5">content<tspan class="ty"> : json</tspan></text>
+</g>
+<g class="tbl cv" id="t-gene_association">
+<rect class="bx" x="905" y="260" width="200" height="98"/>
+<rect class="hd" x="905" y="260" width="200" height="20"/>
+<text class="tn" x="1005.0" y="274" text-anchor="middle">gene_association</text>
+<text class="cl" x="913" y="294.5">variation_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1098" y="294.5" text-anchor="end">pk, fk</text>
+<text class="cl" x="913" y="308.5">gene_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1098" y="308.5" text-anchor="end">pk, fk</text>
+<text class="cl" x="913" y="322.5">relationship_type<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="913" y="336.5">source<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="913" y="350.5">content<tspan class="ty"> : json</tspan></text>
+</g>
+<g class="tbl cv" id="t-gene">
+<rect class="bx" x="905" y="410" width="200" height="84"/>
+<rect class="hd" x="905" y="410" width="200" height="20"/>
+<text class="tn" x="1005.0" y="424" text-anchor="middle">gene</text>
+<text class="cl" x="913" y="444.5">id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1098" y="444.5" text-anchor="end">pk</text>
+<text class="cl" x="913" y="458.5">hgnc_id<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="913" y="472.5">symbol<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="913" y="486.5">full_name<tspan class="ty"> : string</tspan></text>
+</g>
+<g class="tbl cv" id="t-submitter">
+<rect class="bx" x="24" y="430" width="238" height="112"/>
+<rect class="hd" x="24" y="430" width="238" height="20"/>
+<text class="tn" x="143.0" y="444" text-anchor="middle">submitter</text>
+<text class="cl" x="32" y="464.5">id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="255" y="464.5" text-anchor="end">pk</text>
+<text class="cl" x="32" y="478.5">current_name<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="32" y="492.5">current_abbrev<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="32" y="506.5">org_category<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="32" y="520.5">all_names<tspan class="ty"> : string[]</tspan></text>
+<text class="cl" x="32" y="534.5">all_abbrevs<tspan class="ty"> : string[]</tspan></text>
+</g>
+<g class="tbl cv" id="t-submission">
+<rect class="bx" x="24" y="640" width="238" height="84"/>
+<rect class="hd" x="24" y="640" width="238" height="20"/>
+<text class="tn" x="143.0" y="654" text-anchor="middle">submission</text>
+<text class="cl" x="32" y="674.5">id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="255" y="674.5" text-anchor="end">pk</text>
+<text class="cl" x="32" y="688.5">submitter_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="255" y="688.5" text-anchor="end">fk</text>
+<text class="cl" x="32" y="702.5">additional_submitter_ids<tspan class="ty"> : string[]</tspan></text>
+<text class="mk" x="255" y="702.5" text-anchor="end">fk[]</text>
+<text class="cl" x="32" y="716.5">submission_date<tspan class="ty"> : date</tspan></text>
+</g>
+<g class="tbl sub" id="t-clinical_assertion">
+<rect class="bx" x="330" y="330" width="310" height="406"/>
+<rect class="hd" x="330" y="330" width="310" height="20"/>
+<text class="tn" x="485.0" y="344" text-anchor="middle">clinical_assertion (SCV)</text>
+<text class="cl" x="338" y="364.5">id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="633" y="364.5" text-anchor="end">pk</text>
+<text class="cl" x="338" y="378.5">version<tspan class="ty"> : int</tspan></text>
+<text class="cl" x="338" y="392.5">internal_id<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="338" y="406.5">local_key<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="338" y="420.5">title<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="338" y="434.5">assertion_type<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="338" y="448.5">record_status<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="338" y="462.5">statement_type<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="633" y="462.5" text-anchor="end">fk</text>
+<text class="cl" x="338" y="476.5">review_status<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="338" y="490.5">interpretation_description<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="338" y="504.5">interpretation_date_last_evaluated<tspan class="ty"> : date</tspan></text>
+<text class="cl" x="338" y="518.5">interpretation_comments<tspan class="ty"> : string[]</tspan></text>
+<text class="cl" x="338" y="532.5">clinical_impact_assertion_type<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="338" y="546.5">clinical_impact_clinical_significance<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="338" y="560.5">date_created<tspan class="ty"> : date</tspan></text>
+<text class="cl" x="338" y="574.5">date_last_updated<tspan class="ty"> : date</tspan></text>
+<text class="cl" x="338" y="588.5">submitted_assembly<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="338" y="602.5">submission_names<tspan class="ty"> : string[]</tspan></text>
+<text class="cl" x="338" y="616.5">variation_archive_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="633" y="616.5" text-anchor="end">fk</text>
+<text class="cl" x="338" y="630.5">variation_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="633" y="630.5" text-anchor="end">fk</text>
+<text class="cl" x="338" y="644.5">submitter_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="633" y="644.5" text-anchor="end">fk</text>
+<text class="cl" x="338" y="658.5">submission_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="633" y="658.5" text-anchor="end">fk</text>
+<text class="cl" x="338" y="672.5">rcv_accession_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="633" y="672.5" text-anchor="end">fk</text>
+<text class="cl" x="338" y="686.5">trait_set_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="633" y="686.5" text-anchor="end">fk</text>
+<text class="cl" x="338" y="700.5">clinical_assertion_trait_set_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="633" y="700.5" text-anchor="end">fk</text>
+<text class="cl" x="338" y="714.5">clinical_assertion_observation_ids<tspan class="ty"> : string[]</tspan></text>
+<text class="mk" x="633" y="714.5" text-anchor="end">fk[]</text>
+<text class="cl" x="338" y="728.5">content<tspan class="ty"> : json</tspan></text>
+</g>
+<g class="tbl cv" id="t-trait_mapping">
+<rect class="bx" x="760" y="640" width="230" height="126"/>
+<rect class="hd" x="760" y="640" width="230" height="20"/>
+<text class="tn" x="875.0" y="654" text-anchor="middle">trait_mapping</text>
+<text class="cl" x="768" y="674.5">clinical_assertion_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="983" y="674.5" text-anchor="end">fk</text>
+<text class="cl" x="768" y="688.5">trait_type<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="768" y="702.5">mapping_type<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="768" y="716.5">mapping_value<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="768" y="730.5">mapping_ref<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="768" y="744.5">medgen_id<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="768" y="758.5">medgen_name<tspan class="ty"> : string</tspan></text>
+</g>
+<g class="tbl sub unread" id="t-clinical_assertion_observation">
+<rect class="bx" x="330" y="860" width="310" height="70"/>
+<rect class="hd" x="330" y="860" width="310" height="20"/>
+<text class="tn" x="485.0" y="874" text-anchor="middle">clinical_assertion_observation</text>
+<text class="cl" x="338" y="894.5">id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="633" y="894.5" text-anchor="end">pk</text>
+<text class="cl" x="338" y="908.5">clinical_assertion_trait_set_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="633" y="908.5" text-anchor="end">fk</text>
+<text class="cl" x="338" y="922.5">content<tspan class="ty"> : json</tspan></text>
+</g>
+<g class="tbl sub" id="t-clinical_assertion_trait_set">
+<rect class="bx" x="330" y="1010" width="310" height="84"/>
+<rect class="hd" x="330" y="1010" width="310" height="20"/>
+<text class="tn" x="485.0" y="1024" text-anchor="middle">clinical_assertion_trait_set</text>
+<text class="cl" x="338" y="1044.5">id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="633" y="1044.5" text-anchor="end">pk</text>
+<text class="cl" x="338" y="1058.5">type<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="338" y="1072.5">clinical_assertion_trait_ids<tspan class="ty"> : string[]</tspan></text>
+<text class="mk" x="633" y="1072.5" text-anchor="end">fk[]</text>
+<text class="cl" x="338" y="1086.5">content<tspan class="ty"> : json</tspan></text>
+</g>
+<g class="tbl sub" id="t-clinical_assertion_trait">
+<rect class="bx" x="760" y="1000" width="230" height="140"/>
+<rect class="hd" x="760" y="1000" width="230" height="20"/>
+<text class="tn" x="875.0" y="1014" text-anchor="middle">clinical_assertion_trait</text>
+<text class="cl" x="768" y="1034.5">id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="983" y="1034.5" text-anchor="end">pk</text>
+<text class="cl" x="768" y="1048.5">type<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="768" y="1062.5">name<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="768" y="1076.5">alternate_names<tspan class="ty"> : string[]</tspan></text>
+<text class="cl" x="768" y="1090.5">medgen_id<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="768" y="1104.5">trait_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="983" y="1104.5" text-anchor="end">fk</text>
+<text class="cl" x="768" y="1118.5">xrefs<tspan class="ty"> : string[]</tspan></text>
+<text class="cl" x="768" y="1132.5">content<tspan class="ty"> : json</tspan></text>
+</g>
+<g class="tbl cv" id="t-rcv_accession">
+<rect class="bx" x="1400" y="520" width="300" height="140"/>
+<rect class="hd" x="1400" y="520" width="300" height="20"/>
+<text class="tn" x="1550.0" y="534" text-anchor="middle">rcv_accession (RCV)</text>
+<text class="cl" x="1408" y="554.5">id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1693" y="554.5" text-anchor="end">pk</text>
+<text class="cl" x="1408" y="568.5">version<tspan class="ty"> : int</tspan></text>
+<text class="cl" x="1408" y="582.5">title<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1408" y="596.5">variation_archive_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1693" y="596.5" text-anchor="end">fk</text>
+<text class="cl" x="1408" y="610.5">variation_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1693" y="610.5" text-anchor="end">fk</text>
+<text class="cl" x="1408" y="624.5">trait_set_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1693" y="624.5" text-anchor="end">fk</text>
+<text class="cl" x="1408" y="638.5">independent_observations<tspan class="ty"> : int</tspan></text>
+<text class="cl" x="1408" y="652.5">content<tspan class="ty"> : json</tspan></text>
+</g>
+<g class="tbl cv unread" id="t-rcv_accession_classification">
+<rect class="bx" x="1400" y="700" width="300" height="163"/>
+<rect class="hd" x="1400" y="700" width="300" height="20"/>
+<text class="tn" x="1550.0" y="714" text-anchor="middle">rcv_accession_classification</text>
+<text class="cl" x="1408" y="734.5">rcv_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1693" y="734.5" text-anchor="end">pk, fk</text>
+<text class="cl" x="1408" y="748.5">statement_type<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1693" y="748.5" text-anchor="end">pk</text>
+<text class="cl" x="1408" y="762.5">review_status<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1408" y="776.5">agg_classification<tspan class="ty"> : struct[]</tspan></text>
+<text class="cl sub" x="1422" y="789.5">clinical_impact_assertion_type<tspan class="ty"> : string</tspan></text>
+<text class="cl sub" x="1422" y="802.5">clinical_impact_clinical_significance<tspan class="ty"> : string</tspan></text>
+<text class="cl sub" x="1422" y="815.5">date_last_evaluated<tspan class="ty"> : date</tspan></text>
+<text class="cl sub" x="1422" y="828.5">num_submissions<tspan class="ty"> : int</tspan></text>
+<text class="cl sub" x="1422" y="841.5">interp_description<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1408" y="855.5">content<tspan class="ty"> : json</tspan></text>
+</g>
+<g class="tbl cv" id="t-rcv_mapping">
+<rect class="bx" x="1080" y="640" width="220" height="84"/>
+<rect class="hd" x="1080" y="640" width="220" height="20"/>
+<text class="tn" x="1190.0" y="654" text-anchor="middle">rcv_mapping<tspan class="tag"> · RCV file</tspan></text>
+<text class="cl" x="1088" y="674.5">rcv_accession<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1293" y="674.5" text-anchor="end">fk</text>
+<text class="cl" x="1088" y="688.5">scv_accessions<tspan class="ty"> : string[]</tspan></text>
+<text class="mk" x="1293" y="688.5" text-anchor="end">fk[]</text>
+<text class="cl" x="1088" y="702.5">trait_set_id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1293" y="702.5" text-anchor="end">fk</text>
+<text class="cl" x="1088" y="716.5">trait_set_content<tspan class="ty"> : json</tspan></text>
+</g>
+<g class="tbl cv" id="t-trait_set">
+<rect class="bx" x="1120" y="880" width="220" height="84"/>
+<rect class="hd" x="1120" y="880" width="220" height="20"/>
+<text class="tn" x="1230.0" y="894" text-anchor="middle">trait_set</text>
+<text class="cl" x="1128" y="914.5">id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1333" y="914.5" text-anchor="end">pk</text>
+<text class="cl" x="1128" y="928.5">type<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1128" y="942.5">trait_ids<tspan class="ty"> : string[]</tspan></text>
+<text class="mk" x="1333" y="942.5" text-anchor="end">fk[]</text>
+<text class="cl" x="1128" y="956.5">content<tspan class="ty"> : json</tspan></text>
+</g>
+<g class="tbl cv" id="t-trait">
+<rect class="bx" x="1120" y="1010" width="220" height="280"/>
+<rect class="hd" x="1120" y="1010" width="220" height="20"/>
+<text class="tn" x="1230.0" y="1024" text-anchor="middle">trait</text>
+<text class="cl" x="1128" y="1044.5">id<tspan class="ty"> : string</tspan></text>
+<text class="mk" x="1333" y="1044.5" text-anchor="end">pk</text>
+<text class="cl" x="1128" y="1058.5">type<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1128" y="1072.5">name<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1128" y="1086.5">symbol<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1128" y="1100.5">medgen_id<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1128" y="1114.5">gard_id<tspan class="ty"> : int</tspan></text>
+<text class="cl" x="1128" y="1128.5">alternate_names<tspan class="ty"> : string[]</tspan></text>
+<text class="cl" x="1128" y="1142.5">alternate_symbols<tspan class="ty"> : string[]</tspan></text>
+<text class="cl" x="1128" y="1156.5">keywords<tspan class="ty"> : string[]</tspan></text>
+<text class="cl" x="1128" y="1170.5">xrefs<tspan class="ty"> : string[]</tspan></text>
+<text class="cl" x="1128" y="1184.5">attribute_content<tspan class="ty"> : string[]</tspan></text>
+<text class="cl" x="1128" y="1198.5">public_definition<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1128" y="1212.5">gene_reviews_short<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1128" y="1226.5">ghr_links<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1128" y="1240.5">mode_of_inheritance<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1128" y="1254.5">disease_mechanism<tspan class="ty"> : string</tspan></text>
+<text class="cl" x="1128" y="1268.5">disease_mechanism_id<tspan class="ty"> : int</tspan></text>
+<text class="cl" x="1128" y="1282.5">content<tspan class="ty"> : json</tspan></text>
+</g>
+</svg>
+</div>
