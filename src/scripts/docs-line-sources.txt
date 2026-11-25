@@ -21,8 +21,9 @@
 # the 1.2.0 examples and release-validation results (#270, #275), the plans and specs moved out of
 # the published docs (#271), the content and Parquet corrections (#273, #274), and the restructure
 # with the Start Here and Build & Query tabs (#280-#283, #286, #287), ADR 0013 and the links and
-# download commands moved to clinvar-gkm.org (#290, #291, #293, #295). f3b0a85 is that commit on 1.0.
+# download commands moved to clinvar-gkm.org (#290, #291, #293, #295), and the clinvar-ingest table
+# diagram on the Pipeline Overview (#300). e58bf61 is that commit on 1.0.
 #
 # line  source                                    label
 1.1     bec912dec492403b6d21c993457fb42aa70f23a9  1.1.0
-1.2     f3b0a857808c7b679d75590242392421713562e9  1.2.0
+1.2     e58bf6158a9ea77be413c633580bd121b2021679  1.2.0
