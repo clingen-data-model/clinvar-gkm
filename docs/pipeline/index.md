@@ -18,6 +18,16 @@ statement with its [proposition](../reference/glossary.md#proposition), and aggr
 changed since the previous release, then export, assemble, validate and publish the bundles and Parquet.
 [Where a Value Comes From](value-provenance.md) traces each bundle field through these steps.
 
+clinvar-ingest takes the XML apart into 18 tables, one dataset per release. The diagram below shows them and the
+keys that join them. The VCV record splits into `variation_archive`, `variation` and its genes; each submission
+splits into `clinical_assertion` (the SCV), its submitted variation, observations, trait sets and traits; and each
+RCV into `rcv_accession` and the ClinVar `trait_set` and `trait` it was classified against. Every table keeps the
+XML it did not split into columns in a `content` JSON column, so data not yet in GKM stays queryable. The
+case-level and functional evidence in `clinical_assertion_observation` (`Sample`, `Method`, `ObservedData`,
+`FunctionalData`) is one example. [Open the diagram full size](../assets/diagrams/clinvar-ingest-erd.html){target="_blank"}.
+
+<iframe src="../assets/diagrams/clinvar-ingest-erd.html" style="width:100%; height:1340px; border:1px solid rgba(128,128,128,.25); border-radius:6px;" title="ClinVar ingest model: the tables clinvar-ingest builds from the ClinVar XML" loading="lazy"></iframe>
+
 The two most expensive stages — [Variation Identity](variation-identity/index.md) and [VRS Processing](vrs-processing.md) — run **incrementally**: they recompute only the variations that changed since the prior release and carry the rest forward, driven by the release-to-release diff (`dataset_diff_on`). Both run in the [clinvar-ingest](https://github.com/clingen-data-model/clinvar-ingest) pipeline (v2.7.0 and later), which calls this repository's `dataset_diff_on`, `variation_identity` and `variation_vrs_changed` procedures; this project's release starts after them, at the check of the VRS translation (see [Single-command run](#single-command-run)).
 
 ## Pipeline Steps
