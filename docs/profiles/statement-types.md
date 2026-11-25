@@ -24,6 +24,10 @@ ClinVar-GKM groups ClinVar submissions into 14 unique statement types. Several o
 | S.13 | Diagnostic | Diagnostic | Somatic Clinical Impact |
 | S.14 | Prognostic | Prognostic | Somatic Clinical Impact |
 
+Pathogenicity (G.01), Oncogenicity (O.10) and Clinical Significance (S.11) SCVs follow ClinVar-GKM profiles
+modelled on the VA-Spec community profiles for ACMG 2015, CCV 2022 and AMP/ASCO/CAP 2017; see
+[Community Profiles](community-profiles.md).
+
 ## Statement Categories (VCV Groups)
 
 ClinVar aggregates these 14 statement types into one of 3 VCV-level categories:
