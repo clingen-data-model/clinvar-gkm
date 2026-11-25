@@ -4344,6 +4344,15 @@ statement with its <a href="../reference/glossary/#proposition">proposition</a>,
 <a href="../reference/glossary/#vcv">VCV</a> and <a href="../reference/glossary/#rcv">RCV</a> statements. The last steps record what
 changed since the previous release, then export, assemble, validate and publish the bundles and Parquet.
 <a href="value-provenance/">Where a Value Comes From</a> traces each bundle field through these steps.</p>
+<p>clinvar-ingest takes the XML apart into 18 tables, one dataset per release. The diagram below shows them and the
+keys that join them. The VCV record splits into <code>variation_archive</code>, <code>variation</code> and its genes; each submission
+splits into <code>clinical_assertion</code> (the SCV), its submitted variation, observations, trait sets and traits; and each
+RCV into <code>rcv_accession</code> and the ClinVar <code>trait_set</code> and <code>trait</code> it was classified against. Every table keeps the
+XML it did not split into columns in a <code>content</code> JSON column, so data not yet in GKM stays queryable. The
+case-level and functional evidence in <code>clinical_assertion_observation</code> (<code>Sample</code>, <code>Method</code>, <code>ObservedData</code>,
+<code>FunctionalData</code>) is one example. <a href="../assets/diagrams/clinvar-ingest-erd.html" target="_blank">Open the diagram full size</a>.</p>
+<iframe src="../assets/diagrams/clinvar-ingest-erd.html" style="width:100%; height:1340px; border:1px solid rgba(128,128,128,.25); border-radius:6px;" title="ClinVar ingest model: the tables clinvar-ingest builds from the ClinVar XML" loading="lazy"></iframe>
+
 <p>The two most expensive stages — <a href="variation-identity/">Variation Identity</a> and <a href="vrs-processing/">VRS Processing</a> — run <strong>incrementally</strong>: they recompute only the variations that changed since the prior release and carry the rest forward, driven by the release-to-release diff (<code>dataset_diff_on</code>). Both run in the <a href="https://github.com/clingen-data-model/clinvar-ingest">clinvar-ingest</a> pipeline (v2.7.0 and later), which calls this repository's <code>dataset_diff_on</code>, <code>variation_identity</code> and <code>variation_vrs_changed</code> procedures; this project's release starts after them, at the check of the VRS translation (see <a href="#single-command-run">Single-command run</a>).</p>
 <h2 id="pipeline-steps">Pipeline Steps<a class="headerlink" href="#pipeline-steps" title="Permanent link">&para;</a></h2>
 <p>The pipeline executes in the following order. Each step is a BigQuery stored procedure unless otherwise noted.</p>
