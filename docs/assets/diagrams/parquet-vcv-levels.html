@@ -230,8 +230,9 @@ G     PATH        root   VariantPathogenicityProposition  expert panel          
   "has clinical significance" claim). Its evidence line — the <code>evidenceLine</code> row whose id is the
   SCV's own id (<code>ClinvarSomaticEvidenceLine</code>) — carries a <code>targetProposition</code> pointing at the
   <em>specific</em> impact (therapeutic response / diagnostic / prognostic), and an <code>evidenceOutcome</code>
-  holding the AMP/ASCO/CAP tier (<code>Level A/B</code> = Tier I, <code>Level C/D</code> = Tier II; the
-  <code>-T1/-T2</code> in the id).</p>
+  holding the evidence level for the AMP/ASCO/CAP tier (<code>Level A/B</code> for <code>tier i</code>,
+  <code>Level C/D</code> for <code>tier ii</code>; the <code>-T1/-T2</code> in the id). The tier itself is the
+  statement's <code>classification.primaryCoding</code> (<code>tier i</code>, named <code>Tier I</code>).</p>
 <figure>
   <div class="frame">
   <svg class="d w820" viewBox="0 0 820 212" role="img" aria-label="Somatic clinical impact linkage: an SCV SCI statement has a proposition to a VariantClinicalSignificanceProposition parent, and hasEvidenceLines to an evidenceLine (ClinvarSomaticEvidenceLine) whose targetProposition points to a VariantTherapeuticResponse, Diagnostic or Prognostic proposition, with an evidenceOutcome tier.">
@@ -267,7 +268,7 @@ G     PATH        root   VariantPathogenicityProposition  expert panel          
   <figcaption>
     So Diagnostic, Prognostic and Therapeutic-response are not separate statement kinds under SCI — they are the
     <em>targets</em> of the SCI statement's evidence lines, naming which clinical impact each line is about. The
-    tier lives on the evidence line, not the statement body.
+    tier is the statement's classification; its evidence level lives on the evidence line.
   </figcaption>
 </figure>
 <details class="q"><summary>Query — a somatic clinical-impact statement's specific impacts and tiers</summary>

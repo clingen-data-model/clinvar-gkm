@@ -179,7 +179,7 @@ Fields that use this pattern:
 - **`evidenceOutcome`** — the evidence line outcome (`conceptType: "Outcome"`)
 - **`strengthOfEvidenceProvided`** — the evidence line strength (`conceptType: "Strength"`)
 
-The `conceptType` identifies the kind of concept. The `name` is the human-readable display value. The `primaryCoding` provides a machine-readable code and system when available. SCV classifications and strengths may carry `primaryCoding`; aggregate VCV/RCV classifications and strengths, qualities, evidence outcomes, and evidence line strengths have only `conceptType` and `name` (plus extensions where their class defines them). Each field's ClinVar profile is listed on its [Data Model](classes/index.md) class page.
+The `conceptType` identifies the kind of concept. The `name` is the human-readable display value. The `primaryCoding` provides a machine-readable code and system when available. SCV classifications and strengths and VCV/RCV classifications may carry `primaryCoding`; an SCV classification's coding also carries the term's canonical `name` where the guideline defines one (`Tier I` for the AMP/ASCO/CAP code `tier i`). Aggregate VCV/RCV strengths, qualities, evidence outcomes, and evidence line strengths have only `conceptType` and `name` (plus extensions where their class defines them). Each field's ClinVar profile is listed on its [Data Model](classes/index.md) class page.
 
 ---
 
@@ -198,7 +198,12 @@ The bundle structure described above is formalized as a JSON Schema, authored to
   by **versioned [W3ID](https://w3id.org/) URI** — `ClinvarAllele`, `ClinvarCondition`,
   `ClinvarScvStatement`, the `ClinvarVariant*Proposition` profiles, and so on. Every section points at a
   ClinVar profile; the `evidenceLine` section picks `ClinvarSomaticEvidenceLine` or
-  `ClinvarAggregateEvidenceLine` by key.
+  `ClinvarAggregateEvidenceLine` by key. An `scv` record whose `proposition` points into
+  `propositionPathogenicity`, `propositionOncogenicity` or `propositionSomaticClinicalImpact` is also held to
+  [`ClinvarScvPathogenicityStatement`](classes/ClinvarScvPathogenicityStatement.md),
+  [`ClinvarScvOncogenicityStatement`](classes/ClinvarScvOncogenicityStatement.md) or
+  [`ClinvarScvClinicalSignificanceStatement`](classes/ClinvarScvClinicalSignificanceStatement.md); other SCVs
+  are held to `ClinvarScvStatement` only.
 - No section is individually required, so the **same schema validates a monthly full bundle, a weekly
   delta, and a sub-bundle extract** — each carries only the sections it touches.
 

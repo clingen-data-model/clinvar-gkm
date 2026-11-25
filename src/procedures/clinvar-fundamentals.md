@@ -59,6 +59,9 @@ The Germline Classification category groups 9 statement types
 | | |Likely risk allele|supports|likely|
 | | |Pathogenic/Likely pathogenic|supports|\<null\>|
 | | |Uncertain signficance|neutral|\<null\>|
+| | |VUS-high|neutral|high|
+| | |VUS-mid|neutral|mid|
+| | |VUS-low|neutral|low|
 | | |Uncertain risk allele|neutral|\<null\>|
 | | |conflicting data from submitters|neutral|\<null\>|
 | | |Benign|disputes|definitive|

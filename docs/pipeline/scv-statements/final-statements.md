@@ -93,7 +93,7 @@ Builds the assertion method record for the `specifiedBy` field: the method type,
 | `id` | SCV | Statement identifier in the format `clinvar.submission:{accession}.{version}` |
 | `type` | Static | Always `Statement` |
 | `proposition` | Step 5 | Full proposition with variant, condition, and qualifiers |
-| `classification` | SCV | Classification struct with name, primaryCoding, and description extension |
+| `classification` | SCV | Classification struct with name, primaryCoding, and description extension. The `primaryCoding` is the code and system from `clinvar_clinsig_types`; for an AMP/ASCO/CAP tier (`tier i` to `tier iv`) it also carries the tier's canonical `name` (`Tier I` to `Tier IV`) |
 | `strength` | SCV | Evidence strength with coded value (somatic assertions only) |
 | `direction` | SCV | `supports` or `disputes` |
 | `description` | SCV | Classification comment text |
@@ -130,7 +130,7 @@ This provides a human-readable summary of the classification context, including 
 
 ### Somatic Evidence Lines
 
-For somatic clinical impact assertions, the `hasEvidenceLines` field contains evidence line records that wrap the target proposition from Step 6. Each evidence line includes the target proposition (with its somatic-specific predicate and therapy/condition references) and the outcome classification.
+For somatic clinical impact assertions, the `hasEvidenceLines` field contains evidence line records that wrap the target proposition from Step 6. Each evidence line includes the target proposition (with its somatic-specific predicate and therapy/condition references) and the evidence outcome: `Level A/B` for `tier i`, `Level C/D` for `tier ii`, and the SCV's classification code otherwise.
 
 ---
 
