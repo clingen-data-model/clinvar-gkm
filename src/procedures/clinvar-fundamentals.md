@@ -53,12 +53,12 @@ The Germline Classification category groups 9 statement types
 |--|-------------------|------------------------------|---------|----------|
 |G.1|Pathogenicity|Pathogenic|supports|definitive|
 | | |Pathogenic, low penetrance|supports|definitive|
-| | |Risk allele|supports|definitive|
+| | |Established risk allele|supports|definitive|
 | | |Likely pathogenic|supports|likely|
 | | |Likely pathogenic, low penetrance|supports|likely|
 | | |Likely risk allele|supports|likely|
 | | |Pathogenic/Likely pathogenic|supports|\<null\>|
-| | |Uncertain signficance|neutral|\<null\>|
+| | |Uncertain significance|neutral|\<null\>|
 | | |VUS-high|neutral|high|
 | | |VUS-mid|neutral|mid|
 | | |VUS-low|neutral|low|
@@ -94,7 +94,7 @@ The Oncogenicity Classification category groups only 1 statement type
 |-------------------|------------------------------|---------|----------|
 |O.1|Oncogenicity|Oncogenic|supports|definitive|
 | | |Likely oncogenic|supports|likely|
-| | |Uncertain signficance|neutral|\<null\>|
+| | |Uncertain significance|neutral|\<null\>|
 | | |Benign|disputes|definitive|
 | | |Likely benign|disputes|likely|
 | | | | | |

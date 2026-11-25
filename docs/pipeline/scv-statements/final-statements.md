@@ -94,8 +94,8 @@ Builds the assertion method record for the `specifiedBy` field: the method type,
 | `type` | Static | Always `Statement` |
 | `proposition` | Step 5 | Full proposition with variant, condition, and qualifiers |
 | `classification` | SCV | Classification struct with name, primaryCoding, and description extension. The `primaryCoding` is the code and system from `clinvar_clinsig_types`; for an AMP/ASCO/CAP tier (`tier i` to `tier iv`) it also carries the tier's canonical `name` (`Tier I` to `Tier IV`) |
-| `strength` | SCV | Evidence strength with coded value (somatic assertions only) |
-| `direction` | SCV | `supports` or `disputes` |
+| `strength` | SCV | The classification's strength, coded in the classification's system (`definitive`, `likely`, the VUS sub-tiers' `high`, `mid`, `low`, or the tiers' `strong`, `potential`); absent when the classification has none |
+| `direction` | SCV | `supports`, `neutral` or `disputes` |
 | `description` | SCV | Classification comment text |
 | `contributions` | SCV | Three Contribution entries: submitted, created, and evaluated |
 | `specifiedBy` | `temp_scv_method` | Assertion method with its citation Document |
