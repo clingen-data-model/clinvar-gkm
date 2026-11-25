@@ -27,3 +27,4 @@ importing them so they don't bloat every session's context.
 - [0011 — Versioned documentation](0011-versioned-documentation.md)
 - [0012 — Documentation examples must run, and say what they need](0012-runnable-doc-examples.md)
 - [0013 — Serve the documentation at clinvar-gkm.org](0013-docs-on-clinvar-gkm-org.md)
+- [0014 — Retention of BigQuery release tables](0014-bigquery-release-dataset-retention.md)
