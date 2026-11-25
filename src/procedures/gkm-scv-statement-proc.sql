@@ -1257,9 +1257,9 @@ BEGIN
         FORMAT('#/%s/%s', `clinvar_ingest.gkm_proposition_section`(stp.type), stp.id) as targetProposition,
         'supports' as directionOfEvidenceProvided,
         CASE scv.classification_code
-          WHEN 'tier 1' THEN
+          WHEN 'tier i' THEN
             STRUCT('MappableConcept' AS type, 'Outcome' as conceptType, 'Level A/B' as name)
-          WHEN 'tier 2' THEN
+          WHEN 'tier ii' THEN
             STRUCT('MappableConcept' AS type, 'Outcome' as conceptType, 'Level C/D' as name)
           ELSE
             STRUCT('MappableConcept' AS type, 'Outcome' as conceptType, scv.classification_code as name)
@@ -1340,7 +1340,12 @@ BEGIN
           scv.submitted_classification as name,
           IF(
             scv.classification_code IS NOT NULL,
-            STRUCT(scv.classification_code as code, scv.classif_and_strength_code_system as system),
+            STRUCT(
+              scv.classification_code as code,
+              -- the guideline's canonical term name, where it defines one (AMP/ASCO/CAP 2017 tiers)
+              IF(STARTS_WITH(scv.classification_code, 'tier '),
+                 CONCAT('Tier ', UPPER(SUBSTR(scv.classification_code, 6))), NULL) as name,
+              scv.classif_and_strength_code_system as system),
             null
           ) as primaryCoding,
           -- The classification requires this extension, and an extension requires a value, so the

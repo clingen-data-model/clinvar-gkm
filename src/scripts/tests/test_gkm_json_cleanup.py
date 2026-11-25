@@ -23,6 +23,13 @@ def test_recurses_into_nested_objects():
     assert strip_empty({"x": {"y": [], "z": "k"}}) == {"x": {"z": "k"}}
 
 
+def test_drops_a_null_name_inside_a_classification_coding():
+    record = {"classification": {"primaryCoding": {"code": "pathogenic", "name": None,
+                                                   "system": "ACMG Guidelines, 2015"}}}
+    assert strip_empty(record) == {"classification": {"primaryCoding": {"code": "pathogenic",
+                                                                        "system": "ACMG Guidelines, 2015"}}}
+
+
 def test_object_that_becomes_empty_is_dropped():
     assert strip_empty({"outer": {"inner": []}}) == {}
 
