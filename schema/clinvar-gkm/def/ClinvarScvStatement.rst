@@ -11,6 +11,7 @@ Germline classification (9 types): VariantPathogenicityProposition, ClinvarRiskF
 Oncogenicity (1 type): VariantOncogenicityProposition.
 Somatic clinical impact (1 type): VariantClinicalSignificanceProposition with evidence lines carrying VariantTherapeuticResponseProposition, VariantDiagnosticProposition, or VariantPrognosticProposition.
 Conflicting data (1 type): ClinvarConflictingDataFromSubmitterProposition.
+SCVs in the pathogenicity, oncogenicity and somatic clinical impact sections are further held to ClinvarScvPathogenicityStatement, ClinvarScvOncogenicityStatement and ClinvarScvClinicalSignificanceStatement.
 
 **Information Model**
 
@@ -109,4 +110,4 @@ Conflicting data (1 type): ClinvarConflictingDataFromSubmitterProposition.
 
 **Composes:** :ref:`Statement`, :ref:`ClinvarScvStatementProperties`
 
-**Used in:** :ref:`ClinvarStatement`
+**Used in:** :ref:`ClinvarScvClinicalSignificanceStatement`, :ref:`ClinvarScvOncogenicityStatement`, :ref:`ClinvarScvPathogenicityStatement`, :ref:`ClinvarStatement`

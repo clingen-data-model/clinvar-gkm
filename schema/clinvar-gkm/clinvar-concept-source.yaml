@@ -72,6 +72,17 @@ $defs:
           name: false
           iris: false
 
+  ClinvarClassificationCoding:
+    maturity: trial use
+    description: >-
+      The coding of a ClinVar SCV classification: a ClinvarCoding with its code, its system and, when the
+      guideline defines one, the term's canonical name (e.g. 'Tier I' for 'tier i'). No IRIs.
+    allOf:
+      - $ref: "#/$defs/ClinvarCoding"
+      - type: object
+        properties:
+          iris: false
+
   # ─── Terms ───
 
   ClinvarCodedTerm:

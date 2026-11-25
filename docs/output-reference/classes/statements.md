@@ -18,13 +18,23 @@ VCV and RCV statements share the [ClinvarAggregateStatement](ClinvarAggregateSta
 
 Each SCV represents one submitter's assertion about a variant-condition relationship. SCV statements carry:
 
-- **Classification** — the submitter's classification (e.g., Pathogenic, Likely benign, Tier I - Strong), a [ClinvarScvClassification](ClinvarScvClassification.md) with its code, its system, and ClinVar's description in an extension
+- **Classification** — the submitter's classification (e.g., Pathogenic, Likely benign, Tier I - Strong), a [ClinvarScvClassification](ClinvarScvClassification.md) with its code, its system (and, for an AMP/ASCO/CAP tier, the tier's canonical name), and ClinVar's description in an extension
 - **Direction** — whether the evidence `supports`, `disputes`, or is `neutral` toward the proposition
 - **Strength** — the strength of the assessment (e.g., definitive, likely), a [ClinvarStrength](ClinvarStrength.md), when the classification has one
 - **Quality** — the quality of the assessment, from the submission's review status, a [ClinvarQuality](ClinvarQuality.md)
 - **Contributions** — the submitter's `submitted`, `created`, and `evaluated` activities with their dates, each a [ClinvarContribution](ClinvarContribution.md) whose `contributor` is a `#/submitter/` pointer to a [ClinvarSubmitter](ClinvarSubmitter.md)
 - **Method** — the classification guideline used (e.g., ACMG Guidelines 2015, AMP/ASCO/CAP Guidelines 2017), a [ClinvarMethod](ClinvarMethod.md)
 - **Citations** — `reportedIn`, each a [ClinvarDocument](ClinvarDocument.md) with a PubMed id, DOI, or URLs
+
+An SCV in the pathogenicity, oncogenicity or somatic clinical impact section is also held to a ClinVar-GKM profile modelled on the matching VA-Spec community profile, which fixes the guideline systems and codes its classification and strength may use:
+
+| Proposition section | Profile | Modelled on |
+| --- | --- | --- |
+| `propositionPathogenicity` | [ClinvarScvPathogenicityStatement](ClinvarScvPathogenicityStatement.md) | ACMG 2015 VariantPathogenicityStatement |
+| `propositionOncogenicity` | [ClinvarScvOncogenicityStatement](ClinvarScvOncogenicityStatement.md) | CCV 2022 VariantOncogenicityStatement |
+| `propositionSomaticClinicalImpact` | [ClinvarScvClinicalSignificanceStatement](ClinvarScvClinicalSignificanceStatement.md) | AMP/ASCO/CAP 2017 VariantClinicalSignificanceStatement |
+
+Each profile's description lists where it differs from the community profile.
 
 ### SCV Extensions
 

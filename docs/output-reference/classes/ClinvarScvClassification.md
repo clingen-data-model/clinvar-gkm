@@ -4,7 +4,7 @@
 
     May change in future releases. See the [GKM Maturity Model](https://vrs.ga4gh.org/en/2.1/appendices/maturity_model.html){ target=_blank rel=noopener }.
 
-The classification of a ClinVar SCV statement: a MappableConcept with its concept type, name, a ClinvarTermCoding, and ClinVar's description of it in an extension. No id, description, aliases or mappings.
+The classification of a ClinVar SCV statement: a MappableConcept with its concept type, name, a ClinvarClassificationCoding, and ClinVar's description of it in an extension. No id, description, aliases or mappings.
 
 **JSON Schema:** [ClinvarScvClassification](https://github.com/clingen-data-model/clinvar-gkm/blob/main/schema/clinvar-gkm/json/ClinvarScvClassification){ target=_blank }
 
@@ -18,7 +18,7 @@ Some ClinvarScvClassification attributes are inherited from [MappableConcept](ht
 | `name` | `string` | 0..1 | A primary name for the concept. |
 | `extensions` | [ExtensionClassificationDescription](ClinvarScvClassification.md#extensionclassificationdescription)[] (unordered) | 1..m | The classification's description, in an ExtensionClassificationDescription. |
 | `conceptType` | `string`<br>`Classification` | 1..1 | Must be 'Classification'. |
-| `primaryCoding` | [ClinvarTermCoding](ClinvarTermCoding.md) | 0..1 | The classification's code and its system (the guideline that defines it). |
+| `primaryCoding` | [ClinvarClassificationCoding](ClinvarClassificationCoding.md) | 0..1 | The classification's code, its system (the guideline that defines it) and, for an AMP/ASCO/CAP tier, the tier's canonical name. |
 
 **Not used by ClinVar-GKM:** `id`, `description`, `aliases`, `mappings`. The GA4GH base class defines these properties, but this profile forbids them (`false`), so they never appear in ClinVar-GKM bundles.
 

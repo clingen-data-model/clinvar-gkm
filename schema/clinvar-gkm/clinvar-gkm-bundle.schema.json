@@ -270,7 +270,15 @@
       "minProperties": 1,
       "patternProperties": {
         "^clinvar\\.submission:SCV[0-9]{9}\\.[0-9]+$": {
-          "$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarScvStatement"
+          "allOf": [
+            {"$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarScvStatement"},
+            {"if": {"properties": {"proposition": {"pattern": "^#/propositionPathogenicity/"}}, "required": ["proposition"]},
+             "then": {"$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarScvPathogenicityStatement"}},
+            {"if": {"properties": {"proposition": {"pattern": "^#/propositionOncogenicity/"}}, "required": ["proposition"]},
+             "then": {"$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarScvOncogenicityStatement"}},
+            {"if": {"properties": {"proposition": {"pattern": "^#/propositionSomaticClinicalImpact/"}}, "required": ["proposition"]},
+             "then": {"$ref": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarScvClinicalSignificanceStatement"}}
+          ]
         }
       },
       "additionalProperties": false

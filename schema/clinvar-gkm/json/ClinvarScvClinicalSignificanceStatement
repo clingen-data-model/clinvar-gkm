@@ -1,0 +1,293 @@
+{
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarScvClinicalSignificanceStatement",
+   "title": "ClinvarScvClinicalSignificanceStatement",
+   "description": "A ClinVar SCV statement about a variant's somatic clinical impact, modelled on the VA-Spec AMP/ASCO/CAP 2017 VariantClinicalSignificanceStatement. Its classification is coded under the AMP/ASCO/CAP 2017 guidelines as 'tier i' to 'tier iv', with each tier's strength and direction. It differs from the community profile in two ways: specifiedBy is optional; and the canonical tier name ('Tier I') is on the classification's primaryCoding.name, while classification.name keeps ClinVar's label (e.g. 'Tier I - Strong'). See the Community Profiles page.",
+   "maturity": "trial use",
+   "allOf": [
+      {
+         "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarScvStatement"
+      },
+      {
+         "type": "object",
+         "properties": {
+            "proposition": {
+               "pattern": "^#/propositionSomaticClinicalImpact/",
+               "description": "The clinical significance proposition, a pointer into the bundle's propositionSomaticClinicalImpact section.",
+               "$ref": "/ga4gh/schema/gkm-core/1.3.0/json/iriReference"
+            },
+            "classification": {
+               "type": "object",
+               "required": [
+                  "primaryCoding"
+               ],
+               "properties": {
+                  "primaryCoding": {
+                     "type": "object",
+                     "required": [
+                        "name"
+                     ],
+                     "properties": {
+                        "system": {
+                           "const": "AMP/ASCO/CAP Guidelines, 2017"
+                        },
+                        "code": {
+                           "enum": [
+                              "tier i",
+                              "tier ii",
+                              "tier iii",
+                              "tier iv"
+                           ]
+                        }
+                     }
+                  }
+               },
+               "description": "The classification, coded under AMP/ASCO/CAP 2017 with the tier's canonical name."
+            },
+            "strength": {
+               "type": "object",
+               "required": [
+                  "primaryCoding"
+               ],
+               "properties": {
+                  "primaryCoding": {
+                     "type": "object",
+                     "properties": {
+                        "system": {
+                           "const": "AMP/ASCO/CAP Guidelines, 2017"
+                        },
+                        "code": {
+                           "enum": [
+                              "strong",
+                              "potential"
+                           ]
+                        }
+                     }
+                  }
+               },
+               "description": "The strength of a tier i or tier ii classification, coded under AMP/ASCO/CAP 2017."
+            }
+         }
+      },
+      {
+         "if": {
+            "properties": {
+               "classification": {
+                  "properties": {
+                     "primaryCoding": {
+                        "properties": {
+                           "code": {
+                              "const": "tier i"
+                           }
+                        },
+                        "required": [
+                           "code"
+                        ]
+                     }
+                  },
+                  "required": [
+                     "primaryCoding"
+                  ]
+               }
+            },
+            "required": [
+               "classification"
+            ]
+         },
+         "then": {
+            "properties": {
+               "classification": {
+                  "properties": {
+                     "primaryCoding": {
+                        "properties": {
+                           "name": {
+                              "const": "Tier I"
+                           }
+                        }
+                     }
+                  }
+               },
+               "strength": {
+                  "properties": {
+                     "primaryCoding": {
+                        "properties": {
+                           "code": {
+                              "const": "strong"
+                           }
+                        },
+                        "required": [
+                           "code"
+                        ]
+                     }
+                  },
+                  "required": [
+                     "primaryCoding"
+                  ]
+               },
+               "direction": {
+                  "const": "supports"
+               }
+            },
+            "required": [
+               "strength"
+            ]
+         }
+      },
+      {
+         "if": {
+            "properties": {
+               "classification": {
+                  "properties": {
+                     "primaryCoding": {
+                        "properties": {
+                           "code": {
+                              "const": "tier ii"
+                           }
+                        },
+                        "required": [
+                           "code"
+                        ]
+                     }
+                  },
+                  "required": [
+                     "primaryCoding"
+                  ]
+               }
+            },
+            "required": [
+               "classification"
+            ]
+         },
+         "then": {
+            "properties": {
+               "classification": {
+                  "properties": {
+                     "primaryCoding": {
+                        "properties": {
+                           "name": {
+                              "const": "Tier II"
+                           }
+                        }
+                     }
+                  }
+               },
+               "strength": {
+                  "properties": {
+                     "primaryCoding": {
+                        "properties": {
+                           "code": {
+                              "const": "potential"
+                           }
+                        },
+                        "required": [
+                           "code"
+                        ]
+                     }
+                  },
+                  "required": [
+                     "primaryCoding"
+                  ]
+               },
+               "direction": {
+                  "const": "supports"
+               }
+            },
+            "required": [
+               "strength"
+            ]
+         }
+      },
+      {
+         "if": {
+            "properties": {
+               "classification": {
+                  "properties": {
+                     "primaryCoding": {
+                        "properties": {
+                           "code": {
+                              "const": "tier iii"
+                           }
+                        },
+                        "required": [
+                           "code"
+                        ]
+                     }
+                  },
+                  "required": [
+                     "primaryCoding"
+                  ]
+               }
+            },
+            "required": [
+               "classification"
+            ]
+         },
+         "then": {
+            "properties": {
+               "classification": {
+                  "properties": {
+                     "primaryCoding": {
+                        "properties": {
+                           "name": {
+                              "const": "Tier III"
+                           }
+                        }
+                     }
+                  }
+               },
+               "strength": false,
+               "direction": {
+                  "const": "neutral"
+               }
+            }
+         }
+      },
+      {
+         "if": {
+            "properties": {
+               "classification": {
+                  "properties": {
+                     "primaryCoding": {
+                        "properties": {
+                           "code": {
+                              "const": "tier iv"
+                           }
+                        },
+                        "required": [
+                           "code"
+                        ]
+                     }
+                  },
+                  "required": [
+                     "primaryCoding"
+                  ]
+               }
+            },
+            "required": [
+               "classification"
+            ]
+         },
+         "then": {
+            "properties": {
+               "classification": {
+                  "properties": {
+                     "primaryCoding": {
+                        "properties": {
+                           "name": {
+                              "const": "Tier IV"
+                           }
+                        }
+                     }
+                  }
+               },
+               "strength": false,
+               "direction": {
+                  "const": "disputes"
+               }
+            }
+         }
+      }
+   ],
+   "type": "object",
+   "unevaluatedProperties": false
+}

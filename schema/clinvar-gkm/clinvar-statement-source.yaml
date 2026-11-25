@@ -518,7 +518,7 @@ $defs:
     maturity: trial use
     description: >-
       The classification of a ClinVar SCV statement: a MappableConcept with its concept type,
-      name, a ClinvarTermCoding, and ClinVar's description of it in an extension. No id,
+      name, a ClinvarClassificationCoding, and ClinVar's description of it in an extension. No id,
       description, aliases or mappings.
     allOf:
       - $refCurie: gkm.core:MappableConcept
@@ -534,8 +534,10 @@ $defs:
             const: Classification
             description: Must be 'Classification'.
           primaryCoding:
-            $refCurie: clinvar-gkm:ClinvarTermCoding
-            description: The classification's code and its system (the guideline that defines it).
+            $refCurie: clinvar-gkm:ClinvarClassificationCoding
+            description: >-
+              The classification's code, its system (the guideline that defines it) and, for an AMP/ASCO/CAP
+              tier, the tier's canonical name.
           extensions:
             type: array
             ordered: false
@@ -859,6 +861,10 @@ $defs:
       VariantDiagnosticProposition, or VariantPrognosticProposition.
 
       Conflicting data (1 type): ClinvarConflictingDataFromSubmitterProposition.
+
+      SCVs in the pathogenicity, oncogenicity and somatic clinical impact sections are further held to
+      ClinvarScvPathogenicityStatement, ClinvarScvOncogenicityStatement and
+      ClinvarScvClinicalSignificanceStatement.
     allOf:
       - $refCurie: va-spec:Statement
       - $ref: "#/$defs/ClinvarScvStatementProperties"
@@ -869,6 +875,213 @@ $defs:
           aliases: false
           score: false
           hasEvidence: false
+
+  # ─── SCV statement profiles ───
+
+  ClinvarScvPathogenicityStatement:
+    maturity: trial use
+    description: >-
+      A ClinVar SCV statement about a variant's pathogenicity, modelled on the VA-Spec ACMG 2015
+      VariantPathogenicityStatement. Its classification is coded under the ACMG 2015 guidelines, the ClinGen 2024
+      low-penetrance and risk-allele recommendations, the SVCv4 VUS sub-tiers, or (for ClinVar's
+      combined labels) ClinVar; a strength is coded in its classification's system. It differs from the
+      community profile in four ways: specifiedBy is optional; the SVCv4 VUS sub-tiers and their strengths (high,
+      mid, low) are allowed; low-penetrance and risk-allele strengths are coded under the ClinGen 2024
+      recommendations, not ACMG 2015; and ClinVar's combined labels are allowed. See the Community Profiles page.
+    allOf:
+      - $ref: "#/$defs/ClinvarScvStatement"
+      - type: object
+        properties:
+          proposition:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/propositionPathogenicity/"
+            description: The pathogenicity proposition, a pointer into the bundle's propositionPathogenicity section.
+          classification:
+            type: object
+            required: [primaryCoding]
+            properties:
+              primaryCoding:
+                type: object
+                oneOf:
+                  - properties:
+                      system: {const: "ACMG Guidelines, 2015"}
+                      code: {enum: [pathogenic, likely pathogenic, uncertain significance, likely benign, benign]}
+                  - properties:
+                      system: {const: "ClinGen Low Penetrance and Risk Allele Recommendations, 2024"}
+                      code:
+                        enum:
+                          - "pathogenic, low penetrance"
+                          - "likely pathogenic, low penetrance"
+                          - established risk allele
+                          - likely risk allele
+                          - uncertain risk allele
+                  - properties:
+                      system: {const: "ACMG/AMP/CAP/ClinGen SVCv4.0"}
+                      code: {enum: [vus-high, vus-mid, vus-low]}
+                  - properties:
+                      system: {const: ClinVar}
+                      code: {enum: [benign/likely benign, pathogenic/likely pathogenic]}
+            description: >-
+              The classification, coded under ACMG 2015, the ClinGen 2024 low-penetrance and risk-allele
+              recommendations, SVCv4 (VUS sub-tiers) or ClinVar (combined labels).
+          strength:
+            type: object
+            required: [primaryCoding]
+            properties:
+              primaryCoding:
+                type: object
+                oneOf:
+                  - properties:
+                      system: {const: "ACMG Guidelines, 2015"}
+                      code: {enum: [definitive, likely]}
+                  - properties:
+                      system: {const: "ClinGen Low Penetrance and Risk Allele Recommendations, 2024"}
+                      code: {enum: [definitive, likely]}
+                  - properties:
+                      system: {const: "ACMG/AMP/CAP/ClinGen SVCv4.0"}
+                      code: {enum: [high, mid, low]}
+            description: The strength, coded in its classification's system.
+
+  ClinvarScvOncogenicityStatement:
+    maturity: trial use
+    description: >-
+      A ClinVar SCV statement about a variant's oncogenicity, modelled on the VA-Spec CCV 2022
+      VariantOncogenicityStatement. Its classification and strength are coded under the ClinGen/CGC/VICC 2022
+      oncogenicity guidelines. It differs from the community profile in one way: specifiedBy is optional. See the
+      Community Profiles page.
+    allOf:
+      - $ref: "#/$defs/ClinvarScvStatement"
+      - type: object
+        properties:
+          proposition:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/propositionOncogenicity/"
+            description: The oncogenicity proposition, a pointer into the bundle's propositionOncogenicity section.
+          classification:
+            type: object
+            required: [primaryCoding]
+            properties:
+              primaryCoding:
+                type: object
+                properties:
+                  system: {const: "ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022"}
+                  code: {enum: [oncogenic, likely oncogenic, uncertain significance, likely benign, benign]}
+            description: The classification, coded under CCV 2022.
+          strength:
+            type: object
+            required: [primaryCoding]
+            properties:
+              primaryCoding:
+                type: object
+                properties:
+                  system: {const: "ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022"}
+                  code: {enum: [definitive, likely]}
+            description: The strength, coded under CCV 2022.
+
+  ClinvarScvClinicalSignificanceStatement:
+    maturity: trial use
+    description: >-
+      A ClinVar SCV statement about a variant's somatic clinical impact, modelled on the VA-Spec AMP/ASCO/CAP 2017
+      VariantClinicalSignificanceStatement. Its classification is coded under the AMP/ASCO/CAP 2017 guidelines as
+      'tier i' to 'tier iv', with each tier's strength and direction. It differs from the community profile in two
+      ways: specifiedBy is optional; and the canonical tier name ('Tier I') is on the classification's
+      primaryCoding.name, while classification.name keeps ClinVar's label (e.g. 'Tier I - Strong'). See the
+      Community Profiles page.
+    allOf:
+      - $ref: "#/$defs/ClinvarScvStatement"
+      - type: object
+        properties:
+          proposition:
+            $refCurie: gkm.core:iriReference
+            pattern: "^#/propositionSomaticClinicalImpact/"
+            description: >-
+              The clinical significance proposition, a pointer into the bundle's propositionSomaticClinicalImpact
+              section.
+          classification:
+            type: object
+            required: [primaryCoding]
+            properties:
+              primaryCoding:
+                type: object
+                required: [name]
+                properties:
+                  system: {const: "AMP/ASCO/CAP Guidelines, 2017"}
+                  code: {enum: [tier i, tier ii, tier iii, tier iv]}
+            description: The classification, coded under AMP/ASCO/CAP 2017 with the tier's canonical name.
+          strength:
+            type: object
+            required: [primaryCoding]
+            properties:
+              primaryCoding:
+                type: object
+                properties:
+                  system: {const: "AMP/ASCO/CAP Guidelines, 2017"}
+                  code: {enum: [strong, potential]}
+            description: The strength of a tier i or tier ii classification, coded under AMP/ASCO/CAP 2017.
+      - if:
+          properties:
+            classification:
+              properties:
+                primaryCoding: {properties: {code: {const: tier i}}, required: [code]}
+              required: [primaryCoding]
+          required: [classification]
+        then:
+          properties:
+            classification:
+              properties:
+                primaryCoding: {properties: {name: {const: Tier I}}}
+            strength:
+              properties:
+                primaryCoding: {properties: {code: {const: strong}}, required: [code]}
+              required: [primaryCoding]
+            direction: {const: supports}
+          required: [strength]
+      - if:
+          properties:
+            classification:
+              properties:
+                primaryCoding: {properties: {code: {const: tier ii}}, required: [code]}
+              required: [primaryCoding]
+          required: [classification]
+        then:
+          properties:
+            classification:
+              properties:
+                primaryCoding: {properties: {name: {const: Tier II}}}
+            strength:
+              properties:
+                primaryCoding: {properties: {code: {const: potential}}, required: [code]}
+              required: [primaryCoding]
+            direction: {const: supports}
+          required: [strength]
+      - if:
+          properties:
+            classification:
+              properties:
+                primaryCoding: {properties: {code: {const: tier iii}}, required: [code]}
+              required: [primaryCoding]
+          required: [classification]
+        then:
+          properties:
+            classification:
+              properties:
+                primaryCoding: {properties: {name: {const: Tier III}}}
+            strength: false
+            direction: {const: neutral}
+      - if:
+          properties:
+            classification:
+              properties:
+                primaryCoding: {properties: {code: {const: tier iv}}, required: [code]}
+              required: [primaryCoding]
+          required: [classification]
+        then:
+          properties:
+            classification:
+              properties:
+                primaryCoding: {properties: {name: {const: Tier IV}}}
+            strength: false
+            direction: {const: disputes}
 
   ClinvarAggregateStatementProperties:
     abstract: true
