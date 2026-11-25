@@ -69,8 +69,9 @@ def relax_additional_properties(node):
 
 
 def load_registry(schema_root: Path, relax: bool = False):
-    """Load every JSON Schema under schema_root (following symlinks) into a referencing
-    Registry keyed by $id, plus a basename->$id index for type routing."""
+    """Load every JSON Schema in a json/ directory, or a profile directory inside one (va-spec
+    json/acmg-2015/, ...), under schema_root (following symlinks) into a referencing Registry
+    keyed by $id, plus a basename->$id index for type routing."""
     resources = []
     name2contents = {}
     seen = set()
@@ -80,7 +81,8 @@ def load_registry(schema_root: Path, relax: bool = False):
             dirnames[:] = []
             continue
         seen.add(real)
-        if os.path.basename(dirpath) != "json":
+        # a module's json/ directory, or a profile directory inside it (va-spec json/acmg-2015/, ...)
+        if "json" not in (os.path.basename(dirpath), os.path.basename(os.path.dirname(dirpath))):
             continue
         for fn in filenames:
             if fn.endswith(".md"):
