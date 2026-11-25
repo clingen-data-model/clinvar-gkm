@@ -2,7 +2,7 @@
 
 - **Status:** Draft for review (revised 2026-11-24: the VA-Spec community profiles are not changed)
 - **Date:** 2026-11-23
-- **ADR:** `docs/decisions/0014-clinvar-gkm-scv-statement-profiles.md` (to write)
+- **ADR:** `docs/decisions/0015-clinvar-gkm-scv-statement-profiles.md` (0014 is taken by the dataset-retention ADR)
 - **Target:** clinvar-gkm schema **1.3.0**, in the consolidated 1.3.0 rebuild
 
 ## Goal
@@ -144,7 +144,7 @@ aggregates pick up the corrected codes).
   and why they differ; then a generated **record counts** block between
   `<!-- community-conformance:start -->` / `<!-- community-conformance:end -->` markers. Linked from
   `docs/reference/gks-standards.md`, `docs/profiles/index.md`, `statement-types.md` and `classifications.md`.
-- **ADR 0014** — ClinVar-GKM profiles its own SCV statements on the community profiles and documents the
+- **ADR 0015** — ClinVar-GKM profiles its own SCV statements on the community profiles and documents the
   differences rather than claiming conformance; alternatives considered (change the community profiles; document
   only).
 - Corrected codes and systems in `classifications.md`, the output-reference statement pages, examples, changelog

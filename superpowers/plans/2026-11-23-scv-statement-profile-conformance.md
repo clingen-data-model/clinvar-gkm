@@ -531,9 +531,9 @@ after Classifications), `docs/profiles/index.md` (Sections list), `docs/referenc
   (AMP). Then "Record counts" with the empty markers block and one sentence saying it is regenerated each release.
 - [ ] **Step 2:** link it from the four pages; `zensical build --clean --strict` + `check-site-links.py` → clean.
 
-### Task 5.2: ADR 0014
+### Task 5.2: ADR 0015
 
-**Files:** Create `docs/decisions/0014-clinvar-gkm-scv-statement-profiles.md` (format of 0013); add it to
+**Files:** Create `docs/decisions/0015-clinvar-gkm-scv-statement-profiles.md` (format of 0013); add it to
 `docs/decisions/README.md`.
 
 - [ ] Context (ClinVar submissions cannot meet the community profiles as written; the profiles are intentionally
