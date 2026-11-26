@@ -62,3 +62,5 @@ For the details behind each part, see [An Implementation Schema](../../output-re
     A single self-contained HTML file:
     [`docs/assets/presentations/clinvar-gkm-strict-profiles.html`](https://github.com/clingen-data-model/clinvar-gkm/blob/main/docs/assets/presentations/clinvar-gkm-strict-profiles.html).
     No external dependencies; works offline.
+    It is exported from the deck's Slides source by
+    [`src/scripts/export-slides-deck.py`](https://github.com/clingen-data-model/clinvar-gkm/blob/main/src/scripts/export-slides-deck.py).
