@@ -42,12 +42,12 @@ A somatic evidence line's `directionOfEvidenceProvided` is always `supports`. It
 
 ## Evidence Outcome
 
-The `evidenceOutcome` field — a [ClinvarTerm](ClinvarTerm.md) whose `conceptType` is `Outcome` — maps the AMP/ASCO/CAP tier to an evidence level:
+The `evidenceOutcome` field — a [ClinvarTerm](ClinvarTerm.md) whose `conceptType` is `Outcome` — maps the AMP/ASCO/CAP tier, by the SCV's classification code, to an evidence level:
 
-| Tier | Evidence Outcome |
+| Tier (classification code) | Evidence Outcome |
 | --- | --- |
-| Tier I - Strong | `Level A/B` |
-| Tier II - Potential | `Level C/D` |
+| Tier I - Strong (`tier i`) | `Level A/B` |
+| Tier II - Potential (`tier ii`) | `Level C/D` |
 
 ---
 
@@ -59,7 +59,7 @@ An SCI statement's structure connects the tiers to the clinical assertions:
 SCV Statement
 ├── proposition: #/propositionSomaticClinicalImpact/{scv_id}-SCI
 │   └── VariantClinicalSignificanceProposition (hasClinicalSignificanceFor)
-├── classification: "Tier I - Strong"
+├── classification: "Tier I - Strong" (primaryCoding: tier i, Tier I)
 └── hasEvidenceLines: #/evidenceLine/clinvar.submission:{scv_id}.{ver}
     └── ClinvarSomaticEvidenceLine
         ├── targetProposition: #/propositionSomaticClinicalImpact/{scv_id}-TR

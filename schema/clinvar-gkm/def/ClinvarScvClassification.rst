@@ -5,7 +5,7 @@
 
 **Computational Definition**
 
-The classification of a ClinVar SCV statement: a MappableConcept with its concept type, name, a ClinvarTermCoding, and ClinVar's description of it in an extension. No id, description, aliases or mappings.
+The classification of a ClinVar SCV statement: a MappableConcept with its concept type, name, a ClinvarClassificationCoding, and ClinVar's description of it in an extension. No id, description, aliases or mappings.
 
 **Information Model**
 
@@ -46,9 +46,9 @@ The classification of a ClinVar SCV statement: a MappableConcept with its concep
       - Must be 'Classification'.
    *  - primaryCoding
       -
-      - :ref:`ClinvarTermCoding`
+      - :ref:`ClinvarClassificationCoding`
       - 0..1
-      - The classification's code and its system (the guideline that defines it).
+      - The classification's code, its system (the guideline that defines it) and, for an AMP/ASCO/CAP tier, the tier's canonical name.
 
 **Composes:** :ref:`MappableConcept`
 

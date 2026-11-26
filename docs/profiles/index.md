@@ -18,5 +18,6 @@ ClinVar-GKM maps each submission to a specific **statement type**, **proposition
 
 - [Statement Types](statement-types.md) — the 14 statement types and their categories
 - [Classifications](classifications.md) — classification values mapped to direction and strength
+- [Community Profiles](community-profiles.md) — how ClinVar-GKM's SCV statements compare with the VA-Spec community profiles for ACMG 2015, CCV 2022 and AMP/ASCO/CAP 2017
 - [Proposition Types](propositions.md) — mapping of statement types to GKS proposition types
 - [Review Status](review-status.md) — star levels, rank order, and aggregation behavior

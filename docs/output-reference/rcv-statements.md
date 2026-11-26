@@ -60,7 +60,7 @@ For somatic clinical impact (SCI) propositions, the classification label may inc
 `primaryCoding` (from schema 1.2.0) follows the same rules as VCV: see
 [`classification.primaryCoding`](../pipeline/vcv-statements/vcv-aggregation-rules.md#classification-primarycoding).
 An SCI label is coded by its tier alone, without the assertion type, significance and count
-(`Tier I (Strong) - diagnostic - supports diagnosis (1)` → `tier 1` / `AMP/ASCO/CAP (AAC) Guidelines, 2017`).
+(`Tier I (Strong) - diagnostic - supports diagnosis (1)` → `tier i` / `AMP/ASCO/CAP Guidelines, 2017`).
 
 ---
 

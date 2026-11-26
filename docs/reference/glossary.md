@@ -30,6 +30,9 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 **AMP/ASCO/CAP**
 :   Association for Molecular Pathology / American Society of Clinical Oncology / College of American Pathologists. Published somatic clinical impact tiering guidelines (Tier I-IV).
 
+**SVCv4**
+:   The ACMG/AMP/CAP/ClinGen SVCv4.0 classification guidelines, which divide Uncertain significance into VUS-high, VUS-mid and VUS-low. ClinVar-GKM codes these classifications, and their strengths `high`, `mid` and `low`, under the system `ACMG/AMP/CAP/ClinGen SVCv4.0`.
+
 ---
 
 ## ClinVar Concepts
@@ -156,10 +159,10 @@ Key terms, acronyms, and concepts used throughout the ClinVar-GKM documentation.
 :   Whether evidence supports or disputes a proposition. Values: `supports`, `disputes`, `neutral`. On aggregate statements, the direction ClinVar's lookup gives the classification label (multi-SCV groups, priority and aggregate layers; for a label the lookup lacks, `neutral` for a conflicting label or the FLAG label, and for a combination the direction its SCVs share, else `supports`) or passed through from the contributing SCV (single-SCV classification groups).
 
 <a id="strength"></a>**Strength**
-:   Evidence strength level. Values: `definitive`, `likely`, `strong`, `potential`. Omitted (null) when not applicable. On aggregate statements, the strength ClinVar's lookup gives the classification label (multi-SCV groups, priority and aggregate layers) or passed through from the contributing SCV (single-SCV classification groups).
+:   Evidence strength level. Values: `definitive`, `likely`, `strong`, `potential`, and `high`, `mid`, `low` for the VUS sub-tiers. An SCV strength is coded in its classification's system. Omitted (null) when not applicable. On aggregate statements, the strength ClinVar's lookup gives the classification label (multi-SCV groups, priority and aggregate layers) or passed through from the contributing SCV (single-SCV classification groups).
 
 **Tier I** / **Tier II** / **Tier III** / **Tier IV**
-:   Somatic clinical impact classification levels. Tier I (Strong) and Tier II (Potential) require paired sub-statements. Tier III (Unknown) and Tier IV (Benign/Likely benign) do not.
+:   Somatic clinical impact classification levels. Tier I (Strong) and Tier II (Potential) require paired sub-statements. Tier III (Unknown) and Tier IV (Benign/Likely benign) do not. An SCV codes them `tier i` to `tier iv` under `AMP/ASCO/CAP Guidelines, 2017`, with the canonical name (`Tier I`) on the coding's `name`.
 
 **Concordant**
 :   All contributing SCVs for a variant share the same classification. Produces a single aggregate label.

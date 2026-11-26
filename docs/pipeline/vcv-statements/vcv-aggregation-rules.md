@@ -132,11 +132,11 @@ and `system` only) for its label, at all three layers. The coding is computed in
 1. **Coded label.** The label is looked up by proposition type and label in `clinvar_clinsig_types`, the table
    that codes SCV classifications. On a match, the coding is the one the SCVs with that label carry, with the
    code in lower case. For example, `Pathogenic` is `pathogenic` / `ACMG Guidelines, 2015` and `VUS-mid` is
-   `vus-mid` / `SVC v4`.
+   `vus-mid` / `ACMG/AMP/CAP/ClinGen SVCv4.0`.
 2. **Somatic clinical impact.** The label carries tumor-type text (VCV: `Tier I (Strong) for Lung cancer`, and
    at the priority layer `+lower levels of evidence for N other tumor types`; RCV:
    `Tier I (Strong) - <assertion type> - <significance> (n)`). The coding uses the tier label without that
-   text, so it is the coding of the tier: for example `tier 1` / `AMP/ASCO/CAP (AAC) Guidelines, 2017`. A
+   text, so it is the coding of the tier: for example `tier i` / `AMP/ASCO/CAP Guidelines, 2017`. A
    classification-layer group is always one tier. The priority and aggregate layers take the coding of the top
    tier, the one whose label they show.
 3. **Any other label is a ClinVar-defined term:** system `ClinVar` and the label in lower case as the code.
@@ -153,7 +153,7 @@ that contributing submissions give at one submission level, joined by `/` in the
 
 | Label | `code` | Where it comes from |
 | --- | --- | --- |
-| Pathogenic/Likely pathogenic | `pathogenic/likely pathogenic` | `clinvar_clinsig_types` (its code there is `pathogenic/Likely pathogenic`; aggregate codes are always lower case) |
+| Pathogenic/Likely pathogenic | `pathogenic/likely pathogenic` | `clinvar_clinsig_types` |
 | Benign/Likely benign | `benign/likely benign` | `clinvar_clinsig_types` |
 | not provided, Affects, association, association not found, confers sensitivity, conflicting data from submitters, drug response, other, protective, risk factor | the label in lower case, such as `drug response` | `clinvar_clinsig_types` (ClinVar's other proposition types) |
 | Conflicting classifications of pathogenicity | `conflicting classifications of pathogenicity` | conflict rule ([CP](#cp-assertion-criteria-provided)) |
@@ -176,12 +176,6 @@ The 2026-10-31 full release has 20 combination codes, on 726 of its 21,309,008 V
   `pathogenic/likely pathogenic/established risk allele/likely risk allele`,
   `likely pathogenic/established risk allele`, `likely pathogenic/likely risk allele`
 - `oncogenic/likely oncogenic`
-
-!!! note "SCV and aggregate codes for Pathogenic/Likely pathogenic differ in case"
-    `clinvar_clinsig_types` codes `Pathogenic/Likely pathogenic` as `pathogenic/Likely pathogenic`, and SCVs
-    carry that code unchanged. Aggregate codes are always lower case, so a VCV or RCV with that label carries
-    `pathogenic/likely pathogenic`. Compare codes case-insensitively, or see
-    [Known Issues](../../reference/known-issues.md#scv-and-aggregate-codes-for-pathogeniclikely-pathogenic-differ-in-case).
 
 ### `quality`, `direction`, and `strength`
 
@@ -235,12 +229,15 @@ These statement-level fields are derived from the aggregate classification label
     | --- | --- | --- |
     | pathogenicity | Pathogenic; Benign; Pathogenic, low penetrance; Established risk allele | Definitive |
     | pathogenicity | Likely pathogenic; Likely benign; Likely pathogenic, low penetrance; Likely risk allele | Likely |
+    | pathogenicity | VUS-high | High |
+    | pathogenicity | VUS-mid | Mid |
+    | pathogenicity | VUS-low | Low |
     | oncogenicity | Oncogenic; Benign | Definitive |
     | oncogenicity | Likely oncogenic; Likely benign | Likely |
     | somatic clinical impact | Tier I (Strong) | Strong |
     | somatic clinical impact | Tier II (Potential) | Potential |
     | somatic clinical impact | Tier III Unknown; Tier IV (Benign)/Likely benign | omitted |
-    | any | every other label: Uncertain significance; VUS-high, VUS-mid, VUS-low; Uncertain risk allele; Pathogenic/Likely pathogenic; Benign/Likely benign; the labels of ClinVar's other proposition types; conflicting, combination and FLAG labels | omitted |
+    | any | every other label: Uncertain significance; Uncertain risk allele; Pathogenic/Likely pathogenic; Benign/Likely benign; the labels of ClinVar's other proposition types; conflicting, combination and FLAG labels | omitted |
 
 ---
 

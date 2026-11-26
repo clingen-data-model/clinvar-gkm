@@ -6,8 +6,9 @@ minutes instead of hours:
 
 - the same bundle schema, clinvar-gkm-bundle.schema.json, as JSON Schema Draft 2020-12 with formats not asserted
   (python-jsonschema's default, which the toolkit uses);
-- the same registry: every schema in a json/ directory under schema/, by its $id (as validate-schema-conformance.py's
-  load_registry; jsonschema-rs resolves the root-relative $refs against the $id itself);
+- the same registry: every schema in a json/ directory (or a profile directory inside one) under schema/, by its
+  $id (as validate-schema-conformance.py's load_registry; jsonschema-rs resolves the root-relative $refs against the
+  $id itself);
 - the same document shape: each chunk of records is validated as {"schema_version": <bundle's value>, <section>:
   {key: record, ...}}, verbatim, and a failing chunk is re-validated record by record to name the failing records
   (against the bundle schema narrowed to that section, which gives the same result: see validator_for);
@@ -48,7 +49,8 @@ class LayoutError(Exception):
 
 
 def load_resources(schema_root):
-    """(id, schema) for every schema in a json/ directory under schema_root, following links (load_registry's walk)."""
+    """(id, schema) for every schema in a json/ directory, or a profile directory inside one, under schema_root,
+    following links (load_registry's walk)."""
     resources, seen = {}, set()
     for dirpath, dirnames, filenames in os.walk(schema_root, followlinks=True):
         real = os.path.realpath(dirpath)
@@ -56,7 +58,8 @@ def load_resources(schema_root):
             dirnames[:] = []
             continue
         seen.add(real)
-        if os.path.basename(dirpath) != "json":
+        # a module's json/ directory, or a profile directory inside it (va-spec json/acmg-2015/, ...)
+        if "json" not in (os.path.basename(dirpath), os.path.basename(os.path.dirname(dirpath))):
             continue
         for fn in filenames:
             if fn.endswith(".md"):
@@ -70,10 +73,20 @@ def load_resources(schema_root):
     return list(resources.items())
 
 
+def no_retrieval(uri):
+    """Refuse to fetch a $ref over the network (jsonschema-rs would): every schema comes from the local registry."""
+    raise LookupError(f"{uri} is not in the local schema registry (no network retrieval)")
+
+
+def local_registry(schema_root):
+    """The jsonschema-rs registry of every schema load_resources finds under schema_root, with no network retrieval."""
+    return jsonschema_rs.Registry(load_resources(schema_root), retriever=no_retrieval)
+
+
 def _init(repo_root):
     root = Path(repo_root)
-    G.update(schema=json.loads((root / BUNDLE_SCHEMA).read_text()),
-             registry=jsonschema_rs.Registry(load_resources(root / "schema")), validators={})
+    G.update(schema=json.loads((root / BUNDLE_SCHEMA).read_text()), registry=local_registry(root / "schema"),
+             validators={})
 
 
 def validator_for(section):

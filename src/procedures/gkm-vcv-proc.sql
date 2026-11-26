@@ -271,8 +271,8 @@ BEGIN
           -- The SCV classification codings (classification_code + code_system), keyed by
           -- proposition type and label: an aggregate label that is a single lookup term (or
           -- a combination the lookup already codes, e.g. 'Pathogenic/Likely pathogenic')
-          -- gets the coding its SCVs carry, with the code lower-cased (aggregate codes are
-          -- always lower case; a no-op except the lookup's 'pathogenic/Likely pathogenic').
+          -- gets the coding its SCVs carry. Aggregate codes are always lower case, as are the
+          -- lookup's; the code is lower-cased anyway, as a safeguard.
           -- The same row's strength_label and direction (the strength and direction the SCVs
           -- carry) are the aggregate strength and direction (#226, #227).
           -- One row per key, deterministically.

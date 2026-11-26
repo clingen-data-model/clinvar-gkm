@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarMethod",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarMethod",
    "title": "ClinvarMethod",
    "description": "A Method as ClinVar-GKM writes it for a submission's assertion method: its method type, its name and its first citation; further citations are in an extension. No id, description or aliases.",
    "$defs": {
@@ -19,7 +19,7 @@
                "type": "array",
                "ordered": true,
                "items": {
-                  "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarDocument"
+                  "$ref": "/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarDocument"
                },
                "description": "The further citations, each a ClinvarDocument."
             }
@@ -43,7 +43,7 @@
             "description": false,
             "aliases": false,
             "reportedIn": {
-               "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarDocument",
+               "$ref": "/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarDocument",
                "description": "The method's first citation."
             },
             "extensions": {

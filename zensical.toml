@@ -68,6 +68,7 @@ nav = [
       "profiles/index.md",
       { "Statement Types" = "profiles/statement-types.md" },
       { Classifications = "profiles/classifications.md" },
+      { "Community Profiles" = "profiles/community-profiles.md" },
       { "Proposition Types" = "profiles/propositions.md" },
       { "Review Status" = "profiles/review-status.md" },
     ] },

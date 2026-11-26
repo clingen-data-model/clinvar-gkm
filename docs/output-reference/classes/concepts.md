@@ -28,6 +28,7 @@ These classes appear inside concepts and statements rather than as section recor
 | [ClinvarMappingCoding](ClinvarMappingCoding.md) | The coding of a concept mapping: a ClinvarCoding without a name |
 | [ClinvarConceptMapping](ClinvarConceptMapping.md) | A mapping of a concept to a ClinvarMappingCoding, with its SKOS relation |
 | [ClinvarTermCoding](ClinvarTermCoding.md) | The coding of a ClinVar term: only a code and a system |
+| [ClinvarClassificationCoding](ClinvarClassificationCoding.md) | The coding of an SCV classification: a code, a system and, for an AMP/ASCO/CAP tier, the tier's canonical name (`Tier I`) |
 | [ClinvarCodedTerm](ClinvarCodedTerm.md) | A term of a ClinVar vocabulary (a strength, for example): a concept type, a name and, when it has one, a ClinvarTermCoding |
 | [ClinvarTerm](ClinvarTerm.md) | A term with no coding (a quality, for example): only a concept type and a name |
 

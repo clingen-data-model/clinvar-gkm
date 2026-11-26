@@ -64,6 +64,25 @@ The `classification` field is a MappableConcept with the submitted classificatio
 
 The `primaryCoding` provides the machine-readable classification code and system from the `clinvar_clinsig_types` lookup table. The `extensions` array contains a human-readable description summarizing the condition, submission level, evaluation date, and submitter.
 
+A somatic clinical impact classification is coded by its AMP/ASCO/CAP tier, `tier i` to `tier iv`, and its `primaryCoding` also carries the tier's canonical `name`, `Tier I` to `Tier IV`. The classification's own `name` stays ClinVar's label:
+
+```json
+{
+  "conceptType": "Classification",
+  "name": "Tier I - Strong",
+  "primaryCoding": {
+    "code": "tier i",
+    "name": "Tier I",
+    "system": "AMP/ASCO/CAP Guidelines, 2017"
+  },
+  "extensions": [ ... ]
+}
+```
+
+The coding systems are the guidelines the codes come from: `ACMG Guidelines, 2015`; `ClinGen Low Penetrance and Risk Allele Recommendations, 2024` for low-penetrance and risk-allele classifications; `ACMG/AMP/CAP/ClinGen SVCv4.0` (SVCv4) for `vus-high`, `vus-mid` and `vus-low`; `ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022` for oncogenicity; `AMP/ASCO/CAP Guidelines, 2017` for somatic clinical impact; and `ClinVar` for ClinVar's combined labels, such as `pathogenic/likely pathogenic`.
+
+An SCV in the `propositionPathogenicity`, `propositionOncogenicity` or `propositionSomaticClinicalImpact` section is held to a ClinVar-GKM profile modelled on the matching VA-Spec community profile, which fixes the codes and systems its classification and strength may carry: [ClinvarScvPathogenicityStatement](classes/ClinvarScvPathogenicityStatement.md), [ClinvarScvOncogenicityStatement](classes/ClinvarScvOncogenicityStatement.md) and [ClinvarScvClinicalSignificanceStatement](classes/ClinvarScvClinicalSignificanceStatement.md). [Community Profiles](../profiles/community-profiles.md) lists where they differ from the community profiles.
+
 ---
 
 ## Strength
@@ -81,7 +100,7 @@ The `strength` field is a MappableConcept indicating the evidence strength:
 }
 ```
 
-The `primaryCoding` is present when the strength can be mapped to a specific code in the classification system.
+The `primaryCoding` is present when the strength can be mapped to a specific code in the classification system. A strength is always coded in its classification's system: `definitive` for a `pathogenic, low penetrance` classification is coded under `ClinGen Low Penetrance and Risk Allele Recommendations, 2024`, and the VUS strengths `high`, `mid` and `low` under `ACMG/AMP/CAP/ClinGen SVCv4.0`.
 
 ---
 
@@ -226,17 +245,17 @@ Evidence lines appear on somatic clinical impact (SCI) statements. Each evidence
 ```json
 {
   "type": "EvidenceLine",
-  "proposition": "#/propositionSomaticClinicalImpact/SCV004565358-TR",
+  "targetProposition": "#/propositionSomaticClinicalImpact/SCV004565358-TR",
   "directionOfEvidenceProvided": "supports",
   "evidenceOutcome": {
     "conceptType": "Outcome",
-    "name": "tier 1"
+    "name": "Level A/B"
   },
   "extensions": [ ... ]
 }
 ```
 
-The `evidenceOutcome` is a MappableConcept with `conceptType: "Outcome"` indicating the tier classification for the target proposition.
+The `evidenceOutcome` is a MappableConcept with `conceptType: "Outcome"` giving the evidence level for the SCV's tier: `Level A/B` for `tier i` and `Level C/D` for `tier ii`. Only tier i and tier ii SCVs have evidence lines.
 
 ---
 

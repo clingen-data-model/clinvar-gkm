@@ -81,7 +81,7 @@ The `extensions` array includes a `conflictingExplanation` when multiple contrib
 `primaryCoding` (from schema 1.2.0) codes the label. A label that is one classification term has the coding
 its SCVs carry, with the code in lower case (`Pathogenic` → `pathogenic` / `ACMG Guidelines, 2015`). A somatic
 clinical impact label is coded by its tier, without the tumor-type text (`Tier I (Strong) for 2 tumor types` →
-`tier 1` / `AMP/ASCO/CAP (AAC) Guidelines, 2017`). Any other label, such as a combination, a conflicting
+`tier i` / `AMP/ASCO/CAP Guidelines, 2017`). Any other label, such as a combination, a conflicting
 classification or `no classifications from unflagged records`, is a ClinVar-defined term: the label in lower
 case as the code and `ClinVar` as the system. See
 [`classification.primaryCoding`](../pipeline/vcv-statements/vcv-aggregation-rules.md#classification-primarycoding)
@@ -107,6 +107,9 @@ the same `clinvar_clinsig_types` row that gives the classification its `primaryC
 | Likely pathogenic; Likely benign; Likely oncogenic; Likely pathogenic, low penetrance; Likely risk allele | Likely |
 | Tier I (Strong) | Strong |
 | Tier II (Potential) | Potential |
+| VUS-high | High |
+| VUS-mid | Mid |
+| VUS-low | Low |
 | Tier III; Tier IV; Uncertain significance; Conflicting; combinations such as Pathogenic/Likely pathogenic; any other label | *null (omitted)* |
 
 A somatic clinical impact statement takes its tier's strength (at the priority and aggregate layers, the top

@@ -267,6 +267,70 @@ def test_engines_agree_inside_the_layered_profiles(tmp_path, rs, toolkit):
     assert failing_keys(rs_out) == failing_keys(tk_out) == failing, rs_out + tk_out
 
 
+def scv_as(section, code, system, *, name=None, coding_name=None, strength=None, direction="supports"):
+    """The fixture SCV re-pointed at a proposition section with the given classification coding."""
+    record = copy.deepcopy(PROFILE_RECORDS["scv"])
+    record["proposition"] = f"#/{section}/SCV000090483-X"
+    record["direction"] = direction
+    coding = {"code": code, "system": system}
+    if coding_name:
+        coding["name"] = coding_name
+    record["classification"]["name"] = name or code
+    record["classification"]["primaryCoding"] = coding
+    record.pop("strength", None)
+    if strength:
+        record["strength"] = {"type": "MappableConcept", "conceptType": "Strength", "name": strength[0].title(),
+                              "primaryCoding": {"code": strength[0], "system": strength[1]}}
+    return record
+
+
+def without_coding(record):
+    del record["classification"]["primaryCoding"]
+    return record
+
+
+ACMG, LP, V4 = ("ACMG Guidelines, 2015", "ClinGen Low Penetrance and Risk Allele Recommendations, 2024",
+                "ACMG/AMP/CAP/ClinGen SVCv4.0")
+CCV, AMP = "ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022", "AMP/ASCO/CAP Guidelines, 2017"
+PATH, ONCO, SCI = "propositionPathogenicity", "propositionOncogenicity", "propositionSomaticClinicalImpact"
+
+STATEMENT_PROFILE_CASES = {
+    # tag: (record, passes)
+    "0": (scv_as(PATH, "pathogenic", ACMG, strength=("definitive", ACMG)), True),
+    "1": (scv_as(PATH, "vus-high", V4, strength=("high", V4), direction="neutral"), True),
+    "2": (scv_as(PATH, "vus-high", "SVC v4", direction="neutral"), False),  # old system
+    "3": (scv_as(PATH, "benign/likely benign", "ClinVar", direction="disputes"), True),  # combined label
+    "4": (scv_as(PATH, "vus-high", ACMG, direction="neutral"), False),  # code not in that system
+    "5": (scv_as(PATH, "likely risk allele", LP, strength=("likely", LP)), True),  # strength in its own system
+    "6": (scv_as(PATH, "likely risk allele", LP, strength=("likely", CCV)), False),  # strength system not allowed
+    "7": (scv_as(ONCO, "benign", CCV, strength=("definitive", CCV), direction="disputes"), True),
+    "8": (scv_as(ONCO, "benign", ACMG, strength=("definitive", ACMG), direction="disputes"), False),
+    "9": (scv_as(SCI, "tier i", AMP, name="Tier I - Strong", coding_name="Tier I", strength=("strong", AMP)), True),
+    "10": (scv_as(SCI, "tier 1", "AMP/ASCO/CAP (AAC) Guidelines, 2017", strength=("strong", AMP)), False),
+    "11": (scv_as(SCI, "tier i", AMP, coding_name="Tier II", strength=("strong", AMP)), False),
+    "12": (scv_as(SCI, "tier iii", AMP, coding_name="Tier III", direction="neutral"), True),
+    "13": (scv_as(SCI, "tier iii", AMP, coding_name="Tier III", strength=("strong", AMP), direction="neutral"), False),
+    "14": (scv_as(SCI, "tier i", AMP, strength=("strong", AMP)), False),  # no canonical name on the coding
+    "15": (without_coding(scv_as(PATH, "pathogenic", ACMG)), False),  # classification must be coded
+}
+SCV_KEY = "clinvar.submission:SCV0000905{:0>2}.1"
+
+
+def test_scv_statements_are_held_to_their_profiles(tmp_path, rs):
+    bundle = {"schema_version": VERSION,
+              "scv": {SCV_KEY.format(tag): record for tag, (record, _) in STATEMENT_PROFILE_CASES.items()}}
+    failing = sorted(f"scv/{SCV_KEY.format(tag)}" for tag, (_, ok) in STATEMENT_PROFILE_CASES.items() if not ok)
+    code, out = validate(write(tmp_path, assembled(bundle)))
+    assert code == 1 and failing_keys(out) == failing, out
+
+
+def test_engines_agree_on_the_scv_statement_profiles(tmp_path, rs, toolkit):
+    bundle = {"schema_version": VERSION,
+              "scv": {SCV_KEY.format(tag): record for tag, (record, _) in STATEMENT_PROFILE_CASES.items()}}
+    path = write(tmp_path, assembled(bundle))
+    assert failing_keys(validate(path, "rs")[1]) == failing_keys(validate(path, "toolkit")[1])
+
+
 @pytest.fixture
 def stubbed_full_release(tmp_path):
     """The real release-gkm.sh among stubs that log their name and arguments, so nothing can reach GCS or R2."""
