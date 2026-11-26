@@ -231,3 +231,17 @@ venv/3.12/bin/python3 ./src/scripts/assemble-gkm-dicts.py gs://clinvar-gkm/gkm-d
 ```
 
 See [Export](export.md) for details on each step.
+
+### Dataset retention
+
+Each release's BigQuery dataset is kept whole while it is on or after the **retention floor**: the earlier of the
+newest monthly's source release and the newest delta's baseline. Below the floor, the working tables (`gkm_dict_*`,
+`gkm_vrs` and the carried-forward intermediates) are dropped and the build record (`gkm_pipeline_version`,
+`gkm_change_log`, `delta_gkm_*`, the changed-id sets) is kept; the published bundles hold the content. Datasets are
+never deleted. See [ADR 0014](../decisions/0014-bigquery-release-dataset-retention.md) for the reasons and the full
+table list. After a release is published:
+
+```text
+./src/scripts/prune-release-datasets.sh            # print the plan (bq ls only, nothing billed)
+./src/scripts/prune-release-datasets.sh --apply    # drop the tables in the plan
+```
