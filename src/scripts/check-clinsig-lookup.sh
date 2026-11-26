@@ -68,7 +68,8 @@ out="$(bq query --project_id="${PROJECT_ID}" --use_legacy_sql=false --format=csv
   echo "ERROR: could not read ${LOOKUP}" >&2
   exit 1
 }
-problems="$(printf '%s\n' "${out}" | grep -v -x -e 'problem' -e '' || true)"
+# One problem per CSV row; undo the CSV quoting (a value with a comma or a quote is quoted, its quotes doubled).
+problems="$(printf '%s\n' "${out}" | grep -v -x -e 'problem' -e '' | sed -e 's/^"\(.*\)"$/\1/' -e 's/""/"/g' || true)"
 if [[ -n "${problems}" ]]; then
   echo "ERROR: ${LOOKUP} does not carry the codings the SCV statement profiles require:" >&2
   printf '%s\n' "${problems}" | sed 's/^/    /' >&2

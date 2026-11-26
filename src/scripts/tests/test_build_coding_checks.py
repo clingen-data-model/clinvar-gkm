@@ -106,11 +106,13 @@ def test_lookup_check_reads_the_shared_table_and_asks_for_every_profile_coding(f
 
 
 def test_outdated_lookup_stops_and_names_each_problem(fake):
-    problems = "problem\nsci t1: retired system name 'AMP/ASCO/CAP (AAC) Guidelines, 2017'\nsci tier i: missing"
+    # as bq writes CSV: a value with a comma or a quote is quoted, and its quotes doubled
+    problems = 'problem\n"sci t1: retired system name ""AMP/ASCO/CAP (AAC) Guidelines, 2017"""\nsci tier i: missing'
     code, out, _ = run(fake, LOOKUP_CHECK, answers=[["clinvar_clinsig_types", 0, problems]])
     assert code == 1
     assert "does not carry the codings" in out
-    assert "    sci t1: retired system name" in out and "    sci tier i: missing" in out
+    assert '    sci t1: retired system name "AMP/ASCO/CAP (AAC) Guidelines, 2017"\n' in out
+    assert "    sci tier i: missing" in out
     assert "00-setup-translation-tables.sql" in out
 
 
