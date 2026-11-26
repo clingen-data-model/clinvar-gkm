@@ -76,14 +76,14 @@ the genes ClinVar associates with a variant, so such a gene has no `gene` record
 propositions. Genes with no HGNC id (`LOC*`) and NCBI-discontinued gene ids get no gene context, by design of
 the upstream method.
 
-## SCV and aggregate codes for Pathogenic/Likely pathogenic differ in case
+## SCV and aggregate codes for Pathogenic/Likely pathogenic differ in case (resolved in 1.3.0) { #scv-and-aggregate-codes-for-pathogeniclikely-pathogenic-differ-in-case }
 
-ClinVar-GKM's classification lookup (`clinvar_clinsig_types`, maintained upstream in `clinvar-ingest-bq-tools`)
-codes `Pathogenic/Likely pathogenic` as `pathogenic/Likely pathogenic`, with a capital L; every other code in it
-is lower case. An SCV classified `Pathogenic/Likely pathogenic` carries that code unchanged in its
-`classification.primaryCoding`. From 1.2.0, VCV and RCV classifications also carry a `primaryCoding`, and its
-code is always lower case, so the same label is `pathogenic/likely pathogenic` there. Compare classification
-codes case-insensitively until the lookup is fixed upstream. See
+In 1.2.0, ClinVar-GKM's classification lookup (`clinvar_clinsig_types`, maintained upstream in
+`clinvar-ingest-bq-tools`) coded `Pathogenic/Likely pathogenic` as `pathogenic/Likely pathogenic`, with a capital
+L, and an SCV classified `Pathogenic/Likely pathogenic` carried that code in its `classification.primaryCoding`.
+VCV and RCV codes are always lower case, so the same label was `pathogenic/likely pathogenic` there.
+**Resolved in 1.3.0**: the lookup codes it `pathogenic/likely pathogenic`, so SCV and aggregate codes agree. 1.2
+bundles keep the old SCV code; compare codes case-insensitively when you read both lines. See
 [`classification.primaryCoding`](../pipeline/vcv-statements/vcv-aggregation-rules.md#classification-primarycoding).
 
 ## Past Parquet is built, not downloaded

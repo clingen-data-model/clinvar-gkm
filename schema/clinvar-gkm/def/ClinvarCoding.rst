@@ -47,4 +47,4 @@ A Coding as ClinVar-GKM writes it: a code and its system, with an optional name 
 
 **Composes:** :ref:`Coding`
 
-**Used in:** :ref:`ClinvarCondition`, :ref:`ClinvarGene`, :ref:`ClinvarGeneContextQualifier`, :ref:`ClinvarMappingCoding`, :ref:`ClinvarModeOfInheritanceQualifier`, :ref:`ClinvarMolecularConsequenceCoding`, :ref:`ClinvarTermCoding`
+**Used in:** :ref:`ClinvarClassificationCoding`, :ref:`ClinvarCondition`, :ref:`ClinvarGene`, :ref:`ClinvarGeneContextQualifier`, :ref:`ClinvarMappingCoding`, :ref:`ClinvarModeOfInheritanceQualifier`, :ref:`ClinvarMolecularConsequenceCoding`, :ref:`ClinvarTermCoding`

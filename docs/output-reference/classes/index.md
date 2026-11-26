@@ -99,6 +99,9 @@ These classes represent classification statements at different levels of aggrega
 | Class | Bundle Section | Key Pattern | Description |
 | --- | --- | --- | --- |
 | [ClinvarScvStatement](ClinvarScvStatement.md) | `scv` | `clinvar.submission:{scv_id}.{ver}` | Submitted classification |
+| [ClinvarScvPathogenicityStatement](ClinvarScvPathogenicityStatement.md) | `scv` | `clinvar.submission:{scv_id}.{ver}` | Submitted pathogenicity classification, modelled on the VA-Spec ACMG 2015 profile |
+| [ClinvarScvOncogenicityStatement](ClinvarScvOncogenicityStatement.md) | `scv` | `clinvar.submission:{scv_id}.{ver}` | Submitted oncogenicity classification, modelled on the VA-Spec CCV 2022 profile |
+| [ClinvarScvClinicalSignificanceStatement](ClinvarScvClinicalSignificanceStatement.md) | `scv` | `clinvar.submission:{scv_id}.{ver}` | Submitted somatic clinical impact classification, modelled on the VA-Spec AMP/ASCO/CAP 2017 profile |
 | [ClinvarVcvStatement](ClinvarVcvStatement.md) | `vcv` | `{vcv}.{ver}-{group}-{PROP}[-{level}[-{TIER}]]` | Variant-level aggregate |
 | [ClinvarRcvStatement](ClinvarRcvStatement.md) | `rcv` | `{rcv}.{ver}-{group}-{PROP}[-{level}[-{TIER}]]` | Condition-level aggregate |
 | [ClinvarSomaticEvidenceLine](ClinvarSomaticEvidenceLine.md) | `evidenceLine` | `clinvar.submission:{scv_id}.{ver}` | Evidence line of a somatic clinical impact SCV statement |

@@ -1,0 +1,73 @@
+{
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarScvOncogenicityStatement",
+   "title": "ClinvarScvOncogenicityStatement",
+   "description": "A ClinVar SCV statement about a variant's oncogenicity, modelled on the VA-Spec CCV 2022 VariantOncogenicityStatement. Its classification and strength are coded under the ClinGen/CGC/VICC 2022 oncogenicity guidelines. It differs from the community profile in one way: specifiedBy is optional. See the Community Profiles page.",
+   "maturity": "trial use",
+   "allOf": [
+      {
+         "$ref": "/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarScvStatement"
+      },
+      {
+         "type": "object",
+         "properties": {
+            "proposition": {
+               "pattern": "^#/propositionOncogenicity/",
+               "description": "The oncogenicity proposition, a pointer into the bundle's propositionOncogenicity section.",
+               "$ref": "/ga4gh/schema/gkm-core/1.3.0/json/iriReference"
+            },
+            "classification": {
+               "type": "object",
+               "required": [
+                  "primaryCoding"
+               ],
+               "properties": {
+                  "primaryCoding": {
+                     "type": "object",
+                     "properties": {
+                        "system": {
+                           "const": "ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022"
+                        },
+                        "code": {
+                           "enum": [
+                              "oncogenic",
+                              "likely oncogenic",
+                              "uncertain significance",
+                              "likely benign",
+                              "benign"
+                           ]
+                        }
+                     }
+                  }
+               },
+               "description": "The classification, coded under CCV 2022."
+            },
+            "strength": {
+               "type": "object",
+               "required": [
+                  "primaryCoding"
+               ],
+               "properties": {
+                  "primaryCoding": {
+                     "type": "object",
+                     "properties": {
+                        "system": {
+                           "const": "ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022"
+                        },
+                        "code": {
+                           "enum": [
+                              "definitive",
+                              "likely"
+                           ]
+                        }
+                     }
+                  }
+               },
+               "description": "The strength, coded under CCV 2022."
+            }
+         }
+      }
+   ],
+   "type": "object",
+   "unevaluatedProperties": false
+}

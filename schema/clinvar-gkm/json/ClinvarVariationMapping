@@ -1,12 +1,12 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarVariationMapping",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarVariationMapping",
    "title": "ClinvarVariationMapping",
    "description": "A mapping of a ClinVar variation: a ClinvarConceptMapping whose relation is `exactMatch` (the ClinVar variation), `closeMatch` (a ClinGen allele) or `relatedMatch` (every other cross-reference).",
    "maturity": "trial use",
    "allOf": [
       {
-         "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarConceptMapping"
+         "$ref": "/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarConceptMapping"
       },
       {
          "type": "object",

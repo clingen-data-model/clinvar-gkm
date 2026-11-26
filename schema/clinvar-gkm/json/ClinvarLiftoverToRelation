@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarLiftoverToRelation",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarLiftoverToRelation",
    "title": "ClinvarLiftoverToRelation",
    "description": "The `liftover_to` relation of a ClinVar defining allele or defining location constraint: a MappableConcept with only its type and primary coding (code `liftover_to`, system `ga4gh-gks-term:allele-relation`, no IRIs).",
    "maturity": "trial use",

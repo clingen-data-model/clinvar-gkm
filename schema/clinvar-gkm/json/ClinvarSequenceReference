@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarSequenceReference",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarSequenceReference",
    "title": "ClinvarSequenceReference",
    "description": "A record of the sequenceReference section: a VRS SequenceReference for an NCBI RefSeq sequence, with its accession as the name, its molecule type and residue alphabet, and its assembly in an extension when the sequence belongs to one. No id, description, aliases, sequence or circular flag.",
    "$defs": {

@@ -73,6 +73,8 @@ The qualifiers are joined for every SCV proposition and dropped when empty. `mod
 
 Every proposition type requires `object`. If an SCV's condition doesn't resolve, the build stops with an error instead of writing a proposition without one.
 
+The proposition's type also sets its bundle section (`clinvar_ingest.gkm_proposition_section`), and that section selects the SCV statement's profile: an SCV whose proposition is in `propositionPathogenicity`, `propositionOncogenicity` or `propositionSomaticClinicalImpact` is validated against [ClinvarScvPathogenicityStatement](../../output-reference/classes/ClinvarScvPathogenicityStatement.md), [ClinvarScvOncogenicityStatement](../../output-reference/classes/ClinvarScvOncogenicityStatement.md) or [ClinvarScvClinicalSignificanceStatement](../../output-reference/classes/ClinvarScvClinicalSignificanceStatement.md) (from 1.3.0).
+
 **Output:** `temp_gkm_scv_proposition` -- one row per SCV with fully assembled proposition. <span class="role-badge badge-internal">Internal</span>
 
 ---

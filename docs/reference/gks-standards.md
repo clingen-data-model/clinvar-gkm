@@ -21,3 +21,7 @@ repository, and its official Python implementation, and notes how each is applie
 The three Python libraries above (`vrs-python`, `cat-vrs-python`, `va-spec-python`) let you parse ClinVar-GKM
 bundle and Parquet records directly into the standards' validated models — see
 [Working in Python](../working-in-python.md) for worked examples and the library versions that read 1.1.0.
+
+VA-Spec also publishes community statement profiles for the ACMG 2015, CCV 2022 and AMP/ASCO/CAP 2017 guidelines.
+ClinVar-GKM's SCV statements follow profiles modelled on them, with documented differences: see
+[Community Profiles](../profiles/community-profiles.md).

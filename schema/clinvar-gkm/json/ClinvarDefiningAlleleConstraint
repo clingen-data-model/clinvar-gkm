@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarDefiningAlleleConstraint",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarDefiningAlleleConstraint",
    "title": "ClinvarDefiningAlleleConstraint",
    "description": "The constraint of a ClinvarCanonicalAllele: a DefiningAlleleConstraint whose allele is a pointer to a record of the allele section, related by `liftover_to` and `transcribed_to`.",
    "maturity": "trial use",
@@ -25,10 +25,10 @@
                "items": {
                   "oneOf": [
                      {
-                        "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarLiftoverToRelation"
+                        "$ref": "/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarLiftoverToRelation"
                      },
                      {
-                        "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarTranscribedToRelation"
+                        "$ref": "/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarTranscribedToRelation"
                      }
                   ]
                },

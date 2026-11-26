@@ -5,6 +5,42 @@ A running record of every schema change and data re-release on the 1.x line. See
 [GitHub Releases](https://github.com/clingen-data-model/clinvar-gkm/releases) page for the
 tagged source of each.
 
+## Unreleased: 1.3.0
+
+The bundle schema moves **`1.2.0 → 1.3.0`**, a **MINOR** release of corrections.
+
+- **SCV statement profiles.** An SCV in the pathogenicity, oncogenicity or somatic clinical impact section is also
+  held to a ClinVar-GKM profile modelled on the matching VA-Spec community profile (ACMG 2015, CCV 2022,
+  AMP/ASCO/CAP 2017): [ClinvarScvPathogenicityStatement](../output-reference/classes/ClinvarScvPathogenicityStatement.md),
+  [ClinvarScvOncogenicityStatement](../output-reference/classes/ClinvarScvOncogenicityStatement.md) and
+  [ClinvarScvClinicalSignificanceStatement](../output-reference/classes/ClinvarScvClinicalSignificanceStatement.md).
+  An SCV classification's coding is a
+  [ClinvarClassificationCoding](../output-reference/classes/ClinvarClassificationCoding.md), which carries an
+  AMP/ASCO/CAP tier's canonical name (`Tier I`). See [Community Profiles](../profiles/community-profiles.md) for
+  where they differ from the VA-Spec community profiles.
+- **Somatic clinical impact tiers are coded as AMP/ASCO/CAP 2017 codes them.** SCV codes `tier 1` to `tier 4`
+  become `tier i` to `tier iv`, and the system `AMP/ASCO/CAP (AAC) Guidelines, 2017` becomes
+  `AMP/ASCO/CAP Guidelines, 2017`, on SCV, VCV and RCV classifications and on SCV strengths. An SCV's
+  `classification.primaryCoding.name` is the canonical tier name, `Tier I` to `Tier IV`;
+  `classification.name` stays ClinVar's label, such as `Tier I - Strong`. The SCV evidence line's outcome is
+  `Level A/B` for `tier i` and `Level C/D` for `tier ii` (only those tiers have evidence lines).
+- **VUS-high, VUS-mid and VUS-low are coded under SVCv4.** Their system `SVC v4` becomes
+  `ACMG/AMP/CAP/ClinGen SVCv4.0`, and their new strengths `high`, `mid` and `low` are coded under the same
+  system. A strength is always coded in its classification's system: low-penetrance and risk-allele strengths
+  stay under `ClinGen Low Penetrance and Risk Allele Recommendations, 2024`.
+- **The combined label's code is lower case.** An SCV classified `Pathogenic/Likely pathogenic` carries the code
+  `pathogenic/likely pathogenic` (was `pathogenic/Likely pathogenic`), so SCV and aggregate codes now agree
+  ([Known Issues](known-issues.md#scv-and-aggregate-codes-for-pathogeniclikely-pathogenic-differ-in-case)).
+
+**What it means for you:**
+
+- **Update code that filters on the old codes or systems.** A query on `tier 1`, `AMP/ASCO/CAP (AAC) Guidelines,
+  2017`, `SVC v4` or `pathogenic/Likely pathogenic` finds nothing in a 1.3.0 bundle. Use `tier i`,
+  `AMP/ASCO/CAP Guidelines, 2017`, `ACMG/AMP/CAP/ClinGen SVCv4.0` and `pathogenic/likely pathogenic`; 1.2
+  bundles keep the old codes.
+- **Every somatic clinical impact SCV, VUS-high, VUS-mid and VUS-low SCV, and `Pathogenic/Likely pathogenic` SCV
+  changes**, and so does every VCV and RCV statement coded by a tier or a VUS sub-tier.
+
 ## 1.2.0 — 2026-11-20 { #120 }
 
 ### 1.2.0: the ClinVar profiles describe exactly what the pipeline writes

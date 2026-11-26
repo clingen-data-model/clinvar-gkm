@@ -1,0 +1,151 @@
+{
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarScvPathogenicityStatement",
+   "title": "ClinvarScvPathogenicityStatement",
+   "description": "A ClinVar SCV statement about a variant's pathogenicity, modelled on the VA-Spec ACMG 2015 VariantPathogenicityStatement. Its classification is coded under the ACMG 2015 guidelines, the ClinGen 2024 low-penetrance and risk-allele recommendations, the SVCv4 VUS sub-tiers, or (for ClinVar's combined labels) ClinVar; a strength is coded in its classification's system. It differs from the community profile in four ways: specifiedBy is optional; the SVCv4 VUS sub-tiers and their strengths (high, mid, low) are allowed; low-penetrance and risk-allele strengths are coded under the ClinGen 2024 recommendations, not ACMG 2015; and ClinVar's combined labels are allowed. See the Community Profiles page.",
+   "maturity": "trial use",
+   "allOf": [
+      {
+         "$ref": "/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarScvStatement"
+      },
+      {
+         "type": "object",
+         "properties": {
+            "proposition": {
+               "pattern": "^#/propositionPathogenicity/",
+               "description": "The pathogenicity proposition, a pointer into the bundle's propositionPathogenicity section.",
+               "$ref": "/ga4gh/schema/gkm-core/1.3.0/json/iriReference"
+            },
+            "classification": {
+               "type": "object",
+               "required": [
+                  "primaryCoding"
+               ],
+               "properties": {
+                  "primaryCoding": {
+                     "type": "object",
+                     "oneOf": [
+                        {
+                           "properties": {
+                              "system": {
+                                 "const": "ACMG Guidelines, 2015"
+                              },
+                              "code": {
+                                 "enum": [
+                                    "pathogenic",
+                                    "likely pathogenic",
+                                    "uncertain significance",
+                                    "likely benign",
+                                    "benign"
+                                 ]
+                              }
+                           }
+                        },
+                        {
+                           "properties": {
+                              "system": {
+                                 "const": "ClinGen Low Penetrance and Risk Allele Recommendations, 2024"
+                              },
+                              "code": {
+                                 "enum": [
+                                    "pathogenic, low penetrance",
+                                    "likely pathogenic, low penetrance",
+                                    "established risk allele",
+                                    "likely risk allele",
+                                    "uncertain risk allele"
+                                 ]
+                              }
+                           }
+                        },
+                        {
+                           "properties": {
+                              "system": {
+                                 "const": "ACMG/AMP/CAP/ClinGen SVCv4.0"
+                              },
+                              "code": {
+                                 "enum": [
+                                    "vus-high",
+                                    "vus-mid",
+                                    "vus-low"
+                                 ]
+                              }
+                           }
+                        },
+                        {
+                           "properties": {
+                              "system": {
+                                 "const": "ClinVar"
+                              },
+                              "code": {
+                                 "enum": [
+                                    "benign/likely benign",
+                                    "pathogenic/likely pathogenic"
+                                 ]
+                              }
+                           }
+                        }
+                     ]
+                  }
+               },
+               "description": "The classification, coded under ACMG 2015, the ClinGen 2024 low-penetrance and risk-allele recommendations, SVCv4 (VUS sub-tiers) or ClinVar (combined labels)."
+            },
+            "strength": {
+               "type": "object",
+               "required": [
+                  "primaryCoding"
+               ],
+               "properties": {
+                  "primaryCoding": {
+                     "type": "object",
+                     "oneOf": [
+                        {
+                           "properties": {
+                              "system": {
+                                 "const": "ACMG Guidelines, 2015"
+                              },
+                              "code": {
+                                 "enum": [
+                                    "definitive",
+                                    "likely"
+                                 ]
+                              }
+                           }
+                        },
+                        {
+                           "properties": {
+                              "system": {
+                                 "const": "ClinGen Low Penetrance and Risk Allele Recommendations, 2024"
+                              },
+                              "code": {
+                                 "enum": [
+                                    "definitive",
+                                    "likely"
+                                 ]
+                              }
+                           }
+                        },
+                        {
+                           "properties": {
+                              "system": {
+                                 "const": "ACMG/AMP/CAP/ClinGen SVCv4.0"
+                              },
+                              "code": {
+                                 "enum": [
+                                    "high",
+                                    "mid",
+                                    "low"
+                                 ]
+                              }
+                           }
+                        }
+                     ]
+                  }
+               },
+               "description": "The strength, coded in its classification's system."
+            }
+         }
+      }
+   ],
+   "type": "object",
+   "unevaluatedProperties": false
+}

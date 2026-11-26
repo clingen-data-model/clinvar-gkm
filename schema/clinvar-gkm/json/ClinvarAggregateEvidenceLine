@@ -1,6 +1,6 @@
 {
    "$schema": "https://json-schema.org/draft/2020-12/schema",
-   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarAggregateEvidenceLine",
+   "$id": "https://w3id.org/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarAggregateEvidenceLine",
    "title": "ClinvarAggregateEvidenceLine",
    "description": "An evidence line of a VCV or RCV aggregate statement. A 'Contributing' line (direction 'supports') lists the statements the aggregate statement is built from; a 'Non-contributing' line (direction 'neutral') lists those of a lower review-status priority that did not contribute. Its items are pointers to SCV statements (at the classification layer) or to VCV or RCV statements (at the priority and aggregate layers). No name, description, aliases, extensions, method, contributions, citations, target proposition, score or evidence outcome.",
    "maturity": "trial use",
@@ -37,7 +37,7 @@
             "strengthOfEvidenceProvided": {
                "allOf": [
                   {
-                     "$ref": "/clingen/schema/clinvar-gkm/1.2.0/json/ClinvarTerm"
+                     "$ref": "/clingen/schema/clinvar-gkm/1.3.0/json/ClinvarTerm"
                   },
                   {
                      "type": "object",

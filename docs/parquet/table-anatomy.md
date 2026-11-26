@@ -233,7 +233,7 @@ likely pathogenic       ACMG Guidelines, 2015                                 30
 not provided            ClinVar                                                29,122
 …
 likely oncogenic        ClinGen/CGC/VICC Guidelines for Oncogenicity, 2022      1,321
-tier 1                  AMP/ASCO/CAP (AAC) Guidelines, 2017                     1,018
+tier i                  AMP/ASCO/CAP Guidelines, 2017                           1,018
 …
 ```
 
