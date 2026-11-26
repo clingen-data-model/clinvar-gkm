@@ -40,6 +40,11 @@ monthlies.
   of the same key in the 1.2.0 weekly full. For any other value, compare the two `2026-11` monthlies,
   `v1/1.1/clinvar-gkm_2026-11.json.gz` and `v1/1.2/clinvar-gkm_2026-11.json.gz`: both are the 2026-10-31
   release, so every difference between them comes from the schema, not from ClinVar.
+- **The 1.3 line changes some codings, not ClinVar's labels.** From 1.3.0, the somatic clinical impact tiers,
+  the VUS sub-tiers and `pathogenic/likely pathogenic` are coded as their guidelines code them
+  ([Known Issues](../reference/known-issues.md#guideline-codings-before-1-3-0)). The history keeps ClinVar's
+  label (`classification.name`), which is the same in every line, so it is unaffected. Code that reads the
+  codings across the lines can recode the older bundles with `recode-1-3-0.py` first.
 - **Release dates come from `index.json`.** A bundle carries no release date. A row's `valid_from` is the
   `release` of the delta that added it, or the monthly's `source_release` for rows loaded from the monthly
   (current then, and possibly earlier). The dates inside records, such as an SCV's `submitted` contribution

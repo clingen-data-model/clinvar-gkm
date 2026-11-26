@@ -305,6 +305,12 @@ alone; applying 1.2 deltas to it would mix 1.1.0 and 1.2.0 records. `keep-curren
 refused: the copy is on v1/1.1 (frozen, superseded by v1/1.2); the current line is v1/1.2. Its deltas don't apply to this copy: start a new one on v1/1.2
 ```
 
+The 1.3 line starts the same way: its first monthly, `2026-12`, is built from the 2026-11-29 release, the last of
+the 1.2 line, and the frozen 1.2 line ends with its own `2026-12` monthly of that release. Its first delta,
+2026-12-06, has `baseline_release` 2026-11-29 and holds ClinVar's changes only: the records 1.3.0 recodes are in
+the 1.3 monthly, not in a delta
+([Known Issues](../reference/known-issues.md#guideline-codings-before-1-3-0)).
+
 Start a new copy on the new line: `init` from its checkpoint monthly (the line's first monthly; the
 `checkpoint_full` of its deltas' manifests), or `parquet-init` for tables. A copy also stops when a delta's
 `schema_version` differs from the copy's. See Version Lines on [How Releases Work](release-model.md).

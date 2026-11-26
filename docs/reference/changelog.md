@@ -39,8 +39,9 @@ The bundle schema moves **`1.2.0 → 1.3.0`**, a **MINOR** release of correction
 
 - **Update code that filters on the old codes or systems.** A query on `tier 1`, `AMP/ASCO/CAP (AAC) Guidelines,
   2017`, `SVC v4` or `pathogenic/Likely pathogenic` finds nothing in a 1.3.0 bundle. Use `tier i`,
-  `AMP/ASCO/CAP Guidelines, 2017`, `ACMG/AMP/CAP/ClinGen SVCv4.0` and `pathogenic/likely pathogenic`; 1.2
-  bundles keep the old codes.
+  `AMP/ASCO/CAP Guidelines, 2017`, `ACMG/AMP/CAP/ClinGen SVCv4.0` and `pathogenic/likely pathogenic`. The 1.0,
+  1.1 and 1.2 lines keep the old codes; `recode-1-3-0.py` gives their bundles 1.3.0's codings, to compare across
+  the lines ([Known Issues](known-issues.md#guideline-codings-before-1-3-0)).
 - **Every somatic clinical impact SCV, VUS-high, VUS-mid and VUS-low SCV, and `Pathogenic/Likely pathogenic` SCV
   changes**, and so does every VCV and RCV statement coded by a tier or a VUS sub-tier.
 
