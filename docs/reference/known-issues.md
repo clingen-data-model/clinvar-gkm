@@ -86,6 +86,39 @@ VCV and RCV codes are always lower case, so the same label was `pathogenic/likel
 bundles keep the old SCV code; compare codes case-insensitively when you read both lines. See
 [`classification.primaryCoding`](../pipeline/vcv-statements/vcv-aggregation-rules.md#classification-primarycoding).
 
+## Guideline codings before 1.3.0 (resolved in 1.3.0) { #guideline-codings-before-1-3-0 }
+
+Every line before 1.3, the frozen `v1/1.0/`, `v1/1.1/` and `v1/1.2/`, codes some classifications as no guideline
+does. 1.3.0 corrects them, and adds the strengths and tier names the guidelines define. Published files never
+change, so those lines keep the old codings. Each correction follows from the old record alone:
+
+| In 1.0, 1.1 and 1.2 | From 1.3.0 | Where |
+| --- | --- | --- |
+| code `tier 1`, `tier 2`, `tier 3`, `tier 4` | `tier i`, `tier ii`, `tier iii`, `tier iv` | somatic clinical impact SCV, VCV and RCV classifications |
+| system `AMP/ASCO/CAP (AAC) Guidelines, 2017` | `AMP/ASCO/CAP Guidelines, 2017` | the same, and SCV strengths |
+| system `SVC v4` | `ACMG/AMP/CAP/ClinGen SVCv4.0` | VUS-high, VUS-mid and VUS-low classifications |
+| code `pathogenic/Likely pathogenic` | `pathogenic/likely pathogenic` | SCV classifications ([above](#scv-and-aggregate-codes-for-pathogeniclikely-pathogenic-differ-in-case)) |
+| no `classification.primaryCoding.name` | `Tier I` … `Tier IV`, from the code | somatic clinical impact SCVs |
+| no `strength` | `High`, `Mid`, `Low`, from the code (on SCVs also coded `high`, `mid`, `low` under `ACMG/AMP/CAP/ClinGen SVCv4.0`) | statements classified VUS-high, VUS-mid or VUS-low |
+
+ClinVar's own labels (`classification.name`, such as `Tier I - Strong`) are the same in every line. The changes
+touch few records: in the 2026-11-22 release, 2,043 of 6.9 million SCVs and 3,592 VCV and RCV classification
+aggregates.
+
+**To compare across 1.3.0, or to read an older line with 1.3.0's codings**, recode the older bundle.
+`recode-1-3-0.py` (Python 3.9 or later, no packages) copies a published bundle, changing only the records that
+carry an old coding. Its output keeps the input's `schema_version`: it is the older line's bundle with 1.3.0's
+codings, not a 1.3.0 bundle.
+
+```bash
+curl -fsSO https://clinvar-gkm.org/1.3/assets/scripts/recode-1-3-0.py
+python3 recode-1-3-0.py clinvar-gkm_2026-11.json.gz clinvar-gkm_2026-11.recoded.json.gz
+```
+
+Its `recode(section, record)` function does the same for one record, for code that reads bundles itself. The
+1.3.0 release checks it: applied to the final 1.2 monthly, it must give 1.3's first monthly, built from the same
+ClinVar release, record for record ([Release Validation](release-validation.md)).
+
 ## Past Parquet is built, not downloaded
 
 Only the latest Parquet set of each live line is published. Tables for an earlier release are built from its
