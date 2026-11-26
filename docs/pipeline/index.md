@@ -148,6 +148,11 @@ The clinvar-ingest pipeline (v2.7.0 and later) runs everything up to the VRS tra
 
 Step 1 only checks that the upstream output, `vi-vrs-python.jsonl.gz`, is the translation of the release's current `vi.jsonl.gz`, and stops the release at once otherwise (it does not wait); run the release again once it is (see [Checking the cloud output](vrs-processing.md#checking-the-cloud-output)). `--start-step 2` runs the same check first, so every `gkm_vrs` load is checked. No step needs local SeqRepo, UTA or gene-normalizer services.
 
+Two read-only checks hold every build to the codings the [SCV statement profiles](../profiles/community-profiles.md) require:
+
+- **Step 2**, before the version stamp: `check-clinsig-lookup.sh` stops the release if the shared lookup `clinvar_ingest.clinvar_clinsig_types` lacks those codings, for example when the clinvar-ingest-bq-tools lookup change has not been applied to BigQuery yet. The procedures read the lookup as they run.
+- **Step 3**, before any export: `check-scv-codings.sh` stops the release if this release's `gkm_*` tables, or those of the release the delta is built against, have SCVs or VCV/RCV aggregates with the old codes (`tier 1`, `SVC v4`, an `(AAC)` system, an upper-case code), a strength coded in another system than its classification, or a missing tier name. A dataset built before schema 1.3.0 fails it. A run with `--bootstrap-monthly`, which publishes no delta, checks only this release. Rebuild a failing dataset in full (`--full-procs`).
+
 `--full-procs` builds the step-2 gkm procedures full (catvar, SCV, RCV, VCV); the `gkm_vrs` load still follows the data. Weekly runs after 1.1.0 use `--full-procs` until [ADR 0007](../decisions/0007-pipeline-principles-and-simplification.md) workstream 3 decides on the incremental procedures, which were seen to fall back to full builds without saying so. `--dry-run` runs the build steps but has the release steps only print what they would upload; it is not free and does not leave BigQuery untouched (see the warning above).
 
 The individual stages are documented below.

@@ -31,6 +31,9 @@ The bundle schema moves **`1.2.0 → 1.3.0`**, a **MINOR** release of correction
 - **The combined label's code is lower case.** An SCV classified `Pathogenic/Likely pathogenic` carries the code
   `pathogenic/likely pathogenic` (was `pathogenic/Likely pathogenic`), so SCV and aggregate codes now agree
   ([Known Issues](known-issues.md#scv-and-aggregate-codes-for-pathogeniclikely-pathogenic-differ-in-case)).
+- **Two new release gates** check these codings before anything is built or exported: the shared classification
+  lookup, and each release's built tables together with those of the release its delta is built against
+  ([Release Validation](release-validation.md#gates)).
 
 **What it means for you:**
 

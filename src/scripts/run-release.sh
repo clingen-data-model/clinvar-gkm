@@ -145,6 +145,9 @@ if (( START_STEP <= 2 )); then
   # These values are spliced into a single-quoted SQL literal below; a stray single quote
   # would break out of it. Abort rather than emit malformed SQL.
   case "${AUDIT_STAMP}${GATE_KEY}" in *\'*) echo "ERROR: version stamp contains a single quote" >&2; exit 1;; esac
+  # The procs read the shared classification lookup live: stop before any build if it lacks the profile codings.
+  echo ">>> [2/4] check-clinsig-lookup.sh (the lookup must carry the SCV statement profile codings)"
+  "${SCRIPT_DIR}/check-clinsig-lookup.sh"
   echo ">>> [2/4] stamping pipeline_version audit=${AUDIT_STAMP} gate=${GATE_KEY}"
   bq query --project_id="${PROJECT_ID}" --use_legacy_sql=false \
     "CALL \`clinvar_ingest.gkm_pipeline_version\`(DATE '${DATE}', '${AUDIT_STAMP}', '${GATE_KEY}')"
@@ -244,6 +247,10 @@ publish_due_monthly_fulls() {
         || echo "WARNING: monthly ${month} copy from ${src_key} failed; continuing" >&2
     else
       echo ">>> [3/4] ClinVar monthly ${month} (released ${cv_dt}) -> re-export from ${src_date} (no weekly full)"
+      "${SCRIPT_DIR}/check-scv-codings.sh" "${src_date}" || {
+        echo "WARNING: monthly ${month}: ${src_date} lacks the profile codings; rebuild it in full first" >&2
+        continue
+      }
       local full_args=("${src_date}" "${DATASET_VERSION}" "--month-label=${month}")
       $DRY_RUN && full_args+=("--dry-run")
       "${REPO_ROOT}/src/scripts/release-gkm.sh" "${full_args[@]}" \
@@ -302,6 +309,11 @@ fi
 if (( START_STEP <= 3 )); then
   echo ">>> [3/4] release to ${R2_LINE} (rollover, weekly full, monthly, delta)"
   ROLL_ARGS=("${DATE}"); $DRY_RUN && ROLL_ARGS+=("--dry-run")
+
+  # Before any export: this release's tables, and the delta's baseline (a line's checkpoint has no delta), must
+  # carry the profile codings.
+  CODING_ARGS=("${DATE}"); [[ -n "${BOOTSTRAP_MONTH}" ]] || CODING_ARGS+=("--with-baseline")
+  "${SCRIPT_DIR}/check-scv-codings.sh" "${CODING_ARGS[@]}"
 
   # A new line starts with one checkpoint monthly (--bootstrap-monthly); every other release needs one in the line.
   LINE_STATE="$(r2_line_state)"

@@ -4,7 +4,8 @@ never run the stages clinvar-ingest now runs (diff, variation_identity, export, 
 
 Each test runs the real scripts with fakes on PATH. The fake gcloud serves objects from a temporary directory (<path>
 holds an object's content and <path>.meta its "generation,md5,size"); the fake gcloud and bq log every call, and the
-fake bq exits with $FAKE_BQ_RC (default 1), which stops run-release.sh at its first BigQuery call.
+fake bq prints $FAKE_BQ_OUT (if set) and exits with $FAKE_BQ_RC (default 1), which stops run-release.sh at its first
+BigQuery call.
 """
 
 import json
@@ -37,6 +38,7 @@ cat "$f"
 FAKE_BQ = """#!/bin/sh
 echo "bq $*" >> "${FAKE_LOG:-/dev/null}"
 case " $* " in *" ls "*) echo "  clinvar_2026_11_15_v2_7_1" ;; esac
+[ -n "${FAKE_BQ_OUT:-}" ] && printf '%s\\n' "$FAKE_BQ_OUT"
 exit "${FAKE_BQ_RC:-1}"
 """
 
@@ -213,9 +215,18 @@ def release_run(root, *args, **env):
 def test_release_starts_at_the_check(gcs):
     release(gcs)
     code, out, bq, _ = release_run(gcs)
-    assert code != 0  # the fake bq fails the version stamp, the first BigQuery call after the check
+    assert code != 0  # the fake bq fails the lookup check, the first BigQuery call after the vrsify check
     assert "start-step=1" in out and "[1/4] check-cloud-vrsify.sh" in out and "matches" in out
-    assert len(bq) == 1 and "gkm_pipeline_version" in bq[0], bq
+    assert "[2/4] check-clinsig-lookup.sh" in out and "could not read" in out
+    assert len(bq) == 1 and "gkm_pipeline_version" not in bq[0], bq
+
+
+def test_an_outdated_lookup_stops_the_release_before_the_version_stamp(gcs):
+    release(gcs)
+    code, out, bq, _ = release_run(gcs, FAKE_BQ_RC="0", FAKE_BQ_OUT="problem\nsci t1: retired system name")
+    assert code == 1
+    assert "does not carry the codings" in out and "sci t1: retired system name" in out
+    assert len(bq) == 1 and "gkm_pipeline_version" not in bq[0], bq
 
 
 def test_release_stops_fast_without_the_cloud_output(gcs):

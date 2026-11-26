@@ -52,7 +52,9 @@ explicit user confirmation.
 `clinvar-ingest-vrsify` (clingen-dev, us-east1, every 15 min) writes `vi-vrs-python.jsonl.gz` + `.provenance.json`.
 `run-release.sh` never runs those; it has four steps: 1 `check-cloud-vrsify.sh` (read-only, fails fast, stops unless
 the provenance names the current `vi.jsonl.gz` with the same md5 + size; a same-content re-export only changes the
-generation), 2 version stamp + `vrs-to-bq-table.sh`, 3 publish, 4 Parquet. `--start-step` is 1–4 and 2 still runs
+generation), 2 `check-clinsig-lookup.sh` (the shared lookup has the SCV profile codings) + version stamp +
+`vrs-to-bq-table.sh`, 3 `check-scv-codings.sh` (this release and the delta's baseline, before any export) + publish,
+4 Parquet. `--start-step` is 1–4 and 2 still runs
 the check. The job takes each release once and never replaces its output, so a changed `vi.jsonl.gz` needs a manual
 re-translation upstream. The procs' SQL stays in `src/procedures/` until a cross-repo move to clinvar-ingest.
 `export-vi-table-to-gcs.sh` is not part of the release; it stays only because clinvar-ingest's export-failure message
